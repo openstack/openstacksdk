@@ -18,7 +18,6 @@ Tests for the `delete_server` command.
 """
 
 from shade import exc as shade_exc
-from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -29,12 +28,12 @@ class TestDeleteServer(base.RequestsMockTestCase):
         """
         Test that server delete is called when wait=False
         """
-        server = fakes.FakeServer('1234', 'daffy', 'ACTIVE')
+        server = fakes.make_fake_server('1234', 'daffy', 'ACTIVE')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+                 json={'servers': [server]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234'])),
@@ -71,19 +70,19 @@ class TestDeleteServer(base.RequestsMockTestCase):
         """
         Test that delete_server waits for the server to be gone
         """
-        server = fakes.FakeServer('9999', 'wily', 'ACTIVE')
+        server = fakes.make_fake_server('9999', 'wily', 'ACTIVE')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+                 json={'servers': [server]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '9999'])),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+                 json={'servers': [server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -97,12 +96,12 @@ class TestDeleteServer(base.RequestsMockTestCase):
         """
         Test that delete_server raises non-404 exceptions
         """
-        server = fakes.FakeServer('1212', 'speedy', 'ACTIVE')
+        server = fakes.make_fake_server('1212', 'speedy', 'ACTIVE')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+                 json={'servers': [server]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1212']),
@@ -128,12 +127,12 @@ class TestDeleteServer(base.RequestsMockTestCase):
             return orig_has_service(service_type)
         self.cloud.has_service = fake_has_service
 
-        server = fakes.FakeServer('1234', 'porky', 'ACTIVE')
+        server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [meta.obj_to_munch(server).toDict()]}),
+                 json={'servers': [server]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234'])),

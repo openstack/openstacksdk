@@ -617,7 +617,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
     def test_add_security_group_to_server_neutron(self):
         # fake to get server by name, server-name must match
-        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        fake_server = fakes.make_fake_server('1234', 'server-name', 'ACTIVE')
 
         # use neutron for secgroup list and return an existing fake
         self.cloud.secgroup_source = 'neutron'
@@ -669,7 +669,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
     def test_remove_security_group_from_server_neutron(self):
         # fake to get server by name, server-name must match
-        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        fake_server = fakes.make_fake_server('1234', 'server-name', 'ACTIVE')
 
         # use neutron for secgroup list and return an existing fake
         self.cloud.secgroup_source = 'neutron'
@@ -697,8 +697,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
     def test_add_bad_security_group_to_server_nova(self):
         # fake to get server by name, server-name must match
-        fake_server = meta.obj_to_munch(
-            fakes.FakeServer('1234', 'server-name', 'ACTIVE'))
+        fake_server = fakes.make_fake_server('1234', 'server-name', 'ACTIVE')
 
         # use nova for secgroup list and return an existing fake
         self.has_neutron = False
@@ -724,7 +723,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
     def test_add_bad_security_group_to_server_neutron(self):
         # fake to get server by name, server-name must match
-        fake_server = fakes.FakeServer('1234', 'server-name', 'ACTIVE')
+        fake_server = fakes.make_fake_server('1234', 'server-name', 'ACTIVE')
 
         # use neutron for secgroup list and return an existing fake
         self.cloud.secgroup_source = 'neutron'
@@ -747,8 +746,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
 
     def test_add_security_group_to_bad_server(self):
         # fake to get server by name, server-name must match
-        fake_server = meta.obj_to_munch(
-            fakes.FakeServer('1234', 'server-name', 'ACTIVE'))
+        fake_server = fakes.make_fake_server('1234', 'server-name', 'ACTIVE')
 
         self.register_uris([
             dict(

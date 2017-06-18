@@ -24,7 +24,6 @@ import datetime
 import munch
 
 from shade import exc
-from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -136,15 +135,14 @@ class TestFloatingIP(base.RequestsMockTestCase):
     def setUp(self):
         super(TestFloatingIP, self).setUp()
 
-        self.fake_server = meta.obj_to_munch(
-            fakes.FakeServer(
-                'server-id', '', 'ACTIVE',
-                addresses={u'test_pnztt_net': [{
-                    u'OS-EXT-IPS:type': u'fixed',
-                    u'addr': '192.0.2.129',
-                    u'version': 4,
-                    u'OS-EXT-IPS-MAC:mac_addr':
-                    u'fa:16:3e:ae:7d:42'}]}))
+        self.fake_server = fakes.make_fake_server(
+            'server-id', '', 'ACTIVE',
+            addresses={u'test_pnztt_net': [{
+                u'OS-EXT-IPS:type': u'fixed',
+                u'addr': '192.0.2.129',
+                u'version': 4,
+                u'OS-EXT-IPS-MAC:mac_addr':
+                u'fa:16:3e:ae:7d:42'}]})
         self.floating_ip = self.cloud._normalize_floating_ips(
             self.mock_floating_ip_list_rep['floatingips'])[0]
 

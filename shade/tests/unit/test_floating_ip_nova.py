@@ -19,7 +19,6 @@ test_floating_ip_nova
 Tests Floating IP resource methods for nova-network
 """
 
-from shade import meta
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -68,15 +67,14 @@ class TestFloatingIP(base.RequestsMockTestCase):
     def setUp(self):
         super(TestFloatingIP, self).setUp()
 
-        self.fake_server = meta.obj_to_munch(
-            fakes.FakeServer(
-                'server-id', '', 'ACTIVE',
-                addresses={u'test_pnztt_net': [{
-                    u'OS-EXT-IPS:type': u'fixed',
-                    u'addr': '192.0.2.129',
-                    u'version': 4,
-                    u'OS-EXT-IPS-MAC:mac_addr':
-                    u'fa:16:3e:ae:7d:42'}]}))
+        self.fake_server = fakes.make_fake_server(
+            'server-id', '', 'ACTIVE',
+            addresses={u'test_pnztt_net': [{
+                u'OS-EXT-IPS:type': u'fixed',
+                u'addr': '192.0.2.129',
+                u'version': 4,
+                u'OS-EXT-IPS-MAC:mac_addr':
+                u'fa:16:3e:ae:7d:42'}]})
 
         self.cloud.has_service = get_fake_has_service(self.cloud.has_service)
 
@@ -239,7 +237,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute',
-                     append=['servers', self.fake_server.id, 'action']),
+                     append=['servers', self.fake_server['id'], 'action']),
                  validate=dict(
                      json={
                          "addFloatingIp": {
@@ -264,7 +262,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute',
-                     append=['servers', self.fake_server.id, 'action']),
+                     append=['servers', self.fake_server['id'], 'action']),
                  validate=dict(
                      json={
                          "removeFloatingIp": {
@@ -287,7 +285,7 @@ class TestFloatingIP(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute',
-                     append=['servers', self.fake_server.id, 'action']),
+                     append=['servers', self.fake_server['id'], 'action']),
                  validate=dict(
                      json={
                          "addFloatingIp": {
