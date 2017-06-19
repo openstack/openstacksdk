@@ -65,8 +65,7 @@ class LegacyClientFactoryMixin(object):
 
     @property
     def nova_client(self):
-        return self._create_legacy_client(
-            'nova', 'compute', version='2.0', deprecated=False)
+        return self._create_legacy_client('nova', 'compute', version='2.0')
 
     @property
     def glance_client(self):

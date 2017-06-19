@@ -31,8 +31,8 @@ class TestCreateServer(base.RequestsMockTestCase):
 
     def test_create_server_with_get_exception(self):
         """
-        Test that an exception when attempting to get the server instance via
-        the novaclient raises an exception in create_server.
+        Test that a bad status code when attempting to get the server instance
+        raises an exception in create_server.
         """
         build_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([
@@ -173,7 +173,7 @@ class TestCreateServer(base.RequestsMockTestCase):
     def test_create_server_no_wait(self):
         """
         Test that create_server with no wait and no exception in the
-        novaclient create call returns the server instance.
+        create call returns the server instance.
         """
         fake_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([

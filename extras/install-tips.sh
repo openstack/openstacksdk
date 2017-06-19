@@ -15,7 +15,6 @@
 # limitations under the License.
 
 for lib in \
-        python-novaclient \
         python-keystoneclient \
         python-ironicclient \
         os-client-config \

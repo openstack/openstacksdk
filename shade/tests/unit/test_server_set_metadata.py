@@ -34,10 +34,6 @@ class TestServerSetMetadata(base.RequestsMockTestCase):
             self.server_id, self.server_name)
 
     def test_server_set_metadata_with_exception(self):
-        """
-        Test that a generic exception in the novaclient delete_meta raises
-        an exception in delete_server_metadata.
-        """
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
