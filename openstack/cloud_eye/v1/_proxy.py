@@ -26,12 +26,31 @@ class Proxy(proxy2.BaseProxy):
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
 
+            * ``namespace``:  metric namespace, ``SYS_ECS``, for example.
+            * ``metric_name``: metric name, ``cpu_util``, for example.
+            * ``dimensions``: metric dimension list, at most three dimensions,
+                              dimension value should be key,value formatted.
+                         ['instance_id,6f3c6f91-4b24-4e1b-b7d1-a94ac1cb011d',]
+                         for example.
+            * ``order``:  pagination order by, ``desc`` or ``asc``
             * ``marker``:  pagination marker
             * ``limit``: pagination limit
 
         :returns: A generator of metric
                  (:class:`~openstack.cloud_eye.v1.metric.Metric`) instances
         """
+        dimensions = query.pop('dimensions', [])
+        if len(dimensions) == 0:
+            raise InvalidRequest('Attribute `dimensions` should not be a '
+                                 'empty list')
+        if len(dimensions) > 3:
+            raise InvalidRequest('Attribute `dimensions` at most could '
+                                 'have three dimensions')
+
+        for (idx, dimension) in enumerate(dimensions):
+            value = dimension['name'] + ',' + dimension['value']
+            query["dim.%d" % idx] = value
+
         return self._list(_metric.Metric, paginated=True, **query)
 
     def favorite_metrics(self):

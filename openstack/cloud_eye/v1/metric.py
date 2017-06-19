@@ -29,15 +29,19 @@ class Metric(resource.Resource):
     # capabilities
     allow_list = True
 
-    _query_mapping = QueryParameters('order', marker=query_marker_key)
+    _query_mapping = QueryParameters('namespace', 'metric_name', 'dim.0',
+                                     'dim.1', 'dim.2', 'order', 'limit',
+                                     marker=query_marker_key)
 
     #: Properties
     #: Metric Namespace
     namespace = resource.Body('namespace')
     #: Metric Name
     metric_name = resource.Body('metric_name')
-    #: Dimensions
+    #: Metric Dimensions
     dimensions = resource.Body('dimensions', type=list)
+    #: Metric Unit
+    unit = resource.Body('unit')
 
 
 class FavoriteMetric(Metric):

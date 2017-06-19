@@ -13,12 +13,12 @@
 from openstack import service_filter
 
 
-class CloudEyeService(service_filter.ServiceFilter):
-    """The DNS service."""
+class AutoScalingService(service_filter.ServiceFilter):
+    """The AutoScaling service."""
 
     valid_versions = [service_filter.ValidVersion('v1')]
 
     def __init__(self, version=None):
-        """Create a DNS service."""
-        super(CloudEyeService, self).__init__(service_type='cloud-eye',
-                                              version=version)
+        """Create AutoScaling service."""
+        super(AutoScalingService, self).__init__(service_type='auto-scaling',
+                                                 version=version)

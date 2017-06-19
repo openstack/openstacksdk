@@ -22,6 +22,7 @@ class TestProfile(base.TestCase):
             'alarming',
             'baremetal',
             'clustering',
+            'cloud-eye',
             'compute',
             'database',
             'dns',

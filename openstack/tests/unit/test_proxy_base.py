@@ -16,9 +16,13 @@ from openstack.tests.unit import base
 
 
 class TestProxyBase(base.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(TestProxyBase, self).__init__(*args, **kwargs)
+        self.session = mock.Mock()
+
     def setUp(self):
         super(TestProxyBase, self).setUp()
-        self.session = mock.Mock()
 
     def _add_path_args_for_verify(self, path_args, method_args,
                                   expected_kwargs, value=None):

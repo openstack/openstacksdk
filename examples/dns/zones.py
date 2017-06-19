@@ -104,6 +104,7 @@ def remove_router_from_zone(conn):
 
     logging.info(result)
 
+
 list_zones(connection)
 # get_zone(connection, 'ff8080825ca865e8015ca99563af004a')
 # create_zone(connection)

@@ -99,7 +99,7 @@ class _BaseComponent(object):
             if issubclass(self.type, format.Formatter):
                 value = self.type.serialize(value)
             elif issubclass(self.type, Resource):
-                value = self.type.new(value)
+                value = self.type.new(**value)
             else:
                 value = str(self.type(value))  # validate to fail fast
 
