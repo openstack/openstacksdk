@@ -2017,10 +2017,10 @@ class OpenStackCloud(
         params = {}
         if all_projects:
             params['all_tenants'] = True
+        data = self._compute_client.get(
+            '/servers/detail', params=params, error_message=error_msg)
         servers = self._normalize_servers(
-            self._compute_client.get(
-                '/servers/detail', params=params, error_message=error_msg))
-
+            meta.get_and_munchify('servers', data))
         return [
             self._expand_server(server, detailed, bare)
             for server in servers
@@ -2798,8 +2798,9 @@ class OpenStackCloud(
             return meta.add_server_interfaces(self, server)
 
     def get_server_by_id(self, id):
-        return meta.add_server_interfaces(self, self._normalize_server(
-            self._compute_client.get('/servers/{id}'.format(id=id))))
+        data = self._compute_client.get('/servers/{id}'.format(id=id))
+        server = meta.get_and_munchify('server', data)
+        return meta.add_server_interfaces(self, self._normalize_server(server))
 
     def get_server_group(self, name_or_id=None, filters=None):
         """Get a server group by name or ID.
@@ -5654,8 +5655,9 @@ class OpenStackCloud(
         if 'block_device_mapping_v2' in kwargs:
             endpoint = '/os-volumes_boot'
         with _utils.shade_exceptions("Error in creating instance"):
-            server = self._compute_client.post(
+            data = self._compute_client.post(
                 endpoint, json={'server': kwargs})
+            server = meta.get_and_munchify('server', data)
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
                 # This is a direct get call to skip the list_servers
@@ -5773,10 +5775,11 @@ class OpenStackCloud(
         if admin_pass:
             kwargs['adminPass'] = admin_pass
 
-        server = self._compute_client.post(
+        data = self._compute_client.post(
             '/servers/{server_id}/action'.format(server_id=server_id),
             error_message="Error in rebuilding instance",
             json={'rebuild': kwargs})
+        server = meta.get_and_munchify('server', data)
         if not wait:
             return self._expand_server(
                 self._normalize_server(server), bare=bare, detailed=detailed)
@@ -5967,12 +5970,13 @@ class OpenStackCloud(
             raise OpenStackCloudException(
                 "failed to find server '{server}'".format(server=name_or_id))
 
-        return self._expand_server(self._normalize_server(
-            self._compute_client.put(
-                '/servers/{server_id}'.format(server_id=server['id']),
-                error_message="Error updating server {0}".format(name_or_id),
-                json={'server': kwargs})),
-            bare=bare, detailed=detailed)
+        data = self._compute_client.put(
+            '/servers/{server_id}'.format(server_id=server['id']),
+            error_message="Error updating server {0}".format(name_or_id),
+            json={'server': kwargs})
+        server = self._normalize_server(
+            meta.get_and_munchify('server', data))
+        return self._expand_server(server, bare=bare, detailed=detailed)
 
     def create_server_group(self, name, policies):
         """Create a new server group.
