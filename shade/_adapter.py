@@ -139,7 +139,7 @@ class ShadeAdapter(adapter.Adapter):
                         'security_group', 'security_groups',
                         'security_group_rule', 'security_group_rules',
                         'users', 'user', 'projects', 'tenants',
-                        'project', 'tenant']:
+                        'project', 'tenant', 'servers', 'server']:
                 if key in result_json.keys():
                     self._log_request_id(response)
                     return result_json
