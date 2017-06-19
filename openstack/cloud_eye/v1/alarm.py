@@ -47,7 +47,7 @@ class Alarm(resource.Resource):
     alarm_action_enabled = resource.Body('alarm_action_enabled', type=bool)
     #: Alarm status
     #: valid values include: ``ok``, ``alarm``, ``insufficient_data``
-    statue = resource.Body('alarm_state')
+    state = resource.Body('alarm_state')
     #: Last update time
     update_time = resource.Body('update_time')
     #: Alarm trigger condition
@@ -72,10 +72,10 @@ class Alarm(resource.Resource):
 
     def enable(self, session):
         """Enable alarm"""
-        body = {'alarm_enable': True}
+        body = {'alarm_enabled': True}
         self._action(session, body)
 
     def disable(self, session):
         """Enable alarm"""
-        body = {'alarm_enable': False}
+        body = {'alarm_enabled': False}
         self._action(session, body)

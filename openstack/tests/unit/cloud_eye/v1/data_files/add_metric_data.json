@@ -1,0 +1,34 @@
+[
+  {
+    "metric": {
+      "namespace": "MINE.APP",
+      "dimensions": [
+        {
+          "name": "instance_id",
+          "value": "33328f02-3814-422e-b688-bfdba93d4050"
+        }
+      ],
+      "metric_name": "cpu_util"
+    },
+    "ttl": 172800,
+    "collect_time": 1463598260000,
+    "value": 60,
+    "unit": "%"
+  },
+  {
+    "metric": {
+      "namespace": "MINE.APP",
+      "dimensions": [
+        {
+          "name": "instance_id",
+          "value": "33328f02-3814-422e-b688-bfdba93d4050"
+        }
+      ],
+      "metric_name": "cpu_util"
+    },
+    "ttl": 172800,
+    "collect_time": 1463598270000,
+    "value": 70,
+    "unit": "%"
+  }
+]

@@ -72,7 +72,7 @@ class TestComponent(base.TestCase):
         self.assertIsNone(result)
 
     def test_get_default(self):
-        expected_result = 123
+        expected_result = dict(a=1)
 
         class Parent(object):
             _example = {}

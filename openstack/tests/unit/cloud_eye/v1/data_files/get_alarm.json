@@ -1,0 +1,49 @@
+{
+  "metric_alarms": [
+    {
+      "alarm_name": "test0911_1825",
+      "alarm_description": "",
+      "metric": {
+        "namespace": "SYS.ECS",
+        "dimensions": [
+          {
+            "name": "instance_id",
+            "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
+          }
+        ],
+        "metric_name": "cpu_util"
+      },
+      "condition": {
+        "period": 300,
+        "filter": "average",
+        "comparison_operator": ">=",
+        "value": 2,
+        "unit": "Count",
+        "count": 1
+      },
+      "alarm_actions": [
+        {
+          "type": "notification",
+          "notificationList": []
+        }
+      ],
+      "ok_actions": [
+        {
+          "type": "notification",
+          "notificationList": []
+        }
+      ],
+      "insufficientdata_actions": [
+        {
+          "type": "notification",
+          "notificationList": []
+        }
+      ],
+      "alarm_enabled": true,
+      "alarm_action_enabled": false,
+      "alarm_id": "al1441967036681YkazZ0deN",
+      "update_time": 1442306637795,
+      "alarm_state": "ok"
+    }
+  ]
+}

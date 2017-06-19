@@ -17,6 +17,7 @@ from openstack.cloud_eye import cloud_eye_service
 from openstack.cloud_eye.v1 import metric as _metric
 from openstack.cloud_eye.v1 import metric_data as _metric_data
 from openstack.cloud_eye.v1 import alarm as _alarm
+from openstack.cloud_eye.v1 import quota as _quota
 from openstack.exceptions import InvalidRequest
 
 
@@ -74,13 +75,13 @@ class Proxy(proxy2.BaseProxy):
         request = alarm._prepare_request()
         endpoint_override = alarm.service.get_endpoint_override()
         response = self._session.get(request.uri,
-                                     endpoint_filter=self.service,
+                                     endpoint_filter=alarm.service,
                                      endpoint_override=endpoint_override)
         body = response.json()
         if alarm.resource_key and alarm.resource_key in body:
             body = body[alarm.resource_key]
         if isinstance(body, list) and body[0]:
-            return _alarm.Alarm.new(body[0])
+            return _alarm.Alarm.new(**body[0])
         return None
 
     def alarms(self, **query):
@@ -160,15 +161,15 @@ class Proxy(proxy2.BaseProxy):
             for (idx, dimension) in enumerate(dimensions):
                 value = dimension['name'] + ',' + dimension['value']
                 query["dim.%d" % idx] = value
-            return self._list(_metric_data.MetricData,
+            return self._list(_metric_data.MetricAggregation,
                               paginated=False,
                               **query)
         else:
             raise InvalidRequest('Attribute `dimensions` should be a list')
 
-    def create_metric_datas(self, datas):
+    def add_metric_data(self, data):
         """Create Metric Data from a list of attributes
-        :param list datas: A List of dict, the dict will be used to create
+        :param list data: A List of dict, the dict will be used to create
                            a :class:`~openstack.cloud_eye.v1.metric_data
                            .MetricData`, comprised of the properties on the
                            MetricData class.
@@ -196,5 +197,13 @@ class Proxy(proxy2.BaseProxy):
         return session.post('/metric-data',
                             endpoint_filter=service,
                             endpoint_override=service.get_endpoint_override(),
-                            json=datas,
-                            headers={})
+                            json=data)
+
+    def quotas(self):
+        """Retrieve a generator of quotas
+
+        Currently, only ``Alarm`` Quota is available
+        :returns: A generator of quota
+                 (:class:`~openstack.cloud_eye.v1.quota.Quota`) instances
+        """
+        return self._list(_quota.Quota, paginated=False)

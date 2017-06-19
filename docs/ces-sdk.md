@@ -1,4 +1,4 @@
-# DNS SDk
+# CloudEyeService SDK
 
 HuaWei OpenStack `Cloud Eye` service SDK
 - service entry: `connection.cloud_eye`
@@ -10,207 +10,199 @@ Not provided for now.
 ## initial SDK client
 You can find how to initial SDK client in the [quickstart](huawei-sdk?id=_2-build-v3-client) page .
 
-## Zone
-### List Zones
+## Metric
+
+### List Metric
+
+> Query parameter ``dimensions`` could at most have three items
+
 ```python
 query = {
-    'type': 'public', // filter by zone type, type includes `public` or `private`
-    'limit': 10
+    "namespace": "SYS.ECS",
+    "metric_name": "cpu_util",
+    "dimensions": [{
+        "name": "instance_id",
+        "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
+    }],
+    "order": "desc",
+    "marker": "3",
+    "limit": 10
 }
-zones = connection.dns.zones(**query)
-for zone in zones:
-    logging.info(zone)
+
+metrics = connection.cloud_eye.metrics(**query)
+for metric in metrics:
+    logging.info(metric)
 ```
 
-### Create Zone
+### List Favorite Metrics
 
-**1. create a private zone**
 ```python
-_zone = {
-    'name': 'gate.app.huawei.com',
-    'description': 'This is an example zone.',
-    'zone_type': 'private',
-    'email': 'admin@huawei.com',
-    'ttl': 500,
-    'router': {
-        'router_id': '5fbf2de5-c7e5-4ec5-92ef-1e0b128f729f',
-        'router_region': 'eu-de'
+favorite_metrics = connection.cloud_eye.favorite_metrics()
+for metric in favorite_metrics:
+    logging.info(metric)
+```
+
+
+## Alarm
+
+### List Alarm
+
+```python
+query = {
+    "limit": 1,
+    "marker": "last-alarm-id",
+    "order": "desc"
+}
+for alarm in connection.cloud_eye.alarms(**query):
+    logging.info(alarm)
+```
+
+### Get Alarm
+
+> Most of get resource function support both ``plain`` ID or resource ``Instance`` with id parameter
+
+```python
+# plain ID
+alarm = connection.cloud_eye.get_alarm("some-alarm-id")
+```
+
+> or
+
+```python
+# Instance with ID
+alarm = connection.cloud_eye.get_alarm(alarm.Alarm(id="some-alarm-id"))
+```
+
+
+### Delete Alarm
+
+> Most of delete resource function support both ``plain`` ID or ``Instance`` with id parameter
+
+```python
+connection.cloud_eye.delete_alarm("some-alarm-id")
+```
+
+> or
+
+```python
+connection.cloud_eye.delete_alarm(alarm.Alarm(id="some-alarm-id"))
+```
+
+### Enable Alarm
+
+```python
+connection.cloud_eye.enable_alarm("some-alarm-id")
+```
+
+> or
+
+```python
+connection.cloud_eye.enable_alarm(alarm.Alarm(id="some-alarm-id"))
+```
+
+
+### Enable Alarm
+
+```python
+connection.cloud_eye.disable_alarm("some-alarm-id")
+```
+
+> or
+
+```python
+connection.cloud_eye.disable_alarm(alarm.Alarm(id="some-alarm-id"))
+```
+
+
+## Metric Data
+
+### List Metric Aggregation
+
+- `filter`: valid aggregation includes ``average``, ``variance``, ``min``, ``max``
+- `from` & `to`: unix epoch milli seconds
+- `period`:
+    - `1`: real-time
+    - `300`: every 5 minutes
+    - `1200`: every 20 minutes
+    - `3600`: every hour
+    - `14400`: every 4 hour
+    - `86400`: every day
+
+
+```python
+def get_epoch_time(datetime_):
+    if datetime_:
+        seconds = time.mktime(datetime_.timetuple())
+        return int(seconds) * 1000
+    else:
+        return None
+
+_from = datetime.datetime(2017, 6, 18, hour=18)
+_to = datetime.datetime(2017, 6, 19, hour=18)
+query = {
+    "namespace": "SYS.ECS",
+    "metric_name": "cpu_util",
+    "from": get_epoch_time(_from),
+    "to": get_epoch_time(_to),
+    "period": 300,
+    "filter": "average",
+    "dimensions": [{
+        "name": "instance_id",
+        "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
+    }]
+}
+for aggregation in connection.cloud_eye.metric_aggregations(**query):
+    logging.info(aggregation)
+```
+
+
+### Add Metric Data
+```python
+data = [
+    {
+        "metric": {
+            "namespace": "MINE.APP",
+            "dimensions": [
+                {
+                    "name": "instance_id",
+                    "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                }
+            ],
+            "metric_name": "cpu_util"
+        },
+        "ttl": 172800,
+        "collect_time": 1463598260000,
+        "value": 60,
+        "unit": "%"
+    },
+    {
+        "metric": {
+            "namespace": "MINE.APP",
+            "dimensions": [
+                {
+                    "name": "instance_id",
+                    "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                }
+            ],
+            "metric_name": "cpu_util"
+        },
+        "ttl": 172800,
+        "collect_time": 1463598270000,
+        "value": 70,
+        "unit": "%"
     }
-}
-zone = connection.dns.create_zone(**_zone)
+]
+connection.cloud_eye.add_metric_data(data)
 ```
 
-**2. create a public zone**
-```python
-_zone = {
-    'name': 'app.huawei.com',
-    'description': 'This is an example zone.',
-    'zone_type': 'public',
-    'email': 'admin@huawei.com',
-    'ttl': 500
-}
-zone = connection.dns.create_zone(**_zone)
-```
+## Quota
 
-### Get Zone
-```python
-# Get Zone with zone_id
-zone = connection.dns.get_zone(zone_id)
+### List Quota
 
-# or Zone instance with ID
-zone = connection.dns.get_zone(Zone(id=zone_id))
-```
-
-### Delete Zone
-```python
-# Delete Zone with zone_id
-connection.dns.delete_zone(zone_id, ignore_missing=True)
-
-# or Zone instance with ID
-connection.dns.delete_zone(Zone(id=zone_id), ignore_missing=False)
-```
-
-### Add Router(VPC) to Private Zone
-```python
-router = {
-    'router_id': '62615060-5a38-42d4-a391-9b8a109da548',
-    'router_region': 'eu-de'
-}
-
-# use zone-id
-result = connection.dns.add_router_to_zone('zone-id', **router)
-# use zone-instance
-result = connection.dns.add_router_to_zone(Zone(id='zone-id'), **router)
-```
-
-### Remove Router(VPC) from Private Zone
-```python
-router = {
-    'router_id': '62615060-5a38-42d4-a391-9b8a109da548',
-    'router_region': 'eu-de'
-}
-
-# use zone-id
-result = connection.dns.remove_router_from_zone('zone-id', **router)
-# use zone-instance
-result = connection.dns.remove_router_from_zone(Zone(id='zone-id'),
-                                                **router)
-```
-
-## NameServer
-
-### List Zone NameServers
-```python
-zone_id = 'ff8080825ca865e8015ca99563af004a'
-
-# list zone nameservers with zone_id
-nameservers = connection.dns.nameservers(zone_id)
-# or with Zone instance with ID
-nameservers = connection.dns.nameservers(Zone(id=zone_id))
-
-for nameserver in nameservers:
-    logging.info(nameserver)
-
-```
-
-
-## Recordset
-
-### List Recordsets of Zone
+> currently, only ``Alarm`` quota is available
 
 ```python
-query = {
-    'limit': 5
-}
-zone_id = 'ff8080825ca865e8015caa9f452700a8'
-# use zone id as param
-recordsets = conn.dns.recordsets(zone_id, **query)
-# or use zone instance as param
-# recordsets = conn.dns.recordsets(Zone(id=zone_id), **query)
-for recordset in recordsets:
-    logging.info(recordset)
-```
-
-### Create Recordset
-
-```python
-recordset = {
-    "name": "api.turnbig.net",
-    "description": "This is an example record set.",
-    "type": "CNAME",
-    "ttl": 3600,
-    "records": [
-        "www.turnbig.net"
-    ]
-}
-
-zone_id = 'ff8080825ca865e8015caa9f452700a8'
-connection.dns.create_recordset(zone_id, **recordset)
-# or
-connection.dns.create_recordset(Zone(id=zone_id), **recordset)
-```
-
-### Get Recordset
-```python
-zone = Zone(id='ff8080825ca865e8015caa9f452700a8')
-recordset1 = connection.dns.get_recordset(zone, recordset_id)
-recordset2 = connection.dns.get_recordset(zone, Recordset(id=recordset_id))
-recordset3 = connection.dns.get_recordset(zone.id, recordset_id)
-recordset4 = connection.dns.get_recordset(zone.id, Recordset(id=recordset_id))
-```
-
-### Delete Recordset
-```python
-zone = Zone(id='ff8080825ca865e8015caa9f452700a8')
-recordset = Recordset(id='ff8080825ca865e8015caaaa0e1500ba')
-connection.dns.delete_recordset(zone, recordset)
-connection.dns.delete_recordset(zone.id, recordset.id)
-```
-
-### List all recordsets
-```python
-query = {
-    'limit': 100
-}
-recordsets = connection.dns.all_recordsets(**query)
-for recordset in recordsets:
-    logging.info(recordset)
-```
-
-## PTR
-
-### List PTR
-```python
-query = {
-    'limit': 10
-}
-for ptr in connection.dns.ptrs(**query):
-    logging.info(ptr)
-```
-
-### Setup PTR
-
-```python
-ptr = {
-    'region': 'eu-de',                                          # required
-    'floating_ip_id': '9e9c6d33-51a6-4f84-b504-c13301f1cc8c'    # required
-    'ptrdname': 'www.turnbig.net',                              # required
-    'description': 'HaveFun.lee - For Test',
-    'ttl': 300,
-}
-ptr = connection.dns.create_ptr(**ptr)
-```
-
-### Get PTR
-```python
-region = 'eu-de'
-floating_ip_id = '9e9c6d33-51a6-4f84-b504-c13301f1cc8c'
-ptr = connection.dns.get_ptr(region, floating_ip_id)
-```
-
-### Restore PTR
-```python
-region = 'eu-de'
-floating_ip_id = '9e9c6d33-51a6-4f84-b504-c13301f1cc8c'
-connection.dns.restore_ptr(region, floating_ip_id)
+quotas = connection.cloud_eye.quotas()
+for quota in quotas:
+    logging.info(quota)
 ```

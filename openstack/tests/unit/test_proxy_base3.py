@@ -12,9 +12,12 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+import inspect
 import json
+import os
 
 import mock
+from os import path
 
 from openstack import session
 from openstack.tests.unit import base
@@ -37,15 +40,21 @@ class BaseProxyTestCase(base.TestCase):
         self.proxy = proxy_class(self.session)
         self.service = service_class()
 
+        self.file = inspect.getfile(self.__class__)
+        self.current_dir = os.path.dirname(self.file)
+
     def setUp(self):
         super(BaseProxyTestCase, self).setUp()
 
-    def get_file_content(self, relative_filepath):
-        with open(relative_filepath) as data_file:
+    def get_file_content(self, filename):
+        file_path = os.path.join(self.current_dir,
+                                 'data_files',
+                                 filename)
+        with open(file_path) as data_file:
             return json.loads(data_file.read())
 
-    def mock_response_json_file_values(self, relative_filepath):
-        _json = self.get_file_content('data_files/' + relative_filepath)
+    def mock_response_json_file_values(self, filename):
+        _json = self.get_file_content(filename)
         self.response.json.return_value = _json
         return _json
 
@@ -55,7 +64,7 @@ class BaseProxyTestCase(base.TestCase):
     def mock_response_header_values(self, values):
         self.response.headers = values
 
-    def assert_session_get_with(self, uri, params,
+    def assert_session_get_with(self, uri, params={},
                                 header={'Accept': 'application/json'}):
         self.session.get.assert_called_once_with(
             uri,
@@ -73,4 +82,21 @@ class BaseProxyTestCase(base.TestCase):
             endpoint_override=self.service.get_endpoint_override(),
             headers=header,
             json=json
+        )
+
+    def assert_session_put_with(self, uri, json, header={}):
+        self.session.post.assert_called_once_with(
+            uri,
+            endpoint_filter=self.service,
+            endpoint_override=self.service.get_endpoint_override(),
+            headers=header,
+            json=json
+        )
+
+    def assert_session_delete(self, uri, header={'Accept': ''}):
+        self.session.delete.assert_called_once_with(
+            uri,
+            endpoint_filter=self.service,
+            endpoint_override=self.service.get_endpoint_override(),
+            headers=header
         )

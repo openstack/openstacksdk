@@ -16,23 +16,28 @@
 import logging
 
 
-def list_metrics(connection):
+def list_alarms(connection):
     query = {
-        "namespace": "SYS.ECS",
-        "metric_name": "cpu_util",
-        "dimensions": [{
-            "name": "instance_id",
-            "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
-        }],
-        "order": "desc",
-        "marker": "3",
-        "limit": 10
+        "limit": 1,
+        "marker": "last-alarm-id",
+        "order": "desc"
     }
-    for metric in connection.cloud_eye.metrics(**query):
-        logging.info(metric)
+    for alarm in connection.cloud_eye.alarms(**query):
+        logging.info(alarm)
 
 
-def list_favorite_metrics(connection):
-    favorite_metrics = connection.cloud_eye.favorite_metrics()
-    for metric in favorite_metrics:
-        logging.info(metric)
+def get_alarm(connection):
+    alarm = connection.cloud_eye.get_alarm("some-alarm-id")
+    logging.info(alarm)
+
+
+def delete_alarm(connection):
+    connection.cloud_eye.delete_alarm("some-alarm-id")
+
+
+def enable_alarm(connection):
+    connection.cloud_eye.enable_alarm("some-alarm-id")
+
+
+def disable_alarm(connection):
+    connection.cloud_eye.disable_alarm("some-alarm-id")

@@ -14,6 +14,7 @@ import functools
 import logging
 
 import deprecation
+import time
 
 from openstack import version
 
@@ -96,3 +97,11 @@ def urljoin(*args):
     link. We generally won't care about that in client.
     """
     return '/'.join(str(a or '').strip('/') for a in args)
+
+
+def get_epoch_time(datetime_):
+    if datetime_:
+        seconds = time.mktime(datetime_.timetuple())
+        return int(seconds) * 1000
+    else:
+        return None

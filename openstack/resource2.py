@@ -224,7 +224,7 @@ class Resource(object):
     #: dotted json path to get next marker
     next_marker_path = None
     #: marker key in query, default is `marker`
-    query_marker_key = 'marker'
+    query_marker_key = "marker"
 
     #: The ID of this resource.
     id = Body("id")
@@ -308,6 +308,10 @@ class Resource(object):
         if name == "id":
             if name in self._body:
                 return self._body[name]
+
+            real_id_name = self._body_mapping()[name]
+            if real_id_name in self._body:
+                return self._body[real_id_name]
             else:
                 try:
                     return self._body[self._alternate_id()]
@@ -750,11 +754,14 @@ class Resource(object):
                                endpoint_override=endpoint_override,
                                headers={"Accept": "application/json"},
                                params=query_params)
-            resp = resp.json()
+            response_json = resp.json()
             if cls.resources_key:
-                resp = get_dict_value_by_accessor(resp, cls.resources_key)
+                resources = get_dict_value_by_accessor(response_json,
+                                                       cls.resources_key)
+            else:
+                resources = response_json
 
-            if not resp:
+            if not resources:
                 more_data = False
 
             # Keep track of how many items we've yielded. If we yielded
@@ -762,7 +769,7 @@ class Resource(object):
             # to get back an empty data set, which acts as a sentinel.
             yielded = 0
             new_marker = None
-            for data in resp:
+            for data in resources:
                 # Do not allow keys called "self" through. Glance chose
                 # to name a key "self", so we need to pop it out because
                 # we can't send it through cls.existing and into the
@@ -777,7 +784,8 @@ class Resource(object):
 
             # if `next marker path` is explicit specified, use it as marker
             if cls.next_marker_path:
-                marker = get_dict_value_by_accessor(resp, cls.next_marker_path)
+                marker = get_dict_value_by_accessor(response_json,
+                                                    cls.next_marker_path)
                 if marker:
                     new_marker = marker
 

@@ -1,4 +1,4 @@
-# DNS SDk
+# DNS SDK
 
 HuaWei OpenStack `DNS` service SDK
 - service entry: `connection.dns`

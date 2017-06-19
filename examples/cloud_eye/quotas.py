@@ -16,23 +16,7 @@
 import logging
 
 
-def list_metrics(connection):
-    query = {
-        "namespace": "SYS.ECS",
-        "metric_name": "cpu_util",
-        "dimensions": [{
-            "name": "instance_id",
-            "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
-        }],
-        "order": "desc",
-        "marker": "3",
-        "limit": 10
-    }
-    for metric in connection.cloud_eye.metrics(**query):
-        logging.info(metric)
-
-
-def list_favorite_metrics(connection):
-    favorite_metrics = connection.cloud_eye.favorite_metrics()
-    for metric in favorite_metrics:
-        logging.info(metric)
+def list_quotas(connection):
+    quotas = connection.cloud_eye.quotas()
+    for quota in quotas:
+        logging.info(quota)
