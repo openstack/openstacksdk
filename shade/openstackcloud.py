@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import collections
 import functools
 import hashlib
@@ -5434,6 +5435,20 @@ class OpenStackCloud(
             self.list_volumes.invalidate(self)
         return kwargs
 
+    def _encode_server_userdata(self, userdata):
+        if hasattr(userdata, 'read'):
+            userdata = userdata.read()
+
+        if not isinstance(userdata, six.binary_type):
+            # If the userdata passed in is bytes, just send it unmodified
+            if not isinstance(text, six.string_types):
+                raise TypeError("%s can't be encoded" % type(text))
+            # If it's not bytes, make it bytes
+            userdata = userdata.encode('utf-8', 'strict')
+
+        # Once we have base64 bytes, make them into a utf-8 string for REST
+        return base64.b64encode(userdata).decode('utf-8')
+
     @_utils.valid_kwargs(
         'meta', 'files', 'userdata',
         'reservation_id', 'return_raw', 'min_count',
@@ -5538,10 +5553,13 @@ class OpenStackCloud(
             kwargs['security_groups'] = []
             for group in security_groups:
                 kwargs['security_groups'].append(dict(name=group))
+        if 'userdata' in kwargs:
+            user_data = kwargs.pop('userdata')
+            if user_data:
+                kwargs['user_data'] = self._encode_server_userdata(user_data)
         for (desired, given) in (
                 ('OS-DCF:diskConfig', 'disk_config'),
                 ('metadata', 'meta'),
-                ('user_data', 'userdata'),
                 ('adminPass', 'admin_pass')):
             value = kwargs.pop(given, None)
             if value:
