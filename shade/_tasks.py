@@ -255,28 +255,3 @@ class RoleAssignmentList(task_manager.Task):
 class RolesForUser(task_manager.Task):
     def main(self, client):
         return client.keystone_client.roles.roles_for_user(**self.args)
-
-
-class NovaQuotasSet(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.quotas.update(**self.args)
-
-
-class NovaQuotasGet(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.quotas.get(**self.args)
-
-
-class NovaQuotasDelete(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.quotas.delete(**self.args)
-
-
-class NovaUsageGet(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.usage.get(**self.args)
-
-
-class NovaLimitsGet(task_manager.Task):
-    def main(self, client):
-        return client.nova_client.limits.get(**self.args).to_dict()

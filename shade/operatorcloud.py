@@ -15,7 +15,6 @@ import iso8601
 import jsonpatch
 
 from ironicclient import exceptions as ironic_exceptions
-from novaclient import exceptions as nova_exceptions
 
 from shade.exc import *  # noqa
 from shade import meta
@@ -2075,13 +2074,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         # volume_quotas = {key: val for key, val in kwargs.items()
         #                 if key in quota.VOLUME_QUOTAS}
 
-        try:
-            self.manager.submit_task(
-                _tasks.NovaQuotasSet(tenant_id=proj.id,
-                                     force=True,
-                                     **kwargs))
-        except nova_exceptions.BadRequest:
-            raise OpenStackCloudException("No valid quota or resource")
+        kwargs['force'] = True
+        self._compute_client.put(
+            '/os-quota-sets/{project}'.format(project=proj.id),
+            json={'quota_set': kwargs},
+            error_message="No valid quota or resource")
 
     def get_compute_quotas(self, name_or_id):
         """ Get quota for a project
@@ -2094,11 +2091,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
-        try:
-            return self.manager.submit_task(
-                _tasks.NovaQuotasGet(tenant_id=proj.id))
-        except nova_exceptions.BadRequest:
-            raise OpenStackCloudException("nova client call failed")
+        return self._compute_client.get(
+            '/os-quota-sets/{project}'.format(project=proj.id))
 
     def delete_compute_quotas(self, name_or_id):
         """ Delete quota for a project
@@ -2112,11 +2106,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
-        try:
-            return self.manager.submit_task(
-                _tasks.NovaQuotasDelete(tenant_id=proj.id))
-        except nova_exceptions.BadRequest:
-            raise OpenStackCloudException("nova client call failed")
+        return self._compute_client.delete(
+            '/os-quota-sets/{project}'.format(project=proj.id))
 
     def get_compute_usage(self, name_or_id, start=None, end=None):
         """ Get usage for a specific project
@@ -2173,11 +2164,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException("project does not exist: {}".format(
                 name=proj.id))
 
-        with _utils.shade_exceptions(
-                "Unable to get resources usage for project: {name}".format(
-                    name=proj.id)):
-            usage = self.manager.submit_task(
-                _tasks.NovaUsageGet(tenant_id=proj.id, start=start, end=end))
+        usage = self._compute_client.get(
+            '/os-simple-tenant-usage/{project}'.format(project=proj.id),
+            params=dict(start=start.isoformat(), end=end.isoformat()),
+            error_message="Unable to get usage for project: {name}".format(
+                name=proj.id))
 
         return self._normalize_compute_usage(usage)
 
