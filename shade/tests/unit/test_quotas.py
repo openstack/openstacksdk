@@ -10,13 +10,25 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-import mock
-from novaclient import exceptions as nova_exceptions
-
-import shade
 from shade import exc
 from shade.tests.unit import base
+
+fake_quota_set = {
+    "cores": 20,
+    "fixed_ips": -1,
+    "floating_ips": 10,
+    "injected_file_content_bytes": 10240,
+    "injected_file_path_bytes": 255,
+    "injected_files": 5,
+    "instances": 10,
+    "key_pairs": 100,
+    "metadata_items": 128,
+    "ram": 51200,
+    "security_group_rules": 20,
+    "security_groups": 45,
+    "server_groups": 10,
+    "server_group_members": 10
+}
 
 
 class TestQuotas(base.RequestsMockTestCase):
@@ -24,49 +36,73 @@ class TestQuotas(base.RequestsMockTestCase):
         super(TestQuotas, self).setUp(
             cloud_config_fixture=cloud_config_fixture)
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_update_quotas(self, mock_nova):
+    def test_update_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
-        # re-mock the list-get as the call to set_compute_quotas when
-        # bad-request is raised, still calls out to get the project data.
-        self.mock_for_keystone_projects(project=project, list_get=True)
+
+        self.register_uris([
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-quota-sets', project.project_id]),
+                 json={'quota_set': fake_quota_set},
+                 validate=dict(
+                     json={
+                         'quota_set': {
+                             'cores': 1,
+                             'force': True
+                         }})),
+        ])
 
         self.op_cloud.set_compute_quotas(project.project_id, cores=1)
 
-        mock_nova.quotas.update.assert_called_once_with(
-            cores=1, force=True, tenant_id=project.project_id)
-
-        mock_nova.quotas.update.side_effect = nova_exceptions.BadRequest(400)
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.set_compute_quotas, project)
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_get_quotas(self, mock_nova):
+    def test_update_quotas_bad_request(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
+
+        self.register_uris([
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-quota-sets', project.project_id]),
+                 status_code=400),
+        ])
+
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.op_cloud.set_compute_quotas, project.project_id)
+
+        self.assert_calls()
+
+    def test_get_quotas(self):
+        project = self.mock_for_keystone_projects(project_count=1,
+                                                  list_get=True)[0]
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-quota-sets', project.project_id]),
+                 json={'quota_set': fake_quota_set}),
+        ])
+
         self.op_cloud.get_compute_quotas(project.project_id)
 
-        mock_nova.quotas.get.assert_called_once_with(
-            tenant_id=project.project_id)
+        self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, 'nova_client')
-    def test_delete_quotas(self, mock_nova):
+    def test_delete_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
-        # re-mock the list-get as the call to set_delete_compute_quotas when
-        # bad-request is raised, still calls out to get the project data.
-        self.mock_for_keystone_projects(project=project, list_get=True)
+
+        self.register_uris([
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['os-quota-sets', project.project_id])),
+        ])
 
         self.op_cloud.delete_compute_quotas(project.project_id)
 
-        mock_nova.quotas.delete.assert_called_once_with(
-            tenant_id=project.project_id)
-
-        mock_nova.quotas.delete.side_effect = nova_exceptions.BadRequest(400)
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.delete_compute_quotas, project)
         self.assert_calls()
 
     def test_cinder_update_quotas(self):
