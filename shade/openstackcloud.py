@@ -5886,6 +5886,26 @@ class OpenStackCloud(
             server, wait=wait, timeout=timeout, delete_ips=delete_ips,
             delete_ip_retry=delete_ip_retry)
 
+    def _delete_server_floating_ips(self, server, delete_ip_retry):
+        # Does the server have floating ips in its
+        # addresses dict? If not, skip this.
+        server_floats = meta.find_nova_interfaces(
+            server['addresses'], ext_tag='floating')
+        if not server_floats:
+            return
+        ips = self.search_floating_ips(filters={
+            'device_id': server['id']})
+        for ip in ips:
+            deleted = self.delete_floating_ip(
+                ip['id'], retry=delete_ip_retry)
+            if not deleted:
+                raise OpenStackCloudException(
+                    "Tried to delete floating ip {floating_ip}"
+                    " associated with server {id} but there was"
+                    " an error deleting it. Not deleting server.".format(
+                        floating_ip=ip['floating_ip_address'],
+                        id=server['id']))
+
     def _delete_server(
             self, server, wait=False, timeout=180, delete_ips=False,
             delete_ip_retry=1):
@@ -5893,20 +5913,7 @@ class OpenStackCloud(
             return False
 
         if delete_ips and self._has_floating_ips():
-            # TODO(mordred) Does the server have floating ips in its
-            # addresses dict? If not, skip this.
-            ips = self.search_floating_ips(filters={
-                'device_id': server['id']})
-            for ip in ips:
-                deleted = self.delete_floating_ip(
-                    ip['id'], retry=delete_ip_retry)
-                if not deleted:
-                    raise OpenStackCloudException(
-                        "Tried to delete floating ip {floating_ip}"
-                        " associated with server {id} but there was"
-                        " an error deleting it. Not deleting server.".format(
-                            floating_ip=floating_ip,
-                            id=server['id']))
+            self._delete_server_floating_ips(server, delete_ip_retry)
 
         try:
             self._compute_client.delete(
