@@ -5889,7 +5889,7 @@ class OpenStackCloud(
         if not server:
             return False
 
-        if delete_ips:
+        if delete_ips and self._has_floating_ips():
             # TODO(mordred) Does the server have floating ips in its
             # addresses dict? If not, skip this.
             ips = self.search_floating_ips(filters={
