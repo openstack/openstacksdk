@@ -16,9 +16,11 @@ from openstack.auto_scaling import auto_scaling_service
 class InstanceConfig(resource.Resource):
     #: Properties
     #: reserved property
-    id = resource.Body('instance_id')
+    #: Server Instance reference Id, if set, auto-scaling-group will create
+    #: new instance use the same config as this one.
+    instance_id = resource.Body('instance_id')
     #: reserved property
-    name = resource.Body('instance_name')
+    instance_name = resource.Body('instance_name')
     #: The flavor reference to be used
     flavor_id = resource.Body('flavorRef')
     #: The image reference to be used
@@ -62,14 +64,34 @@ class Config(resource.Resource):
     )
 
     #: Properties
-    #: Valid values include ``private``, ``public``
     #: AutoScaling config ID
     id = resource.Body('scaling_configuration_id')
     #: AutoScaling config name
     name = resource.Body('scaling_configuration_name')
     #: AutoScaling config created time
     create_time = resource.Body('create_time')
+    #: AutoScaling config status
+    status = resource.Body('status')
     #: Use the exists instance as template to create new instance
     instance_config = resource.Body('instance_config',
                                     default={},
                                     type=InstanceConfig)
+
+    def batch_delete(self, session, configs):
+        """ batch delete auto-scaling configs
+
+        make sure all configs should not been used by auto-scaling group
+        :param session: openstack session
+        :param list configs: The list item value can be the ID of a config
+             or a :class:`~openstack.auto_scaling.v2.config.Config` instance.
+        :return:
+        """
+        ids = [config.id if isinstance(config, Config) else config
+               for config in configs]
+        json_body = {"scaling_configuration_id": ids}
+        endpoint_override = self.service.get_endpoint_override()
+        return session.post("/scaling_configurations",
+                            headers={"Accept": "*"},
+                            endpoint_filter=self.service,
+                            endpoint_override=endpoint_override,
+                            json=json_body)

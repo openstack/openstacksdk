@@ -1,0 +1,15 @@
+{
+  "name": "as-config-tlzq",
+  "instance_config": {
+    "flavorRef": "103",
+    "imageRef": "627a1223-2ca3-46a7-8d5f-7aef22c74ee6",
+    "disk": [
+      {
+        "size": 40,
+        "volume_type": "SATA",
+        "disk_type": "SYS"
+      }
+    ],
+    "key_name": "100vm_key"
+  }
+}

@@ -56,7 +56,7 @@ class TestDNSProxy(BaseProxyTestCase):
         }
         self.mock_response_json_file_values('create_public_zone.json')
         zone = self.proxy.create_zone(**attrs)
-        self.assert_session_post_with('/zones', json=attrs, header={})
+        self.assert_session_post_with('/zones', json=attrs, headers={})
         self.assertEquals(zone.name, 'example.com.')
         self.assertEquals(zone.zone_type, 'public')
         self.assertEquals(zone.email, 'xx@example.com')
@@ -76,7 +76,7 @@ class TestDNSProxy(BaseProxyTestCase):
 
         self.mock_response_json_file_values('create_private_zone.json')
         zone = self.proxy.create_zone(**attrs)
-        self.assert_session_post_with('/zones', json=attrs, header={})
+        self.assert_session_post_with('/zones', json=attrs, headers={})
         self.assertEquals(zone.name, 'example.com.')
         self.assertEquals(zone.zone_type, 'private')
         self.assertEquals(zone.email, 'xx@example.com')

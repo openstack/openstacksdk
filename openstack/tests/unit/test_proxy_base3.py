@@ -74,13 +74,12 @@ class BaseProxyTestCase(base.TestCase):
             params=params
         )
 
-    def assert_session_post_with(self, uri, json,
-                                 header={'Accept': 'application/json'}):
+    def assert_session_post_with(self, uri, json, headers={}):
         self.session.post.assert_called_once_with(
             uri,
             endpoint_filter=self.service,
             endpoint_override=self.service.get_endpoint_override(),
-            headers=header,
+            headers=headers,
             json=json
         )
 

@@ -1,0 +1,64 @@
+{
+  "limit": 20,
+  "total_number": 2,
+  "start_number": 0,
+  "scaling_configurations": [
+    {
+      "tenant_id": "ce061903a53545dcaddb300093b477d2",
+      "status": "STANDBY",
+      "scaling_configuration_id": "6afe46f9-7d3d-4046-8748-3b2a1085ad86",
+      "scaling_configuration_name": "config_name_1",
+      "instance_config": {
+        "disk": [
+          {
+            "size": 40,
+            "volume_type": "SATA",
+            "disk_type": "SYS"
+          },
+          {
+            "size": 100,
+            "volume_type": "SATA",
+            "disk_type": "DATA"
+          }
+        ],
+        "adminPass": "***",
+        "personality": null,
+        "instance_name": null,
+        "instance_id": null,
+        "flavorRef": "103",
+        "imageRef": "37ca2b35-6fc7-47ab-93c7-900324809c5c",
+        "key_name": "keypair02",
+        "public_ip": null,
+        "user_data": null,
+        "metadate": {}
+      },
+      "create_time": "2015-07-23T01:04:07Z"
+    },
+    {
+      "tenant_id": "ce061903a53545dcaddb300093b477d2",
+      "status": "ACTIVE",
+      "scaling_configuration_id": "24a8c5f3-c713-4aba-ac29-c17101009e5d",
+      "scaling_configuration_name": "config_name_2",
+      "instance_config": {
+        "disk": [
+          {
+            "size": 40,
+            "volume_type": "SATA",
+            "disk_type": "SYS"
+          }
+        ],
+        "adminPass": "***",
+        "personality": null,
+        "instance_name": null,
+        "instance_id": null,
+        "flavorRef": "103",
+        "imageRef": "37ca2b35-6fc7-47ab-93c7-900324809c5c",
+        "key_name": "keypair01",
+        "public_ip": null,
+        "user_data": null,
+        "metadata": {}
+      },
+      "create_time": "2015-07-22T01:08:41Z"
+    }
+  ]
+}

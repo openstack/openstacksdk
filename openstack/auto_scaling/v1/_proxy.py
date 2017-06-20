@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import proxy2
+from openstack.auto_scaling import auto_scaling_service
 from openstack.auto_scaling.v1 import config as _config
 from openstack.auto_scaling.v1 import group as _group
 from openstack.auto_scaling.v1 import policy as _policy
@@ -30,16 +31,6 @@ class Proxy(proxy2.BaseProxy):
                   (:class:`~openstack.auto_scaling.v2.config.Config`) instances
         """
         return self._list(_config.Config, paginated=True, **query)
-
-    def create_config(self, **attrs):
-        """Create a new config from attributes
-        :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.auto_scaling.v2.config.Config`,
-                           comprised of the properties on the Config class.
-        :returns: The results of config creation
-        :rtype: :class:`~openstack.auto_scaling.v2.config.Config`
-        """
-        return self._create(_config.Config, prepend_key=False, **attrs)
 
     def create_config(self, name, **attrs):
         """Create a new config from config name and instance-config attributes
@@ -77,7 +68,18 @@ class Proxy(proxy2.BaseProxy):
         :returns: Config been deleted
         :rtype: :class:`~openstack.auto_scaling.v2.config.Config`
         """
-        return self._delete(_config.Config, config, ignore_missing=ignore_missing)
+        return self._delete(_config.Config,
+                            config,
+                            ignore_missing=ignore_missing)
+
+    def batch_delete_configs(self, configs):
+        """batch delete configs
+
+        :param list configs: The list item value can be the ID of a config
+             or a :class:`~openstack.auto_scaling.v2.config.Config` instance.
+        """
+        config = _config.Config()
+        return config.batch_delete(self._session, configs)
 
     def find_config(self, name_or_id, ignore_missing=True):
         """Find a single config
@@ -234,7 +236,8 @@ class Proxy(proxy2.BaseProxy):
         :returns: Policy been deleted
         :rtype: :class:`~openstack.auto_scaling.v2.policy.Policy`
         """
-        return self._delete(_policy.Policy, policy, ignore_missing=ignore_missing)
+        return self._delete(_policy.Policy, policy,
+                            ignore_missing=ignore_missing)
 
     def find_policy(self, name_or_id, ignore_missing=True):
         """Find a single policy

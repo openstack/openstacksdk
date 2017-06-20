@@ -167,8 +167,13 @@ class _ComponentManager(collections.MutableMapping):
     @property
     def dirty(self):
         """Return a dict of modified attributes"""
-        return dict((key, self.attributes.get(key, None))
-                    for key in self._dirty)
+        plain = {}
+        for key in self._dirty:
+            value = self.attributes.get(key, None)
+            if isinstance(value, Resource):
+                value = value._body.dirty
+            plain[key] = value
+        return plain
 
     def clean(self):
         """Signal that the resource no longer has modified attributes"""
