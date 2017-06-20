@@ -1,0 +1,6 @@
+---
+issues:
+  - Fixed an issue where nodepool could cause config_drive
+    to be passed explicitly as None, which was getting directly
+    passed through to the JSON. Also fix the same logic for key_name
+    and scheduler_hints while we're in there.

@@ -5560,11 +5560,15 @@ class OpenStackCloud(
                 kwargs['user_data'] = self._encode_server_userdata(user_data)
         for (desired, given) in (
                 ('OS-DCF:diskConfig', 'disk_config'),
+                ('os:scheduler_hints', 'scheduler_hints'),
+                ('config_drive', 'config_drive'),
+                ('key_name', 'key_name'),
                 ('metadata', 'meta'),
                 ('adminPass', 'admin_pass')):
             value = kwargs.pop(given, None)
             if value:
                 kwargs[desired] = value
+
         kwargs.setdefault('max_count', kwargs.get('max_count', 1))
         kwargs.setdefault('min_count', kwargs.get('min_count', 1))
 
