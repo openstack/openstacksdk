@@ -1,0 +1,6 @@
+---
+issues:
+  - Fixed the logic in delete_ips and added regression
+    tests to cover it. The old logic was incorrectly looking
+    for floating ips using port syntax. It was also not
+    swallowing errors when it should.

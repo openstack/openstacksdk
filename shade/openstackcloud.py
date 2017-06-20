@@ -5895,11 +5895,18 @@ class OpenStackCloud(
         # addresses dict? If not, skip this.
         server_floats = meta.find_nova_interfaces(
             server['addresses'], ext_tag='floating')
-        if not server_floats:
-            return
-        ips = self.search_floating_ips(filters={
-            'device_id': server['id']})
-        for ip in ips:
+        for fip in server_floats:
+            try:
+                ip = self.get_floating_ip(id=None, filters={
+                    'floating_ip_address': fip['addr']})
+            except OpenStackCloudURINotFound:
+                # We're deleting. If it doesn't exist - awesome
+                # NOTE(mordred) If the cloud is a nova FIP cloud but
+                #               floating_ip_source is set to neutron, this
+                #               can lead to a FIP leak.
+                continue
+            if not ip:
+                continue
             deleted = self.delete_floating_ip(
                 ip['id'], retry=delete_ip_retry)
             if not deleted:

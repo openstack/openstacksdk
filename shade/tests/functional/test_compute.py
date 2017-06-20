@@ -71,6 +71,23 @@ class TestCompute(base.BaseFunctionalTestCase):
             self.user_cloud.delete_server(self.server_name, wait=True))
         self.assertIsNone(self.user_cloud.get_server(self.server_name))
 
+    def test_create_and_delete_server_auto_ip_delete_ips(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        server = self.user_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            auto_ip=True,
+            wait=True)
+        self.assertEqual(self.server_name, server['name'])
+        self.assertEqual(self.image.id, server['image']['id'])
+        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertIsNotNone(server['adminPass'])
+        self.assertTrue(
+            self.user_cloud.delete_server(
+                self.server_name, wait=True, delete_ips=True))
+        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+
     def test_attach_detach_volume(self):
         server_name = self.getUniqueString()
         self.addCleanup(self._cleanup_servers_and_volumes, server_name)
