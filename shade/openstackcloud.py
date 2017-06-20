@@ -59,6 +59,7 @@ DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
 DEFAULT_SERVER_AGE = 5
 DEFAULT_PORT_AGE = 5
 DEFAULT_FLOAT_AGE = 5
+_OCC_DOC_URL = "https://docs.openstack.org/developer/os-client-config"
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -2131,15 +2132,32 @@ class OpenStackCloud(
                     self._neutron_list_floating_ips(filters))
             except OpenStackCloudURINotFound as e:
                 # Nova-network don't support server-side floating ips
-                # filtering, so it's safer to die hard than to fallback to Nova
-                # which may return more results that expected.
+                # filtering, so it's safer to return and empty list than
+                # to fallback to Nova which may return more results that
+                # expected.
                 if filters:
                     self.log.error(
-                        "Something went wrong talking to neutron API. Can't "
-                        "fallback to Nova since it doesn't support server-side"
-                        " filtering when listing floating ips."
+                        "Neutron returned NotFound for floating IPs, which"
+                        " means this cloud doesn't have neutron floating ips."
+                        " shade can't fallback to trying Nova since nova"
+                        " doesn't support server-side filtering when listing"
+                        " floating ips and filters were given. If you do not"
+                        " think shade should be attempting to list floating"
+                        " ips on neutron, it is possible to control the"
+                        " behavior by setting floating_ip_source to 'nova' or"
+                        " None for cloud: %(cloud)s. If you are not already"
+                        " using clouds.yaml to configure settings for your"
+                        " cloud(s), and you want to configure this setting,"
+                        " you will need a clouds.yaml file. For more"
+                        " information, please see %(doc_url)s", {
+                            'cloud': self.name,
+                            'doc_url': _OCC_DOC_URL,
+                        }
                     )
-                    raise
+                    # We can't fallback to nova because we push-down filters.
+                    # We got a 404 which means neutron doesn't exist. If the
+                    # user
+                    return []
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
