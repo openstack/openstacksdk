@@ -2190,7 +2190,10 @@ class OpenStackCloud(
         return meta.get_and_munchify('floatingips', data)
 
     def _nova_list_floating_ips(self):
-        data = self._compute_client.get('/os-floating-ips')
+        try:
+            data = self._compute_client.get('/os-floating-ips')
+        except OpenStackCloudURINotFound:
+            return []
         return meta.get_and_munchify('floating_ips', data)
 
     def use_external_network(self):
