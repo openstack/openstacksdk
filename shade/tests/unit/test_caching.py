@@ -459,26 +459,29 @@ class TestMemoryCache(base.RequestsMockTestCase):
 
         self.assert_calls()
 
-    @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    def test_list_images(self, mock_image_client):
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
+    def test_list_images(self):
 
-        fake_image = munch.Munch(
-            id='42', status='success', name='42 name',
-            container_format='bare',
-            disk_format='qcow2',
-            properties={
-                'owner_specified.shade.md5': mock.ANY,
-                'owner_specified.shade.sha256': mock.ANY,
-                'owner_specified.shade.object': 'images/42 name',
-                'is_public': False})
-        mock_image_client.get.return_value = [fake_image]
+        self.use_glance()
+        fake_image = fakes.make_fake_image(image_id='42')
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url('image', 'public',
+                                       append=['v2', 'images']),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url('image', 'public',
+                                       append=['v2', 'images']),
+                 json={'images': [fake_image]}),
+        ])
+
+        self.assertEqual([], self.cloud.list_images())
         self.assertEqual([], self.cloud.list_images())
         self.cloud.list_images.invalidate(self.cloud)
         self.assertEqual(
             self._munch_images(fake_image), self.cloud.list_images())
-        mock_image_client.get.assert_called_with('/images')
+
+        self.assert_calls()
 
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_list_images_ignores_unsteady_status(self, mock_image_client):
