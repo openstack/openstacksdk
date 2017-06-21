@@ -209,6 +209,83 @@ class TestCreateServer(base.RequestsMockTestCase):
 
         self.assert_calls()
 
+    def test_create_server_config_drive(self):
+        """
+        Test that config_drive gets passed in properly
+        """
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': fake_server},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'config_drive': True,
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': fake_server}),
+        ])
+        normalized = self.cloud._expand_server(
+            self.cloud._normalize_server(fake_server), False, False)
+        self.assertEqual(
+            normalized,
+            self.cloud.create_server(
+                name='server-name',
+                image=dict(id='image-id'),
+                flavor=dict(id='flavor-id'),
+                config_drive=True))
+
+        self.assert_calls()
+
+    def test_create_server_config_drive_none(self):
+        """
+        Test that config_drive gets not passed in properly
+        """
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': fake_server},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': fake_server}),
+        ])
+        normalized = self.cloud._expand_server(
+            self.cloud._normalize_server(fake_server), False, False)
+        self.assertEqual(
+            normalized,
+            self.cloud.create_server(
+                name='server-name',
+                image=dict(id='image-id'),
+                flavor=dict(id='flavor-id'),
+                config_drive=None))
+
+        self.assert_calls()
+
     def test_create_server_with_admin_pass_no_wait(self):
         """
         Test that a server with an admin_pass passed returns the password

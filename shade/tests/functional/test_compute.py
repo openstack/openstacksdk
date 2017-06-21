@@ -84,6 +84,44 @@ class TestCompute(base.BaseFunctionalTestCase):
             self.assertTrue(vol_attachment[key])  # assert string is not empty
         self.assertIsNone(self.user_cloud.detach_volume(server, volume))
 
+    def test_create_and_delete_server_with_config_drive(self):
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        server = self.user_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            config_drive=True,
+            wait=True)
+        self.assertEqual(self.server_name, server['name'])
+        self.assertEqual(self.image.id, server['image']['id'])
+        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(True, server['has_config_drive'])
+        self.assertIsNotNone(server['adminPass'])
+        self.assertTrue(
+            self.user_cloud.delete_server(self.server_name, wait=True))
+        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+
+    def test_create_and_delete_server_with_config_drive_none(self):
+        # check that we're not sending invalid values for config_drive
+        # if it's passed in explicitly as None - which nodepool does if it's
+        # not set in the config
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        server = self.user_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            config_drive=None,
+            wait=True)
+        self.assertEqual(self.server_name, server['name'])
+        self.assertEqual(self.image.id, server['image']['id'])
+        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(False, server['has_config_drive'])
+        self.assertIsNotNone(server['adminPass'])
+        self.assertTrue(
+            self.user_cloud.delete_server(
+                self.server_name, wait=True))
+        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+
     def test_list_all_servers(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
         server = self.user_cloud.create_server(
