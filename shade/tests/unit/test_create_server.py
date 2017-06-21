@@ -676,6 +676,42 @@ class TestCreateServer(base.RequestsMockTestCase):
 
         self.assert_calls()
 
+    def test_create_server_nics_port_id(self):
+        '''Verify port-id in nics input turns into port in REST.'''
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        active_server = fakes.make_fake_server('1234', '', 'BUILD')
+        image_id = uuid.uuid4().hex
+        port_id = uuid.uuid4().hex
+
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': build_server},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': fakes.FLAVOR_ID,
+                         u'imageRef': image_id,
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'networks': [{u'port': port_id}],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': active_server}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': []}),
+        ])
+
+        self.cloud.create_server(
+            'server-name', dict(id=image_id), dict(id=fakes.FLAVOR_ID),
+            nics=[{'port-id': port_id}], wait=False)
+
+        self.assert_calls()
+
     def test_create_boot_attach_volume(self):
         build_server = fakes.make_fake_server('1234', '', 'BUILD')
         active_server = fakes.make_fake_server('1234', '', 'BUILD')

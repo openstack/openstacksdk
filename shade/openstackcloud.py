@@ -5642,6 +5642,8 @@ class OpenStackCloud(
             for key in ('port', 'fixed_ip'):
                 if key in nic:
                     net[key] = nic.pop(key)
+            if 'port-id' in nic:
+                net['port'] = nic.pop('port-id')
             if nic:
                 raise OpenStackCloudException(
                     "Additional unsupported keys given for server network"
