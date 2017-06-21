@@ -20,10 +20,10 @@ from openstack import utils
 
 
 def list_metric_aggregations(connection):
-    start_time = datetime.datetime(2017, 6, 18, hour=18)
-    end_time = datetime.datetime(2017, 6, 19, hour=18)
+    start_time = datetime.datetime(2017, 6, 21, hour=10)
+    end_time = datetime.datetime(2017, 6, 21, hour=11)
     query = {
-        "namespace": "SYS.ECS",
+        "namespace": "MINE.APP",
         "metric_name": "cpu_util",
         "from": utils.get_epoch_time(start_time),
         "to": utils.get_epoch_time(end_time),
@@ -31,7 +31,7 @@ def list_metric_aggregations(connection):
         "filter": "average",
         "dimensions": [{
             "name": "instance_id",
-            "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
+            "value": "33328f02-3814-422e-b688-bfdba93d4050"
         }]
     }
     for aggregation in connection.cloud_eye.metric_aggregations(**query):
@@ -39,6 +39,8 @@ def list_metric_aggregations(connection):
 
 
 def add_metric_data(connection):
+    collect_time_1 = end_time = datetime.datetime(2017, 6, 21, hour=10, minute=30)
+    collect_time_2 = end_time = datetime.datetime(2017, 6, 21, hour=10, minute=35)
     data = [
         {
             "metric": {
@@ -51,8 +53,8 @@ def add_metric_data(connection):
                 ],
                 "metric_name": "cpu_util"
             },
-            "ttl": 172800,
-            "collect_time": 1463598260000,
+            "ttl": 604800,
+            "collect_time": utils.get_epoch_time(collect_time_1),
             "value": 60,
             "unit": "%"
         },
@@ -67,8 +69,8 @@ def add_metric_data(connection):
                 ],
                 "metric_name": "cpu_util"
             },
-            "ttl": 172800,
-            "collect_time": 1463598270000,
+            "ttl": 604800,
+            "collect_time": utils.get_epoch_time(collect_time_2),
             "value": 70,
             "unit": "%"
         }

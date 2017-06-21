@@ -15,6 +15,10 @@
 
 import logging
 import os
+from examples.cloud_eye import alarms
+from examples.cloud_eye import metric_data
+from examples.cloud_eye import metrics
+from examples.cloud_eye import quotas
 
 from examples.connect import create_connection_from_config
 
@@ -37,6 +41,17 @@ os.environ.setdefault(
 # initial connection
 connection = create_connection_from_config()
 
-# run examples
+# Cloud Eye Examples
+# metrics.list_metrics(connection)
+# metrics.list_favorite_metrics(connection)
 
+# alarms.list_alarms(connection)
+# alarms.enable_alarm(connection)
+# alarms.get_alarm(connection)
+# alarms.disable_alarm(connection)
+
+# metric_data.list_metric_aggregations(connection)
+# metric_data.add_metric_data(connection)
+
+# quotas.list_quotas(connection)
 

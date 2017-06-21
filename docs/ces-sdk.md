@@ -25,7 +25,7 @@ query = {
         "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
     }],
     "order": "desc",
-    "marker": "3",
+    "marker": "SYS.ECS.cpu_util.instance_id:9f31d05a-76d5-478a-b864-b1b5e8708482",
     "limit": 10
 }
 
@@ -101,7 +101,7 @@ connection.cloud_eye.enable_alarm(alarm.Alarm(id="some-alarm-id"))
 ```
 
 
-### Enable Alarm
+### Disable Alarm
 
 ```python
 connection.cloud_eye.disable_alarm("some-alarm-id")
@@ -115,6 +115,54 @@ connection.cloud_eye.disable_alarm(alarm.Alarm(id="some-alarm-id"))
 
 
 ## Metric Data
+
+### Add Metric Data
+```python
+    def get_epoch_time(datetime_):
+        if datetime_:
+            seconds = time.mktime(datetime_.timetuple())
+            return int(seconds) * 1000
+        else:
+            return None
+
+    collect_time_1 = end_time = datetime.datetime(2017, 6, 21, hour=10, minute=30)
+    collect_time_2 = end_time = datetime.datetime(2017, 6, 21, hour=10, minute=35)
+    data = [
+        {
+            "metric": {
+                "namespace": "MINE.APP",
+                "dimensions": [
+                    {
+                        "name": "instance_id",
+                        "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                    }
+                ],
+                "metric_name": "cpu_util"
+            },
+            "ttl": 604800,
+            "collect_time": get_epoch_time(collect_time_1),
+            "value": 60,
+            "unit": "%"
+        },
+        {
+            "metric": {
+                "namespace": "MINE.APP",
+                "dimensions": [
+                    {
+                        "name": "instance_id",
+                        "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                    }
+                ],
+                "metric_name": "cpu_util"
+            },
+            "ttl": 604800,
+            "collect_time": get_epoch_time(collect_time_2),
+            "value": 70,
+            "unit": "%"
+        }
+    ]
+    connection.cloud_eye.add_metric_data(data)
+```
 
 ### List Metric Aggregation
 
@@ -130,70 +178,31 @@ connection.cloud_eye.disable_alarm(alarm.Alarm(id="some-alarm-id"))
 
 
 ```python
-def get_epoch_time(datetime_):
-    if datetime_:
-        seconds = time.mktime(datetime_.timetuple())
-        return int(seconds) * 1000
-    else:
-        return None
+    def get_epoch_time(datetime_):
+        if datetime_:
+            seconds = time.mktime(datetime_.timetuple())
+            return int(seconds) * 1000
+        else:
+            return None
 
-_from = datetime.datetime(2017, 6, 18, hour=18)
-_to = datetime.datetime(2017, 6, 19, hour=18)
-query = {
-    "namespace": "SYS.ECS",
-    "metric_name": "cpu_util",
-    "from": get_epoch_time(_from),
-    "to": get_epoch_time(_to),
-    "period": 300,
-    "filter": "average",
-    "dimensions": [{
-        "name": "instance_id",
-        "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
-    }]
-}
-for aggregation in connection.cloud_eye.metric_aggregations(**query):
-    logging.info(aggregation)
-```
-
-
-### Add Metric Data
-```python
-data = [
-    {
-        "metric": {
-            "namespace": "MINE.APP",
-            "dimensions": [
-                {
-                    "name": "instance_id",
-                    "value": "33328f02-3814-422e-b688-bfdba93d4050"
-                }
-            ],
-            "metric_name": "cpu_util"
-        },
-        "ttl": 172800,
-        "collect_time": 1463598260000,
-        "value": 60,
-        "unit": "%"
-    },
-    {
-        "metric": {
-            "namespace": "MINE.APP",
-            "dimensions": [
-                {
-                    "name": "instance_id",
-                    "value": "33328f02-3814-422e-b688-bfdba93d4050"
-                }
-            ],
-            "metric_name": "cpu_util"
-        },
-        "ttl": 172800,
-        "collect_time": 1463598270000,
-        "value": 70,
-        "unit": "%"
+    _from = datetime.datetime(2017, 6, 21, hour=10)
+    _to = datetime.datetime(2017, 6, 21, hour=11)
+    query = {
+        "namespace": "MINE.APP",
+        "metric_name": "cpu_util",
+        "from": get_epoch_time(_from),
+        "to": get_epoch_time(_to),
+        "period": 300,
+        "filter": "average",
+        "dimensions": [{
+            "name": "instance_id",
+            "value": "33328f02-3814-422e-b688-bfdba93d4050"
+        }]
     }
-]
-connection.cloud_eye.add_metric_data(data)
+    for aggregation in connection.cloud_eye.metric_aggregations(**query):
+        logging.info(aggregation)
 ```
+
 
 ## Quota
 

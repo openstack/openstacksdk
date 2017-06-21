@@ -64,7 +64,7 @@ class Alarm(resource.Resource):
         """Preform alarm actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
         endpoint_override = self.service.get_endpoint_override()
-        return session.post(url,
+        return session.put(url,
                             endpoint_filter=self.service,
                             endpoint_override=endpoint_override,
                             json=body,

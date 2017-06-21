@@ -19,7 +19,7 @@ import logging
 def list_alarms(connection):
     query = {
         "limit": 1,
-        "marker": "last-alarm-id",
+        # "marker": "last-alarm-id",
         "order": "desc"
     }
     for alarm in connection.cloud_eye.alarms(**query):
@@ -27,17 +27,21 @@ def list_alarms(connection):
 
 
 def get_alarm(connection):
-    alarm = connection.cloud_eye.get_alarm("some-alarm-id")
+    alarm_id = "al1483387711418ZNpR8DX3g" 
+    alarm = connection.cloud_eye.get_alarm(alarm_id)
     logging.info(alarm)
 
 
 def delete_alarm(connection):
-    connection.cloud_eye.delete_alarm("some-alarm-id")
+    alarm_id = "al1483387711418ZNpR8DX3g"
+    connection.cloud_eye.delete_alarm(alarm_id)
 
 
 def enable_alarm(connection):
-    connection.cloud_eye.enable_alarm("some-alarm-id")
+    alarm_id = "al1483387711418ZNpR8DX3g"
+    connection.cloud_eye.enable_alarm(alarm_id)
 
 
 def disable_alarm(connection):
-    connection.cloud_eye.disable_alarm("some-alarm-id")
+    alarm_id = "al1483387711418ZNpR8DX3g"
+    connection.cloud_eye.disable_alarm(alarm_id)

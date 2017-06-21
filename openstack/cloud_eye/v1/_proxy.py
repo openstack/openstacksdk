@@ -41,14 +41,17 @@ class Proxy(proxy2.BaseProxy):
                  (:class:`~openstack.cloud_eye.v1.metric.Metric`) instances
         """
         dimensions = query.pop('dimensions', [])
-        if len(dimensions) == 0:
-            raise InvalidRequest('Attribute `dimensions` should not be a '
-                                 'empty list')
+        if not isinstance(dimensions, list):
+            raise InvalidRequest('Attribute `dimensions` should be a '
+                                 'list')
         if len(dimensions) > 3:
             raise InvalidRequest('Attribute `dimensions` at most could '
                                  'have three dimensions')
 
         for (idx, dimension) in enumerate(dimensions):
+            if "name" not in dimension or "value" not in dimension:
+                raise InvalidRequest('Item of attribute `dimensions` must'
+                                     'be a dict with `name` and `value` keys')
             value = dimension['name'] + ',' + dimension['value']
             query["dim.%d" % idx] = value
 

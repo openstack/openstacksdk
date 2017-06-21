@@ -20,12 +20,12 @@ def list_metrics(connection):
     query = {
         "namespace": "SYS.ECS",
         "metric_name": "cpu_util",
-        "dimensions": [{
-            "name": "instance_id",
-            "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
-        }],
-        "order": "desc",
-        "marker": "3",
+        # "dimensions": [{
+        #     "name": "instance_id",
+        #     "value": "9f31d05a-76d5-478a-b864-b1b5e8708482"
+        # }],
+        # "order": "desc",
+        # "marker": "SYS.ECS.cpu_util.instance_id:9f31d05a-76d5-478a-b864-b1b5e8708482",
         "limit": 10
     }
     for metric in connection.cloud_eye.metrics(**query):
