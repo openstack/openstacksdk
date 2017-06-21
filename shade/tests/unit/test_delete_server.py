@@ -16,6 +16,7 @@ test_delete_server
 
 Tests for the `delete_server` command.
 """
+import uuid
 
 from shade import exc as shade_exc
 from shade.tests import fakes
@@ -138,5 +139,127 @@ class TestDeleteServer(base.RequestsMockTestCase):
                      'compute', 'public', append=['servers', '1234'])),
         ])
         self.assertTrue(self.cloud.delete_server('porky', wait=False))
+
+        self.assert_calls()
+
+    def test_delete_server_delete_ips(self):
+        """
+        Test that deleting server and fips works
+        """
+        server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
+        fip_id = uuid.uuid4().hex
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [server]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json'],
+                     qs_elements=['floating_ip_address=172.24.5.5']),
+                 complete_qs=True,
+                 json={'floatingips': [{
+                     'router_id': 'd23abc8d-2991-4a55-ba98-2aaea84cc72f',
+                     'tenant_id': '4969c491a3c74ee4af974e6d800c62de',
+                     'floating_network_id': '376da547-b977-4cfe-9cba7',
+                     'fixed_ip_address': '10.0.0.4',
+                     'floating_ip_address': '172.24.5.5',
+                     'port_id': 'ce705c24-c1ef-408a-bda3-7bbd946164ac',
+                     'id': fip_id,
+                     'status': 'ACTIVE'}]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips',
+                             '{fip_id}.json'.format(fip_id=fip_id)])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 complete_qs=True,
+                 json={'floatingips': []}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234'])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': []}),
+        ])
+        self.assertTrue(self.cloud.delete_server(
+            'porky', wait=True, delete_ips=True))
+
+        self.assert_calls()
+
+    def test_delete_server_delete_ips_bad_neutron(self):
+        """
+        Test that deleting server with a borked neutron doesn't bork
+        """
+        server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [server]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json'],
+                     qs_elements=['floating_ip_address=172.24.5.5']),
+                 complete_qs=True,
+                 status_code=404),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234'])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': []}),
+        ])
+        self.assertTrue(self.cloud.delete_server(
+            'porky', wait=True, delete_ips=True))
+
+        self.assert_calls()
+
+    def test_delete_server_delete_fips_nova(self):
+        """
+        Test that deleting server with a borked neutron doesn't bork
+        """
+        self.cloud._floating_ip_source = 'nova'
+        server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [server]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-floating-ips']),
+                 json={'floating_ips': [
+                     {
+                         'fixed_ip': None,
+                         'id': 1,
+                         'instance_id': None,
+                         'ip': '172.24.5.5',
+                         'pool': 'nova'
+                     }]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-floating-ips', '1'])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-floating-ips']),
+                 json={'floating_ips': []}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234'])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': []}),
+        ])
+        self.assertTrue(self.cloud.delete_server(
+            'porky', wait=True, delete_ips=True))
 
         self.assert_calls()
