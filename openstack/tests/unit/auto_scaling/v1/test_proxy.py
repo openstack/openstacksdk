@@ -16,6 +16,8 @@ from openstack.auto_scaling.v1 import config as _config
 from openstack.auto_scaling.v1 import group as _group
 from openstack.auto_scaling.v1 import instance as _instance
 from openstack.auto_scaling.v1 import policy as _policy
+from openstack.auto_scaling.v1 import quota as _quota
+from openstack.auto_scaling.v1 import activity as _activity_log
 from openstack.tests.unit.test_proxy_base3 import BaseProxyTestCase
 
 
@@ -516,24 +518,24 @@ class TestAutoScalingInstance(TestAutoScalingProxy):
         super(TestAutoScalingInstance, self).__init__(*args, **kwargs)
 
     def test_remove_instance_with_instance(self):
-        self.proxy.remove_instance(_instance.Instance(id="some-policy-id"))
-        self.assert_session_delete("scaling_group_instance/some-policy-id",
+        self.proxy.remove_instance(_instance.Instance(id="some-instance-id"))
+        self.assert_session_delete("scaling_group_instance/some-instance-id",
                                    params={"instance_delete": "no"})
 
     def test_remove_instance_with_id(self):
-        self.proxy.remove_instance("some-policy-id")
-        self.assert_session_delete("scaling_group_instance/some-policy-id",
+        self.proxy.remove_instance("some-instance-id")
+        self.assert_session_delete("scaling_group_instance/some-instance-id",
                                    params={"instance_delete": "no"})
 
     def test_delete_instance_with_instance(self):
-        self.proxy.remove_instance(_instance.Instance(id="some-policy-id"),
+        self.proxy.remove_instance(_instance.Instance(id="some-instance-id"),
                                    delete_instance=True)
-        self.assert_session_delete("scaling_group_instance/some-policy-id",
+        self.assert_session_delete("scaling_group_instance/some-instance-id",
                                    params={"instance_delete": "yes"})
 
-    def test_remove_instance_with_id(self):
-        self.proxy.remove_instance("some-policy-id", delete_instance=True)
-        self.assert_session_delete("scaling_group_instance/some-policy-id",
+    def test_delete_instance_with_id(self):
+        self.proxy.remove_instance("some-instance-id", delete_instance=True)
+        self.assert_session_delete("scaling_group_instance/some-instance-id",
                                    params={"instance_delete": "yes"})
 
     def test_batch_add_instances(self):
@@ -570,7 +572,7 @@ class TestAutoScalingInstance(TestAutoScalingProxy):
                                               "instance-id-2",
                                               "instance-id-3"
                                           ],
-                                          'instance_delete': 'no'
+                                          "instance_delete": "no"
                                       })
 
     def test_batch_remove_and_delete_instance(self):
@@ -592,7 +594,7 @@ class TestAutoScalingInstance(TestAutoScalingProxy):
                     "instance-id-2",
                     "instance-id-3"
                 ],
-                'instance_delete': 'yes'
+                "instance_delete": "yes"
             })
 
     def test_list_instance(self):
@@ -613,7 +615,7 @@ class TestAutoScalingInstance(TestAutoScalingProxy):
             "start_number": 1,
             "limit": 20
         }
-        self.assert_session_get_with("/scaling_group_instance",
+        self.assert_session_get_with("/scaling_group_instance/group-id/list",
                                      params=transferred_query)
         self.assertEquals(1, len(instances))
         instance = instances[0]
@@ -629,3 +631,74 @@ class TestAutoScalingInstance(TestAutoScalingProxy):
         self.assertEqual("ca3dcd84-d197-4c4f-af2a-cf8ba39696ac",
                          instance.scaling_configuration_id)
         self.assertEqual("2015-07-23T06:47:33Z", instance.create_time)
+
+
+class TestAutoScalingActivity(TestAutoScalingProxy):
+    def __init__(self, *args, **kwargs):
+        super(TestAutoScalingActivity, self).__init__(*args, **kwargs)
+
+    def test_list_activities(self):
+        query = {
+            "start_time": "2015-07-24T01:21:02Z",
+            "end_time": "2015-07-25T01:21:02Z",
+            "marker": 0,
+            "limit": 20
+        }
+        self.mock_response_json_file_values("list_activities.json")
+        activities = list(self.proxy.activities("any-group-id", **query))
+
+        transferred_query = {
+            "start_time": "2015-07-24T01:21:02Z",
+            "end_time": "2015-07-25T01:21:02Z",
+            "scaling_group_id": "any-group-id",
+            "start_number": 0,
+            "limit": 20
+        }
+        self.assert_session_get_with("/scaling_activity_log/any-group-id",
+                                     params=transferred_query)
+
+        self.assertEquals(2, len(activities))
+
+        activity = activities[0]
+        self.assertIsInstance(activity, _activity_log.Activity)
+        self.assertEqual("a8924393-1024-4c24-8ac6-e4d481360884",
+                         activity.id)
+        self.assertEqual("SUCCESS", activity.status)
+        self.assertEqual(1, activity.instance_value)
+        self.assertEqual(0, activity.desire_value)
+        self.assertEqual("2015-07-24T01:21:02Z", activity.start_time)
+        self.assertEqual("2015-07-24T01:23:31Z", activity.end_time)
+        self.assertEqual("as-config-TEO_XQF2JJSI",
+                         activity.instance_added_list)
+
+
+class TestAutoScalingQuota(TestAutoScalingProxy):
+    def __init__(self, *args, **kwargs):
+        super(TestAutoScalingQuota, self).__init__(*args, **kwargs)
+
+    def test_list_quota(self):
+        self.mock_response_json_file_values("list_quota.json")
+        quotas = list(self.proxy.quotas())
+        self.assert_session_get_with("/quotas")
+        self.assertEquals(4, len(quotas))
+
+        quota = quotas[0]
+        self.assertIsInstance(quota, _quota.Quota)
+        self.assertEqual("scaling_Group", quota.type)
+        self.assertEqual(2, quota.used)
+        self.assertEqual(25, quota.quota)
+        self.assertEqual(50, quota.max)
+
+    def test_list_scaling_quota(self):
+        self.mock_response_json_file_values("list_scaling_quota.json")
+        quotas = list(self.proxy.quotas("group-id"))
+        self.assert_session_get_with("/quotas/group-id",
+                                     params={"scaling_group_id":"group-id"})
+        self.assertEquals(2, len(quotas))
+
+        quota = quotas[0]
+        self.assertIsInstance(quota, _quota.Quota)
+        self.assertEqual("scaling_Policy", quota.type)
+        self.assertEqual(2, quota.used)
+        self.assertEqual(50, quota.quota)
+        self.assertEqual(50, quota.max)

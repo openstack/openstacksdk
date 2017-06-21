@@ -1,0 +1,30 @@
+{
+  "quotas": {
+    "resources": [
+      {
+        "type": "scaling_Group",
+        "used": 2,
+        "quota": 25,
+        "max": 50
+      },
+      {
+        "type": "scaling_Config",
+        "used": 3,
+        "quota": 100,
+        "max": 200
+      },
+      {
+        "type": "scaling_Policy",
+        "used": -1,
+        "quota": 50,
+        "max": 50
+      },
+      {
+        "type": "scaling_Instance",
+        "used": -1,
+        "quota": 200,
+        "max": 1000
+      }
+    ]
+  }
+}

@@ -17,7 +17,9 @@ from openstack.auto_scaling import auto_scaling_service
 class Instance(resource.Resource):
     resource_key = 'scaling_group_instance'
     resources_key = 'scaling_group_instances'
-    base_path = '/scaling_group_instance'
+    # ok, we just fix the base path to list because there are no common rules
+    # for the operations for instance
+    base_path = '/scaling_group_instance/%(scaling_group_id)s/list'
     query_marker_key = 'start_number'
     next_marker_path = 'start_number'
     service = auto_scaling_service.AutoScalingService()
@@ -35,13 +37,12 @@ class Instance(resource.Resource):
     )
 
     #: Properties
-    #: Valid values include ``private``, ``public``
     #: AutoScaling instance id
     id = resource.Body('instance_id')
     #: AutoScaling instance name
     name = resource.Body('instance_name')
     #: Id of AutoScaling group the instance belongs to
-    scaling_group_id = resource.Body('scaling_group_id')
+    scaling_group_id = resource.URI('scaling_group_id')
     #: Name of AutoScaling group the instance belongs to
     scaling_group_name = resource.Body('scaling_group_name')
     #: Id of AutoScaling config the instance create with
@@ -56,6 +57,32 @@ class Instance(resource.Resource):
     health_status = resource.Body('health_status')
     #: AutoScaling instance create time
     create_time = resource.Body('create_time')
+
+    def remove(self, session, delete_instance=False, ignore_missing=True):
+        """Remove an instance of auto scaling group
+
+        precondition:
+        * the instance must in ``INSERVICE`` status
+        * after remove the instance number of auto scaling group should not
+           be less than min instance number
+        * The owner auto scaling group should not in scaling status
+        :param session: openstack session
+        :param bool delete_instance: When set to ``True``, instance will be
+               deleted after removed
+        :param bool ignore_missing: When set to ``False``
+           :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+           the config does not exist.
+           When set to ``True``, no exception will be set when attempting to
+           delete a nonexistent config.
+        :return:
+       """
+        uri = utils.urljoin("/scaling_group_instance", self.id)
+        endpoint_override = self.service.get_endpoint_override()
+        delete_instance = "yes" if delete_instance else "no"
+        return session.delete(uri, endpoint_filter=self.service,
+                              endpoint_override=endpoint_override,
+                              headers={"Accept": ""},
+                              params={"instance_delete": delete_instance})
 
     def batch_remove(self, session, instances, delete_instance=False):
         """ batch remove auto-scaling instances

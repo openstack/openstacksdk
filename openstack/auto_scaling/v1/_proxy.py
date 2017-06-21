@@ -16,6 +16,8 @@ from openstack.auto_scaling.v1 import config as _config
 from openstack.auto_scaling.v1 import instance as _instance
 from openstack.auto_scaling.v1 import group as _group
 from openstack.auto_scaling.v1 import policy as _policy
+from openstack.auto_scaling.v1 import activity as _activity
+from openstack.auto_scaling.v1 import quota as _quota
 
 
 class Proxy(proxy2.BaseProxy):
@@ -332,11 +334,10 @@ class Proxy(proxy2.BaseProxy):
             delete a nonexistent config.
         :return:
         """
-        _delete = "yes" if delete_instance else "no"
-        return self._delete(_instance.Instance,
-                            instance,
-                            ignore_missing=ignore_missing,
-                            params={"instance_delete": _delete})
+        instance = self._get_resource(_instance.Instance, instance)
+        return instance.remove(self._session,
+                               delete_instance=delete_instance,
+                               ignore_missing=ignore_missing)
 
     def batch_remove_instances(self, group, instances, delete_instance=False):
         """Batch remove instances of auto scaling group
@@ -372,3 +373,39 @@ class Proxy(proxy2.BaseProxy):
         group = self._get_resource(_group.Group, group)
         instance = _instance.Instance(scaling_group_id=group.id)
         return instance.batch_add(self._session, instances)
+
+    def activities(self, group, **query):
+        """Retrieve a generator of Activity
+        :param group: The value can be the ID of a group
+             or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
+        :param dict query: Optional query parameters to be sent to limit the
+                      resources being returned.
+            * ``start_time``: activity start time
+            * ``end_time``: activity end time
+            * ``marker``:  pagination marker, known as ``start_number``
+            * ``limit``: pagination limit
+
+        :returns: A generator of group (:class:`~openstack.auto_scaling.v2.
+                    activity.Activity`) instances
+        """
+        group = self._get_resource(_group.Group, group)
+        query["scaling_group_id"] = group.id
+        return self._list(_activity.Activity,
+                          paginated=True,
+                          **query)
+
+    def quotas(self, group=None):
+        """Retrieve a generator of Quota
+        :param group: If group is set, will query quota for the group instead
+            of quota of user. The value can be the ID of a group or a
+            :class:`~openstack.auto_scaling.v2.group.Group` instance.
+        :returns: A generator of quota (:class:`~openstack.auto_scaling.v2.
+                    quota.Quota`) instances
+        """
+        if group:
+            group = self._get_resource(_group.Group, group)
+            return self._list(_quota.ScalingQuota,
+                              paginated=False,
+                              scaling_group_id=group.id)
+        else:
+            return self._list(_quota.Quota, paginated=False)

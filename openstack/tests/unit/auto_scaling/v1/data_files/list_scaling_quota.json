@@ -1,0 +1,18 @@
+{
+  "quotas": {
+    "resources": [
+      {
+        "type": "scaling_Policy",
+        "used": 2,
+        "quota": 50,
+        "max": 50
+      },
+      {
+        "type": "scaling_Instance",
+        "used": 0,
+        "quota": 200,
+        "max": 1000
+      }
+    ]
+  }
+}
