@@ -42,8 +42,8 @@ opts = Opts(cloud_name=TEST_CLOUD)
 occ = os_client_config.OpenStackConfig()
 cloud = occ.get_one_cloud(opts.cloud, argparse=opts)
 
-IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
-FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
+IMAGE_NAME = _get_resource_value('image_name', 'Community_Ubuntu_16.04_TSI_latest')
+FLAVOR_NAME = _get_resource_value('flavor_name', 's1.medium')
 
 
 def service_exists(**kwargs):
@@ -71,6 +71,10 @@ class BaseFunctionalTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ.setdefault(
+            'OS_CLOUD_EYE_ENDPOINT_OVERRIDE',
+            'https://ces.eu-de.otc.t-systems.com/V1.0/%(project_id)s'
+        )
         cls.conn = connection.from_config(cloud_name=TEST_CLOUD)
 
     @classmethod

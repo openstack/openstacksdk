@@ -19,7 +19,7 @@ import logging
 def list_metrics(connection):
     query = {
         "namespace": "SYS.ECS",
-        "metric_name": "cpu_util",
+        # "metric_name": "cpu_util",
         # "dimensions": [{
         #     "name": "instance_id",
         #     "value": "9f31d05a-76d5-478a-b864-b1b5e8708482"

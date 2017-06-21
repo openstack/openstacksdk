@@ -23,6 +23,8 @@ from examples.cloud_eye import quotas
 from examples.connect import create_connection_from_config
 
 # utils.enable_logging(debug=False, stream=sys.stdout)
+from openstack import connection
+from openstack import profile
 
 FORMAT = '%(asctime)-15s %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -39,10 +41,19 @@ os.environ.setdefault(
 )
 
 # initial connection
-connection = create_connection_from_config()
+# conn = create_connection_from_config()
+conn = connection.Connection(auth_url="https://iam.eu-de.otc.t-systems.com/v3",
+                             project_id="d4f2557d248e4860829f5fef030b209c",
+                             user_domain_id="bb42e2cd2b784ac4bdc350fb660a2bdb",
+                             username="zhangdong",
+                             password="hw@otc2017")
+
+zones = conn.dns.zones(limit=20)
+for zone in zones:
+    print zone
 
 # Cloud Eye Examples
-# metrics.list_metrics(connection)
+# metrics.list_metrics(conn)
 # metrics.list_favorite_metrics(connection)
 
 # alarms.list_alarms(connection)
@@ -54,4 +65,3 @@ connection = create_connection_from_config()
 # metric_data.add_metric_data(connection)
 
 # quotas.list_quotas(connection)
-
