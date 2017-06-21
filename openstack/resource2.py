@@ -380,7 +380,9 @@ class Resource(object):
 
     @classmethod
     def _get_mapping(cls, component):
-        """Return a dict of attributes of a given component on the class"""
+        """Return a dict of attributes of a given component on the class
+
+        """
         mapping = {}
         # Since we're looking at class definitions we need to include
         # subclasses, so check the whole MRO.
@@ -694,11 +696,12 @@ class Resource(object):
         self._translate_response(response, has_body=has_body)
         return self
 
-    def delete(self, session):
+    def delete(self, session, params=None):
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
+        :param params: http params to be sent
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -712,7 +715,8 @@ class Resource(object):
         endpoint_override = self.service.get_endpoint_override()
         response = session.delete(request.uri, endpoint_filter=self.service,
                                   endpoint_override=endpoint_override,
-                                  headers={"Accept": ""})
+                                  headers={"Accept": ""},
+                                  params=params)
 
         self._translate_response(response, has_body=False)
         return self

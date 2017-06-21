@@ -12,7 +12,6 @@
 
 
 class Formatter(object):
-
     @classmethod
     def serialize(cls, value):
         """Return a string representing the formatted value"""
@@ -25,7 +24,6 @@ class Formatter(object):
 
 
 class BoolStr(Formatter):
-
     @classmethod
     def deserialize(cls, value):
         """Convert a boolean string to a boolean"""
@@ -48,4 +46,29 @@ class BoolStr(Formatter):
                 return "false"
         else:
             raise ValueError("Unable to serialize boolean string: %s"
+                             % value)
+
+
+class ListRef(Formatter):
+    """A formatter used to serialize/deserialize list reference
+
+    [{"id": "any-id"}] <-> ["any-id"], for example.
+    """
+
+    @classmethod
+    def deserialize(cls, value):
+        """Convert a list primitive to list reference"""
+        if isinstance(value, list):
+            return [item["id"] for item in value]
+        else:
+            raise ValueError("Unable to deserialize list reference: %s"
+                             % value)
+
+    @classmethod
+    def serialize(cls, value):
+        """Convert list reference to list primitive"""
+        if isinstance(value, list):
+            return [{"id": item} for item in value]
+        else:
+            raise ValueError("Unable to serialize list reference: %s"
                              % value)

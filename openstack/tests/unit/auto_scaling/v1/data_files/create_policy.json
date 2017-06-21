@@ -1,0 +1,17 @@
+{
+  "name": "as-policy-7a75",
+  "scaling_policy_action": {
+    "operation": "ADD",
+    "instance_number": 1
+  },
+  "cool_down_time": 900,
+  "scheduled_policy": {
+    "launch_time": "16:00",
+    "recurrence_type": "Daily",
+    "recurrence_value": null,
+    "start_time": "2015-12-14T03:34Z",
+    "end_time": "2015-12-27T03:34Z"
+  },
+  "type": "RECURRENCE",
+  "scaling_group_id": "5bc3aa02-b83e-454c-aba1-4d2095c68f8b"
+}

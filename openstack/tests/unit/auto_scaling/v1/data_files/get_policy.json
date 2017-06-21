@@ -1,0 +1,18 @@
+{
+  "scaling_policy": {
+    "scaling_policy_id": "fd7d63ce-8f5c-443e-b9a0-bef9386b23b3",
+    "scaling_group_id": "e5d27f5c-dd76-4a61-b4bc-a67c5686719a",
+    "scaling_policy_name": "schedule1",
+    "scaling_policy_type": "SCHEDULED",
+    "scheduled_policy": {
+      "launch_time": "2015-07-24T01:21Z"
+    },
+    "cool_down_time": 300,
+    "scaling_policy_action": {
+      "operation": "REMOVE",
+      "instance_number": 1
+    },
+    "policy_status": "INSERVICE",
+    "create_time": "2015-07-24T01:09:30Z"
+  }
+}

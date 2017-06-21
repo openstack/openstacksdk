@@ -1,0 +1,18 @@
+{
+  "limit": 10,
+  "total_number": 1,
+  "start_number": 0,
+  "scaling_group_instances": [
+    {
+      "instance_id": "b25c1589-c96c-465b-9fef-d06540d1945c",
+      "scaling_group_id": "e5d27f5c-dd76-4a61-b4bc-a67c5686719a",
+      "scaling_group_name": "discuz",
+      "life_cycle_state": "INSERVICE",
+      "health_status": "NORMAL",
+      "scaling_configuration_name": "discuz",
+      "scaling_configuration_id": "ca3dcd84-d197-4c4f-af2a-cf8ba39696ac",
+      "create_time": "2015-07-23T06:47:33Z",
+      "instance_name": "discuz_3D210808"
+    }
+  ]
+}

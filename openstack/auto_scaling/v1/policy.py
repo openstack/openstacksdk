@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from openstack import resource2 as resource
+from openstack import utils
 from openstack.auto_scaling import auto_scaling_service
 
 
@@ -56,6 +57,7 @@ class Policy(resource.Resource):
     allow_list = True
     allow_get = True
     allow_delete = True
+    allow_update = True
 
     _query_mapping = resource.QueryParameters(
         'scaling_group_id', 'limit',
@@ -85,3 +87,28 @@ class Policy(resource.Resource):
     create_time = resource.Body('create_time')
     #: valid values include: ``INSERVICE``, ``PAUSED``
     status = resource.Body('policy_status')
+
+    def _action(self, session, body):
+        """Preform alarm actions given the message body."""
+        url = utils.urljoin(self.base_path, self.id, "action")
+        endpoint_override = self.service.get_endpoint_override()
+        return session.post(url,
+                            endpoint_filter=self.service,
+                            endpoint_override=endpoint_override,
+                            json=body,
+                            headers={})
+
+    def execute(self, session):
+        """execute policy"""
+        body = {"action": "execute"}
+        self._action(session, body)
+
+    def pause(self, session):
+        """pause policy"""
+        body = {"action": "pause"}
+        self._action(session, body)
+
+    def resume(self, session):
+        """resume policy"""
+        body = {"action": "resume"}
+        self._action(session, body)

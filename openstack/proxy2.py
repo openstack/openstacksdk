@@ -27,20 +27,21 @@ def _check_resource(strict=False):
     def wrap(method):
         def check(self, expected, actual=None, *args, **kwargs):
             if (strict and actual is not None and not
-               isinstance(actual, resource2.Resource)):
+            isinstance(actual, resource2.Resource)):
                 raise ValueError("A %s must be passed" % expected.__name__)
             elif (isinstance(actual, resource2.Resource) and not
-                  isinstance(actual, expected)):
+            isinstance(actual, expected)):
                 raise ValueError("Expected %s but received %s" % (
-                                 expected.__name__, actual.__class__.__name__))
+                    expected.__name__, actual.__class__.__name__))
 
             return method(self, expected, actual, *args, **kwargs)
+
         return check
+
     return wrap
 
 
 class BaseProxy(object):
-
     def __init__(self, session):
         self._session = session
 
@@ -106,8 +107,10 @@ class BaseProxy(object):
                                   **attrs)
 
     @_check_resource(strict=False)
-    def _delete(self, resource_type, value, ignore_missing=True, **attrs):
+    def _delete(self, resource_type, value, ignore_missing=True, params=None,
+                **attrs):
         """Delete a resource
+
 
         :param resource_type: The type of resource to delete. This should
                               be a :class:`~openstack.resource2.Resource`
@@ -120,6 +123,7 @@ class BaseProxy(object):
                     raised when the resource does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent resource2.
+        :param dict params: HTTP request params to be sent
         :param dict attrs: Attributes to be passed onto the
                            :meth:`~openstack.resource2.Resource.delete`
                            method, such as the ID of a parent resource.
@@ -136,7 +140,7 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
-            rv = res.delete(self._session)
+            rv = res.delete(self._session, params=params)
         except exceptions.NotFoundException as e:
             if ignore_missing:
                 return None

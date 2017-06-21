@@ -1,0 +1,36 @@
+{
+  "scaling_group": {
+    "networks": [
+      {
+        "id": "2daf6ba6-fb24-424a-b5b8-c554fab95f15"
+      }
+    ],
+    "detail": null,
+    "scaling_group_name": "api_gateway_modify",
+    "scaling_group_id": "d4e50321-3777-4135-97f8-9f5e9714a4b0",
+    "scaling_group_status": "INSERVICE",
+    "scaling_configuration_id": "53579851-3841-418d-a97b-9cecdb663a90",
+    "scaling_configuration_name": "press",
+    "current_instance_number": 7,
+    "desire_instance_number": 8,
+    "min_instance_number": 0,
+    "max_instance_number": 100,
+    "cool_down_time": 900,
+    "lb_listener_id": null,
+    "security_groups": [
+      {
+        "id": "23b7b999-0a30-4b48-ae8f-ee201a88a6ab"
+      }
+    ],
+    "create_time": "2015-09-01T08:36:10Z",
+    "vpc_id": "3e22f934-800d-4bb4-a588-0b9a76108190",
+    "health_periodic_audit_method": "NOVA_AUDIT",
+    "health_periodic_audit_time": 60,
+    "instance_terminate_policy": "OLD_CONFIG_OLD_INSTANCE",
+    "is_scaling": true,
+    "delete_publicip": false,
+    "notifications": [
+      "EMAIL"
+    ]
+  }
+}

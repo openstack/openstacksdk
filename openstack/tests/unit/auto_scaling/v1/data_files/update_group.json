@@ -1,0 +1,8 @@
+{
+  "name": "group_1",
+  "scaling_configuration_id": "f8327883-6a07-4497-9a61-68c03e8e72a2",
+  "desire_instance_number": 1,
+  "min_instance_number": 1,
+  "max_instance_number": 3,
+  "cool_down_time": 200
+}

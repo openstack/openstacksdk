@@ -1,0 +1,41 @@
+{
+  "limit": 20,
+  "scaling_groups": [
+    {
+      "networks": [
+        {
+          "id": " a8327883-6b07-4497-9c61-68d03ee193a "
+        }
+      ],
+      "detail": null,
+      "scaling_group_name": "healthCheck",
+      "scaling_group_id": "77a7a397-7d2f-4e79-9da9-6a35e2709150",
+      "scaling_group_status": "INSERVICE",
+      "scaling_configuration_id": "1d281494-6085-4579-b817-c1f813be835f",
+      "scaling_configuration_name": "healthCheck",
+      "current_instance_number": 0,
+      "desire_instance_number": 1,
+      "min_instance_number": 0,
+      "max_instance_number": 500,
+      "cool_down_time": 300,
+      "lb_listener_id": "f06c0112570743b51c0e8fbe1f235bab",
+      "security_groups": [
+        {
+          "id": "8a4b1d5b-0054-419f-84b1-5c8a59ebc829"
+        }
+      ],
+      "create_time": "2015-07-23T02:46:29Z",
+      "vpc_id": "863ccae2-ee85-4d27-bc5b-3ba2a198a9e2",
+      "health_periodic_audit_method": "ELB_AUDIT",
+      "health_periodic_audit_time": "5",
+      "instance_terminate_policy": "OLD_CONFIG_OLD_INSTANCE",
+      "is_scaling": false,
+      "delete_publicip": false,
+      "notifications": [
+        "EMAIL"
+      ]
+    }
+  ],
+  "total_number": 1,
+  "start_number": 0
+}

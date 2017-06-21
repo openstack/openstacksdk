@@ -84,7 +84,7 @@ class BaseProxyTestCase(base.TestCase):
         )
 
     def assert_session_put_with(self, uri, json, header={}):
-        self.session.post.assert_called_once_with(
+        self.session.put.assert_called_once_with(
             uri,
             endpoint_filter=self.service,
             endpoint_override=self.service.get_endpoint_override(),
@@ -92,10 +92,11 @@ class BaseProxyTestCase(base.TestCase):
             json=json
         )
 
-    def assert_session_delete(self, uri, header={'Accept': ''}):
+    def assert_session_delete(self, uri, params=None):
         self.session.delete.assert_called_once_with(
             uri,
             endpoint_filter=self.service,
             endpoint_override=self.service.get_endpoint_override(),
-            headers=header
+            headers={'Accept': ''},
+            params=params,
         )

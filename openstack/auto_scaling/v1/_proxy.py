@@ -13,6 +13,7 @@
 from openstack import proxy2
 from openstack.auto_scaling import auto_scaling_service
 from openstack.auto_scaling.v1 import config as _config
+from openstack.auto_scaling.v1 import instance as _instance
 from openstack.auto_scaling.v1 import group as _group
 from openstack.auto_scaling.v1 import policy as _policy
 
@@ -123,7 +124,9 @@ class Proxy(proxy2.BaseProxy):
         return self._create(_group.Group, prepend_key=False, **attrs)
 
     def update_group(self, group, **attrs):
-        """Create a new group from attributes
+        """update group with attributes
+        :param group: The value can be the ID of a group
+             or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.auto_scaling.v2.group.Group`,
                            comprised of the properties on the Group class.
@@ -213,6 +216,18 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._create(_policy.Policy, prepend_key=False, **attrs)
 
+    def update_policy(self, policy, **attrs):
+        """update policy with attributes
+        :param policy: The value can be the ID of a policy
+             or a :class:`~openstack.auto_scaling.v2.policy.Policy` instance.
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.auto_scaling.v2.policy.Policy`,
+                           comprised of the properties on the Policy class.
+        :returns: The results of policy creation
+        :rtype: :class:`~openstack.auto_scaling.v2.policy.Policy`
+        """
+        return self._update(_policy.Policy, policy, prepend_key=False, **attrs)
+
     def get_policy(self, policy):
         """Get a policy
         :param policy: The value can be the ID of a policy
@@ -254,3 +269,106 @@ class Proxy(proxy2.BaseProxy):
         return self._find(_policy.Policy, name_or_id,
                           ignore_missing=ignore_missing,
                           name=name_or_id)
+
+    def execute_policy(self, policy):
+        """execute policy
+
+        :param policy: The value can be the ID of a policy
+             or a :class:`~openstack.auto_scaling.v2.policy.Policy` instance.
+        """
+        policy = self._get_resource(_policy.Policy, policy)
+        policy.execute(self._session)
+
+    def resume_policy(self, policy):
+        """resume policy
+
+        :param policy: The value can be the ID of a policy
+             or a :class:`~openstack.auto_scaling.v2.policy.Policy` instance.
+        """
+        policy = self._get_resource(_policy.Policy, policy)
+        policy.resume(self._session)
+
+    def pause_policy(self, policy):
+        """pause policy
+
+        :param policy: The value can be the ID of a policy
+             or a :class:`~openstack.auto_scaling.v2.policy.Policy` instance.
+        """
+        policy = self._get_resource(_policy.Policy, policy)
+        policy.pause(self._session)
+
+    def instances(self, **query):
+        """Retrieve a generator of instances
+        :param dict query: Optional query parameters to be sent to limit the
+                      resources being returned.
+            * ``health_status``: instance health status
+            * ``lifecycle_status``: policy type
+            * ``scaling_group_id``: scaling group id the policy applied to
+            * ``marker``:  pagination marker
+            * ``limit``: pagination limit
+
+        :returns: A generator of instances with type
+                  (:class:`~openstack.auto_scaling.v2.instance.Instance`)
+        """
+        return self._list(_instance.Instance, paginated=True, **query)
+
+    def remove_instance(self, instance, delete_instance=False,
+                        ignore_missing=True):
+        """Remove an instance of auto scaling group
+
+        precondition:
+        * the instance must in ``INSERVICE`` status
+        * after remove the instance number of auto scaling group should not
+            be less than min instance number
+        * The own auto scaling group should not in scaling status
+        :param instance:  The value can be the ID of a instance or a
+            :class:`~openstack.auto_scaling.v2.instance.Instance` instance.
+        :param bool delete_instance: When set to ``True``, instance will be
+                deleted after removed
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the config does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent config.
+        :return:
+        """
+        _delete = "yes" if delete_instance else "no"
+        return self._delete(_instance.Instance,
+                            instance,
+                            ignore_missing=ignore_missing,
+                            params={"instance_delete": _delete})
+
+    def batch_remove_instances(self, group, instances, delete_instance=False):
+        """Batch remove instances of auto scaling group
+
+         precondition:
+        * the instance must in ``INSERVICE`` status
+        * after batch remove the current instance number of auto scaling group
+            should not be less than min instance number
+        * The own auto scaling group should not in scaling status
+        :param group: The group of instances that to be removed, The value can
+                be the ID of a group or a
+                :class:`~openstack.auto_scaling.v2.group.Group` instance.
+        :param list instances: The list item value can be ID of an instance
+            or a :class:`~openstack.auto_scaling.v2.instance.Instance` instance
+        :param bool delete_instance: When set to ``True``, instance will be
+                deleted after removed
+        """
+        group = self._get_resource(_group.Group, group)
+        instance = _instance.Instance(scaling_group_id=group.id)
+        return instance.batch_remove(self._session,
+                                     instances,
+                                     delete_instance=delete_instance)
+
+    def batch_add_instances(self, group, instances):
+        """Batch add instances for auto scaling group
+
+        :param group: The group which instances will be added to,
+                The value can be the ID of a group or a
+                :class:`~openstack.auto_scaling.v2.group.Group` instance.
+        :param list instances: The list item value can be ID of an instance
+            or a :class:`~openstack.auto_scaling.v2.instance.Instance` instance
+        """
+        group = self._get_resource(_group.Group, group)
+        instance = _instance.Instance(scaling_group_id=group.id)
+        return instance.batch_add(self._session, instances)

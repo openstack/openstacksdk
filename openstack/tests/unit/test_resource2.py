@@ -1109,6 +1109,7 @@ class TestResourceActions(base.TestCase):
             self.request.uri,
             endpoint_filter=self.sot.service,
             endpoint_override=None,
+            params=None,
             headers={"Accept": ""})
 
         self.sot._translate_response.assert_called_once_with(
