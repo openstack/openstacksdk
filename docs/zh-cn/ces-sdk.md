@@ -1,18 +1,12 @@
 # CloudEyeService SDK
 
-HuaWei OpenStack `Cloud Eye` service SDK
-- service entry: `conn.cloud_eye`
-- service type: `cloud-eye`
+HuaWei OpenStack `Cloud Eye` 服务SDK
+- 服务入口: `conn.cloud_eye`
+- 服务类型: `cloud-eye`
 
-## API document
-Not provided for now.
+## 指标管理
 
-## initial SDK client
-You can find how to initial SDK client in the [quickstart](huawei-sdk?id=_2-build-v3-client) page .
-
-## Metric
-
-### List Metric
+### 查询指标列表
 
 > Query parameter ``dimensions`` could at most have three items
 
@@ -34,7 +28,7 @@ for metric in metrics:
     logging.info(metric)
 ```
 
-### List Favorite Metrics
+### 查询已关注指标列表
 
 ```python
 favorite_metrics = conn.cloud_eye.favorite_metrics()
@@ -43,9 +37,9 @@ for metric in favorite_metrics:
 ```
 
 
-## Alarm
+## 告警规则
 
-### List Alarm
+### 查询告警规则列表
 
 ```python
 query = {
@@ -57,7 +51,7 @@ for alarm in conn.cloud_eye.alarms(**query):
     logging.info(alarm)
 ```
 
-### Get Alarm
+### 查询单条告警规则信息
 
 > Most of get resource function support both ``plain`` ID or resource ``Instance`` with id parameter
 
@@ -74,7 +68,7 @@ alarm = conn.cloud_eye.get_alarm(alarm.Alarm(id="some-alarm-id"))
 ```
 
 
-### Delete Alarm
+### 删除告警规则
 
 > Most of delete resource function support both ``plain`` ID or ``Instance`` with id parameter
 
@@ -88,7 +82,7 @@ conn.cloud_eye.delete_alarm("some-alarm-id")
 conn.cloud_eye.delete_alarm(alarm.Alarm(id="some-alarm-id"))
 ```
 
-### Enable Alarm
+### 启用告警规则
 
 ```python
 conn.cloud_eye.enable_alarm("some-alarm-id")
@@ -101,7 +95,7 @@ conn.cloud_eye.enable_alarm(alarm.Alarm(id="some-alarm-id"))
 ```
 
 
-### Disable Alarm
+### 暂停告警规则
 
 ```python
 conn.cloud_eye.disable_alarm("some-alarm-id")
@@ -114,9 +108,9 @@ conn.cloud_eye.disable_alarm(alarm.Alarm(id="some-alarm-id"))
 ```
 
 
-## Metric Data
+## 监控数据管理
 
-### Add Metric Data
+### 添加监控数据
 ```python
     def get_epoch_time(datetime_):
         if datetime_:
@@ -164,7 +158,7 @@ conn.cloud_eye.disable_alarm(alarm.Alarm(id="some-alarm-id"))
     conn.cloud_eye.add_metric_data(data)
 ```
 
-### List Metric Aggregation
+### 查询监控数据
 
 - `filter`: valid aggregation includes ``average``, ``variance``, ``min``, ``max``
 - `from` & `to`: unix epoch milli seconds
@@ -204,11 +198,11 @@ conn.cloud_eye.disable_alarm(alarm.Alarm(id="some-alarm-id"))
 ```
 
 
-## Quota
+## 配额管理
 
-### List Quota
+### 查询配额
 
-> currently, only ``Alarm`` quota is available
+?> 目前, 只有 ``Alarm`` 配额
 
 ```python
 quotas = conn.cloud_eye.quotas()

@@ -1,8 +1,8 @@
 # DNS SDK
 
-HuaWei OpenStack `DNS` service SDK
-- service entry: `conn.dns`
-- service type: `dns`
+HuaWei OpenStack `DNS` 服务SDK
+- 服务入口: `conn.dns`
+- 服务类型: `dns`
 
 ## Zone
 
