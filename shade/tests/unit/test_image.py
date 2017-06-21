@@ -136,6 +136,22 @@ class TestImage(BaseTestImage):
             self.cloud.list_images())
         self.assert_calls()
 
+    def test_list_images_string_properties(self):
+        image_dict = self.fake_image_dict.copy()
+        image_dict['properties'] = 'list,of,properties'
+        self.register_uris([
+            dict(method='GET', uri='https://image.example.com/v2/images',
+                 json={'images': [image_dict]}),
+        ])
+        images = self.cloud.list_images()
+        self.assertEqual(
+            self.cloud._normalize_images([image_dict]),
+            images)
+        self.assertEqual(
+            images[0]['properties']['properties'],
+            'list,of,properties')
+        self.assert_calls()
+
     def test_list_images_paginated(self):
         marker = str(uuid.uuid4())
         self.register_uris([
