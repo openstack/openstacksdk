@@ -268,7 +268,13 @@ class Normalizer(object):
         # Discard noise
         self._remove_novaclient_artifacts(image)
 
+        # If someone made a property called "properties" that contains a
+        # string (this has happened at least one time in the wild), the
+        # the rest of the normalization here goes belly up.
         properties = image.pop('properties', {})
+        if not isinstance(properties, dict):
+            properties = {'properties': properties}
+
         visibility = image.pop('visibility', None)
         protected = _to_bool(image.pop('protected', False))
 
@@ -318,7 +324,8 @@ class Normalizer(object):
         # Backwards compat with glance
         if not self.strict_mode:
             for key, val in properties.items():
-                new_image[key] = val
+                if key != 'properties':
+                    new_image[key] = val
             new_image['protected'] = protected
             new_image['metadata'] = properties
             new_image['created'] = new_image['created_at']
