@@ -661,6 +661,7 @@ class OpenStackConfig(object):
         the keystoneauth Auth Plugin Options and os-cloud. Also, peek in the
         argv to see if all of the auth plugin options should be registered
         or merely the ones already configured.
+
         :param argparse.ArgumentParser: parser to attach argparse options to
         :param list argv: the arguments provided to the application
         :param string service_keys: Service or list of services this argparse
