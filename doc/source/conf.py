@@ -15,6 +15,8 @@
 import os
 import sys
 
+import openstackdocstheme
+
 sys.path.insert(0, os.path.abspath('../..'))
 # -- General configuration ----------------------------------------------------
 
@@ -23,7 +25,6 @@ sys.path.insert(0, os.path.abspath('../..'))
 extensions = [
     'sphinx.ext.autodoc',
     #'sphinx.ext.intersphinx',
-    'oslosphinx',
     'reno.sphinxext'
 ]
 
@@ -58,6 +59,8 @@ pygments_style = 'sphinx'
 # html_theme_path = ["."]
 # html_theme = '_theme'
 # html_static_path = ['static']
+html_theme = 'openstackdocs'
+html_theme_path = [openstackdocstheme.get_html_theme_path()]
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
