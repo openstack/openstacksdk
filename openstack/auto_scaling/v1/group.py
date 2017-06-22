@@ -20,7 +20,6 @@ class Group(resource.Resource):
     resources_key = "scaling_groups"
     base_path = "/scaling_group"
     query_marker_key = "start_number"
-    next_marker_path = "start_number"
     service = auto_scaling_service.AutoScalingService()
 
     # capabilities
@@ -91,6 +90,11 @@ class Group(resource.Resource):
     availability_zones = resource.Body("availability_zones")
     #: Create time of the group
     create_time = resource.Body("create_time")
+
+    @classmethod
+    def get_next_marker(cls, response_json, yielded):
+        from openstack.auto_scaling.v1 import get_next_marker
+        return get_next_marker(response_json, yielded)
 
     def _action(self, session, body):
         """Preform group actions given the message body."""

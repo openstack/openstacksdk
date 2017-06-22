@@ -19,7 +19,6 @@ class Activity(resource.Resource):
     resources_key = "scaling_activity_log"
     base_path = "/scaling_activity_log/%(scaling_group_id)s"
     query_marker_key = "start_number"
-    next_marker_path = "start_number"
     service = auto_scaling_service.AutoScalingService()
 
     # capabilities
@@ -54,3 +53,8 @@ class Activity(resource.Resource):
     instance_deleted_list = resource.Body("instance_deleted_list")
     #: The instance list added in the AutoScaling Activity
     instance_added_list = resource.Body("instance_added_list")
+
+    @classmethod
+    def get_next_marker(cls, response_json, yielded):
+        from openstack.auto_scaling.v1 import get_next_marker
+        return get_next_marker(response_json, yielded)

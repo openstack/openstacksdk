@@ -49,7 +49,6 @@ class Policy(resource.Resource):
     resources_key = 'scaling_policies'
     base_path = '/scaling_policy'
     query_marker_key = 'start_number'
-    next_marker_path = 'start_number'
     service = auto_scaling_service.AutoScalingService()
 
     # capabilities
@@ -87,6 +86,15 @@ class Policy(resource.Resource):
     create_time = resource.Body('create_time')
     #: valid values include: ``INSERVICE``, ``PAUSED``
     status = resource.Body('policy_status')
+
+    @classmethod
+    def get_next_marker(cls, response_json, yielded):
+        from openstack.auto_scaling.v1 import get_next_marker
+        return get_next_marker(response_json, yielded)
+
+    @classmethod
+    def get_list_uri(cls, params):
+        return "/scaling_policy/%(scaling_group_id)s/list" % params
 
     def _action(self, session, body):
         """Preform alarm actions given the message body."""

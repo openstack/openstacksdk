@@ -38,8 +38,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
         query = {
             "name": "as_config_name",
             "image_id": "image-ref-id",
-            "marker": 0,
-            "limit": 20
+            "marker": 0
         }
         self.mock_response_json_file_values("list_config.json")
         configs = list(self.proxy.configs(**query))
@@ -47,8 +46,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
         transferred_query = {
             "scaling_configuration_name": "as_config_name",
             "image_id": "image-ref-id",
-            "start_number": 0,
-            "limit": 20
+            "start_number": 0
         }
         self.assert_session_get_with("/scaling_configuration",
                                      params=transferred_query)
@@ -197,8 +195,7 @@ class TestAutoScalingGroup(TestAutoScalingProxy):
         query = {
             "name": "as_group_name",
             "scaling_configuration_id": "as-config-id",
-            "marker": 0,
-            "limit": 20
+            "marker": 0
         }
         self.mock_response_json_file_values("list_group.json")
         groups = list(self.proxy.groups(**query))
@@ -206,8 +203,7 @@ class TestAutoScalingGroup(TestAutoScalingProxy):
         transferred_query = {
             "scaling_group_name": "as_group_name",
             "scaling_configuration_id": "as-config-id",
-            "start_number": 0,
-            "limit": 20
+            "start_number": 0
         }
         self.assert_session_get_with("/scaling_group",
                                      params=transferred_query)
@@ -367,23 +363,20 @@ class TestAutoScalingPolicy(TestAutoScalingProxy):
 
     def test_list_policy(self):
         query = {
-            "scaling_group_id": "group-id",
             "name": "as-config-id",
             "type": "ALARM",
-            "marker": 1,
-            "limit": 20
+            "marker": 1
         }
         self.mock_response_json_file_values("list_policy.json")
-        policies = list(self.proxy.policies(**query))
+        policies = list(self.proxy.policies("group-id", **query))
 
         transferred_query = {
             "scaling_group_id": "group-id",
             "scaling_policy_name": "as-config-id",
             "scaling_policy_type": "ALARM",
-            "start_number": 1,
-            "limit": 20
+            "start_number": 1
         }
-        self.assert_session_get_with("/scaling_policy",
+        self.assert_session_get_with("/scaling_policy/group-id/list",
                                      params=transferred_query)
 
         self.assertEquals(1, len(policies))
@@ -599,21 +592,18 @@ class TestAutoScalingInstance(TestAutoScalingProxy):
 
     def test_list_instance(self):
         query = {
-            "scaling_group_id": "group-id",
             "health_status": "INITIALIZING",
             "lifecycle_status": "PENDING",
-            "marker": 1,
-            "limit": 20
+            "marker": 1
         }
         self.mock_response_json_file_values("list_instance.json")
-        instances = list(self.proxy.instances(**query))
+        instances = list(self.proxy.instances("group-id", **query))
 
         transferred_query = {
             "scaling_group_id": "group-id",
             "health_status": "INITIALIZING",
             "life_cycle_state": "PENDING",
-            "start_number": 1,
-            "limit": 20
+            "start_number": 1
         }
         self.assert_session_get_with("/scaling_group_instance/group-id/list",
                                      params=transferred_query)
@@ -641,8 +631,7 @@ class TestAutoScalingActivity(TestAutoScalingProxy):
         query = {
             "start_time": "2015-07-24T01:21:02Z",
             "end_time": "2015-07-25T01:21:02Z",
-            "marker": 0,
-            "limit": 20
+            "marker": 0
         }
         self.mock_response_json_file_values("list_activities.json")
         activities = list(self.proxy.activities("any-group-id", **query))
@@ -651,8 +640,7 @@ class TestAutoScalingActivity(TestAutoScalingProxy):
             "start_time": "2015-07-24T01:21:02Z",
             "end_time": "2015-07-25T01:21:02Z",
             "scaling_group_id": "any-group-id",
-            "start_number": 0,
-            "limit": 20
+            "start_number": 0
         }
         self.assert_session_get_with("/scaling_activity_log/any-group-id",
                                      params=transferred_query)

@@ -38,6 +38,8 @@ import collections
 import itertools
 import time
 
+import six
+
 from openstack import exceptions
 from openstack import format
 from openstack import utils
@@ -722,6 +724,28 @@ class Resource(object):
         return self
 
     @classmethod
+    def get_next_marker(cls, response_json, yielded):
+        if cls.next_marker_path:
+            return cls.find_value_by_accessor(response_json,
+                                              cls.next_marker_path)
+        return None
+
+    @staticmethod
+    def find_value_by_accessor(input_dict, accessor):
+        """Gets value from a dictionary using a dotted accessor"""
+        current_data = input_dict
+        for chunk in accessor.split('.'):
+            if isinstance(current_data, dict):
+                current_data = current_data.get(chunk, {})
+            else:
+                return None
+        return current_data
+
+    @classmethod
+    def get_list_uri(cls, params):
+        return cls.base_path % params
+
+    @classmethod
     def list(cls, session, paginated=False, **params):
         """This method is a generator which yields resource objects.
 
@@ -755,7 +779,7 @@ class Resource(object):
 
         more_data = True
         query_params = cls._query_mapping._transpose(params)
-        uri = cls.base_path % params
+        uri = cls.get_list_uri(params)
 
         while more_data:
             endpoint_override = cls.service.get_endpoint_override()
@@ -765,7 +789,7 @@ class Resource(object):
                                params=query_params)
             response_json = resp.json()
             if cls.resources_key:
-                resources = get_dict_value_by_accessor(response_json,
+                resources = cls.find_value_by_accessor(response_json,
                                                        cls.resources_key)
             else:
                 resources = response_json
@@ -792,12 +816,19 @@ class Resource(object):
                 yield value
 
             # if `next marker path` is explicit specified, use it as marker
-            if cls.next_marker_path:
-                marker = get_dict_value_by_accessor(response_json,
-                                                    cls.next_marker_path)
-                if marker:
-                    new_marker = marker
+            next_marker = cls.get_next_marker(response_json, yielded)
+            if next_marker:
+                new_marker = next_marker if next_marker != -1 else None
 
+            # if cls.next_marker_path:
+            #     if isinstance(cls.next_marker_path, six.string_types):
+            #         new_marker = cls.find_value_by_accessor(response_json,
+            #                                                 cls.next_marker_path)
+            #     elif callable(cls.next_marker_path):
+            #         new_marker = cls.next_marker_path(response_json, yielded)
+
+            if not new_marker:
+                return
             if not paginated:
                 return
             if "limit" in query_params and yielded < query_params["limit"]:
@@ -867,17 +898,6 @@ class Resource(object):
             return None
         raise exceptions.ResourceNotFound(
             "No %s found for %s" % (cls.__name__, name_or_id))
-
-
-def get_dict_value_by_accessor(input_dict, accessor):
-    """Gets value from a dictionary using a dotted accessor"""
-    current_data = input_dict
-    for chunk in accessor.split('.'):
-        if isinstance(current_data, dict):
-            current_data = current_data.get(chunk, {})
-        else:
-            return None
-    return current_data
 
 
 def wait_for_status(session, resource, status, failures, interval, wait):

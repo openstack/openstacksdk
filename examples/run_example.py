@@ -41,17 +41,15 @@ os.environ.setdefault(
 )
 
 # initial connection
-# conn = create_connection_from_config()
-conn = connection.Connection(auth_url="https://iam.eu-de.otc.t-systems.com/v3",
-                             project_id="d4f2557d248e4860829f5fef030b209c",
-                             user_domain_id="bb42e2cd2b784ac4bdc350fb660a2bdb",
-                             username="zhangdong",
-                             password="hw@otc2017")
+conn = create_connection_from_config()
+# print list(conn.network.subnets(network_id='0a2228f2-7f8a-45f1-8e09-9039e1d09975'))
+print conn.network.get_network('0915c993-ff8d-425d-a376-c887811a8f6d')
 
-zones = conn.dns.zones(limit=20)
-for zone in zones:
-    print zone
-
+# subnets = conn.network.subnets(limit=1)
+# routers = conn.network.routers(limit=1)
+# for subnet in routers:
+#     print subnet
+#     break
 # Cloud Eye Examples
 # metrics.list_metrics(conn)
 # metrics.list_favorite_metrics(connection)

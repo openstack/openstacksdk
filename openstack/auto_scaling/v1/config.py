@@ -11,6 +11,7 @@
 # under the License.
 from openstack import resource2 as resource
 from openstack.auto_scaling import auto_scaling_service
+from openstack.auto_scaling.v1 import get_next_marker
 
 
 class InstanceConfig(resource.Resource):
@@ -49,7 +50,6 @@ class Config(resource.Resource):
     resources_key = 'scaling_configurations'
     base_path = '/scaling_configuration'
     query_marker_key = 'start_number'
-    next_marker_path = 'start_number'
     service = auto_scaling_service.AutoScalingService()
 
     # capabilities
@@ -76,6 +76,10 @@ class Config(resource.Resource):
     instance_config = resource.Body('instance_config',
                                     default={},
                                     type=InstanceConfig)
+
+    @classmethod
+    def get_next_marker(cls, response_json, yielded):
+        return get_next_marker(response_json, yielded)
 
     def batch_delete(self, session, configs):
         """ batch delete auto-scaling configs

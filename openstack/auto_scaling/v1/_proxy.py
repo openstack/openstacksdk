@@ -193,8 +193,10 @@ class Proxy(proxy2.BaseProxy):
         group = self._get_resource(_group.Group, group)
         group.pause(self._session)
 
-    def policies(self, **query):
+    def policies(self, group, **query):
         """Retrieve a generator of policies
+        :param group: The value can be the ID of a group
+             or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``name``: policy name
@@ -206,6 +208,8 @@ class Proxy(proxy2.BaseProxy):
         :returns: A generator of policy
                   (:class:`~openstack.auto_scaling.v2.policy.Policy`) instances
         """
+        group = self._get_resource(_group.Group, group)
+        query["scaling_group_id"] = group.id
         return self._list(_policy.Policy, paginated=True, **query)
 
     def create_policy(self, **attrs):
@@ -299,8 +303,10 @@ class Proxy(proxy2.BaseProxy):
         policy = self._get_resource(_policy.Policy, policy)
         policy.pause(self._session)
 
-    def instances(self, **query):
+    def instances(self, group, **query):
         """Retrieve a generator of instances
+        :param group: The value can be the ID of a group
+             or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``health_status``: instance health status
@@ -312,6 +318,8 @@ class Proxy(proxy2.BaseProxy):
         :returns: A generator of instances with type
                   (:class:`~openstack.auto_scaling.v2.instance.Instance`)
         """
+        group = self._get_resource(_group.Group, group)
+        query["scaling_group_id"] = group.id
         return self._list(_instance.Instance, paginated=True, **query)
 
     def remove_instance(self, instance, delete_instance=False,

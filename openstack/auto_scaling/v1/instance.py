@@ -21,7 +21,6 @@ class Instance(resource.Resource):
     # for the operations for instance
     base_path = '/scaling_group_instance/%(scaling_group_id)s/list'
     query_marker_key = 'start_number'
-    next_marker_path = 'start_number'
     service = auto_scaling_service.AutoScalingService()
 
     # capabilities
@@ -57,6 +56,11 @@ class Instance(resource.Resource):
     health_status = resource.Body('health_status')
     #: AutoScaling instance create time
     create_time = resource.Body('create_time')
+
+    @classmethod
+    def get_next_marker(cls, response_json, yielded):
+        from openstack.auto_scaling.v1 import get_next_marker
+        return get_next_marker(response_json, yielded)
 
     def remove(self, session, delete_instance=False, ignore_missing=True):
         """Remove an instance of auto scaling group

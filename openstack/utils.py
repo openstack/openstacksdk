@@ -9,12 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+import base64
 import functools
 import logging
+import time
 
 import deprecation
-import time
+import six
 
 from openstack import version
 
@@ -105,3 +106,10 @@ def get_epoch_time(datetime_):
         return int(seconds) * 1000
     else:
         return None
+
+
+def b64encode(source):
+    if six.PY3:
+        source = source.encode('utf-8')
+    content = base64.b64encode(source).decode('utf-8')
+    return content
