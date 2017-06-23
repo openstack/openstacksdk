@@ -136,3 +136,143 @@ connection.compute.servers()
 connection.network.networks()
 
 ```
+
+
+## 添加功能
+
+这节以一个例子来展示如何新增功能
+
+### 命名约定
+
+- 模块名称都是小写，多个单词以下划线分隔。比如，`openstack.object_store`
+- 类名义大写字母开头，多个单词每个单词的首字母都是大写。比如，`ServerMetadata`
+- 类属性，类方法，都是小写并以下划线分隔，比如，`allow_list`，`get_data`
+
+### Services
+
+OpenStack SDK中的服务通常以程序名来命名而不是项目名。比如，我们熟知的“Nova”项目，在OpenStack SDK中，我们称之为“compute” 。
+
+下面的例子，我们以创建一个名称为"Fake"的服务为例，我们会在openstack下，创建一个faka的包。所有的Fake服务相关的代码，都会放在 `openstack.fake` 包下。
+
+现在，我们开始创建 Service，它的代码非常简单，
+
+> openstack/fake/fake_service.py
+
+```
+from openstack import service_filter
+
+
+class FakeService(service_filter.ServiceFilter):
+    """The fake service."""
+
+    valid_versions = [service_filter.ValidVersion('v2')]
+
+    def __init__(self, version=None):
+        """Create a fake service."""
+        super(FakeService, self).__init__(service_type='fake', version=version)
+```
+
+下一步，我们要开始创建Resource。
+
+### Resource
+
+Resource的命名是根据服务端对资源的命名来的，常见的命名方式是使用REST API中的URI。现在我们假定要对一个名为 Fake 的资源进行操作。
+
+> openstack/fake/v2/fake.py
+
+```
+# Apache 2 header omitted for brevity
+
+from openstack.fake import fake_service
+from openstack import resource2
+
+
+class Fake(resource2.Resource):
+    resource_key = "resource"
+    resources_key = "resources"
+    base_path = "/fake"
+    service = fake_service.FakeService()
+
+    allow_create = True
+    allow_update = True
+    allow_delete = True
+    allow_list = True
+    allow_head = True
+
+    #: The transaction date and time.
+    timestamp = resourc2.Body("x-timestamp")
+    #: The name of this resource.
+    name = resource2.Body("name")
+    #: The value of the resource. present in the header.
+    value = resource2.Header("x-resource-value")
+    #: Is this resource cool? If so, set it to True.
+    #: This is a multi-line comment about cool stuff.
+    cool = resource2.Body("cool", type=bool)
+```
+
+看上面的代码示例，所有的资源对象都是继承 openstack.resource2.Resource，然后根据该资源的实际情况来覆盖一些基础属性，就可以完成对应的CRUD操作。
+
+**1. resource_key 和 resources_key**
+
+这两个属性是根据服务端返回的数据结构来定的，默认值都是 None，当返回的JSON对象就是你想要的数据的时候，就不需要设置这两个key。比如：
+```json
+{
+    "name": "Ernie Banks",
+    ....
+}
+```
+
+但是，在本例中，Fake 资源返回的数据把 Fake对象放在了 "resources" key 节点下，比如：
+
+```
+{
+    "resources": [
+        {
+            "name": "xxx",
+            ....
+        }
+    ]
+}
+```
+
+这时候，我们就需要设置 `resources_key` 为 `resources`, 同理，在获取详情的时候，返回的对象是放在 `resource` key 下面的。
+
+**2. base_path**
+
+base_path 用来设置资源的请求路径。在本例中，值为 `/fake`，那么对应的，会自动使用下表的URI：
+
+|  操作  |      URI      |
+|:------:|:-------------:|
+|  list  |     /fake     |
+|   get  | /fake/fake-id |
+| create |     /fake     |
+| update | /fake/fake-id |
+| delete | /fake/fake-id |
+
+
+**3. service**
+
+service 属性用于定义该资源属于哪个service，参见[上一节](zh-cn/contributing?id=services)
+
+
+**4.Supported Operations**
+
+用于指定资源支持哪些操作，在 [Resource](zh-cn/contributing?id=resource) 中已经说明过了
+
+```
+    allow_create = True
+    allow_update = True
+    allow_delete = True
+    allow_list = True
+    allow_head = True
+```
+
+**5. 文档**
+
+Openstack SDk 使用Sphinx的autodoc功能来为每个Resource生成API文档。这些覆盖的属性不需要添加注释，其他新增的属性需要添加注释，注释的格式是以 `#:` 开头。 
+
+```
+    #: Is this resource cool? If so, set it to True.
+    #: This is a multi-line comment about cool stuff.
+    cool = resource2.Body("cool", type=bool)
+```
