@@ -4,3 +4,4 @@
   - [CES](zh-cn/ces-sdk.md)
   - [AS](zh-cn/as-sdk.md)
   - [ELB](zh-cn/elb-sdk.md)
+- [贡献代码](zh-cn/contributing.md)

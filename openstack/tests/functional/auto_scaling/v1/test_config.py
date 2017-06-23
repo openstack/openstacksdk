@@ -62,7 +62,7 @@ def create_config(conn, name, flavor_id, image_id, key_name):
 
 
 class TestConfig(base.BaseFunctionalTest):
-    CONFIG_NAME = "pythonsdk-" + uuid.uuid4().hex
+    CONFIG_NAME = "SDK-" + uuid.uuid4().hex
     config = None
 
     @classmethod
@@ -86,7 +86,7 @@ class TestConfig(base.BaseFunctionalTest):
     def test_batch_delete(self):
         configs = []
         for i in range(3):
-            name = "pythonsdk-" + uuid.uuid4().hex
+            name = "SDK-" + uuid.uuid4().hex
             created = create_config(self.conn,
                                     name,
                                     self.config.instance_config.flavor_id,

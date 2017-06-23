@@ -44,7 +44,7 @@ def create_policy(conn, policy_name, group_id):
 
 
 class TestPolicy(base.BaseFunctionalTest):
-    POLICY_NAME = "pythonsdk-" + uuid.uuid4().hex
+    POLICY_NAME = "SDK-" + uuid.uuid4().hex
     policy = None
     group = None
     config = None
@@ -73,7 +73,7 @@ class TestPolicy(base.BaseFunctionalTest):
         self.assertEqual(_policy.id, self.policy.id)
 
     def test_delete_policy(self):
-        name = "pythonsdk-" + uuid.uuid4().hex
+        name = "SDK-" + uuid.uuid4().hex
         created = create_policy(self.conn,
                                 name,
                                 self.policy.scaling_group_id)
@@ -92,7 +92,7 @@ class TestPolicy(base.BaseFunctionalTest):
         self.assertEqual("PAUSED", self.policy.status)
 
     def test_update_policy(self):
-        new_name = "pythonsdk-" + uuid.uuid4().hex
+        new_name = "SDK-" + uuid.uuid4().hex
         self.conn.auto_scaling.update_policy(self.policy,
                                              name=new_name)
         self.policy = self.conn.auto_scaling.get_policy(self.policy)

@@ -69,7 +69,7 @@ def create_group(conn, group_name, config_id, vpc_id, networks,
 
 
 class TestGroup(base.BaseFunctionalTest):
-    GROUP_NAME = "pythonsdk-" + uuid.uuid4().hex
+    GROUP_NAME = "SDK-" + uuid.uuid4().hex
     group = None
 
     @classmethod
