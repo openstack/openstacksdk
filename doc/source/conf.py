@@ -25,8 +25,15 @@ sys.path.insert(0, os.path.abspath('../..'))
 extensions = [
     'sphinx.ext.autodoc',
     #'sphinx.ext.intersphinx',
-    'reno.sphinxext'
+    'reno.sphinxext',
+    'openstackdocstheme',
 ]
+
+# openstackdocstheme options
+repository_name = 'openstack/os-client-config'
+bug_project = 'os-client-config'
+bug_tag = ''
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
