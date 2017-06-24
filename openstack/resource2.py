@@ -174,6 +174,7 @@ class _ComponentManager(collections.MutableMapping):
             value = self.attributes.get(key, None)
             if isinstance(value, Resource):
                 value = value._body.dirty
+            # get type
             plain[key] = value
         return plain
 
@@ -347,13 +348,14 @@ class Resource(object):
         that correspond to the relevant body, header, and uri
         attributes that exist on this class.
         """
-        body = self._consume_attrs(self._body_mapping(), attrs)
-        header = self._consume_attrs(self._header_mapping(), attrs)
-        uri = self._consume_attrs(self._uri_mapping(), attrs)
+        body = self._consume_attrs(Body, attrs)
+        header = self._consume_attrs(Header, attrs)
+        uri = self._consume_attrs(URI, attrs)
 
         return body, header, uri
 
-    def _consume_attrs(self, mapping, attrs):
+    @classmethod
+    def _consume_attrs(cls, component_type, attrs):
         """Given a mapping and attributes, return relevant matches
 
         This method finds keys in attrs that exist in the mapping, then
@@ -363,22 +365,62 @@ class Resource(object):
         type of Resource component one time, rather than looking at the
         same source dict several times.
         """
-        relevant_attrs = {}
-        consumed_keys = []
-        for key in attrs:
-            if key in mapping:
-                # Convert client-side key names into server-side.
-                relevant_attrs[mapping[key]] = attrs[key]
-                consumed_keys.append(key)
-            elif key in mapping.values():
-                # Server-side names can be stored directly.
-                relevant_attrs[key] = attrs[key]
-                consumed_keys.append(key)
 
-        for key in consumed_keys:
-            attrs.pop(key)
+        fields = {}
+        for klass in cls.__mro__:
+            for key, component in klass.__dict__.items():
+                if isinstance(component, component_type):
+                    # Make sure base classes don't end up overwriting
+                    # mappings we've found previously in subclasses.
+                    if key not in fields:
+                        fields[key] = component
+                        fields[component.name] = component
+
+        relevant_attrs = {}
+        attr_keys = attrs.keys()
+        for key in attr_keys:
+            if key in fields:
+                field = fields[key]
+                value = attrs.pop(key)
+                server_side_key = field.name
+                # Convert client-side key names into server-side.
+                if field.type and not isinstance(value, field.type):
+                    if issubclass(field.type, format.Formatter):
+                        value = field.type.serialize(value)
+                    elif issubclass(field.type, Resource):
+                        value = field.type.new(**value)
+                    else:
+                        value = field.type(value)
+                relevant_attrs[server_side_key] = value
 
         return relevant_attrs
+
+    # def _consume_attrs(self, mapping, attrs):
+    #     """Given a mapping and attributes, return relevant matches
+    #
+    #     This method finds keys in attrs that exist in the mapping, then
+    #     both transposes them to their server-side equivalent key name
+    #     to be returned, and finally pops them out of attrs. This allows
+    #     us to only calculate their place and existence in a particular
+    #     type of Resource component one time, rather than looking at the
+    #     same source dict several times.
+    #     """
+    #     relevant_attrs = {}
+    #     consumed_keys = []
+    #     for key in attrs:
+    #         if key in mapping:
+    #             # Convert client-side key names into server-side.
+    #             relevant_attrs[mapping[key]] = attrs[key]
+    #             consumed_keys.append(key)
+    #         elif key in mapping.values():
+    #             # Server-side names can be stored directly.
+    #             relevant_attrs[key] = attrs[key]
+    #             consumed_keys.append(key)
+    #
+    #     for key in consumed_keys:
+    #         attrs.pop(key)
+    #
+    #     return relevant_attrs
 
     @classmethod
     def _get_mapping(cls, component):
