@@ -1,0 +1,28 @@
+{
+  "backup_policys": [
+    {
+      "backup_policy_id": "XX",
+      "backup_policy_name": "plan01",
+      "scheduled_policy": {
+        "remain_first_backup_of_curMonth": "N",
+        "rentention_num": 10,
+        "frequency": 1,
+        "start_time": "12:00",
+        "status": "ON"
+      },
+      "policy_resource_count": 0
+    },
+    {
+      "backup_policy_id": "YY",
+      "backup_policy_name ": "plan02",
+      "scheduled_policy": {
+        "remain_first_backup_of_curMonth": "Y",
+        "rentention_num": 10,
+        "frequency": 1,
+        "start_time": "14:00",
+        "status": "ON"
+      },
+      "policy_resource_count": 10
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "success_resources": [
+    {
+      "resource_id": "bce8d47a-af17-4169-901f-4c7ae9f29c2c",
+      "os_vol_host_attr": "pod01.eu-de-01sa-brazil-1cn-north-1",
+      "availability_zone": "eu-de-01sa-brazil-1cn-north-1",
+      "resource_type": "volume"
+    }
+  ],
+  "fail_resources": [
+    {
+      "resource_id": "volume-id-2",
+      "os_vol_host_attr": "pod01.eu-de-01sa-brazil-1cn-north-1",
+      "availability_zone": "eu-de-01sa-brazil-1cn-north-1",
+      "resource_type": "volume",
+      "code": "VBS.0002",
+      "message": "xxxxx"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "success_resources": [
+    {
+      "resource_id": "bce8d47a-af17-4169-901f-4c7ae9f29c2c"
+    }
+  ],
+  "fail_resources": [
+    {
+      "resource_id": "volume-id-2",
+      "code": "VBS.0002",
+      "message": "xxxxx"
+    }
+  ]
+}
