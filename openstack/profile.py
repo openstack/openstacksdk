@@ -56,8 +56,11 @@ The resulting preference print out would look something like::
 
 import copy
 import logging
+
 import six
 
+from openstack import exceptions
+from openstack import module_loader
 from openstack.auto_scaling import auto_scaling_service
 from openstack.bare_metal import bare_metal_service
 from openstack.block_store import block_store_service
@@ -65,19 +68,18 @@ from openstack.cloud_eye import cloud_eye_service
 from openstack.cluster import cluster_service
 from openstack.compute import compute_service
 from openstack.database import database_service
-from openstack import exceptions
 from openstack.dns import dns_service
 from openstack.identity import identity_service
 from openstack.image import image_service
 from openstack.key_manager import key_manager_service
 from openstack.load_balancer import load_balancer_service as lb_service
 from openstack.message import message_service
-from openstack import module_loader
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
-from openstack.telemetry.alarm import alarm_service
 from openstack.telemetry import telemetry_service
+from openstack.telemetry.alarm import alarm_service
+from openstack.volume_backup import volume_backup_service
 from openstack.workflow import workflow_service
 
 _logger = logging.getLogger(__name__)
@@ -123,6 +125,8 @@ class Profile(object):
         self._add_service(cloud_eye_service.CloudEyeService(version="v1"))
         ass = auto_scaling_service.AutoScalingService(version="v1")
         self._add_service(ass)
+        vbs_v2 = volume_backup_service.VolumeBackupService(version="v2")
+        self._add_service(vbs_v2)
 
         if plugins:
             for plugin in plugins:
