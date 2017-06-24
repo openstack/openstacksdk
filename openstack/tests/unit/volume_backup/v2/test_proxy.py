@@ -85,7 +85,7 @@ class TestCloudBackup(TestVolumeBackupProxy):
         self.assert_session_delete("backups/some-backup-id")
 
     def test_delete_backup_with_instance(self):
-        self.proxy.delete_backup(_backup.CloudBackup(id="some-backup-id"))
+        self.proxy.delete_backup(_backup.Backup(id="some-backup-id"))
         self.assert_session_delete("backups/some-backup-id")
 
     def test_restore_backup(self):
@@ -111,8 +111,7 @@ class TestCloudBackup(TestVolumeBackupProxy):
             "name": "some-backup",
             "status": "available",
             "volume_id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
-            "limit": 10,
-            "offset": 10
+            "limit": 10
         }
         self.mock_response_json_file_values("list_backups.json")
         backups = list(self.proxy.backups(**query))
@@ -121,8 +120,7 @@ class TestCloudBackup(TestVolumeBackupProxy):
             "name": "some-backup",
             "status": "available",
             "volume_id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
-            "limit": 10,
-            "offset": 10
+            "limit": 10
         }
         self.assert_session_get_with("/backups", params=transferred_query)
         self.assertEquals(2, len(backups))
@@ -135,18 +133,16 @@ class TestCloudBackup(TestVolumeBackupProxy):
             "name": "some-backup",
             "status": "available",
             "volume_id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
-            "limit": 10,
-            "offset": 10
+            "limit": 10
         }
-        self.mock_response_json_file_values("list_backups.json")
+        self.mock_response_json_file_values("list_backup_details.json")
         backups = list(self.proxy.backups(details=True, **query))
 
         transferred_query = {
             "name": "some-backup",
             "status": "available",
             "volume_id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
-            "limit": 10,
-            "offset": 10
+            "limit": 10
         }
         self.assert_session_get_with("/backups/detail",
                                      params=transferred_query)
@@ -175,8 +171,12 @@ class TestCloudBackup(TestVolumeBackupProxy):
 
     def test_get_backup(self):
         self.mock_response_json_file_values("get_backup.json")
-        backup = list(self.proxy.get_backup("backup-id"))
-        self.assert_session_get_with("/backups/backup-id")
+        backup = self.proxy.get_backup("backup-id")
+        self.session.get.assert_called_once_with(
+            "backups/backup-id",
+            endpoint_filter=self.service,
+            endpoint_override=self.service.get_endpoint_override(),
+        )
 
         self.assertIsInstance(backup, _backup.Backup)
 

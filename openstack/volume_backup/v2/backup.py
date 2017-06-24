@@ -77,6 +77,12 @@ class Backup(resource.Resource):
     #: Properties
     #: The volume to be backup
     volume_id = resource.Body("volume_id")
+    #: The snapshot of volume which will be backup
+    snapshot_id = resource.Body("snapshot_id")
+    #: no meaning for now, first time full backup, then incremental by default
+    incremental = resource.Body("incremental", type=bool)
+    #: Force backup
+    force = resource.Body("force", type=bool)
     #: backup name
     name = resource.Body("name")
     #: backup description
