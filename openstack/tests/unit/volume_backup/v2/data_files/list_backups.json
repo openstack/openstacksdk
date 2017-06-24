@@ -1,0 +1,38 @@
+{
+  "backups": [
+    {
+      "id": "1d1139d8-8989-49d3-8aa1-83eb691e6db2",
+      "links": [
+        {
+          "href": "http://192.168.82.222:8776/v2/b23b579f08c84228b9b4673c46f0c442/backups/1d1139d8-8989-49d3-8aa1-83eb691e6db2",
+          "rel": "self"
+        },
+        {
+          "href": "http://192.168.82.222:8776/b23b579f08c84228b9b4673c46f0c442/backups/1d1139d8-8989-49d3-8aa1-83eb691e6db2",
+          "rel": "bookmark"
+        }
+      ],
+      "name": null
+    },
+    {
+      "id": "b3cf7a16-decc-4beb-8077-682737d94a58",
+      "links": [
+        {
+          "href": "http://192.168.82.222:8776/v2/b23b579f08c84228b9b4673c46f0c442/backups/b3cf7a16-decc-4beb-8077-682737d94a58",
+          "rel": "self"
+        },
+        {
+          "href": "http://192.168.82.222:8776/b23b579f08c84228b9b4673c46f0c442/backups/b3cf7a16-decc-4beb-8077-682737d94a58",
+          "rel": "bookmark"
+        }
+      ],
+      "name": null
+    }
+  ],
+  "backups_links": [
+    {
+      "href": "http://192.168.82.222:8776/b23b579f08c84228b9b4673c46f0c442/backups?limit=1&offset=1&marker=b3cf7a16-decc-4beb-8077-682737d94a58",
+      "rel": "next"
+    }
+  ]
+}

@@ -43,7 +43,8 @@ os.environ.setdefault(
 # initial connection
 conn = create_connection_from_config()
 # print list(conn.network.subnets(network_id='0a2228f2-7f8a-45f1-8e09-9039e1d09975'))
-print conn.network.get_network('0915c993-ff8d-425d-a376-c887811a8f6d')
+
+conn.volume_backup.get_job("2c9eb2c15cbc6bfd015cd4b2fe143e2a")
 
 # subnets = conn.network.subnets(limit=1)
 # routers = conn.network.routers(limit=1)

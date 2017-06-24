@@ -80,6 +80,10 @@ class BaseFunctionalTest(unittest.TestCase):
             ('https://as.eu-de.otc.t-systems.com'
              '/autoscaling-api/v1/%(project_id)s')
         )
+        os.environ.setdefault(
+            'OS_VOLUME_BACKUP_ENDPOINT_OVERRIDE',
+            'https://vbs.eu-de.otc.t-systems.com/v2/%(project_id)s'
+        )
         cls.conn = connection.from_config(cloud_name=TEST_CLOUD)
 
     @classmethod

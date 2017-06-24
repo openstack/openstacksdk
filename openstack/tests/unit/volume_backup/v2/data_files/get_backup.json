@@ -1,0 +1,27 @@
+{
+  "backup": {
+    "status": "error",
+    "description": null,
+    "links": [
+      {
+        "href": "http://192.168.82.222:8776/v2/b23b579f08c84228b9b4673c46f0c442/backups/1d1139d8-8989-49d3-8aa1-83eb691e6db2",
+        "rel": "self"
+      },
+      {
+        "href": "http://192.168.82.222:8776/b23b579f08c84228b9b4673c46f0c442/backups/1d1139d8-8989-49d3-8aa1-83eb691e6db2",
+        "rel": "bookmark"
+      }
+    ],
+    "availability_zone": null,
+    "volume_id": "2748f2f2-4394-4e6e-af8d-8dd34496c024",
+    "fail_reason": "Connection to swift failed: [Errno 111] ECONNREFUSED",
+    "id": "1d1139d8-8989-49d3-8aa1-83eb691e6db2",
+    "size": 1,
+    "object_count": null,
+    "container": "volumebackups",
+    "name": null,
+    "created_at": "2013-06-27T08:48:03.000000",
+    "os-bak-tenant-attr:tenant_id": "b23b579f08c84228b9b4673c46f0c442",
+    "service_metadata": " {\"bootable\": false, \"backupurl\": \"58d94782-6509-45ad-9442-970d2a005050\", \"BackupSize\": 0, \"progress\": \"0\", \"snap_id\": \"665e411f5d87431ca98c199fbd4a64fd\", \"Type\": 0} "
+  }
+}

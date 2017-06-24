@@ -14,27 +14,9 @@
 # under the License.
 
 import logging
-import sys
 
-from examples.connect import create_connection_from_config
-from openstack import utils
 from openstack.dns.v2.recordset import Recordset
-
-# utils.enable_logging(debug=False, stream=sys.stdout)
-
-# You must initialize logging, otherwise you'll not see debug output.
 from openstack.dns.v2.zone import Zone
-
-FORMAT = '%(asctime)-15s %(message)s'
-logging.basicConfig(format=FORMAT)
-root_log = logging.getLogger()
-root_log.setLevel(logging.DEBUG)
-requests_log = logging.getLogger('requests.packages.urllib3')
-requests_log.setLevel(logging.DEBUG)
-requests_log.propagate = True
-
-
-connection = create_connection_from_config()
 
 
 def list_recordsets(conn):
@@ -78,6 +60,7 @@ def delete_recordset(conn):
     recordset = Recordset(id='ff8080825ca865e8015caaaa0e1500ba')
     conn.dns.delete_recordset(zone, recordset)
 
+
 def all_recordsets(conn):
     query = {
         'limit': 100
@@ -85,10 +68,3 @@ def all_recordsets(conn):
     recordsets = conn.dns.all_recordsets(**query)
     for recordset in recordsets:
         logging.info(recordset)
-
-all_recordsets(connection)
-# list_recordsets(connection)
-# get_recordset(connection, 'ff8080825ca86646015caaa43b8c0072')
-# create_recordset(connection)
-# delete_recordset(connection)
-# get_nameservers(connection)

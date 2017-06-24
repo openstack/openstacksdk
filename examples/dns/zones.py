@@ -71,7 +71,7 @@ def get_zone(conn, zone_id):
 
 
 def delete_zone(conn):
-    conn.dns.delete_zone('ff8080825ca5c454015ca6eefb480067')
+    conn.dns.delete_backup('ff8080825ca5c454015ca6eefb480067')
 
 
 def get_nameservers(conn):
@@ -104,11 +104,3 @@ def remove_router_from_zone(conn):
 
     logging.info(result)
 
-
-list_zones(connection)
-# get_zone(connection, 'ff8080825ca865e8015ca99563af004a')
-# create_zone(connection)
-# delete_zone(connection)
-# get_nameservers(connection)
-# add_router_to_zone(connection)
-# remove_router_from_zone(connection)

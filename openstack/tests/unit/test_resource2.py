@@ -24,7 +24,6 @@ from openstack.tests.unit import base
 
 
 class TestComponent(base.TestCase):
-
     class ExampleComponent(resource2._BaseComponent):
         key = "_example"
 
@@ -234,7 +233,6 @@ class TestComponent(base.TestCase):
 
 
 class TestComponentManager(base.TestCase):
-
     def test_create_basic(self):
         sot = resource2._ComponentManager()
         self.assertEqual(dict(), sot.attributes)
@@ -330,7 +328,6 @@ class TestComponentManager(base.TestCase):
 
 
 class Test_Request(base.TestCase):
-
     def test_create(self):
         uri = 1
         body = 2
@@ -344,7 +341,6 @@ class Test_Request(base.TestCase):
 
 
 class TestQueryParameters(base.TestCase):
-
     def test_create(self):
         location = "location"
         mapping = {"first_name": "first-name"}
@@ -383,7 +379,6 @@ class TestQueryParameters(base.TestCase):
 
 
 class TestResource(base.TestCase):
-
     def test_initialize_basic(self):
         body = {"body": 1}
         header = {"header": 2, "Location": "somewhere"}
@@ -506,9 +501,12 @@ class TestResource(base.TestCase):
                  serverside_key2: value2,
                  other_key: other_value}
 
-        sot = resource2.Resource()
+        class SomeResource(resource2.Resource):
+            some_key1 = resource2.Body("someKey1")
+            some_key2 = resource2.Body("someKey2")
 
-        result = sot._consume_attrs(mapping, attrs)
+        sot = SomeResource()
+        result = sot._consume_attrs(resource2.Body, attrs)
 
         # Make sure that the expected key was consumed and we're only
         # left with the other stuff.
@@ -639,8 +637,17 @@ class TestResource(base.TestCase):
         value = "id"
         self.assertEqual(value, resource2.Resource._get_id(value))
 
-    def test_to_dict(self):
+    def test__get_attribute(self):
+        class Test(resource2.Resource):
+            name = resource2.Body("MyName")
+            id = resource2.Body("MyID")
 
+        test = Test.new(id="id", name="name")
+
+        self.assertEqual("id", test.id)
+        self.assertEqual("name", test.name)
+
+    def test_to_dict(self):
         class Test(resource2.Resource):
             foo = resource2.Header('foo')
             bar = resource2.Body('bar')
@@ -657,7 +664,6 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict())
 
     def test_to_dict_no_body(self):
-
         class Test(resource2.Resource):
             foo = resource2.Header('foo')
             bar = resource2.Body('bar')
@@ -671,7 +677,6 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict(body=False))
 
     def test_to_dict_no_header(self):
-
         class Test(resource2.Resource):
             foo = resource2.Header('foo')
             bar = resource2.Body('bar')
@@ -686,7 +691,6 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict(headers=False))
 
     def test_to_dict_ignore_none(self):
-
         class Test(resource2.Resource):
             foo = resource2.Header('foo')
             bar = resource2.Body('bar')
@@ -700,7 +704,6 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict(ignore_none=True))
 
     def test_to_dict_with_mro(self):
-
         class Parent(resource2.Resource):
             foo = resource2.Header('foo')
             bar = resource2.Body('bar')
@@ -723,7 +726,6 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict())
 
     def test_to_dict_value_error(self):
-
         class Test(resource2.Resource):
             foo = resource2.Header('foo')
             bar = resource2.Body('bar')
@@ -736,7 +738,6 @@ class TestResource(base.TestCase):
                          six.text_type(err))
 
     def test_to_dict_with_mro_no_override(self):
-
         class Parent(resource2.Resource):
             header = resource2.Header('HEADER')
             body = resource2.Body('BODY')
@@ -922,7 +923,6 @@ class TestResource(base.TestCase):
 
 
 class TestResourceActions(base.TestCase):
-
     def setUp(self):
         super(TestResourceActions, self).setUp()
         self.base_path = "base_path"
@@ -1339,14 +1339,12 @@ class TestResourceActions(base.TestCase):
 
 
 class TestResourceFind(base.TestCase):
-
     def setUp(self):
         super(TestResourceFind, self).setUp()
 
         self.result = 1
 
         class Base(resource2.Resource):
-
             @classmethod
             def existing(cls, **kwargs):
                 raise exceptions.NotFoundException
@@ -1356,13 +1354,11 @@ class TestResourceFind(base.TestCase):
                 return None
 
         class OneResult(Base):
-
             @classmethod
             def _get_one_match(cls, *args):
                 return self.result
 
         class NoResults(Base):
-
             @classmethod
             def _get_one_match(cls, *args):
                 return None
@@ -1374,7 +1370,6 @@ class TestResourceFind(base.TestCase):
         value = 1
 
         class Test(resource2.Resource):
-
             @classmethod
             def existing(cls, **kwargs):
                 mock_match = mock.Mock()
@@ -1452,7 +1447,6 @@ class TestResourceFind(base.TestCase):
 
 
 class TestWaitForStatus(base.TestCase):
-
     def test_immediate_status(self):
         status = "loling"
         resource = mock.Mock()
@@ -1521,7 +1515,6 @@ class TestWaitForStatus(base.TestCase):
 
 
 class TestWaitForDelete(base.TestCase):
-
     @mock.patch("time.sleep", return_value=None)
     def test_success(self, mock_sleep):
         resource = mock.Mock()

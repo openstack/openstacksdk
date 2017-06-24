@@ -1,0 +1,16 @@
+{
+  "backup": {
+    "id": "54ba0e69-48a0-4a77-9cdf-a7979a7e2648",
+    "links": [
+      {
+        "href": "https://volume.Region.dc1.domainname.com/v2/5751d8c3f2f6415993ee4326b41630ec/backups/54ba0e69-48a0-4a77-9cdf-a7979a7e2648",
+        "rel": "self"
+      },
+      {
+        "href": "https://volume.Region.dc1.domainname.com/5751d8c3f2f6415993ee4326b41630ec/backups/54ba0e69-48a0-4a77-9cdf-a7979a7e2648",
+        "rel": "bookmark"
+      }
+    ],
+    "name": "backup1"
+  }
+}
