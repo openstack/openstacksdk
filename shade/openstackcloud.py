@@ -1798,19 +1798,21 @@ class OpenStackCloud(
         """
         if get_extra is None:
             get_extra = self._extra_config['get_flavor_extra_specs']
+        data = self._compute_client.get(
+            '/flavors/detail', params=dict(is_public='None'),
+            error_message="Error fetching flavor list")
         flavors = self._normalize_flavors(
-            self._compute_client.get(
-                '/flavors/detail', params=dict(is_public='None'),
-                error_message="Error fetching flavor list"))
+            meta.get_and_munchify('flavors', data))
 
         for flavor in flavors:
             if not flavor.extra_specs and get_extra:
                 endpoint = "/flavors/{id}/os-extra_specs".format(
                     id=flavor.id)
                 try:
-                    flavor.extra_specs = self._compute_client.get(
+                    extra_specs = self._compute_client.get(
                         endpoint,
                         error_message="Error fetching flavor extra specs")
+                    flavor.extra_specs = extra_specs
                 except OpenStackCloudHTTPError as e:
                     flavor.extra_specs = {}
                     self.log.debug(
@@ -7489,9 +7491,10 @@ class OpenStackCloud(
             the OpenStack API call.
         """
         with _utils.shade_exceptions("Error fetching cluster template list"):
-            cluster_templates = self._container_infra_client.get(
+            data = self._container_infra_client.get(
                 '/baymodels/detail')
-        return self._normalize_cluster_templates(cluster_templates)
+        return self._normalize_cluster_templates(
+            meta.get_and_munchify('baymodels', data))
     list_baymodels = list_cluster_templates
 
     def search_cluster_templates(

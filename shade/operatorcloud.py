@@ -1496,11 +1496,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             }
             if flavorid == 'auto':
                 payload['id'] = None
-            flavor = self._compute_client.post(
+            data = self._compute_client.post(
                 '/flavors',
                 json=dict(flavor=payload))
 
-        return self._normalize_flavor(flavor)
+        return self._normalize_flavor(
+            meta.get_and_munchify('flavor', data))
 
     def delete_flavor(self, name_or_id):
         """Delete a flavor
