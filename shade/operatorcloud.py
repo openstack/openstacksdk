@@ -1077,24 +1077,24 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         return True
 
-    def create_domain(
-            self, name, description=None, enabled=True):
-        """Create a Keystone domain.
+    def create_domain(self, name, description=None, enabled=True):
+        """Create a domain.
 
         :param name: The name of the domain.
         :param description: A description of the domain.
         :param enabled: Is the domain enabled or not (default True).
 
-        :returns: a ``munch.Munch`` containing the domain description
+        :returns: a ``munch.Munch`` containing the domain representation.
 
-        :raise OpenStackCloudException: if the domain cannot be created
+        :raise OpenStackCloudException: if the domain cannot be created.
         """
-        with _utils.shade_exceptions("Failed to create domain {name}".format(
-                name=name)):
-            domain = self.manager.submit_task(_tasks.DomainCreate(
-                name=name,
-                description=description,
-                enabled=enabled))
+        domain_ref = {'name': name, 'enabled': enabled}
+        if description is not None:
+            domain_ref['description'] = description
+        msg = 'Failed to create domain {name}'.format(name=name)
+        data = self._identity_client.post(
+            '/domains', json={'domain': domain_ref}, error_message=msg)
+        domain = meta.get_and_munchify('domain', data)
         return _utils.normalize_domains([domain])[0]
 
     def update_domain(

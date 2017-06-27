@@ -81,11 +81,7 @@ class TestDomains(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='POST', uri=self.get_mock_url(), status_code=200,
                  json=domain_data.json_response,
-                 validate=dict(json=domain_data.json_request)),
-            dict(method='GET',
-                 uri=self.get_mock_url(append=[domain_data.domain_id]),
-                 status_code=200,
-                 json=domain_data.json_request)])
+                 validate=dict(json=domain_data.json_request))])
         domain = self.op_cloud.create_domain(
             domain_data.domain_name, domain_data.description)
         self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
@@ -95,12 +91,16 @@ class TestDomains(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_domain_exception(self):
+        domain_data = self._get_domain_data(domain_name='domain_name',
+                                            enabled=True)
         with testtools.ExpectedException(
-            shade.OpenStackCloudException,
+            shade.OpenStackCloudBadRequest,
             "Failed to create domain domain_name"
         ):
             self.register_uris([
-                dict(method='POST', uri=self.get_mock_url(), status_code=409)])
+                dict(method='POST', uri=self.get_mock_url(), status_code=400,
+                     json=domain_data.json_response,
+                     validate=dict(json=domain_data.json_request))])
             self.op_cloud.create_domain('domain_name')
         self.assert_calls()
 

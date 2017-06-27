@@ -167,11 +167,6 @@ class EndpointDelete(task_manager.Task):
         return client.keystone_client.endpoints.delete(**self.args)
 
 
-class DomainCreate(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.domains.create(**self.args)
-
-
 class DomainList(task_manager.Task):
     def main(self, client):
         return client.keystone_client.domains.list(**self.args)
