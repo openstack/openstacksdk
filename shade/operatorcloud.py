@@ -1112,15 +1112,20 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 )
             domain_id = dom['id']
 
-        with _utils.shade_exceptions(
-                "Error in updating domain {domain}".format(domain=domain_id)):
-            domain = self.manager.submit_task(_tasks.DomainUpdate(
-                domain=domain_id, name=name, description=description,
-                enabled=enabled))
+        domain_ref = {}
+        domain_ref.update({'name': name} if name else {})
+        domain_ref.update({'description': description} if description else {})
+        domain_ref.update({'enabled': enabled} if enabled is not None else {})
+
+        error_msg = "Error in updating domain {id}".format(id=domain_id)
+        data = self._identity_client.patch(
+            '/domains/{id}'.format(id=domain_id),
+            json={'domain': domain_ref}, error_message=error_msg)
+        domain = meta.get_and_munchify('domain', data)
         return _utils.normalize_domains([domain])[0]
 
     def delete_domain(self, domain_id=None, name_or_id=None):
-        """Delete a Keystone domain.
+        """Delete a domain.
 
         :param domain_id: ID of the domain to delete.
         :param name_or_id: Name or ID of the domain to delete.
@@ -1135,19 +1140,18 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 raise OpenStackCloudException(
                     "You must pass either domain_id or name_or_id value"
                 )
-            dom = self.get_domain(None, name_or_id)
+            dom = self.get_domain(name_or_id=name_or_id)
             if dom is None:
                 self.log.debug(
                     "Domain %s not found for deleting", name_or_id)
                 return False
             domain_id = dom['id']
 
-        with _utils.shade_exceptions(
-                "Failed to delete domain {id}".format(id=domain_id)):
-            # Deleting a domain is expensive, so disabling it first increases
-            # the changes of success
-            domain = self.update_domain(domain_id, enabled=False)
-            self.manager.submit_task(_tasks.DomainDelete(domain=domain['id']))
+        # A domain must be disabled before deleting
+        self.update_domain(domain_id, enabled=False)
+        error_msg = "Failed to delete domain {id}".format(id=domain_id)
+        self._identity_client.delete('/domains/{id}'.format(id=domain_id),
+                                     error_message=error_msg)
 
         return True
 
