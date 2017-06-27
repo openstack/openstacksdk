@@ -1163,9 +1163,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        with _utils.shade_exceptions("Failed to list domains"):
-            domains = self.manager.submit_task(_tasks.DomainList())
-        return _utils.normalize_domains(domains)
+        data = self._identity_client.get(
+            '/domains', error_message="Failed to list domains")
+        return _utils.normalize_domains(meta.get_and_munchify('domains', data))
 
     def search_domains(self, filters=None, name_or_id=None):
         """Search Keystone domains.
