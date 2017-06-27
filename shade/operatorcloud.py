@@ -1606,9 +1606,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions("Error trying to list access from "
                                      "flavor ID {flavor}".format(
                 flavor=flavor_id)):
-            projects = self._compute_client.get(
+            data = self._compute_client.get(
                 '/flavors/{id}/os-flavor-access'.format(id=flavor_id))
-        return _utils.normalize_flavor_accesses(projects)
+        return _utils.normalize_flavor_accesses(
+            meta.get_and_munchify('flavor_access', data))
 
     def create_role(self, name):
         """Create a Keystone role.
@@ -1836,9 +1837,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: A list of aggregate dicts.
 
         """
-        return self._compute_client.get(
+        data = self._compute_client.get(
             '/os-aggregates',
             error_message="Error fetching aggregate list")
+        return meta.get_and_munchify('aggregates', data)
 
     def get_aggregate(self, name_or_id, filters=None):
         """Get an aggregate by name or ID.
@@ -1871,7 +1873,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
         """
-        return self._compute_client.post(
+        data = self._compute_client.post(
             '/os-aggregates',
             json={'aggregate': {
                 'name': name,
@@ -1879,6 +1881,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             }},
             error_message="Unable to create host aggregate {name}".format(
                 name=name))
+        return meta.get_and_munchify('aggregate', data)
 
     @_utils.valid_kwargs('name', 'availability_zone')
     def update_aggregate(self, name_or_id, **kwargs):
@@ -1897,11 +1900,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        return self._compute_client.put(
+        data = self._compute_client.put(
             '/os-aggregates/{id}'.format(id=aggregate['id']),
             json={'aggregate': kwargs},
             error_message="Error updating aggregate {name}".format(
                 name=name_or_id))
+        return meta.get_and_munchify('aggregate', data)
 
     def delete_aggregate(self, name_or_id):
         """Delete a host aggregate.
@@ -1943,10 +1947,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         err_msg = "Unable to set metadata for host aggregate {name}".format(
             name=name_or_id)
 
-        return self._compute_client.post(
+        data = self._compute_client.post(
             '/os-aggregates/{id}/action'.format(id=aggregate['id']),
             json={'set_metadata': {'metadata': metadata}},
             error_message=err_msg)
+        return meta.get_and_munchify('aggregate', data)
 
     def add_host_to_aggregate(self, name_or_id, host_name):
         """Add a host to an aggregate.
