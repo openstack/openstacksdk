@@ -140,7 +140,9 @@ class ShadeAdapter(adapter.Adapter):
                         'security_group_rule', 'security_group_rules',
                         'users', 'user', 'projects', 'tenants',
                         'project', 'tenant', 'servers', 'server',
-                        'flavor', 'flavors', 'baymodels']:
+                        'flavor', 'flavors', 'baymodels', 'aggregate',
+                        'aggregates', 'availabilityZoneInfo',
+                        'flavor_access', 'output', 'server_groups']:
                 if key in result_json.keys():
                     self._log_request_id(response)
                     return result_json

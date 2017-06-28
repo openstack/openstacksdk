@@ -1771,12 +1771,13 @@ class OpenStackCloud(
                   list could not be fetched.
         """
         try:
-            zones = self._compute_client.get('/os-availability-zone')
+            data = self._compute_client.get('/os-availability-zone')
         except OpenStackCloudHTTPError:
             self.log.debug(
                 "Availability zone list could not be fetched",
                 exc_info=True)
             return []
+        zones = meta.get_and_munchify('availabilityZoneInfo', data)
         ret = []
         for zone in zones:
             if zone['zoneState']['available'] or unavailable:
@@ -2033,9 +2034,10 @@ class OpenStackCloud(
         :returns: A list of server group dicts.
 
         """
-        return self._compute_client.get(
+        data = self._compute_client.get(
             '/os-server-groups',
             error_message="Error fetching server group list")
+        return meta.get_and_munchify('server_groups', data)
 
     def get_compute_limits(self, name_or_id=None):
         """ Get compute limits for a project
@@ -2769,9 +2771,10 @@ class OpenStackCloud(
                 "Console log requested for invalid server")
 
         try:
-            return self._compute_client.post(
+            data = self._compute_client.post(
                 '/servers/{server}/action'.format(server=server['id']),
                 json={'os-getConsoleOutput': {'length': length}})
+            return meta.get_and_munchify('output', data)
         except OpenStackCloudBadRequest:
             return ""
 
