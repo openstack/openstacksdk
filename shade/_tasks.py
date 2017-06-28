@@ -172,11 +172,6 @@ class DomainList(task_manager.Task):
         return client.keystone_client.domains.list(**self.args)
 
 
-class DomainGet(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.domains.get(**self.args)
-
-
 class GroupList(task_manager.Task):
     def main(self, client):
         return client.keystone_client.groups.list()
