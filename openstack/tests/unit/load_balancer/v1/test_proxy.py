@@ -311,9 +311,23 @@ class TestLoadBalancerListener(TestLoadBalancerProxy):
 
     def test_list_listener(self):
         self.mock_response_json_file_values("list_listener.json")
-        listeners = list(self.proxy.listeners())
+        query = {
+            "id": "id",
+            "name": "name",
+            "loadbalancer_id": "loadbalancer_id",
+            "description": "description",
+            "status": "status",
+            "healthcheck_id": "healthcheck_id",
+            "certificate_id": "certificate_id",
+            "port": 80,
+            "protocol": "protocol",
+            "backend_port": 9000,
+            "backend_protocol": "backend_protocol",
+            "lb_algorithm": "lb_algorithm",
+        }
+        listeners = list(self.proxy.listeners(**query))
         self.assert_session_list_with("/elbaas/listeners",
-                                      params={})
+                                      params=query)
         self.assertEquals(2, len(listeners))
         listener = listeners[0]
         self.assertIsInstance(listener, _listener.Listener)

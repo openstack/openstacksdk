@@ -51,25 +51,17 @@ class TestCertificate(base.BaseFunctionalTest):
         if cls.cert.id in [c.id for c in certs]:
             raise Exception("delete cert failed")
 
-    def test_list_lb(self):
+    def test_list_cert(self):
         certs = list(self.conn.load_balancer.certificates())
         self.assertIn(self.cert.id, [c.id for c in certs])
 
-    # def test_update_lb(self):
-    #     updated = {
-    #         "description": "lb created by functional test",
-    #         "bandwidth": 2,
-    #         "admin_state_up": True
-    #     }
-    #     job = self.conn.load_balancer.update_load_balancer(self.lb, **updated)
-    #     resource2.wait_for_status(self.conn.load_balancer._session,
-    #                               _job.Job(id=job.job_id),
-    #                               "SUCCESS",
-    #                               interval=3,
-    #                               failures=["FAIL"])
-    #     self.conn.load_balancer.wait_for_status(job, "SUCCESS", interval=2)
-    #     lb = self.conn.load_balancer.get_load_balancer(self.lb)
-    #     self.assertEqual(updated["description"], lb.description)
-    #     self.assertEqual(updated["bandwidth"], lb.bandwidth)
-    #     self.assertEqual(updated["admin_state_up"], lb.is_admin_state_up)
-    #     self.lb = lb
+    def test_update_cert(self):
+        updated = {
+            "description": "certificate created by unittests"
+        }
+        cert = self.conn.load_balancer.update_certificate(self.cert, **updated)
+        certs = list(self.conn.load_balancer.certificates())
+        for _cert in certs:
+            if _cert.id == cert.id:
+                self.assertEqual(updated["description"], cert.description)
+
