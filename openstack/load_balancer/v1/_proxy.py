@@ -16,6 +16,7 @@ from openstack.load_balancer.v1 import load_balancer as _lb
 from openstack.load_balancer.v1 import listener as _listener
 from openstack.load_balancer.v1 import health_check as _hc
 from openstack.load_balancer.v1 import job as _job
+from openstack.load_balancer.v1 import quota as _quota
 
 
 class Proxy(proxy2.BaseProxy):
@@ -297,7 +298,7 @@ class Proxy(proxy2.BaseProxy):
             comprised of the properties on the HealthCheck class.
 
         :returns: A health check instance
-        :rtype: `:class: ~openstack.load_balancer.v1.job.Job`
+        :rtype: `:class: ~openstack.load_balancer.v1.health_check.HealthCheck`
         """
         return self._create(_hc.HealthCheck, prepend_key=False, **attrs)
 
@@ -307,7 +308,7 @@ class Proxy(proxy2.BaseProxy):
         :param health_check: Either the ID of a health check or an instance of
                 :class:`~openstack.load_balancer.v1.health_check.HealthCheck`
         :returns: A health check instance
-        :rtype: `:class: ~openstack.load_balancer.v1.job.Job`
+        :rtype: `:class: ~openstack.load_balancer.v1.health_check.HealthCheck`
         """
         return self._get(_hc.HealthCheck, health_check)
 
@@ -360,7 +361,7 @@ class Proxy(proxy2.BaseProxy):
                           ignore_missing=ignore_missing,
                           name=name_or_id)
 
-    def add_listener_members(self, listener, members):
+    def add_members_to_listener(self, listener, members):
         """Add backend members for a listener
 
         :param listener: Either the ID of a listener or an instance of
@@ -371,12 +372,12 @@ class Proxy(proxy2.BaseProxy):
               "address": "172.16.0.31"}] for example.
 
         :return: a operate member job
-        :rtype: :class:`~openstack.load_balancer.v1.member.OperateMemberJob`
+        :rtype: :class:`~openstack.load_balancer.v1.listener.OperateMemberJob`
         """
         listener = self._get_resource(_listener.Listener, listener)
         return listener.add_members(self._session, members)
 
-    def remove_listener_members(self, listener, members):
+    def remove_members_of_listener(self, listener, members):
         """Remove backend members for a listener
 
         :param listener: Either the ID of a listener or an instance of
@@ -386,7 +387,7 @@ class Proxy(proxy2.BaseProxy):
             ["dbecb618-2259-405f-ab17-9b68c4f541b0",] for example.
 
         :return: a operate member job
-        :rtype: :class:`~openstack.load_balancer.v1.member.OperateMemberJob`
+        :rtype: :class:`~openstack.load_balancer.v1.listener.OperateMemberJob`
         """
         listener = self._get_resource(_listener.Listener, listener)
         return listener.remove_members(self._session, members)
@@ -417,3 +418,11 @@ class Proxy(proxy2.BaseProxy):
         :returns: A :class:`~openstack.load_balancer.v1.job.Job`
         """
         return self._get(_job.Job, job)
+
+    def quotas(self):
+        """Retrieve a generator of Quota
+
+        :returns: A generator of quota
+                (:class:`~openstack.load_balancer.v1.quota.Quota`) instances
+        """
+        return self._list(_quota.Quota, paginated=False)

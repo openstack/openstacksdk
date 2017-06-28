@@ -33,33 +33,27 @@ def auto_create_external_lb(conn, name, vpc_id):
         "type": "External",
         "is_admin_state_up": True
     }
-    return conn.load_balancer.create_load_balancer(**_lb)
+    job = conn.load_balancer.create_load_balancer(**_lb)
+    job = _job.Job(id=job.job_id)
+    resource2.wait_for_status(conn.load_balancer._session,
+                              job,
+                              "SUCCESS",
+                              interval=3,
+                              failures=["FAIL"])
+    elb_id = job.entities["elb"]["id"]
+    return conn.load_balancer.get_load_balancer(elb_id)
 
 
 class TestLoadBalancer(base.BaseFunctionalTest):
     NAME = "SDK-" + uuid.uuid4().hex
     lb = None
-    router = None
 
     @classmethod
     def setUpClass(cls):
         super(TestLoadBalancer, cls).setUpClass()
-        routers = cls.conn.network.routers(limit=1)
-        for _router in routers:
-            cls.router = _router
-            break
-        if not cls.router:
-            raise Exception("No router available for testing")
         # create an external load balancer
-        job = auto_create_external_lb(cls.conn, cls.NAME, cls.router.id)
-        job = _job.Job(id=job.job_id)
-        resource2.wait_for_status(cls.conn.load_balancer._session,
-                                  job,
-                                  "SUCCESS",
-                                  interval=3,
-                                  failures=["FAIL"])
-        elb_id = job.entities["elb"]["id"]
-        cls.lb = cls.conn.load_balancer.get_load_balancer(elb_id)
+        router = cls.get_first_router()
+        cls.lb = auto_create_external_lb(cls.conn, cls.NAME, router.id)
 
     @classmethod
     def tearDownClass(cls):

@@ -17,6 +17,7 @@ from openstack.load_balancer.v1 import load_balancer as _load_balancer
 from openstack.load_balancer.v1 import certificate as _cert
 from openstack.load_balancer.v1 import listener as _listener
 from openstack.load_balancer.v1 import health_check as _hc
+from openstack.load_balancer.v1 import quota as _quota
 from openstack.tests.unit.test_proxy_base3 import BaseProxyTestCase
 
 
@@ -432,7 +433,7 @@ class TestLoadBalancerListener(TestLoadBalancerProxy):
         members = [{"server_id": "dbecb618-2259-405f-ab17-9b68c4f541b0",
                     "address": "172.16.0.31"}]
 
-        job = self.proxy.add_listener_members("listener-id", members)
+        job = self.proxy.add_members_to_listener("listener-id", members)
         self.assert_session_post_with(
             "elbaas/listeners/listener-id/members", json=members)
         self.assertIsInstance(job, _listener.OperateMemberJob)
@@ -444,7 +445,7 @@ class TestLoadBalancerListener(TestLoadBalancerProxy):
             "job_id": "job-id"
         })
         members = ["member-id-1", "member-id-2"]
-        job = self.proxy.remove_listener_members("listener-id", members)
+        job = self.proxy.remove_members_of_listener("listener-id", members)
         self.assert_session_post_with(
             "elbaas/listeners/listener-id/members/action",
             json={"removeMember": [{"id": "member-id-1"},
@@ -570,3 +571,23 @@ class TestLoadBalancerHealthCheck(TestLoadBalancerProxy):
         self.assertEqual(10, hc.healthcheck_timeout)
         self.assertEqual("/", hc.healthcheck_uri)
         self.assertEqual(3, hc.healthy_threshold)
+
+
+class TestLoadBalancerQuota(TestLoadBalancerProxy):
+
+    def __init__(self, *args, **kwargs):
+        super(TestLoadBalancerQuota, self).__init__(*args, **kwargs)
+
+    def test_list_quota(self):
+        self.mock_response_json_file_values("list_quota.json")
+        quotas = list(self.proxy.quotas())
+        self.assert_session_list_with("/elbaas/quotas",
+                                      params={})
+        self.assertEquals(2, len(quotas))
+        quota = quotas[0]
+        self.assertIsInstance(quota, _quota.Quota)
+        self.assertEqual("elb", quota.type)
+        self.assertEqual(2, quota.used)
+        self.assertEqual(5, quota.quota)
+        self.assertEqual(100, quota.max)
+        self.assertEqual(1, quota.min)

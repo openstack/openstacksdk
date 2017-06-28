@@ -69,6 +69,9 @@ def service_exists(**kwargs):
 
 
 class BaseFunctionalTest(unittest.TestCase):
+
+    router = None
+
     @classmethod
     def setUpClass(cls):
         os.environ.setdefault(
@@ -98,3 +101,15 @@ class BaseFunctionalTest(unittest.TestCase):
     @classmethod
     def linger_for_delete(cls):
         time.sleep(40)
+
+    @classmethod
+    def get_first_router(cls):
+        if cls.router:
+            return cls.router
+        else:
+            routers = cls.conn.network.routers(limit=1)
+            for _router in routers:
+                cls.router = _router
+                return cls.router
+
+        raise Exception("No router available for testing")

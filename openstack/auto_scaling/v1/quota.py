@@ -33,7 +33,7 @@ class Quota(resource.Resource):
     #: Quota amount has been used
     used = resource.Body("used")
     #: Quota max amount
-    max = resource.Body("unit")
+    max = resource.Body("max")
     #: Quota amount
     quota = resource.Body("quota")
 
