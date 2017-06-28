@@ -1,0 +1,15 @@
+{
+  "name": "listener1",
+  "description": "",
+  "loadbalancer_id": "0b07acf06d243925bc24a0ac7445267a",
+  "protocol": "HTTP",
+  "port": 88,
+  "backend_protocol": "HTTP",
+  "backend_port": 80,
+  "lb_algorithm": "roundrobin",
+  "session_sticky": true,
+  "sticky_session_type": "insert",
+  "cookie_timeout": 100,
+  "tcp_draining": true,
+  "tcp_draining_timeout": 5
+}

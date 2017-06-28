@@ -1,0 +1,12 @@
+{
+  "name": "loadbalancer1",
+  "description": "simple lb",
+  "vpc_id": "vpc_id",
+  "vip_subnet_id": "subnet_id",
+  "vip_address": "192.168.7.2",
+  "az": "eu-de",
+  "security_group_id": "sg-id",
+  "type": "Internal",
+  "is_admin_state_up": true,
+  "tenant_id": "eu-de"
+}

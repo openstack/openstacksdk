@@ -19,7 +19,7 @@ class TestLoadBalancingService(testtools.TestCase):
 
     def test_service(self):
         sot = lb_service.LoadBalancerService()
-        self.assertEqual('load_balancer', sot.service_type)
+        self.assertEqual('load-balancer', sot.service_type)
         self.assertEqual('public', sot.interface)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)

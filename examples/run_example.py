@@ -15,16 +15,9 @@
 
 import logging
 import os
-from examples.cloud_eye import alarms
-from examples.cloud_eye import metric_data
-from examples.cloud_eye import metrics
-from examples.cloud_eye import quotas
 
 from examples.connect import create_connection_from_config
-
-# utils.enable_logging(debug=False, stream=sys.stdout)
-from openstack import connection
-from openstack import profile
+from examples.load_balancer import load_balancer
 
 FORMAT = '%(asctime)-15s %(message)s'
 logging.basicConfig(format=FORMAT)
@@ -40,11 +33,17 @@ os.environ.setdefault(
     'https://ces.eu-de.otc.t-systems.com/V1.0/%(project_id)s'
 )
 
+os.environ.setdefault(
+    'OS_LOAD_BALANCER_ENDPOINT_OVERRIDE',
+    'https://elb.eu-de.otc.t-systems.com/v1.0/%(project_id)s'
+)
+
+
+
 # initial connection
 conn = create_connection_from_config()
-# print list(conn.network.subnets(network_id='0a2228f2-7f8a-45f1-8e09-9039e1d09975'))
 
-conn.volume_backup.get_job("2c9eb2c15cbc6bfd015cd4b2fe143e2a")
+load_balancer.list_loadbalancers(conn)
 
 # subnets = conn.network.subnets(limit=1)
 # routers = conn.network.routers(limit=1)

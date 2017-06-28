@@ -29,7 +29,7 @@ class TestVersion(testtools.TestCase):
         self.assertEqual('version', sot.resource_key)
         self.assertEqual('versions', sot.resources_key)
         self.assertEqual('/', sot.base_path)
-        self.assertEqual('load_balancer', sot.service.service_type)
+        self.assertEqual('load-balancer', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_get)
         self.assertFalse(sot.allow_update)

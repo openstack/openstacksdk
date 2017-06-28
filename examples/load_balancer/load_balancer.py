@@ -18,38 +18,18 @@ List resources from the Load Balancer service.
 
 For a full guide see TODO(etoews):link to docs on developer.openstack.org
 '''
-import logging
-import os
+
+
 # import sys
 
-from examples.connect import create_connection_from_config
-
 # from openstack import utils
-
-# utils.enable_logging(debug=True, stream=sys.stdout)
-
-# You must initialize logging, otherwise you'll not see debug output.
-FORMAT = '%(asctime)-15s %(message)s'
-logging.basicConfig(format=FORMAT)
-
-root_log = logging.getLogger()
-root_log.setLevel(logging.DEBUG)
-# requests_log = logging.getLogger('requests.packages.urllib3')
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-
-os.environ.setdefault(
-    'OS_LOAD_BALANCER_ENDPOINT_OVERRIDE',
-    'https://elb.eu-de.otc.t-systems.com/v1.0/%(project_id)s'
-)
-connection = create_connection_from_config()
 
 
 def list_loadbalancers(conn):
     print('List Load Balancer:')
     query = {
         # 'vip_address': '192.168.2.36'
-        'name': 'elb-yc5f'
+        # 'name': 'elb-yc5f'
     }
     for load_balancer in conn.load_balancer.load_balancers(**query):
         print(load_balancer)
@@ -77,7 +57,3 @@ def get_load_balancer(conn):
 
 def delete_load_balancer(conn):
     conn.load_balancer.delete_load_balancer('lb_id')
-
-
-# list_loadbalancers(connection)
-create_load_balancer(connection)

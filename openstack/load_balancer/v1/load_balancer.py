@@ -19,9 +19,9 @@ from openstack import resource2 as resource
 
 
 class LoadBalancer(resource.Resource):
-    resource_key = 'loadbalancer'
-    resources_key = 'loadbalancers'
-    base_path = '/elbaas/loadbalancers'
+    resource_key = "loadbalancer"
+    resources_key = "loadbalancers"
+    base_path = "/elbaas/loadbalancers"
     service = lb_service.LoadBalancerService()
 
     # capabilities
@@ -29,52 +29,61 @@ class LoadBalancer(resource.Resource):
     allow_list = True
     allow_get = True
     allow_delete = True
+    allow_update = True
 
     _query_mapping = resource.QueryParameters(
-        'id', 'name', 'status', 'type', 'bandwidth', 'admin_state_up',
-        'vpc_id', 'vip_subnet_id', 'vip_address', 'security_group_id',
-        'description',
-        is_admin_state_up='admin_state_up',
+        "id", "name", "status", "type", "bandwidth", "vpc_id",
+        "vip_subnet_id", "vip_address", "security_group_id",
+        "description",
+        is_admin_state_up="admin_state_up"
     )
 
     #: Properties
     #: The load balancer name
-    name = resource.Body('name')
+    name = resource.Body("name")
+    #: The load balancer description
+    description = resource.Body("description")
     #: The load balancer status
-    status = resource.Body('status')
+    status = resource.Body("status")
     #: The load balancer type.
     #: Valid values include ``Internal``, ``External``
-    type = resource.Body('type')
-    #: The availability zone.
+    type = resource.Body("type")
+    #: The operator"s tenant id, required when load balancer type is Internal,
+    tenant_id = resource.Body("tenantId")
+    #: The availability zone. Required when type is Internal, No meaning when
+    #: type is External
     availability_zone = resource.Body("az")
     #: The load balancer charge mode.
     #: Valid values include ``bandwidth``, ``traffic``, bandwidth by default
     charge_mode = resource.Body("charge_mode")
     #: The load balancer eip type
     #: Valid values include ``5_telcom``, ``5_union``, ``5_bgp``.
-    bandwidth = resource.Body('eip_type')
+    eip_type = resource.Body("eip_type")
     #: The load balancer bandwidth
-    bandwidth = resource.Body('bandwidth')
+    bandwidth = resource.Body("bandwidth")
     #: The administrative state of the load balancer
-    admin_state_up = resource.Body('admin_state_up')
+    is_admin_state_up = resource.Body("admin_state_up", type=bool)
     #: VPC of load balancer
-    vpc_id = resource.Body('vpc_id')
-    #: VIP subnet of load balancer
-    vip_subnet_id = resource.Body('vip_subnet_id')
-    #: VIP address of load balancer
-    vip_address = resource.Body('vip_address')
-    #: Security Group of load balancer
-    security_group_id = resource.Body('security_group_id')
-    #: The load balancer description
-    description = resource.Body('description')
-    #: Timestamp when the load balancer was created
-    created_at = resource.Body('created_at')
-    #: Timestamp when the load balancer was last updated
-    updated_at = resource.Body('updated_at')
+    vpc_id = resource.Body("vpc_id")
+    #: VIP subnet of load balancer, Required when type is Internal,
+    #: No meaning when type is External
+    vip_subnet_id = resource.Body("vip_subnet_id")
+    #: VIP address of load balancer, when load balancer type is Internal, VIP
+    #: address should be internal IP, when type is External, VIP address should
+    #: be floating IP address and bandwidth, charge_mode, eip_type will be
+    #: ignored
+    vip_address = resource.Body("vip_address")
+    #: Security Group of load balancer, required when load balancer
+    #: type is Internal
+    security_group_id = resource.Body("security_group_id")
+    #: UTC Timestamp when the load balancer was created
+    create_time = resource.Body("create_time")
+    #: UTC Timestamp when the load balancer was last updated
+    update_time = resource.Body("update_time")
 
 
 class LoadBalancerJob(LoadBalancer):
     #: Job Id of load balancer asynchronous job
-    job_id = resource.Body('job_id')
+    job_id = resource.Body("job_id")
     #: Job uri
-    uri = resource.Body('uri')
+    uri = resource.Body("uri")

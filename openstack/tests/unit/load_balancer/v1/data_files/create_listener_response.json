@@ -1,0 +1,21 @@
+{
+  "update_time": "2015-09-15 07:41:17",
+  "backend_port": 80,
+  "tcp_draining": true,
+  "id": "248425d7b97dc26920eb23720115e068",
+  "backend_protocol": "HTTP",
+  "sticky_session_type": "insert",
+  "description": "",
+  "loadbalancer_id": "0b07acf06d243925bc24a0ac7445267a",
+  "create_time": "2015-09-15 07:41:17",
+  "status": "ACTIVE",
+  "protocol": "TCP",
+  "port": 88,
+  "cookie_timeout": 100,
+  "admin_state_up": true,
+  "session_sticky": true,
+  "lb_algorithm": "roundrobin",
+  "name": "listener1",
+  "tcp_draining": true,
+  "tcp_draining_timeout": 5
+}

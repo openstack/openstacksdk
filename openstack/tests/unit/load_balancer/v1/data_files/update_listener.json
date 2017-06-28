@@ -1,0 +1,23 @@
+{
+  "update_time": "2016-12-01 07:12:59",
+  "backend_port": 9090,
+  "id": "a824584fb3ba4d39ba0cf372c7cbbb67",
+  "backend_protocol": "TCP",
+  "sticky_session_type": null,
+  "certificate_id": null,
+  "description": "",
+  "loadbalancer_id": "f54c65b1b5dd4a4f95b71b44796ac013",
+  "create_time": "2016-12-01 07:12:43",
+  "admin_state_up": false,
+  "status": "ACTIVE",
+  "protocol": "TCP",
+  "cookie_timeout": 100,
+  "port": 9092,
+  "tcp_draining": true,
+  "tcp_timeout": 1,
+  "lb_algorithm": "roundrobin",
+  "healthcheck_id": null,
+  "session_sticky": true,
+  "tcp_draining_timeout": 5,
+  "name": "lis"
+}

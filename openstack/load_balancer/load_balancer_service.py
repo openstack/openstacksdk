@@ -21,6 +21,6 @@ class LoadBalancerService(service_filter.ServiceFilter):
     def __init__(self, version=None):
         """Create a load balancer service."""
         super(LoadBalancerService, self).__init__(
-            service_type='load_balancer',
+            service_type='load-balancer',
             version=version
         )

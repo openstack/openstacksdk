@@ -1,0 +1,20 @@
+{
+  "loadbalancers": [
+    {
+      "vip_address": "192.144.62.114",
+      "update_time": "2015-09-14 02:34:32",
+      "create_time": "2015-09-14 02:34:32",
+      "id": "0b07acf06d243925bc24a0ac7445267a",
+      "status": "ACTIVE",
+      "bandwidth": 1,
+      "security_group_id": null,
+      "vpc_id": "f54a3ffd-7a55-4568-9e3d-f0ff2d46a107",
+      "admin_state_up": 1,
+      "vip_subnet_id": null,
+      "type": "External",
+      "name": "MY_ELB",
+      "description": null
+    }
+  ],
+  "instance_num": "1"
+}

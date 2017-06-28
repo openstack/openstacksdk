@@ -1,0 +1,40 @@
+[
+  {
+    "server_address": "172.16.0.16",
+    "id": "4ac8777333bc20777147ab160ea61baf",
+    "status": "ACTIVE",
+    "address": "100.64.27.96",
+    "listeners": [
+      {
+        "id": "65093734fb966b3d70f6af26cc63e125"
+      },
+      {
+        "id": "a659fe780a542e1adf204db767a021a3"
+      }
+    ],
+    "update_time": "2015-12-28 10:35:51",
+    "create_time": "2015-12-28 10:35:50",
+    "server_name": null,
+    "server_id": "97444148-7afb-47cc-b4a3-6e1c94d1ade4",
+    "health_status": "NORMAL"
+  },
+  {
+    "server_address": "172.16.0.15",
+    "id": "d8a21f107a19d7bd1d05a1f764eb623a",
+    "status": "ACTIVE",
+    "address": "100.64.27.95",
+    "listeners": [
+      {
+        "id": "65093734fb966b3d70f6af26cc63e125"
+      },
+      {
+        "id": "a659fe780a542e1adf204db767a021a3"
+      }
+    ],
+    "update_time": "2015-12-28 10:35:51",
+    "create_time": "2015-12-28 10:35:50",
+    "server_name": null,
+    "server_id": "05b731db-d457-41dc-a824-862daba91a59",
+    "health_status": "ABNORMAL"
+  }
+]
