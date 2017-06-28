@@ -395,7 +395,7 @@ class TestBackupPolicy(TestVolumeBackupProxy):
             "sort_dir": "asc",
             "sort_key": "created_at",
             "status": "RUNNING",
-            "id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
+            "job_id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
             "limit": 10,
             "offset": 10
         }

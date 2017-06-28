@@ -219,8 +219,10 @@ class QueryParameters(object):
         """
         result = {}
         for key, value in self._mapping.items():
-            if key in query or value in query:
+            if key in query:
                 result[value] = query[key]
+            if value in query:
+                result[value] = query[value]
         return result
 
 

@@ -4,7 +4,7 @@ HuaWei OpenStack `Elastic Load Balancer` Service SDK
 - Service Entry: `conn.load_balancer`
 - Service Type: `load_balancer`
 
-## API接口文档
+## API documentation
 
 Refer: [Official API documentation](https://docs.otc.t-systems.com/en-us/api/elb/en-us_topic_0020100167.html)
 

@@ -38,8 +38,6 @@ os.environ.setdefault(
     'https://elb.eu-de.otc.t-systems.com/v1.0/%(project_id)s'
 )
 
-
-
 # initial connection
 conn = create_connection_from_config()
 

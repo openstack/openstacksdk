@@ -274,7 +274,7 @@ class Proxy(proxy2.BaseProxy):
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``id``: task id
-            * ``id``: alternate to id
+            * ``job_id``: alternate to id
             * ``status``: includes:``RUNNING``, ``EXECUTE_TIMEOUT``,
                     ``WAITING``, EXECUTE_FAIL``, ``EXECUTE_SUCCESS``
             * ``sort_dir``: ``desc``, ``asc``
@@ -286,6 +286,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A generator of backup
             (:class:`~openstack.volume_backup.v2.backup.Backup`) instances
         """
-        backup_policy = self._get_resource(_backup_policy.BackupPolicy, backup_policy)
+        backup_policy = self._get_resource(_backup_policy.BackupPolicy,
+                                           backup_policy)
         query["policy_id"] = backup_policy.id
         return self._list(_backup_task.BackupTask, paginated=True, **query)
