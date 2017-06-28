@@ -34,7 +34,7 @@ class SchedulePolicy(resource.Resource):
 
 class BackupPolicy(resource.Resource):
     """Cloud Backup"""
-    resources_key = "backup_policys"
+    resources_key = "backup_policies"
     base_path = "/backuppolicy"
     service = volume_backup_service.VolumeBackupService()
 

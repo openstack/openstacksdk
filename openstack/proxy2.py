@@ -107,8 +107,8 @@ class BaseProxy(object):
                                   **attrs)
 
     @_check_resource(strict=False)
-    def _delete(self, resource_type, value, ignore_missing=True, params=None,
-                **attrs):
+    def _delete(self, resource_type, value, ignore_missing=True, has_body=False,
+                params=None, **attrs):
         """Delete a resource
 
 
@@ -140,7 +140,7 @@ class BaseProxy(object):
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
-            rv = res.delete(self._session, params=params)
+            rv = res.delete(self._session, has_body=has_body, params=params)
         except exceptions.NotFoundException as e:
             if ignore_missing:
                 return None

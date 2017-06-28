@@ -32,7 +32,7 @@ class TestCloudBackup(TestVolumeBackupProxy):
 
     def test_create_backup(self):
         self.mock_response_json_values({
-            "job_id": "70a599e0-31e7-49b7-b260-868f441e862b"
+            "id": "70a599e0-31e7-49b7-b260-868f441e862b"
         })
 
         data = {
@@ -90,7 +90,7 @@ class TestCloudBackup(TestVolumeBackupProxy):
 
     def test_restore_backup(self):
         self.mock_response_json_values({
-            "job_id": "70a599e0-31e7-49b7-b260-868f441e862b"
+            "id": "70a599e0-31e7-49b7-b260-868f441e862b"
         })
 
         job = self.proxy.restore_backup(
@@ -122,7 +122,7 @@ class TestCloudBackup(TestVolumeBackupProxy):
             "volume_id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
             "limit": 10
         }
-        self.assert_session_get_with("/backups", params=transferred_query)
+        self.assert_session_list_with("/backups", params=transferred_query)
         self.assertEquals(2, len(backups))
         backup = backups[0]
         self.assertEqual("1d1139d8-8989-49d3-8aa1-83eb691e6db2", backup.id)
@@ -144,8 +144,8 @@ class TestCloudBackup(TestVolumeBackupProxy):
             "volume_id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
             "limit": 10
         }
-        self.assert_session_get_with("/backups/detail",
-                                     params=transferred_query)
+        self.assert_session_list_with("/backups/detail",
+                                      params=transferred_query)
         self.assertEquals(3, len(backups))
         backup = backups[0]
         self.assertIsInstance(backup, _backup.BackupDetail)
@@ -207,8 +207,8 @@ class TestBackupPolicy(TestVolumeBackupProxy):
     def test_list_backup_policy(self):
         self.mock_response_json_file_values("list_backup_policies.json")
         policies = list(self.proxy.backup_policies())
-        self.assert_session_get_with("/backuppolicy",
-                                     params={})
+        self.assert_session_list_with("/backuppolicy",
+                                      params={})
         self.assertEquals(2, len(policies))
         policy = policies[0]
         self.assertIsInstance(policy, _backup_policy.BackupPolicy)
@@ -395,12 +395,12 @@ class TestBackupPolicy(TestVolumeBackupProxy):
             "sort_dir": "asc",
             "sort_key": "created_at",
             "status": "RUNNING",
-            "job_id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
+            "id": "0781095c-b8ab-4ce5-99f3-4c5f6ff75319",
             "limit": 10,
             "offset": 10
         }
-        self.assert_session_get_with("/backuppolicy/policy-id/backuptasks",
-                                     params=transferred_query)
+        self.assert_session_list_with("/backuppolicy/policy-id/backuptasks",
+                                      params=transferred_query)
         self.assertEquals(2, len(tasks))
         task = tasks[0]
         self.assertEqual("RUNNING", task.status)

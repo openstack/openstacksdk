@@ -274,7 +274,7 @@ class Proxy(proxy2.BaseProxy):
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``id``: task id
-            * ``job_id``: alternate to id
+            * ``id``: alternate to id
             * ``status``: includes:``RUNNING``, ``EXECUTE_TIMEOUT``,
                     ``WAITING``, EXECUTE_FAIL``, ``EXECUTE_SUCCESS``
             * ``sort_dir``: ``desc``, ``asc``

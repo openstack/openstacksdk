@@ -36,7 +36,7 @@ class CloudBackup(resource.Resource):
     #: Volume backup description
     description = resource.Body("description")
     #: The sync cloud backup job id
-    job_id = resource.Body("job_id")
+    job_id = resource.Body("id")
 
     def restore(self, session, volume_id):
         """Restore current backup to volume

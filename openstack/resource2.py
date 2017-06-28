@@ -219,7 +219,7 @@ class QueryParameters(object):
         """
         result = {}
         for key, value in self._mapping.items():
-            if key in query:
+            if key in query or value in query:
                 result[value] = query[key]
         return result
 
@@ -384,7 +384,7 @@ class Resource(object):
                 value = attrs.pop(key)
                 server_side_key = field.name
                 # Convert client-side key names into server-side.
-                if field.type and not isinstance(value, field.type):
+                if value and field.type and not isinstance(value, field.type):
                     if issubclass(field.type, format.Formatter):
                         value = field.type.serialize(value)
                     elif issubclass(field.type, Resource):
@@ -740,12 +740,13 @@ class Resource(object):
         self._translate_response(response, has_body=has_body)
         return self
 
-    def delete(self, session, params=None):
+    def delete(self, session, params=None, has_body=False):
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~openstack.session.Session`
         :param params: http params to be sent
+        :param bool has_body: should mapping response body to resource
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -762,7 +763,7 @@ class Resource(object):
                                   headers={"Accept": ""},
                                   params=params)
 
-        self._translate_response(response, has_body=False)
+        self._translate_response(response, has_body=has_body)
         return self
 
     @classmethod
@@ -942,7 +943,8 @@ class Resource(object):
             "No %s found for %s" % (cls.__name__, name_or_id))
 
 
-def wait_for_status(session, resource, status, failures, interval, wait):
+def wait_for_status(session, resource, status,
+                    failures=[], interval=5, wait=120):
     """Wait for the resource to be in a particular status.
 
     :param session: The session to use for making this request.

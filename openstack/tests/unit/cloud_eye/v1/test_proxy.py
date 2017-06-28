@@ -60,7 +60,7 @@ class TestCloudEyeMetric(TestCloudEyeProxy):
             "start": "3",
             "limit": 10
         }
-        self.assert_session_get_with("/metrics", params=transferred_query)
+        self.assert_session_list_with("/metrics", params=transferred_query)
 
         self.assertEquals(1, len(metrics))
         self.assertIsInstance(metrics[0], _metric.Metric)
@@ -75,7 +75,7 @@ class TestCloudEyeMetric(TestCloudEyeProxy):
     def test_list_favorite_metrics(self):
         self.mock_response_json_file_values("list_metric.json")
         favorite_metrics = list(self.proxy.favorite_metrics())
-        self.assert_session_get_with("/favorite-metrics", params={})
+        self.assert_session_list_with("/favorite-metrics", params={})
 
         self.assertEquals(1, len(favorite_metrics))
         self.assertIsInstance(favorite_metrics[0], _metric.Metric)
@@ -214,7 +214,7 @@ class TestCloudEyeMetricData(TestCloudEyeProxy):
             "filter": "average",
             "dim.0": "instance_id,d9112af5-6913-4f3b-bd0a-3f96711e004d",
         }
-        self.assert_session_get_with("/metric-data", params=transferred_query)
+        self.assert_session_list_with("/metric-data", params=transferred_query)
 
         self.assertEquals(1, len(aggregations))
         aggregation = aggregations[0]
@@ -241,7 +241,7 @@ class TestCloudEyeQuota(TestCloudEyeProxy):
     def test_list_quota(self):
         self.mock_response_json_file_values("list_quota.json")
         quotas = list(self.proxy.quotas())
-        self.assert_session_get_with("/quotas")
+        self.assert_session_list_with("/quotas")
         quota = quotas[0]
         self.assertIsInstance(quota, _quota.Quota)
         self.assertEquals("alarm", quota.type)

@@ -48,8 +48,8 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
             "image_id": "image-ref-id",
             "start_number": 0
         }
-        self.assert_session_get_with("/scaling_configuration",
-                                     params=transferred_query)
+        self.assert_session_list_with("/scaling_configuration",
+                                      params=transferred_query)
 
         self.assertEquals(2, len(configs))
 
@@ -205,8 +205,8 @@ class TestAutoScalingGroup(TestAutoScalingProxy):
             "scaling_configuration_id": "as-config-id",
             "start_number": 0
         }
-        self.assert_session_get_with("/scaling_group",
-                                     params=transferred_query)
+        self.assert_session_list_with("/scaling_group",
+                                      params=transferred_query)
 
         self.assertEquals(1, len(groups))
 
@@ -376,8 +376,8 @@ class TestAutoScalingPolicy(TestAutoScalingProxy):
             "scaling_policy_type": "ALARM",
             "start_number": 1
         }
-        self.assert_session_get_with("/scaling_policy/group-id/list",
-                                     params=transferred_query)
+        self.assert_session_list_with("/scaling_policy/group-id/list",
+                                      params=transferred_query)
 
         self.assertEquals(1, len(policies))
 
@@ -605,8 +605,8 @@ class TestAutoScalingInstance(TestAutoScalingProxy):
             "life_cycle_state": "PENDING",
             "start_number": 1
         }
-        self.assert_session_get_with("/scaling_group_instance/group-id/list",
-                                     params=transferred_query)
+        self.assert_session_list_with("/scaling_group_instance/group-id/list",
+                                      params=transferred_query)
         self.assertEquals(1, len(instances))
         instance = instances[0]
         self.assertIsInstance(instance, _instance.Instance)
@@ -642,8 +642,8 @@ class TestAutoScalingActivity(TestAutoScalingProxy):
             "scaling_group_id": "any-group-id",
             "start_number": 0
         }
-        self.assert_session_get_with("/scaling_activity_log/any-group-id",
-                                     params=transferred_query)
+        self.assert_session_list_with("/scaling_activity_log/any-group-id",
+                                      params=transferred_query)
 
         self.assertEquals(2, len(activities))
 
@@ -667,7 +667,7 @@ class TestAutoScalingQuota(TestAutoScalingProxy):
     def test_list_quota(self):
         self.mock_response_json_file_values("list_quota.json")
         quotas = list(self.proxy.quotas())
-        self.assert_session_get_with("/quotas")
+        self.assert_session_list_with("/quotas")
         self.assertEquals(4, len(quotas))
 
         quota = quotas[0]
@@ -680,8 +680,8 @@ class TestAutoScalingQuota(TestAutoScalingProxy):
     def test_list_scaling_quota(self):
         self.mock_response_json_file_values("list_scaling_quota.json")
         quotas = list(self.proxy.quotas("group-id"))
-        self.assert_session_get_with("/quotas/group-id",
-                                     params={"scaling_group_id":"group-id"})
+        self.assert_session_list_with("/quotas/group-id",
+                                      params={"scaling_group_id":"group-id"})
         self.assertEquals(2, len(quotas))
 
         quota = quotas[0]

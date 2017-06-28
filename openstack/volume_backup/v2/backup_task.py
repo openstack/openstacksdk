@@ -28,8 +28,8 @@ class BackupTask(resource.Resource):
     allow_list = True
 
     _query_mapping = QueryParameters("sort_dir", "sort_key", "status",
-                                     "limit", "marker", "offset", "job_id",
-                                     id="job_id")
+                                     "limit", "marker", "offset", "id",
+                                     id="id")
 
     #: Properties
     #: Task job id

@@ -84,6 +84,10 @@ class BaseFunctionalTest(unittest.TestCase):
             'OS_VOLUME_BACKUP_ENDPOINT_OVERRIDE',
             'https://vbs.eu-de.otc.t-systems.com/v2/%(project_id)s'
         )
+        os.environ.setdefault(
+            'OS_LOAD_BALANCER_ENDPOINT_OVERRIDE',
+            'https://elb.eu-de.otc.t-systems.com/v1.0/%(project_id)s'
+        )
         cls.conn = connection.from_config(cloud_name=TEST_CLOUD)
 
     @classmethod

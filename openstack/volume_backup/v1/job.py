@@ -19,7 +19,7 @@ from openstack.volume_backup import volume_backup_service
 
 
 class Job(resource.Resource):
-    """Cloud Backup"""
+    """Volume backup Job Resource"""
     base_path = "/jobs"
     service = volume_backup_service.VolumeBackupService()
 
@@ -27,8 +27,8 @@ class Job(resource.Resource):
     allow_list = True
 
     #: Properties
-    job_id = resource.Body("job_id")
-    job_type = resource.Body("job_type")
+    id = resource.Body("job_id")
+    type = resource.Body("job_type")
     begin_time = resource.Body("begin_time")
     end_time = resource.Body("end_time")
     entities = resource.Body("entities")
@@ -38,6 +38,3 @@ class Job(resource.Resource):
     message = resource.Body("message")
     code = resource.Body("code")
     sub_jobs = resource.Body("sub_jobs")
-
-
-

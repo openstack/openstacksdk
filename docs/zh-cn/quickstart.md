@@ -18,12 +18,11 @@
 ## 环境准备
 
 1. `python-openstacksdk` 适用于 Python 2.7.x 和 3.5.x 系列版本。你可以通过在命令行中执行如下命令来查看你的python版本：
-
 ```shell
 python --version
 ```
 
-- 要使用`python-openstacksdk`，你需要如下的认证信息，这些认证信息也被称为 `OpenStack RC`，正常可以从管理后台直接下载到。
+2. 要使用`python-openstacksdk`，你需要如下的认证信息，这些认证信息也被称为 `OpenStack RC`，正常可以从管理后台直接下载到。
 	- auth url
 	- user
 	- secret
@@ -31,6 +30,7 @@ python --version
 	- project id 
 
 !> 如果你对上面的认证所需的信息没有任何头绪，请联系你的OpenStack管理员
+
 
 
 ## SDK获取和安装

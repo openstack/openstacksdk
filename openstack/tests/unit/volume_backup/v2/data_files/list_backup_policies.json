@@ -1,5 +1,5 @@
 {
-  "backup_policys": [
+  "backup_policies": [
     {
       "backup_policy_id": "XX",
       "backup_policy_name": "plan01",

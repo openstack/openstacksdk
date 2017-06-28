@@ -64,14 +64,23 @@ class BaseProxyTestCase(base.TestCase):
     def mock_response_header_values(self, values):
         self.response.headers = values
 
-    def assert_session_get_with(self, uri, params={},
-                                header={'Accept': 'application/json'}):
+    def assert_session_list_with(self,
+                                 uri,
+                                 params={},
+                                 header={'Accept': 'application/json'}):
         self.session.get.assert_called_once_with(
             uri,
             endpoint_filter=self.service,
             endpoint_override=self.service.get_endpoint_override(),
             headers=header,
             params=params
+        )
+
+    def assert_session_get_with(self, uri):
+        self.session.get.assert_called_once_with(
+            uri,
+            endpoint_filter=self.service,
+            endpoint_override=self.service.get_endpoint_override()
         )
 
     def assert_session_post_with(self, uri, json, headers={}):
@@ -98,5 +107,5 @@ class BaseProxyTestCase(base.TestCase):
             endpoint_filter=self.service,
             endpoint_override=self.service.get_endpoint_override(),
             headers={'Accept': ''},
-            params=params,
+            params=params
         )
