@@ -535,6 +535,12 @@ class RequestsMockTestCase(BaseTestCase):
             key = '{method}|{uri}|{params}'.format(
                 method=method, uri=uri, params=kw_params)
             validate = to_mock.pop('validate', {})
+            valid_keys = set(['json', 'headers', 'params'])
+            invalid_keys = set(validate.keys()) - valid_keys
+            if invalid_keys:
+                raise TypeError(
+                    "Invalid values passed to validate: {keys}".format(
+                        keys=invalid_keys))
             headers = structures.CaseInsensitiveDict(to_mock.pop('headers',
                                                                  {}))
             if 'content-type' not in headers:
