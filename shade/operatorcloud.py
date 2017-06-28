@@ -1155,7 +1155,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         return True
 
-    def list_domains(self):
+    def list_domains(self, **filters):
         """List Keystone domains.
 
         :returns: a list of ``munch.Munch`` containing the domain description.
@@ -1164,7 +1164,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         data = self._identity_client.get(
-            '/domains', error_message="Failed to list domains")
+            '/domains', params=filters, error_message="Failed to list domains")
         return _utils.normalize_domains(meta.get_and_munchify('domains', data))
 
     def search_domains(self, filters=None, name_or_id=None):
@@ -1189,10 +1189,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             domains = self.list_domains()
             return _utils._filter_list(domains, name_or_id, filters)
         else:
-            with _utils.shade_exceptions("Failed to list domains"):
-                domains = self.manager.submit_task(
-                    _tasks.DomainList(**filters))
-            return _utils.normalize_domains(domains)
+            return self.list_domains(**filters)
 
     def get_domain(self, domain_id=None, name_or_id=None, filters=None):
         """Get exactly one Keystone domain.
