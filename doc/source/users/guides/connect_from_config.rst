@@ -9,9 +9,6 @@ environment variables as illustrated below. The SDK uses
 `os-client-config <http://git.openstack.org/cgit/openstack/os-client-config/tree/README.rst>`_
 to handle the configuration.
 
-.. note:: To get your credentials
-   `Download the OpenStack RC file <http://docs.openstack.org/cli-reference/common/cli_set_environment_variables_using_openstack_rc.html#download-and-source-the-openstack-rc-file>`_.
-
 Create Connection From A File
 -----------------------------
 

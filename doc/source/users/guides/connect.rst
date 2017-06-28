@@ -8,9 +8,6 @@ created in 3 ways, using the class itself, a file, or environment variables.
 If this is your first time using the SDK, we recommend simply using the
 class itself as illustrated below.
 
-.. note:: To get your credentials
-   `Download the OpenStack RC file <http://docs.openstack.org/cli-reference/common/cli_set_environment_variables_using_openstack_rc.html#download-and-source-the-openstack-rc-file>`_.
-
 Create Connection
 -----------------
 
