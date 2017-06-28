@@ -259,9 +259,11 @@ class RequestsMockTestCase(BaseTestCase):
             response['enabled'] = enabled
             request['enabled'] = enabled
         response.setdefault('enabled', True)
+        request.setdefault('enabled', True)
         if description:
             response['description'] = description
             request['description'] = description
+        request.setdefault('description', None)
         if v3:
             project_key = 'project'
         else:
@@ -275,7 +277,7 @@ class RequestsMockTestCase(BaseTestCase):
         name = name or self.getUniqueString('groupname')
         domain_id = uuid.UUID(domain_id or uuid.uuid4().hex).hex
         response = {'id': group_id, 'name': name, 'domain_id': domain_id}
-        request = {'name': name}
+        request = {'name': name, 'domain_id': domain_id}
         if description is not None:
             response['description'] = description
             request['description'] = description
@@ -374,6 +376,8 @@ class RequestsMockTestCase(BaseTestCase):
         response = {'id': endpoint_id, 'service_id': service_id,
                     'region': region}
         v3_endpoints = {}
+        request = response.copy()
+        request.pop('id')
         if admin_url:
             response['adminURL'] = admin_url
             v3_endpoints['admin'] = self._get_endpoint_v3_data(
@@ -388,6 +392,8 @@ class RequestsMockTestCase(BaseTestCase):
                 service_id, region, public_url, interface='public')
         request = response.copy()
         request.pop('id')
+        for u in ('publicURL', 'internalURL', 'adminURL'):
+            request[u.lower()] = request.pop(u, None)
         return _EndpointDataV2(endpoint_id, service_id, region, public_url,
                                internal_url, admin_url, v3_endpoints,
                                {'endpoint': response}, {'endpoint': request})

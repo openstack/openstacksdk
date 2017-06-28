@@ -40,12 +40,14 @@ class CloudServices(base.RequestsMockTestCase):
         self.use_keystone_v2()
         service_data = self._get_service_data(name='a service', type='network',
                                               description='A test service')
+        reference_req = service_data.json_request.copy()
+        reference_req.pop('enabled')
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(base_url_append='OS-KSADM'),
                  status_code=200,
                  json=service_data.json_response_v2,
-                 validate=service_data.json_request),
+                 validate=dict(json={'OS-KSADM:service': reference_req})),
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        append=[service_data.service_id]),
@@ -74,7 +76,7 @@ class CloudServices(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=service_data.json_response_v3,
-                 validate=service_data.json_request),
+                 validate=dict(json={'service': service_data.json_request})),
             dict(method='GET',
                  uri=self.get_mock_url(append=[service_data.service_id]),
                  status_code=200,
@@ -108,12 +110,15 @@ class CloudServices(base.RequestsMockTestCase):
         request['enabled'] = False
         resp = service_data.json_response_v3.copy()
         resp['enabled'] = False
+        request.pop('description')
+        request.pop('name')
+        request.pop('type')
         self.register_uris([
             dict(method='PATCH',
                  uri=self.get_mock_url(append=[service_data.service_id]),
                  status_code=200,
                  json=resp,
-                 validate=request),
+                 validate=dict(json={'service': request})),
             dict(method='GET',
                  uri=self.get_mock_url(append=[service_data.service_id]),
                  status_code=200,

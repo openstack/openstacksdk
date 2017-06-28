@@ -44,7 +44,9 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
             service_data.service_id, public_url=self._dummy_url(),
             internal_url=self._dummy_url(), admin_url=self._dummy_url())
         other_endpoint_data = self._get_endpoint_v2_data(
-            service_data.service_id, public_url=self._dummy_url())
+            service_data.service_id, region=endpoint_data.region,
+            public_url=endpoint_data.public_url)
+        # correct the keys
 
         self.register_uris([
             dict(method='GET',
@@ -57,7 +59,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  uri=self.get_mock_url(base_url_append=None),
                  status_code=200,
                  json=endpoint_data.json_response,
-                 validate=endpoint_data.json_request),
+                 validate=dict(json=endpoint_data.json_request)),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='services', base_url_append='OS-KSADM'),
@@ -77,7 +79,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  uri=self.get_mock_url(base_url_append=None),
                  status_code=200,
                  json=other_endpoint_data.json_response,
-                 validate=other_endpoint_data.json_request)
+                 validate=dict(json=other_endpoint_data.json_request))
         ])
 
         endpoints = self.op_cloud.create_endpoint(
@@ -151,7 +153,8 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=public_endpoint_data_disabled.json_response,
-                 validate=public_endpoint_data_disabled.json_request),
+                 validate=dict(
+                     json=public_endpoint_data_disabled.json_request)),
             dict(method='GET',
                  uri=self.get_mock_url(
                      append=[public_endpoint_data_disabled.endpoint_id]),
@@ -166,7 +169,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=public_endpoint_data.json_response,
-                 validate=public_endpoint_data.json_request),
+                 validate=dict(json=public_endpoint_data.json_request)),
             dict(method='GET',
                  uri=self.get_mock_url(
                      append=[public_endpoint_data.endpoint_id]),
@@ -176,7 +179,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=internal_endpoint_data.json_response,
-                 validate=internal_endpoint_data.json_request),
+                 validate=dict(json=internal_endpoint_data.json_request)),
             dict(method='GET',
                  uri=self.get_mock_url(
                      append=[internal_endpoint_data.endpoint_id]),
@@ -186,7 +189,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=admin_endpoint_data.json_response,
-                 validate=admin_endpoint_data.json_request),
+                 validate=dict(json=admin_endpoint_data.json_request)),
             dict(method='GET',
                  uri=self.get_mock_url(
                      append=[admin_endpoint_data.endpoint_id]),
@@ -251,15 +254,18 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
 
     def test_update_endpoint_v3(self):
         service_data = self._get_service_data()
+        dummy_url = self._dummy_url()
         endpoint_data = self._get_endpoint_v3_data(
             service_id=service_data.service_id, interface='admin',
             enabled=False)
+        reference_request = endpoint_data.json_request.copy()
+        reference_request['endpoint']['url'] = dummy_url
         self.register_uris([
             dict(method='PATCH',
                  uri=self.get_mock_url(append=[endpoint_data.endpoint_id]),
                  status_code=200,
                  json=endpoint_data.json_response,
-                 validate=endpoint_data.json_request),
+                 validate=dict(json=reference_request)),
             dict(method='GET',
                  uri=self.get_mock_url(append=[endpoint_data.endpoint_id]),
                  status_code=200,
@@ -269,7 +275,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
             endpoint_data.endpoint_id,
             service_name_or_id=service_data.service_id,
             region=endpoint_data.region,
-            url=self._dummy_url(),
+            url=dummy_url,
             interface=endpoint_data.interface,
             enabled=False
         )

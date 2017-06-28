@@ -72,7 +72,7 @@ class TestGroups(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=group_data.json_response,
-                 validate=group_data.json_request),
+                 validate=dict(json=group_data.json_request)),
             dict(method='GET',
                  uri=self.get_mock_url(append=[group_data.group_id]),
                  status_code=200,
@@ -84,6 +84,8 @@ class TestGroups(base.RequestsMockTestCase):
 
     def test_update_group(self):
         group_data = self._get_group_data()
+        # Domain ID is not sent
+        group_data.json_request['group'].pop('domain_id')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(),
@@ -93,7 +95,7 @@ class TestGroups(base.RequestsMockTestCase):
                  uri=self.get_mock_url(append=[group_data.group_id]),
                  status_code=200,
                  json=group_data.json_response,
-                 validate=group_data.json_request),
+                 validate=dict(json=group_data.json_request)),
             dict(method='GET',
                  uri=self.get_mock_url(append=[group_data.group_id]),
                  status_code=200,

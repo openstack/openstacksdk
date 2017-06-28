@@ -588,7 +588,8 @@ class TestSecurityGroups(base.RequestsMockTestCase):
             dict(
                 method='POST',
                 uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
-                validate={'addSecurityGroup': {'name': 'nova-sec-group'}},
+                validate=dict(
+                    json={'addSecurityGroup': {'name': 'nova-sec-group'}}),
                 status_code=202,
             ),
         ])
@@ -620,7 +621,8 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                  json={'security_groups': [neutron_grp_dict]}),
             dict(method='POST',
                  uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
-                 validate={'addSecurityGroup': {'name': 'neutron-sec-group'}},
+                 validate=dict(
+                     json={'addSecurityGroup': {'name': 'neutron-sec-group'}}),
                  status_code=202),
         ])
 
@@ -642,7 +644,8 @@ class TestSecurityGroups(base.RequestsMockTestCase):
             dict(
                 method='POST',
                 uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
-                validate={'removeSecurityGroup': {'name': 'nova-sec-group'}},
+                validate=dict(
+                    json={'removeSecurityGroup': {'name': 'nova-sec-group'}}),
             ),
         ])
 
@@ -673,7 +676,7 @@ class TestSecurityGroups(base.RequestsMockTestCase):
                  json={'security_groups': [neutron_grp_dict]}),
             dict(method='POST',
                  uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
-                 validate=validate),
+                 validate=dict(json=validate)),
         ])
 
         self.assertTrue(self.cloud.remove_server_security_groups(

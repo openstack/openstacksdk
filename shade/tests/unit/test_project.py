@@ -39,7 +39,7 @@ class TestProject(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='POST', uri=self.get_mock_url(v3=False),
                  status_code=200, json=project_data.json_response,
-                 validate=project_data.json_request)
+                 validate=dict(json=project_data.json_request))
         ])
         project = self.op_cloud.create_project(
             name=project_data.project_name,
@@ -52,12 +52,14 @@ class TestProject(base.RequestsMockTestCase):
     def test_create_project_v3(self,):
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
+        reference_req = project_data.json_request.copy()
+        reference_req['project']['enabled'] = True
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=project_data.json_response,
-                 validate=project_data.json_request)
+                 validate=dict(json=reference_req))
         ])
         project = self.op_cloud.create_project(
             name=project_data.project_name,
@@ -135,6 +137,9 @@ class TestProject(base.RequestsMockTestCase):
         project_data = self._get_project_data(
             v3=False,
             description=self.getUniqueString('projectDesc'))
+        # remove elements that are not updated in this test.
+        project_data.json_request['tenant'].pop('name')
+        project_data.json_request['tenant'].pop('enabled')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(v3=False),
@@ -145,7 +150,7 @@ class TestProject(base.RequestsMockTestCase):
                      v3=False, append=[project_data.project_id]),
                  status_code=200,
                  json=project_data.json_response,
-                 validate=project_data.json_request)
+                 validate=dict(json=project_data.json_request))
         ])
         project = self.op_cloud.update_project(
             project_data.project_id,
@@ -160,6 +165,11 @@ class TestProject(base.RequestsMockTestCase):
     def test_update_project_v3(self):
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
+        reference_req = project_data.json_request.copy()
+        # Remove elements not actually sent in the update
+        reference_req['project'].pop('domain_id')
+        reference_req['project'].pop('name')
+        reference_req['project'].pop('enabled')
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -170,7 +180,7 @@ class TestProject(base.RequestsMockTestCase):
             dict(method='PATCH',
                  uri=self.get_mock_url(append=[project_data.project_id]),
                  status_code=200, json=project_data.json_response,
-                 validate=project_data.json_request)
+                 validate=dict(json=reference_req))
         ])
         project = self.op_cloud.update_project(
             project_data.project_id,

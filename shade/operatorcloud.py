@@ -929,17 +929,21 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 urlkwargs['interface'] = interface
             endpoint_args.append(urlkwargs)
         else:
-            expected_endpoints = {'public': public_url,
-                                  'internal': internal_url,
-                                  'admin': admin_url}
+            # NOTE(notmorgan): This is done as a list of tuples to ensure we
+            # have a deterministic order we try and create the endpoint
+            # elements. This is done mostly so that it is possible to test the
+            # requests themselves.
+            expected_endpoints = [('public', public_url),
+                                  ('internal', internal_url),
+                                  ('admin', admin_url)]
             if self.cloud_config.get_api_version('identity').startswith('2'):
                 urlkwargs = {}
-                for interface, url in expected_endpoints.items():
+                for interface, url in expected_endpoints:
                     if url:
                         urlkwargs['{}url'.format(interface)] = url
                 endpoint_args.append(urlkwargs)
             else:
-                for interface, url in expected_endpoints.items():
+                for interface, url in expected_endpoints:
                     if url:
                         urlkwargs = {}
                         urlkwargs['url'] = url
