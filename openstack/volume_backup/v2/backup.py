@@ -31,6 +31,8 @@ class CloudBackup(resource.Resource):
     #: Properties
     #: The volume to be backup
     volume_id = resource.Body("volume_id")
+    #: The snapshot reference of volume to be backup
+    snapshot_id = resource.Body("snapshot_id")
     #: Volume backup name
     name = resource.Body("name")
     #: Volume backup description
