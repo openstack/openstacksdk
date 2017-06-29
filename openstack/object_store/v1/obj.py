@@ -12,7 +12,6 @@
 # under the License.
 
 import copy
-import six
 
 from openstack.object_store import object_store_service
 from openstack.object_store.v1 import _base
@@ -168,7 +167,7 @@ class Object(_base.BaseResource):
         # Filter out items with empty values so the create metadata behaviour
         # is the same as account and container
         filtered_metadata = \
-            {key: value for key, value in six.iteritems(metadata) if value}
+            {key: value for key, value in metadata.items() if value}
 
         # Get a copy of the original metadata so it doesn't get erased on POST
         # and update it with the new metadata values.

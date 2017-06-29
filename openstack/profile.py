@@ -53,7 +53,6 @@ The resulting preference print out would look something like::
 
 import copy
 import logging
-import six
 
 from openstack.bare_metal import bare_metal_service
 from openstack.block_store import block_store_service
@@ -166,7 +165,7 @@ class Profile(object):
     def get_services(self):
         """Get a list of all the known services."""
         services = []
-        for name, service in six.iteritems(self._services):
+        for name, service in self._services.items():
             services.append(service)
         return services
 

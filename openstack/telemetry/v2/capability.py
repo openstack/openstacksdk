@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
 
 from openstack import resource2 as resource
 from openstack.telemetry import telemetry_service
@@ -34,5 +33,5 @@ class Capability(resource.Resource):
         resp = session.get(cls.base_path, endpoint_filter=cls.service,
                            params=params)
         resp = resp.json()
-        for key, value in six.iteritems(resp['api']):
+        for key, value in resp['api'].items():
             yield cls.existing(id=key, enabled=value)
