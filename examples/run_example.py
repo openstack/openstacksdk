@@ -39,9 +39,9 @@ os.environ.setdefault(
 )
 
 # initial connection
-conn = create_connection_from_config()
-
-load_balancer.list_loadbalancers(conn)
+# conn = create_connection_from_config()
+#
+# load_balancer.list_loadbalancers(conn)
 
 # subnets = conn.network.subnets(limit=1)
 # routers = conn.network.routers(limit=1)

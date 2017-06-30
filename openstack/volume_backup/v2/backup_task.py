@@ -47,7 +47,3 @@ class BackupTask(resource.Resource):
     created_at = resource.Body("created_at")
     #: task finished at
     finished_at = resource.Body("finished_at")
-    #: Error message if task fails
-    message = resource.Body("message")
-    #: Error code if task fails
-    code = resource.Body("code")
