@@ -5,9 +5,16 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 extensions = [
     'sphinx.ext.autodoc',
-    'oslosphinx',
+    'openstackdocstheme',
     'reno.sphinxext'
 ]
+
+# openstackdocstheme options
+repository_name = 'openstack-infra/shade'
+bug_project = '760'
+bug_tag = ''
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
+html_theme = 'openstackdocs'
 
 # The suffix of source filenames.
 source_suffix = '.rst'
