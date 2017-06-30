@@ -11,24 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   installation
-   usage
-   logging
-   model
-   contributing
-   coding
-   microversions
-   releasenotes
+   install/index
+   user/index
+   contributor/index
+   releasenotes/index
 
 .. include:: ../../README.rst
-
-Presentations
-=============
-
-.. toctree::
-   :maxdepth: 1
-
-   multi-cloud-demo
 
 Indices and tables
 ==================

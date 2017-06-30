@@ -7,7 +7,7 @@ walk through it like a presentation, install `presentty` and run:
 
 .. code:: bash
 
-    presentty doc/source/multi-cloud-demo.rst
+    presentty doc/source/user/multi-cloud-demo.rst
 
 The content is hopefully helpful even if it's not being narrated, so it's being
 included in the `shade` docs.

@@ -73,7 +73,7 @@ All objects should be normalized. It is shade's purpose in life to make
 OpenStack consistent for end users, and this means not trusting the clouds
 to return consistent objects. There should be a normalize function in
 `shade/_normalize.py` that is applied to objects before returning them to
-the user. See :doc:`model` for further details on object model requirements.
+the user. See :doc:`../user/model` for further details on object model requirements.
 
 Fields should not be in the normalization contract if we cannot commit to
 providing them to all users.
