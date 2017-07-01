@@ -91,6 +91,10 @@ class BaseFunctionalTest(unittest.TestCase):
             'OS_LOAD_BALANCER_ENDPOINT_OVERRIDE',
             'https://elb.eu-de.otc.t-systems.com/v1.0/%(project_id)s'
         )
+        os.environ.setdefault(
+            'OS_MAP_REDUCE_ENDPOINT_OVERRIDE',
+            'https://mrs.eu-de.otc.t-systems.com/v1.1/%(project_id)s'
+        )
         cls.conn = connection.from_config(cloud_name=TEST_CLOUD)
 
     @classmethod

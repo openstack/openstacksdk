@@ -1,0 +1,32 @@
+{
+  "markers": {
+    "prev": null,
+    "next": "e0b16cb7-9e6f-4175-a208-b0c7d075451f"
+  },
+  "data_sources": [
+    {
+      "name": "hdfs_input13",
+      "type": "hdfs",
+      "url": "/test-master-node:8020/user/hadoop/input",
+      "description": "This is hdfs input13_testtest",
+      "created_at": "2016-12-09T19:12:14",
+      "updated_at": null,
+      "id": "fba9bae4-dabf-4ac1-8511-db80c7ad2e5c",
+      "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+      "is_public": null,
+      "is_protected": null
+    },
+    {
+      "name": "hdfs_input8",
+      "type": "hdfs",
+      "url": "/test-master-node:8020/user/hadoop/input",
+      "description": "This is hdfs input13_update",
+      "created_at": "2016-12-09T19:12:14",
+      "updated_at": "2016-12-09T23:12:14",
+      "id": "e0b16cb7-9e6f-4175-a208-b0c7d075451f",
+      "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+      "is_public": null,
+      "is_protected": null
+    }
+  ]
+}

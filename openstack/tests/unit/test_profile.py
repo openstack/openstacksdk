@@ -30,6 +30,7 @@ class TestProfile(base.TestCase):
             'image',
             'key-manager',
             'load-balancer',
+            'map-reduce',
             'messaging',
             'metering',
             'network',

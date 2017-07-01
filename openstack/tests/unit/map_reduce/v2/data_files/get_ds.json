@@ -1,0 +1,14 @@
+{
+  "data_source": {
+    "is_public": false,
+    "tenant_id": "9cd1314a0a31493282b6712b76a8fcda",
+    "is_protected": false,
+    "created_at": "2016-12-09T19:12:14",
+    "id": "953831f2-0852-49d8-ac71-af5805e25256",
+    "updated_at": null,
+    "name": "swift_input",
+    "description": "This is input",
+    "url": "/container/text",
+    "type": "hdfs"
+  }
+}

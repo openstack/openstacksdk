@@ -17,7 +17,7 @@ from openstack.load_balancer import load_balancer_service as lb_service
 
 
 class Job(resource.Resource):
-    """Load Balancer Job Resource"""
+    """Job Resource"""
     base_path = "/jobs"
     service = lb_service.LoadBalancerService()
 

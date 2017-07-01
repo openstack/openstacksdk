@@ -1,0 +1,14 @@
+{
+  "data_source": {
+    "description": "",
+    "url": "/simple/mapreduce/input",
+    "tenant_id": "46abc9f8044f40428f83a06cba0d5ddb",
+    "created_at": "2016-12-09T19:12:14",
+    "updated_at": "2016-12-09T19:12:14",
+    "is_protected": false,
+    "is_public": false,
+    "type": "hdfs",
+    "id": "9bcd0e98-d927-4cae-a111-c30ebc2454ed",
+    "name": "my-input"
+  }
+}

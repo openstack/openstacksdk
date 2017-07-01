@@ -73,6 +73,7 @@ from openstack.identity import identity_service
 from openstack.image import image_service
 from openstack.key_manager import key_manager_service
 from openstack.load_balancer import load_balancer_service as lb_service
+from openstack.map_reduce import map_reduce_service
 from openstack.message import message_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
@@ -127,6 +128,7 @@ class Profile(object):
         self._add_service(ass)
         vbs_v2 = volume_backup_service.VolumeBackupService(version="v2")
         self._add_service(vbs_v2)
+        self._add_service(map_reduce_service.MapReduceService(version="v1"))
 
         if plugins:
             for plugin in plugins:
