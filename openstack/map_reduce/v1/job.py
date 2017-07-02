@@ -65,6 +65,7 @@ class Job(resource.Resource):
     # capabilities
     allow_create = True
     allow_update = True
+    patch_update = True
     allow_list = True
     allow_get = True
     allow_delete = True

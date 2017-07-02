@@ -101,6 +101,15 @@ class BaseProxyTestCase(base.TestCase):
             json=json
         )
 
+    def assert_session_patch_with(self, uri, json, header={}):
+        self.session.patch.assert_called_once_with(
+            uri,
+            endpoint_filter=self.service,
+            endpoint_override=self.service.get_endpoint_override(),
+            headers=header,
+            json=json
+        )
+
     def assert_session_delete(self, uri, params=None):
         self.session.delete.assert_called_once_with(
             uri,

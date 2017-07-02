@@ -1,0 +1,30 @@
+{
+  "markers": {
+    "prev": "1c857b68-b96c-45a2-9ac1-148aa10ea627",
+    "next": "b197b6e6-13fe-4079-9892-88f417547536"
+  },
+  "binaries": [
+    {
+      "name": "jarexample1.5jar",
+      "url": "swift://container/jar-example.jar",
+      "description": "This is a job binary15",
+      "created_at": "2017-01-17T03:04:31",
+      "updated_at": "2017-02-17T03:04:31",
+      "id": "7b8298be-f6ba-4765-935b-59a3d6c0037b",
+      "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+      "is_public": true,
+      "is_protected": null
+    },
+    {
+      "name": "ajarexample11.5jar",
+      "url": "swift://container/jar-example.jar",
+      "description": "This is a job binary15",
+      "created_at": "2017-02-17T10:28:49",
+      "updated_at": null,
+      "id": "b197b6e6-13fe-4079-9892-88f417547536",
+      "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+      "is_public": true,
+      "is_protected": null
+    }
+  ]
+}

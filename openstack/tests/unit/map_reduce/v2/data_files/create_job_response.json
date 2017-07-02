@@ -1,0 +1,27 @@
+{
+  "job": {
+    "description": "This is the Map Reduce job template",
+    "tenant_id": "46abc9f8044f40428f83a06cba0d5ddb",
+    "created_at": "2016-12-09T19:44:36",
+    "mains": [],
+    "libs": [
+      {
+        "description": "this is the job binary for map reduce job",
+        "url": "swift://simple/mapreduce/input",
+        "tenant_id": "46abc9f8044f40428f83a06cba0d5ddb",
+        "created_at": "2016-12-09T19:01:48",
+        "updated_at": null,
+        "is_protected": false,
+        "is_public": false,
+        "id": "092b628b-26a3-4571-9ba4-f8d000df8877",
+        "name": "my-job-binary"
+      }
+    ],
+    "is_protected": false,
+    "interface": [],
+    "is_public": false,
+    "type": "MapReduce",
+    "id": "a5c1e223-e37d-4059-ad90-7a5fd35bbb68",
+    "name": "my-job"
+  }
+}

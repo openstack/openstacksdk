@@ -12,7 +12,9 @@
 
 from openstack import proxy2
 from openstack.map_reduce.v1 import data_source as _ds
+from openstack.map_reduce.v1 import job as _job
 from openstack.map_reduce.v1 import job_binary as _jb
+from openstack.map_reduce.v1 import job_execution as _je
 
 
 class Proxy(proxy2.BaseProxy):
@@ -124,6 +126,20 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._create(_jb.JobBinary, prepend_key=False, **attrs)
 
+    def update_job_binary(self, job_binary, **attrs):
+        """Update an exists job-binary from attributes
+
+        :param job_binary: value can be the ID of a Job-Binary or an instance
+            of :class:`~openstack.map_reduce.v1.job_binary.JobBinary`
+        :param dict attrs: Keyword arguments which will be used to create
+                a :class: `~openstack.map_reduce.v1.job_binary.JobBinary`
+                comprised of the properties on the DataSource class.
+        :returns: The results of data_source creation
+        :rtype: :class:`~openstack.map_reduce.v1.job_binary.JobBinary`
+        """
+        return self._update(_jb.JobBinary, job_binary, prepend_key=False,
+                            **attrs)
+
     def get_job_binary(self, job_binary):
         """Get a Job-Binary
         :param job_binary: value can be the ID of a Job-Binary or an instance
@@ -164,5 +180,171 @@ class Proxy(proxy2.BaseProxy):
         :returns: ``None``
         """
         return self._find(_jb.JobBinary,
+                          name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def jobs(self, **query):
+        """Retrieve a generator of jobs
+        :param dict query: Optional query parameters to be sent to limit the
+                      resources being returned.
+            * ``sort_by``: sort by attribute, sort_by=name means sort by name
+                    attribute asc, sort_by=-name means desc
+            * ``marker``:  pagination marker
+            * ``limit``: pagination limit
+
+        :returns: A generator of jobs (:class:
+                `~openstack.map_reduce.v1.job.Job`) instances
+        """
+        return self._list(_job.Job, paginated=True, **query)
+
+    def create_job(self, **attrs):
+        """Create a new Job from attributes
+        :param dict attrs: Keyword arguments which will be used to create
+                a :class:`~openstack.map_reduce.v1.job.Job`,
+                comprised of the properties on the Job class.
+        :returns: The results of Job creation
+        :rtype: :class:`~openstack.map_reduce.v1.job.Job`
+        """
+        return self._create(_job.Job, prepend_key=False, **attrs)
+
+    def update_job(self, job, **attrs):
+        """Update an exists job-binary from attributes
+
+        :param job: value can be the ID of a Job or an instance
+            of :class:`~openstack.map_reduce.v1.job.Job`
+        :param dict attrs: Keyword arguments which will be used to create
+                a :class: `~openstack.map_reduce.v1.job.Job`
+                comprised of the properties on the DataSource class.
+        :returns: The results of data_source creation
+        :rtype: :class:`~openstack.map_reduce.v1.job.Job`
+        """
+        return self._update(_job.Job, job, prepend_key=False,
+                            **attrs)
+
+    def get_job(self, job):
+        """Get a Job
+        :param job: value can be the ID of a Job or an instance
+            of :class:`~openstack.map_reduce.v1.job.Job`
+        :returns: Job instance
+        :rtype: :class:`~openstack.map_reduce.v1.job.Job`
+        """
+        return self._get(_job.Job, job)
+
+    def execute_job(self, job, **attrs):
+        """Execute a Job
+        :param job: value can be the ID of a Job or an instance
+            of :class:`~openstack.map_reduce.v1.job.Job`
+        :returns: Job Execution Instance
+        :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
+        """
+        job = self._get_resource(_job.Job, job)
+        execution = _je.JobExecution(job_id=job.id, **attrs)
+        return execution.create(self._session)
+
+    def delete_job(self, job, ignore_missing=True):
+        """Delete a Job
+
+        :param job: value can be the ID of a Job or an instance
+            of :class:`~openstack.map_reduce.v1.job.Job`
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the job does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent job.
+
+        :returns: Job been deleted
+        :rtype: :class:`~openstack.map_reduce.v1.job.Job`
+        """
+        return self._delete(_job.Job,
+                            job,
+                            ignore_missing=ignore_missing)
+
+    def find_job(self, name_or_id, ignore_missing=True):
+        """Find a single Job
+
+        :param name_or_id: The name or ID of a Job
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the job does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to delete a nonexistent job.
+
+        :returns: ``None``
+        """
+        return self._find(_job.Job,
+                          name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def job_executions(self, **query):
+        """Retrieve a generator of Job-Executions
+        :param dict query: Optional query parameters to be sent to limit the
+                      resources being returned.
+            * ``sort_by``: sort by attribute, sort_by=name means sort by name
+                    attribute asc, sort_by=-name means desc
+            * ``marker``:  pagination marker
+            * ``limit``: pagination limit
+
+        :returns: A generator of Job-Executions (:class: `~openstack.
+            map_reduce.v1.job_execution.JobExecution`) instances
+        """
+        return self._list(_je.JobExecution, paginated=True, **query)
+
+    def get_job_execution(self, job_execution):
+        """Get a Job-Executions
+
+        :param job_execution: value can be the ID of a JobExecution or an
+                instance of :class:`~openstack.map_reduce.v1.
+                job_execution.JobExecution`
+        :returns: JobExecution instance
+        :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
+        """
+        return self._get(_je.JobExecution, job_execution)
+
+    def delete_job_execution(self, job_execution, ignore_missing=True):
+        """Delete a JobExecution
+
+        :param job_execution: value can be the ID of a JobExecution or an
+                instance of :class:`~openstack.map_reduce.v1.
+                job_execution.JobExecution`
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the job does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent job.
+
+        :returns: JobExecution been deleted
+        :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
+        """
+        return self._delete(_je.JobExecution,
+                            job_execution,
+                            ignore_missing=ignore_missing)
+
+    def cancel_job_execution(self, job_execution):
+        """Cancel a JobExecution
+
+        :param job_execution: value can be the ID of a JobExecution or an
+                instance of :class:`~openstack.map_reduce.v1.
+                job_execution.JobExecution`
+
+        :returns: JobExecution been cancel
+        :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
+        """
+        execution = self._get_resource(_je.JobExecution, job_execution)
+        return execution.cancel(self._session)
+
+    def find_job_execution(self, name_or_id, ignore_missing=True):
+        """Find a single JobExecution
+
+        :param name_or_id: The name or ID of a JobExecution
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the job does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to delete a nonexistent job-execution.
+
+        :returns: Job-Execution instance or None
+        :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
+        """
+        return self._find(_je.JobExecution,
                           name_or_id,
                           ignore_missing=ignore_missing)

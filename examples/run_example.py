@@ -38,10 +38,16 @@ os.environ.setdefault(
     'https://elb.eu-de.otc.t-systems.com/v1.0/%(project_id)s'
 )
 
+os.environ.setdefault(
+    'OS_MAP_REDUCE_ENDPOINT_OVERRIDE',
+    'https://mrs.eu-de.otc.t-systems.com/v1.1/%(project_id)s'
+)
+
 # initial connection
 conn = create_connection_from_config()
+print list(conn.map_reduce.job_executions())
 #
-load_balancer.list_loadbalancers(conn)
+# load_balancer.list_loadbalancers(conn)
 
 # subnets = conn.network.subnets(limit=1)
 # routers = conn.network.routers(limit=1)

@@ -65,7 +65,7 @@ class TestDataSource(base.BaseFunctionalTest):
 
     def test_3_update_data_source(self):
         updated = {
-            "url": "sdk/unittests/input1",
+            "url": "/sdk/unittest/input1",
             "description": "SDK unittests"
         }
         _ds = self.conn.map_reduce.update_data_source(self.ds, **updated)

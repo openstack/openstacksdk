@@ -1,0 +1,26 @@
+{
+  "job": {
+    "is_public": false,
+    "tenant_id": "9cd1314a0a31493282b6712b76a8fcda",
+    "created_at": "2015-02-10 14:25:48",
+    "id": "1a674c31-9aaa-4d07-b844-2bf200a1b836",
+    "name": "Edp-test-job",
+    "updated_at": null,
+    "description": "",
+    "interface": [],
+    "libs": [
+      {
+        "tenant_id": "9cd1314a0a31493282b6712b76a8fcda",
+        "created_at": "2015-02-10 14:25:48",
+        "id": "0ff4ac10-94a4-4e25-9ac9-603afe27b100",
+        "name": "binary-job.jar",
+        "updated_at": null,
+        "description": "",
+        "url": "swift://Edp-test-c71e6bce.sahara/binary-job.jar"
+      }
+    ],
+    "type": "MapReduce",
+    "mains": [],
+    "is_protected": false
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "job_executions": [
+    {
+      "job_configs": {
+        "configs": {
+          "mapred.reduce.tasks": "1",
+          "mapred.map.tasks": "1"
+        },
+        "args": [
+          "arg1",
+          "arg2"
+        ],
+        "params": {
+          "param2": "value2",
+          "param1": "value1"
+        }
+      },
+      "is_protected": false,
+      "input_id": "3e1bc8e6-8c69-4749-8e52-90d9341d15bc",
+      "job_id": "310b0fc6-e1db-408e-8798-312e7500f3ac",
+      "cluster_id": "811e1134-666f-4c48-bc92-afb5b10c9d8c",
+      "created_at": "2015-09-15T09:49:24",
+      "end_time": "2015-09-15T12:50:46",
+      "output_id": "52146b52-6540-4aac-a024-fee253cf52a9",
+      "is_public": false,
+      "updated_at": "2015-09-15T09:50:46",
+      "return_code": null,
+      "data_source_urls": {
+        "3e1bc8e6-8c69-4749-8e52-90d9341d15bc": "swift://ap-cont/input",
+        "52146b52-6540-4aac-a024-fee253cf52a9": "swift://ap-cont/output"
+      },
+      "tenant_id": "808d5032ea0446889097723bfc8e919d",
+      "start_time": "2015-09-15T12:49:43",
+      "id": "20da9edb-12ce-4b45-a473-41baeefef997",
+      "engine_job_id": "0000001-150915094349962-oozie-hado-W",
+      "oozie_job_id": "0000001-150915094349962-oozie-hado-W",
+      "info": {
+        "user": "hadoop",
+        "actions": [
+          {
+            "name": ":start:",
+            "trackerUri": "-",
+            "externalStatus": "OK",
+            "status": "OK",
+            "externalId": "-",
+            "transition": "job-node",
+            "data": null,
+            "endTime": "Tue, 15 Sep 2015 09:49:59 GMT",
+            "errorCode": null,
+            "id": "0000001-150915094349962-oozie-hado-W@:start:",
+            "consoleUrl": "-",
+            "errorMessage": null,
+            "toString": "Action name[:start:] status[OK]",
+            "stats": null,
+            "type": ":START:",
+            "retries": 0,
+            "startTime": "Tue, 15 Sep 2015 09:49:59 GMT",
+            "externalChildIDs": null,
+            "cred": "null"
+          },
+          {
+            "name": "job-node",
+            "trackerUri": "http://172.18.168.119:8032",
+            "externalStatus": "FAILED/KILLED",
+            "status": "ERROR",
+            "externalId": "job_1442310173665_0002",
+            "transition": "fail",
+            "data": null,
+            "endTime": "Tue, 15 Sep 2015 09:50:17 GMT",
+            "errorCode": "JA018",
+            "id": "0000001-150915094349962-oozie-hado-W@job-node",
+            "consoleUrl": "http://ap-cluster-all-0:8088/proxy/application_1442310173665_0002/",
+            "errorMessage": "Main class [org.apache.oozie.action.hadoop.PigMain], exit code [2]",
+            "toString": "Action name[job-node] status[ERROR]",
+            "stats": null,
+            "type": "pig",
+            "retries": 0,
+            "startTime": "Tue, 15 Sep 2015 09:49:59 GMT",
+            "externalChildIDs": null,
+            "cred": "null"
+          },
+          {
+            "name": "fail",
+            "trackerUri": "-",
+            "externalStatus": "OK",
+            "status": "OK",
+            "externalId": "-",
+            "transition": null,
+            "data": null,
+            "endTime": "Tue, 15 Sep 2015 09:50:17 GMT",
+            "errorCode": "E0729",
+            "id": "0000001-150915094349962-oozie-hado-W@fail",
+            "consoleUrl": "-",
+            "errorMessage": "Workflow failed, error message[Main class [org.apache.oozie.action.hadoop.PigMain], exit code [2]]",
+            "toString": "Action name[fail] status[OK]",
+            "stats": null,
+            "type": ":KILL:",
+            "retries": 0,
+            "startTime": "Tue, 15 Sep 2015 09:50:17 GMT",
+            "externalChildIDs": null,
+            "cred": "null"
+          }
+        ],
+        "createdTime": "Tue, 15 Sep 2015 09:49:58 GMT",
+        "status": "KILLED",
+        "group": null,
+        "externalId": null,
+        "acl": null,
+        "run": 0,
+        "appName": "job-wf",
+        "parentId": null,
+        "conf": "<configuration>\r\n  <property>\r\n    <name>user.name</name>\r\n    <value>hadoop</value>\r\n  </property>\r\n  <property>\r\n    <name>oozie.use.system.libpath</name>\r\n    <value>true</value>\r\n  </property>\r\n  <property>\r\n    <name>mapreduce.job.user.name</name>\r\n    <value>hadoop</value>\r\n  </property>\r\n  <property>\r\n    <name>nameNode</name>\r\n    <value>/ap-cluster-all-0:9000</value>\r\n  </property>\r\n  <property>\r\n    <name>jobTracker</name>\r\n    <value>http://172.18.168.119:8032</value>\r\n  </property>\r\n  <property>\r\n    <name>oozie.wf.application.path</name>\r\n    <value>/ap-cluster-all-0:9000/user/hadoop/pig-job-example/3038025d-9974-4993-a778-26a074cdfb8d/workflow.xml</value>\r\n  </property>\r\n</configuration>",
+        "id": "0000001-150915094349962-oozie-hado-W",
+        "startTime": "Tue, 15 Sep 2015 09:49:59 GMT",
+        "appPath": "/ap-cluster-all-0:9000/user/hadoop/pig-job-example/3038025d-9974-4993-a778-26a074cdfb8d/workflow.xml",
+        "endTime": "Tue, 15 Sep 2015 09:50:17 GMT",
+        "toString": "Workflow id[0000001-150915094349962-oozie-hado-W] status[KILLED]",
+        "lastModTime": "Tue, 15 Sep 2015 09:50:17 GMT",
+        "consoleUrl": "http://ap-cluster-all-0.novalocal:11000/oozie?job=0000001-150915094349962-oozie-hado-W"
+      }
+    }
+  ]
+}

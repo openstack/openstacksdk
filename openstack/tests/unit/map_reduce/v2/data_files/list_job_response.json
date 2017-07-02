@@ -1,0 +1,63 @@
+{
+  "markers": {
+    "prev": null,
+    "next": "679f5f6e-623f-4fb3-b9a2-7d71a3c7642c"
+  },
+  "jobs": [
+    {
+      "name": "my_job64552243zz44hh77",
+      "type": "MapReduce",
+      "description": "This is the Map Reduce job template",
+      "mains": [],
+      "libs": [],
+      "created_at": "2017-01-17T03:26:01",
+      "updated_at": "2017-01-17T03:26:01",
+      "id": "66d81fda-264f-40ef-8c4f-3c65408e9611",
+      "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+      "is_public": false,
+      "is_protected": false,
+      "interface": []
+    },
+    {
+      "name": "my_job-7455yyy43zz44hh112233",
+      "type": "MapReduce",
+      "description": "This is the Map Reduce job template",
+      "mains": [
+        {
+          "name": "jar-example15.jar",
+          "url": "swift://container/jar-example.jar",
+          "description": "This is a job binary15",
+          "id": "36dc7b90-d8a4-4e05-83ae-b1c03095c680",
+          "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+          "is_public": true,
+          "is_protected": null,
+          "extra": {
+            "password": "admin",
+            "user": "admin"
+          }
+        },
+        {
+          "name": "jar-example152.jar",
+          "url": "swift://container/jar-example.jar",
+          "description": "This is a job binary15",
+          "id": "cc1d9637-2219-4343-b55b-94ac3f857e65",
+          "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+          "is_public": true,
+          "is_protected": null,
+          "extra": {
+            "password": "admin",
+            "user": "admin"
+          }
+        }
+      ],
+      "libs": [],
+      "created_at": "2017-02-15T08:15:32",
+      "updated_at": "2017-02-15T08:15:32",
+      "id": "679f5f6e-623f-4fb3-b9a2-7d71a3c7642c",
+      "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+      "is_public": false,
+      "is_protected": false,
+      "interface": []
+    }
+  ]
+}

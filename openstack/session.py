@@ -355,6 +355,6 @@ class Session(_session.Session):
     @map_exceptions
     def request(self, *args, **kwargs):
         # Fix MRS service require *Content-Type* header in GET request
-        # headers = kwargs.setdefault('headers', dict())
-        # headers.setdefault('Content-Type', 'application/json')
+        headers = kwargs.setdefault('headers', dict())
+        headers.setdefault('Content-Type', 'application/json')
         return super(Session, self).request(*args, **kwargs)

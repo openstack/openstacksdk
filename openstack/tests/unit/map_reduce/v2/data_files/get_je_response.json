@@ -1,0 +1,106 @@
+{
+  "job_execution": {
+    "job_configs": {
+      "configs": {
+        "mapred.reduce.tasks": "1",
+        "mapred.map.tasks": "1"
+      },
+      "args": [
+        "arg1",
+        "arg2"
+      ],
+      "params": {
+        "param2": "value2",
+        "param1": "value1"
+      }
+    },
+    "output_id": "9d59ce5b-d0f4-46d4-8738-6e50c2a5c68a",
+    "info": {
+      "status": "SUSPENDED",
+      "toString": "Workflow id[0000000-161209184814131-oozie-hado-W] status[SUSPENDED]",
+      "run": 0,
+      "conf": "<configuration>\r\n  <property>\r\n    <name>user.name</name>\r\n    <value>hadoop</value>\r\n  </property>\r\n  <property>\r\n    <name>oozie.use.system.libpath</name>\r\n    <value>true</value>\r\n  </property>\r\n  <property>\r\n    <name>mapreduce.job.user.name</name>\r\n    <value>hadoop</value>\r\n  </property>\r\n  <property>\r\n    <name>nameNode</name>\r\n    <value>/guided-cluster-guided-master-0:9000</value>\r\n  </property>\r\n  <property>\r\n    <name>jobTracker</name>\r\n    <value>http://172.16.0.150:8032</value>\r\n  </property>\r\n  <property>\r\n    <name>oozie.wf.application.path</name>\r\n    <value>/guided-cluster-guided-master-0:9000/user/hadoop/pigjobtemp/95d0a471-ef2e-464b-a4d2-168d74ced9a0/workflow.xml</value>\r\n  </property>\r\n</configuration>",
+      "appName": "job-wf",
+      "lastModTime": "Fri, 09 Dec 2016 18:57:34 GMT",
+      "actions": [
+        {
+          "userRetryCount": 0,
+          "userRetryMax": 0,
+          "errorCode": "JA009",
+          "trackerUri": null,
+          "id": "0000000-161209184814131-oozie-hado-W@job-node",
+          "stats": null,
+          "externalId": null,
+          "userRetryInterval": 10,
+          "toString": "Action name[job-node] status[START_MANUAL]",
+          "cred": "null",
+          "status": "START_MANUAL",
+          "errorMessage": "JA009: file /tmp/hadoop-yarn/staging/hadoop/.staging/job_1481308783603_0004/job.split.\nRequested replication 10 exceeds maximum 2\n\tat org.apache.hadoop.hdfs.server.blockmanagement.BlockManager.verifyReplication(BlockManager.java:975)\n\tat org.apache.hadoop.hdfs.server.namenode.FSDirAttrOp.setReplication(FSDirAttrOp.java:138)\n\tat org.apache.hadoop.hdfs.server.namenode.FSNamesystem.setReplication(FSNamesystem.java:1969)\n\tat org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.setReplication(Nam",
+          "externalStatus": null,
+          "startTime": null,
+          "data": null,
+          "retries": 0,
+          "name": "job-node",
+          "type": "pig",
+          "transition": null,
+          "consoleUrl": null,
+          "externalChildIDs": null,
+          "endTime": null
+        },
+        {
+          "userRetryCount": 0,
+          "userRetryMax": 0,
+          "errorCode": null,
+          "trackerUri": "-",
+          "id": "0000000-161209184814131-oozie-hado-W@:start:",
+          "stats": null,
+          "externalId": "-",
+          "userRetryInterval": 10,
+          "toString": "Action name[:start:] status[OK]",
+          "cred": "null",
+          "status": "OK",
+          "errorMessage": null,
+          "externalStatus": "OK",
+          "startTime": "Fri, 09 Dec 2016 18:55:56 GMT",
+          "data": null,
+          "retries": 0,
+          "name": ":start:",
+          "type": ":START:",
+          "transition": "job-node",
+          "consoleUrl": "-",
+          "externalChildIDs": null,
+          "endTime": "Fri, 09 Dec 2016 18:55:57 GMT"
+        }
+      ],
+      "acl": null,
+      "consoleUrl": "http://guided-cluster-guided-master-0.novalocal:11000/oozie?job=0000000-161209184814131-oozie-hado-W",
+      "appPath": "/guided-cluster-guided-master-0:9000/user/hadoop/pigjobtemp/95d0a471-ef2e-464b-a4d2-168d74ced9a0/workflow.xml",
+      "externalId": null,
+      "user": "hadoop",
+      "startTime": "Fri, 09 Dec 2016 18:55:54 GMT",
+      "parentId": null,
+      "createdTime": "Fri, 09 Dec 2016 18:55:53 GMT",
+      "group": null,
+      "endTime": null,
+      "id": "0000000-161209184814131-oozie-hado-W"
+    },
+    "job_id": "15429516-aff2-44ef-b9de-14a4fc1cff63",
+    "engine_job_id": "0000000-161209184814131-oozie-hado-W",
+    "tenant_id": "46abc9f8044f40428f83a06cba0d5ddb",
+    "start_time": "2016-12-09T18:55:44",
+    "return_code": null,
+    "updated_at": "2016-12-09T18:57:53",
+    "data_source_urls": {
+      "ce8c2b04-f46c-4580-8b58-5b6aaf4a44a9": "swift://simple/pigtest/input",
+      "9d59ce5b-d0f4-46d4-8738-6e50c2a5c68a": "swift://simple/pigtest/output"
+    },
+    "created_at": "2016-12-09T18:52:52",
+    "oozie_job_id": "0000000-161209184814131-oozie-hado-W",
+    "is_protected": false,
+    "input_id": "ce8c2b04-f46c-4580-8b58-5b6aaf4a44a9",
+    "end_time": null,
+    "cluster_id": "2b460e01-3351-4170-b0a7-57b9dd5ffef3",
+    "is_public": false,
+    "id": "f31b9bc7-0918-4924-b7d4-59c1b1d72933"
+  }
+}

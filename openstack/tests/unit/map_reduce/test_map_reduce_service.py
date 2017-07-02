@@ -12,20 +12,17 @@
 
 import testtools
 
-from openstack.auto_scaling import auto_scaling_service
-from openstack.volume_backup import volume_backup_service
+from openstack.map_reduce import map_reduce_service
 
 
-class TestVolumeBackupService(testtools.TestCase):
+class TestMapReduceService(testtools.TestCase):
 
     def test_service(self):
-        sot = volume_backup_service.VolumeBackupService()
-        self.assertEqual('volume-backup', sot.service_type)
+        sot = map_reduce_service.MapReduceService()
+        self.assertEqual('map-reduce', sot.service_type)
         self.assertEqual('public', sot.interface)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)
-        self.assertEqual(2, len(sot.valid_versions))
+        self.assertEqual(1, len(sot.valid_versions))
         self.assertEqual('v1', sot.valid_versions[0].module)
         self.assertEqual('v1', sot.valid_versions[0].path)
-        self.assertEqual('v2', sot.valid_versions[1].module)
-        self.assertEqual('v2', sot.valid_versions[1].path)

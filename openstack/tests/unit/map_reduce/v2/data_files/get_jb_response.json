@@ -1,0 +1,13 @@
+{
+  "job_binary": {
+    "is_public": false,
+    "description": "an example jar file",
+    "url": "swift://container/jar-example.jar",
+    "tenant_id": "11587919cc534bcbb1027a161c82cf58",
+    "created_at": "2013-10-15 14:25:04.970513",
+    "updated_at": null,
+    "id": "a716a9cd-9add-4b12-b1b6-cdb71aaef350",
+    "name": "jar-example.jar",
+    "is_protected": false
+  }
+}
