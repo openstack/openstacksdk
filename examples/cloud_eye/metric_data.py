@@ -19,14 +19,16 @@ import logging
 from openstack import utils
 
 
+now = datetime.datetime.now()
+five_min_ago = now - datetime.timedelta(minutes=5)
+
+
 def list_metric_aggregations(connection):
-    start_time = datetime.datetime(2017, 6, 21, hour=10)
-    end_time = datetime.datetime(2017, 6, 21, hour=11)
     query = {
         "namespace": "MINE.APP",
         "metric_name": "cpu_util",
-        "from": utils.get_epoch_time(start_time),
-        "to": utils.get_epoch_time(end_time),
+        "from": utils.get_epoch_time(five_min_ago),
+        "to": utils.get_epoch_time(now),
         "period": 300,
         "filter": "average",
         "dimensions": [{
@@ -39,8 +41,6 @@ def list_metric_aggregations(connection):
 
 
 def add_metric_data(connection):
-    collect_time_1 = end_time = datetime.datetime(2017, 6, 21, hour=10, minute=30)
-    collect_time_2 = end_time = datetime.datetime(2017, 6, 21, hour=10, minute=35)
     data = [
         {
             "metric": {
@@ -53,8 +53,8 @@ def add_metric_data(connection):
                 ],
                 "metric_name": "cpu_util"
             },
-            "ttl": 604800,
-            "collect_time": utils.get_epoch_time(collect_time_1),
+            "ttl": 172800,
+            "collect_time": utils.get_epoch_time(five_min_ago),
             "value": 60,
             "unit": "%"
         },
@@ -69,8 +69,8 @@ def add_metric_data(connection):
                 ],
                 "metric_name": "cpu_util"
             },
-            "ttl": 604800,
-            "collect_time": utils.get_epoch_time(collect_time_2),
+            "ttl": 172800,
+            "collect_time": utils.get_epoch_time(now),
             "value": 70,
             "unit": "%"
         }

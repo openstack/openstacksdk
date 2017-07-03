@@ -118,50 +118,51 @@ conn.cloud_eye.disable_alarm(alarm.Alarm(id="some-alarm-id"))
 
 ### Add Metric Data
 ```python
-    def get_epoch_time(datetime_):
-        if datetime_:
-            seconds = time.mktime(datetime_.timetuple())
-            return int(seconds) * 1000
-        else:
-            return None
+def get_epoch_time(datetime_):
+    if datetime_:
+        seconds = time.mktime(datetime_.timetuple())
+        return int(seconds) * 1000
+    else:
+        return None
 
-    collect_time_1 = end_time = datetime.datetime(2017, 6, 21, hour=10, minute=30)
-    collect_time_2 = end_time = datetime.datetime(2017, 6, 21, hour=10, minute=35)
-    data = [
-        {
-            "metric": {
-                "namespace": "MINE.APP",
-                "dimensions": [
-                    {
-                        "name": "instance_id",
-                        "value": "33328f02-3814-422e-b688-bfdba93d4050"
-                    }
-                ],
-                "metric_name": "cpu_util"
-            },
-            "ttl": 604800,
-            "collect_time": get_epoch_time(collect_time_1),
-            "value": 60,
-            "unit": "%"
+now = datetime.datetime.now()
+collect_time_1 = now
+collect_time_2 = now - datetime.timedelta(minutes=5)
+data = [
+    {
+        "metric": {
+            "namespace": "MINE.APP",
+            "dimensions": [
+                {
+                    "name": "instance_id",
+                    "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                }
+            ],
+            "metric_name": "cpu_util"
         },
-        {
-            "metric": {
-                "namespace": "MINE.APP",
-                "dimensions": [
-                    {
-                        "name": "instance_id",
-                        "value": "33328f02-3814-422e-b688-bfdba93d4050"
-                    }
-                ],
-                "metric_name": "cpu_util"
-            },
-            "ttl": 604800,
-            "collect_time": get_epoch_time(collect_time_2),
-            "value": 70,
-            "unit": "%"
-        }
-    ]
-    conn.cloud_eye.add_metric_data(data)
+        "ttl": 604800,
+        "collect_time": get_epoch_time(collect_time_1),
+        "value": 60,
+        "unit": "%"
+    },
+    {
+        "metric": {
+            "namespace": "MINE.APP",
+            "dimensions": [
+                {
+                    "name": "instance_id",
+                    "value": "33328f02-3814-422e-b688-bfdba93d4050"
+                }
+            ],
+            "metric_name": "cpu_util"
+        },
+        "ttl": 604800,
+        "collect_time": get_epoch_time(collect_time_2),
+        "value": 70,
+        "unit": "%"
+    }
+]
+conn.cloud_eye.add_metric_data(data)
 ```
 
 ### List Metric Aggregation
@@ -178,29 +179,30 @@ conn.cloud_eye.disable_alarm(alarm.Alarm(id="some-alarm-id"))
 
 
 ```python
-    def get_epoch_time(datetime_):
-        if datetime_:
-            seconds = time.mktime(datetime_.timetuple())
-            return int(seconds) * 1000
-        else:
-            return None
+def get_epoch_time(datetime_):
+    if datetime_:
+        seconds = time.mktime(datetime_.timetuple())
+        return int(seconds) * 1000
+    else:
+        return None
 
-    _from = datetime.datetime(2017, 6, 21, hour=10)
-    _to = datetime.datetime(2017, 6, 21, hour=11)
-    query = {
-        "namespace": "MINE.APP",
-        "metric_name": "cpu_util",
-        "from": get_epoch_time(_from),
-        "to": get_epoch_time(_to),
-        "period": 300,
-        "filter": "average",
-        "dimensions": [{
-            "name": "instance_id",
-            "value": "33328f02-3814-422e-b688-bfdba93d4050"
-        }]
-    }
-    for aggregation in conn.cloud_eye.metric_aggregations(**query):
-        logging.info(aggregation)
+now = datetime.datetime.now()
+_to = now
+_from = now - datetime.timedelta(minutes=5)
+query = {
+    "namespace": "MINE.APP",
+    "metric_name": "cpu_util",
+    "from": get_epoch_time(_from),
+    "to": get_epoch_time(_to),
+    "period": 300,
+    "filter": "average",
+    "dimensions": [{
+        "name": "instance_id",
+        "value": "33328f02-3814-422e-b688-bfdba93d4050"
+    }]
+}
+for aggregation in conn.cloud_eye.metric_aggregations(**query):
+    logging.info(aggregation)
 ```
 
 

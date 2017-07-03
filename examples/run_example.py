@@ -16,6 +16,8 @@
 import logging
 import os
 
+from examples.cloud_eye import metric_data
+from examples.cloud_eye import metrics
 from examples.connect import create_connection_from_config
 from examples.load_balancer import load_balancer
 
@@ -45,7 +47,6 @@ os.environ.setdefault(
 
 # initial connection
 conn = create_connection_from_config()
-print list(conn.map_reduce.job_executions())
 #
 # load_balancer.list_loadbalancers(conn)
 
@@ -63,7 +64,7 @@ print list(conn.map_reduce.job_executions())
 # alarms.get_alarm(connection)
 # alarms.disable_alarm(connection)
 
-# metric_data.list_metric_aggregations(connection)
-# metric_data.add_metric_data(connection)
+metric_data.add_metric_data(conn)
+metric_data.list_metric_aggregations(conn)
 
 # quotas.list_quotas(connection)
