@@ -1513,6 +1513,21 @@ class OpenStackCloud(
         ports = self.list_ports(pushdown_filters)
         return _utils._filter_list(ports, name_or_id, filters)
 
+    def search_qos_policies(self, name_or_id=None, filters=None):
+        """Search QoS policies
+
+        :param name_or_id: Name or ID of the desired policy.
+        :param filters: a dict containing additional filters to use. e.g.
+                        {'shared': True}
+
+        :returns: a list of ``munch.Munch`` containing the network description.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            OpenStack API call.
+        """
+        policies = self.list_qos_policies(filters)
+        return _utils._filter_list(policies, name_or_id, filters)
+
     def search_volumes(self, name_or_id=None, filters=None):
         volumes = self.list_volumes()
         return _utils._filter_list(
@@ -1689,6 +1704,21 @@ class OpenStackCloud(
             "/ports.json", params=filters,
             error_message="Error fetching port list")
         return meta.get_and_munchify('ports', data)
+
+    def list_qos_policies(self, filters=None):
+        """List all available QoS policies.
+
+        :param filters: (optional) dict of filter conditions to push down
+        :returns: A list of policies ``munch.Munch``.
+
+        """
+        # Translate None from search interface to empty {} for kwargs below
+        if not filters:
+            filters = {}
+        data = self._network_client.get(
+            "/qos/policies.json", params=filters,
+            error_message="Error fetching QoS policies list")
+        return meta.get_and_munchify('policies', data)
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -2642,6 +2672,32 @@ class OpenStackCloud(
         """
         return _utils._get_entity(self.search_ports, name_or_id, filters)
 
+    def get_qos_policy(self, name_or_id, filters=None):
+        """Get a QoS policy by name or ID.
+
+        :param name_or_id: Name or ID of the policy.
+        :param filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: A policy ``munch.Munch`` or None if no matching network is
+                 found.
+
+        """
+        return _utils._get_entity(
+            self.search_qos_policies, name_or_id, filters)
+
     def get_volume(self, name_or_id, filters=None):
         """Get a volume by name or ID.
 
@@ -3087,6 +3143,102 @@ class OpenStackCloud(
 
         # Reset cache so the deleted network is removed
         self._reset_network_caches()
+
+        return True
+
+    def create_qos_policy(self, name=None, description=None, shared=None,
+                          default=None, project_id=None):
+        """Create a QoS policy.
+
+        :param string name: Name of the QoS policy being created.
+        :param string description: Description of created QoS policy.
+        :param bool shared: Set the QoS policy as shared.
+        :param bool default: Set the QoS policy as default for project.
+        :param string project_id: Specify the project ID this QoS policy
+            will be created on (admin-only).
+
+        :returns: The QoS policy object.
+        :raises: OpenStackCloudException on operation error.
+        """
+        policy = {}
+        if name:
+            policy['name'] = name
+        if description:
+            policy['description'] = description
+        if shared is not None:
+            policy['shared'] = shared
+        # TODO(slaweq): this should be used only if proper API extension is
+        # available in Neutron
+        if default is not None:
+            policy['is_default'] = default
+        if project_id:
+            policy['project_id'] = project_id
+
+        data = self._network_client.post("/qos/policies.json",
+                                         json={'policy': policy})
+        return meta.get_and_munchify('policy', data)
+
+    def update_qos_policy(self, name_or_id, policy_name=None,
+                          description=None, shared=None, default=None):
+        """Update an existing QoS policy.
+
+        :param string name_or_id:
+           Name or ID of the QoS policy to update.
+        :param string policy_name:
+           The new name of the QoS policy.
+        :param string description:
+            The new description of the QoS policy.
+        :param bool shared:
+            If True, the QoS policy will be set as shared.
+        :param bool default:
+            If True, the QoS policy will be set as default for project.
+
+        :returns: The updated QoS policy object.
+        :raises: OpenStackCloudException on operation error.
+        """
+        policy = {}
+        if policy_name:
+            policy['name'] = policy_name
+        if description:
+            policy['description'] = description
+        if shared is not None:
+            policy['shared'] = shared
+        # TODO(slaweq): this should be used only if proper API extension is
+        # available in Neutron
+        if default is not None:
+            policy['is_default'] = default
+
+        if not policy:
+            self.log.debug("No QoS policy data to update")
+            return
+
+        curr_policy = self.get_qos_policy(name_or_id)
+        if not curr_policy:
+            raise OpenStackCloudException(
+                "QoS policy %s not found." % name_or_id)
+
+        data = self._network_client.put(
+            "/qos/policies/{policy_id}.json".format(
+                policy_id=curr_policy['id']),
+            json={'policy': policy})
+        return meta.get_and_munchify('policy', data)
+
+    def delete_qos_policy(self, name_or_id):
+        """Delete a QoS policy.
+
+        :param name_or_id: Name or ID of the policy being deleted.
+
+        :returns: True if delete succeeded, False otherwise.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        policy = self.get_qos_policy(name_or_id)
+        if not policy:
+            self.log.debug("QoS policy %s not found for deleting", name_or_id)
+            return False
+
+        self._network_client.delete(
+            "/qos/policies/{policy_id}.json".format(policy_id=policy['id']))
 
         return True
 
