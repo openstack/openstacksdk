@@ -112,6 +112,25 @@ class ResourceFailure(SDKException):
     pass
 
 
+code_key_list = ["code", "errorCode"]
+message_ley_list = ["message", "error_message", "details",
+                    "NeutronError", "computeFault", "TackerError"]
+
+
+def auto_detect_errors(obj):
+    code = ""
+    for key in code_key_list:
+        if key in obj.keys():
+            code = "[" + str(obj.get(key)) + "] "
+            break
+
+    for key in message_ley_list:
+        if key in obj.keys():
+            message = obj.get(key)
+            return code + message if code != "" else message
+    return None
+
+
 def from_exception(exc):
     """Return an instance of an HTTPException based on httplib response."""
     if exc.response.status_code == 404:
@@ -124,12 +143,20 @@ def from_exception(exc):
     resp_body = resp.content
     content_type = resp.headers.get('content-type', '')
     if resp_body and 'application/json' in content_type:
-        # Iterate over the nested objects to retrieve "message" attribute.
-        messages = [obj.get('message') for obj in resp.json().values()
-                    if isinstance(obj, dict)]
-        # Join all of the messages together nicely and filter out any objects
-        # that don't have a "message" attr.
-        details = '\n'.join(msg for msg in messages if msg)
+        # compatibility for HuaWei OpenStack Service error response
+        details = auto_detect_errors(resp.json())
+        if not details:
+            for obj in resp.json().values():
+                if isinstance(obj, dict):
+                    details = auto_detect_errors(obj)
+                    if details:
+                        break
+        # # Iterate over the nested objects to retrieve "message" attribute.
+        # messages = [obj.get('message') for obj in resp.json().values()
+        #             if isinstance(obj, dict)]
+        # # Join all of the messages together nicely and filter out any objects
+        # # that don't have a "message" attr.
+        # details = '\n'.join(msg for msg in messages if msg)
 
     elif resp_body and 'text/html' in content_type:
         # Split the lines, strip whitespace and inline HTML from the response.
@@ -146,3 +173,4 @@ def from_exception(exc):
     return cls(details=details, message=exc.message, response=exc.response,
                request_id=exc.request_id, url=exc.url, method=exc.method,
                http_status=exc.http_status, cause=exc)
+

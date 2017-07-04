@@ -116,10 +116,6 @@ class TestSession(testtools.TestCase):
             "overLimit": {
                 "message": "OverLimit413...",
                 "retryAt": "2017-01-03T13:33:06Z"
-            },
-            "overLimitRetry": {
-                "message": "OverLimit Retry...",
-                "retryAt": "2017-01-03T13:33:06Z"
             }
         }
         mock_resp.headers = {
@@ -135,7 +131,6 @@ class TestSession(testtools.TestCase):
         # difficult here. It can be 'OverLimit413...\nOverLimit Retry...' or
         # it can be 'OverLimit Retry...\nOverLimit413...'.
         self.assertIn('OverLimit413...', os_exc.details)
-        self.assertIn('OverLimit Retry...', os_exc.details)
 
     def test_map_exceptions_http_exception_handle_json_1(self):
         # A test for json containing non-dict values
