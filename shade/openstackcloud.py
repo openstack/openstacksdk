@@ -1446,6 +1446,20 @@ class OpenStackCloud(
         keypairs = self.list_keypairs()
         return _utils._filter_list(keypairs, name_or_id, filters)
 
+    @_utils.cache_on_arguments()
+    def _neutron_extensions(self):
+        extensions = set()
+
+        for extension in self._network_client.get(
+                '/extensions.json',
+                error_message="Error fetching extension list for neutron"):
+            extensions.add(extension['alias'])
+
+        return extensions
+
+    def _has_neutron_extension(self, extension_alias):
+        return extension_alias in self._neutron_extensions()
+
     def search_networks(self, name_or_id=None, filters=None):
         """Search networks
 
