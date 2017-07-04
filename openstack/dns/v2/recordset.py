@@ -57,9 +57,9 @@ class Recordset(resource.Resource):
     #: ID of the project which the recordset belongs to
     project_id = resource.Body('project_id')
     #: Timestamp when the zone was created
-    created_at = resource.Body('created_at')
+    create_at = resource.Body('create_at')
     #: Timestamp when the zone was last updated
-    updated_at = resource.Body('updated_at')
+    update_at = resource.Body('update_at')
 
 
 class Recordsets(Recordset):

@@ -1,0 +1,12 @@
+{
+  "nameservers": [
+    {
+      "hostname": "ns1.huawei.com.",
+      "priority": 1
+    },
+    {
+      "hostname": "ns2.huawei.com.",
+      "priority": 2
+    }
+  ]
+}

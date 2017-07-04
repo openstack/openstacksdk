@@ -31,5 +31,7 @@ class NameServer(resource.Resource):
     zone_id = resource.URI('zone_id')
     #: NameServer priority
     priority = resource.Body('priority')
-    #: NameServer DNS address
+    #: NameServer private DNS address
     address = resource.Body('address')
+    #: NameServer public DNS address
+    hostname = resource.Body('hostname')

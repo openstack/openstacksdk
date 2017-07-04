@@ -14,25 +14,8 @@
 # under the License.
 
 import logging
-import sys
 
-from examples.connect import create_connection_from_config
-from openstack import utils
 from openstack.dns.v2.zone import Zone
-
-# utils.enable_logging(debug=False, stream=sys.stdout)
-
-# You must initialize logging, otherwise you'll not see debug output.
-FORMAT = '%(asctime)-15s %(message)s'
-logging.basicConfig(format=FORMAT)
-root_log = logging.getLogger()
-root_log.setLevel(logging.DEBUG)
-requests_log = logging.getLogger('requests.packages.urllib3')
-requests_log.setLevel(logging.DEBUG)
-requests_log.propagate = True
-
-
-connection = create_connection_from_config()
 
 
 def list_zones(conn):

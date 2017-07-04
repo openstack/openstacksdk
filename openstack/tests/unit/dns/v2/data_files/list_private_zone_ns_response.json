@@ -1,0 +1,12 @@
+{
+  "nameservers": [
+    {
+      "priority": 1,
+      "address": "100.125.0.81"
+    },
+    {
+      "priority": 2,
+      "address": "100.125.0.82"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "links": {
+    "self": "https://Endpoint/v2/recordsets"
+  },
+  "recordsets": [
+    {
+      "id": "2c9eb155587194ec01587224c9f9014a",
+      "name": "example.com.",
+      "type": "SOA",
+      "ttl": 300,
+      "records": [
+        "ns1.hotrot.de. xx.example.com. (1 7200 900 1209600 300)"
+      ],
+      "status": "ACTIVE",
+      "links": {
+        "self": "https://Endpoint/v2/zones/2c9eb155587194ec01587224c9f90149/recordsets/2c9eb155587194ec01587224c9f9014a"
+      },
+      "zone_id": "2c9eb155587194ec01587224c9f90149",
+      "zone_name": "example.com.",
+      "create_at": "2016-11-17T11:56:03.439",
+      "default": true,
+      "project_id": "e55c6f3dc4e34c9f86353b664ae0e70c"
+    },
+    {
+      "id": "2c9eb155587194ec01587224c9f9014c",
+      "name": "example.com.",
+      "type": "NS",
+      "ttl": 172800,
+      "records": [
+        "ns2.hotrot.de.",
+        "ns1.hotrot.de."
+      ],
+      "status": "ACTIVE",
+      "links": {
+        "self": "https://Endpoint/v2/zones/2c9eb155587194ec01587224c9f90149/recordsets/2c9eb155587194ec01587224c9f9014c"
+      },
+      "zone_id": "2c9eb155587194ec01587224c9f90149",
+      "zone_name": "example.com.",
+      "create_at": "2016-11-17T11:56:03.439",
+      "default": true,
+      "project_id": "e55c6f3dc4e34c9f86353b664ae0e70c"
+    },
+    {
+      "id": "2c9eb155587228570158722996ca0002",
+      "name": "example.org.",
+      "type": "SOA",
+      "ttl": 300,
+      "records": [
+        "ns1.hotrot.de. xx.example.org. (1 7200 900 1209600 300)"
+      ],
+      "status": "ACTIVE",
+      "links": {
+        "self": "https://Endpoint/v2/zones/2c9eb155587228570158722996c50001/recordsets/2c9eb155587228570158722996ca0002"
+      },
+      "zone_id": "2c9eb155587228570158722996c50001",
+      "zone_name": "example.org.",
+      "create_at": "2016-11-17T12:01:17.996",
+      "default": true,
+      "project_id": "e55c6f3dc4e34c9f86353b664ae0e70c"
+    },
+    {
+      "id": "2c9eb155587228570158722996ca0004",
+      "name": "example.org.",
+      "type": "NS",
+      "ttl": 172800,
+      "records": [
+        "ns2.hotrot.de.",
+        "ns1.hotrot.de."
+      ],
+      "status": "ACTIVE",
+      "links": {
+        "self": "https://Endpoint/v2/zones/2c9eb155587228570158722996c50001/recordsets/2c9eb155587228570158722996ca0004"
+      },
+      "zone_id": "2c9eb155587228570158722996c50001",
+      "zone_name": "example.org.",
+      "create_at": "2016-11-17T12:01:17.996",
+      "default": true,
+      "project_id": "e55c6f3dc4e34c9f86353b664ae0e70c"
+    },
+    {
+      "id": "2c9eb155587228570158722b6ac30007",
+      "name": "www.example.com.",
+      "description": "This is an example record set.",
+      "type": "A",
+      "ttl": 300,
+      "records": [
+        "192.168.10.2",
+        "192.168.10.1"
+      ],
+      "status": "ACTIVE",
+      "links": {
+        "self": "https://Endpoint/v2/zones/2c9eb155587194ec01587224c9f90149/recordsets/2c9eb155587228570158722b6ac30007"
+      },
+      "zone_id": "2c9eb155587194ec01587224c9f90149",
+      "zone_name": "example.com.",
+      "create_at": "2016-11-17T12:03:17.827",
+      "default": false,
+      "project_id": "e55c6f3dc4e34c9f86353b664ae0e70c"
+    }
+  ],
+  "metadata": {
+    "total_count": 5
+  }
+}

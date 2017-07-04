@@ -1,0 +1,12 @@
+{
+  "id": "region_id:c5504932-bf23-4171-b655-b87a6bc59334",
+  "ptrdname": "www.example.com.",
+  "description": "Description for this PTR record",
+  "address": "10.154.52.138",
+  "action": "CREATE",
+  "ttl": 300,
+  "status": "ACTIVE",
+  "links": {
+    "self": "https://Endpoint/v2/reverse/floatingips/region_id:c5504932-bf23-4171-b655-b87a6bc59334"
+  }
+}

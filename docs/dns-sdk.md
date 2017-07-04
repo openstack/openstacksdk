@@ -193,7 +193,7 @@ for ptr in conn.dns.ptrs(**query):
 ```python
 ptr = {
     'region': 'eu-de',                                          # required
-    'floating_ip_id': '9e9c6d33-51a6-4f84-b504-c13301f1cc8c'    # required
+    'floating_ip_id': '9e9c6d33-51a6-4f84-b504-c13301f1cc8c',   # required
     'ptrdname': 'www.turnbig.net',                              # required
     'description': 'HaveFun.lee - For Test',
     'ttl': 300,
