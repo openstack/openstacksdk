@@ -87,7 +87,7 @@ class Group(resource.Resource):
     #: Should delete public ip when terminate instance, default ``false``
     delete_publicip = resource.Body("delete_publicip", type=bool)
     #: availability zones
-    availability_zones = resource.Body("availability_zones")
+    availability_zones = resource.Body("available_zones")
     #: Create time of the group
     create_time = resource.Body("create_time")
 
