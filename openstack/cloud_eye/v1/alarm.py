@@ -32,6 +32,11 @@ class Alarm(resource.Resource):
     allow_get = True
     allow_delete = True
 
+    _query_mapping = resource.QueryParameters(
+        "order", "limit",
+        marker=query_marker_key
+    )
+
     #: Properties
     #: ID of the Alarm
     id = resource.Body('alarm_id')
@@ -65,10 +70,10 @@ class Alarm(resource.Resource):
         url = utils.urljoin(self.base_path, self.id, 'action')
         endpoint_override = self.service.get_endpoint_override()
         return session.put(url,
-                            endpoint_filter=self.service,
-                            endpoint_override=endpoint_override,
-                            json=body,
-                            headers={})
+                           endpoint_filter=self.service,
+                           endpoint_override=endpoint_override,
+                           json=body,
+                           headers={})
 
     def enable(self, session):
         """Enable alarm"""

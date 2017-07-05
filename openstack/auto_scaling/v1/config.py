@@ -78,7 +78,7 @@ class Config(resource.Resource):
                                     type=InstanceConfig)
 
     @classmethod
-    def get_next_marker(cls, response_json, yielded):
+    def get_next_marker(cls, response_json, yielded, query_params):
         return get_next_marker(response_json, yielded)
 
     def batch_delete(self, session, configs):

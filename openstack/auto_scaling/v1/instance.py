@@ -58,7 +58,7 @@ class Instance(resource.Resource):
     create_time = resource.Body('create_time')
 
     @classmethod
-    def get_next_marker(cls, response_json, yielded):
+    def get_next_marker(cls, response_json, yielded, query_params):
         from openstack.auto_scaling.v1 import get_next_marker
         return get_next_marker(response_json, yielded)
 

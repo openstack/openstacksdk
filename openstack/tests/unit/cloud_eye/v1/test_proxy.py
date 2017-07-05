@@ -97,18 +97,16 @@ class TestCloudEyeAlarm(TestCloudEyeProxy):
         self.response.json.side_effect = [response_json, {}]
 
         query = {
-            "limit": 1,
             "marker": "last-alarm-id",
             "order": "desc"
         }
         alarms = list(self.proxy.alarms(**query))
-        self.session.get.mock_calls = [
+        self.session.get.assert_has_calls([
             mock.call("/alarms",
                       endpoint_filter=self.service,
                       endpoint_override=self.service.get_endpoint_override(),
                       headers={"Accept": "application/json"},
-                      params={"start": "al1441967036681YkazZ0deN",
-                              "limit": 1,
+                      params={"start": "last-alarm-id",
                               "order": "desc"}),
             mock.call("/alarms",
                       endpoint_filter=self.service,
@@ -117,7 +115,7 @@ class TestCloudEyeAlarm(TestCloudEyeProxy):
                       params={"start": "al1441967036681YkazZ0deN",
                               "limit": 1,
                               "order": "desc"}),
-        ]
+        ])
         self.assertEquals(1, len(alarms))
         self._verify_alarm_properties(alarms[0])
 
