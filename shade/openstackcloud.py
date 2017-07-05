@@ -5615,7 +5615,7 @@ class OpenStackCloud(
 
         if not isinstance(userdata, six.binary_type):
             # If the userdata passed in is bytes, just send it unmodified
-            if not isinstance(text, six.string_types):
+            if not isinstance(userdata, six.string_types):
                 raise TypeError("%s can't be encoded" % type(text))
             # If it's not bytes, make it bytes
             userdata = userdata.encode('utf-8', 'strict')
