@@ -9,12 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import mock
 
 from openstack.map_reduce import map_reduce_service
 from openstack.map_reduce.v1 import _proxy
 from openstack.map_reduce.v1 import data_source as _ds
-from openstack.map_reduce.v1 import job_binary as _jb
 from openstack.map_reduce.v1 import job as _job
+from openstack.map_reduce.v1 import job_binary as _jb
 from openstack.map_reduce.v1 import job_execution as _je
 from openstack.tests.unit.test_proxy_base3 import BaseProxyTestCase
 
@@ -499,3 +500,135 @@ class TestJobExecutions(TestMapReduceProxy):
             _je.JobExecution(id="execution-id"))
         self.assert_session_get_with("job-executions/execution-id/cancel")
         self.verify_execution(response["job_execution"], execution)
+
+
+class TestJobExe(TestMapReduceProxy):
+    def __init__(self, *args, **kwargs):
+        super(TestJobExe, self).__init__(*args, **kwargs)
+
+    def test_list_job_exe(self):
+        query = {
+            "cluster_id": "cluster-id",
+            "id": "job-exe-id",
+            "job_name": "job-name",
+            "state": 1
+        }
+
+        response_json = self.get_file_content("list_job_exe_response.json")
+        self.response.json.side_effect = [response_json, {}]
+        executions = list(self.proxy.job_exes(**query))
+        self.session.get.assert_has_calls([
+            mock.call("/job-exes",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      headers={"Accept": "application/json"},
+                      params={"cluster_id": "cluster-id",
+                              "id": "job-exe-id",
+                              "job_name": "job-name",
+                              "state": 1}),
+            mock.call("/job-exes",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      headers={"Accept": "application/json"},
+                      params={"cluster_id": "cluster-id",
+                              "id": "job-exe-id",
+                              "job_name": "job-name",
+                              'current_page': 2,
+                              'page_size': 1,
+                              "state": 1})
+        ])
+
+        self.assertEquals(1, len(executions))
+        execution = executions[0]
+
+        self.assertEqual("669476bd-89d2-45aa-8f1a-872d16de377e", execution.id)
+        self.assertEqual(1484641003707, execution.create_at)
+        self.assertEqual(1484641003707, execution.update_at)
+        self.assertEqual("3f99e3319a8943ceb15c584f3325d064",
+                         execution.tenant_id)
+        self.assertEqual("669476bd-89d2-45aa-8f1a-872d16de377e",
+                         execution.job_id)
+        self.assertEqual("myfirstjob", execution.job_name)
+        self.assertEqual(1484641003707, execution.start_time)
+        self.assertEqual(None, execution.end_time)
+        self.assertEqual("2b460e01-3351-4170-b0a7-57b9dd5ffef3",
+                         execution.cluster_id)
+        self.assertEqual("669476bd-89d2-45aa-8f1a-872d16de377e",
+                         execution.group_id)
+        self.assertEqual(
+            "s3a://jp-test1/program/hadoop-mapreduce-examples-2.4.1.jar",
+            execution.jar_path)
+        self.assertEqual("s3a://jp-test1/input/", execution.input)
+        self.assertEqual("s3a://jp-test1/output/", execution.output)
+        self.assertEqual("s3a://jp-test1/joblogs/", execution.job_log)
+        self.assertEqual(1, execution.job_type)
+        self.assertEqual("", execution.file_action)
+        self.assertEqual("wordcount", execution.arguments)
+        self.assertEqual("", execution.hql)
+        self.assertEqual(2, execution.job_state)
+        self.assertEqual(1, execution.job_final_status)
+        self.assertEqual(None, execution.hive_script_path)
+        self.assertEqual("3f99e3319a8943ceb15c584f3325d064",
+                         execution.create_by)
+        self.assertEqual(0, execution.finished_step)
+        self.assertEqual("", execution.job_main_id)
+        self.assertEqual("", execution.job_step_id)
+        self.assertEqual(1484641003174, execution.postpone_at)
+        self.assertEqual("", execution.step_name)
+        self.assertEqual(0, execution.step_num)
+        self.assertEqual(0, execution.task_num)
+        self.assertEqual("3f99e3319a8943ceb15c584f3325d064",
+                         execution.update_by)
+        self.assertEqual(None, execution.spend_time)
+        self.assertEqual(222, execution.step_seq)
+        self.assertEqual("first progress", execution.progress)
+
+    def test_get_job_exe_with_id(self):
+        response = self.get_file_content("get_job_exe_response.json")
+        self.mock_response_json_values(response)
+        execution = self.proxy.get_job_exe("execution-id")
+        self.assert_session_get_with("job-exes/execution-id")
+        self.assertEqual("632863d5-15d4-4691-9dc1-1a72340cb097", execution.id)
+        self.assertEqual(1484240559176, execution.create_at)
+        self.assertEqual(1484240559176, execution.update_at)
+        self.assertEqual("3f99e3319a8943ceb15c584f3325d064",
+                         execution.tenant_id)
+        self.assertEqual("632863d5-15d4-4691-9dc1-1a72340cb097",
+                         execution.job_id)
+        self.assertEqual("hive_script", execution.job_name)
+        self.assertEqual(1484240559176, execution.start_time)
+        self.assertEqual(None, execution.end_time)
+        self.assertEqual("8b1d55f6-150e-45e2-8347-b2ca608d366b",
+                         execution.cluster_id)
+
+        self.assertEqual("632863d5-15d4-4691-9dc1-1a72340cb097",
+                         execution.group_id)
+        self.assertEqual(
+            "s3a://jp-test1/program/Hivescript.sql",
+            execution.jar_path)
+        self.assertEqual("s3a://jp-test1/input/", execution.input)
+        self.assertEqual("s3a://jp-test1/output/", execution.output)
+        self.assertEqual("s3a://jp-test1/joblogs/", execution.job_log)
+        self.assertEqual(3, execution.job_type)
+        self.assertEqual("", execution.file_action)
+        self.assertEqual("wordcount", execution.arguments)
+        self.assertEqual(None, execution.hql)
+        self.assertEqual(3, execution.job_state)
+        self.assertEqual(1, execution.job_final_status)
+        self.assertEqual("s3a://jp-test1/program/Hivescript.sql",
+                         execution.hive_script_path)
+        self.assertEqual("3f99e3319a8943ceb15c584f3325d064",
+                         execution.create_by)
+        self.assertEqual(0, execution.finished_step)
+        self.assertEqual("", execution.job_main_id)
+        self.assertEqual("", execution.job_step_id)
+        self.assertEqual(1484240558705, execution.postpone_at)
+        self.assertEqual("", execution.step_name)
+        self.assertEqual(0, execution.step_num)
+        self.assertEqual(0, execution.task_num)
+        self.assertEqual("3f99e3319a8943ceb15c584f3325d064",
+                         execution.update_by)
+        self.assertEqual(None, execution.spend_time)
+        self.assertEqual(222, execution.step_seq)
+        self.assertEqual("first progress", execution.progress)
+

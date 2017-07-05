@@ -11,7 +11,7 @@
 # under the License.
 
 
-def get_next_marker(response_json, yielded):
+def get_next_marker(cls, response_json, yielded, query_params):
     limit = response_json["limit"]
     if yielded < limit:
         return -1

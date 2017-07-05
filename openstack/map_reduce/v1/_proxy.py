@@ -14,7 +14,8 @@ from openstack import proxy2
 from openstack.map_reduce.v1 import data_source as _ds
 from openstack.map_reduce.v1 import job as _job
 from openstack.map_reduce.v1 import job_binary as _jb
-from openstack.map_reduce.v1 import job_execution as _je
+from openstack.map_reduce.v1 import job_execution as _execution
+from openstack.map_reduce.v1 import job_exe as _exe
 
 
 class Proxy(proxy2.BaseProxy):
@@ -238,7 +239,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
         """
         job = self._get_resource(_job.Job, job)
-        execution = _je.JobExecution(job_id=job.id, **attrs)
+        execution = _execution.JobExecution(job_id=job.id, **attrs)
         return execution.create(self._session)
 
     def delete_job(self, job, ignore_missing=True):
@@ -287,7 +288,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A generator of Job-Executions (:class: `~openstack.
             map_reduce.v1.job_execution.JobExecution`) instances
         """
-        return self._list(_je.JobExecution, paginated=True, **query)
+        return self._list(_execution.JobExecution, paginated=True, **query)
 
     def get_job_execution(self, job_execution):
         """Get a Job-Executions
@@ -298,7 +299,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: JobExecution instance
         :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
         """
-        return self._get(_je.JobExecution, job_execution)
+        return self._get(_execution.JobExecution, job_execution)
 
     def delete_job_execution(self, job_execution, ignore_missing=True):
         """Delete a JobExecution
@@ -315,7 +316,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: JobExecution been deleted
         :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
         """
-        return self._delete(_je.JobExecution,
+        return self._delete(_execution.JobExecution,
                             job_execution,
                             ignore_missing=ignore_missing)
 
@@ -329,7 +330,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: JobExecution been cancel
         :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
         """
-        execution = self._get_resource(_je.JobExecution, job_execution)
+        execution = self._get_resource(_execution.JobExecution, job_execution)
         return execution.cancel(self._session)
 
     def find_job_execution(self, name_or_id, ignore_missing=True):
@@ -345,6 +346,35 @@ class Proxy(proxy2.BaseProxy):
         :returns: Job-Execution instance or None
         :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
         """
-        return self._find(_je.JobExecution,
+        return self._find(_execution.JobExecution,
                           name_or_id,
                           ignore_missing=ignore_missing)
+
+    def job_exes(self, **query):
+        """Retrieve a generator of Job-Exes
+        :param dict query: Optional query parameters to be sent to limit the
+                      resources being returned.
+            * ``sort_by``: sort by attribute, sort_by=name means sort by name
+                    attribute asc, sort_by=-name means desc
+            * ``id``:  job execution id
+            * ``job_name``:  job name
+            * ``cluster_id``:  cluster of the execution run on
+            * ``state``:  job execution state, includes: -1: Terminated,
+                1: Starting, 2: Running, 3: Completed, 4: Abnormal, 5: Error
+            * ``page_size``:  pagination size
+            * ``current_page``: pagination number
+
+        :returns: A generator of Job-Exe
+            (:class: `~openstack.map_reduce.v1.job_exe.JobExe`) instances
+        """
+        return self._list(_exe.JobExe, paginated=True, **query)
+
+    def get_job_exe(self, job_exe):
+        """Get a Job-Exe
+
+        :param job_exe: value can be the ID of a JobExe or an
+                instance of :class:`~openstack.map_reduce.v1.job_exe.JobExe`
+        :returns: JobExe instance
+        :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExe`
+        """
+        return self._get(_exe.JobExe, job_exe)

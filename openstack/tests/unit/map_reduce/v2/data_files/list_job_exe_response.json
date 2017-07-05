@@ -1,0 +1,40 @@
+{
+  "totalRecord": 14,
+  "job_executions": [
+    {
+      "id": "669476bd-89d2-45aa-8f1a-872d16de377e",
+      "create_at": 1484641003707,
+      "update_at": 1484641003707,
+      "tenant_id": "3f99e3319a8943ceb15c584f3325d064",
+      "job_id": "669476bd-89d2-45aa-8f1a-872d16de377e",
+      "job_name": "myfirstjob",
+      "start_time": 1484641003707,
+      "end_time": null,
+      "cluster_id": "2b460e01-3351-4170-b0a7-57b9dd5ffef3",
+      "group_id": "669476bd-89d2-45aa-8f1a-872d16de377e",
+      "jar_path": "s3a://jp-test1/program/hadoop-mapreduce-examples-2.4.1.jar",
+      "input": "s3a://jp-test1/input/",
+      "output": "s3a://jp-test1/output/",
+      "job_log": "s3a://jp-test1/joblogs/",
+      "job_type": 1,
+      "file_action": "",
+      "arguments": "wordcount",
+      "hql": "",
+      "job_state": 2,
+      "job_final_status": 1,
+      "hive_script_path": null,
+      "create_by": "3f99e3319a8943ceb15c584f3325d064",
+      "finished_step": 0,
+      "job_main_id": "",
+      "job_step_id": "",
+      "postpone_at": 1484641003174,
+      "step_name": "",
+      "step_num": 0,
+      "task_num": 0,
+      "update_by": "3f99e3319a8943ceb15c584f3325d064",
+      "spend_time": null,
+      "step_seq": 222,
+      "progress": "first progress"
+    }
+  ]
+}

@@ -235,6 +235,7 @@ class Resource(object):
     next_marker_path = None
     #: marker key in query, default is `marker`
     query_marker_key = "marker"
+    query_limit_key = "limit"
 
     #: The ID of this resource.
     id = Body("id")
@@ -769,7 +770,7 @@ class Resource(object):
         return self
 
     @classmethod
-    def get_next_marker(cls, response_json, yielded):
+    def get_next_marker(cls, response_json, yielded, query_params):
         if cls.next_marker_path:
             return cls.find_value_by_accessor(response_json,
                                               cls.next_marker_path)
@@ -860,8 +861,11 @@ class Resource(object):
                 yielded += 1
                 yield value
 
+            query_params = dict(query_params)
             # if `next marker path` is explicit specified, use it as marker
-            next_marker = cls.get_next_marker(response_json, yielded)
+            next_marker = cls.get_next_marker(response_json,
+                                              yielded,
+                                              query_params)
             if next_marker:
                 new_marker = next_marker if next_marker != -1 else None
 
@@ -876,10 +880,12 @@ class Resource(object):
                 return
             if not paginated:
                 return
-            if "limit" in query_params and yielded < query_params["limit"]:
-                return
-            query_params["limit"] = yielded
+            if cls.query_limit_key in query_params:
+                if yielded < query_params["limit"]:
+                    return
+            query_params[cls.query_limit_key] = yielded
             query_params[cls.query_marker_key] = new_marker
+
 
     @classmethod
     def _get_one_match(cls, name_or_id, results):
