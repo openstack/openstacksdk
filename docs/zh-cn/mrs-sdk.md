@@ -55,9 +55,44 @@ conn.map_reduce.delete_data_source("data-source-id")
 
 ### 集群管理接口
 ### 创建集群并执行作业
+
+!> TODO
+
 ### 扩容集群节点
+```
+# 扩容的节点数量
+expand_node_amount = 3
+conn.map_reduce.expand_cluster("cluster-id", expand_node_amount)
+```
+
+### 缩减集群节点
+```
+# 缩减的节点数量
+reduce_node_amount = 3
+# 缩减的节点包含
+includes = ["instance-id-1", "instance-id-2"]
+# 缩减的节点排除
+excludes = ["instance-id-3", "instance-id-4"]
+conn.map_reduce.reduce_cluster("cluster-id",
+                                reduce_node_amount,
+                                includes=includes,
+                                excludes=excludes)
+```
+
 ### 查询集群详情
+
+!> TODO
+
 ### 终止集群
+```python
+conn.map_reduce.delete_cluster("cluster-id")
+```
+
+> or
+
+```python
+conn.map_reduce.delete_cluster(Cluster(id="cluster-id"))
+```
 
 ## 作业二进制对象
 ### 创建作业二进制对象

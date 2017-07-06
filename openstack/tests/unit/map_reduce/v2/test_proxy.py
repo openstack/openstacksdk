@@ -13,6 +13,7 @@ import mock
 
 from openstack.map_reduce import map_reduce_service
 from openstack.map_reduce.v1 import _proxy
+from openstack.map_reduce.v1 import cluster as _cluster
 from openstack.map_reduce.v1 import data_source as _ds
 from openstack.map_reduce.v1 import job as _job
 from openstack.map_reduce.v1 import job_binary as _jb
@@ -632,3 +633,138 @@ class TestJobExe(TestMapReduceProxy):
         self.assertEqual(222, execution.step_seq)
         self.assertEqual("first progress", execution.progress)
 
+
+class TestCluster(TestMapReduceProxy):
+    def __init__(self, *args, **kwargs):
+        super(TestCluster, self).__init__(*args, **kwargs)
+
+    def test_delete_cluster_with_id(self):
+        self.proxy.delete_cluster("any-cluster-id")
+        self.assert_session_delete("clusters/any-cluster-id")
+
+    def test_delete_cluster_with_instance(self):
+        self.proxy.delete_cluster(_cluster.Cluster(id="any-cluster-id"))
+        self.assert_session_delete("clusters/any-cluster-id")
+
+    def test_delete_cluster_with_instance2(self):
+        self.proxy.delete_cluster(_cluster.ClusterInfo(id="any-cluster-id"))
+        self.assert_session_delete("clusters/any-cluster-id")
+
+    def test_expand_cluster(self):
+        self.mock_response_json_values({"result": "succeeded"})
+        self.proxy.expand_cluster("any-cluster-id", 2)
+        self.proxy.expand_cluster(_cluster.Cluster(id="any-cluster-id"), 2)
+        self.proxy.expand_cluster(_cluster.ClusterInfo(id="any-cluster-id"), 2)
+        body = {
+            "service_id": "",
+            "plan_id": "",
+            "parameters": {
+                "order_id": "",
+                "scale_type": "scale_out",
+                "node_id": "node_orderadd",
+                "instances": 2,
+                "include_instances": [],
+                "exclude_instances": []
+            },
+            "previous_values": {
+                "plan_id": ""
+            }
+        }
+        self.session.put.assert_has_calls([
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body),
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body),
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body)
+        ])
+
+    def test_reduce_cluster(self):
+        self.mock_response_json_values({"result": "succeeded"})
+        includes = ["instance-id-1", "instance-id-2"]
+        excludes = ["instance-id-3", "instance-id-4"]
+        self.proxy.reduce_cluster("any-cluster-id",
+                                  3,
+                                  includes=includes,
+                                  excludes=excludes)
+        self.proxy.reduce_cluster(_cluster.Cluster(id="any-cluster-id"),
+                                  3,
+                                  includes=includes,
+                                  excludes=excludes)
+        self.proxy.reduce_cluster(_cluster.ClusterInfo(id="any-cluster-id"),
+                                  3,
+                                  includes=includes,
+                                  excludes=excludes)
+        body = {
+            "service_id": "",
+            "plan_id": "",
+            "parameters": {
+                "order_id": "",
+                "scale_type": "scale_in",
+                "node_id": "node_orderadd",
+                "instances": 3,
+                "include_instances": includes,
+                "exclude_instances": excludes
+            },
+            "previous_values": {
+                "plan_id": ""
+            }
+        }
+        self.session.put.assert_has_calls([
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body),
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body),
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body)
+        ])
+
+    def test_reduce_cluster2(self):
+        self.mock_response_json_values({"result": "succeeded"})
+        self.proxy.reduce_cluster("any-cluster-id",
+                                  3)
+        self.proxy.reduce_cluster(_cluster.Cluster(id="any-cluster-id"),
+                                  3)
+        self.proxy.reduce_cluster(_cluster.ClusterInfo(id="any-cluster-id"),
+                                  3)
+        body = {
+            "service_id": "",
+            "plan_id": "",
+            "parameters": {
+                "order_id": "",
+                "scale_type": "scale_in",
+                "node_id": "node_orderadd",
+                "instances": 3,
+                "include_instances": [],
+                "exclude_instances": []
+            },
+            "previous_values": {
+                "plan_id": ""
+            }
+        }
+        self.session.put.assert_has_calls([
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body),
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body),
+            mock.call("cluster_infos/any-cluster-id",
+                      endpoint_filter=self.service,
+                      endpoint_override=self.service.get_endpoint_override(),
+                      json=body)
+        ])

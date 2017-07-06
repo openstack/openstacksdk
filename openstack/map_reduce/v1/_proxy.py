@@ -16,6 +16,7 @@ from openstack.map_reduce.v1 import job as _job
 from openstack.map_reduce.v1 import job_binary as _jb
 from openstack.map_reduce.v1 import job_execution as _execution
 from openstack.map_reduce.v1 import job_exe as _exe
+from openstack.map_reduce.v1 import cluster as _cluster
 
 
 class Proxy(proxy2.BaseProxy):
@@ -378,3 +379,58 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExe`
         """
         return self._get(_exe.JobExe, job_exe)
+
+    def reduce_cluster(self, cluster, amount, includes=[], excludes=[]):
+        """Reduce node amount of the cluster
+
+        :param cluster: value can be the ID of a cluster or an instance
+            of :class:`~openstack.map_reduce.v1.cluster.ClusterInfo`
+        :param amount: the node amount to reduce
+        :param includes: instance id list which should be reduced
+        :param excludes: instance id list which should be excluded
+
+        :returns: Cluster been reduced
+        :rtype: :class:`~openstack.map_reduce.v1.cluster.ClusterInfo`
+        """
+        # in case of user pass ClusterInfo as cluster
+        if isinstance(cluster, _cluster.Cluster):
+            cluster = _cluster.ClusterInfo(id=cluster.id)
+        cluster_info = self._get_resource(_cluster.ClusterInfo, cluster)
+        return cluster_info.reduce(self._session, amount, includes, excludes)
+
+    def expand_cluster(self, cluster, amount):
+        """Reduce node amount of the cluster
+
+        :param cluster: value can be the ID of a cluster or an instance
+            of :class:`~openstack.map_reduce.v1.cluster.ClusterInfo`
+        :param amount: the node amount to expand
+
+        :returns: Cluster been expand
+        :rtype: :class:`~openstack.map_reduce.v1.cluster.ClusterInfo`
+        """
+        # in case of user pass ClusterInfo as cluster
+        if isinstance(cluster, _cluster.Cluster):
+            cluster = _cluster.ClusterInfo(id=cluster.id)
+        cluster_info = self._get_resource(_cluster.ClusterInfo, cluster)
+        return cluster_info.expand(self._session, amount)
+
+    def delete_cluster(self, cluster, ignore_missing=True):
+        """Delete a cluster
+
+        :param cluster: value can be the ID of a cluster or an instance
+            of :class:`~openstack.map_reduce.v1.cluster.Cluster`
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the cluster does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent cluster.
+
+        :returns: Cluster been deleted
+        :rtype: :class:`~openstack.map_reduce.v1.cluster.Cluster`
+        """
+        # in case of user pass ClusterInfo as cluster
+        if isinstance(cluster, _cluster.ClusterInfo):
+            cluster = cluster.id
+        return self._delete(_cluster.Cluster,
+                            cluster,
+                            ignore_missing=ignore_missing)

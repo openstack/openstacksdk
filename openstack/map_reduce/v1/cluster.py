@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from openstack import resource2 as resource
+from openstack import utils
 from openstack.map_reduce import map_reduce_service
 from openstack.map_reduce.v1 import job as _job
 
@@ -26,7 +27,7 @@ class Cluster(resource.Resource):
     """Cluster Resource"""
     resource_key = "cluster"
     resources_key = "cluster"
-    base_path = "/cluster_infos"
+    base_path = "/clusters"
     service = map_reduce_service.MapReduceService()
 
     # capabilities
@@ -143,3 +144,82 @@ class Cluster(resource.Resource):
     component_list = resource.Body("component_list", type=list)
     #: job to be executed after cluster is ready
     jobs = resource.Body("add_jobs", type=list)
+
+
+class ClusterInfo(Cluster):
+    """HuaWei Cluster extends"""
+    base_path = "/cluster_infos"
+
+    def reduce(self, session, amount, includes, excludes):
+        """Reduce node amount of the cluster
+
+        :param session: the openstack session
+        :param cluster: value can be the ID of a cluster or an instance
+            of :class:`~openstack.map_reduce.v1.cluster.ClusterInfo`
+        :param amount: the node amount to expand
+        :param includes: instance id list which should be reduced
+        :param excludes: instance id list which should be excluded
+
+        :returns: Cluster been expand
+        :rtype: :class:`~openstack.map_reduce.v1.cluster.ClusterInfo`
+        """
+        uri = utils.urljoin(self.base_path, self.id)
+        endpoint_override = self.service.get_endpoint_override()
+        body = {
+            "service_id": "",
+            "plan_id": "",
+            "parameters": {
+                "order_id": "",
+                "scale_type": "scale_in",
+                "node_id": "node_orderadd",
+                "instances": amount,
+                "include_instances": includes,
+                "exclude_instances": excludes
+            },
+            "previous_values": {
+                "plan_id": ""
+            }
+        }
+
+        response = session.put(uri,
+                               endpoint_filter=self.service,
+                               endpoint_override=endpoint_override,
+                               json=body)
+        self._translate_response(response)
+        return self
+
+    def expand(self, session, amount):
+        """Reduce node amount of the cluster
+
+        :param session: the openstack session
+        :param cluster: value can be the ID of a cluster or an instance
+            of :class:`~openstack.map_reduce.v1.cluster.ClusterInfo`
+        :param amount: the node amount to expand
+
+        :returns: Cluster been expand
+        :rtype: :class:`~openstack.map_reduce.v1.cluster.ClusterInfo`
+        """
+        uri = utils.urljoin(self.base_path, self.id)
+        endpoint_override = self.service.get_endpoint_override()
+        body = {
+            "service_id": "",
+            "plan_id": "",
+            "parameters": {
+                "order_id": "",
+                "scale_type": "scale_out",
+                "node_id": "node_orderadd",
+                "instances": amount,
+                "include_instances": [],
+                "exclude_instances": []
+            },
+            "previous_values": {
+                "plan_id": ""
+            }
+        }
+
+        response = session.put(uri,
+                               endpoint_filter=self.service,
+                               endpoint_override=endpoint_override,
+                               json=body)
+        self._translate_response(response)
+        return self

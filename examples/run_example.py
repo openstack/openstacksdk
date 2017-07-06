@@ -47,6 +47,7 @@ os.environ.setdefault(
 
 # initial connection
 conn = create_connection_from_config()
+# print conn.map_reduce.expand_cluster("7d24c665-7a6a-41f9-a755-39d1febac9c0", 1)
 #
 # load_balancer.list_loadbalancers(conn)
 
@@ -64,7 +65,7 @@ conn = create_connection_from_config()
 # alarms.get_alarm(connection)
 # alarms.disable_alarm(connection)
 
-metric_data.add_metric_data(conn)
-metric_data.list_metric_aggregations(conn)
+# metric_data.add_metric_data(conn)
+# metric_data.list_metric_aggregations(conn)
 
 # quotas.list_quotas(connection)
