@@ -36,8 +36,30 @@ class TestQosPolicy(base.RequestsMockTestCase):
         'is_default': False
     }
 
+    qos_extension = {
+        "updated": "2015-06-08T10:00:00-00:00",
+        "name": "Quality of Service",
+        "links": [],
+        "alias": "qos",
+        "description": "The Quality of Service extension."
+    }
+
+    qos_default_extension = {
+        "updated": "2017-041-06T10:00:00-00:00",
+        "name": "QoS default policy",
+        "links": [],
+        "alias": "qos-default",
+        "description": "Expose the QoS default policy per project"
+    }
+
+    enabled_neutron_extensions = [qos_extension, qos_default_extension]
+
     def test_get_qos_policy(self):
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -49,8 +71,24 @@ class TestQosPolicy(base.RequestsMockTestCase):
         self.assertDictEqual(self.mock_policy, r)
         self.assert_calls()
 
+    def test_get_qos_policy_no_qos_extension(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': []})
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud.get_qos_policy, self.policy_name)
+        self.assert_calls()
+
     def test_create_qos_policy(self):
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -62,8 +100,53 @@ class TestQosPolicy(base.RequestsMockTestCase):
         self.assertDictEqual(self.mock_policy, policy)
         self.assert_calls()
 
+    def test_create_qos_policy_no_qos_extension(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': []})
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud.create_qos_policy, name=self.policy_name)
+        self.assert_calls()
+
+    def test_create_qos_policy_no_qos_default_extension(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': [self.qos_extension]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': [self.qos_extension]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'qos', 'policies.json']),
+                 json={'policy': self.mock_policy},
+                 validate=dict(
+                     json={'policy': {
+                         'name': self.policy_name,
+                         'project_id': self.project_id}}))
+        ])
+        policy = self.cloud.create_qos_policy(
+            name=self.policy_name, project_id=self.project_id, default=True)
+        self.assertDictEqual(self.mock_policy, policy)
+        self.assert_calls()
+
     def test_delete_qos_policy(self):
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -79,8 +162,28 @@ class TestQosPolicy(base.RequestsMockTestCase):
         self.assertTrue(self.cloud.delete_qos_policy(self.policy_name))
         self.assert_calls()
 
+    def test_delete_qos_policy_no_qos_extension(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': []})
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud.delete_qos_policy, self.policy_name)
+        self.assert_calls()
+
     def test_delete_qos_policy_not_found(self):
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -96,6 +199,14 @@ class TestQosPolicy(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies.json']),
                  json={'policies': [policy1, policy2]})
@@ -109,6 +220,14 @@ class TestQosPolicy(base.RequestsMockTestCase):
         policy1 = self.mock_policy
         policy2 = dict(id='456', name=self.policy_name)
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -130,6 +249,14 @@ class TestQosPolicy(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies.json']),
                  json={'policies': [self.mock_policy]}),
@@ -144,5 +271,52 @@ class TestQosPolicy(base.RequestsMockTestCase):
         ])
         policy = self.cloud.update_qos_policy(
             self.policy_id, policy_name='goofy')
+        self.assertDictEqual(expected_policy, policy)
+        self.assert_calls()
+
+    def test_update_qos_policy_no_qos_extension(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': []})
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.cloud.update_qos_policy, self.policy_id, policy_name="goofy")
+        self.assert_calls()
+
+    def test_update_qos_policy_no_qos_default_extension(self):
+        expected_policy = copy.copy(self.mock_policy)
+        expected_policy['name'] = 'goofy'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': [self.qos_extension]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': [self.qos_extension]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': [self.qos_extension]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'qos', 'policies.json']),
+                 json={'policies': [self.mock_policy]}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'qos', 'policies',
+                             '%s.json' % self.policy_id]),
+                 json={'policy': expected_policy},
+                 validate=dict(
+                     json={'policy': {'name': "goofy"}}))
+        ])
+        policy = self.cloud.update_qos_policy(
+            self.policy_id, policy_name='goofy', default=True)
         self.assertDictEqual(expected_policy, policy)
         self.assert_calls()

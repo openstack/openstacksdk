@@ -1726,6 +1726,9 @@ class OpenStackCloud(
         :returns: A list of policies ``munch.Munch``.
 
         """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
@@ -3174,6 +3177,9 @@ class OpenStackCloud(
         :returns: The QoS policy object.
         :raises: OpenStackCloudException on operation error.
         """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
         policy = {}
         if name:
             policy['name'] = name
@@ -3181,10 +3187,12 @@ class OpenStackCloud(
             policy['description'] = description
         if shared is not None:
             policy['shared'] = shared
-        # TODO(slaweq): this should be used only if proper API extension is
-        # available in Neutron
         if default is not None:
-            policy['is_default'] = default
+            if self._has_neutron_extension('qos-default'):
+                policy['is_default'] = default
+            else:
+                self.log.debug("'qos-default' extension is not available on "
+                               "target cloud")
         if project_id:
             policy['project_id'] = project_id
 
@@ -3210,6 +3218,9 @@ class OpenStackCloud(
         :returns: The updated QoS policy object.
         :raises: OpenStackCloudException on operation error.
         """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
         policy = {}
         if policy_name:
             policy['name'] = policy_name
@@ -3217,10 +3228,12 @@ class OpenStackCloud(
             policy['description'] = description
         if shared is not None:
             policy['shared'] = shared
-        # TODO(slaweq): this should be used only if proper API extension is
-        # available in Neutron
         if default is not None:
-            policy['is_default'] = default
+            if self._has_neutron_extension('qos-default'):
+                policy['is_default'] = default
+            else:
+                self.log.debug("'qos-default' extension is not available on "
+                               "target cloud")
 
         if not policy:
             self.log.debug("No QoS policy data to update")
@@ -3246,6 +3259,9 @@ class OpenStackCloud(
 
         :raises: OpenStackCloudException on operation error.
         """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
         policy = self.get_qos_policy(name_or_id)
         if not policy:
             self.log.debug("QoS policy %s not found for deleting", name_or_id)
