@@ -175,12 +175,22 @@ conn.map_reduce.get_job("job-id")
 
 ### 查询作业exe对象列表
 ```python
-# TODO
+query = {
+    "id": "job-exe-id",
+    "cluster_id": "cluster-id",
+    "job_name": "job-name",
+    "page_size": 20,
+    "current_page": 2,
+    "state": 3
+}
+executions = list(conn.map_reduce.job_exes(**query))
 ```
 
 ### 查询作业exe对象详情
 ```python
-# TODO
+conn.map_reduce.get_job_exe("job-exe-id")
+# or
+# conn.map_reduce.get_job_exe(JobExe(id="job-exe-id"))
 ```
 
 ### 删除作业对象
@@ -195,7 +205,7 @@ conn.map_reduce.delete_job("job-id")
   query = {
     "limit": 20,
     "sort_by": "-name",
-    "marker": "job-id"
+    "marker": "job-execution-id"
 }
 executions = list(conn.map_reduce.job_executions(**query))
 ```
