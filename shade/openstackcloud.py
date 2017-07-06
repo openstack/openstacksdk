@@ -1719,6 +1719,25 @@ class OpenStackCloud(
             error_message="Error fetching port list")
         return meta.get_and_munchify('ports', data)
 
+    def list_qos_rule_types(self, filters=None):
+        """List all available QoS rule types.
+
+        :param filters: (optional) dict of filter conditions to push down
+        :returns: A list of rule types ``munch.Munch``.
+
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        # Translate None from search interface to empty {} for kwargs below
+        if not filters:
+            filters = {}
+        data = self._network_client.get(
+            "/qos/rule-types.json", params=filters,
+            error_message="Error fetching QoS rule types list")
+        return meta.get_and_munchify('rule_types', data)
+
     def list_qos_policies(self, filters=None):
         """List all available QoS policies.
 

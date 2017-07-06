@@ -135,7 +135,7 @@ class ShadeAdapter(adapter.Adapter):
                         'network', 'networks', 'subnet', 'subnets',
                         'router', 'routers', 'floatingip', 'floatingips',
                         'floating_ip', 'floating_ips', 'port', 'ports',
-                        'policy', 'policies',
+                        'rule_types', 'policy', 'policies',
                         'stack', 'stacks', 'zones', 'events',
                         'security_group', 'security_groups',
                         'security_group_rule', 'security_group_rules',
