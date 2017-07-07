@@ -1215,12 +1215,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if domain_id is None:
             return _utils._get_entity(self.search_domains, filters, name_or_id)
         else:
-            with _utils.shade_exceptions(
-                "Failed to get domain "
-                "{domain_id}".format(domain_id=domain_id)
-            ):
-                domain = self.manager.submit_task(
-                    _tasks.DomainGet(domain=domain_id))
+            error_msg = 'Failed to get domain {id}'.format(id=domain_id)
+            data = self._identity_client.get(
+                '/domains/{id}'.format(id=domain_id),
+                error_message=error_msg)
+            domain = meta.get_and_munchify('domain', data)
             return _utils.normalize_domains([domain])[0]
 
     @_utils.cache_on_arguments()

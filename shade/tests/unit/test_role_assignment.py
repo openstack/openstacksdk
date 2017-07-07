@@ -2644,9 +2644,8 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  text='Could not find domain: baddomain')
         ])
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
-            'Failed to get domain baddomain '
-            '\(Inner Exception: Not Found \(HTTP 404\)\)'
+            exc.OpenStackCloudURINotFound,
+            'Failed to get domain baddomain'
         ):
             self.op_cloud.grant_role(
                 self.role_data.role_name,
@@ -2667,9 +2666,8 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  text='Could not find domain: baddomain')
         ])
         with testtools.ExpectedException(
-            exc.OpenStackCloudException,
-            'Failed to get domain baddomain '
-            '\(Inner Exception: Not Found \(HTTP 404\)\)'
+            exc.OpenStackCloudURINotFound,
+            'Failed to get domain baddomain'
         ):
             self.op_cloud.revoke_role(
                 self.role_data.role_name,
