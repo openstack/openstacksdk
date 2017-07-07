@@ -12,6 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+# TODO(mordred) There are mocks of the image_client in here that are not
+#               using requests_mock. Erradicate them.
+
 import operator
 import tempfile
 import uuid
@@ -130,6 +133,58 @@ class TestImage(BaseTestImage):
         self.register_uris([
             dict(method='GET', uri='https://image.example.com/v2/images',
                  json=self.fake_search_return)
+        ])
+        self.assertEqual(
+            self.cloud._normalize_images([self.fake_image_dict]),
+            self.cloud.list_images())
+        self.assert_calls()
+
+    def test_list_images_show_all(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images?member_status=all',
+                 json=self.fake_search_return)
+        ])
+        self.assertEqual(
+            self.cloud._normalize_images([self.fake_image_dict]),
+            self.cloud.list_images(show_all=True))
+        self.assert_calls()
+
+    def test_list_images_show_all_deleted(self):
+        deleted_image = self.fake_image_dict.copy()
+        deleted_image['status'] = 'deleted'
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images?member_status=all',
+                 json={'images': [self.fake_image_dict, deleted_image]})
+        ])
+        self.assertEqual(
+            self.cloud._normalize_images([
+                self.fake_image_dict, deleted_image]),
+            self.cloud.list_images(show_all=True))
+        self.assert_calls()
+
+    def test_list_images_no_filter_deleted(self):
+        deleted_image = self.fake_image_dict.copy()
+        deleted_image['status'] = 'deleted'
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': [self.fake_image_dict, deleted_image]})
+        ])
+        self.assertEqual(
+            self.cloud._normalize_images([
+                self.fake_image_dict, deleted_image]),
+            self.cloud.list_images(filter_deleted=False))
+        self.assert_calls()
+
+    def test_list_images_filter_deleted(self):
+        deleted_image = self.fake_image_dict.copy()
+        deleted_image['status'] = 'deleted'
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': [self.fake_image_dict, deleted_image]})
         ])
         self.assertEqual(
             self.cloud._normalize_images([self.fake_image_dict]),
@@ -362,7 +417,7 @@ class TestImage(BaseTestImage):
                 'x-image-meta-checksum': mock.ANY,
                 'x-glance-registry-purge-props': 'false'
             })
-        mock_image_client.get.assert_called_with('/images/detail')
+        mock_image_client.get.assert_called_with('/images/detail', params={})
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
@@ -431,7 +486,7 @@ class TestImage(BaseTestImage):
         self.cloud.update_image_properties(
             image=self._image_dict(ret),
             **{'owner_specified.shade.object': 'images/42 name'})
-        mock_image_client.get.assert_called_with('/images')
+        mock_image_client.get.assert_called_with('/images', params={})
         mock_image_client.patch.assert_not_called()
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
@@ -516,7 +571,7 @@ class TestImage(BaseTestImage):
             '/images/42/file',
             headers={'Content-Type': 'application/octet-stream'},
             data=mock.ANY)
-        mock_image_client.get.assert_called_with('/images')
+        mock_image_client.get.assert_called_with('/images', params={})
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
@@ -545,7 +600,7 @@ class TestImage(BaseTestImage):
         ret['status'] = 'success'
         mock_image_client.get.return_value = [ret]
         mock_image_client.post.return_value = ret
-        mock_image_client.get.assert_called_with('/images')
+        mock_image_client.get.assert_called_with('/images', params={})
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
@@ -613,7 +668,7 @@ class TestImage(BaseTestImage):
         mock_image_client.post.return_value = ret
         self._call_create_image(
             '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345})
-        mock_image_client.get.assert_called_with('/images')
+        mock_image_client.get.assert_called_with('/images', params={})
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
