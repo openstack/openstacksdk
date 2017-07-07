@@ -29,10 +29,10 @@ class TestDomainParams(base.TestCase):
         mock_api_version.return_value = '3'
 
         ret = self.cloud._get_identity_params(domain_id='5678', project='bar')
-        self.assertIn('default_project', ret)
-        self.assertEqual(ret['default_project'], 1234)
-        self.assertIn('domain', ret)
-        self.assertEqual(ret['domain'], '5678')
+        self.assertIn('default_project_id', ret)
+        self.assertEqual(ret['default_project_id'], 1234)
+        self.assertIn('domain_id', ret)
+        self.assertEqual(ret['domain_id'], '5678')
 
     @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
     @mock.patch.object(shade.OpenStackCloud, 'get_project')

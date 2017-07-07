@@ -51,11 +51,7 @@ class TestUsers(base.RequestsMockTestCase):
                  uri=self._get_keystone_mock_url(resource='users', v3=False),
                  status_code=200,
                  json=user_data.json_response,
-                 validate=user_data.json_request),
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='users', v3=False,
-                                                 append=[user_data.user_id]),
-                 status_code=200, json=user_data.json_response)])
+                 validate=dict(json=user_data.json_request))])
 
         user = self.op_cloud.create_user(
             name=user_data.name, email=user_data.email,
@@ -75,11 +71,7 @@ class TestUsers(base.RequestsMockTestCase):
             dict(method='POST',
                  uri=self._get_keystone_mock_url(resource='users'),
                  status_code=200, json=user_data.json_response,
-                 validate=user_data.json_request),
-            dict(method='GET',
-                 uri=self._get_keystone_mock_url(
-                     resource='users', append=[user_data.user_id]),
-                 status_code=200, json=user_data.json_response)])
+                 validate=dict(json=user_data.json_request))])
 
         user = self.op_cloud.create_user(
             name=user_data.name, email=user_data.email,
