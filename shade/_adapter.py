@@ -143,7 +143,8 @@ class ShadeAdapter(adapter.Adapter):
                         'project', 'tenant', 'servers', 'server',
                         'flavor', 'flavors', 'baymodels', 'aggregate',
                         'aggregates', 'availabilityZoneInfo',
-                        'flavor_access', 'output', 'server_groups', 'domain']:
+                        'flavor_access', 'output', 'server_groups', 'domain',
+                        'domains']:
                 if key in result_json.keys():
                     self._log_request_id(response)
                     return result_json
