@@ -3946,7 +3946,7 @@ class OpenStackCloud(
             return image
         try:
             for count in _utils._iterate_timeout(
-                    60,
+                    timeout,
                     "Timeout waiting for the image to finish."):
                 image_obj = self.get_image(image.id)
                 if image_obj and image_obj.status not in ('queued', 'saving'):
