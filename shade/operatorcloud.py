@@ -867,14 +867,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             return False
 
         if self._is_client_version('identity', 2):
-            service_kwargs = {'id': service['id']}
+            url = '/OS-KSADM/services'
         else:
-            service_kwargs = {'service': service['id']}
-        # TODO(mordred) When this changes to REST, force interface=admin
-        # in the adapter call
-        with _utils.shade_exceptions("Failed to delete service {id}".format(
-                id=service['id'])):
-            self.manager.submit_task(_tasks.ServiceDelete(**service_kwargs))
+            url = '/services'
+
+        error_msg = 'Failed to delete service {id}'.format(id=service['id'])
+        self._identity_client.delete(
+            '{url}/{id}'.format(url=url, id=service['id']),
+            endpoint_filter={'interface': 'admin'}, error_message=error_msg)
 
         return True
 
