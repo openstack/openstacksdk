@@ -53,7 +53,7 @@ data_source = conn.map_reduce.get_data_source("data-source-id")
 conn.map_reduce.delete_data_source("data-source-id")
 ```
 
-### 集群管理接口
+## 集群管理接口
 ### 创建集群并执行作业
 
 !> TODO
@@ -237,7 +237,7 @@ conn.map_reduce.delete_job("job-id")
 ```
 
 
-### 作业执行对象接口
+## 作业执行对象接口
 ### 查询作业执行对象列表
 ```python
   query = {

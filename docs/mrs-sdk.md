@@ -52,7 +52,7 @@ data_source = conn.map_reduce.get_data_source("data-source-id")
 conn.map_reduce.delete_data_source("data-source-id")
 ```
 
-### Cluster (TODO)
+## Cluster
 ### Create Cluster And Execute a Job
 
 !> TODO
@@ -235,7 +235,7 @@ conn.map_reduce.delete_job("job-id")
 ```
 
 
-### Job Execution
+## Job Execution
 ### List Job Execution
 ```python
 query = {
