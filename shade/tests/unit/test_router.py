@@ -266,7 +266,8 @@ class TestRouter(base.RequestsMockTestCase):
                 'subnet_id': 'internal_subnet_id',
                 'ip_address': "10.0.0.1"
             }],
-            'device_id': self.router_id
+            'device_id': self.router_id,
+            'device_owner': 'network:router_interface'
         }
         external_port = {
             'id': 'external_port_id',
@@ -274,7 +275,8 @@ class TestRouter(base.RequestsMockTestCase):
                 'subnet_id': 'external_subnet_id',
                 'ip_address': "1.2.3.4"
             }],
-            'device_id': self.router_id
+            'device_id': self.router_id,
+            'device_owner': 'network:router_gateway'
         }
         if expected_result is None:
             if interface_type == "internal":
@@ -288,35 +290,19 @@ class TestRouter(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'ports.json'],
-                     qs_elements=["device_id=%s" % self.router_id]),
-                 json={'ports': [internal_port, external_port]})
+                     qs_elements=["device_id=%s" % self.router_id,
+                                  "device_owner=network:router_interface"]),
+                 json={'ports': [internal_port]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json'],
+                     qs_elements=["device_id=%s" % self.router_id,
+                                  "device_owner=network:router_gateway"]),
+                 json={'ports': [external_port]})
         ])
         ret = self.cloud.list_router_interfaces(router, interface_type)
         self.assertEqual(expected_result, ret)
         self.assert_calls()
-
-    def test_list_router_interfaces_no_gw(self):
-        """
-        If a router does not have external_gateway_info, do not fail.
-        """
-        router = {
-            'id': self.router_id
-        }
-        self._test_list_router_interfaces(router,
-                                          interface_type="external",
-                                          expected_result=[])
-
-    def test_list_router_interfaces_gw_none(self):
-        """
-        If a router does have external_gateway_info set to None, do not fail.
-        """
-        router = {
-            'id': self.router_id,
-            'external_gateway_info': None
-        }
-        self._test_list_router_interfaces(router,
-                                          interface_type="external",
-                                          expected_result=[])
 
     def test_list_router_interfaces_all(self):
         router = {
