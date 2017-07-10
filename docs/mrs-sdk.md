@@ -54,9 +54,46 @@ conn.map_reduce.delete_data_source("data-source-id")
 
 ### Cluster (TODO)
 ### Create Cluster And Execute a Job
+
+!> TODO
+
 ### Add Nodes To Cluster
-### List Cluster Detail
+```
+# node amount to be added to the cluster
+expand_node_amount = 3
+conn.map_reduce.expand_cluster("cluster-id", expand_node_amount)
+```
+
+### Remove Nodes of Cluster
+
+?> Not supported for now
+
+```
+# node amount to be removed
+reduce_node_amount = 3
+# node instances to be removed
+includes = ["instance-id-1", "instance-id-2"]
+# node instances should not be removed
+excludes = ["instance-id-3", "instance-id-4"]
+conn.map_reduce.reduce_cluster("cluster-id",
+                                reduce_node_amount,
+                                includes=includes,
+                                excludes=excludes)
+```
+
+### Get Cluster Detail
+
+!> TODO
+
 ### Delete Cluster
+```python
+conn.map_reduce.delete_cluster("cluster-id")
+```
+
+> or
+
+```python
+conn.map_reduce.delete_cluster(Cluster(id="cluster-id"))
 
 ## Job Binary
 ### Create Job Binary

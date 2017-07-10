@@ -40,8 +40,6 @@ class JobExe(resource.Resource):
     )
 
     #: Properties
-    #: A dict contains job running information returned by Oozie
-    info = resource.Body("info", type=dict)
     #: The cluster which executed the job
     cluster_id = resource.Body("cluster_id")
     #: The job id reference been executed

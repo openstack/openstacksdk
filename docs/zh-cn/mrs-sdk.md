@@ -66,6 +66,9 @@ conn.map_reduce.expand_cluster("cluster-id", expand_node_amount)
 ```
 
 ### 缩减集群节点
+
+?> 目前不支持该功能
+
 ```
 # 缩减的节点数量
 reduce_node_amount = 3

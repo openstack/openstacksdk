@@ -4,5 +4,5 @@
   - [DNS](dns-sdk.md)
   - [CES](ces-sdk.md)
   - [AS](as-sdk.md)
-  - [ELB](elb-sdk.md)md)
-  - [VBS](vbs-sdk.md)md)
+  - [ELB](elb-sdk.md)
+  - [VBS](vbs-sdk.md)
