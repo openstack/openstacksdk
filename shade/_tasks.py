@@ -162,11 +162,6 @@ class EndpointDelete(task_manager.Task):
         return client.keystone_client.endpoints.delete(**self.args)
 
 
-class RoleList(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.roles.list()
-
-
 class RoleDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.roles.delete(**self.args)
