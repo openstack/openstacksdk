@@ -127,11 +127,6 @@ class MachineSetProvision(task_manager.Task):
         return client.ironic_client.node.set_provision_state(**self.args)
 
 
-class ServiceUpdate(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.services.update(**self.args)
-
-
 class ServiceDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.services.delete(**self.args)

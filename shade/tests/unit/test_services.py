@@ -105,15 +105,15 @@ class CloudServices(base.RequestsMockTestCase):
         request.pop('name')
         request.pop('type')
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'services': [resp['service']]}),
             dict(method='PATCH',
                  uri=self.get_mock_url(append=[service_data.service_id]),
                  status_code=200,
                  json=resp,
-                 validate=dict(json={'service': request})),
-            dict(method='GET',
-                 uri=self.get_mock_url(append=[service_data.service_id]),
-                 status_code=200,
-                 json=resp),
+                 validate=dict(json={'service': request}))
         ])
 
         service = self.op_cloud.update_service(service_data.service_id,
