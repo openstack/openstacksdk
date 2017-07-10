@@ -805,10 +805,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
         """
-        # TODO(mordred) When this changes to REST, force interface=admin
-        # in the adapter call
-        with _utils.shade_exceptions():
-            services = self.manager.submit_task(_tasks.ServiceList())
+        if self.cloud_config.get_api_version('identity').startswith('2'):
+            url, key = '/OS-KSADM/services', 'OS-KSADM:services'
+        else:
+            url, key = '/services', 'services'
+        data = self._identity_client.get(
+            url, endpoint_filter={'interface': 'admin'},
+            error_message="Failed to list services")
+        services = self._get_and_munchify(key, data)
         return _utils.normalize_keystone_services(services)
 
     def search_services(self, name_or_id=None, filters=None):
