@@ -39,6 +39,8 @@ class Policy(resource.Resource):
     type = resource.Body('type')
     #: The ID of the project this policy belongs to.
     project_id = resource.Body('project')
+    # The domain ID of the policy.
+    domain_id = resource.Body('domain')
     #: The ID of the user who created this policy.
     user_id = resource.Body('user')
     #: The timestamp when the policy is created.

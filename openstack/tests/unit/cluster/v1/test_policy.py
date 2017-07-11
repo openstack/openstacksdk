@@ -32,6 +32,7 @@ FAKE = {
         }
     },
     'project': '42d9e9663331431f97b75e25136307ff',
+    'domain': '204ccccd267b40aea871750116b5b184',
     'user': '3747afc360b64702a53bdd64dc1b8976',
     'type': 'senlin.policy.deletion-1.0',
     'created_at': '2015-10-10T12:46:36.000000',
@@ -63,6 +64,7 @@ class TestPolicy(testtools.TestCase):
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['spec'], sot.spec)
         self.assertEqual(FAKE['project'], sot.project_id)
+        self.assertEqual(FAKE['domain'], sot.domain_id)
         self.assertEqual(FAKE['user'], sot.user_id)
         self.assertEqual(FAKE['data'], sot.data)
         self.assertEqual(FAKE['created_at'], sot.created_at)

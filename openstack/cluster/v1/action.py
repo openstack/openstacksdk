@@ -44,6 +44,8 @@ class Action(resource.Resource):
     user_id = resource.Body('user')
     #: The ID of the project this profile belongs to.
     project_id = resource.Body('project')
+    #: The domain ID of the action.
+    domain_id = resource.Body('domain')
     #: Interval in seconds between two consecutive executions.
     interval = resource.Body('interval')
     #: The time the action was started.

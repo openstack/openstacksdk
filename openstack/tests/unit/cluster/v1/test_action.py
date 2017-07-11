@@ -27,6 +27,7 @@ FAKE = {
     'owner': None,
     'user': '3747afc360b64702a53bdd64dc1b8976',
     'project': '42d9e9663331431f97b75e25136307ff',
+    'domain': '204ccccd267b40aea871750116b5b184',
     'interval': -1,
     'start_time': 1453414055.48672,
     'end_time': 1453414055.48672,
@@ -66,6 +67,7 @@ class TestAction(testtools.TestCase):
         self.assertEqual(FAKE['owner'], sot.owner_id)
         self.assertEqual(FAKE['user'], sot.user_id)
         self.assertEqual(FAKE['project'], sot.project_id)
+        self.assertEqual(FAKE['domain'], sot.domain_id)
         self.assertEqual(FAKE['interval'], sot.interval)
         self.assertEqual(FAKE['start_time'], sot.start_at)
         self.assertEqual(FAKE['end_time'], sot.end_at)

@@ -39,6 +39,8 @@ class Profile(resource.Resource):
     type = resource.Body('type')
     #: The ID of the project this profile belongs to.
     project_id = resource.Body('project')
+    #: The domain ID of the profile.
+    domain_id = resource.Body('domain')
     #: The ID of the user who created this profile.
     user_id = resource.Body('user')
     #: The spec of the profile.

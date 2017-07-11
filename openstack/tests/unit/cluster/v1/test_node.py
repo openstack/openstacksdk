@@ -25,6 +25,7 @@ FAKE = {
     'metadata': {'key1': 'value1'},
     'name': FAKE_NAME,
     'profile_id': 'myserver',
+    'domain': '204ccccd267b40aea871750116b5b184',
     'user': '3747afc360b64702a53bdd64dc1b8976',
     'project': '42d9e9663331431f97b75e25136307ff',
     'index': 1,
@@ -57,6 +58,7 @@ class TestNode(testtools.TestCase):
         self.assertEqual(FAKE['cluster_id'], sot.cluster_id)
         self.assertEqual(FAKE['user'], sot.user_id)
         self.assertEqual(FAKE['project'], sot.project_id)
+        self.assertEqual(FAKE['domain'], sot.domain_id)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['index'], sot.index)
         self.assertEqual(FAKE['role'], sot.role)
