@@ -66,3 +66,12 @@ Sometimes an example is nice.
     cloud.create_server(
         'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
 
+
+Links
+=====
+
+* `Issue Tracker <https://storyboard.openstack.org/#!/project/760>`_
+* `Code Review <https://review.openstack.org/#/q/status:open+project:openstack-infra/shade,n,z>`_
+* `Documentation <https://docs.openstack.org/shade/latest/>`_
+* `PyPI <https://pypi.python.org/pypi/shade/>`_
+* `Mailing list <http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-infra>`_
