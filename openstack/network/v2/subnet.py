@@ -27,11 +27,13 @@ class Subnet(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    # qianbiao.ng: add vpc-id parameter for HuaWei
     # NOTE: Query on list or datetime fields are currently not supported.
     _query_mapping = resource.QueryParameters(
         'cidr', 'description', 'gateway_ip', 'ip_version',
         'ipv6_address_mode', 'ipv6_ra_mode', 'name', 'network_id',
         'segment_id',
+        router_id='vpc_id',
         is_dhcp_enabled='enable_dhcp',
         project_id='tenant_id',
         subnet_pool_id='subnetpool_id',

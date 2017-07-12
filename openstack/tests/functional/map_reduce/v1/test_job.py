@@ -18,13 +18,15 @@ from openstack.tests.functional import base
 from openstack.tests.functional.map_reduce.v1 import test_job_binary
 
 
-def auto_create_job(conn, name, job_binary_id):
+def auto_create_job(conn, name):
+    main_ = test_job_binary.auto_create_job_binary(
+        conn,
+        name + "-main",
+        "s3a://sdk-unittest/hadoop-mapreduce-examples-2.7.2.jar"
+    )
     job = {
         "name": name,
-        "mains": [],
-        "libs": [
-            job_binary_id
-        ],
+        "mains": [main_.id],
         "is_protected": False,
         "interface": [],
         "is_public": False,
@@ -34,21 +36,25 @@ def auto_create_job(conn, name, job_binary_id):
     return conn.map_reduce.create_job(**job)
 
 
+def auto_delete_job(conn, job):
+    conn.map_reduce.delete_job(job)
+    for main_ in job.mains:
+        conn.map_reduce.delete_job_binary(main_["id"])
+
+
 class TestJob(base.BaseFunctionalTest):
     NAME = "SDK-" + uuid.uuid4().hex
     job = None
-    binary = None
+    cluster_id = ""
 
     @classmethod
     def setUpClass(cls):
         super(TestJob, cls).setUpClass()
-        cls.binary = test_job_binary.auto_create_job_binary(cls.conn, cls.NAME)
-        cls.job = auto_create_job(cls.conn, cls.NAME, cls.binary.id)
+        cls.job = auto_create_job(cls.conn, cls.NAME)
 
     @classmethod
     def tearDownClass(cls):
-        cls.conn.map_reduce.delete_job(cls.job)
-        cls.conn.map_reduce.delete_job_binary(cls.binary)
+        auto_delete_job(cls.job)
 
     def get_current_job(self):
         query = dict(sort_by="-created_at")
@@ -83,3 +89,9 @@ class TestJob(base.BaseFunctionalTest):
         self.assertEqual("SDK Unittets", _job.description)
         self.assertTrue(_job.is_public)
         self.assertTrue(_job.is_protected)
+
+    def test_4_execute_job(self):
+        pass
+
+    def test_5_run_job(self):
+        pass

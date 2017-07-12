@@ -1,0 +1,46 @@
+{
+  "billing_type": 12,
+  "data_center": "eu-de",
+  "master_node_num": 2,
+  "master_node_size": "c2.2xlarge.linux.mrs",
+  "core_node_num": 3,
+  "core_node_size": "c2.2xlarge.linux.mrs",
+  "available_zone_id": "eu-de-01",
+  "cluster_name": "newcluster",
+  "vpc": "vpc1",
+  "vpc_id": "5b7db34d-3534-4a6e-ac94-023cd36aaf74",
+  "subnet_id": "815bece0-fd22-4b65-8a6e-15788c99ee43",
+  "subnet_name": "subnet",
+  "cluster_version": "MRS 1.3.0",
+  "cluster_type": 0,
+  "volume_type": "SSD",
+  "volume_size": 100,
+  "node_public_cert_name": "SSHkey-bba1",
+  "safe_mode": 0,
+  "component_list": [
+    {
+      "component_id": "MRS 1.3.0_001",
+      "component_name": "Hadoop",
+      "component_version": "",
+      "component_desc": ""
+    },
+    {
+      "component_id": "MRS 1.3.0_002",
+      "component_name": "Spark",
+      "component_version": "1.5.1",
+      "component_desc": ""
+    },
+    {
+      "component_id": "MRS 1.3.0_003",
+      "component_name": "HBase",
+      "component_version": "",
+      "component_desc": ""
+    },
+    {
+      "component_id": "MRS 1.3.0_004",
+      "component_name": "Hive",
+      "component_version": "",
+      "component_desc": ""
+    }
+  ]
+}

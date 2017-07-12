@@ -18,6 +18,7 @@ from openstack.map_reduce.v1 import data_source as _ds
 from openstack.map_reduce.v1 import job as _job
 from openstack.map_reduce.v1 import job_binary as _jb
 from openstack.map_reduce.v1 import job_execution as _je
+from openstack.map_reduce.v1 import job_exe as _exe
 from openstack.tests.unit.test_proxy_base3 import BaseProxyTestCase
 
 
@@ -239,6 +240,76 @@ class TestJobBinary(TestMapReduceProxy):
 class TestJobs(TestMapReduceProxy):
     def __init__(self, *args, **kwargs):
         super(TestJobs, self).__init__(*args, **kwargs)
+
+    def test_exe_job(self):
+        self.mock_response_json_file_values("run_job_response.json")
+        body = {
+            "job_type": 1,
+            "job_name": "mrs_test_jobone_20170602_141106",
+            "cluster_id": "e955a7a3-d334-4943-a39a-994976900d56",
+            "jar_path": "s3a://mrs-opsadm/hadoop-mapreduce.jar",
+            "arguments": "wordcount",
+            "input": "s3a://mrs-opsadm/input/",
+            "output": "s3a://mrs-opsadm/output/",
+            "job_log": "s3a://mrs-opsadm/log/",
+            "file_action": "",
+            "hql": "",
+            "hive_script_path": ""
+        }
+        job_exe = self.proxy.exe_job(**body)
+        self.assert_session_post_with("/jobs/submit-job", json=body)
+
+        self.assertIsInstance(job_exe, _exe.JobExe)
+        self.assertEqual(False, job_exe.templated)
+        self.assertEqual(1496387588913, job_exe.created_at)
+        self.assertEqual(1496387588913, job_exe.updated_at)
+        self.assertEqual("12ee9ae4-6ee1-48c6-bb84-fb0b4f76cf03", job_exe.id)
+        self.assertEqual("c71ad83a66c5470496c2ed6e982621cc", job_exe.tenant_id)
+        self.assertEqual("", job_exe.job_id)
+        self.assertEqual("mrs_test_jobone_20170602_141106", job_exe.job_name)
+        self.assertEqual(None, job_exe.input_id)
+        self.assertEqual(None, job_exe.output_id)
+        self.assertEqual(1496387588913, job_exe.start_time)
+        self.assertEqual(None, job_exe.end_time)
+        self.assertEqual("e955a7a3-d334-4943-a39a-994976900d56",
+                         job_exe.cluster_id)
+        self.assertEqual(None, job_exe.engine_job_id)
+        self.assertEqual(None, job_exe.return_code)
+        self.assertEqual(None, job_exe.is_public)
+        self.assertEqual(None, job_exe.is_protected)
+        self.assertEqual("12ee9ae4-6ee1-48c6-bb84-fb0b4f76cf03",
+                         job_exe.group_id)
+        self.assertEqual(
+            "s3a://mrs-opsadm/jarpath/hadoop-mapreduce-examples-2.7.2.jar",
+            job_exe.jar_path
+        )
+        self.assertEqual("12ee9ae4-6ee1-48c6-bb84-fb0b4f76cf03",
+                         job_exe.group_id)
+        self.assertEqual("s3a://mrs-opsadm/input/", job_exe.input)
+        self.assertEqual("s3a://mrs-opsadm/output/", job_exe.output)
+        self.assertEqual("s3a://mrs-opsadm/log/", job_exe.job_log)
+        self.assertEqual(1, job_exe.job_type)
+        self.assertEqual("", job_exe.file_action)
+        self.assertEqual("wordcount", job_exe.arguments)
+        self.assertEqual("", job_exe.hql)
+        self.assertEqual(2, job_exe.job_state)
+        self.assertEqual(0, job_exe.job_final_status)
+        self.assertEqual("", job_exe.hive_script_path)
+        self.assertEqual("b67132be2f054a45b247365647e05af0", job_exe.create_by)
+        self.assertEqual(0, job_exe.finished_step)
+        self.assertEqual("", job_exe.job_main_id)
+        self.assertEqual("", job_exe.job_step_id)
+        self.assertEqual(1496387588911, job_exe.postpone_at)
+        self.assertEqual("", job_exe.step_name)
+        self.assertEqual(0, job_exe.step_num)
+        self.assertEqual(0, job_exe.task_num)
+        self.assertEqual("b67132be2f054a45b247365647e05af0", job_exe.update_by)
+        self.assertEqual("", job_exe.credentials)
+        self.assertEqual("b67132be2f054a45b247365647e05af0", job_exe.user_id)
+        self.assertEqual(None, job_exe.job_configs)
+        self.assertEqual(None, job_exe.extra)
+        self.assertEqual(None, job_exe.data_source_urls)
+        self.assertEqual(None, job_exe.info)
 
     def test_create_job(self):
         self.mock_response_json_file_values("create_job_response.json")
@@ -768,3 +839,98 @@ class TestCluster(TestMapReduceProxy):
                       endpoint_override=self.service.get_endpoint_override(),
                       json=body)
         ])
+
+    def test_create_cluster_and_run_job(self):
+        self.mock_response_json_values({
+            "cluster_id": "da1592c2-bb7e-468d-9ac9-83246e95447a",
+            "result": True,
+            "msg": ""
+        })
+
+        cluster = self.get_file_content("create_cluster_request.json")
+        job = {
+            "job_type": 1,
+            "job_name": "tenji111",
+            "jar_path": "s3a://bigdata/examples.jar",
+            "arguments": "wordcount",
+            "input": "s3a://bigdata/input/wd_1k/",
+            "output": "s3a://bigdata/ouput/",
+            "job_log": "s3a://bigdata/log/",
+            "shutdown_cluster": True,
+            "file_action": "",
+            "submit_job_once_cluster_run": True,
+            "hql": "",
+            "hive_script_path": ""
+        }
+        result = self.proxy.create_cluster_and_run_job(cluster, job)
+        cluster["add_jobs"] = [job]
+        self.assert_session_post_with("/run-job-flow", dict(cluster))
+        self.assertEqual("da1592c2-bb7e-468d-9ac9-83246e95447a", result.id)
+        self.assertEqual("newcluster", result.name)
+
+    def test_get_cluster(self):
+        self.mock_response_json_file_values("get_cluster_response.json")
+        cluster = self.proxy.get_cluster("any-cluster-id")
+        self.session.get.assert_called_once_with(
+            "cluster_infos/any-cluster-id",
+            endpoint_filter=self.service,
+            endpoint_override=self.service.get_endpoint_override(),
+        )
+        self.assertIsInstance(cluster, _cluster.ClusterDetail)
+        self.assertEqual("bdb064ff-2855-4624-90d5-e9a6376abd6e", cluster.id)
+        self.assertEqual(2, cluster.master_node_num)
+        self.assertEqual(3, cluster.core_node_num)
+        self.assertEqual("scaling-in", cluster.state)
+        self.assertEqual("1487570757", cluster.create_at)
+        self.assertEqual("1487668974", cluster.update_at)
+        self.assertEqual("Metered", cluster.billing_type)
+        self.assertEqual("eu-de", cluster.data_center)
+        self.assertEqual("20161218", cluster.vpc_name)
+        self.assertEqual("0", cluster.duration)
+        self.assertEqual("0", cluster.fee)
+        self.assertEqual("", cluster.hadoop_version)
+        self.assertEqual("c2.2xlarge.linux.mrs", cluster.master_node_size)
+        self.assertEqual("c2.2xlarge.linux.mrs", cluster.core_node_size)
+        self.assertEqual("100.64.49.9", cluster.external_ip)
+        self.assertEqual("100.64.49.13", cluster.external_alternate_ip)
+        self.assertEqual("192.168.1.242", cluster.internal_ip)
+        self.assertEqual("4ac46ca7-a488-4b91-82c2-e4d7aa9c40c2",
+                         cluster.deployment_id)
+        self.assertEqual("", cluster.remark)
+        self.assertEqual("HWS001015A5A1E845A0", cluster.order_id)
+        self.assertEqual("1d7b939b382c4c3bb3481a8ca10da768",
+                         cluster.availability_zone_id)
+        self.assertEqual("b35cf2d2348a445ca74b32289a160882",
+                         cluster.master_node_product_id)
+        self.assertEqual("8ab05e503b4c42abb304e2489560063b",
+                         cluster.master_node_spec_id)
+        self.assertEqual("dc970349d128460e960a0c2b826c427c",
+                         cluster.core_node_product_id)
+        self.assertEqual("cdc6035a249a40249312f5ef72a23cd7",
+                         cluster.core_node_spec_id)
+        self.assertEqual("eu-de-01", cluster.availability_zone)
+        self.assertEqual("4ac46ca7-a488-4b91-82c2-e4d7aa9c40c2",
+                         cluster.instance_id)
+        self.assertEqual(None, cluster.vnc)
+        self.assertEqual("3f99e3319a8943ceb15c584f3325d064", cluster.tenant_id)
+        self.assertEqual(100, cluster.volume_size)
+        self.assertEqual("SATA", cluster.volume_type)
+        self.assertEqual("subnet", cluster.subnet_name)
+        self.assertEqual("930e34e2-195d-401f-af07-0b64ea6603f8",
+                         cluster.security_groups_id)
+        self.assertEqual("2ef3343e-3477-4a0d-80fe-4d874e4f81b8",
+                         cluster.slave_security_groups_id)
+        self.assertEqual(1, cluster.safe_mode)
+        self.assertEqual("FusionInsight V100R002C61", cluster.version)
+        self.assertEqual("myp", cluster.keypair)
+        self.assertEqual("192.168.1.242", cluster.master_node_ip)
+        self.assertEqual("192.168.1.234", cluster.private_ip_first)
+        self.assertEqual(None, cluster.error_info)
+        self.assertEqual("0", cluster.charging_start_time)
+        self.assertEqual(4, len(cluster.component_list))
+        self.assertEqual({
+            "componentId": "MRS 1.3.0_001",
+            "componentName": "Hadoop",
+            "componentVersion": "2.7.2",
+            "componentDesc": "desc"
+        }, cluster.component_list[0])

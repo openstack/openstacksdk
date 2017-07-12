@@ -199,6 +199,18 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._list(_job.Job, paginated=True, **query)
 
+    def exe_job(self, **job_exe):
+        """Submit job and exe it (backward compatibility)
+
+        :param dict job_exe: Keyword arguments which will be used to create
+                a :class:`~openstack.map_reduce.v1.cluster.ExecutableJob`,
+                comprised of the properties on the Job class.
+        :returns: Job Exe Instance
+        :rtype: :class:`~openstack.map_reduce.v1.job_exe.JobExe`
+        """
+        exe = _exe.JobExe(**job_exe)
+        return exe.execute(self._session)
+
     def create_job(self, **attrs):
         """Create a new Job from attributes
         :param dict attrs: Keyword arguments which will be used to create
@@ -232,7 +244,7 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._get(_job.Job, job)
 
-    def execute_job(self, job, **attrs):
+    def execute_job(self, job, **job_execution):
         """Execute a Job
         :param job: value can be the ID of a Job or an instance
             of :class:`~openstack.map_reduce.v1.job.Job`
@@ -240,7 +252,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.map_reduce.v1.job_execution.JobExecution`
         """
         job = self._get_resource(_job.Job, job)
-        execution = _execution.JobExecution(job_id=job.id, **attrs)
+        execution = _execution.JobExecution(job_id=job.id, **job_execution)
         return execution.create(self._session)
 
     def delete_job(self, job, ignore_missing=True):
@@ -380,6 +392,20 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._get(_exe.JobExe, job_exe)
 
+    def create_cluster_and_run_job(self, cluster, job):
+        """Create a new cluster and run a job on the created cluster
+
+        :param dict cluster:  Keyword arguments which will be used to create
+                a :class:`~openstack.map_reduce.v1.cluster.Cluster`,
+                comprised of the properties on the Cluster class.
+        :param dict job:  Keyword arguments which will be used to create
+                a :class:`~openstack.map_reduce.v1.cluster.ExecutableJob`,
+                comprised of the properties on the ExecutableJob class.
+        :return:
+        """
+        instance = _cluster.ClusterInfo.new(**dict(cluster))
+        return instance.create_and_run(self._session, job)
+
     def reduce_cluster(self, cluster, amount, includes=[], excludes=[]):
         """Reduce node amount of the cluster
 
@@ -414,6 +440,16 @@ class Proxy(proxy2.BaseProxy):
         cluster_info = self._get_resource(_cluster.ClusterInfo, cluster)
         return cluster_info.expand(self._session, amount)
 
+    def get_cluster(self, cluster):
+        """Get a cluster details
+
+        :param cluster: value can be the ID of a cluster or an instance
+            of :class:`~openstack.map_reduce.v1.cluster.ClusterDetail`
+        :returns: Cluster Detail instance
+        :rtype: :class:`~openstack.map_reduce.v1.cluster.ClusterDetail`
+        """
+        return self._get(_cluster.ClusterDetail, cluster)
+
     def delete_cluster(self, cluster, ignore_missing=True):
         """Delete a cluster
 
@@ -430,6 +466,8 @@ class Proxy(proxy2.BaseProxy):
         """
         # in case of user pass ClusterInfo as cluster
         if isinstance(cluster, _cluster.ClusterInfo):
+            cluster = cluster.id
+        if isinstance(cluster, _cluster.ClusterDetail):
             cluster = cluster.id
         return self._delete(_cluster.Cluster,
                             cluster,

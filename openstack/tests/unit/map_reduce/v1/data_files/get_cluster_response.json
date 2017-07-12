@@ -1,0 +1,72 @@
+{
+  "cluster": {
+    "clusterId": "bdb064ff-2855-4624-90d5-e9a6376abd6e",
+    "clusterName": "c17022001",
+    "masterNodeNum": "2",
+    "coreNodeNum": "3",
+    "clusterState": "scaling-in",
+    "createAt": "1487570757",
+    "updateAt": "1487668974",
+    "billingType": "Metered",
+    "dataCenter": "eu-de",
+    "vpc": "20161218",
+    "duration": "0",
+    "fee": "0",
+    "hadoopVersion": "",
+    "masterNodeSize": "c2.2xlarge.linux.mrs",
+    "coreNodeSize": "c2.2xlarge.linux.mrs",
+    "componentList": [
+      {
+        "componentId": "MRS 1.3.0_001",
+        "componentName": "Hadoop",
+        "componentVersion": "2.7.2",
+        "componentDesc": "desc"
+      },
+      {
+        "componentId": "MRS 1.3.0_002",
+        "componentName": "Spark",
+        "componentVersion": "1.5.1",
+        "componentDesc": "A fast and general engine for large-scale data processing."
+      },
+      {
+        "componentId": "MRS 1.3.0_004",
+        "componentName": "Hive",
+        "componentVersion": "1.3.0",
+        "componentDesc": "A data warehouse infrastructure that provides data summarization and ad hoc querying."
+      },
+      {
+        "componentId": "MRS 1.3.0_003",
+        "componentName": "HBase",
+        "componentVersion": "1.0.2",
+        "componentDesc": "A scalable, distributed database that supports structured data storage for large tables."
+      }
+    ],
+    "externalIp": "100.64.49.9",
+    "externalAlternateIp": "100.64.49.13",
+    "internalIp": "192.168.1.242",
+    "deploymentId": "4ac46ca7-a488-4b91-82c2-e4d7aa9c40c2",
+    "remark": "",
+    "orderId": "HWS001015A5A1E845A0",
+    "azId": "1d7b939b382c4c3bb3481a8ca10da768",
+    "masterNodeProductId": "b35cf2d2348a445ca74b32289a160882",
+    "masterNodeSpecId": "8ab05e503b4c42abb304e2489560063b",
+    "coreNodeProductId": "dc970349d128460e960a0c2b826c427c",
+    "coreNodeSpecId": "cdc6035a249a40249312f5ef72a23cd7",
+    "azName": "eu-de-01",
+    "instanceId": "4ac46ca7-a488-4b91-82c2-e4d7aa9c40c2",
+    "vnc": null,
+    "tenantId": "3f99e3319a8943ceb15c584f3325d064",
+    "volumeSize": 100,
+    "volumeType": "SATA",
+    "subnetName": "subnet",
+    "securityGroupsId": "930e34e2-195d-401f-af07-0b64ea6603f8",
+    "slaveSecurityGroupsId": "2ef3343e-3477-4a0d-80fe-4d874e4f81b8",
+    "safeMode": 1,
+    "clusterVersion": "FusionInsight V100R002C61",
+    "nodePublicCertName": "myp",
+    "masterNodeIp": "192.168.1.242",
+    "privateIpFirst": "192.168.1.234",
+    "errorInfo": null,
+    "chargingStartTime": "0"
+  }
+}

@@ -472,8 +472,7 @@ class TestLoadBalancerListener(TestLoadBalancerProxy):
         self.mock_response_json_file_values("list_listener_members.json")
         members = list(self.proxy.listener_members("lid", limit=10))
         self.assert_session_list_with("/elbaas/listeners/lid/members",
-                                      params={"limit": 10,
-                                              'listener_id': 'lid'})
+                                      params={"limit": 10})
         self.assertEquals(2, len(members))
         member = members[0]
         self.assertIsInstance(member, _listener.Member)

@@ -69,8 +69,9 @@ def service_exists(**kwargs):
 
 
 class BaseFunctionalTest(unittest.TestCase):
-
     router = None
+    subnet = None
+    keypair = None
 
     @classmethod
     def setUpClass(cls):
@@ -117,3 +118,29 @@ class BaseFunctionalTest(unittest.TestCase):
                 return cls.router
 
         raise Exception("No router available for testing")
+
+    @classmethod
+    def get_first_subnet(cls, router=None):
+        if cls.subnet:
+            return cls.subnet
+        else:
+            router = router if router else cls.get_first_router()
+            subnets = cls.conn.network.subnets(limit=1, router_id=router.id)
+            for _subnet in subnets:
+                cls.subnet = _subnet
+                return cls.subnet
+
+        raise Exception("No subnet available for testing")
+
+    @classmethod
+    def get_first_keypair(cls):
+        if cls.keypair:
+            return cls.keypair
+        else:
+            router = cls.get_first_router()
+            keypairs = cls.conn.compute.keypairs()
+            for _keypair in keypairs:
+                cls.keypair = _keypair
+                return cls.keypair
+
+        raise Exception("No keypair available for testing")
