@@ -3,6 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+=================================
 Welcome to shade's documentation!
 =================================
 
@@ -14,6 +15,11 @@ Contents:
    install/index
    user/index
    contributor/index
+
+.. releasenotes contains a lot of sections, toctree with maxdepth 1 is used.
+.. toctree::
+   :maxdepth: 1
+
    releasenotes/index
 
 .. include:: ../../README.rst
