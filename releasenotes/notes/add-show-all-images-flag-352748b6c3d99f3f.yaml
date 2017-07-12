@@ -1,0 +1,9 @@
+---
+features:
+  - Added flag "show_all" to list_images. The behavior of
+    Glance v2 to only show shared images if they have been
+    accepted by the user can be confusing, and the only way
+    to change it is to use search_images(filters=dict(member_status='all'))
+    which isn't terribly obvious. "show_all=True" will set
+    that flag, as well as disabling the filtering of images
+    in "deleted" state.

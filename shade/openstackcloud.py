@@ -2110,22 +2110,31 @@ class OpenStackCloud(
         return self._normalize_compute_limits(limits, project_id=project_id)
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
-    def list_images(self, filter_deleted=True):
+    def list_images(self, filter_deleted=True, show_all=False):
         """Get available images.
 
         :param filter_deleted: Control whether deleted images are returned.
+        :param show_all: Show all images, including images that are shared
+            but not accepted. (By default in glance v2 shared image that
+            have not been accepted are not shown) show_all will override the
+            value of filter_deleted to False.
         :returns: A list of glance images.
         """
+        if show_all:
+            filter_deleted = False
         # First, try to actually get images from glance, it's more efficient
         images = []
+        params = {}
         image_list = []
         try:
             if self.cloud_config.get_api_version('image') == '2':
                 endpoint = '/images'
+                if show_all:
+                    params['member_status'] = 'all'
             else:
                 endpoint = '/images/detail'
 
-            response = self._image_client.get(endpoint)
+            response = self._image_client.get(endpoint, params=params)
 
         except keystoneauth1.exceptions.catalog.EndpointNotFound:
             # We didn't have glance, let's try nova
