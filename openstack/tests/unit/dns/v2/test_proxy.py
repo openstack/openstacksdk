@@ -40,6 +40,16 @@ class TestZone(TestDNSProxy):
         zone = zones[0]
         self.assertEquals(zone.id, '2c9eb155587194ec01587224c9f90149')
         self.assertEquals(zone.name, 'example.com.')
+        self.assertEquals(zone.description, "This is an example zone.")
+        self.assertEquals(zone.email, "xx@example.com")
+        self.assertEquals(zone.ttl, 300)
+        self.assertEquals(zone.serial, 0)
+        self.assertEquals(zone.masters, [])
+        self.assertEquals(zone.status, "ACTIVE")
+        self.assertEquals(zone.pool_id, "00000000570e54ee01570e9939b20019")
+        self.assertEquals(zone.zone_type, "public")
+        self.assertEquals(zone.created_at, "2016-11-17T11:56:03.439")
+        self.assertEquals(zone.record_num, 2)
 
     def test_create_public_zone(self):
         attrs = {
