@@ -136,6 +136,7 @@ class ShadeAdapter(adapter.Adapter):
                         'router', 'routers', 'floatingip', 'floatingips',
                         'floating_ip', 'floating_ips', 'port', 'ports',
                         'rule_types', 'policy', 'policies',
+                        'bandwidth_limit_rule', 'bandwidth_limit_rules',
                         'stack', 'stacks', 'zones', 'events',
                         'security_group', 'security_groups',
                         'security_group_rule', 'security_group_rules',

@@ -3269,6 +3269,220 @@ class OpenStackCloud(
 
         return True
 
+    def search_qos_bandwidth_limit_rules(self, policy_name_or_id, rule_id=None,
+                                         filters=None):
+        """Search QoS bandwidth limit rules
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rules should be associated.
+        :param string rule_id: ID of searched rule.
+        :param filters: a dict containing additional filters to use. e.g.
+                        {'max_kbps': 1000}
+
+        :returns: a list of ``munch.Munch`` containing the bandwidth limit
+            rule descriptions.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            OpenStack API call.
+        """
+        rules = self.list_qos_bandwidth_limit_rules(policy_name_or_id, filters)
+        return _utils._filter_list(rules, rule_id, filters)
+
+    def list_qos_bandwidth_limit_rules(self, policy_name_or_id, filters=None):
+        """List all available QoS bandwith limit rules.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy from
+            from rules should be listed.
+        :param filters: (optional) dict of filter conditions to push down
+        :returns: A list of ``munch.Munch`` containing rule info.
+
+        :raises: ``OpenStackCloudResourceNotFound`` if QoS policy will not be
+            found.
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        # Translate None from search interface to empty {} for kwargs below
+        if not filters:
+            filters = {}
+
+        data = self._network_client.get(
+            "/qos/policies/{policy_id}/bandwidth_limit_rules.json".format(
+                policy_id=policy['id']),
+            params=filters,
+            error_message="Error fetching QoS bandwith limit rules from "
+                          "{policy}".format(policy=policy['id']))
+        return meta.get_and_munchify('bandwidth_limit_rules', data)
+
+    def get_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
+        """Get a QoS bandwidth limit rule by name or ID.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rule should be associated.
+        :param rule_id: ID of the rule.
+
+        :returns: A bandwidth limit rule ``munch.Munch`` or None if
+            no matching rule is found.
+
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        data = self._network_client.get(
+            "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
+            format(policy_id=policy['id'], rule_id=rule_id),
+            error_message="Error fetching QoS bandwith limit rule {rule_id} "
+                          "from {policy}".format(rule_id=rule_id,
+                                                 policy=policy['id']))
+        return meta.get_and_munchify('bandwidth_limit_rule', data)
+
+    def create_qos_bandwidth_limit_rule(self, policy_name_or_id, max_kbps=None,
+                                        max_burst_kbps=None, direction=None):
+        """Create a QoS bandwidth limit rule.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rule should be associated.
+        :param int max_kbps: Maximum bandwidth limit value
+            (in kilobits per second).
+        :param int max_burst_kbps: Maximum burst value (in kilobits).
+        :param string direction: Ingress or egress.
+            The direction in which the traffic will be limited.
+
+        :returns: The QoS bandwidth limit rule.
+        :raises: OpenStackCloudException on operation error.
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        rule = {}
+        if max_kbps:
+            rule['max_kbps'] = max_kbps
+        if max_burst_kbps:
+            rule['max_burst_kbps'] = max_burst_kbps
+        if direction is not None:
+            if self._has_neutron_extension('qos-bw-limit-direction'):
+                rule['direction'] = direction
+            else:
+                self.log.debug(
+                    "'qos-bw-limit-direction' extension is not available on "
+                    "target cloud")
+
+        data = self._network_client.post(
+            "/qos/policies/{policy_id}/bandwidth_limit_rules".format(
+                policy_id=policy['id']),
+            json={'bandwidth_limit_rule': rule})
+        return meta.get_and_munchify('bandwidth_limit_rule', data)
+
+    def update_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id,
+                                        max_kbps=None, max_burst_kbps=None,
+                                        direction=None):
+        """Update a QoS bandwidth limit rule.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rule is associated.
+        :param string rule_id: ID of rule to update.
+        :param int max_kbps: Maximum bandwidth limit value
+            (in kilobits per second).
+        :param int max_burst_kbps: Maximum burst value (in kilobits).
+        :param string direction: Ingress or egress.
+            The direction in which the traffic will be limited.
+
+        :returns: The updated QoS bandwidth limit rule.
+        :raises: OpenStackCloudException on operation error.
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        rule = {}
+        if max_kbps:
+            rule['max_kbps'] = max_kbps
+        if max_burst_kbps:
+            rule['max_burst_kbps'] = max_burst_kbps
+        if direction is not None:
+            if self._has_neutron_extension('qos-bw-limit-direction'):
+                rule['direction'] = direction
+            else:
+                self.log.debug(
+                    "'qos-bw-limit-direction' extension is not available on "
+                    "target cloud")
+        if not rule:
+            self.log.debug("No QoS bandwidth limit rule data to update")
+            return
+
+        curr_rule = self.get_qos_bandwidth_limit_rule(
+            policy_name_or_id, rule_id)
+        if not curr_rule:
+            raise OpenStackCloudException(
+                "QoS bandwidth_limit_rule {rule_id} not found in policy "
+                "{policy_id}".format(rule_id=rule_id,
+                                     policy_id=policy['id']))
+
+        data = self._network_client.put(
+            "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
+            format(policy_id=policy['id'], rule_id=rule_id),
+            json={'bandwidth_limit_rule': rule})
+        return meta.get_and_munchify('bandwidth_limit_rule', data)
+
+    def delete_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
+        """Delete a QoS bandwidth limit rule.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rule is associated.
+        :param string rule_id: ID of rule to update.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        try:
+            self._network_client.delete(
+                "/qos/policies/{policy}/bandwidth_limit_rules/{rule}.json".
+                format(policy=policy['id'], rule=rule_id))
+        except OpenStackCloudURINotFound:
+            self.log.debug(
+                "QoS bandwidth limit rule {rule_id} not found in policy "
+                "{policy_id}. Ignoring.".format(rule_id=rule_id,
+                                                policy_id=policy['id']))
+            return False
+
+        return True
+
     def _build_external_gateway_info(self, ext_gateway_net_id, enable_snat,
                                      ext_fixed_ips):
         info = {}
