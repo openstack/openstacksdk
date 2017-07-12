@@ -14,11 +14,11 @@ from openstack import service_filter
 
 
 class CloudEyeService(service_filter.ServiceFilter):
-    """The DNS service."""
+    """The Cloud Eye service."""
 
     valid_versions = [service_filter.ValidVersion('v1')]
 
     def __init__(self, version=None):
-        """Create a DNS service."""
+        """Create a Cloud Eye service."""
         super(CloudEyeService, self).__init__(service_type='cloud-eye',
                                               version=version)
