@@ -17,6 +17,8 @@ library, and adding logic and features that the OpenStack Infra team had
 developed to run client applications at scale, it turned out that we'd written
 nine-tenths of what we'd need to have a standalone library.
 
+.. _example:
+
 Example
 =======
 
