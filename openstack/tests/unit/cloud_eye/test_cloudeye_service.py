@@ -13,11 +13,9 @@
 import testtools
 
 from openstack.cloud_eye import cloud_eye_service
-from openstack.object_store import object_store_service
 
 
 class TestCloudEyeService(testtools.TestCase):
-
     def test_service(self):
         sot = cloud_eye_service.CloudEyeService()
         self.assertEqual('cloud-eye', sot.service_type)
