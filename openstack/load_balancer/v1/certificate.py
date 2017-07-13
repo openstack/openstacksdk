@@ -29,14 +29,16 @@ class Certificate(resource.Resource):
     allow_delete = True
     allow_update = True
 
-    _query_mapping = resource.QueryParameters(
-    )
-
     #: Properties
-    #: The listener name
+    #: The certificate name
     name = resource.Body('name')
+    #: The certificate description
     description = resource.Body('description')
+    #: The certificate content (PEM format)
     certificate = resource.Body('certificate')
+    #: The certificate private key (PEM format)
     private_key = resource.Body('private_key')
+    #: Create time
     create_time = resource.Body('create_time')
+    #: Latest Update time
     update_time = resource.Body('update_time')
