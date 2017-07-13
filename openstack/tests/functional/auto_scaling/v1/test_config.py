@@ -14,8 +14,8 @@
 #
 import uuid
 
-from openstack import utils
 from openstack.tests.functional import base
+from openstack import utils
 
 
 def auto_create_config(conn, config_name):

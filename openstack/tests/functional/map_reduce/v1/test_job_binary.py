@@ -17,10 +17,6 @@ import uuid
 from openstack.tests.functional import base
 
 
-def auto_create_job_binary(conn, name):
-    return auto_create_job_binary(conn, name, "/sdk/mapreduce/input1")
-
-
 def auto_create_job_binary(conn, name, url):
     binary = {
         "name": name,

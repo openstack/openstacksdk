@@ -86,6 +86,6 @@ class TestBackupPolicy(base.BaseFunctionalTest):
         if self.policy.scheduled_policy.status == "ON":
             self.conn.volume_backup.disable_policy(self.policy)
             policy = self.get_current_policy()
-            self.assertEqual("OFF", self.policy.scheduled_policy.status)
+            self.assertEqual("OFF", policy.scheduled_policy.status)
         self.conn.volume_backup.enable_policy(self.policy)
         self.assertEqual("ON", self.policy.scheduled_policy.status)

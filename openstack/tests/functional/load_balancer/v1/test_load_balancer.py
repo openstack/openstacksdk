@@ -14,8 +14,8 @@
 #
 import uuid
 
-from openstack import resource2
 from openstack.load_balancer.v1 import job as _job
+from openstack import resource2
 from openstack.tests.functional import base
 
 

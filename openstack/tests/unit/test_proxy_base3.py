@@ -17,7 +17,6 @@ import json
 import os
 
 import mock
-from os import path
 
 from openstack import session
 from openstack.tests.unit import base

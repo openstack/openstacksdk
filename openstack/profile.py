@@ -73,8 +73,8 @@ from openstack.image import image_service
 from openstack.key_manager import key_manager_service
 from openstack.load_balancer import load_balancer_service as lb_service
 from openstack.map_reduce import map_reduce_service
-from openstack import module_loader
 from openstack.message import message_service
+from openstack import module_loader
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service

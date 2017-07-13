@@ -14,11 +14,11 @@
 #
 import uuid
 
-from openstack.tests.functional import base
 from openstack.tests.functional.auto_scaling.v1.test_config import \
     auto_create_config
 from openstack.tests.functional.auto_scaling.v1.test_group import \
     auto_create_group
+from openstack.tests.functional import base
 
 
 def create_policy(conn, policy_name, group_id):

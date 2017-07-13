@@ -94,14 +94,14 @@ class _BaseComponent(object):
         return value
 
     def __set__(self, instance, value):
-        is_expect_type = isinstance(value, self.type)
-        if self.type and not is_expect_type and value != self.default:
-            if issubclass(self.type, format.Formatter):
-                value = self.type.serialize(value)
-            elif issubclass(self.type, Resource):
-                value = self.type.new(**value)
-            else:
-                value = str(self.type(value))  # validate to fail fast
+        if self.type:
+            if not isinstance(value, self.type) and value != self.default:
+                if issubclass(self.type, format.Formatter):
+                    value = self.type.serialize(value)
+                elif issubclass(self.type, Resource):
+                    value = self.type.new(**value)
+                else:
+                    value = str(self.type(value))  # validate to fail fast
 
         attributes = getattr(instance, self.key)
         attributes[self.name] = value

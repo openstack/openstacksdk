@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.tests.unit.test_proxy_base3 import BaseProxyTestCase
-from openstack.volume_backup import volume_backup_service
 from openstack.volume_backup.v2 import _proxy
 from openstack.volume_backup.v2 import backup as _backup
 from openstack.volume_backup.v2 import backup_policy as _backup_policy
+from openstack.volume_backup import volume_backup_service
 
 
 class TestVolumeBackupProxy(BaseProxyTestCase):

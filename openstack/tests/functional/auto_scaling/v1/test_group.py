@@ -14,9 +14,9 @@
 #
 import uuid
 
-from openstack.tests.functional import base
 from openstack.tests.functional.auto_scaling.v1.test_config import \
     auto_create_config
+from openstack.tests.functional import base
 
 
 def auto_create_group(conn, group_name, config_id):

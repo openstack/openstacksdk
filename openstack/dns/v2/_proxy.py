@@ -10,18 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import proxy2
 from openstack.dns.v2 import name_server as _name_server
 from openstack.dns.v2 import ptr as _ptr
 from openstack.dns.v2 import recordset as _recordset
 from openstack.dns.v2 import router as _router
 from openstack.dns.v2 import zone as _zone
 from openstack.exceptions import InvalidRequest
+from openstack import proxy2
 
 
 class Proxy(proxy2.BaseProxy):
     def zones(self, **query):
         """Retrieve a generator of zones
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``zone_type``: Zone Type
@@ -35,6 +36,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_zone(self, **attrs):
         """Create a new zone from attributes
+
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.dns.v2.zone.Zone`,
                            comprised of the properties on the Zone class.
@@ -45,6 +47,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_zone(self, zone):
         """Get a zone
+
         :param zone: The value can be the ID of a zone
              or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :returns: Zone instance
@@ -85,6 +88,7 @@ class Proxy(proxy2.BaseProxy):
 
     def nameservers(self, zone):
         """list nameservers of Zone
+
         :param zone: The value can be the ID of a zone
              or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :returns: list of `~openstack.dns.v2.name_server.NameServer` instance
@@ -96,6 +100,7 @@ class Proxy(proxy2.BaseProxy):
 
     def add_router_to_zone(self, zone, **router):
         """Add router(VPC) to zone
+
         :param zone: The value can be the ID of a zone
              or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :returns: list of `~openstack.dns.v2.name_server.NameServer` instance
@@ -107,6 +112,7 @@ class Proxy(proxy2.BaseProxy):
 
     def remove_router_from_zone(self, zone, **router):
         """Add router(VPC) to zone
+
         :param zone: The value can be the ID of a zone
              or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :returns: list of `~openstack.dns.v2.name_server.NameServer` instance
@@ -118,6 +124,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_recordset(self, zone, **attrs):
         """Create a new recordset of zone
+
          :param zone: The value can be the ID of a zone
              or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param dict attrs: Keyword arguments which will be used to create
@@ -132,6 +139,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_recordset(self, zone, recordset):
         """Get a recordset
+
         :param zone: The value can be the ID of a zone
              or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param recordset: The value can be the ID of a recordset
@@ -146,6 +154,7 @@ class Proxy(proxy2.BaseProxy):
 
     def recordsets(self, zone, **query):
         """Retrieve a generator of recordsets which belongs to `zone`
+
         :param zone: The value can be the ID of a zone
              or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param dict query: Optional query parameters to be sent to limit the
@@ -184,6 +193,7 @@ class Proxy(proxy2.BaseProxy):
 
     def all_recordsets(self, **query):
         """Retrieve a generator of recordsets which belongs to `zone`
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``marker``:  pagination marker
@@ -196,6 +206,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_ptr(self, **attrs):
         """Create a new ptr of zone
+
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.dns.v2.ptr.PTR`,
                            comprised of the properties on the PTR class.
@@ -212,6 +223,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_ptr(self, region, floating_ip_id):
         """Get a ptr
+
         :param region: project region
         :param floating_ip_id: the PTR floating ip id
         :returns: PTR instance
@@ -223,6 +235,7 @@ class Proxy(proxy2.BaseProxy):
 
     def ptrs(self, **query):
         """Retrieve a generator of ptrs which belongs to `zone`
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``marker``:  pagination marker

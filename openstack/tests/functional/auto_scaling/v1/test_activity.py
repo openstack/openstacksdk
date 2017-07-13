@@ -25,6 +25,4 @@ class TestActivity(base.BaseFunctionalTest):
             "end_time": "2017-06-22T15:00:02Z",
             "limit": 10
         }
-        activities = self.conn.auto_scaling.activities(self.group, **query)
-        for activity in activities:
-            print activity
+        self.conn.auto_scaling.activities(self.group, **query)

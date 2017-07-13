@@ -489,11 +489,8 @@ class TestResource(base.TestCase):
         serverside_key1 = "someKey1"
         clientside_key1 = "some_key1"
         serverside_key2 = "someKey2"
-        clientside_key2 = "some_key2"
         value1 = "value1"
         value2 = "value2"
-        mapping = {clientside_key1: serverside_key1,
-                   clientside_key2: serverside_key2}
 
         other_key = "otherKey"
         other_value = "other"

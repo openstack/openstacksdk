@@ -391,7 +391,7 @@ class TestPTR(TestDNSProxy):
     def test_restore_ptr_with_id(self):
         region = 'eu-de'
         floating_ip_id = '9e9c6d33-51a6-4f84-b504-c13301f1cc8c'
-        ptr = self.proxy.restore_ptr(region, floating_ip_id)
+        self.proxy.restore_ptr(region, floating_ip_id)
         self.assert_session_patch_with(
             "reverse/floatingips/eu-de:9e9c6d33-51a6-4f84-b504-c13301f1cc8c",
             json={"ptrdname": None}

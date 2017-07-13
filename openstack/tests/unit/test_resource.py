@@ -12,7 +12,6 @@
 
 import copy
 import json
-import os
 
 from keystoneauth1 import session
 import mock

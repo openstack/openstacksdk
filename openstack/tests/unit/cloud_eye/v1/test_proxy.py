@@ -14,7 +14,6 @@ import datetime
 
 import mock
 
-from openstack import utils
 from openstack.cloud_eye import cloud_eye_service
 from openstack.cloud_eye.v1 import _proxy
 from openstack.cloud_eye.v1 import alarm as _alarm
@@ -22,6 +21,7 @@ from openstack.cloud_eye.v1 import metric as _metric
 from openstack.cloud_eye.v1 import metric_data as _metric_data
 from openstack.cloud_eye.v1 import quota as _quota
 from openstack.tests.unit.test_proxy_base3 import BaseProxyTestCase
+from openstack import utils
 
 
 class TestCloudEyeProxy(BaseProxyTestCase):
@@ -167,16 +167,16 @@ class TestCloudEyeAlarm(TestCloudEyeProxy):
         }), alarm.metric)
 
     def test_delete_alarm(self):
-        alarm = self.proxy.delete_alarm("al1441967036681YkazZ0deN")
+        self.proxy.delete_alarm("al1441967036681YkazZ0deN")
         self.assert_session_delete("alarms/al1441967036681YkazZ0deN")
 
     def test_enable_alarm(self):
-        alarm = self.proxy.enable_alarm("al1441967036681YkazZ0deN")
+        self.proxy.enable_alarm("al1441967036681YkazZ0deN")
         uri = "alarms/al1441967036681YkazZ0deN/action"
         self.assert_session_put_with(uri, json={"alarm_enabled": True})
 
     def test_disable_alarm(self):
-        alarm = self.proxy.disable_alarm("al1441967036681YkazZ0deN")
+        self.proxy.disable_alarm("al1441967036681YkazZ0deN")
         uri = "alarms/al1441967036681YkazZ0deN/action"
         self.assert_session_put_with(uri, json={"alarm_enabled": False})
 

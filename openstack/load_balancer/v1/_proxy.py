@@ -10,13 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import proxy2
 from openstack.load_balancer.v1 import certificate as _cert
 from openstack.load_balancer.v1 import health_check as _hc
 from openstack.load_balancer.v1 import job as _job
 from openstack.load_balancer.v1 import listener as _listener
 from openstack.load_balancer.v1 import load_balancer as _lb
 from openstack.load_balancer.v1 import quota as _quota
+from openstack import proxy2
 
 
 class Proxy(proxy2.BaseProxy):

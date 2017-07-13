@@ -16,8 +16,8 @@
 import datetime
 import uuid
 
-from openstack import utils
 from openstack.tests.functional import base
+from openstack import utils
 
 
 class TestMetricData(base.BaseFunctionalTest):

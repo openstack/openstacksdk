@@ -10,13 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import proxy2
 from openstack.map_reduce.v1 import cluster as _cluster
 from openstack.map_reduce.v1 import data_source as _ds
 from openstack.map_reduce.v1 import job as _job
 from openstack.map_reduce.v1 import job_binary as _jb
 from openstack.map_reduce.v1 import job_exe as _exe
 from openstack.map_reduce.v1 import job_execution as _execution
+from openstack import proxy2
 
 
 class Proxy(proxy2.BaseProxy):
@@ -106,6 +106,7 @@ class Proxy(proxy2.BaseProxy):
 
     def job_binaries(self, **query):
         """Retrieve a generator of job-binaries
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``sort_by``: sort by attribute, sort_by=name means sort by name
@@ -120,6 +121,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_job_binary(self, **attrs):
         """Create a new Job-Binary from attributes
+
         :param dict attrs: Keyword arguments which will be used to create
                 a :class:`~openstack.map_reduce.v1.job_binary.JobBinary`,
                 comprised of the properties on the JobBinary class.
@@ -144,6 +146,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_job_binary(self, job_binary):
         """Get a Job-Binary
+
         :param job_binary: value can be the ID of a Job-Binary or an instance
             of :class:`~openstack.map_reduce.v1.job_binary.JobBinary`
         :returns: Job-Binary instance
@@ -187,6 +190,7 @@ class Proxy(proxy2.BaseProxy):
 
     def jobs(self, **query):
         """Retrieve a generator of jobs
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``sort_by``: sort by attribute, sort_by=name means sort by name
@@ -213,6 +217,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_job(self, **attrs):
         """Create a new Job from attributes
+
         :param dict attrs: Keyword arguments which will be used to create
                 a :class:`~openstack.map_reduce.v1.job.Job`,
                 comprised of the properties on the Job class.
@@ -237,6 +242,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_job(self, job):
         """Get a Job
+
         :param job: value can be the ID of a Job or an instance
             of :class:`~openstack.map_reduce.v1.job.Job`
         :returns: Job instance
@@ -246,6 +252,7 @@ class Proxy(proxy2.BaseProxy):
 
     def execute_job(self, job, **job_execution):
         """Execute a Job
+
         :param job: value can be the ID of a Job or an instance
             of :class:`~openstack.map_reduce.v1.job.Job`
         :returns: Job Execution Instance
@@ -291,6 +298,7 @@ class Proxy(proxy2.BaseProxy):
 
     def job_executions(self, **query):
         """Retrieve a generator of Job-Executions
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``sort_by``: sort by attribute, sort_by=name means sort by name
@@ -365,6 +373,7 @@ class Proxy(proxy2.BaseProxy):
 
     def job_exes(self, **query):
         """Retrieve a generator of Job-Exes
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``sort_by``: sort by attribute, sort_by=name means sort by name

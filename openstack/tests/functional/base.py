@@ -137,7 +137,6 @@ class BaseFunctionalTest(unittest.TestCase):
         if cls.keypair:
             return cls.keypair
         else:
-            router = cls.get_first_router()
             keypairs = cls.conn.compute.keypairs()
             for _keypair in keypairs:
                 cls.keypair = _keypair
