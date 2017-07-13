@@ -123,7 +123,7 @@ class TestCloudBackup(TestVolumeBackupProxy):
             "limit": 10
         }
         self.assert_session_list_with("/backups", params=transferred_query)
-        self.assertEquals(2, len(backups))
+        self.assertEqual(2, len(backups))
         backup = backups[0]
         self.assertEqual("1d1139d8-8989-49d3-8aa1-83eb691e6db2", backup.id)
         self.assertIsNone(backup.name)
@@ -146,7 +146,7 @@ class TestCloudBackup(TestVolumeBackupProxy):
         }
         self.assert_session_list_with("/backups/detail",
                                       params=transferred_query)
-        self.assertEquals(3, len(backups))
+        self.assertEqual(3, len(backups))
         backup = backups[0]
         self.assertIsInstance(backup, _backup.BackupDetail)
 
@@ -209,7 +209,7 @@ class TestBackupPolicy(TestVolumeBackupProxy):
         policies = list(self.proxy.backup_policies())
         self.assert_session_list_with("/backuppolicy",
                                       params={})
-        self.assertEquals(2, len(policies))
+        self.assertEqual(2, len(policies))
         policy = policies[0]
         self.assertIsInstance(policy, _backup_policy.BackupPolicy)
         self.assertEqual("XX", policy.id)
@@ -401,7 +401,7 @@ class TestBackupPolicy(TestVolumeBackupProxy):
         }
         self.assert_session_list_with("/backuppolicy/policy-id/backuptasks",
                                       params=transferred_query)
-        self.assertEquals(2, len(tasks))
+        self.assertEqual(2, len(tasks))
         task = tasks[0]
         self.assertEqual("RUNNING", task.status)
         self.assertEqual("0781095c-b8ab-4ce5-99f3-4c5f6ff75319", task.id)

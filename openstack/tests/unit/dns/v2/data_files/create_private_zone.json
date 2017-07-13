@@ -1,23 +1,23 @@
 {
-    "id": "ff8080825b8fc86c015b94bc6f8712c3",
-    "name": "example.com.",
-    "description": "This is an example zone.",
-    "email": "xx@example.com",
-    "ttl": 300,
-    "serial": 1,
-    "masters": [],
+  "id": "ff8080825b8fc86c015b94bc6f8712c3",
+  "name": "example.com.",
+  "description": "This is an example zone.",
+  "email": "xx@example.com",
+  "ttl": 300,
+  "serial": 1,
+  "masters": [],
+  "status": "PENDING_CREATE",
+  "links": {
+    "self": "https://Endpoint/v2/zones/ff8080825b8fc86c015b94bc6f8712c3"
+  },
+  "pool_id": "ff8080825ab738f4015ab7513298010e",
+  "project_id": "e55c6f3dc4e34c9f86353b664ae0e70c",
+  "zone_type": "private",
+  "created_at": "2017-04-22T08:17:08.997",
+  "record_num": 0,
+  "router": {
     "status": "PENDING_CREATE",
-    "links": {
-        "self": "https://Endpoint/v2/zones/ff8080825b8fc86c015b94bc6f8712c3"
-    },
-    "pool_id": "ff8080825ab738f4015ab7513298010e",
-    "project_id": "e55c6f3dc4e34c9f86353b664ae0e70c",
-    "zone_type": "private",
-    "created_at": "2017-04-22T08:17:08.997",
-    "record_num": 0,
-    "router": {
-        "status": "PENDING_CREATE",
-        "router_id": "19664294-0bf6-4271-ad3a-94b8c79c6558",
-        "router_region": "eu-de"
-    }
+    "router_id": "19664294-0bf6-4271-ad3a-94b8c79c6558",
+    "router_region": "eu-de"
+  }
 }

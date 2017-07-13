@@ -12,12 +12,10 @@
 
 import testtools
 
-from openstack.auto_scaling import auto_scaling_service
 from openstack.volume_backup import volume_backup_service
 
 
 class TestVolumeBackupService(testtools.TestCase):
-
     def test_service(self):
         sot = volume_backup_service.VolumeBackupService()
         self.assertEqual('volume-backup', sot.service_type)

@@ -13,12 +13,10 @@
 #   under the License.
 #
 
+import datetime
 import uuid
 
-import datetime
-
 from openstack import utils
-from openstack.cloud_eye.v1 import metric
 from openstack.tests.functional import base
 
 

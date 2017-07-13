@@ -16,7 +16,6 @@ from openstack.auto_scaling import auto_scaling_service
 
 
 class TestAutoScalingService(testtools.TestCase):
-
     def test_service(self):
         sot = auto_scaling_service.AutoScalingService()
         self.assertEqual('auto-scaling', sot.service_type)

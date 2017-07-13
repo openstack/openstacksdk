@@ -12,7 +12,6 @@
 from openstack import resource2 as resource
 from openstack import utils
 from openstack.map_reduce import map_reduce_service
-from openstack.map_reduce.v1 import job as _job
 
 
 class Component(resource.Resource):

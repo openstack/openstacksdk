@@ -16,7 +16,6 @@ from openstack.map_reduce import map_reduce_service
 
 
 class TestMapReduceService(testtools.TestCase):
-
     def test_service(self):
         sot = map_reduce_service.MapReduceService()
         self.assertEqual('map-reduce', sot.service_type)

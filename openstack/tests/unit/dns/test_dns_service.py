@@ -13,11 +13,9 @@
 import testtools
 
 from openstack.dns import dns_service
-from openstack.object_store import object_store_service
 
 
 class TestDNSService(testtools.TestCase):
-
     def test_service(self):
         sot = dns_service.DNSService()
         self.assertEqual('dns', sot.service_type)

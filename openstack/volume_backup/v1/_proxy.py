@@ -18,6 +18,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_job(self, job):
         """Get a job detail
+
         :param job: The value can be the ID of a job
              or a :class:`~openstack.volume_backup.v1.job.Job` instance.
         :returns: Backup instance

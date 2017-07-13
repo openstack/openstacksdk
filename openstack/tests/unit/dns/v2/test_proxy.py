@@ -38,18 +38,18 @@ class TestZone(TestDNSProxy):
         self.assert_session_list_with('/zones', query)
         self.assertEqual(2, len(zones))
         zone = zones[0]
-        self.assertEquals(zone.id, '2c9eb155587194ec01587224c9f90149')
-        self.assertEquals(zone.name, 'example.com.')
-        self.assertEquals(zone.description, "This is an example zone.")
-        self.assertEquals(zone.email, "xx@example.com")
-        self.assertEquals(zone.ttl, 300)
-        self.assertEquals(zone.serial, 0)
-        self.assertEquals(zone.masters, [])
-        self.assertEquals(zone.status, "ACTIVE")
-        self.assertEquals(zone.pool_id, "00000000570e54ee01570e9939b20019")
-        self.assertEquals(zone.zone_type, "public")
-        self.assertEquals(zone.created_at, "2016-11-17T11:56:03.439")
-        self.assertEquals(zone.record_num, 2)
+        self.assertEqual(zone.id, '2c9eb155587194ec01587224c9f90149')
+        self.assertEqual(zone.name, 'example.com.')
+        self.assertEqual(zone.description, "This is an example zone.")
+        self.assertEqual(zone.email, "xx@example.com")
+        self.assertEqual(zone.ttl, 300)
+        self.assertEqual(zone.serial, 0)
+        self.assertEqual(zone.masters, [])
+        self.assertEqual(zone.status, "ACTIVE")
+        self.assertEqual(zone.pool_id, "00000000570e54ee01570e9939b20019")
+        self.assertEqual(zone.zone_type, "public")
+        self.assertEqual(zone.created_at, "2016-11-17T11:56:03.439")
+        self.assertEqual(zone.record_num, 2)
 
     def test_create_public_zone(self):
         attrs = {
@@ -61,9 +61,9 @@ class TestZone(TestDNSProxy):
         self.mock_response_json_file_values('create_public_zone.json')
         zone = self.proxy.create_zone(**attrs)
         self.assert_session_post_with('/zones', json=attrs, headers={})
-        self.assertEquals(zone.name, 'example.com.')
-        self.assertEquals(zone.zone_type, 'public')
-        self.assertEquals(zone.email, 'xx@example.com')
+        self.assertEqual(zone.name, 'example.com.')
+        self.assertEqual(zone.zone_type, 'public')
+        self.assertEqual(zone.email, 'xx@example.com')
         self.assertIsNotNone(zone.id)
 
     def test_create_private_zone(self):
@@ -81,13 +81,13 @@ class TestZone(TestDNSProxy):
         self.mock_response_json_file_values('create_private_zone.json')
         zone = self.proxy.create_zone(**attrs)
         self.assert_session_post_with('/zones', json=attrs, headers={})
-        self.assertEquals(zone.name, 'example.com.')
-        self.assertEquals(zone.zone_type, 'private')
-        self.assertEquals(zone.email, 'xx@example.com')
+        self.assertEqual(zone.name, 'example.com.')
+        self.assertEqual(zone.zone_type, 'private')
+        self.assertEqual(zone.email, 'xx@example.com')
         self.assertIsNotNone(zone.router)
-        self.assertEquals(zone.router.router_id,
-                          "19664294-0bf6-4271-ad3a-94b8c79c6558")
-        self.assertEquals(zone.router.router_region, "eu-de")
+        self.assertEqual(zone.router.router_id,
+                         "19664294-0bf6-4271-ad3a-94b8c79c6558")
+        self.assertEqual(zone.router.router_region, "eu-de")
         self.assertIsNotNone(zone.id)
 
     def test_get_zone_with_id(self):
@@ -230,7 +230,7 @@ class TestRecordset(TestDNSProxy):
         recordsets = list(self.proxy.recordsets("zone-id", **query))
         self.assert_session_list_with("/zones/zone-id/recordsets",
                                       params=query)
-        self.assertEquals(5, len(recordsets))
+        self.assertEqual(5, len(recordsets))
 
         recordset = recordsets[0]
         self.verify_recordset(recordset)
@@ -243,7 +243,7 @@ class TestRecordset(TestDNSProxy):
         self.mock_response_json_file_values("list_all_recordset_response.json")
         recordsets = list(self.proxy.all_recordsets(**query))
         self.assert_session_list_with("/recordsets", params=query)
-        self.assertEquals(5, len(recordsets))
+        self.assertEqual(5, len(recordsets))
 
         recordset = recordsets[0]
         self.verify_recordset(recordset)
@@ -356,7 +356,7 @@ class TestPTR(TestDNSProxy):
         self.mock_response_json_file_values("list_ptr_response.json")
         ptrs = list(self.proxy.ptrs(**query))
         self.assert_session_list_with("/reverse/floatingips", params=query)
-        self.assertEquals(1, len(ptrs))
+        self.assertEqual(1, len(ptrs))
         ptr = ptrs[0]
         self.assertIsInstance(ptr, _ptr.PTR)
         self.assertEqual("region_id:c5504932-bf23-4171-b655-b87a6bc59334",

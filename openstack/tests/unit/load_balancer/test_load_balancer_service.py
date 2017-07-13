@@ -16,7 +16,6 @@ from openstack.load_balancer import load_balancer_service as lb_service
 
 
 class TestLoadBalancingService(testtools.TestCase):
-
     def test_service(self):
         sot = lb_service.LoadBalancerService()
         self.assertEqual('load-balancer', sot.service_type)

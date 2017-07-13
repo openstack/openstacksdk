@@ -59,7 +59,7 @@ import os
 class ValidVersion(object):
 
     def __init__(self, module, path=None):
-        """" Valid service version.
+        """"Valid service version.
 
         :param string module: Module associated with version.
         :param string path: URL path version.

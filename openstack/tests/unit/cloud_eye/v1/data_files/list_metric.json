@@ -1,20 +1,20 @@
 {
-    "metrics": [
+  "metrics": [
+    {
+      "namespace": "SYS.ECS",
+      "dimensions": [
         {
-            "namespace": "SYS.ECS",
-            "dimensions": [
-                {
-                    "name": "instance_id",
-                    "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
-                }
-            ],
-            "metric_name": "cpu_util",
-            "unit": "%"
+          "name": "instance_id",
+          "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
         }
-    ],
-    "meta_data": {
-        "count": 1,
-        "marker": "SYS.ECS.cpu_util.instance_id:d9112af5-6913-4f3b-bd0a-3f96711e004d",
-        "total": 7
+      ],
+      "metric_name": "cpu_util",
+      "unit": "%"
     }
+  ],
+  "meta_data": {
+    "count": 1,
+    "marker": "SYS.ECS.cpu_util.instance_id:d9112af5-6913-4f3b-bd0a-3f96711e004d",
+    "total": 7
+  }
 }

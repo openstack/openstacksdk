@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from openstack import resource2 as resource
-from openstack.auto_scaling import auto_scaling_service
-from openstack.auto_scaling.v1 import get_next_marker
 from openstack.map_reduce import map_reduce_service
 
 

@@ -12,8 +12,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-from openstack import resource2 as resource
 from openstack.cloud_eye import cloud_eye_service
+from openstack import resource2 as resource
 
 
 class Quota(resource.Resource):

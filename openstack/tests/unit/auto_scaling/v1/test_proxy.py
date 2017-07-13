@@ -51,7 +51,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
         self.assert_session_list_with("/scaling_configuration",
                                       params=transferred_query)
 
-        self.assertEquals(2, len(configs))
+        self.assertEqual(2, len(configs))
 
         config1 = configs[0]
         self.assertIsInstance(config1, _config.Config)
@@ -141,24 +141,24 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
                 endpoint_override=self.service.get_endpoint_override(),
             )
             self.assertIsInstance(config, _config.Config)
-            self.assertEquals("6afe46f9-7d3d-4046-8748-3b2a1085ad86",
-                              config.id)
-            self.assertEquals("config_name_1", config.name)
-            self.assertEquals("2015-07-23T01:04:07Z", config.create_time)
+            self.assertEqual("6afe46f9-7d3d-4046-8748-3b2a1085ad86",
+                             config.id)
+            self.assertEqual("config_name_1", config.name)
+            self.assertEqual("2015-07-23T01:04:07Z", config.create_time)
             self.assertIsInstance(config.instance_config,
                                   _config.InstanceConfig)
             ic = config.instance_config
-            self.assertEquals("37ca2b35-6fc7-47ab-93c7-900324809c5c",
-                              ic.image_id)
-            self.assertEquals("103", ic.flavor_id)
-            self.assertEquals("keypair01", ic.key_name)
-            self.assertEquals([{"size": 40,
-                                "volume_type": "SATA",
-                                "disk_type": "SYS"},
-                               {"size": 100,
-                                "volume_type": "SATA",
-                                "disk_type": "DATA"}],
-                              ic.disk)
+            self.assertEqual("37ca2b35-6fc7-47ab-93c7-900324809c5c",
+                             ic.image_id)
+            self.assertEqual("103", ic.flavor_id)
+            self.assertEqual("keypair01", ic.key_name)
+            self.assertEqual([{"size": 40,
+                               "volume_type": "SATA",
+                               "disk_type": "SYS"},
+                              {"size": 100,
+                               "volume_type": "SATA",
+                               "disk_type": "DATA"}],
+                             ic.disk)
 
         def test_delete_config_with_id(self):
             self.proxy.delete_config("some-config-id")
@@ -206,7 +206,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
             self.assert_session_list_with("/scaling_group",
                                           params=transferred_query)
 
-            self.assertEquals(1, len(groups))
+            self.assertEqual(1, len(groups))
 
             group1 = groups[0]
             self.assertIsInstance(group1, _group.Group)
@@ -280,9 +280,9 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
             )
 
             self.assertIsInstance(group, _group.Group)
-            self.assertEquals("d4e50321-3777-4135-97f8-9f5e9714a4b0", group.id)
-            self.assertEquals("api_gateway_modify", group.name)
-            self.assertEquals("2015-09-01T08:36:10Z", group.create_time)
+            self.assertEqual("d4e50321-3777-4135-97f8-9f5e9714a4b0", group.id)
+            self.assertEqual("api_gateway_modify", group.name)
+            self.assertEqual("2015-09-01T08:36:10Z", group.create_time)
             self.assertEqual("INSERVICE", group.status)
             self.assertEqual("53579851-3841-418d-a97b-9cecdb663a90",
                              group.scaling_configuration_id)
@@ -376,7 +376,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
             self.assert_session_list_with("/scaling_policy/group-id/list",
                                           params=transferred_query)
 
-            self.assertEquals(1, len(policies))
+            self.assertEqual(1, len(policies))
 
             policy = policies[0]
             self.verify_policy(policy)
@@ -613,7 +613,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
             self.assert_session_list_with(
                 "/scaling_group_instance/group-id/list",
                 params=transferred_query)
-            self.assertEquals(1, len(instances))
+            self.assertEqual(1, len(instances))
             instance = instances[0]
             self.assertIsInstance(instance, _instance.Instance)
             self.assertEqual("b25c1589-c96c-465b-9fef-d06540d1945c",
@@ -650,7 +650,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
             self.assert_session_list_with("/scaling_activity_log/any-group-id",
                                           params=transferred_query)
 
-            self.assertEquals(2, len(activities))
+            self.assertEqual(2, len(activities))
 
             activity = activities[0]
             self.assertIsInstance(activity, _activity_log.Activity)
@@ -672,7 +672,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
             self.mock_response_json_file_values("list_quota.json")
             quotas = list(self.proxy.quotas())
             self.assert_session_list_with("/quotas")
-            self.assertEquals(4, len(quotas))
+            self.assertEqual(4, len(quotas))
 
             quota = quotas[0]
             self.assertIsInstance(quota, _quota.Quota)
@@ -687,7 +687,7 @@ class TestAutoScalingConfig(TestAutoScalingProxy):
             self.assert_session_list_with("/quotas/group-id",
                                           params={
                                               "scaling_group_id": "group-id"})
-            self.assertEquals(2, len(quotas))
+            self.assertEqual(2, len(quotas))
 
             quota = quotas[0]
             self.assertIsInstance(quota, _quota.Quota)

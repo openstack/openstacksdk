@@ -15,7 +15,6 @@
 import uuid
 
 from openstack.tests.functional import base
-from openstack.tests.functional.map_reduce.v1 import test_job_binary
 
 
 def auto_create_cluster(conn, name, router, subnet, keypair):

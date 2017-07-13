@@ -11,12 +11,12 @@
 # under the License.
 
 from openstack import proxy2
+from openstack.map_reduce.v1 import cluster as _cluster
 from openstack.map_reduce.v1 import data_source as _ds
 from openstack.map_reduce.v1 import job as _job
 from openstack.map_reduce.v1 import job_binary as _jb
-from openstack.map_reduce.v1 import job_execution as _execution
 from openstack.map_reduce.v1 import job_exe as _exe
-from openstack.map_reduce.v1 import cluster as _cluster
+from openstack.map_reduce.v1 import job_execution as _execution
 
 
 class Proxy(proxy2.BaseProxy):

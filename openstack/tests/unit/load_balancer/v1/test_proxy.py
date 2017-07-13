@@ -13,10 +13,10 @@ from testtools import matchers
 
 from openstack.load_balancer import load_balancer_service
 from openstack.load_balancer.v1 import _proxy
-from openstack.load_balancer.v1 import load_balancer as _load_balancer
 from openstack.load_balancer.v1 import certificate as _cert
-from openstack.load_balancer.v1 import listener as _listener
 from openstack.load_balancer.v1 import health_check as _hc
+from openstack.load_balancer.v1 import listener as _listener
+from openstack.load_balancer.v1 import load_balancer as _load_balancer
 from openstack.load_balancer.v1 import quota as _quota
 from openstack.tests.unit.test_proxy_base3 import BaseProxyTestCase
 
@@ -65,7 +65,7 @@ class TestLoadBalancerLoadBalancer(TestLoadBalancerProxy):
         self.assert_session_list_with("/elbaas/loadbalancers",
                                       params=transferred_query)
 
-        self.assertEquals(1, len(load_balancers))
+        self.assertEqual(1, len(load_balancers))
 
         lb = load_balancers[0]
         self.assertIsInstance(lb, _load_balancer.LoadBalancer)
@@ -175,21 +175,21 @@ class TestLoadBalancerLoadBalancer(TestLoadBalancerProxy):
         self.assert_session_get_with(
             "elbaas/loadbalancers/0b07acf06d243925bc24a0ac7445267a")
         self.assertIsInstance(load_balancer, _load_balancer.LoadBalancer)
-        self.assertEquals("0b07acf06d243925bc24a0ac7445267a",
-                          load_balancer.id)
-        self.assertEquals("MY_ELB", load_balancer.name)
-        self.assertEquals("192.144.62.114", load_balancer.vip_address)
-        self.assertEquals("2015-09-14 02:34:32", load_balancer.update_time)
-        self.assertEquals("2015-09-14 02:34:32", load_balancer.create_time)
-        self.assertEquals("ACTIVE", load_balancer.status)
-        self.assertEquals(1, load_balancer.bandwidth)
-        self.assertEquals("f54a3ffd-7a55-4568-9e3d-f0ff2d46a107",
-                          load_balancer.vpc_id)
+        self.assertEqual("0b07acf06d243925bc24a0ac7445267a",
+                         load_balancer.id)
+        self.assertEqual("MY_ELB", load_balancer.name)
+        self.assertEqual("192.144.62.114", load_balancer.vip_address)
+        self.assertEqual("2015-09-14 02:34:32", load_balancer.update_time)
+        self.assertEqual("2015-09-14 02:34:32", load_balancer.create_time)
+        self.assertEqual("ACTIVE", load_balancer.status)
+        self.assertEqual(1, load_balancer.bandwidth)
+        self.assertEqual("f54a3ffd-7a55-4568-9e3d-f0ff2d46a107",
+                         load_balancer.vpc_id)
         self.assertIsNone(load_balancer.security_group_id)
         self.assertIsNone(load_balancer.vip_subnet_id)
         self.assertIsNone(load_balancer.description)
         self.assertTrue(load_balancer.is_admin_state_up)
-        self.assertEquals("External", load_balancer.type)
+        self.assertEqual("External", load_balancer.type)
 
     def test_delete_load_balancer_with_id(self):
         self.mock_response_json_values({
@@ -254,7 +254,7 @@ class TestLoadBalancerCertificate(TestLoadBalancerProxy):
         certificates = list(self.proxy.certificates())
         self.assert_session_list_with("/elbaas/certificate",
                                       params={})
-        self.assertEquals(1, len(certificates))
+        self.assertEqual(1, len(certificates))
 
         cert = certificates[0]
         self.verify_cert_instance(cert)
@@ -328,7 +328,7 @@ class TestLoadBalancerListener(TestLoadBalancerProxy):
         listeners = list(self.proxy.listeners(**query))
         self.assert_session_list_with("/elbaas/listeners",
                                       params=query)
-        self.assertEquals(2, len(listeners))
+        self.assertEqual(2, len(listeners))
         listener = listeners[0]
         self.assertIsInstance(listener, _listener.Listener)
         self.assertEqual("a824584fb3ba4d39ba0cf372c7cbbb67", listener.id)
@@ -473,7 +473,7 @@ class TestLoadBalancerListener(TestLoadBalancerProxy):
         members = list(self.proxy.listener_members("lid", limit=10))
         self.assert_session_list_with("/elbaas/listeners/lid/members",
                                       params={"limit": 10})
-        self.assertEquals(2, len(members))
+        self.assertEqual(2, len(members))
         member = members[0]
         self.assertIsInstance(member, _listener.Member)
         self.assertEqual("4ac8777333bc20777147ab160ea61baf", member.id)
@@ -587,7 +587,6 @@ class TestLoadBalancerHealthCheck(TestLoadBalancerProxy):
 
 
 class TestLoadBalancerQuota(TestLoadBalancerProxy):
-
     def __init__(self, *args, **kwargs):
         super(TestLoadBalancerQuota, self).__init__(*args, **kwargs)
 
@@ -596,7 +595,7 @@ class TestLoadBalancerQuota(TestLoadBalancerProxy):
         quotas = list(self.proxy.quotas())
         self.assert_session_list_with("/elbaas/quotas",
                                       params={})
-        self.assertEquals(2, len(quotas))
+        self.assertEqual(2, len(quotas))
         quota = quotas[0]
         self.assertIsInstance(quota, _quota.Quota)
         self.assertEqual("elb", quota.type)

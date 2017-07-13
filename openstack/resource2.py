@@ -38,8 +38,6 @@ import collections
 import itertools
 import time
 
-import six
-
 from openstack import exceptions
 from openstack import format
 from openstack import utils

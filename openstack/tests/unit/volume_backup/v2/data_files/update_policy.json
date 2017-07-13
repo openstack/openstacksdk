@@ -1,10 +1,10 @@
 {
-    "backup_policy_name": "policy_01",
-    "scheduled_policy" : {
-        "remain_first_backup_of_curMonth" : true,
-        "rentention_num" : 10,
-        "frequency" : 1,
-        "start_time" : "12:00",
-        "status" : "ON"
-    }
+  "backup_policy_name": "policy_01",
+  "scheduled_policy": {
+    "remain_first_backup_of_curMonth": true,
+    "rentention_num": 10,
+    "frequency": 1,
+    "start_time": "12:00",
+    "status": "ON"
+  }
 }

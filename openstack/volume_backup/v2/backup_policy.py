@@ -12,9 +12,9 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+from openstack import format
 from openstack import resource2 as resource
 from openstack import utils
-from openstack import format
 from openstack.volume_backup import volume_backup_service
 
 

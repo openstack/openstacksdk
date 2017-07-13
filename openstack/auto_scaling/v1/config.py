@@ -9,9 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack import resource2 as resource
 from openstack.auto_scaling import auto_scaling_service
 from openstack.auto_scaling.v1 import get_next_marker
+from openstack import resource2 as resource
 
 
 class InstanceConfig(resource.Resource):
@@ -82,7 +82,7 @@ class Config(resource.Resource):
         return get_next_marker(response_json, yielded)
 
     def batch_delete(self, session, configs):
-        """ batch delete auto-scaling configs
+        """batch delete auto-scaling configs
 
         make sure all configs should not been used by auto-scaling group
         :param session: openstack session

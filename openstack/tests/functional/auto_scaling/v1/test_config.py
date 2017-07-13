@@ -12,10 +12,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import base64
 import uuid
-
-import six
 
 from openstack import utils
 from openstack.tests.functional import base

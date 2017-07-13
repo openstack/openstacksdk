@@ -62,12 +62,12 @@ class TestCloudEyeMetric(TestCloudEyeProxy):
         }
         self.assert_session_list_with("/metrics", params=transferred_query)
 
-        self.assertEquals(1, len(metrics))
+        self.assertEqual(1, len(metrics))
         self.assertIsInstance(metrics[0], _metric.Metric)
-        self.assertEquals("SYS.ECS", metrics[0].namespace)
-        self.assertEquals("cpu_util", metrics[0].metric_name)
-        self.assertEquals("%", metrics[0].unit)
-        self.assertEquals([{
+        self.assertEqual("SYS.ECS", metrics[0].namespace)
+        self.assertEqual("cpu_util", metrics[0].metric_name)
+        self.assertEqual("%", metrics[0].unit)
+        self.assertEqual([{
             "name": "instance_id",
             "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
         }], metrics[0].dimensions)
@@ -77,12 +77,12 @@ class TestCloudEyeMetric(TestCloudEyeProxy):
         favorite_metrics = list(self.proxy.favorite_metrics())
         self.assert_session_list_with("/favorite-metrics", params={})
 
-        self.assertEquals(1, len(favorite_metrics))
+        self.assertEqual(1, len(favorite_metrics))
         self.assertIsInstance(favorite_metrics[0], _metric.Metric)
-        self.assertEquals("SYS.ECS", favorite_metrics[0].namespace)
-        self.assertEquals("cpu_util", favorite_metrics[0].metric_name)
-        self.assertEquals("%", favorite_metrics[0].unit)
-        self.assertEquals([{
+        self.assertEqual("SYS.ECS", favorite_metrics[0].namespace)
+        self.assertEqual("cpu_util", favorite_metrics[0].metric_name)
+        self.assertEqual("%", favorite_metrics[0].unit)
+        self.assertEqual([{
             "name": "instance_id",
             "value": "d9112af5-6913-4f3b-bd0a-3f96711e004d"
         }], favorite_metrics[0].dimensions)
@@ -116,7 +116,7 @@ class TestCloudEyeAlarm(TestCloudEyeProxy):
                               "limit": 1,
                               "order": "desc"}),
         ])
-        self.assertEquals(1, len(alarms))
+        self.assertEqual(1, len(alarms))
         self._verify_alarm_properties(alarms[0])
 
     def test_get_alarm_with_id(self):
@@ -142,12 +142,12 @@ class TestCloudEyeAlarm(TestCloudEyeProxy):
 
     def _verify_alarm_properties(self, alarm):
         self.assertIsInstance(alarm, _alarm.Alarm)
-        self.assertEquals("al1441967036681YkazZ0deN", alarm.id)
-        self.assertEquals("test0911_1825", alarm.name)
-        self.assertEquals("", alarm.description)
-        self.assertEquals("ok", alarm.state)
-        self.assertEquals(True, alarm.alarm_enabled)
-        self.assertEquals({
+        self.assertEqual("al1441967036681YkazZ0deN", alarm.id)
+        self.assertEqual("test0911_1825", alarm.name)
+        self.assertEqual("", alarm.description)
+        self.assertEqual("ok", alarm.state)
+        self.assertEqual(True, alarm.alarm_enabled)
+        self.assertEqual({
             "period": 300,
             "filter": "average",
             "comparison_operator": ">=",
@@ -155,7 +155,7 @@ class TestCloudEyeAlarm(TestCloudEyeProxy):
             "unit": "Count",
             "count": 1
         }, alarm.condition)
-        self.assertEquals(_metric.Metric.new(**{
+        self.assertEqual(_metric.Metric.new(**{
             "namespace": "SYS.ECS",
             "dimensions": [
                 {
@@ -214,12 +214,12 @@ class TestCloudEyeMetricData(TestCloudEyeProxy):
         }
         self.assert_session_list_with("/metric-data", params=transferred_query)
 
-        self.assertEquals(1, len(aggregations))
+        self.assertEqual(1, len(aggregations))
         aggregation = aggregations[0]
         self.assertIsInstance(aggregation, _metric_data.MetricAggregation)
-        self.assertEquals(0, aggregation.average)
-        self.assertEquals(1442341200000, aggregation.timestamp)
-        self.assertEquals("Count", aggregation.unit)
+        self.assertEqual(0, aggregation.average)
+        self.assertEqual(1442341200000, aggregation.timestamp)
+        self.assertEqual("Count", aggregation.unit)
 
     def test_add_metric_data(self):
         data = self.get_file_content('add_metric_data.json')
@@ -242,7 +242,7 @@ class TestCloudEyeQuota(TestCloudEyeProxy):
         self.assert_session_list_with("/quotas")
         quota = quotas[0]
         self.assertIsInstance(quota, _quota.Quota)
-        self.assertEquals("alarm", quota.type)
-        self.assertEquals("", quota.unit)
-        self.assertEquals(0, quota.used)
-        self.assertEquals(20, quota.quota)
+        self.assertEqual("alarm", quota.type)
+        self.assertEqual("", quota.unit)
+        self.assertEqual(0, quota.used)
+        self.assertEqual(20, quota.quota)

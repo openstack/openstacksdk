@@ -9,11 +9,17 @@
   "health_periodic_audit_time": "5",
   "instance_terminate_policy": "OLD_CONFIG_OLD_INSTANCE",
   "vpc_id": "a8327883-6b07-4497-9c61-68d03ee193a",
-  "networks": [{
-    "id": "3cd35bca-5a10-416f-8994-f79169559870"
-  }],
-  "notifications": ["EMAIL"],
-  "security_groups": [{
-    "id": "23b7b999-0a30-4b48-ae8f-ee201a88a6ab"
-  }]
+  "networks": [
+    {
+      "id": "3cd35bca-5a10-416f-8994-f79169559870"
+    }
+  ],
+  "notifications": [
+    "EMAIL"
+  ],
+  "security_groups": [
+    {
+      "id": "23b7b999-0a30-4b48-ae8f-ee201a88a6ab"
+    }
+  ]
 }

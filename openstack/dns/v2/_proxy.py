@@ -12,10 +12,10 @@
 
 from openstack import proxy2
 from openstack.dns.v2 import name_server as _name_server
+from openstack.dns.v2 import ptr as _ptr
 from openstack.dns.v2 import recordset as _recordset
 from openstack.dns.v2 import router as _router
 from openstack.dns.v2 import zone as _zone
-from openstack.dns.v2 import ptr as _ptr
 from openstack.exceptions import InvalidRequest
 
 

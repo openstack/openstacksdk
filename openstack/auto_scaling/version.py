@@ -9,9 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack import resource2 as resource
 from openstack.auto_scaling import auto_scaling_service
 from openstack.dns import dns_service
+from openstack import resource2 as resource
 
 
 class Version(resource.Resource):

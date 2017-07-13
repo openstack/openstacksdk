@@ -1,10 +1,10 @@
 {
-    "datapoints": [
-        {
-            "average": 0,
-            "timestamp": 1442341200000,
-            "unit": "Count"
-        }
-    ],
-    "metric_name": "cpu_util"
+  "datapoints": [
+    {
+      "average": 0,
+      "timestamp": 1442341200000,
+      "unit": "Count"
+    }
+  ],
+  "metric_name": "cpu_util"
 }

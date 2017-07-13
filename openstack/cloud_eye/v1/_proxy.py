@@ -10,20 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import proxy2
-from openstack import utils
 from openstack.cloud_eye import cloud_eye_service
-
+from openstack.cloud_eye.v1 import alarm as _alarm
 from openstack.cloud_eye.v1 import metric as _metric
 from openstack.cloud_eye.v1 import metric_data as _metric_data
-from openstack.cloud_eye.v1 import alarm as _alarm
 from openstack.cloud_eye.v1 import quota as _quota
 from openstack.exceptions import InvalidRequest
+from openstack import proxy2
 
 
 class Proxy(proxy2.BaseProxy):
     def metrics(self, **query):
         """Retrieve a generator of metrics
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
 
@@ -67,6 +66,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_alarm(self, alarm):
         """Get a single alarm
+
         :param alarm: The value can be the ID of a alarm
              or a :class:`~openstack.cloud_eye.v1.alarm.Alarm` instance.
         :returns: Alarm instance
@@ -89,6 +89,7 @@ class Proxy(proxy2.BaseProxy):
 
     def alarms(self, **query):
         """Retrieve a generator of alarms
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``order``: order by rule, valid values includes: asc, desc
@@ -102,6 +103,7 @@ class Proxy(proxy2.BaseProxy):
 
     def enable_alarm(self, alarm):
         """enable alarm
+
         :param alarm: The value can be the ID of a alarm
              or a :class:`~openstack.cloud_eye.v1.alarm.Alarm` instance.
         """
@@ -110,6 +112,7 @@ class Proxy(proxy2.BaseProxy):
 
     def disable_alarm(self, alarm):
         """disable alarm
+
         :param alarm: The value can be the ID of a alarm
              or a :class:`~openstack.cloud_eye.v1.alarm.Alarm` instance.
         """
@@ -134,6 +137,7 @@ class Proxy(proxy2.BaseProxy):
 
     def metric_aggregations(self, **query):
         """Retrieve a generator of metric aggregations
+
         :param dict query: Optional query parameters to be sent to limit the
                             resources being returned.
 
@@ -172,6 +176,7 @@ class Proxy(proxy2.BaseProxy):
 
     def add_metric_data(self, data):
         """Create Metric Data from a list of attributes
+
         :param list data: A List of dict, the dict will be used to create
                            a :class:`~openstack.cloud_eye.v1.metric_data
                            .MetricData`, comprised of the properties on the

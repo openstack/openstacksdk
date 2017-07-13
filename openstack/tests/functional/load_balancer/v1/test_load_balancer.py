@@ -15,8 +15,8 @@
 import uuid
 
 from openstack import resource2
-from openstack.tests.functional import base
 from openstack.load_balancer.v1 import job as _job
+from openstack.tests.functional import base
 
 
 def auto_create_external_lb(conn, name, vpc_id):

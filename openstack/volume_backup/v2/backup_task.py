@@ -13,7 +13,6 @@
 #   under the License.
 #
 from openstack import resource2 as resource
-from openstack import utils
 from openstack.resource2 import QueryParameters
 from openstack.volume_backup import volume_backup_service
 

@@ -9,8 +9,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import six
-
 from openstack import proxy2
 from openstack.volume_backup.v2 import backup as _backup
 from openstack.volume_backup.v2 import backup_policy as _backup_policy
@@ -18,8 +16,10 @@ from openstack.volume_backup.v2 import backup_task as _backup_task
 
 
 class Proxy(proxy2.BaseProxy):
+
     def create_backup(self, **attrs):
         """Create a new CloudBackup from attributes
+
         :param dict attrs: Keyword arguments which will be used to create
               a :class:`~openstack.volume_backup.v2.backup.CloudBackup`
               comprised of the properties on the CloudBackup class.
@@ -30,6 +30,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_native_backup(self, **attrs):
         """Create a new Backup from attributes with native API
+
         :param dict attrs: Keyword arguments which will be used to create
               a :class:`~openstack.volume_backup.v2.backup.CloudBackup`
               comprised of the properties on the CloudBackup class.
@@ -90,6 +91,7 @@ class Proxy(proxy2.BaseProxy):
 
     def backups(self, details=False, **query):
         """Retrieve a generator of backups
+
         :param bool details: When ``True``, returns
             :class:`~openstack.volume_backup.v2.backup.BackupDetail` objects,
             otherwise :class:`~openstack.volume_backup.v2.backup.Backup`.
@@ -112,6 +114,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_backup(self, backup):
         """Get a backup
+
         :param backup: The value can be the ID of a backup
              or a :class:`~openstack.volume_backup.v2.backup.Backup` instance.
         :returns: Backup instance
@@ -129,6 +132,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_backup_policy(self, name, **attrs):
         """Create a new backup policy from name and scheduled policy attributes
+
         :param name: Backup Policy name
         :param dict attrs: Keyword arguments which will be used to create a
         :class:`~openstack.volume_backup.v2.backup_policy.ScheduledPolicy`,
@@ -143,6 +147,7 @@ class Proxy(proxy2.BaseProxy):
 
     def update_backup_policy(self, backup_policy, **attrs):
         """update a backup_policy from backup policy attributes
+
         :param backup_policy: The value can be the ID of a backup_policy or a
             :class:`~openstack.volume_backup.v2.backup_policy.BackupPolicy`
             instance
@@ -194,6 +199,7 @@ class Proxy(proxy2.BaseProxy):
 
     def link_resources_to_policy(self, backup_policy, resources):
         """link resource to backup policy
+
         :param backup_policy: The value can be the ID of a backup_policy or a
             :class:`~openstack.volume_backup.v2.backup_policy.BackupPolicy`
             instance
@@ -212,6 +218,7 @@ class Proxy(proxy2.BaseProxy):
 
     def unlink_resources_of_policy(self, backup_policy, resources):
         """Bind resource to backup policy
+
         :param backup_policy: The value can be the ID of a backup_policy or a
             :class:`~openstack.volume_backup.v2.backup_policy.BackupPolicy`
             instance
@@ -269,6 +276,7 @@ class Proxy(proxy2.BaseProxy):
 
     def tasks(self, backup_policy, **query):
         """Retrieve a generator of tasks
+
         :param backup_policy: The value can be the ID of a backup_policy or a
             :class:`~openstack.volume_backup.v2.backup_policy.BackupPolicy`
             instance

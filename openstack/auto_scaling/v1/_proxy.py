@@ -10,19 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import proxy2
-from openstack.auto_scaling import auto_scaling_service
-from openstack.auto_scaling.v1 import config as _config
-from openstack.auto_scaling.v1 import instance as _instance
-from openstack.auto_scaling.v1 import group as _group
-from openstack.auto_scaling.v1 import policy as _policy
 from openstack.auto_scaling.v1 import activity as _activity
+from openstack.auto_scaling.v1 import config as _config
+from openstack.auto_scaling.v1 import group as _group
+from openstack.auto_scaling.v1 import instance as _instance
+from openstack.auto_scaling.v1 import policy as _policy
 from openstack.auto_scaling.v1 import quota as _quota
+from openstack import proxy2
 
 
 class Proxy(proxy2.BaseProxy):
     def configs(self, **query):
         """Retrieve a generator of configs
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``name``: configuration name
@@ -37,6 +37,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_config(self, name, **attrs):
         """Create a new config from config name and instance-config attributes
+
         :param name: auto scaling config name
         :param dict attrs: Keyword arguments which will be used to create
                 a :class:`~openstack.auto_scaling.v2.config.InstanceConfig`,
@@ -50,6 +51,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_config(self, config):
         """Get a config
+
         :param config: The value can be the ID of a config
              or a :class:`~openstack.auto_scaling.v2.config.Config` instance.
         :returns: Config instance
@@ -102,6 +104,7 @@ class Proxy(proxy2.BaseProxy):
 
     def groups(self, **query):
         """Retrieve a generator of groups
+
         :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
             * ``name``: group name
@@ -117,6 +120,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_group(self, **attrs):
         """Create a new group from attributes
+
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.auto_scaling.v2.group.Group`,
                            comprised of the properties on the Group class.
@@ -127,6 +131,7 @@ class Proxy(proxy2.BaseProxy):
 
     def update_group(self, group, **attrs):
         """update group with attributes
+
         :param group: The value can be the ID of a group
              or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
         :param dict attrs: Keyword arguments which will be used to create
@@ -139,6 +144,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_group(self, group):
         """Get a group
+
         :param group: The value can be the ID of a group
              or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
         :returns: Group instance
@@ -195,6 +201,7 @@ class Proxy(proxy2.BaseProxy):
 
     def policies(self, group, **query):
         """Retrieve a generator of policies
+
         :param group: The value can be the ID of a group
              or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
         :param dict query: Optional query parameters to be sent to limit the
@@ -214,6 +221,7 @@ class Proxy(proxy2.BaseProxy):
 
     def create_policy(self, **attrs):
         """Create a new policy from attributes
+
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.auto_scaling.v2.policy.Policy`,
                            comprised of the properties on the Policy class.
@@ -224,6 +232,7 @@ class Proxy(proxy2.BaseProxy):
 
     def update_policy(self, policy, **attrs):
         """update policy with attributes
+
         :param policy: The value can be the ID of a policy
              or a :class:`~openstack.auto_scaling.v2.policy.Policy` instance.
         :param dict attrs: Keyword arguments which will be used to create
@@ -236,6 +245,7 @@ class Proxy(proxy2.BaseProxy):
 
     def get_policy(self, policy):
         """Get a policy
+
         :param policy: The value can be the ID of a policy
              or a :class:`~openstack.auto_scaling.v2.policy.Policy` instance.
         :returns: Policy instance
@@ -305,6 +315,7 @@ class Proxy(proxy2.BaseProxy):
 
     def instances(self, group, **query):
         """Retrieve a generator of instances
+
         :param group: The value can be the ID of a group
              or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
         :param dict query: Optional query parameters to be sent to limit the
@@ -384,6 +395,7 @@ class Proxy(proxy2.BaseProxy):
 
     def activities(self, group, **query):
         """Retrieve a generator of Activity
+
         :param group: The value can be the ID of a group
              or a :class:`~openstack.auto_scaling.v2.group.Group` instance.
         :param dict query: Optional query parameters to be sent to limit the
@@ -404,6 +416,7 @@ class Proxy(proxy2.BaseProxy):
 
     def quotas(self, group=None):
         """Retrieve a generator of Quota
+
         :param group: If group is set, will query quota for the group instead
             of quota of user. The value can be the ID of a group or a
             :class:`~openstack.auto_scaling.v2.group.Group` instance.

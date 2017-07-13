@@ -13,14 +13,10 @@
 #   under the License.
 #
 
-import uuid
-
-from openstack.cloud_eye.v1 import metric
 from openstack.tests.functional import base
 
 
 class TestQuota(base.BaseFunctionalTest):
-
     @classmethod
     def setUpClass(cls):
         super(TestQuota, cls).setUpClass()

@@ -17,8 +17,8 @@ from openstack.map_reduce.v1 import cluster as _cluster
 from openstack.map_reduce.v1 import data_source as _ds
 from openstack.map_reduce.v1 import job as _job
 from openstack.map_reduce.v1 import job_binary as _jb
-from openstack.map_reduce.v1 import job_execution as _je
 from openstack.map_reduce.v1 import job_exe as _exe
+from openstack.map_reduce.v1 import job_execution as _je
 from openstack.tests.unit.test_proxy_base3 import BaseProxyTestCase
 
 
@@ -93,7 +93,7 @@ class TestDataSource(TestMapReduceProxy):
         self.mock_response_json_file_values("list_ds.json")
         data_sources = list(self.proxy.data_sources(**query))
         self.assert_session_list_with("/data-sources", params=query)
-        self.assertEquals(2, len(data_sources))
+        self.assertEqual(2, len(data_sources))
 
         ds = data_sources[0]
         self.assertIsInstance(ds, _ds.DataSource)
@@ -195,7 +195,7 @@ class TestJobBinary(TestMapReduceProxy):
         self.mock_response_json_file_values("list_jb_response.json")
         job_binaries = list(self.proxy.job_binaries(**query))
         self.assert_session_list_with("/job-binaries", params=query)
-        self.assertEquals(2, len(job_binaries))
+        self.assertEqual(2, len(job_binaries))
 
         jb = job_binaries[0]
         self.assertIsInstance(jb, _jb.JobBinary)
@@ -395,7 +395,7 @@ class TestJobs(TestMapReduceProxy):
         self.mock_response_json_file_values("list_job_response.json")
         jobs = list(self.proxy.jobs(**query))
         self.assert_session_list_with("/jobs", params=query)
-        self.assertEquals(2, len(jobs))
+        self.assertEqual(2, len(jobs))
 
         job = jobs[0]
         self.assertIsInstance(job, _job.Job)
@@ -513,7 +513,7 @@ class TestJobExecutions(TestMapReduceProxy):
         self.mock_response_json_values(response)
         executions = list(self.proxy.job_executions(**query))
         self.assert_session_list_with("/job-executions", params=query)
-        self.assertEquals(1, len(executions))
+        self.assertEqual(1, len(executions))
 
         data0 = response["job_executions"][0]
         execution = executions[0]
@@ -610,7 +610,7 @@ class TestJobExe(TestMapReduceProxy):
                               "state": 1})
         ])
 
-        self.assertEquals(1, len(executions))
+        self.assertEqual(1, len(executions))
         execution = executions[0]
 
         self.assertEqual("669476bd-89d2-45aa-8f1a-872d16de377e", execution.id)
