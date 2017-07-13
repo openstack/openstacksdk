@@ -12,14 +12,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import uuid
 
 from openstack.tests.functional import base
-from openstack.tests.functional.auto_scaling.v1.test_config import \
-    auto_create_config
-from openstack.tests.functional.auto_scaling.v1.test_group import \
-    auto_create_group
-from openstack.tests.functional.auto_scaling.v1.test_policy import create_policy
 
 
 class TestActivity(base.BaseFunctionalTest):

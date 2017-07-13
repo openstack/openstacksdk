@@ -96,8 +96,8 @@ class _BaseComponent(object):
         return value
 
     def __set__(self, instance, value):
-        if (self.type and not isinstance(value, self.type) and
-                    value != self.default):
+        is_expect_type = isinstance(value, self.type)
+        if self.type and not is_expect_type and value != self.default:
             if issubclass(self.type, format.Formatter):
                 value = self.type.serialize(value)
             elif issubclass(self.type, Resource):
@@ -885,7 +885,6 @@ class Resource(object):
                     return
             query_params[cls.query_limit_key] = yielded
             query_params[cls.query_marker_key] = new_marker
-
 
     @classmethod
     def _get_one_match(cls, name_or_id, results):

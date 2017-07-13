@@ -97,4 +97,3 @@ class TestPolicy(base.BaseFunctionalTest):
                                              name=new_name)
         self.policy = self.conn.auto_scaling.get_policy(self.policy)
         self.assertEqual(new_name, self.policy.name)
-

@@ -63,7 +63,7 @@ def create_group(conn):
         "key_name": key_name
     }
     group = conn.auto_scaling.create_group("some-group-name",
-                                                   **_group)
+                                           **_group)
     logging.info(group)
 
 

@@ -29,7 +29,6 @@ class Certificate(resource.Resource):
     allow_delete = True
     allow_update = True
 
-    # except update_time、create_time、admin_state_up、session_sticky和member_number
     _query_mapping = resource.QueryParameters(
     )
 

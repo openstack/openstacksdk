@@ -48,9 +48,6 @@ os.environ.setdefault(
 # initial connection
 conn = create_connection_from_config()
 detail = conn.map_reduce.get_cluster("0f4ab6b7-a723-4b6c-b326-f8a5711d365a")
-print detail
-# print conn.map_reduce.expand_cluster("7d24c665-7a6a-41f9-a755-39d1febac9c0", 1)
-# print conn.map_reduce.reduce_cluster("7d24c665-7a6a-41f9-a755-39d1febac9c0", 1)
 #
 # load_balancer.list_loadbalancers(conn)
 

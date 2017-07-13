@@ -27,7 +27,7 @@ def list_alarms(connection):
 
 
 def get_alarm(connection):
-    alarm_id = "al1483387711418ZNpR8DX3g" 
+    alarm_id = "al1483387711418ZNpR8DX3g"
     alarm = connection.cloud_eye.get_alarm(alarm_id)
     logging.info(alarm)
 

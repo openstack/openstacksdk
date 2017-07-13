@@ -100,4 +100,3 @@ class TestGroup(base.BaseFunctionalTest):
         self.conn.auto_scaling.resume_group(self.group)
         self.group = self.conn.auto_scaling.get_group(self.group)
         self.assertEqual("INSERVICE", self.group.status)
-

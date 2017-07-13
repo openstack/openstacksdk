@@ -173,4 +173,3 @@ def from_exception(exc):
     return cls(details=details, message=exc.message, response=exc.response,
                request_id=exc.request_id, url=exc.url, method=exc.method,
                http_status=exc.http_status, cause=exc)
-

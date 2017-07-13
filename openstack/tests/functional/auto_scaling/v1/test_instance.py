@@ -15,11 +15,6 @@
 import uuid
 
 from openstack.tests.functional import base
-from openstack.tests.functional.auto_scaling.v1.test_config import \
-    auto_create_config
-from openstack.tests.functional.auto_scaling.v1.test_group import \
-    auto_create_group
-from openstack.tests.functional.auto_scaling.v1.test_policy import create_policy
 
 
 class TestInstance(base.BaseFunctionalTest):
@@ -32,7 +27,8 @@ class TestInstance(base.BaseFunctionalTest):
     # def setUpClass(cls):
     #     super(TestInstance, cls).setUpClass()
     #     cls.config = auto_create_config(cls.conn, cls.POLICY_NAME)
-    #     cls.group = auto_create_group(cls.conn, cls.POLICY_NAME, cls.config.id)
+    #     cls.group = auto_create_group(cls.conn, cls.POLICY_NAME,
+    #                                   cls.config.id)
     #     cls.policy = create_policy(cls.conn, cls.POLICY_NAME, cls.group.id)
     #     cls.conn.auto_scaling.resume_group(cls.group)
     #     cls.conn.auto_scaling.execute_policy(cls.policy)

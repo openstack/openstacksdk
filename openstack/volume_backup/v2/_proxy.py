@@ -38,23 +38,23 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._create(_backup.Backup, **attrs)
 
-    # def delete_backup(self, backup, ignore_missing=True):
-    #     """Delete a CloudBackup
-    #
-    #     :param backup: The value can be the ID of a backup or a :class:`
-    #             ~openstack.volume_backup.v2.backup.CloudBackup` instance
-    #     :param bool ignore_missing: When set to ``False``
-    #         :class:`~openstack.exceptions.ResourceNotFound` will be raised when
-    #         the zone does not exist.
-    #         When set to ``True``, no exception will be set when attempting to
-    #         delete a nonexistent zone.
-    #
-    #     :returns: rsync job
-    #     :rtype: :class:`~openstack.volume_backup.v2.backup.Backup`
-    #     """
-    #     return self._delete(_backup.CloudBackup,
-    #                         backup,
-    #                         ignore_missing=ignore_missing)
+# def delete_backup(self, backup, ignore_missing=True):
+#     """Delete a CloudBackup
+#
+#     :param backup: The value can be the ID of a backup or a :class:`
+#             ~openstack.volume_backup.v2.backup.CloudBackup` instance
+#     :param bool ignore_missing: When set to ``False``
+#         :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+#         the zone does not exist.
+#         When set to ``True``, no exception will be set when attempting to
+#         delete a nonexistent zone.
+#
+#     :returns: rsync job
+#     :rtype: :class:`~openstack.volume_backup.v2.backup.Backup`
+#     """
+#     return self._delete(_backup.CloudBackup,
+#                         backup,
+#                         ignore_missing=ignore_missing)
 
     def delete_backup(self, backup, ignore_missing=True):
         """Delete a CloudBackup
@@ -142,7 +142,7 @@ class Proxy(proxy2.BaseProxy):
         return backup_policy.create(self._session, prepend_key=False)
 
     def update_backup_policy(self, backup_policy, **attrs):
-        """update a new backup_policy from backup_policy name and instance-backup_policy attributes
+        """update a backup_policy from backup policy attributes
         :param backup_policy: The value can be the ID of a backup_policy or a
             :class:`~openstack.volume_backup.v2.backup_policy.BackupPolicy`
             instance
@@ -218,7 +218,8 @@ class Proxy(proxy2.BaseProxy):
         :param resources: resources to bound, should be a list of volume id
         :returns: list of `~openstack.volume_backup.v2.backup_policy
             .BindResource` instance
-        :rtype: :class:`~openstack.volume_backup.v2.backup_policy.LindedResource`
+        :rtype: :class:`~openstack.volume_backup.v2.backup_policy.
+                        UnlinkedResource`
         """
         backup_policy = self._get_resource(_backup_policy.BackupPolicy,
                                            backup_policy)

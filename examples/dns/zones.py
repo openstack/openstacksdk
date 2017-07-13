@@ -86,4 +86,3 @@ def remove_router_from_zone(conn):
     )
 
     logging.info(result)
-

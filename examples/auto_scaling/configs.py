@@ -61,7 +61,7 @@ def create_config(conn):
         "key_name": key_name
     }
     config = conn.auto_scaling.create_config("some-config-name",
-                                                   **_config)
+                                             **_config)
     logging.info(config)
 
 

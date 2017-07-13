@@ -763,7 +763,8 @@ class ResourceTests(base.TestCase):
         self.assertEqual(obj, obj.update(self.session))
         self.assertFalse(obj.is_dirty)
 
-        self.assertCalledURL(self.session.patch, fake_path + '/' + str(fake_id))
+        expect_path = fake_path + '/' + str(fake_id)
+        self.assertCalledURL(self.session.patch, expect_path)
 
         last_req = self.session.patch.call_args[1]["json"][
             FakeResource.resource_key]
@@ -858,8 +859,8 @@ class ResourceTests(base.TestCase):
     def test_delete(self):
         obj = FakeResource({"id": fake_id, "parent_name": fake_parent})
         obj.delete(self.session)
-
-        self.assertCalledURL(self.session.delete, fake_path + '/' + str(fake_id))
+        expect_path = fake_path + '/' + str(fake_id)
+        self.assertCalledURL(self.session.delete, expect_path)
 
     def _test_list(self, resource_class):
         results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]

@@ -15,8 +15,8 @@
 import uuid
 
 from openstack import resource2
-from openstack.tests.functional import base
 from openstack.load_balancer.v1 import job as _job
+from openstack.tests.functional import base
 from openstack.tests.functional.load_balancer.v1 import test_listener
 from openstack.tests.functional.load_balancer.v1 import test_load_balancer
 
@@ -101,5 +101,6 @@ class TestHealthCheck(base.BaseFunctionalTest):
         self.health_check = health_check
 
     def test_get_health_check(self):
-        health_check = self.conn.load_balancer.get_health_check(self.health_check)
+        health_check = self.conn.load_balancer.get_health_check(
+            self.health_check)
         self.assertEqual(self.health_check, health_check)

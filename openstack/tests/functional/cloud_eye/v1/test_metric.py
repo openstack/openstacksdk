@@ -20,7 +20,6 @@ from openstack.tests.functional import base
 
 
 class TestMetric(base.BaseFunctionalTest):
-
     @classmethod
     def setUpClass(cls):
         super(TestMetric, cls).setUpClass()

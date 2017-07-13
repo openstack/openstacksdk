@@ -12,25 +12,17 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
-import uuid
 
 from openstack.tests.functional import base
-from openstack.tests.functional.auto_scaling.v1.test_config import \
-    auto_create_config
-from openstack.tests.functional.auto_scaling.v1.test_group import \
-    auto_create_group
-from openstack.tests.functional.auto_scaling.v1.test_policy import create_policy
 
 
 class TestQuota(base.BaseFunctionalTest):
     group = "588b4592-0998-4722-b51d-e6dbc574ec32"
 
     def test_list_quota(self):
-        quotas = self.conn.auto_scaling.quotas()
-        for quota in quotas:
-            print quota
+        quotas = list(self.conn.auto_scaling.quotas())
+        self.assertTrue(len(quotas) > 0)
 
     def test_list_group_quota(self):
-        quotas = self.conn.auto_scaling.quotas(group=self.group)
-        for quota in quotas:
-            print quota
+        quotas = list(self.conn.auto_scaling.quotas(group=self.group))
+        self.assertTrue(len(quotas) > 0)

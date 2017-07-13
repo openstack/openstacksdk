@@ -36,8 +36,8 @@ class Proxy(proxy2.BaseProxy):
     def get_load_balancer(self, load_balancer):
         """Get a certificate
 
-        :param load_balancer: Either the ID of a load_balancer or an instance of
-                :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
+        :param load_balancer: Either the ID of a load_balancer or an instance
+            of :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
         :returns: One
              :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
         """
@@ -46,10 +46,10 @@ class Proxy(proxy2.BaseProxy):
     def update_load_balancer(self, load_balancer, **attrs):
         """Update a server
 
-        :param load_balancer: Either the ID of a load_balancer or an instance of
-                :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
-        :attrs kwargs: The attributes to update on the load_balancer represented
-                       by ``load_balancer``.
+        :param load_balancer: Either the ID of a load_balancer or an instance
+            of :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
+        :attrs kwargs: The attributes to update on the load_balancer
+                        represented by ``load_balancer``.
         :returns: a asynchronous LoadBalancer job
         :rtype: :class:`~openstack.load_balancer.v1.load_balancer.
                             LoadBalancerJob`
@@ -85,8 +85,8 @@ class Proxy(proxy2.BaseProxy):
     def delete_load_balancer(self, load_balancer, ignore_missing=True):
         """Delete a certificate
 
-        :param load_balancer: Either the ID of a load_balancer or an instance of
-                :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
+        :param load_balancer: Either the ID of a load_balancer or an instance
+            of :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the load balancer does not exist.

@@ -19,6 +19,7 @@ class Router(resource.Resource):
     router_region = resource.Body('router_region')
     status = resource.Body('status')
 
+
 class Zone(resource.Resource):
     resource_key = 'zone'
     resources_key = 'zones'

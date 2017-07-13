@@ -25,7 +25,8 @@ def list_metrics(connection):
         #     "value": "9f31d05a-76d5-478a-b864-b1b5e8708482"
         # }],
         # "order": "desc",
-        # "marker": "SYS.ECS.cpu_util.instance_id:9f31d05a-76d5-478a-b864-b1b5e8708482",
+        # "marker": ("SYS.ECS.cpu_util.instance_id:"
+        #            "9f31d05a-76d5-478a-b864-b1b5e8708482"),
         "limit": 100
     }
     for metric in connection.cloud_eye.metrics(**query):
