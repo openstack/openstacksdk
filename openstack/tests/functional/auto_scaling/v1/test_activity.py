@@ -12,6 +12,7 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 #
+import os
 
 from openstack.tests.functional import base
 
@@ -25,4 +26,5 @@ class TestActivity(base.BaseFunctionalTest):
             "end_time": "2017-06-22T15:00:02Z",
             "limit": 10
         }
-        self.conn.auto_scaling.activities(self.group, **query)
+        activities = self.conn.auto_scaling.activities(self.group, **query)
+        self.assertTrue(len(list(activities)) >= 0)
