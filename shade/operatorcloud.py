@@ -1817,9 +1817,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: A list of hypervisor ``munch.Munch``.
         """
 
-        return self._compute_client.get(
+        data = self._compute_client.get(
             '/os-hypervisors/detail',
             error_message="Error fetching hypervisor list")
+        return meta.get_and_munchify('hypervisors', data)
 
     def search_aggregates(self, name_or_id=None, filters=None):
         """Seach host aggregates.
@@ -2101,8 +2102,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
-        return self._compute_client.get(
+        data = self._compute_client.get(
             '/os-quota-sets/{project}'.format(project=proj.id))
+        return meta.get_and_munchify('quota_set', data)
 
     def delete_compute_quotas(self, name_or_id):
         """ Delete quota for a project
@@ -2174,13 +2176,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException("project does not exist: {}".format(
                 name=proj.id))
 
-        usage = self._compute_client.get(
+        data = self._compute_client.get(
             '/os-simple-tenant-usage/{project}'.format(project=proj.id),
             params=dict(start=start.isoformat(), end=end.isoformat()),
             error_message="Unable to get usage for project: {name}".format(
                 name=proj.id))
-
-        return self._normalize_compute_usage(usage)
+        return self._normalize_compute_usage(
+            meta.get_and_munchify('tenant_usage', data))
 
     def set_volume_quotas(self, name_or_id, **kwargs):
         """ Set a volume quota in a project
@@ -2214,9 +2216,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not proj:
             raise OpenStackCloudException("project does not exist")
 
-        return self._volume_client.get(
+        data = self._volume_client.get(
             '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id),
             error_message="cinder client call failed")
+        return meta.get_and_munchify('quota_set', data)
 
     def delete_volume_quotas(self, name_or_id):
         """ Delete volume quotas for a project
@@ -2266,10 +2269,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
-        return self._network_client.get(
+        data = self._network_client.get(
             '/quotas/{project_id}.json'.format(project_id=proj.id),
             error_message=("Error fetching Neutron's quota for "
                            "project {0}".format(proj.id)))
+        return meta.get_and_munchify('quota', data)
 
     def delete_network_quotas(self, name_or_id):
         """ Delete network quotas for a project
@@ -2295,5 +2299,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudException on operation error.
         """
         with _utils.shade_exceptions("Error fetching Magnum services list"):
+            data = self._container_infra_client.get('/mservices')
             return self._normalize_magnum_services(
-                self._container_infra_client.get('/mservices'))
+                meta.get_and_munchify('mservices', data))

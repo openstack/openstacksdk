@@ -809,6 +809,16 @@ class OpenStackCloud(
 
         return filtered
 
+    def _get_and_munchify(self, key, data):
+        """Wrapper around meta.get_and_munchify.
+
+        Some of the methods expect a `meta` attribute to be passed in as
+        part of the method signature. In this methods the meta param is
+        overriding the meta module making the call to meta.get_and_munchify
+        to fail.
+        """
+        return meta.get_and_munchify(key, data)
+
     @_utils.cache_on_arguments()
     def list_projects(self, domain_id=None, name_or_id=None, filters=None):
         """List projects.
@@ -841,7 +851,7 @@ class OpenStackCloud(
             data = self._identity_client.get(
                 '/{endpoint}'.format(endpoint=key), params=pushdown)
             projects = self._normalize_projects(
-                meta.get_and_munchify(key, data))
+                self._get_and_munchify(key, data))
         except Exception as e:
             self.log.debug("Failed to list projects", exc_info=True)
             raise OpenStackCloudException(str(e))
@@ -890,11 +900,11 @@ class OpenStackCloud(
             if self.cloud_config.get_api_version('identity') == '3':
                 data = self._identity_client.patch(
                     '/projects/' + proj['id'], json={'project': kwargs})
-                project = meta.get_and_munchify('project', data)
+                project = self._get_and_munchify('project', data)
             else:
                 data = self._identity_client.post(
                     '/tenants/' + proj['id'], json={'tenant': kwargs})
-                project = meta.get_and_munchify('tenant', data)
+                project = self._get_and_munchify('tenant', data)
             project = self._normalize_project(project)
         self.list_projects.invalidate(self)
         return project
@@ -915,7 +925,7 @@ class OpenStackCloud(
                 '/{endpoint}'.format(endpoint=endpoint),
                 json={key: project_ref})
             project = self._normalize_project(
-                meta.get_and_munchify(key, data))
+                self._get_and_munchify(key, data))
         self.list_projects.invalidate(self)
         return project
 
@@ -959,7 +969,7 @@ class OpenStackCloud(
         """
         data = self._identity_client.get('/users')
         return _utils.normalize_users(
-            meta.get_and_munchify('users', data))
+            self._get_and_munchify('users', data))
 
     def search_users(self, name_or_id=None, filters=None):
         """Search users.
@@ -1007,7 +1017,7 @@ class OpenStackCloud(
             error_message="Error getting user with ID {user_id}".format(
                 user_id=user_id))
 
-        user = meta.get_and_munchify('user', data)
+        user = self._get_and_munchify('user', data)
         if user and normalize:
             user = _utils.normalize_users(user)
         return user
@@ -1064,7 +1074,7 @@ class OpenStackCloud(
         error_msg = "Error in creating user {user}".format(user=name)
         data = self._identity_client.post('/users', json={'user': params},
                                           error_message=error_msg)
-        user = meta.get_and_munchify('user', data)
+        user = self._get_and_munchify('user', data)
 
         self.list_users.invalidate(self)
         return _utils.normalize_users([user])[0]
@@ -1409,12 +1419,11 @@ class OpenStackCloud(
     @_utils.cache_on_arguments()
     def _nova_extensions(self):
         extensions = set()
-
-        for extension in self._compute_client.get(
-                '/extensions',
-                error_message="Error fetching extension list for nova"):
+        data = self._compute_client.get(
+            '/extensions',
+            error_message="Error fetching extension list for nova")
+        for extension in self._get_and_munchify('extensions', data):
             extensions.add(extension['alias'])
-
         return extensions
 
     def _has_nova_extension(self, extension_name):
@@ -1427,12 +1436,11 @@ class OpenStackCloud(
     @_utils.cache_on_arguments()
     def _neutron_extensions(self):
         extensions = set()
-
-        for extension in self._network_client.get(
-                '/extensions.json',
-                error_message="Error fetching extension list for neutron"):
+        data = self._network_client.get(
+            '/extensions.json',
+            error_message="Error fetching extension list for neutron")
+        for extension in self._get_and_munchify('extensions', data):
             extensions.add(extension['alias'])
-
         return extensions
 
     def _has_neutron_extension(self, extension_alias):
@@ -1615,10 +1623,11 @@ class OpenStackCloud(
         :returns: A list of ``munch.Munch`` containing keypair info.
 
         """
+        data = self._compute_client.get(
+            '/os-keypairs',
+            error_message="Error fetching keypair list")
         return self._normalize_keypairs([
-            k['keypair'] for k in self._compute_client.get(
-                '/os-keypairs',
-                error_message="Error fetching keypair list")])
+            k['keypair'] for k in self._get_and_munchify('keypairs', data)])
 
     def list_networks(self, filters=None):
         """List all available networks.
@@ -1631,7 +1640,7 @@ class OpenStackCloud(
         if not filters:
             filters = {}
         data = self._network_client.get("/networks.json", params=filters)
-        return meta.get_and_munchify('networks', data)
+        return self._get_and_munchify('networks', data)
 
     def list_routers(self, filters=None):
         """List all available routers.
@@ -1646,7 +1655,7 @@ class OpenStackCloud(
         data = self._network_client.get(
             "/routers.json", params=filters,
             error_message="Error fetching router list")
-        return meta.get_and_munchify('routers', data)
+        return self._get_and_munchify('routers', data)
 
     def list_subnets(self, filters=None):
         """List all available subnets.
@@ -1659,7 +1668,7 @@ class OpenStackCloud(
         if not filters:
             filters = {}
         data = self._network_client.get("/subnets.json", params=filters)
-        return meta.get_and_munchify('subnets', data)
+        return self._get_and_munchify('subnets', data)
 
     def list_ports(self, filters=None):
         """List all available ports.
@@ -1695,7 +1704,7 @@ class OpenStackCloud(
         data = self._network_client.get(
             "/ports.json", params=filters,
             error_message="Error fetching port list")
-        return meta.get_and_munchify('ports', data)
+        return self._get_and_munchify('ports', data)
 
     def list_qos_rule_types(self, filters=None):
         """List all available QoS rule types.
@@ -1714,7 +1723,7 @@ class OpenStackCloud(
         data = self._network_client.get(
             "/qos/rule-types.json", params=filters,
             error_message="Error fetching QoS rule types list")
-        return meta.get_and_munchify('rule_types', data)
+        return self._get_and_munchify('rule_types', data)
 
     def list_qos_policies(self, filters=None):
         """List all available QoS policies.
@@ -1732,7 +1741,7 @@ class OpenStackCloud(
         data = self._network_client.get(
             "/qos/policies.json", params=filters,
             error_message="Error fetching QoS policies list")
-        return meta.get_and_munchify('policies', data)
+        return self._get_and_munchify('policies', data)
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -1788,7 +1797,7 @@ class OpenStackCloud(
         # list volumes didn't complete succesfully so just return what
         # we found
         return self._normalize_volumes(
-            meta.get_and_munchify(key=None, data=volumes))
+            self._get_and_munchify(key=None, data=volumes))
 
     @_utils.cache_on_arguments()
     def list_volume_types(self, get_extra=True):
@@ -1802,7 +1811,7 @@ class OpenStackCloud(
             params=dict(is_public='None'),
             error_message='Error fetching volume_type list')
         return self._normalize_volume_types(
-            meta.get_and_munchify('volume_types', data))
+            self._get_and_munchify('volume_types', data))
 
     @_utils.cache_on_arguments()
     def list_availability_zone_names(self, unavailable=False):
@@ -1821,7 +1830,7 @@ class OpenStackCloud(
                 "Availability zone list could not be fetched",
                 exc_info=True)
             return []
-        zones = meta.get_and_munchify('availabilityZoneInfo', data)
+        zones = self._get_and_munchify('availabilityZoneInfo', data)
         ret = []
         for zone in zones:
             if zone['zoneState']['available'] or unavailable:
@@ -1845,17 +1854,18 @@ class OpenStackCloud(
             '/flavors/detail', params=dict(is_public='None'),
             error_message="Error fetching flavor list")
         flavors = self._normalize_flavors(
-            meta.get_and_munchify('flavors', data))
+            self._get_and_munchify('flavors', data))
 
         for flavor in flavors:
             if not flavor.extra_specs and get_extra:
                 endpoint = "/flavors/{id}/os-extra_specs".format(
                     id=flavor.id)
                 try:
-                    extra_specs = self._compute_client.get(
+                    data = self._compute_client.get(
                         endpoint,
                         error_message="Error fetching flavor extra specs")
-                    flavor.extra_specs = extra_specs
+                    flavor.extra_specs = self._get_and_munchify(
+                        'extra_specs', data)
                 except OpenStackCloudHTTPError as e:
                     flavor.extra_specs = {}
                     self.log.debug(
@@ -1876,7 +1886,7 @@ class OpenStackCloud(
         data = self._orchestration_client.get(
             '/stacks', error_message="Error fetching stack list")
         return self._normalize_stacks(
-            meta.get_and_munchify('stacks', data))
+            self._get_and_munchify('stacks', data))
 
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
@@ -1892,7 +1902,7 @@ class OpenStackCloud(
             '/servers/{server_id}/os-security-groups'.format(
                 server_id=server['id']))
         return self._normalize_secgroups(
-            meta.get_and_munchify('security_groups', data))
+            self._get_and_munchify('security_groups', data))
 
     def _get_server_security_groups(self, server, security_groups):
         if not self._has_secgroups():
@@ -2010,14 +2020,14 @@ class OpenStackCloud(
             data = self._network_client.get(
                 '/security-groups.json', params=filters,
                 error_message="Error fetching security group list")
-            return meta.get_and_munchify('security_groups', data)
+            return self._get_and_munchify('security_groups', data)
 
         # Handle nova security groups
         else:
             data = self._compute_client.get(
                 '/os-security-groups', params=filters)
         return self._normalize_secgroups(
-            meta.get_and_munchify('security_groups', data))
+            self._get_and_munchify('security_groups', data))
 
     def list_servers(self, detailed=False, all_projects=False, bare=False):
         """List all available servers.
@@ -2066,7 +2076,7 @@ class OpenStackCloud(
         data = self._compute_client.get(
             '/servers/detail', params=params, error_message=error_msg)
         servers = self._normalize_servers(
-            meta.get_and_munchify('servers', data))
+            self._get_and_munchify('servers', data))
         return [
             self._expand_server(server, detailed, bare)
             for server in servers
@@ -2081,7 +2091,7 @@ class OpenStackCloud(
         data = self._compute_client.get(
             '/os-server-groups',
             error_message="Error fetching server group list")
-        return meta.get_and_munchify('server_groups', data)
+        return self._get_and_munchify('server_groups', data)
 
     def get_compute_limits(self, name_or_id=None):
         """ Get compute limits for a project
@@ -2105,8 +2115,8 @@ class OpenStackCloud(
             error_msg = "{msg} for the project: {project} ".format(
                 msg=error_msg, project=name_or_id)
 
-        limits = self._compute_client.get('/limits', params=params)
-
+        data = self._compute_client.get('/limits', params=params)
+        limits = self._get_and_munchify('limits', data)
         return self._normalize_compute_limits(limits, project_id=project_id)
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_images)
@@ -2175,9 +2185,10 @@ class OpenStackCloud(
             raise OpenStackCloudUnavailableExtension(
                 'Floating IP pools extension is not available on target cloud')
 
-        pools = self._compute_client.get(
+        data = self._compute_client.get(
             'os-floating-ip-pools',
             error_message="Error fetching floating IP pool list")
+        pools = self._get_and_munchify('floating_ip_pools', data)
         return [{'name': p['name']} for p in pools]
 
     def _list_floating_ips(self, filters=None):
@@ -2260,14 +2271,14 @@ class OpenStackCloud(
         if not filters:
             filters = {}
         data = self._network_client.get('/floatingips.json', params=filters)
-        return meta.get_and_munchify('floatingips', data)
+        return self._get_and_munchify('floatingips', data)
 
     def _nova_list_floating_ips(self):
         try:
             data = self._compute_client.get('/os-floating-ips')
         except OpenStackCloudURINotFound:
             return []
-        return meta.get_and_munchify('floating_ips', data)
+        return self._get_and_munchify('floating_ips', data)
 
     def use_external_network(self):
         return self._use_external_network
@@ -2853,7 +2864,7 @@ class OpenStackCloud(
             data = self._compute_client.post(
                 '/servers/{server}/action'.format(server=server['id']),
                 json={'os-getConsoleOutput': {'length': length}})
-            return meta.get_and_munchify('output', data)
+            return self._get_and_munchify('output', data)
         except OpenStackCloudBadRequest:
             return ""
 
@@ -2902,7 +2913,7 @@ class OpenStackCloud(
 
     def get_server_by_id(self, id):
         data = self._compute_client.get('/servers/{id}'.format(id=id))
-        server = meta.get_and_munchify('server', data)
+        server = self._get_and_munchify('server', data)
         return meta.add_server_interfaces(self, self._normalize_server(server))
 
     def get_server_group(self, name_or_id=None, filters=None):
@@ -3048,7 +3059,7 @@ class OpenStackCloud(
                 data = self._orchestration_client.get(
                     '/stacks/{name_or_id}'.format(name_or_id=name_or_id),
                     error_message="Error fetching stack")
-                stack = meta.get_and_munchify('stack', data)
+                stack = self._get_and_munchify('stack', data)
                 # Treat DELETE_COMPLETE stacks as a NotFound
                 if stack['stack_status'] == 'DELETE_COMPLETE':
                     return []
@@ -3073,10 +3084,12 @@ class OpenStackCloud(
         }
         if public_key:
             keypair['public_key'] = public_key
-        return self._normalize_keypair(self._compute_client.post(
+        data = self._compute_client.post(
             '/os-keypairs',
             json={'keypair': keypair},
-            error_message="Unable to create keypair {name}".format(name=name)))
+            error_message="Unable to create keypair {name}".format(name=name))
+        return self._normalize_keypair(
+            self._get_and_munchify('keypair', data))
 
     def delete_keypair(self, name):
         """Delete a keypair.
@@ -3145,7 +3158,7 @@ class OpenStackCloud(
 
         # Reset cache so the new network is picked up
         self._reset_network_caches()
-        return meta.get_and_munchify('network', data)
+        return self._get_and_munchify('network', data)
 
     def delete_network(self, name_or_id):
         """Delete a network.
@@ -3204,7 +3217,7 @@ class OpenStackCloud(
 
         data = self._network_client.post("/qos/policies.json",
                                          json={'policy': policy})
-        return meta.get_and_munchify('policy', data)
+        return self._get_and_munchify('policy', data)
 
     def update_qos_policy(self, name_or_id, policy_name=None,
                           description=None, shared=None, default=None):
@@ -3254,7 +3267,7 @@ class OpenStackCloud(
             "/qos/policies/{policy_id}.json".format(
                 policy_id=curr_policy['id']),
             json={'policy': policy})
-        return meta.get_and_munchify('policy', data)
+        return self._get_and_munchify('policy', data)
 
     def delete_qos_policy(self, name_or_id):
         """Delete a QoS policy.
@@ -3328,7 +3341,7 @@ class OpenStackCloud(
             params=filters,
             error_message="Error fetching QoS bandwith limit rules from "
                           "{policy}".format(policy=policy['id']))
-        return meta.get_and_munchify('bandwidth_limit_rules', data)
+        return self._get_and_munchify('bandwidth_limit_rules', data)
 
     def get_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
         """Get a QoS bandwidth limit rule by name or ID.
@@ -3357,7 +3370,7 @@ class OpenStackCloud(
             error_message="Error fetching QoS bandwith limit rule {rule_id} "
                           "from {policy}".format(rule_id=rule_id,
                                                  policy=policy['id']))
-        return meta.get_and_munchify('bandwidth_limit_rule', data)
+        return self._get_and_munchify('bandwidth_limit_rule', data)
 
     def create_qos_bandwidth_limit_rule(self, policy_name_or_id, max_kbps=None,
                                         max_burst_kbps=None, direction=None):
@@ -3401,7 +3414,7 @@ class OpenStackCloud(
             "/qos/policies/{policy_id}/bandwidth_limit_rules".format(
                 policy_id=policy['id']),
             json={'bandwidth_limit_rule': rule})
-        return meta.get_and_munchify('bandwidth_limit_rule', data)
+        return self._get_and_munchify('bandwidth_limit_rule', data)
 
     def update_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id,
                                         max_kbps=None, max_burst_kbps=None,
@@ -3458,7 +3471,7 @@ class OpenStackCloud(
             "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id),
             json={'bandwidth_limit_rule': rule})
-        return meta.get_and_munchify('bandwidth_limit_rule', data)
+        return self._get_and_munchify('bandwidth_limit_rule', data)
 
     def delete_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
         """Delete a QoS bandwidth limit rule.
@@ -3650,7 +3663,7 @@ class OpenStackCloud(
         data = self._network_client.post(
             "/routers.json", json={"router": router},
             error_message="Error creating router {0}".format(name))
-        return meta.get_and_munchify('router', data)
+        return self._get_and_munchify('router', data)
 
     def update_router(self, name_or_id, name=None, admin_state_up=None,
                       ext_gateway_net_id=None, enable_snat=None,
@@ -3701,7 +3714,7 @@ class OpenStackCloud(
             "/routers/{router_id}.json".format(router_id=curr_router['id']),
             json={"router": router},
             error_message="Error updating router {0}".format(name_or_id))
-        return meta.get_and_munchify('router', data)
+        return self._get_and_munchify('router', data)
 
     def delete_router(self, name_or_id):
         """Delete a logical router.
@@ -4068,7 +4081,7 @@ class OpenStackCloud(
     def _upload_image_from_volume(
             self, name, volume_id, allow_duplicates,
             container_format, disk_format, wait, timeout):
-        response = self._volume_client.post(
+        data = self._volume_client.post(
             '/volumes/{id}/action'.format(id=volume_id),
             json={
                 'os-volume_upload_image': {
@@ -4076,6 +4089,8 @@ class OpenStackCloud(
                     'image_name': name,
                     'container_format': container_format,
                     'disk_format': disk_format}})
+        response = self._get_and_munchify('os-volume_upload_image', data)
+
         if not wait:
             return self.get_image(response['image_id'])
         try:
@@ -4092,13 +4107,13 @@ class OpenStackCloud(
             raise
 
     def _upload_image_put_v2(self, name, image_data, meta, **image_kwargs):
-
         properties = image_kwargs.pop('properties', {})
 
         image_kwargs.update(self._make_v2_image_params(meta, properties))
         image_kwargs['name'] = name
 
-        image = self._image_client.post('/images', json=image_kwargs)
+        data = self._image_client.post('/images', json=image_kwargs)
+        image = self._get_and_munchify(key=None, data=data)
 
         try:
             self._image_client.put(
@@ -4201,7 +4216,8 @@ class OpenStackCloud(
                 import_from='{container}/{name}'.format(
                     container=container, name=name),
                 image_properties=dict(name=name)))
-        glance_task = self._image_client.post('/tasks', json=task_args)
+        data = self._image_client.post('/tasks', json=task_args)
+        glance_task = self._get_and_munchify(key=None, data=data)
         self.list_images.invalidate(self)
         if wait:
             start = time.time()
@@ -4211,8 +4227,9 @@ class OpenStackCloud(
                     "Timeout waiting for the image to import."):
                 try:
                     if image_id is None:
-                        status = self._image_client.get(
+                        data = self._image_client.get(
                             '/tasks/{id}'.format(id=glance_task.id))
+                        status = self._get_and_munchify('images', data=data)
                 except OpenStackCloudHTTPError as e:
                     if e.response.status_code == 503:
                         # Clear the exception so that it doesn't linger
@@ -4348,7 +4365,7 @@ class OpenStackCloud(
             '/volumes',
             json=dict(payload),
             error_message='Error in creating volume')
-        volume = meta.get_and_munchify('volume', data)
+        volume = self._get_and_munchify('volume', data)
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
@@ -4558,7 +4575,7 @@ class OpenStackCloud(
                         "Error in attaching volume %s" % volume['id']
                     )
         return self._normalize_volume_attachment(
-            meta.get_and_munchify('volumeAttachment', data))
+            self._get_and_munchify('volumeAttachment', data))
 
     def _get_volume_kwargs(self, kwargs):
         name = kwargs.pop('name', kwargs.pop('display_name', None))
@@ -4602,12 +4619,12 @@ class OpenStackCloud(
         kwargs = self._get_volume_kwargs(kwargs)
         payload = {'volume_id': volume_id, 'force': force}
         payload.update(kwargs)
-        snapshot = self._volume_client.post(
+        data = self._volume_client.post(
             '/snapshots',
             json=dict(snapshot=payload),
             error_message="Error creating snapshot of volume "
                           "{volume_id}".format(volume_id=volume_id))
-
+        snapshot = self._get_and_munchify('snapshot', data)
         if wait:
             snapshot_id = snapshot['id']
             for count in _utils._iterate_timeout(
@@ -4637,11 +4654,12 @@ class OpenStackCloud(
         param: snapshot_id: ID of the volume snapshot.
 
         """
-        snapshot = self._volume_client.get(
+        data = self._volume_client.get(
             '/snapshots/{snapshot_id}'.format(snapshot_id=snapshot_id),
             error_message="Error getting snapshot "
                           "{snapshot_id}".format(snapshot_id=snapshot_id))
-        return self._normalize_volume(snapshot)
+        return self._normalize_volume(
+            self._get_and_munchify('snapshot', data))
 
     def get_volume_snapshot(self, name_or_id, filters=None):
         """Get a volume by name or ID.
@@ -4695,10 +4713,11 @@ class OpenStackCloud(
             'force': force,
         }
 
-        backup = self._volume_client.post(
+        data = self._volume_client.post(
             '/backups', json=dict(backup=payload),
             error_message="Error creating backup of volume "
                           "{volume_id}".format(volume_id=volume_id))
+        backup = self._get_and_munchify('backup', data)
 
         if wait:
             backup_id = backup['id']
@@ -4737,7 +4756,7 @@ class OpenStackCloud(
             endpoint,
             params=search_opts,
             error_message="Error getting a list of snapshots")
-        return meta.get_and_munchify('snapshots', data)
+        return self._get_and_munchify('snapshots', data)
 
     def list_volume_backups(self, detailed=True, search_opts=None):
         """
@@ -4760,7 +4779,7 @@ class OpenStackCloud(
         data = self._volume_client.get(
             endpoint, params=search_opts,
             error_message="Error getting a list of backups")
-        return meta.get_and_munchify('backups', data)
+        return self._get_and_munchify('backups', data)
 
     def delete_volume_backup(self, name_or_id=None, force=False, wait=False,
                              timeout=None):
@@ -5084,7 +5103,7 @@ class OpenStackCloud(
         data = self._network_client.post(
             "/floatingips.json", json={"floatingip": kwargs})
         return self._normalize_floating_ip(
-            meta.get_and_munchify('floatingip', data))
+            self._get_and_munchify('floatingip', data))
 
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None,
@@ -5173,11 +5192,11 @@ class OpenStackCloud(
 
             data = self._compute_client.post(
                 '/os-floating-ips', json=dict(pool=pool))
-            pool_ip = meta.get_and_munchify('floating_ip', data)
+            pool_ip = self._get_and_munchify('floating_ip', data)
             # TODO(mordred) Remove this - it's just for compat
             data = self._compute_client.get('/os-floating-ips/{id}'.format(
                 id=pool_ip['id']))
-            return meta.get_and_munchify('floating_ip', data)
+            return self._get_and_munchify('floating_ip', data)
 
     def delete_floating_ip(self, floating_ip_id, retry=1):
         """Deallocate a floating IP from a project.
@@ -6089,7 +6108,7 @@ class OpenStackCloud(
         with _utils.shade_exceptions("Error in creating instance"):
             data = self._compute_client.post(
                 endpoint, json={'server': kwargs})
-            server = meta.get_and_munchify('server', data)
+            server = self._get_and_munchify('server', data)
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
                 # This is a direct get call to skip the list_servers
@@ -6211,7 +6230,7 @@ class OpenStackCloud(
             '/servers/{server_id}/action'.format(server_id=server_id),
             error_message="Error in rebuilding instance",
             json={'rebuild': kwargs})
-        server = meta.get_and_munchify('server', data)
+        server = self._get_and_munchify('server', data)
         if not wait:
             return self._expand_server(
                 self._normalize_server(server), bare=bare, detailed=detailed)
@@ -6421,7 +6440,7 @@ class OpenStackCloud(
             error_message="Error updating server {0}".format(name_or_id),
             json={'server': kwargs})
         server = self._normalize_server(
-            meta.get_and_munchify('server', data))
+            self._get_and_munchify('server', data))
         return self._expand_server(server, bare=bare, detailed=detailed)
 
     def create_server_group(self, name, policies):
@@ -6434,7 +6453,7 @@ class OpenStackCloud(
 
         :raises: OpenStackCloudException on operation error.
         """
-        return self._compute_client.post(
+        data = self._compute_client.post(
             '/os-server-groups',
             json={
                 'server_group': {
@@ -6442,6 +6461,7 @@ class OpenStackCloud(
                     'policies': policies}},
             error_message="Unable to create server group {name}".format(
                 name=name))
+        return self._get_and_munchify('server_group', data)
 
     def delete_server_group(self, name_or_id):
         """Delete a server group.
@@ -7083,7 +7103,7 @@ class OpenStackCloud(
         data = self._network_client.post("/subnets.json",
                                          json={"subnet": subnet})
 
-        return meta.get_and_munchify('subnet', data)
+        return self._get_and_munchify('subnet', data)
 
     def delete_subnet(self, name_or_id):
         """Delete a subnet.
@@ -7192,7 +7212,7 @@ class OpenStackCloud(
         data = self._network_client.put(
             "/subnets/{subnet_id}.json".format(subnet_id=curr_subnet['id']),
             json={"subnet": subnet})
-        return meta.get_and_munchify('subnet', data)
+        return self._get_and_munchify('subnet', data)
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
                          'subnet_id', 'ip_address', 'security_groups',
@@ -7257,7 +7277,7 @@ class OpenStackCloud(
             "/ports.json", json={'port': kwargs},
             error_message="Error creating port for network {0}".format(
                 network_id))
-        return meta.get_and_munchify('port', data)
+        return self._get_and_munchify('port', data)
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
                          'security_groups', 'allowed_address_pairs',
@@ -7321,7 +7341,7 @@ class OpenStackCloud(
             "/ports/{port_id}.json".format(port_id=port['id']),
             json={"port": kwargs},
             error_message="Error updating port {0}".format(name_or_id))
-        return meta.get_and_munchify('port', data)
+        return self._get_and_munchify('port', data)
 
     def delete_port(self, name_or_id):
         """Delete a port
@@ -7380,7 +7400,7 @@ class OpenStackCloud(
             data = self._compute_client.post(
                 '/os-security-groups', json=security_group_json)
         return self._normalize_secgroup(
-            meta.get_and_munchify('security_group', data))
+            self._get_and_munchify('security_group', data))
 
     def delete_security_group(self, name_or_id):
         """Delete a security group
@@ -7457,7 +7477,7 @@ class OpenStackCloud(
                 '/os-security-groups/{id}'.format(id=group['id']),
                 json={'security-group': kwargs})
         return self._normalize_secgroup(
-            meta.get_and_munchify('security_group', data))
+            self._get_and_munchify('security_group', data))
 
     def create_security_group_rule(self,
                                    secgroup_name_or_id,
@@ -7591,7 +7611,7 @@ class OpenStackCloud(
                 '/os-security-group-rules', json=security_group_rule_dict
             )
         return self._normalize_secgroup_rule(
-            meta.get_and_munchify('security_group_rule', data))
+            self._get_and_munchify('security_group_rule', data))
 
     def delete_security_group_rule(self, rule_id):
         """Delete a security group rule
@@ -7634,7 +7654,7 @@ class OpenStackCloud(
         data = self._dns_client.get(
             "/zones",
             error_message="Error fetching zones list")
-        return meta.get_and_munchify('zones', data)
+        return self._get_and_munchify('zones', data)
 
     def get_zone(self, name_or_id, filters=None):
         """Get a zone by name or ID.
@@ -7699,7 +7719,7 @@ class OpenStackCloud(
         data = self._dns_client.post(
             "/zones", json=zone,
             error_message="Unable to create zone {name}".format(name=name))
-        return meta.get_and_munchify(key=None, data=data)
+        return self._get_and_munchify(key=None, data=data)
 
     @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
     def update_zone(self, name_or_id, **kwargs):
@@ -7725,7 +7745,7 @@ class OpenStackCloud(
         data = self._dns_client.patch(
             "/zones/{zone_id}".format(zone_id=zone['id']), json=kwargs,
             error_message="Error updating zone {0}".format(name_or_id))
-        return meta.get_and_munchify(key=None, data=data)
+        return self._get_and_munchify(key=None, data=data)
 
     def delete_zone(self, name_or_id):
         """Delete a zone.
@@ -7897,7 +7917,7 @@ class OpenStackCloud(
             data = self._container_infra_client.get(
                 '/baymodels/detail')
         return self._normalize_cluster_templates(
-            meta.get_and_munchify('baymodels', data))
+            self._get_and_munchify('baymodels', data))
     list_baymodels = list_cluster_templates
 
     def search_cluster_templates(

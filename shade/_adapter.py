@@ -20,7 +20,6 @@ from six.moves import urllib
 
 from shade import _log
 from shade import exc
-from shade import meta
 from shade import task_manager
 
 
@@ -124,58 +123,10 @@ class ShadeAdapter(adapter.Adapter):
 
         try:
             result_json = response.json()
+            self._log_request_id(response, result_json)
         except Exception:
             return self._log_request_id(response)
-
-        # Note(rods): this is just a temporary step needed until we
-        # don't update all the other REST API calls
-        if isinstance(result_json, dict):
-            for key in ['volumes', 'volume', 'volumeAttachment', 'backups',
-                        'volume_types', 'volume_type_access', 'snapshots',
-                        'network', 'networks', 'subnet', 'subnets',
-                        'router', 'routers', 'floatingip', 'floatingips',
-                        'floating_ip', 'floating_ips', 'port', 'ports',
-                        'rule_types', 'policy', 'policies',
-                        'bandwidth_limit_rule', 'bandwidth_limit_rules',
-                        'stack', 'stacks', 'zones', 'events',
-                        'security_group', 'security_groups',
-                        'security_group_rule', 'security_group_rules',
-                        'users', 'user', 'projects', 'tenants',
-                        'project', 'tenant', 'servers', 'server',
-                        'flavor', 'flavors', 'baymodels', 'aggregate',
-                        'aggregates', 'availabilityZoneInfo',
-                        'flavor_access', 'output', 'server_groups', 'domain',
-                        'domains', 'service', 'OS-KSADM:service']:
-                if key in result_json.keys():
-                    self._log_request_id(response)
-                    return result_json
-
-        if isinstance(result_json, list):
-            self._log_request_id(response)
-            return meta.obj_list_to_munch(result_json)
-
-        result = None
-        if isinstance(result_json, dict):
-            # Wrap the keys() call in list() because in python3 keys returns
-            # a "dict_keys" iterator-like object rather than a list
-            json_keys = list(result_json.keys())
-            if len(json_keys) > 1 and result_key:
-                result = result_json[result_key]
-            elif len(json_keys) == 1:
-                result = result_json[json_keys[0]]
-        if result is None:
-            # Passthrough the whole body - sometimes (hi glance) things
-            # come through without a top-level container. Also, sometimes
-            # you need to deal with pagination
-            result = result_json
-
-        self._log_request_id(response, result)
-
-        if isinstance(result, list):
-            return meta.obj_list_to_munch(result)
-        elif isinstance(result, dict):
-            return meta.obj_to_munch(result)
-        return result
+        return result_json
 
     def request(
             self, url, method, run_async=False, error_message=None,
