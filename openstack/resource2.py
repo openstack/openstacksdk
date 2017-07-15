@@ -717,6 +717,8 @@ class Resource(object):
         """
         # The id cannot be dirty for an update
         self._body._dirty.discard("id")
+        id_mapping_name = self._body_mapping()["id"]
+        self._body._dirty.discard(id_mapping_name)
 
         # Only try to update if we actually have anything to update.
         if not any([self._body.dirty, self._header.dirty]):
