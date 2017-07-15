@@ -264,7 +264,6 @@ class TestBackupPolicy(TestVolumeBackupProxy):
 
         self.proxy.update_backup_policy("some-policy-id", **attrs)
         expected_json = {
-            "backup_policy_id": "some-policy-id",
             "backup_policy_name": "policy_01",
             "scheduled_policy": {
                 "remain_first_backup_of_curMonth": "Y",
@@ -361,7 +360,6 @@ class TestBackupPolicy(TestVolumeBackupProxy):
         self.proxy.enable_policy(policy)
         self.assert_session_put_with("backuppolicy/policy-id",
                                      json={
-                                         'backup_policy_id': 'policy-id',
                                          "scheduled_policy": {
                                              "status": "ON"
                                          }
@@ -373,7 +371,6 @@ class TestBackupPolicy(TestVolumeBackupProxy):
         self.proxy.disable_policy(policy)
         self.assert_session_put_with("backuppolicy/policy-id",
                                      json={
-                                         'backup_policy_id': 'policy-id',
                                          "scheduled_policy": {
                                              "status": "OFF"
                                          }

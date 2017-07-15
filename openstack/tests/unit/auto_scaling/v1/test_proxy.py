@@ -343,7 +343,6 @@ class TestAutoScalingGroup(TestAutoScalingProxy):
         }
         self.proxy.update_group("some-group-id", **attrs)
         expected_json = {
-            "scaling_group_id": "some-group-id",
             "scaling_group_name": "group_1",
             "scaling_configuration_id":
                 "f8327883-6a07-4497-9a61-68c03e8e72a2",
@@ -485,7 +484,6 @@ class TestAutoScalingPolicy(TestAutoScalingProxy):
 
         self.proxy.update_policy("some-policy-id", **attrs)
         expected_json = {
-            "scaling_policy_id": "some-policy-id",
             "scaling_policy_type": "RECURRENCE",
             "scaling_policy_name": "policy_01",
             "scheduled_policy": {
