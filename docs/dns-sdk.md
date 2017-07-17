@@ -14,7 +14,7 @@ You can find how to initial SDK client in the [quickstart](huawei-sdk?id=_2-buil
 ### List Zones
 ```python
 query = {
-    'type': 'public', // filter by zone type, type includes `public` or `private`
+    'zone_type': 'public', // filter by zone type, type includes `public` or `private`
     'limit': 10
 }
 zones = conn.dns.zones(**query)
