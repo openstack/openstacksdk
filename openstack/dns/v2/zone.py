@@ -15,12 +15,14 @@ from openstack import resource2 as resource
 
 
 class Router(resource.Resource):
+    """DNS Zone Router Resource"""
     router_id = resource.Body('router_id')
     router_region = resource.Body('router_region')
     status = resource.Body('status')
 
 
 class Zone(resource.Resource):
+    """DNS ZONE Resource"""
     resource_key = 'zone'
     resources_key = 'zones'
     base_path = '/zones'
@@ -32,7 +34,7 @@ class Zone(resource.Resource):
     allow_get = True
     allow_delete = True
 
-    _query_mapping = resource.QueryParameters('zone_type')
+    _query_mapping = resource.QueryParameters(type='zone_type')
 
     #: Properties
     #: Zone name
