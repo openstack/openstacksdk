@@ -15,6 +15,7 @@ from openstack import resource2 as resource
 
 
 class PTR(resource.Resource):
+    """DNS reverse record resource"""
     resources_key = 'floatingips'
     base_path = '/reverse/floatingips'
     service = dns_service.DNSService()

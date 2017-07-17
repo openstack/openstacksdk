@@ -15,6 +15,7 @@ from openstack import resource2 as resource
 
 
 class AssociateRouter(resource.Resource):
+    """associate router resource"""
     resource_key = 'router'
     resources_key = 'router'
     base_path = '/zones/%(zone_id)s/associaterouter'
@@ -38,4 +39,5 @@ class AssociateRouter(resource.Resource):
 
 
 class DisassociateRouter(AssociateRouter):
+    """disassociate router resource"""
     base_path = '/zones/%(zone_id)s/disassociaterouter'
