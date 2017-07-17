@@ -47,12 +47,7 @@ class CloudServices(base.RequestsMockTestCase):
                  uri=self.get_mock_url(base_url_append='OS-KSADM'),
                  status_code=200,
                  json=service_data.json_response_v2,
-                 validate=dict(json={'OS-KSADM:service': reference_req})),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       append=[service_data.service_id]),
-                 status_code=200,
-                 json=service_data.json_response_v2)
+                 validate=dict(json={'OS-KSADM:service': reference_req}))
         ])
 
         service = self.op_cloud.create_service(
@@ -76,11 +71,7 @@ class CloudServices(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=service_data.json_response_v3,
-                 validate=dict(json={'service': service_data.json_request})),
-            dict(method='GET',
-                 uri=self.get_mock_url(append=[service_data.service_id]),
-                 status_code=200,
-                 json=service_data.json_response_v3)
+                 validate=dict(json={'service': service_data.json_request}))
         ])
 
         service = self.op_cloud.create_service(

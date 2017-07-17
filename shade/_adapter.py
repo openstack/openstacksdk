@@ -145,7 +145,7 @@ class ShadeAdapter(adapter.Adapter):
                         'flavor', 'flavors', 'baymodels', 'aggregate',
                         'aggregates', 'availabilityZoneInfo',
                         'flavor_access', 'output', 'server_groups', 'domain',
-                        'domains']:
+                        'domains', 'service', 'OS-KSADM:service']:
                 if key in result_json.keys():
                     self._log_request_id(response)
                     return result_json

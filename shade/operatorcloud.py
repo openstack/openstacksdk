@@ -756,18 +756,18 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         # TODO(mordred) When this changes to REST, force interface=admin
         # in the adapter call
         if self.cloud_config.get_api_version('identity').startswith('2'):
-            kwargs['service_type'] = type_ or service_type
+            url, key = '/OS-KSADM/services', 'OS-KSADM:service'
+            kwargs['type'] = type_ or service_type
         else:
+            url, key = '/services', 'service'
             kwargs['type'] = type_ or service_type
             kwargs['enabled'] = enabled
+        kwargs['name'] = name
 
-        with _utils.shade_exceptions(
-            "Failed to create service {name}".format(name=name)
-        ):
-            service = self.manager.submit_task(
-                _tasks.ServiceCreate(name=name, **kwargs)
-            )
-
+        msg = 'Failed to create service {name}'.format(name=name)
+        data = self._identity_client.post(
+            url, json={key: kwargs}, error_message=msg)
+        service = meta.get_and_munchify(key, data)
         return _utils.normalize_keystone_services([service])[0]
 
     @_utils.valid_kwargs('name', 'enabled', 'type', 'service_type',
