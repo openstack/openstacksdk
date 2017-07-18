@@ -34,7 +34,7 @@ class Zone(resource.Resource):
     allow_get = True
     allow_delete = True
 
-    _query_mapping = resource.QueryParameters(type='zone_type')
+    _query_mapping = resource.QueryParameters(zone_type='type')
 
     #: Properties
     #: Zone name
