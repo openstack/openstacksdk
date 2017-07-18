@@ -391,6 +391,28 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                      method_args=["FAKE_NODE"])
         mock_get.assert_called_once_with(node.Node, "FAKE_NODE")
 
+    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    def test_node_adopt(self, mock_get):
+        mock_node = node.Node.new()
+        mock_get.return_value = mock_node
+        self._verify("openstack.cluster.v1.node.Node.adopt",
+                     self.proxy.adopt_node,
+                     method_kwargs={"preview": False, "foo": "bar"},
+                     expected_kwargs={"preview": False, "foo": "bar"})
+
+        mock_get.assert_called_once_with(node.Node, None)
+
+    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    def test_node_adopt_preview(self, mock_get):
+        mock_node = node.Node.new()
+        mock_get.return_value = mock_node
+        self._verify("openstack.cluster.v1.node.Node.adopt",
+                     self.proxy.adopt_node,
+                     method_kwargs={"preview": True, "foo": "bar"},
+                     expected_kwargs={"preview": True, "foo": "bar"})
+
+        mock_get.assert_called_once_with(node.Node, None)
+
     @deprecation.fail_if_not_removed
     @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
     def test_node_operation(self, mock_get):

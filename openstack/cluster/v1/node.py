@@ -125,6 +125,24 @@ class Node(resource.Resource):
                             json={operation: params})
         return resp.json()
 
+    def adopt(self, session, preview=False, **params):
+        """Adopt a node for management.
+
+        :param session: A session object used for sending request.
+        :param preview: A boolean indicating whether the adoption is a
+                        preview. A "preview" does not create the node object.
+        :param dict params: A dict providing the details of a node to be
+                            adopted.
+        """
+        path = "adopt-preview" if preview else "adopt"
+        url = utils.urljoin(self.base_path, path)
+        resp = session.post(url, endpoint_filter=self.service, json=params)
+        if preview:
+            return resp.json()
+
+        self._translate_response(resp)
+        return self
+
 
 class NodeDetail(Node):
     base_path = '/nodes/%(node_id)s?show_details=True'

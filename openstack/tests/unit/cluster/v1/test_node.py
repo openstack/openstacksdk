@@ -104,6 +104,34 @@ class TestNode(testtools.TestCase):
         sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
                                           json={'dance': {'style': 'tango'}})
 
+    def test_adopt_preview(self):
+        sot = node.Node.new()
+        resp = mock.Mock()
+        resp.headers = {}
+        resp.json = mock.Mock(return_value={"foo": "bar"})
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+
+        res = sot.adopt(sess, True, param="value")
+        self.assertEqual({"foo": "bar"}, res)
+        sess.post.assert_called_once_with("nodes/adopt-preview",
+                                          endpoint_filter=sot.service,
+                                          json={"param": "value"})
+
+    def test_adopt(self):
+        sot = node.Node.new()
+        resp = mock.Mock()
+        resp.headers = {}
+        resp.json = mock.Mock(return_value={"foo": "bar"})
+        sess = mock.Mock()
+        sess.post = mock.Mock(return_value=resp)
+
+        res = sot.adopt(sess, False, param="value")
+        self.assertEqual(sot, res)
+        sess.post.assert_called_once_with("nodes/adopt",
+                                          endpoint_filter=sot.service,
+                                          json={"param": "value"})
+
 
 class TestNodeDetail(testtools.TestCase):
 

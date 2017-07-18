@@ -125,6 +125,7 @@ Node Operations
    .. automethod:: openstack.cluster.v1._proxy.Proxy.recover_node
    .. automethod:: openstack.cluster.v1._proxy.Proxy.perform_operation_on_node
 
+   .. automethod:: openstack.cluster.v1._proxy.Proxy.adopt_node
    .. automethod:: openstack.cluster.v1._proxy.Proxy.node_operation
 
 
