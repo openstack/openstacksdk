@@ -45,6 +45,7 @@ class Action(resource.Resource):
 
 
 class Policy(resource.Resource):
+    """AutoScaling Policy Resource"""
     resource_key = 'scaling_policy'
     resources_key = 'scaling_policies'
     base_path = '/scaling_policy'

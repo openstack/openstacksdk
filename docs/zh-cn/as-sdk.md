@@ -208,6 +208,7 @@ conn.auto_scaling.batch_delete_configs(configs)
 
 ```python
 query = {
+    "scaling_group_id": "any-group-id",
     "name": "as_policy_name",
     "type": "ALARM",                # ALARM, SCHEDULED, RECURRENCE
     "marker": 0,
