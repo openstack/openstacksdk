@@ -722,6 +722,38 @@ class Proxy(proxy2.BaseProxy):
         obj = self._get_resource(_node.Node, node)
         return obj.recover(self._session, **params)
 
+    def adopt_node(self, preview=False, **attrs):
+        """Adopting an existing resource as a node.
+
+        :param preview: A boolean indicating whether this is a "preview"
+            operation which means only the profile to be used is returned
+            rather than creating a node object using that profile.
+        :param dict attrs: Keyword parameters for node adoption. Valid
+            parameters include:
+
+            * type: (Required) A string containing the profile type and
+                version to be used for node adoption. For example,
+                ``os.nova.sever-1.0``.
+            * identity: (Required) A string including the name or ID of an
+                OpenStack resource to be adopted as a Senlin node.
+            * name: (Optional) The name of of node to be created. Omitting
+                this parameter will have the node named automatically.
+            * snapshot: (Optional) A boolean indicating whether a snapshot
+                of the target resource should be created if possible. Default
+                is False.
+            * metadata: (Optional) A dictionary of arbitrary key-value pairs
+                to be associated with the adopted node.
+            * overrides: (Optional) A dictionary of key-value pairs to be used
+                to override attributes derived from the target resource.
+
+        :returns: The result of node adoption. If `preview` is set to False
+            (default), returns a :class:`~openstack.cluster.v1.node.Node`
+            object, otherwise a Dict is returned containing the profile to
+            be used for the new node.
+        """
+        node = self._get_resource(_node.Node, None)
+        return node.adopt(self._session, preview=preview, **attrs)
+
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use perform_operation_on_node instead")
     def node_operation(self, node, operation, **params):
