@@ -1342,10 +1342,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Group %s not found for deleting", name_or_id)
             return False
 
-        with _utils.shade_exceptions(
-            "Unable to delete group {name}".format(name=name_or_id)
-        ):
-            self.manager.submit_task(_tasks.GroupDelete(group=group['id']))
+        error_msg = "Unable to delete group {name}".format(name=name_or_id)
+        self._identity_client.delete('/groups/{id}'.format(id=group['id']),
+                                     error_message=error_msg)
 
         self.list_groups.invalidate(self)
         return True
