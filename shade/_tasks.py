@@ -162,11 +162,6 @@ class EndpointDelete(task_manager.Task):
         return client.keystone_client.endpoints.delete(**self.args)
 
 
-class GroupList(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.groups.list()
-
-
 class GroupDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.groups.delete(**self.args)
