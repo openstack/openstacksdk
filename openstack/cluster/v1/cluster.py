@@ -66,6 +66,8 @@ class Cluster(resource.Resource):
     status = resource.Body('status')
     #: A string describing the reason why the cluster in current status.
     status_reason = resource.Body('status_reason')
+    #: A dictionary configuration for cluster.
+    config = resource.Body('config', type=dict)
     #: A collection of key-value pairs that are attached to the cluster.
     metadata = resource.Body('metadata', type=dict)
     #: A dictionary with some runtime data associated with the cluster.

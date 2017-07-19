@@ -21,6 +21,7 @@ FAKE_NAME = 'test_cluster'
 
 FAKE = {
     'id': 'IDENTIFIER',
+    'config': {'key1': 'value1', 'key2': 'value2'},
     'desired_capacity': 1,
     'max_size': 3,
     'min_size': 0,
@@ -93,6 +94,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual(FAKE['max_size'], sot.max_size)
         self.assertEqual(FAKE['desired_capacity'], sot.desired_capacity)
 
+        self.assertEqual(FAKE['config'], sot.config)
         self.assertEqual(FAKE['timeout'], sot.timeout)
         self.assertEqual(FAKE['metadata'], sot.metadata)
 
