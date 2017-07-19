@@ -1312,12 +1312,17 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Group {0} not found for updating".format(name_or_id)
             )
 
-        with _utils.shade_exceptions(
-            "Unable to update group {name}".format(name=name_or_id)
-        ):
-            group = self.manager.submit_task(_tasks.GroupUpdate(
-                group=group['id'], name=name, description=description))
+        group_ref = {}
+        if name:
+            group_ref['name'] = name
+        if description:
+            group_ref['description'] = description
 
+        error_msg = "Unable to update group {name}".format(name=name_or_id)
+        data = self._identity_client.patch(
+            '/groups/{id}'.format(id=group['id']),
+            json={'group': group_ref}, error_message=error_msg)
+        group = self._get_and_munchify('group', data)
         self.list_groups.invalidate(self)
         return _utils.normalize_groups([group])[0]
 
