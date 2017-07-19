@@ -1275,22 +1275,22 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        with _utils.shade_exceptions(
-            "Error creating group {group}".format(group=name)
-        ):
-            domain_id = None
-            if domain:
-                dom = self.get_domain(domain)
-                if not dom:
-                    raise OpenStackCloudException(
-                        "Creating group {group} failed: Invalid domain "
-                        "{domain}".format(group=name, domain=domain)
-                    )
-                domain_id = dom['id']
+        group_ref = {'name': name}
+        if description:
+            group_ref['description'] = description
+        if domain:
+            dom = self.get_domain(domain)
+            if not dom:
+                raise OpenStackCloudException(
+                    "Creating group {group} failed: Invalid domain "
+                    "{domain}".format(group=name, domain=domain)
+                )
+            group_ref['domain_id'] = dom['id']
 
-            group = self.manager.submit_task(_tasks.GroupCreate(
-                name=name, description=description, domain=domain_id)
-            )
+        error_msg = "Error creating group {group}".format(group=name)
+        data = self._identity_client.post(
+            '/groups', json={'group': group_ref}, error_message=error_msg)
+        group = self._get_and_munchify('group', data)
         self.list_groups.invalidate(self)
         return _utils.normalize_groups([group])[0]
 

@@ -72,11 +72,7 @@ class TestGroups(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=group_data.json_response,
-                 validate=dict(json=group_data.json_request)),
-            dict(method='GET',
-                 uri=self.get_mock_url(append=[group_data.group_id]),
-                 status_code=200,
-                 json=group_data.json_response)
+                 validate=dict(json=group_data.json_request))
         ])
         self.op_cloud.create_group(
             name=group_data.group_name, description=group_data.description,

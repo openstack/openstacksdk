@@ -167,11 +167,6 @@ class GroupList(task_manager.Task):
         return client.keystone_client.groups.list()
 
 
-class GroupCreate(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.groups.create(**self.args)
-
-
 class GroupDelete(task_manager.Task):
     def main(self, client):
         return client.keystone_client.groups.delete(**self.args)
