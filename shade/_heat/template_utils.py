@@ -107,7 +107,7 @@ def get_file_contents(from_data, files, base_url=None,
 
     if recurse_if and recurse_if(from_data):
         if isinstance(from_data, dict):
-            recurse_data = six.itervalues(from_data)
+            recurse_data = from_data.values()
         else:
             recurse_data = from_data
         for value in recurse_data:
