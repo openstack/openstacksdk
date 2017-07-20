@@ -17,7 +17,6 @@ import jsonpatch
 from ironicclient import exceptions as ironic_exceptions
 
 from shade.exc import *  # noqa
-from shade import meta
 from shade import openstackcloud
 from shade import _tasks
 from shade import _utils
@@ -767,7 +766,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         msg = 'Failed to create service {name}'.format(name=name)
         data = self._identity_client.post(
             url, json={key: kwargs}, error_message=msg)
-        service = meta.get_and_munchify(key, data)
+        service = self._get_and_munchify(key, data)
         return _utils.normalize_keystone_services([service])[0]
 
     @_utils.valid_kwargs('name', 'enabled', 'type', 'service_type',
@@ -1098,7 +1097,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         msg = 'Failed to create domain {name}'.format(name=name)
         data = self._identity_client.post(
             '/domains', json={'domain': domain_ref}, error_message=msg)
-        domain = meta.get_and_munchify('domain', data)
+        domain = self._get_and_munchify('domain', data)
         return _utils.normalize_domains([domain])[0]
 
     def update_domain(
@@ -1125,7 +1124,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         data = self._identity_client.patch(
             '/domains/{id}'.format(id=domain_id),
             json={'domain': domain_ref}, error_message=error_msg)
-        domain = meta.get_and_munchify('domain', data)
+        domain = self._get_and_munchify('domain', data)
         return _utils.normalize_domains([domain])[0]
 
     def delete_domain(self, domain_id=None, name_or_id=None):
@@ -1169,7 +1168,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         data = self._identity_client.get(
             '/domains', params=filters, error_message="Failed to list domains")
-        return _utils.normalize_domains(meta.get_and_munchify('domains', data))
+        domains = self._get_and_munchify('domains', data)
+        return _utils.normalize_domains(domains)
 
     def search_domains(self, filters=None, name_or_id=None):
         """Search Keystone domains.
@@ -1220,7 +1220,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             data = self._identity_client.get(
                 '/domains/{id}'.format(id=domain_id),
                 error_message=error_msg)
-            domain = meta.get_and_munchify('domain', data)
+            domain = self._get_and_munchify('domain', data)
             return _utils.normalize_domains([domain])[0]
 
     @_utils.cache_on_arguments()
@@ -1510,7 +1510,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 json=dict(flavor=payload))
 
         return self._normalize_flavor(
-            meta.get_and_munchify('flavor', data))
+            self._get_and_munchify('flavor', data))
 
     def delete_flavor(self, name_or_id):
         """Delete a flavor
@@ -1618,7 +1618,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             data = self._compute_client.get(
                 '/flavors/{id}/os-flavor-access'.format(id=flavor_id))
         return _utils.normalize_flavor_accesses(
-            meta.get_and_munchify('flavor_access', data))
+            self._get_and_munchify('flavor_access', data))
 
     def create_role(self, name):
         """Create a Keystone role.
@@ -1829,7 +1829,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         data = self._compute_client.get(
             '/os-hypervisors/detail',
             error_message="Error fetching hypervisor list")
-        return meta.get_and_munchify('hypervisors', data)
+        return self._get_and_munchify('hypervisors', data)
 
     def search_aggregates(self, name_or_id=None, filters=None):
         """Seach host aggregates.
@@ -1854,7 +1854,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         data = self._compute_client.get(
             '/os-aggregates',
             error_message="Error fetching aggregate list")
-        return meta.get_and_munchify('aggregates', data)
+        return self._get_and_munchify('aggregates', data)
 
     def get_aggregate(self, name_or_id, filters=None):
         """Get an aggregate by name or ID.
@@ -1895,7 +1895,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             }},
             error_message="Unable to create host aggregate {name}".format(
                 name=name))
-        return meta.get_and_munchify('aggregate', data)
+        return self._get_and_munchify('aggregate', data)
 
     @_utils.valid_kwargs('name', 'availability_zone')
     def update_aggregate(self, name_or_id, **kwargs):
@@ -1919,7 +1919,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             json={'aggregate': kwargs},
             error_message="Error updating aggregate {name}".format(
                 name=name_or_id))
-        return meta.get_and_munchify('aggregate', data)
+        return self._get_and_munchify('aggregate', data)
 
     def delete_aggregate(self, name_or_id):
         """Delete a host aggregate.
@@ -1965,7 +1965,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             '/os-aggregates/{id}/action'.format(id=aggregate['id']),
             json={'set_metadata': {'metadata': metadata}},
             error_message=err_msg)
-        return meta.get_and_munchify('aggregate', data)
+        return self._get_and_munchify('aggregate', data)
 
     def add_host_to_aggregate(self, name_or_id, host_name):
         """Add a host to an aggregate.
@@ -2026,7 +2026,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             error_message="Unable to get volume type access"
                           " {name}".format(name=name_or_id))
         return self._normalize_volume_type_accesses(
-            meta.get_and_munchify('volume_type_access', data))
+            self._get_and_munchify('volume_type_access', data))
 
     def add_volume_type_access(self, name_or_id, project_id):
         """Grant access on a volume_type to a project.
@@ -2113,7 +2113,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException("project does not exist")
         data = self._compute_client.get(
             '/os-quota-sets/{project}'.format(project=proj.id))
-        return meta.get_and_munchify('quota_set', data)
+        return self._get_and_munchify('quota_set', data)
 
     def delete_compute_quotas(self, name_or_id):
         """ Delete quota for a project
@@ -2191,7 +2191,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             error_message="Unable to get usage for project: {name}".format(
                 name=proj.id))
         return self._normalize_compute_usage(
-            meta.get_and_munchify('tenant_usage', data))
+            self._get_and_munchify('tenant_usage', data))
 
     def set_volume_quotas(self, name_or_id, **kwargs):
         """ Set a volume quota in a project
@@ -2228,7 +2228,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         data = self._volume_client.get(
             '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id),
             error_message="cinder client call failed")
-        return meta.get_and_munchify('quota_set', data)
+        return self._get_and_munchify('quota_set', data)
 
     def delete_volume_quotas(self, name_or_id):
         """ Delete volume quotas for a project
@@ -2282,7 +2282,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             '/quotas/{project_id}.json'.format(project_id=proj.id),
             error_message=("Error fetching Neutron's quota for "
                            "project {0}".format(proj.id)))
-        return meta.get_and_munchify('quota', data)
+        return self._get_and_munchify('quota', data)
 
     def delete_network_quotas(self, name_or_id):
         """ Delete network quotas for a project
@@ -2310,4 +2310,4 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions("Error fetching Magnum services list"):
             data = self._container_infra_client.get('/mservices')
             return self._normalize_magnum_services(
-                meta.get_and_munchify('mservices', data))
+                self._get_and_munchify('mservices', data))
