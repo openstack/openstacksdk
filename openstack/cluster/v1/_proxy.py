@@ -1130,7 +1130,7 @@ class Proxy(proxy2.BaseProxy):
                                          wait)
 
     def services(self, **query):
-        """Get a generator of service.
+        """Get a generator of services.
 
         :returns: A generator of objects that are of type
                   :class:`~openstack.cluster.v1.service.Service`
