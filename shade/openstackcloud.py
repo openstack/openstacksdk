@@ -813,7 +813,7 @@ class OpenStackCloud(
         """Wrapper around meta.get_and_munchify.
 
         Some of the methods expect a `meta` attribute to be passed in as
-        part of the method signature. In this methods the meta param is
+        part of the method signature. In those methods the meta param is
         overriding the meta module making the call to meta.get_and_munchify
         to fail.
         """
