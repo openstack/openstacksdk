@@ -1653,9 +1653,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Role %s not found for deleting", name_or_id)
             return False
 
-        with _utils.shade_exceptions("Unable to delete role {name}".format(
-                name=name_or_id)):
-            self.manager.submit_task(_tasks.RoleDelete(role=role['id']))
+        v2 = self.cloud_config.get_api_version('identity').startswith('2')
+        url = '{preffix}/{id}'.format(
+            preffix='/OS-KSADM/roles' if v2 else '/roles', id=role['id'])
+        error_msg = "Unable to delete role {name}".format(name=name_or_id)
+        self._identity_client.delete(url, error_message=error_msg)
 
         return True
 
