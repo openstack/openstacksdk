@@ -1232,9 +1232,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        with _utils.shade_exceptions("Failed to list groups"):
-            groups = self.manager.submit_task(_tasks.GroupList())
-        return _utils.normalize_groups(groups)
+        data = self._identity_client.get(
+            '/groups', error_message="Failed to list groups")
+        return _utils.normalize_groups(self._get_and_munchify('groups', data))
 
     def search_groups(self, name_or_id=None, filters=None):
         """Search Keystone groups.
