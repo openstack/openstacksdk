@@ -1628,11 +1628,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raise OpenStackCloudException: if the role cannot be created
         """
-        with _utils.shade_exceptions():
-            role = self.manager.submit_task(
-                _tasks.RoleCreate(name=name)
-            )
-        return role
+        v2 = self.cloud_config.get_api_version('identity').startswith('2')
+        url = '/OS-KSADM/roles' if v2 else '/roles'
+        msg = 'Failed to create role {name}'.format(name=name)
+        data = self._identity_client.post(
+            url, json={'role': {'name': name}}, error_message=msg)
+        role = self._get_and_munchify('role', data)
+        return _utils.normalize_roles([role])[0]
 
     def delete_role(self, name_or_id):
         """Delete a Keystone role.

@@ -91,11 +91,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=role_data.json_response,
-                 validate=dict(json=role_data.json_request)),
-            dict(method='GET',
-                 uri=self.get_mock_url(append=[role_data.role_id]),
-                 status_code=200,
-                 json=role_data.json_response)
+                 validate=dict(json=role_data.json_request))
         ])
 
         role = self.op_cloud.create_role(role_data.role_name)
