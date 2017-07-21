@@ -1357,10 +1357,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        with _utils.shade_exceptions():
-            roles = self.manager.submit_task(_tasks.RoleList())
-
-        return roles
+        v2 = self.cloud_config.get_api_version('identity').startswith('2')
+        url = '/OS-KSADM/roles' if v2 else '/roles'
+        data = self._identity_client.get(
+            url, error_message="Failed to list roles")
+        return _utils.normalize_roles(self._get_and_munchify('roles', data))
 
     def search_roles(self, name_or_id=None, filters=None):
         """Seach Keystone roles.
