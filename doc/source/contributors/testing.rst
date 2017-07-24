@@ -41,7 +41,7 @@ The functional tests assume that you have a public or private OpenStack cloud
 that you can run the tests against. The tests must be able to be run against
 public clouds but first and foremost they must be run against OpenStack. In
 practice, this means that the tests should initially be run against a stable
-branch of `DevStack <http://docs.openstack.org/developer/devstack/>`_.
+branch of `DevStack <https://docs.openstack.org/devstack/latest/>`_.
 
 DevStack
 ********
@@ -111,7 +111,7 @@ Examples Tests
 Similar to the functional tests, the examples tests assume that you have a
 public or private OpenStack cloud that you can run the tests against. In
 practice, this means that the tests should initially be run against a stable
-branch of `DevStack <http://docs.openstack.org/developer/devstack/>`_.
+branch of `DevStack <https://docs.openstack.org/devstack/latest/>`_.
 And like the functional tests, the examples tests connect to an OpenStack cloud
 using `os-client-config <http://git.openstack.org/cgit/openstack/os-client-config/tree/README.rst>`_.
 See the functional tests instructions for information on setting up DevStack and

@@ -124,7 +124,7 @@ class Image(resource2.Resource):
     metadata = resource2.Body('metadata', type=dict)
 
     # Additional Image Properties
-    # http://docs.openstack.org/developer/glance/common-image-properties.html
+    # https://docs.openstack.org/glance/latest/user/common-image-properties.html
     # http://docs.openstack.org/cli-reference/glance-property-keys.html
     #: The CPU architecture that must be supported by the hypervisor.
     architecture = resource2.Body("architecture")
