@@ -1,0 +1,5 @@
+- project:
+    name: openstack-infra/shade
+    check:
+      jobs:
+        - tox-py35-constraints
