@@ -185,6 +185,11 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         body = {'changePassword': {'adminPass': new_password}}
         self._action(session, body)
 
+    def get_password(self, session):
+        """Get the encrypted administrator password."""
+        url = utils.urljoin(Server.base_path, self.id, 'os-server-password')
+        return session.get(url, endpoint_filter=self.service)
+
     def reboot(self, session, reboot_type):
         """Reboot server where reboot_type might be 'SOFT' or 'HARD'."""
         body = {'reboot': {'type': reboot_type}}

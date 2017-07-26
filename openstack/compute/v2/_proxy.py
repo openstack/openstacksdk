@@ -435,6 +435,17 @@ class Proxy(proxy2.BaseProxy):
         """
         server = self._get_resource(_server.Server, server)
         server.change_password(self._session, new_password)
+    
+    def get_server_password(self, server):
+        """Get the administrator password
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+
+        :returns: The encrypted password,the SSH private key is needed to read the password.
+        """
+        server = self._get_resource(_server.Server, server)
+        return server.get_password(self._session)
 
     def reset_server_state(self, server, state):
         """Reset the state of server
