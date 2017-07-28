@@ -77,6 +77,7 @@ Modifying a Server
    .. automethod:: openstack.compute.v2._proxy.Proxy.rebuild_server
    .. automethod:: openstack.compute.v2._proxy.Proxy.reset_server_state
    .. automethod:: openstack.compute.v2._proxy.Proxy.change_server_password
+   .. automethod:: openstack.compute.v2._proxy.Proxy.get_server_password
 
 Image Operations
 ^^^^^^^^^^^^^^^^
