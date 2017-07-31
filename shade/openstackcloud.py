@@ -3691,6 +3691,204 @@ class OpenStackCloud(
 
         return True
 
+    def search_qos_minimum_bandwidth_rules(self, policy_name_or_id,
+                                           rule_id=None, filters=None):
+        """Search QoS minimum bandwidth rules
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rules should be associated.
+        :param string rule_id: ID of searched rule.
+        :param filters: a dict containing additional filters to use. e.g.
+                        {'min_kbps': 1000}
+
+        :returns: a list of ``munch.Munch`` containing the bandwidth limit
+            rule descriptions.
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during the
+            OpenStack API call.
+        """
+        rules = self.list_qos_minimum_bandwidth_rules(
+            policy_name_or_id, filters)
+        return _utils._filter_list(rules, rule_id, filters)
+
+    def list_qos_minimum_bandwidth_rules(self, policy_name_or_id,
+                                         filters=None):
+        """List all available QoS minimum bandwith rules.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy from
+            from rules should be listed.
+        :param filters: (optional) dict of filter conditions to push down
+        :returns: A list of ``munch.Munch`` containing rule info.
+
+        :raises: ``OpenStackCloudResourceNotFound`` if QoS policy will not be
+            found.
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        # Translate None from search interface to empty {} for kwargs below
+        if not filters:
+            filters = {}
+
+        data = self._network_client.get(
+            "/qos/policies/{policy_id}/minimum_bandwidth_rules.json".format(
+                policy_id=policy['id']),
+            params=filters,
+            error_message="Error fetching QoS minimum bandwith rules from "
+                          "{policy}".format(policy=policy['id']))
+        return self._get_and_munchify('minimum_bandwidth_rules', data)
+
+    def get_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
+        """Get a QoS minimum bandwidth rule by name or ID.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rule should be associated.
+        :param rule_id: ID of the rule.
+
+        :returns: A bandwidth limit rule ``munch.Munch`` or None if
+            no matching rule is found.
+
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        data = self._network_client.get(
+            "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}.json".
+            format(policy_id=policy['id'], rule_id=rule_id),
+            error_message="Error fetching QoS minimum_bandwith rule {rule_id} "
+                          "from {policy}".format(rule_id=rule_id,
+                                                 policy=policy['id']))
+        return self._get_and_munchify('minimum_bandwidth_rule', data)
+
+    def create_qos_minimum_bandwidth_rule(self, policy_name_or_id,
+                                          min_kbps=None, direction=None):
+        """Create a QoS minimum bandwidth limit rule.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rule should be associated.
+        :param int min_kbps: Minimum bandwidth value (in kilobits per second).
+        :param string direction: Ingress or egress.
+            The direction in which the traffic will be available.
+
+        :returns: The QoS minimum bandwidth rule.
+        :raises: OpenStackCloudException on operation error.
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        rule = {}
+        if min_kbps:
+            rule['min_kbps'] = min_kbps
+        if direction:
+            rule['direction'] = direction
+
+        data = self._network_client.post(
+            "/qos/policies/{policy_id}/minimum_bandwidth_rules".format(
+                policy_id=policy['id']),
+            json={'minimum_bandwidth_rule': rule})
+        return self._get_and_munchify('minimum_bandwidth_rule', data)
+
+    def update_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id,
+                                          min_kbps=None, direction=None):
+        """Update a QoS minimum bandwidth rule.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rule is associated.
+        :param string rule_id: ID of rule to update.
+        :param int min_kbps: Minimum bandwidth value (in kilobits per second).
+        :param string direction: Ingress or egress.
+            The direction in which the traffic will be available.
+
+        :returns: The updated QoS minimum bandwidth rule.
+        :raises: OpenStackCloudException on operation error.
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        rule = {}
+        if min_kbps:
+            rule['min_kbps'] = min_kbps
+        if direction:
+            rule['direction'] = direction
+
+        if not rule:
+            self.log.debug("No QoS minimum bandwidth rule data to update")
+            return
+
+        curr_rule = self.get_qos_minimum_bandwidth_rule(
+            policy_name_or_id, rule_id)
+        if not curr_rule:
+            raise OpenStackCloudException(
+                "QoS minimum_bandwidth_rule {rule_id} not found in policy "
+                "{policy_id}".format(rule_id=rule_id,
+                                     policy_id=policy['id']))
+
+        data = self._network_client.put(
+            "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}.json".
+            format(policy_id=policy['id'], rule_id=rule_id),
+            json={'minimum_bandwidth_rule': rule})
+        return self._get_and_munchify('minimum_bandwidth_rule', data)
+
+    def delete_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
+        """Delete a QoS minimum bandwidth rule.
+
+        :param string policy_name_or_id: Name or ID of the QoS policy to which
+            rule is associated.
+        :param string rule_id: ID of rule to delete.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        policy = self.get_qos_policy(policy_name_or_id)
+        if not policy:
+            raise OpenStackCloudResourceNotFound(
+                "QoS policy {name_or_id} not Found.".format(
+                    name_or_id=policy_name_or_id))
+
+        try:
+            self._network_client.delete(
+                "/qos/policies/{policy}/minimum_bandwidth_rules/{rule}.json".
+                format(policy=policy['id'], rule=rule_id))
+        except OpenStackCloudURINotFound:
+            self.log.debug(
+                "QoS minimum bandwidth rule {rule_id} not found in policy "
+                "{policy_id}. Ignoring.".format(rule_id=rule_id,
+                                                policy_id=policy['id']))
+            return False
+
+        return True
+
     def _build_external_gateway_info(self, ext_gateway_net_id, enable_snat,
                                      ext_fixed_ips):
         info = {}
