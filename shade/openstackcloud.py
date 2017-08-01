@@ -3182,8 +3182,9 @@ class OpenStackCloud(
 
         return True
 
-    def create_qos_policy(self, name=None, description=None, shared=None,
-                          default=None, project_id=None):
+    @_utils.valid_kwargs("name", "description", "shared", "default",
+                         "project_id")
+    def create_qos_policy(self, **kwargs):
         """Create a QoS policy.
 
         :param string name: Name of the QoS policy being created.
@@ -3199,28 +3200,22 @@ class OpenStackCloud(
         if not self._has_neutron_extension('qos'):
             raise OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
-        policy = {}
-        if name:
-            policy['name'] = name
-        if description:
-            policy['description'] = description
-        if shared is not None:
-            policy['shared'] = shared
+
+        default = kwargs.pop("default", None)
         if default is not None:
             if self._has_neutron_extension('qos-default'):
-                policy['is_default'] = default
+                kwargs['is_default'] = default
             else:
                 self.log.debug("'qos-default' extension is not available on "
                                "target cloud")
-        if project_id:
-            policy['project_id'] = project_id
 
         data = self._network_client.post("/qos/policies.json",
-                                         json={'policy': policy})
+                                         json={'policy': kwargs})
         return self._get_and_munchify('policy', data)
 
-    def update_qos_policy(self, name_or_id, policy_name=None,
-                          description=None, shared=None, default=None):
+    @_utils.valid_kwargs("name", "description", "shared", "default",
+                         "project_id")
+    def update_qos_policy(self, name_or_id, **kwargs):
         """Update an existing QoS policy.
 
         :param string name_or_id:
@@ -3240,21 +3235,16 @@ class OpenStackCloud(
         if not self._has_neutron_extension('qos'):
             raise OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
-        policy = {}
-        if policy_name:
-            policy['name'] = policy_name
-        if description:
-            policy['description'] = description
-        if shared is not None:
-            policy['shared'] = shared
+
+        default = kwargs.pop("default", None)
         if default is not None:
             if self._has_neutron_extension('qos-default'):
-                policy['is_default'] = default
+                kwargs['is_default'] = default
             else:
                 self.log.debug("'qos-default' extension is not available on "
                                "target cloud")
 
-        if not policy:
+        if not kwargs:
             self.log.debug("No QoS policy data to update")
             return
 
@@ -3266,7 +3256,7 @@ class OpenStackCloud(
         data = self._network_client.put(
             "/qos/policies/{policy_id}.json".format(
                 policy_id=curr_policy['id']),
-            json={'policy': policy})
+            json={'policy': kwargs})
         return self._get_and_munchify('policy', data)
 
     def delete_qos_policy(self, name_or_id):
@@ -3372,8 +3362,8 @@ class OpenStackCloud(
                                                  policy=policy['id']))
         return self._get_and_munchify('bandwidth_limit_rule', data)
 
-    def create_qos_bandwidth_limit_rule(self, policy_name_or_id, max_kbps=None,
-                                        max_burst_kbps=None, direction=None):
+    @_utils.valid_kwargs("max_kbps", "max_burst_kbps", "direction")
+    def create_qos_bandwidth_limit_rule(self, policy_name_or_id, **kwargs):
         """Create a QoS bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3397,15 +3387,9 @@ class OpenStackCloud(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        rule = {}
-        if max_kbps:
-            rule['max_kbps'] = max_kbps
-        if max_burst_kbps:
-            rule['max_burst_kbps'] = max_burst_kbps
-        if direction is not None:
-            if self._has_neutron_extension('qos-bw-limit-direction'):
-                rule['direction'] = direction
-            else:
+        if kwargs.get("direction") is not None:
+            if not self._has_neutron_extension('qos-bw-limit-direction'):
+                kwargs.pop("direction")
                 self.log.debug(
                     "'qos-bw-limit-direction' extension is not available on "
                     "target cloud")
@@ -3413,12 +3397,12 @@ class OpenStackCloud(
         data = self._network_client.post(
             "/qos/policies/{policy_id}/bandwidth_limit_rules".format(
                 policy_id=policy['id']),
-            json={'bandwidth_limit_rule': rule})
+            json={'bandwidth_limit_rule': kwargs})
         return self._get_and_munchify('bandwidth_limit_rule', data)
 
+    @_utils.valid_kwargs("max_kbps", "max_burst_kbps", "direction")
     def update_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id,
-                                        max_kbps=None, max_burst_kbps=None,
-                                        direction=None):
+                                        **kwargs):
         """Update a QoS bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3443,19 +3427,14 @@ class OpenStackCloud(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        rule = {}
-        if max_kbps:
-            rule['max_kbps'] = max_kbps
-        if max_burst_kbps:
-            rule['max_burst_kbps'] = max_burst_kbps
-        if direction is not None:
-            if self._has_neutron_extension('qos-bw-limit-direction'):
-                rule['direction'] = direction
-            else:
+        if kwargs.get("direction") is not None:
+            if not self._has_neutron_extension('qos-bw-limit-direction'):
+                kwargs.pop("direction")
                 self.log.debug(
                     "'qos-bw-limit-direction' extension is not available on "
                     "target cloud")
-        if not rule:
+
+        if not kwargs:
             self.log.debug("No QoS bandwidth limit rule data to update")
             return
 
@@ -3470,7 +3449,7 @@ class OpenStackCloud(
         data = self._network_client.put(
             "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id),
-            json={'bandwidth_limit_rule': rule})
+            json={'bandwidth_limit_rule': kwargs})
         return self._get_and_munchify('bandwidth_limit_rule', data)
 
     def delete_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
@@ -3586,7 +3565,8 @@ class OpenStackCloud(
                                                  policy=policy['id']))
         return meta.get_and_munchify('dscp_marking_rule', data)
 
-    def create_qos_dscp_marking_rule(self, policy_name_or_id, dscp_mark=None):
+    @_utils.valid_kwargs("dscp_mark")
+    def create_qos_dscp_marking_rule(self, policy_name_or_id, **kwargs):
         """Create a QoS DSCP marking rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3606,18 +3586,15 @@ class OpenStackCloud(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        rule = {}
-        if dscp_mark:
-            rule['dscp_mark'] = dscp_mark
-
         data = self._network_client.post(
             "/qos/policies/{policy_id}/dscp_marking_rules".format(
                 policy_id=policy['id']),
-            json={'dscp_marking_rule': rule})
+            json={'dscp_marking_rule': kwargs})
         return meta.get_and_munchify('dscp_marking_rule', data)
 
+    @_utils.valid_kwargs("dscp_mark")
     def update_qos_dscp_marking_rule(self, policy_name_or_id, rule_id,
-                                     dscp_mark=None):
+                                     **kwargs):
         """Update a QoS DSCP marking rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3638,10 +3615,7 @@ class OpenStackCloud(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        rule = {}
-        if dscp_mark:
-            rule['dscp_mark'] = dscp_mark
-        if not rule:
+        if not kwargs:
             self.log.debug("No QoS DSCP marking rule data to update")
             return
 
@@ -3656,7 +3630,7 @@ class OpenStackCloud(
         data = self._network_client.put(
             "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id),
-            json={'dscp_marking_rule': rule})
+            json={'dscp_marking_rule': kwargs})
         return meta.get_and_munchify('dscp_marking_rule', data)
 
     def delete_qos_dscp_marking_rule(self, policy_name_or_id, rule_id):
@@ -3774,8 +3748,8 @@ class OpenStackCloud(
                                                  policy=policy['id']))
         return self._get_and_munchify('minimum_bandwidth_rule', data)
 
-    def create_qos_minimum_bandwidth_rule(self, policy_name_or_id,
-                                          min_kbps=None, direction=None):
+    @_utils.valid_kwargs("min_kbps", "direction")
+    def create_qos_minimum_bandwidth_rule(self, policy_name_or_id, **kwargs):
         """Create a QoS minimum bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3797,20 +3771,15 @@ class OpenStackCloud(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        rule = {}
-        if min_kbps:
-            rule['min_kbps'] = min_kbps
-        if direction:
-            rule['direction'] = direction
-
         data = self._network_client.post(
             "/qos/policies/{policy_id}/minimum_bandwidth_rules".format(
                 policy_id=policy['id']),
-            json={'minimum_bandwidth_rule': rule})
+            json={'minimum_bandwidth_rule': kwargs})
         return self._get_and_munchify('minimum_bandwidth_rule', data)
 
+    @_utils.valid_kwargs("min_kbps", "direction")
     def update_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id,
-                                          min_kbps=None, direction=None):
+                                          **kwargs):
         """Update a QoS minimum bandwidth rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3833,13 +3802,7 @@ class OpenStackCloud(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        rule = {}
-        if min_kbps:
-            rule['min_kbps'] = min_kbps
-        if direction:
-            rule['direction'] = direction
-
-        if not rule:
+        if not kwargs:
             self.log.debug("No QoS minimum bandwidth rule data to update")
             return
 
@@ -3854,7 +3817,7 @@ class OpenStackCloud(
         data = self._network_client.put(
             "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id),
-            json={'minimum_bandwidth_rule': rule})
+            json={'minimum_bandwidth_rule': kwargs})
         return self._get_and_munchify('minimum_bandwidth_rule', data)
 
     def delete_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
