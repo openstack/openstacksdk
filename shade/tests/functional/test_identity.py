@@ -125,7 +125,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             self.skipTest("Identity service does not support role assignments")
         assignments = self.operator_cloud.list_role_assignments()
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) > 0)
+        self.assertGreater(len(assignments), 0)
 
     def test_list_role_assignments_v2(self):
         user = self.operator_cloud.get_user('demo')
@@ -133,7 +133,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
         assignments = self.operator_cloud.list_role_assignments(
             filters={'user': user['id'], 'project': project['id']})
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) > 0)
+        self.assertGreater(len(assignments), 0)
 
     def test_grant_revoke_role_user_project(self):
         user_name = self.user_prefix + '_user_project'
@@ -151,7 +151,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             'project': self.operator_cloud.get_project('demo')['id']
         })
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) == 1)
+        self.assertEqual(1, len(assignments))
         self.assertTrue(self.operator_cloud.revoke_role(
             role_name, user=user['id'], project='demo', wait=True))
         assignments = self.operator_cloud.list_role_assignments({
@@ -160,7 +160,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             'project': self.operator_cloud.get_project('demo')['id']
         })
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) == 0)
+        self.assertEqual(0, len(assignments))
 
     def test_grant_revoke_role_group_project(self):
         if self.identity_version in ('2', '2.0'):
@@ -180,7 +180,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             'project': self.operator_cloud.get_project('demo')['id']
         })
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) == 1)
+        self.assertEqual(1, len(assignments))
         self.assertTrue(self.operator_cloud.revoke_role(
             role_name, group=group['id'], project='demo'))
         assignments = self.operator_cloud.list_role_assignments({
@@ -189,7 +189,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             'project': self.operator_cloud.get_project('demo')['id']
         })
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) == 0)
+        self.assertEqual(0, len(assignments))
 
     def test_grant_revoke_role_user_domain(self):
         if self.identity_version in ('2', '2.0'):
@@ -209,7 +209,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             'domain': self.operator_cloud.get_domain('default')['id']
         })
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) == 1)
+        self.assertEqual(1, len(assignments))
         self.assertTrue(self.operator_cloud.revoke_role(
             role_name, user=user['id'], domain='default'))
         assignments = self.operator_cloud.list_role_assignments({
@@ -218,7 +218,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             'domain': self.operator_cloud.get_domain('default')['id']
         })
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) == 0)
+        self.assertEqual(0, len(assignments))
 
     def test_grant_revoke_role_group_domain(self):
         if self.identity_version in ('2', '2.0'):
@@ -238,7 +238,7 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             'domain': self.operator_cloud.get_domain('default')['id']
         })
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) == 1)
+        self.assertEqual(1, len(assignments))
         self.assertTrue(self.operator_cloud.revoke_role(
             role_name, group=group['id'], domain='default'))
         assignments = self.operator_cloud.list_role_assignments({
@@ -247,4 +247,4 @@ class TestIdentity(base.KeystoneBaseFunctionalTestCase):
             'domain': self.operator_cloud.get_domain('default')['id']
         })
         self.assertIsInstance(assignments, list)
-        self.assertTrue(len(assignments) == 0)
+        self.assertEqual(0, len(assignments))

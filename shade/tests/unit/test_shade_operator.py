@@ -815,7 +815,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
         mock_client.node.set_power_state.return_value = None
         node_id = 'node01'
         return_value = self.op_cloud.set_machine_power_on(node_id)
-        self.assertEqual(None, return_value)
+        self.assertIsNone(return_value)
         mock_client.node.set_power_state.assert_called_with(
             node_id='node01',
             state='on')
@@ -825,7 +825,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
         mock_client.node.set_power_state.return_value = None
         node_id = 'node01'
         return_value = self.op_cloud.set_machine_power_off(node_id)
-        self.assertEqual(None, return_value)
+        self.assertIsNone(return_value)
         mock_client.node.set_power_state.assert_called_with(
             node_id='node01',
             state='off')
@@ -835,7 +835,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
         mock_client.node.set_power_state.return_value = None
         node_id = 'node01'
         return_value = self.op_cloud.set_machine_power_reboot(node_id)
-        self.assertEqual(None, return_value)
+        self.assertIsNone(return_value)
         mock_client.node.set_power_state.assert_called_with(
             node_id='node01',
             state='reboot')
@@ -1008,7 +1008,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
         return_value = self.op_cloud.activate_node(
             node_id,
             configdrive='http://127.0.0.1/file.iso')
-        self.assertEqual(None, return_value)
+        self.assertIsNone(return_value)
         mock_client.node.set_provision_state.assert_called_with(
             node_uuid='node02',
             state='active',
@@ -1035,7 +1035,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
             configdrive='http://127.0.0.1/file.iso',
             wait=True,
             timeout=2)
-        self.assertEqual(None, return_value)
+        self.assertIsNone(return_value)
         mock_client.node.set_provision_state.assert_called_with(
             node_uuid='node04',
             state='active',
@@ -1049,7 +1049,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
         node_id = 'node03'
         return_value = self.op_cloud.deactivate_node(
             node_id, wait=False)
-        self.assertEqual(None, return_value)
+        self.assertIsNone(return_value)
         mock_client.node.set_provision_state.assert_called_with(
             node_uuid='node03',
             state='deleted',
@@ -1073,7 +1073,7 @@ class TestShadeOperator(base.RequestsMockTestCase):
         node_id = 'node03'
         return_value = self.op_cloud.deactivate_node(
             node_id, wait=True, timeout=2)
-        self.assertEqual(None, return_value)
+        self.assertIsNone(return_value)
         mock_client.node.set_provision_state.assert_called_with(
             node_uuid='node03',
             state='deleted',

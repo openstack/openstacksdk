@@ -72,7 +72,7 @@ class TestFlavor(base.BaseFunctionalTestCase):
         self.assertEqual(5, flavor['ephemeral'])
         self.assertIn('is_public', flavor)
         self.assertIn('os-flavor-access:is_public', flavor)
-        self.assertEqual(True, flavor['is_public'])
+        self.assertTrue(flavor['is_public'])
 
         for key in flavor_kwargs.keys():
             self.assertIn(key, flavor)

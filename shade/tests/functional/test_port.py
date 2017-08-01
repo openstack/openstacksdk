@@ -69,7 +69,7 @@ class TestPort(base.BaseFunctionalTestCase):
         port = self.operator_cloud.create_port(
             network_id=networks[0]['id'], name=port_name)
         self.assertIsInstance(port, dict)
-        self.assertTrue('id' in port)
+        self.assertIn('id', port)
         self.assertEqual(port.get('name'), port_name)
 
     def test_get_port(self):
@@ -82,7 +82,7 @@ class TestPort(base.BaseFunctionalTestCase):
         port = self.operator_cloud.create_port(
             network_id=networks[0]['id'], name=port_name)
         self.assertIsInstance(port, dict)
-        self.assertTrue('id' in port)
+        self.assertIn('id', port)
         self.assertEqual(port.get('name'), port_name)
 
         updated_port = self.operator_cloud.get_port(name_or_id=port['id'])
@@ -121,7 +121,7 @@ class TestPort(base.BaseFunctionalTestCase):
         port = self.operator_cloud.create_port(
             network_id=networks[0]['id'], name=port_name)
         self.assertIsInstance(port, dict)
-        self.assertTrue('id' in port)
+        self.assertIn('id', port)
         self.assertEqual(port.get('name'), port_name)
 
         updated_port = self.operator_cloud.get_port(name_or_id=port['id'])

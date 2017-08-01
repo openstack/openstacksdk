@@ -93,7 +93,7 @@ class TestClusterTemplate(base.BaseFunctionalTestCase):
             self.ct['uuid'], 'replace', tls_disabled=True)
         self.assertEqual(
             cluster_template_update['uuid'], self.ct['uuid'])
-        self.assertEqual(cluster_template_update['tls_disabled'], True)
+        self.assertTrue(cluster_template_update['tls_disabled'])
 
         # Test we can delete and get True returned
         cluster_template_delete = self.user_cloud.delete_cluster_template(

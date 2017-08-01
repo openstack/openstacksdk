@@ -50,7 +50,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
         # older devstack does not have cirros256
-        self.assertTrue(result[0]['name'] in ('cirros256', 'm1.tiny'))
+        self.assertIn(result[0]['name'], ('cirros256', 'm1.tiny'))
 
     def test_range_search_max(self):
         flavors = self.user_cloud.list_flavors(get_extra=False)
@@ -110,7 +110,7 @@ class TestRangeSearch(base.BaseFunctionalTestCase):
         self.assertIsInstance(result, list)
         self.assertEqual(1, len(result))
         # older devstack does not have cirros256
-        self.assertTrue(result[0]['name'] in ('cirros256', 'm1.tiny'))
+        self.assertIn(result[0]['name'], ('cirros256', 'm1.tiny'))
 
     def test_range_search_multi_2(self):
         flavors = self.user_cloud.list_flavors(get_extra=False)

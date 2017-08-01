@@ -112,7 +112,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
         self.assertEqual(self.flavor.id, server['flavor']['id'])
-        self.assertEqual(True, server['has_config_drive'])
+        self.assertTrue(server['has_config_drive'])
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
@@ -132,7 +132,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
         self.assertEqual(self.flavor.id, server['flavor']['id'])
-        self.assertEqual(False, server['has_config_drive'])
+        self.assertFalse(server['has_config_drive'])
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
             self.user_cloud.delete_server(
@@ -272,7 +272,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         volume = self.user_cloud.get_volume(volume_id)
         self.assertIsNotNone(volume)
         self.assertEqual(volume['name'], volume['display_name'])
-        self.assertEqual(True, volume['bootable'])
+        self.assertTrue(volume['bootable'])
         self.assertEqual(server['id'], volume['attachments'][0]['server_id'])
         self.assertTrue(self.user_cloud.delete_server(server.id, wait=True))
         self._wait_for_detach(volume.id)
@@ -336,7 +336,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         volume = self.user_cloud.get_volume(volume_id)
         self.assertIsNotNone(volume)
         self.assertEqual(volume['name'], volume['display_name'])
-        self.assertEqual(True, volume['bootable'])
+        self.assertTrue(volume['bootable'])
         self.assertEqual([], volume['attachments'])
         self._wait_for_detach(volume.id)
         self.assertTrue(self.user_cloud.delete_volume(volume_id))

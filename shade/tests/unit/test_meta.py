@@ -778,7 +778,7 @@ class TestMeta(base.RequestsMockTestCase):
         )
         ip = meta.get_server_external_ipv4(cloud=self.cloud, server=srv)
 
-        self.assertEqual(None, ip)
+        self.assertIsNone(ip)
         self.assert_calls()
 
     def test_get_server_external_ipv4_neutron_accessIPv4(self):

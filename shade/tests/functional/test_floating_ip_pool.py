@@ -47,4 +47,4 @@ class TestFloatingIPPool(base.BaseFunctionalTestCase):
             self.assertFalse('no floating-ip pool available')
 
         for pool in pools:
-            self.assertTrue('name' in pool)
+            self.assertIn('name', pool)
