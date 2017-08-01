@@ -1725,6 +1725,30 @@ class OpenStackCloud(
             error_message="Error fetching QoS rule types list")
         return self._get_and_munchify('rule_types', data)
 
+    def get_qos_rule_type_details(self, rule_type, filters=None):
+        """Get a QoS rule type details by rule type name.
+
+        :param string rule_type: Name of the QoS rule type.
+
+        :returns: A rule type details ``munch.Munch`` or None if
+            no matching rule type is found.
+
+        """
+        if not self._has_neutron_extension('qos'):
+            raise OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+
+        if not self._has_neutron_extension('qos-rule-type-details'):
+            raise OpenStackCloudUnavailableExtension(
+                'qos-rule-type-details extension is not available '
+                'on target cloud')
+
+        data = self._network_client.get(
+            "/qos/rule-types/{rule_type}.json".format(rule_type=rule_type),
+            error_message="Error fetching QoS details of {rule_type} "
+                          "rule type".format(rule_type=rule_type))
+        return self._get_and_munchify('rule_type', data)
+
     def list_qos_policies(self, filters=None):
         """List all available QoS policies.
 
