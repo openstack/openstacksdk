@@ -3780,33 +3780,20 @@ class OpenStackCloud(
 
         :returns: A list of port ``munch.Munch`` objects.
         """
-        ports = self.search_ports(filters={'device_id': router['id']})
+        # Find only router interface and gateway ports, ignore L3 HA ports etc.
+        router_interfaces = self.search_ports(filters={
+            'device_id': router['id'],
+            'device_owner': 'network:router_interface'})
+        router_gateways = self.search_ports(filters={
+            'device_id': router['id'],
+            'device_owner': 'network:router_gateway'})
+        ports = router_interfaces + router_gateways
 
         if interface_type:
-            filtered_ports = []
-            if (router.get('external_gateway_info') and
-                    'external_fixed_ips' in router['external_gateway_info']):
-                ext_fixed = \
-                    router['external_gateway_info']['external_fixed_ips']
-            else:
-                ext_fixed = []
-
-            # Compare the subnets (subnet_id, ip_address) on the ports with
-            # the subnets making up the router external gateway. Those ports
-            # that match are the external interfaces, and those that don't
-            # are internal.
-            for port in ports:
-                matched_ext = False
-                for port_subnet in port['fixed_ips']:
-                    for router_external_subnet in ext_fixed:
-                        if port_subnet == router_external_subnet:
-                            matched_ext = True
-                if interface_type == 'internal' and not matched_ext:
-                    filtered_ports.append(port)
-                elif interface_type == 'external' and matched_ext:
-                    filtered_ports.append(port)
-            return filtered_ports
-
+            if interface_type == 'internal':
+                return router_interfaces
+            if interface_type == 'external':
+                return router_gateways
         return ports
 
     def create_router(self, name=None, admin_state_up=True,
