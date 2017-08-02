@@ -35,7 +35,8 @@ class TestZone(TestDNSProxy):
         }
         self.mock_response_json_file_values('list_zone.json')
         zones = list(self.proxy.zones(**query))
-        self.assert_session_list_with('/zones', query)
+        self.assert_session_list_with('/zones', {'type': 'public',
+                                                 'limit': 10})
         self.assertEqual(2, len(zones))
         zone = zones[0]
         self.assertEqual(zone.id, '2c9eb155587194ec01587224c9f90149')

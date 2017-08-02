@@ -94,6 +94,8 @@ class TestPolicy(base.BaseFunctionalTest):
     def test_update_policy(self):
         new_name = "SDK-" + uuid.uuid4().hex
         self.conn.auto_scaling.update_policy(self.policy,
-                                             name=new_name)
+                                             name=new_name,
+                                             cool_down_time=300)
         self.policy = self.conn.auto_scaling.get_policy(self.policy)
         self.assertEqual(new_name, self.policy.name)
+        self.assertEqual(300, self.policy.cool_down_time)
