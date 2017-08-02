@@ -34,7 +34,7 @@ class Proxy(proxy2.BaseProxy):
         return self._create(_lb.LoadBalancerJob, prepend_key=False, **attrs)
 
     def get_load_balancer(self, load_balancer):
-        """Get a certificate
+        """Get load balancer
 
         :param load_balancer: Either the ID of a load_balancer or an instance
             of :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
@@ -44,7 +44,7 @@ class Proxy(proxy2.BaseProxy):
         return self._get(_lb.LoadBalancer, load_balancer)
 
     def update_load_balancer(self, load_balancer, **attrs):
-        """Update a server
+        """Update a load balancer
 
         :param load_balancer: Either the ID of a load_balancer or an instance
             of :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
@@ -62,7 +62,7 @@ class Proxy(proxy2.BaseProxy):
                             **attrs)
 
     def load_balancers(self, **query):
-        """Retrieve a generator of certificates
+        """Retrieve a generator of load balancers
 
          :param dict query: Optional query parameters to be sent to limit the
                       resources being returned.
@@ -83,7 +83,7 @@ class Proxy(proxy2.BaseProxy):
         return self._list(_lb.LoadBalancer, paginated=False, **query)
 
     def delete_load_balancer(self, load_balancer, ignore_missing=True):
-        """Delete a certificate
+        """Delete a load balancer
 
         :param load_balancer: Either the ID of a load_balancer or an instance
             of :class:`~openstack.load_balancer.v1.load_balancer.LoadBalancer`
@@ -131,7 +131,7 @@ class Proxy(proxy2.BaseProxy):
         return self._create(_cert.Certificate, prepend_key=False, **attrs)
 
     def update_certificate(self, certificate, **attrs):
-        """Update a server
+        """Update a certificate
 
         :param certificate: Either the ID of a certificate or an instance of
                 :class:`~openstack.certificate.v1.certificate.Certificate`
@@ -202,7 +202,7 @@ class Proxy(proxy2.BaseProxy):
         return self._create(_listener.Listener, prepend_key=False, **attrs)
 
     def get_listener(self, listener):
-        """Get a certificate
+        """Get a load balance listener
 
         :param listener: Either the ID of a listener or an instance of
                 :class:`~openstack.load_balancer.v1.listener.Listener`
@@ -212,7 +212,7 @@ class Proxy(proxy2.BaseProxy):
         return self._get(_listener.Listener, listener)
 
     def update_listener(self, listener, **attrs):
-        """Update a server
+        """Update a load balance listener
 
         :param listener: Either the ID of a listener or an instance of
                 :class:`~openstack.load_balancer.v1.listener.Listener`
@@ -257,7 +257,7 @@ class Proxy(proxy2.BaseProxy):
         return self._list(_listener.Listener, paginated=False, **query)
 
     def delete_listener(self, listener, ignore_missing=True):
-        """Delete a certificate
+        """Delete a load balance listener
 
         :param listener: Either the ID of a listener or an instance of
                 :class:`~openstack.load_balancer.v1.listener.Listener`
@@ -406,7 +406,7 @@ class Proxy(proxy2.BaseProxy):
         """
         listener = self._get_resource(_listener.Listener, listener)
         return self._list(_listener.Member,
-                          paginated=True,
+                          paginated=False,
                           listener_id=listener.id,
                           **query)
 
