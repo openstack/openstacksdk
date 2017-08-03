@@ -270,7 +270,7 @@ class TestQosPolicy(base.RequestsMockTestCase):
                      json={'policy': {'name': 'goofy'}}))
         ])
         policy = self.cloud.update_qos_policy(
-            self.policy_id, policy_name='goofy')
+            self.policy_id, name='goofy')
         self.assertDictEqual(expected_policy, policy)
         self.assert_calls()
 
@@ -283,7 +283,7 @@ class TestQosPolicy(base.RequestsMockTestCase):
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.cloud.update_qos_policy, self.policy_id, policy_name="goofy")
+            self.cloud.update_qos_policy, self.policy_id, name="goofy")
         self.assert_calls()
 
     def test_update_qos_policy_no_qos_default_extension(self):
@@ -317,6 +317,6 @@ class TestQosPolicy(base.RequestsMockTestCase):
                      json={'policy': {'name': "goofy"}}))
         ])
         policy = self.cloud.update_qos_policy(
-            self.policy_id, policy_name='goofy', default=True)
+            self.policy_id, name='goofy', default=True)
         self.assertDictEqual(expected_policy, policy)
         self.assert_calls()
