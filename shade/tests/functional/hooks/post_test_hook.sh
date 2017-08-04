@@ -45,7 +45,7 @@ echo "Running shade functional test suite"
 set +e
 sudo -E -H -u jenkins tox -e$tox_env
 EXIT_CODE=$?
-sudo testr last --subunit > $WORKSPACE/tempest.subunit
+sudo stestr last --subunit > $WORKSPACE/tempest.subunit
 .tox/$tox_env/bin/pbr freeze
 set -e
 
