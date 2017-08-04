@@ -3386,8 +3386,9 @@ class OpenStackCloud(
                                                  policy=policy['id']))
         return self._get_and_munchify('bandwidth_limit_rule', data)
 
-    @_utils.valid_kwargs("max_kbps", "max_burst_kbps", "direction")
-    def create_qos_bandwidth_limit_rule(self, policy_name_or_id, **kwargs):
+    @_utils.valid_kwargs("max_burst_kbps", "direction")
+    def create_qos_bandwidth_limit_rule(self, policy_name_or_id, max_kbps,
+                                        **kwargs):
         """Create a QoS bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3418,6 +3419,7 @@ class OpenStackCloud(
                     "'qos-bw-limit-direction' extension is not available on "
                     "target cloud")
 
+        kwargs['max_kbps'] = max_kbps
         data = self._network_client.post(
             "/qos/policies/{policy_id}/bandwidth_limit_rules".format(
                 policy_id=policy['id']),
@@ -3589,8 +3591,7 @@ class OpenStackCloud(
                                                  policy=policy['id']))
         return meta.get_and_munchify('dscp_marking_rule', data)
 
-    @_utils.valid_kwargs("dscp_mark")
-    def create_qos_dscp_marking_rule(self, policy_name_or_id, **kwargs):
+    def create_qos_dscp_marking_rule(self, policy_name_or_id, dscp_mark):
         """Create a QoS DSCP marking rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3610,10 +3611,13 @@ class OpenStackCloud(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
+        body = {
+            'dscp_mark': dscp_mark
+        }
         data = self._network_client.post(
             "/qos/policies/{policy_id}/dscp_marking_rules".format(
                 policy_id=policy['id']),
-            json={'dscp_marking_rule': kwargs})
+            json={'dscp_marking_rule': body})
         return meta.get_and_munchify('dscp_marking_rule', data)
 
     @_utils.valid_kwargs("dscp_mark")
@@ -3772,8 +3776,9 @@ class OpenStackCloud(
                                                  policy=policy['id']))
         return self._get_and_munchify('minimum_bandwidth_rule', data)
 
-    @_utils.valid_kwargs("min_kbps", "direction")
-    def create_qos_minimum_bandwidth_rule(self, policy_name_or_id, **kwargs):
+    @_utils.valid_kwargs("direction")
+    def create_qos_minimum_bandwidth_rule(self, policy_name_or_id, min_kbps,
+                                          **kwargs):
         """Create a QoS minimum bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -3795,6 +3800,7 @@ class OpenStackCloud(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
+        kwargs['min_kbps'] = min_kbps
         data = self._network_client.post(
             "/qos/policies/{policy_id}/minimum_bandwidth_rules".format(
                 policy_id=policy['id']),
