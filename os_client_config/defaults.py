@@ -14,19 +14,30 @@
 
 import json
 import os
+import threading
 
 _json_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), 'defaults.json')
 _defaults = None
+_defaults_lock = threading.Lock()
 
 
 def get_defaults():
     global _defaults
-    if not _defaults:
+    if _defaults is not None:
+        return _defaults.copy()
+    with _defaults_lock:
+        if _defaults is not None:
+            # Did someone else just finish filling it?
+            return _defaults.copy()
         # Python language specific defaults
         # These are defaults related to use of python libraries, they are
         # not qualities of a cloud.
-        _defaults = dict(
+        #
+        # NOTE(harlowja): update a in-memory dict, before updating
+        # the global one so that other callers of get_defaults do not
+        # see the partially filled one.
+        tmp_defaults = dict(
             api_timeout=None,
             verify=True,
             cacert=None,
@@ -36,6 +47,6 @@ def get_defaults():
         with open(_json_path, 'r') as json_file:
             updates = json.load(json_file)
             if updates is not None:
-                _defaults.update(updates)
-
-    return _defaults.copy()
+                tmp_defaults.update(updates)
+        _defaults = tmp_defaults
+        return tmp_defaults.copy()
