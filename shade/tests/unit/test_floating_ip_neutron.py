@@ -235,6 +235,29 @@ class TestFloatingIP(base.RequestsMockTestCase):
         self.assertIsNone(floating_ip)
         self.assert_calls()
 
+    def test_get_floating_ip_by_id(self):
+        fid = self.mock_floating_ip_new_rep['floatingip']['id']
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/floatingips/'
+                     '{id}'.format(id=fid),
+                 json=self.mock_floating_ip_new_rep)])
+
+        floating_ip = self.cloud.get_floating_ip_by_id(id=fid)
+
+        self.assertIsInstance(floating_ip, dict)
+        self.assertEqual('172.24.4.229', floating_ip['floating_ip_address'])
+        self.assertEqual(
+            self.mock_floating_ip_new_rep['floatingip']['tenant_id'],
+            floating_ip['project_id']
+        )
+        self.assertEqual(
+            self.mock_floating_ip_new_rep['floatingip']['tenant_id'],
+            floating_ip['tenant_id']
+        )
+        self.assertIn('location', floating_ip)
+        self.assert_calls()
+
     def test_create_floating_ip(self):
         self.register_uris([
             dict(method='GET',

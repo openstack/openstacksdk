@@ -2660,6 +2660,20 @@ class OpenStackCloud(
         """
         return _utils._get_entity(self.search_networks, name_or_id, filters)
 
+    def get_network_by_id(self, id):
+        """ Get a network by ID
+
+        :param id: ID of the network.
+        :returns: A network ``munch.Munch``.
+        """
+        data = self._network_client.get(
+            '/networks/{id}'.format(id=id),
+            error_message="Error getting network with ID {id}".format(id=id)
+        )
+        network = self._get_and_munchify('network', data)
+
+        return network
+
     def get_router(self, name_or_id, filters=None):
         """Get a router by name or ID.
 
@@ -2706,6 +2720,20 @@ class OpenStackCloud(
         """
         return _utils._get_entity(self.search_subnets, name_or_id, filters)
 
+    def get_subnet_by_id(self, id):
+        """ Get a subnet by ID
+
+        :param id: ID of the subnet.
+        :returns: A subnet ``munch.Munch``.
+        """
+        data = self._network_client.get(
+            '/subnets/{id}'.format(id=id),
+            error_message="Error getting subnet with ID {id}".format(id=id)
+        )
+        subnet = self._get_and_munchify('subnet', data)
+
+        return subnet
+
     def get_port(self, name_or_id, filters=None):
         """Get a port by name or ID.
 
@@ -2729,6 +2757,20 @@ class OpenStackCloud(
 
         """
         return _utils._get_entity(self.search_ports, name_or_id, filters)
+
+    def get_port_by_id(self, id):
+        """ Get a port by ID
+
+        :param id: ID of the port.
+        :returns: A port ``munch.Munch``.
+        """
+        data = self._network_client.get(
+            '/ports/{id}'.format(id=id),
+            error_message="Error getting port with ID {id}".format(id=id)
+        )
+        port = self._get_and_munchify('port', data)
+
+        return port
 
     def get_qos_policy(self, name_or_id, filters=None):
         """Get a QoS policy by name or ID.
@@ -2780,6 +2822,21 @@ class OpenStackCloud(
 
         """
         return _utils._get_entity(self.search_volumes, name_or_id, filters)
+
+    def get_volume_by_id(self, id):
+        """ Get a volume by ID
+
+        :param id: ID of the volume.
+        :returns: A volume ``munch.Munch``.
+        """
+        data = self._volume_client.get(
+            '/volumes/{id}'.format(id=id),
+            error_message="Error getting volume with ID {id}".format(id=id)
+        )
+        volume = self._normalize_volume(
+            self._get_and_munchify('volume', data))
+
+        return volume
 
     def get_volume_type(self, name_or_id, filters=None):
         """Get a volume type by name or ID.
@@ -2837,6 +2894,42 @@ class OpenStackCloud(
             self.search_flavors, get_extra=get_extra)
         return _utils._get_entity(search_func, name_or_id, filters)
 
+    def get_flavor_by_id(self, id, get_extra=True):
+        """ Get a flavor by ID
+
+        :param id: ID of the flavor.
+        :param get_extra:
+             Whether or not the list_flavors call should get the extra flavor
+             specs.
+        :returns: A flavor ``munch.Munch``.
+        """
+        data = self._compute_client.get(
+            '/flavors/{id}'.format(id=id),
+            error_message="Error getting flavor with ID {id}".format(id=id)
+        )
+        flavor = self._normalize_flavor(
+            self._get_and_munchify('flavor', data))
+
+        if get_extra is None:
+            get_extra = self._extra_config['get_flavor_extra_specs']
+
+        if not flavor.extra_specs and get_extra:
+            endpoint = "/flavors/{id}/os-extra_specs".format(
+                id=flavor.id)
+            try:
+                data = self._compute_client.get(
+                    endpoint,
+                    error_message="Error fetching flavor extra specs")
+                flavor.extra_specs = self._get_and_munchify(
+                    'extra_specs', data)
+            except OpenStackCloudHTTPError as e:
+                flavor.extra_specs = {}
+                self.log.debug(
+                    'Fetching extra specs for flavor failed:'
+                    ' %(msg)s', {'msg': str(e)})
+
+        return flavor
+
     def get_security_group(self, name_or_id, filters=None):
         """Get a security group by name or ID.
 
@@ -2862,6 +2955,29 @@ class OpenStackCloud(
         """
         return _utils._get_entity(
             self.search_security_groups, name_or_id, filters)
+
+    def get_security_group_by_id(self, id):
+        """ Get a security group by ID
+
+        :param id: ID of the security group.
+        :returns: A security group ``munch.Munch``.
+        """
+        if not self._has_secgroups():
+            raise OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+        error_message = ("Error getting security group with"
+                         " ID {id}".format(id=id))
+        if self._use_neutron_secgroups():
+            data = self._network_client.get(
+                '/security-groups/{id}'.format(id=id),
+                error_message=error_message)
+        else:
+            data = self._compute_client.get(
+                '/os-security-groups/{id}'.format(id=id),
+                error_message=error_message)
+        return self._normalize_secgroup(
+            self._get_and_munchify('security_group', data))
 
     def get_server_console(self, server, length=None):
         """Get the console log for a server.
@@ -2988,6 +3104,22 @@ class OpenStackCloud(
         """
         return _utils._get_entity(self.search_images, name_or_id, filters)
 
+    def get_image_by_id(self, id):
+        """ Get a image by ID
+
+        :param id: ID of the image.
+        :returns: An image ``munch.Munch``.
+        """
+        data = self._image_client.get(
+            '/images/{id}'.format(id=id),
+            error_message="Error getting image with ID {id}".format(id=id)
+        )
+        key = 'image' if 'image' in data else None
+        image = self._normalize_image(
+            self._get_and_munchify(key, data))
+
+        return image
+
     def download_image(
             self, name_or_id, output_path=None, output_file=None,
             chunk_size=1024):
@@ -3062,6 +3194,27 @@ class OpenStackCloud(
 
         """
         return _utils._get_entity(self.search_floating_ips, id, filters)
+
+    def get_floating_ip_by_id(self, id):
+        """ Get a floating ip by ID
+
+        :param id: ID of the floating ip.
+        :returns: A floating ip ``munch.Munch``.
+        """
+        error_message = "Error getting floating ip with ID {id}".format(id=id)
+
+        if self._use_neutron_floating():
+            data = self._network_client.get(
+                '/floatingips/{id}'.format(id=id),
+                error_message=error_message)
+            return self._normalize_floating_ip(
+                self._get_and_munchify('floatingip', data))
+        else:
+            data = self._compute_client.get(
+                '/os-floating-ips/{id}'.format(id=id),
+                error_message=error_message)
+            return self._normalize_floating_ip(
+                self._get_and_munchify('floating_ip', data))
 
     def get_stack(self, name_or_id, filters=None):
         """Get exactly one stack.

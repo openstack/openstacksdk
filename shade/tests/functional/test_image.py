@@ -148,3 +148,23 @@ class TestImage(base.BaseFunctionalTestCase):
             self.assertEqual(image.properties['foo'], 'bar')
         finally:
             self.user_cloud.delete_image(image_name, wait=True)
+
+    def test_get_image_by_id(self):
+        test_image = tempfile.NamedTemporaryFile(delete=False)
+        test_image.write(b'\0' * 1024 * 1024)
+        test_image.close()
+        image_name = self.getUniqueString('image')
+        try:
+            image = self.user_cloud.create_image(
+                name=image_name,
+                filename=test_image.name,
+                disk_format='raw',
+                container_format='bare',
+                min_disk=10,
+                min_ram=1024,
+                wait=True)
+            image = self.user_cloud.get_image_by_id(image.id)
+            self.assertEqual(image_name, image.name)
+            self.assertEqual('raw', image.disk_format)
+        finally:
+            self.user_cloud.delete_image(image_name, wait=True)

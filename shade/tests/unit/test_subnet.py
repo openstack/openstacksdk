@@ -69,6 +69,20 @@ class TestSubnet(base.RequestsMockTestCase):
         self.assertDictEqual(self.mock_subnet_rep, r)
         self.assert_calls()
 
+    def test_get_subnet_by_id(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0',
+                                                  'subnets',
+                                                  self.subnet_id]),
+                 json={'subnet': self.mock_subnet_rep})
+        ])
+        r = self.cloud.get_subnet_by_id(self.subnet_id)
+        self.assertIsNotNone(r)
+        self.assertDictEqual(self.mock_subnet_rep, r)
+        self.assert_calls()
+
     def test_create_subnet(self):
         pool = [{'start': '192.168.199.2', 'end': '192.168.199.254'}]
         dns = ['8.8.8.8']

@@ -672,6 +672,18 @@ class TestImage(BaseTestImage):
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
+    def test_get_image_by_id(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images/{id}'.format(
+                     id=self.image_id),
+                 json=self.fake_image_dict)
+        ])
+        self.assertEqual(
+            self.cloud._normalize_image(self.fake_image_dict),
+            self.cloud.get_image_by_id(self.image_id))
+        self.assert_calls()
+
 
 class TestImageV1Only(base.RequestsMockTestCase):
 

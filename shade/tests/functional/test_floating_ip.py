@@ -275,3 +275,10 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
             [fip.id for fip in self.user_cloud.search_floating_ips(
                 filters={"attached": True})]
         )
+
+    def test_get_floating_ip_by_id(self):
+        fip_user = self.user_cloud.create_floating_ip()
+        self.addCleanup(self.user_cloud.delete_floating_ip, fip_user.id)
+
+        ret_fip = self.user_cloud.get_floating_ip_by_id(fip_user.id)
+        self.assertEqual(fip_user, ret_fip)

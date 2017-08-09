@@ -412,3 +412,18 @@ class TestVolume(base.RequestsMockTestCase):
             [self.cloud._normalize_volume(vol1)],
             self.cloud.list_volumes())
         self.assert_calls()
+
+    def test_get_volume_by_id(self):
+        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', '01']),
+                 json={'volume': vol1}
+                 )
+        ])
+        self.assertEqual(
+            self.cloud._normalize_volume(vol1),
+            self.cloud.get_volume_by_id('01'))
+        self.assert_calls()

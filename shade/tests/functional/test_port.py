@@ -91,6 +91,25 @@ class TestPort(base.BaseFunctionalTestCase):
             del updated_port['extra_dhcp_opts']
         self.assertEqual(port, updated_port)
 
+    def test_get_port_by_id(self):
+        port_name = self.new_port_name + '_get_by_id'
+
+        networks = self.operator_cloud.list_networks()
+        if not networks:
+            self.assertFalse('no sensible network available')
+
+        port = self.operator_cloud.create_port(
+            network_id=networks[0]['id'], name=port_name)
+        self.assertIsInstance(port, dict)
+        self.assertIn('id', port)
+        self.assertEqual(port.get('name'), port_name)
+
+        updated_port = self.operator_cloud.get_port_by_id(port['id'])
+        # extra_dhcp_opts is added later by Neutron...
+        if 'extra_dhcp_opts' in updated_port and 'extra_dhcp_opts' not in port:
+            del updated_port['extra_dhcp_opts']
+        self.assertEqual(port, updated_port)
+
     def test_update_port(self):
         port_name = self.new_port_name + '_update'
         new_port_name = port_name + '_new'
