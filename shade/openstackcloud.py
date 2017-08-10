@@ -2885,12 +2885,15 @@ class OpenStackCloud(
                 "Console log requested for invalid server")
 
         try:
-            data = self._compute_client.post(
-                '/servers/{server}/action'.format(server=server['id']),
-                json={'os-getConsoleOutput': {'length': length}})
-            return self._get_and_munchify('output', data)
+            return self._get_server_console_output(server['id'], length)
         except OpenStackCloudBadRequest:
             return ""
+
+    def _get_server_console_output(self, server_id, length=None):
+            data = self._compute_client.post(
+                '/servers/{server_id}/action'.format(server_id=server_id),
+                json={'os-getConsoleOutput': {'length': length}})
+            return self._get_and_munchify('output', data)
 
     def get_server(
             self, name_or_id=None, filters=None, detailed=False, bare=False):
