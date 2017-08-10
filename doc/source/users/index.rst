@@ -114,6 +114,7 @@ The following services have exposed *Resource* classes.
    Identity <resources/identity/index>
    Image <resources/image/index>
    Key Management <resources/key_manager/index>
+   Load Balancer <resources/load_balancer/index>
    Metric <resources/metric/index>
    Network <resources/network/index>
    Orchestration <resources/orchestration/index>

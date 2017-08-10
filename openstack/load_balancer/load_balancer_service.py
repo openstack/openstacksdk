@@ -16,11 +16,11 @@ from openstack import service_filter
 class LoadBalancerService(service_filter.ServiceFilter):
     """The load balancer service."""
 
-    valid_versions = [service_filter.ValidVersion('v2')]
+    valid_versions = [service_filter.ValidVersion('v2', 'v2.0')]
 
     def __init__(self, version=None):
         """Create a load balancer service."""
         super(LoadBalancerService, self).__init__(
-            service_type='load_balancer',
+            service_type='load-balancer',
             version=version
         )

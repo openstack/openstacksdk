@@ -16,7 +16,8 @@ Load Balancer Operations
 .. autoclass:: openstack.load_balancer.v2._proxy.Proxy
 
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_load_balancer
-   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_load_balancer
-   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.load_balancers
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_load_balancer
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_load_balancer
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_load_balancer
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.load_balancers
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_load_balancer

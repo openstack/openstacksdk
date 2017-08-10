@@ -14,7 +14,11 @@ cat /etc/openstack/clouds.yaml
 
 cd ${DIR}
 echo '=functional=============================================='
-tox -e functional
+if [[ -n "$1" ]]; then
+    tox -e functional -- $1
+else
+    tox -e functional
+fi
 FUNCTIONAL_RESULT=\$?
 echo '=examples================================================'
 tox -e examples

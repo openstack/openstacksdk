@@ -36,6 +36,7 @@ def get_proxy_methods():
              "openstack.image.v1._proxy",
              "openstack.image.v2._proxy",
              "openstack.key_manager.v1._proxy",
+             "openstack.load_balancer.v2._proxy",
              "openstack.message.v1._proxy",
              "openstack.message.v2._proxy",
              "openstack.metric.v1._proxy",
