@@ -1,0 +1,4 @@
+---
+upgrade:
+  - Renamed telemetry to meter to align with the official
+    service type.

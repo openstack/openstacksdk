@@ -63,7 +63,7 @@ class Message(resource2.Resource):
         }
         request.headers.update(headers)
         request.body = {'messages': messages}
-        response = session.post(request.uri, endpoint_filter=self.service,
+        response = session.post(request.url,
                                 json=request.body, headers=request.headers)
 
         return response.json()['resources']
@@ -86,7 +86,7 @@ class Message(resource2.Resource):
 
         query_params = cls._query_mapping._transpose(params)
         while more_data:
-            resp = session.get(uri, endpoint_filter=cls.service,
+            resp = session.get(uri,
                                headers=headers, params=query_params)
             resp = resp.json()
             resp = resp[cls.resources_key]
@@ -117,7 +117,7 @@ class Message(resource2.Resource):
         }
 
         request.headers.update(headers)
-        response = session.get(request.uri, endpoint_filter=self.service,
+        response = session.get(request.url,
                                headers=headers)
         self._translate_response(response)
 
@@ -135,8 +135,8 @@ class Message(resource2.Resource):
         # parameter when deleting a message that has been claimed, we
         # rebuild the request URI if claim_id is not None.
         if self.claim_id:
-            request.uri += '?claim_id=%s' % self.claim_id
-        response = session.delete(request.uri, endpoint_filter=self.service,
+            request.url += '?claim_id=%s' % self.claim_id
+        response = session.delete(request.url,
                                   headers=headers)
 
         self._translate_response(response, has_body=False)

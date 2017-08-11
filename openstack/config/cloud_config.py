@@ -166,10 +166,12 @@ class CloudConfig(object):
         # still work.
         # What's even more amazing is that they did it AGAIN with cinder v3
         # And then I learned that mistral copied it.
-        if service_type == 'volume':
-            if self.get_api_version(service_type).startswith('2'):
+        # TODO(shade) This should get removed when we have os-service-types
+        # alias support landed in keystoneauth.
+        if service_type in ('volume', 'block-storage'):
+            if self.get_api_version('volume').startswith('2'):
                 service_type = 'volumev2'
-            elif self.get_api_version(service_type).startswith('3'):
+            elif self.get_api_version('volume').startswith('3'):
                 service_type = 'volumev3'
         elif service_type == 'workflow':
             if self.get_api_version(service_type).startswith('2'):
@@ -255,7 +257,7 @@ class CloudConfig(object):
             service_type=self.get_service_type(service_key),
             service_name=self.get_service_name(service_key),
             interface=self.get_interface(service_key),
-            region_name=self.region)
+            region_name=self.get_region_name(service_key))
 
     def _get_highest_endpoint(self, service_types, kwargs):
         session = self.get_session()

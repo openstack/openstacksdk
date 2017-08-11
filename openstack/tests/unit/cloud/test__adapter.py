@@ -34,5 +34,5 @@ class TestExtractName(base.TestCase):
 
     def test_extract_name(self):
 
-        results = _adapter.extract_name(self.url)
+        results = _adapter._extract_name(self.url)
         self.assertEqual(self.parts, results)

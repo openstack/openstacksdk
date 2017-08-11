@@ -54,4 +54,4 @@ class Test_HttpException(testtools.TestCase):
                                 http_status=http_status)
 
         self.assertEqual(self.message, exc.message)
-        self.assertEqual(http_status, exc.http_status)
+        self.assertEqual(http_status, exc.status_code)

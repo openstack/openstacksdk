@@ -16,8 +16,6 @@ for service identifiers and user service preferences.  Each
 :class:`~openstack.resource.Resource` has a service identifier to
 associate the resource with a service.  An example of a service identifier
 would be ``openstack.compute.compute_service.ComputeService``.
-The preferences are stored in the
-:class:`~openstack.profile.Profile` object.
 The service preference and the service identifier are joined to create a
 filter to match a service.
 

@@ -2641,6 +2641,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  uri=self.get_mock_url(resource='domains',
                                        append=['baddomain']),
                  status_code=404,
+                 headers={'Content-Type': 'text/plain'},
                  text='Could not find domain: baddomain')
         ])
         with testtools.ExpectedException(
@@ -2663,6 +2664,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  uri=self.get_mock_url(resource='domains',
                                        append=['baddomain']),
                  status_code=404,
+                 headers={'Content-Type': 'text/plain'},
                  text='Could not find domain: baddomain')
         ])
         with testtools.ExpectedException(

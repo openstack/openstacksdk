@@ -37,7 +37,7 @@ class MetadataMixin(object):
         else:
             url = utils.urljoin(base, self.id, "metadata")
 
-        kwargs = {"endpoint_filter": self.service}
+        kwargs = {}
         if metadata or clear:
             # 'meta' is the key for singular modifications.
             # 'metadata' is the key for mass modifications.

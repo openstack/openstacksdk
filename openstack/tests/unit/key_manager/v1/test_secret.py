@@ -94,8 +94,7 @@ class TestSecret(testtools.TestCase):
 
         sot.get(sess)
 
-        sess.get.assert_called_once_with("secrets/id",
-                                         endpoint_filter=sot.service)
+        sess.get.assert_called_once_with("secrets/id")
 
     def _test_payload(self, sot, metadata, content_type):
         content_type = "some/type"
@@ -114,8 +113,8 @@ class TestSecret(testtools.TestCase):
         rv = sot.get(sess)
 
         sess.get.assert_has_calls(
-            [mock.call("secrets/id", endpoint_filter=sot.service),
-             mock.call("secrets/id/payload", endpoint_filter=sot.service,
+            [mock.call("secrets/id",),
+             mock.call("secrets/id/payload",
                        headers={"Accept": content_type})])
 
         self.assertEqual(rv.payload, payload)

@@ -2,6 +2,8 @@
  Configuring os-client-config Applications
 ===========================================
 
+.. _config-environment-variables:
+
 Environment Variables
 ---------------------
 
@@ -21,6 +23,8 @@ for trove set
 .. code-block:: bash
 
   export OS_DATABASE_SERVICE_TYPE=rax:database
+
+.. _config-clouds-yaml:
 
 Config Files
 ------------

@@ -78,7 +78,7 @@ class TestAgent(testtools.TestCase):
         self.assertEqual(response.body, net.add_agent_to_network(sess, **body))
 
         url = 'agents/IDENTIFIER/dhcp-networks'
-        sess.post.assert_called_with(url, endpoint_filter=net.service,
+        sess.post.assert_called_with(url,
                                      json=body)
 
     def test_remove_agent_from_network(self):
@@ -90,7 +90,7 @@ class TestAgent(testtools.TestCase):
         body = {'network_id': {}}
 
         sess.delete.assert_called_with('agents/IDENTIFIER/dhcp-networks/',
-                                       endpoint_filter=net.service, json=body)
+                                       json=body)
 
     def test_add_router_to_agent(self):
         # Add router to agent
@@ -105,7 +105,7 @@ class TestAgent(testtools.TestCase):
                          sot.add_router_to_agent(sess, router_id))
         body = {'router_id': router_id}
         url = 'agents/IDENTIFIER/l3-routers'
-        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_with(url,
                                      json=body)
 
     def test_remove_router_from_agent(self):
@@ -117,7 +117,7 @@ class TestAgent(testtools.TestCase):
         body = {'router_id': {}}
 
         sess.delete.assert_called_with('agents/IDENTIFIER/l3-routers/',
-                                       endpoint_filter=sot.service, json=body)
+                                       json=body)
 
 
 class TestNetworkHostingDHCPAgent(testtools.TestCase):

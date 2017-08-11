@@ -48,9 +48,9 @@ class TestMetadata(testtools.TestCase):
         result = sot.get_metadata(sess)
 
         self.assertEqual(result, self.metadata_result["metadata"])
-        sess.get.assert_called_once_with("servers/IDENTIFIER/metadata",
-                                         headers={},
-                                         endpoint_filter=sot.service)
+        sess.get.assert_called_once_with(
+            "servers/IDENTIFIER/metadata",
+            headers={})
 
     def test_set_metadata(self):
         response = mock.Mock()
@@ -66,7 +66,6 @@ class TestMetadata(testtools.TestCase):
 
         self.assertEqual(result, self.metadata_result["metadata"])
         sess.post.assert_called_once_with("servers/IDENTIFIER/metadata",
-                                          endpoint_filter=sot.service,
                                           headers={},
                                           json={"metadata": set_meta})
 
@@ -83,4 +82,4 @@ class TestMetadata(testtools.TestCase):
         sess.delete.assert_called_once_with(
             "servers/IDENTIFIER/metadata/" + key,
             headers={"Accept": ""},
-            endpoint_filter=sot.service)
+        )

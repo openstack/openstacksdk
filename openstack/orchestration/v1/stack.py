@@ -90,7 +90,7 @@ class Stack(resource.Resource):
     def _action(self, session, body):
         """Perform stack actions"""
         url = utils.urljoin(self.base_path, self._get_id(self), 'actions')
-        resp = session.post(url, endpoint_filter=self.service, json=body)
+        resp = session.post(url, json=body)
         return resp.json()
 
     def check(self, session):

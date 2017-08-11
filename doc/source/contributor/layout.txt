@@ -1,7 +1,6 @@
 openstack/
     connection.py
     resource.py
-    session.py
     compute/
         compute_service.py
         v2/

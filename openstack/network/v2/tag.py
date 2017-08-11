@@ -24,7 +24,7 @@ class TagMixin(object):
 
     def set_tags(self, session, tags):
         url = utils.urljoin(self.base_path, self.id, 'tags')
-        session.put(url, endpoint_filter=self.service,
+        session.put(url,
                     json={'tags': tags})
         self._body.attributes.update({'tags': tags})
         return self

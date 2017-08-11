@@ -64,7 +64,7 @@ class Proxy(proxy.BaseProxy):
                   :class:`~openstack.message.v1.message.Message` objects
                   that were created.
         """
-        return message.Message.create_messages(self._session, values)
+        return message.Message.create_messages(self, values)
 
     @utils.deprecated(deprecated_in="0.9.16", removed_in="0.9.17",
                       details="Message v1 is deprecated since 2014. Use v2.")
@@ -78,7 +78,7 @@ class Proxy(proxy.BaseProxy):
                   :class:`~openstack.message.v1.message.Message` objects
                   that were claimed.
         """
-        return claim.Claim.claim_messages(self._session, value)
+        return claim.Claim.claim_messages(self, value)
 
     @utils.deprecated(deprecated_in="0.9.16", removed_in="0.9.17",
                       details="Message v1 is deprecated since 2014. Use v2.")
@@ -90,4 +90,4 @@ class Proxy(proxy.BaseProxy):
 
         :returns: ``None``
         """
-        message.Message.delete_by_id(self._session, value)
+        message.Message.delete_by_id(self, value)

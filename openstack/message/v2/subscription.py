@@ -68,7 +68,7 @@ class Subscription(resource2.Resource):
             "X-PROJECT-ID": self.project_id or session.get_project_id()
         }
         request.headers.update(headers)
-        response = session.post(request.uri, endpoint_filter=self.service,
+        response = session.post(request.url,
                                 json=request.body, headers=request.headers)
 
         self._translate_response(response)
@@ -92,7 +92,7 @@ class Subscription(resource2.Resource):
 
         query_params = cls._query_mapping._transpose(params)
         while more_data:
-            resp = session.get(uri, endpoint_filter=cls.service,
+            resp = session.get(uri,
                                headers=headers, params=query_params)
             resp = resp.json()
             resp = resp[cls.resources_key]
@@ -123,7 +123,7 @@ class Subscription(resource2.Resource):
         }
 
         request.headers.update(headers)
-        response = session.get(request.uri, endpoint_filter=self.service,
+        response = session.get(request.url,
                                headers=request.headers)
         self._translate_response(response)
 
@@ -137,7 +137,7 @@ class Subscription(resource2.Resource):
         }
 
         request.headers.update(headers)
-        response = session.delete(request.uri, endpoint_filter=self.service,
+        response = session.delete(request.url,
                                   headers=request.headers)
 
         self._translate_response(response, has_body=False)

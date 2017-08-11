@@ -26,9 +26,9 @@ class EnforcementError(errors.SphinxError):
 
 def get_proxy_methods():
     """Return a set of public names on all proxies"""
-    names = ["openstack.bare_metal.v1._proxy",
-             "openstack.block_store.v2._proxy",
-             "openstack.cluster.v1._proxy",
+    names = ["openstack.baremetal.v1._proxy",
+             "openstack.clustering.v1._proxy",
+             "openstack.block_storage.v2._proxy",
              "openstack.compute.v2._proxy",
              "openstack.database.v1._proxy",
              "openstack.identity.v2._proxy",
@@ -43,8 +43,8 @@ def get_proxy_methods():
              "openstack.network.v2._proxy",
              "openstack.object_store.v1._proxy",
              "openstack.orchestration.v1._proxy",
-             "openstack.telemetry.v2._proxy",
-             "openstack.telemetry.alarm.v2._proxy",
+             "openstack.meter.v2._proxy",
+             "openstack.meter.alarm.v2._proxy",
              "openstack.workflow.v2._proxy"]
 
     modules = (importlib.import_module(name) for name in names)

@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.cluster.v1 import receiver
+from openstack.clustering.v1 import receiver
 
 
 FAKE_ID = 'ae63a10b-4a90-452c-aef1-113a0b255ee3'

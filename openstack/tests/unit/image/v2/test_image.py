@@ -13,6 +13,7 @@
 import json
 
 import mock
+import requests
 import testtools
 
 from openstack import exceptions
@@ -77,6 +78,18 @@ EXAMPLE = {
     'auto_disk_config': True,
     'os_type': '49',
 }
+
+
+class FakeResponse(object):
+    def __init__(self, response, status_code=200, headers=None):
+        self.body = response
+        self.content = response
+        self.status_code = status_code
+        headers = headers if headers else {'content-type': 'application/json'}
+        self.headers = requests.structures.CaseInsensitiveDict(headers)
+
+    def json(self):
+        return self.body
 
 
 class TestImage(testtools.TestCase):
@@ -166,14 +179,14 @@ class TestImage(testtools.TestCase):
         self.assertIsNone(sot.deactivate(self.sess))
         self.sess.post.assert_called_with(
             'images/IDENTIFIER/actions/deactivate',
-            endpoint_filter=sot.service)
+        )
 
     def test_reactivate(self):
         sot = image.Image(**EXAMPLE)
         self.assertIsNone(sot.reactivate(self.sess))
         self.sess.post.assert_called_with(
             'images/IDENTIFIER/actions/reactivate',
-            endpoint_filter=sot.service)
+        )
 
     def test_add_tag(self):
         sot = image.Image(**EXAMPLE)
@@ -182,7 +195,7 @@ class TestImage(testtools.TestCase):
         self.assertIsNone(sot.add_tag(self.sess, tag))
         self.sess.put.assert_called_with(
             'images/IDENTIFIER/tags/%s' % tag,
-            endpoint_filter=sot.service)
+        )
 
     def test_remove_tag(self):
         sot = image.Image(**EXAMPLE)
@@ -191,14 +204,13 @@ class TestImage(testtools.TestCase):
         self.assertIsNone(sot.remove_tag(self.sess, tag))
         self.sess.delete.assert_called_with(
             'images/IDENTIFIER/tags/%s' % tag,
-            endpoint_filter=sot.service)
+        )
 
     def test_upload(self):
         sot = image.Image(**EXAMPLE)
 
         self.assertIsNone(sot.upload(self.sess))
         self.sess.put.assert_called_with('images/IDENTIFIER/file',
-                                         endpoint_filter=sot.service,
                                          data=sot.data,
                                          headers={"Content-Type":
                                                   "application/octet-stream",
@@ -207,14 +219,14 @@ class TestImage(testtools.TestCase):
     def test_download_checksum_match(self):
         sot = image.Image(**EXAMPLE)
 
-        resp = mock.Mock()
-        resp.content = b"abc"
-        resp.headers = {"Content-MD5": "900150983cd24fb0d6963f7d28e17f72"}
+        resp = FakeResponse(
+            b"abc",
+            headers={"Content-MD5": "900150983cd24fb0d6963f7d28e17f72",
+                     "Content-Type": "application/octet-stream"})
         self.sess.get.return_value = resp
 
         rv = sot.download(self.sess)
         self.sess.get.assert_called_with('images/IDENTIFIER/file',
-                                         endpoint_filter=sot.service,
                                          stream=False)
 
         self.assertEqual(rv, resp.content)
@@ -222,9 +234,10 @@ class TestImage(testtools.TestCase):
     def test_download_checksum_mismatch(self):
         sot = image.Image(**EXAMPLE)
 
-        resp = mock.Mock()
-        resp.content = b"abc"
-        resp.headers = {"Content-MD5": "the wrong checksum"}
+        resp = FakeResponse(
+            b"abc",
+            headers={"Content-MD5": "the wrong checksum",
+                     "Content-Type": "application/octet-stream"})
         self.sess.get.return_value = resp
 
         self.assertRaises(exceptions.InvalidResponse, sot.download, self.sess)
@@ -232,35 +245,29 @@ class TestImage(testtools.TestCase):
     def test_download_no_checksum_header(self):
         sot = image.Image(**EXAMPLE)
 
-        resp1 = mock.Mock()
-        resp1.content = b"abc"
-        resp1.headers = {"no_checksum_here": ""}
+        resp1 = FakeResponse(
+            b"abc", headers={"Content-Type": "application/octet-stream"})
 
-        resp2 = mock.Mock()
-        resp2.json = mock.Mock(
-            return_value={"checksum": "900150983cd24fb0d6963f7d28e17f72"})
-        resp2.headers = {"": ""}
+        resp2 = FakeResponse(
+            {"checksum": "900150983cd24fb0d6963f7d28e17f72"})
 
         self.sess.get.side_effect = [resp1, resp2]
 
         rv = sot.download(self.sess)
         self.sess.get.assert_has_calls(
-            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service,
+            [mock.call('images/IDENTIFIER/file',
                        stream=False),
-             mock.call('images/IDENTIFIER', endpoint_filter=sot.service)])
+             mock.call('images/IDENTIFIER',)])
 
         self.assertEqual(rv, resp1.content)
 
     def test_download_no_checksum_at_all2(self):
         sot = image.Image(**EXAMPLE)
 
-        resp1 = mock.Mock()
-        resp1.content = b"abc"
-        resp1.headers = {"no_checksum_here": ""}
+        resp1 = FakeResponse(
+            b"abc", headers={"Content-Type": "application/octet-stream"})
 
-        resp2 = mock.Mock()
-        resp2.json = mock.Mock(return_value={"checksum": None})
-        resp2.headers = {"": ""}
+        resp2 = FakeResponse({"checksum": None})
 
         self.sess.get.side_effect = [resp1, resp2]
 
@@ -274,24 +281,23 @@ class TestImage(testtools.TestCase):
                 log.records[0].msg)
 
         self.sess.get.assert_has_calls(
-            [mock.call('images/IDENTIFIER/file', endpoint_filter=sot.service,
+            [mock.call('images/IDENTIFIER/file',
                        stream=False),
-             mock.call('images/IDENTIFIER', endpoint_filter=sot.service)])
+             mock.call('images/IDENTIFIER',)])
 
         self.assertEqual(rv, resp1.content)
 
     def test_download_stream(self):
         sot = image.Image(**EXAMPLE)
 
-        resp = mock.Mock()
-        resp.content = b"abc"
-        resp.headers = {"Content-MD5": "900150983cd24fb0d6963f7d28e17f72"}
+        resp = FakeResponse(
+            b"abc",
+            headers={"Content-MD5": "900150983cd24fb0d6963f7d28e17f72",
+                     "Content-Type": "application/octet-stream"})
         self.sess.get.return_value = resp
 
         rv = sot.download(self.sess, stream=True)
-        self.sess.get.assert_called_with('images/IDENTIFIER/file',
-                                         endpoint_filter=sot.service,
-                                         stream=True)
+        self.sess.get.assert_called_with('images/IDENTIFIER/file', stream=True)
 
         self.assertEqual(rv, resp)
 

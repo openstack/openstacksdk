@@ -23,6 +23,7 @@ from openstack import _log
 from openstack.cloud.exc import *  # noqa
 from openstack.cloud.openstackcloud import OpenStackCloud
 from openstack.cloud.operatorcloud import OperatorCloud
+import openstack.connection
 
 __version__ = pbr.version.VersionInfo('openstacksdk').version_string()
 
@@ -130,3 +131,8 @@ def operator_cloud(
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
     return OperatorCloud(cloud_config=cloud_config, strict=strict)
+
+
+def connect(self, *args, **kwargs):
+    """Create a `openstack.connection.Connection`."""
+    return openstack.connection.Connection(*args, **kwargs)

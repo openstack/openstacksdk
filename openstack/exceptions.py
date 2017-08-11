@@ -18,15 +18,17 @@ Exception definitions.
 
 import re
 
+from requests import exceptions as _rex
 import six
 
 
 class SDKException(Exception):
     """The base exception class for all exceptions this library raises."""
-    def __init__(self, message=None, cause=None):
+    def __init__(self, message=None, extra_data=None):
         self.message = self.__class__.__name__ if message is None else message
-        self.cause = cause
+        self.extra_data = extra_data
         super(SDKException, self).__init__(self.message)
+OpenStackCloudException = SDKException
 
 
 class EndpointNotFound(SDKException):
@@ -50,24 +52,53 @@ class InvalidRequest(SDKException):
         super(InvalidRequest, self).__init__(message)
 
 
-class HttpException(SDKException):
+class HttpException(SDKException, _rex.HTTPError):
 
-    def __init__(self, message=None, details=None, response=None,
-                 request_id=None, url=None, method=None,
-                 http_status=None, cause=None):
-        super(HttpException, self).__init__(message=message, cause=cause)
+    def __init__(self, message='Error', response=None,
+                 http_status=None,
+                 details=None, request_id=None):
+        # TODO(shade) Remove http_status parameter and the ability for response
+        # to be None once we're not mocking Session everywhere.
+        if not message:
+            if response:
+                message = "{name}: {code}".format(
+                    name=self.__class__.__name__,
+                    code=response.status_code)
+            else:
+                message = "{name}: Unknown error".format(
+                    name=self.__class__.__name__)
+
+        # Call directly rather than via super to control parameters
+        SDKException.__init__(self, message=message)
+        _rex.HTTPError.__init__(self, message, response=response)
+
+        if response:
+            self.request_id = response.headers.get('x-openstack-request-id')
+            self.status_code = response.status_code
+        else:
+            self.request_id = None
+            self.status_code = http_status
         self.details = details
-        self.response = response
-        self.request_id = request_id
-        self.url = url
-        self.method = method
-        self.http_status = http_status
+        self.url = self.request and self.request.url or None
+        self.method = self.request and self.request.method or None
+        self.source = "Server"
+        if self.status_code is not None and (400 <= self.status_code < 500):
+            self.source = "Client"
 
     def __unicode__(self):
-        msg = self.__class__.__name__ + ": " + self.message
+        if not self.url and not self.url:
+            return super(HttpException, self).__str__()
+        if self.url:
+            remote_error = "{source} Error for url: {url}".format(
+                source=self.source, url=self.url)
+            if self.details:
+                remote_error += ', '
         if self.details:
-            msg += ", " + six.text_type(self.details)
-        return msg
+            remote_error += six.text_type(self.details)
+
+        return "{message}: {remote_error}".format(
+            message=super(HttpException, self).__str__(),
+            remote_error=remote_error)
 
     def __str__(self):
         return self.__unicode__()
@@ -75,6 +106,11 @@ class HttpException(SDKException):
 
 class NotFoundException(HttpException):
     """HTTP 404 Not Found."""
+    pass
+
+
+class BadRequestException(HttpException):
+    """HTTP 400 Bad Request."""
     pass
 
 
@@ -112,37 +148,49 @@ class ResourceFailure(SDKException):
     pass
 
 
-def from_exception(exc):
-    """Return an instance of an HTTPException based on httplib response."""
-    if exc.response.status_code == 404:
+def raise_from_response(response, error_message=None):
+    """Raise an instance of an HTTPException based on keystoneauth response."""
+    if response.status_code < 400:
+        return
+
+    if response.status_code == 404:
         cls = NotFoundException
+    elif response.status_code == 400:
+        cls = BadRequestException
     else:
         cls = HttpException
 
-    resp = exc.response
-    details = resp.text
-    resp_body = resp.content
-    content_type = resp.headers.get('content-type', '')
-    if resp_body and 'application/json' in content_type:
+    details = None
+    content_type = response.headers.get('content-type', '')
+    if response.content and 'application/json' in content_type:
         # Iterate over the nested objects to retrieve "message" attribute.
-        messages = [obj.get('message') for obj in resp.json().values()
-                    if isinstance(obj, dict)]
-        # Join all of the messages together nicely and filter out any objects
-        # that don't have a "message" attr.
-        details = '\n'.join(msg for msg in messages if msg)
+        # TODO(shade) Add exception handling for times when the content type
+        # is lying.
 
-    elif resp_body and 'text/html' in content_type:
+        try:
+            content = response.json()
+            messages = [obj.get('message') for obj in content.values()
+                        if isinstance(obj, dict)]
+            # Join all of the messages together nicely and filter out any
+            # objects that don't have a "message" attr.
+            details = '\n'.join(msg for msg in messages if msg)
+        except Exception:
+            details = response.text
+    elif response.content and 'text/html' in content_type:
         # Split the lines, strip whitespace and inline HTML from the response.
         details = [re.sub(r'<.+?>', '', i.strip())
-                   for i in details.splitlines()]
-        details = [msg for msg in details if msg]
-        # Remove duplicates from the list.
-        details_temp = []
-        for detail in details:
-            if detail not in details_temp:
-                details_temp.append(detail)
+                   for i in response.text.splitlines()]
+        details = list(set([msg for msg in details if msg]))
         # Return joined string separated by colons.
-        details = ': '.join(details_temp)
-    return cls(details=details, message=exc.message, response=exc.response,
-               request_id=exc.request_id, url=exc.url, method=exc.method,
-               http_status=exc.http_status, cause=exc)
+        details = ': '.join(details)
+    if not details and response.reason:
+        details = response.reason
+    else:
+        details = response.text
+
+    raise cls(message=error_message, response=response, details=details)
+
+
+class ArgumentDeprecationWarning(Warning):
+    """A deprecated argument has been provided."""
+    pass

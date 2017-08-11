@@ -40,5 +40,5 @@ class TestTag(testtools.TestCase):
         # Check the passed resource is returned
         self.assertEqual(net, result)
         url = 'networks/' + ID + '/tags'
-        sess.put.assert_called_once_with(url, endpoint_filter=net.service,
+        sess.put.assert_called_once_with(url,
                                          json={'tags': ['blue', 'green']})

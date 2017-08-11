@@ -73,7 +73,7 @@ class TestQueue(testtools.TestCase):
         url = 'queues/%s' % FAKE1['name']
         headers = {'Client-ID': 'NEW_CLIENT_ID',
                    'X-PROJECT-ID': 'NEW_PROJECT_ID'}
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     headers=headers, json=FAKE1)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp, has_body=False)
@@ -91,7 +91,7 @@ class TestQueue(testtools.TestCase):
         url = 'queues/%s' % FAKE2['name']
         headers = {'Client-ID': 'OLD_CLIENT_ID',
                    'X-PROJECT-ID': 'OLD_PROJECT_ID'}
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     headers=headers, json=FAKE1)
         sot._translate_response.assert_called_once_with(resp, has_body=False)
         self.assertEqual(sot, res)
@@ -111,7 +111,7 @@ class TestQueue(testtools.TestCase):
         url = 'queues/%s' % FAKE1['name']
         headers = {'Client-ID': 'NEW_CLIENT_ID',
                    'X-PROJECT-ID': 'NEW_PROJECT_ID'}
-        sess.get.assert_called_with(url, endpoint_filter=sot.service,
+        sess.get.assert_called_with(url,
                                     headers=headers)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp)
@@ -129,7 +129,7 @@ class TestQueue(testtools.TestCase):
         url = 'queues/%s' % FAKE2['name']
         headers = {'Client-ID': 'OLD_CLIENT_ID',
                    'X-PROJECT-ID': 'OLD_PROJECT_ID'}
-        sess.get.assert_called_with(url, endpoint_filter=sot.service,
+        sess.get.assert_called_with(url,
                                     headers=headers)
         sot._translate_response.assert_called_once_with(resp)
         self.assertEqual(sot, res)
@@ -149,7 +149,7 @@ class TestQueue(testtools.TestCase):
         url = 'queues/%s' % FAKE1['name']
         headers = {'Client-ID': 'NEW_CLIENT_ID',
                    'X-PROJECT-ID': 'NEW_PROJECT_ID'}
-        sess.delete.assert_called_with(url, endpoint_filter=sot.service,
+        sess.delete.assert_called_with(url,
                                        headers=headers)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp, has_body=False)
@@ -166,6 +166,6 @@ class TestQueue(testtools.TestCase):
         url = 'queues/%s' % FAKE2['name']
         headers = {'Client-ID': 'OLD_CLIENT_ID',
                    'X-PROJECT-ID': 'OLD_PROJECT_ID'}
-        sess.delete.assert_called_with(url, endpoint_filter=sot.service,
+        sess.delete.assert_called_with(url,
                                        headers=headers)
         sot._translate_response.assert_called_once_with(resp, has_body=False)

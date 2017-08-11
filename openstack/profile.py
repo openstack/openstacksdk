@@ -54,9 +54,9 @@ The resulting preference print out would look something like::
 import copy
 import logging
 
-from openstack.bare_metal import bare_metal_service
-from openstack.block_store import block_store_service
-from openstack.cluster import cluster_service
+from openstack.baremetal import baremetal_service
+from openstack.block_storage import block_storage_service
+from openstack.clustering import clustering_service
 from openstack.compute import compute_service
 from openstack.database import database_service
 from openstack import exceptions
@@ -65,12 +65,11 @@ from openstack.image import image_service
 from openstack.key_manager import key_manager_service
 from openstack.load_balancer import load_balancer_service as lb_service
 from openstack.message import message_service
-from openstack import module_loader
+from openstack.meter.alarm import alarm_service
+from openstack.meter import meter_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
-from openstack.telemetry.alarm import alarm_service
-from openstack.telemetry import telemetry_service
 from openstack.workflow import workflow_service
 
 _logger = logging.getLogger(__name__)
@@ -94,9 +93,10 @@ class Profile(object):
         self._services = {}
 
         self._add_service(alarm_service.AlarmService(version="v2"))
-        self._add_service(bare_metal_service.BareMetalService(version="v1"))
-        self._add_service(block_store_service.BlockStoreService(version="v2"))
-        self._add_service(cluster_service.ClusterService(version="v1"))
+        self._add_service(baremetal_service.BaremetalService(version="v1"))
+        self._add_service(
+            block_storage_service.BlockStorageService(version="v2"))
+        self._add_service(clustering_service.ClusteringService(version="v1"))
         self._add_service(compute_service.ComputeService(version="v2"))
         self._add_service(database_service.DatabaseService(version="v1"))
         self._add_service(identity_service.IdentityService(version="v3"))
@@ -104,17 +104,14 @@ class Profile(object):
         self._add_service(key_manager_service.KeyManagerService(version="v1"))
         self._add_service(lb_service.LoadBalancerService(version="v2"))
         self._add_service(message_service.MessageService(version="v1"))
+        self._add_service(meter_service.MeterService(version="v2"))
         self._add_service(network_service.NetworkService(version="v2"))
         self._add_service(
             object_store_service.ObjectStoreService(version="v1"))
         self._add_service(
             orchestration_service.OrchestrationService(version="v1"))
-        self._add_service(telemetry_service.TelemetryService(version="v2"))
         self._add_service(workflow_service.WorkflowService(version="v2"))
 
-        if plugins:
-            for plugin in plugins:
-                self._load_plugin(plugin)
         self.service_keys = sorted(self._services.keys())
 
     def __repr__(self):
@@ -123,18 +120,6 @@ class Profile(object):
     def _add_service(self, serv):
         serv.interface = None
         self._services[serv.service_type] = serv
-
-    def _load_plugin(self, namespace):
-        """Load a service plugin.
-
-        :param str namespace: Entry point namespace
-        """
-        services = module_loader.load_service_plugins(namespace)
-        for service_type in services:
-            if service_type in self._services:
-                _logger.debug("Overriding %s with %s", service_type,
-                              services[service_type])
-            self._add_service(services[service_type])
 
     def get_filter(self, service):
         """Get a service preference.

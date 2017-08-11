@@ -97,7 +97,7 @@ class Container(_base.BaseResource):
         """Create a Resource from its attributes.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param dict attrs: The attributes to be sent in the body
                            of the request.
         :param resource_id: This resource's identifier, if needed by
@@ -108,14 +108,14 @@ class Container(_base.BaseResource):
         url = cls._get_url(None, resource_id)
         headers = attrs.get(resource.HEADERS, dict())
         headers['Accept'] = ''
-        return session.put(url, endpoint_filter=cls.service,
+        return session.put(url,
                            headers=headers).headers
 
     def create(self, session):
         """Create a Resource from this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: This instance.
         """

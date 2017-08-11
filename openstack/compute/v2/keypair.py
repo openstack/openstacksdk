@@ -47,7 +47,7 @@ class Keypair(resource2.Resource):
 
     @classmethod
     def list(cls, session, paginated=False):
-        resp = session.get(cls.base_path, endpoint_filter=cls.service,
+        resp = session.get(cls.base_path,
                            headers={"Accept": "application/json"})
         resp = resp.json()
         resp = resp[cls.resources_key]

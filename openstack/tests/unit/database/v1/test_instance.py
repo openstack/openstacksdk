@@ -70,7 +70,7 @@ class TestInstance(testtools.TestCase):
         self.assertEqual(response.body['user'], sot.enable_root_user(sess))
 
         url = ("instances/%s/root" % IDENTIFIER)
-        sess.post.assert_called_with(url, endpoint_filter=sot.service)
+        sess.post.assert_called_with(url,)
 
     def test_is_root_enabled(self):
         sot = instance.Instance(**EXAMPLE)
@@ -83,7 +83,7 @@ class TestInstance(testtools.TestCase):
         self.assertTrue(sot.is_root_enabled(sess))
 
         url = ("instances/%s/root" % IDENTIFIER)
-        sess.get.assert_called_with(url, endpoint_filter=sot.service)
+        sess.get.assert_called_with(url,)
 
     def test_action_restart(self):
         sot = instance.Instance(**EXAMPLE)
@@ -96,7 +96,7 @@ class TestInstance(testtools.TestCase):
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'restart': {}}
-        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_with(url,
                                      json=body)
 
     def test_action_resize(self):
@@ -111,7 +111,7 @@ class TestInstance(testtools.TestCase):
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'resize': {'flavorRef': flavor}}
-        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_with(url,
                                      json=body)
 
     def test_action_resize_volume(self):
@@ -126,5 +126,5 @@ class TestInstance(testtools.TestCase):
 
         url = ("instances/%s/action" % IDENTIFIER)
         body = {'resize': {'volume': size}}
-        sess.post.assert_called_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_with(url,
                                      json=body)

@@ -428,7 +428,7 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                       self.proxy.get_server_metadata,
                       method_args=["value"],
                       method_result=server.Server(id="value", metadata={}),
-                      expected_args=[self.session],
+                      expected_args=[self.proxy],
                       expected_result={})
 
     def test_set_server_metadata(self):
@@ -440,7 +440,7 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                       method_kwargs=kwargs,
                       method_result=server.Server.existing(id=id,
                                                            metadata=kwargs),
-                      expected_args=[self.session],
+                      expected_args=[self.proxy],
                       expected_kwargs=kwargs,
                       expected_result=kwargs)
 
@@ -449,7 +449,7 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                       self.proxy.delete_server_metadata,
                       expected_result=None,
                       method_args=["value", "key"],
-                      expected_args=[self.session, "key"])
+                      expected_args=[self.proxy, "key"])
 
     def test_server_group_create(self):
         self.verify_create(self.proxy.create_server_group,

@@ -172,8 +172,8 @@ class _ComponentManager(collections.MutableMapping):
 class _Request(object):
     """Prepared components that go into a KSA request"""
 
-    def __init__(self, uri, body, headers):
-        self.uri = uri
+    def __init__(self, url, body, headers):
+        self.url = url
         self.body = body
         self.headers = headers
 
@@ -537,7 +537,7 @@ class Resource(object):
         """
         return {k: v for k, v in component.items() if k in mapping.values()}
 
-    def _translate_response(self, response, has_body=True):
+    def _translate_response(self, response, has_body=True, error_message=None):
         """Given a KSA response, inflate this instance with its data
 
         DELETE operations don't return a body, so only try to work
@@ -546,6 +546,7 @@ class Resource(object):
         This method updates attributes that correspond to headers
         and body on this instance and clears the dirty set.
         """
+        exceptions.raise_from_response(response, error_message=error_message)
         if has_body:
             body = response.json()
             if self.resource_key and self.resource_key in body:
@@ -564,7 +565,7 @@ class Resource(object):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param prepend_key: A boolean indicating whether the resource_key
                             should be prepended in a resource creation
                             request. Default to True.
@@ -579,22 +580,22 @@ class Resource(object):
         if self.put_create:
             request = self._prepare_request(requires_id=True,
                                             prepend_key=prepend_key)
-            response = session.put(request.uri, endpoint_filter=self.service,
+            response = session.put(request.url,
                                    json=request.body, headers=request.headers)
         else:
             request = self._prepare_request(requires_id=False,
                                             prepend_key=prepend_key)
-            response = session.post(request.uri, endpoint_filter=self.service,
+            response = session.post(request.url,
                                     json=request.body, headers=request.headers)
 
         self._translate_response(response)
         return self
 
-    def get(self, session, requires_id=True):
+    def get(self, session, requires_id=True, error_message=None):
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param boolean requires_id: A boolean indicating whether resource ID
                                     should be part of the requested URI.
         :return: This :class:`Resource` instance.
@@ -605,16 +606,19 @@ class Resource(object):
             raise exceptions.MethodNotSupported(self, "get")
 
         request = self._prepare_request(requires_id=requires_id)
-        response = session.get(request.uri, endpoint_filter=self.service)
+        response = session.get(request.url)
+        kwargs = {}
+        if error_message:
+            kwargs['error_message'] = error_message
 
-        self._translate_response(response)
+        self._translate_response(response, **kwargs)
         return self
 
     def head(self, session):
         """Get headers from a remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -625,7 +629,7 @@ class Resource(object):
 
         request = self._prepare_request()
 
-        response = session.head(request.uri, endpoint_filter=self.service,
+        response = session.head(request.url,
                                 headers={"Accept": ""})
 
         self._translate_response(response)
@@ -635,7 +639,7 @@ class Resource(object):
         """Update the remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param prepend_key: A boolean indicating whether the resource_key
                             should be prepended in a resource update request.
                             Default to True.
@@ -657,21 +661,21 @@ class Resource(object):
         request = self._prepare_request(prepend_key=prepend_key)
 
         if self.patch_update:
-            response = session.patch(request.uri, endpoint_filter=self.service,
+            response = session.patch(request.url,
                                      json=request.body,
                                      headers=request.headers)
         else:
-            response = session.put(request.uri, endpoint_filter=self.service,
+            response = session.put(request.url,
                                    json=request.body, headers=request.headers)
 
         self._translate_response(response, has_body=has_body)
         return self
 
-    def delete(self, session):
+    def delete(self, session, error_message=None):
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -682,10 +686,13 @@ class Resource(object):
 
         request = self._prepare_request()
 
-        response = session.delete(request.uri, endpoint_filter=self.service,
+        response = session.delete(request.url,
                                   headers={"Accept": ""})
+        kwargs = {}
+        if error_message:
+            kwargs['error_message'] = error_message
 
-        self._translate_response(response, has_body=False)
+        self._translate_response(response, has_body=False, **kwargs)
         return self
 
     @classmethod
@@ -696,7 +703,7 @@ class Resource(object):
         params for response filtering.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param bool paginated: ``True`` if a GET to this resource returns
                                a paginated series of responses, or ``False``
                                if a GET returns only one page of data.
@@ -707,7 +714,7 @@ class Resource(object):
             :meth:`~openstack.resource2.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be
             sent in the *params* argument to
-            :meth:`~openstack.session.Session.get`. They are additionally
+            :meth:`~keystoneauth1.adapter.Adapter.get`. They are additionally
             checked against the
             :data:`~openstack.resource2.Resource.base_path` format string
             to see if any path fragments need to be filled in by the contents
@@ -725,7 +732,7 @@ class Resource(object):
         uri = cls.base_path % params
 
         while more_data:
-            resp = session.get(uri, endpoint_filter=cls.service,
+            resp = session.get(uri,
                                headers={"Accept": "application/json"},
                                params=query_params)
             resp = resp.json()
@@ -785,7 +792,7 @@ class Resource(object):
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param name_or_id: This resource's identifier, if needed by
                            the request. The default is ``None``.
         :param bool ignore_missing: When set to ``False``
@@ -828,7 +835,7 @@ def wait_for_status(session, resource, status, failures, interval, wait):
     """Wait for the resource to be in a particular status.
 
     :param session: The session to use for making this request.
-    :type session: :class:`~openstack.session.Session`
+    :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param resource: The resource to wait on to reach the status. The resource
                      must have a status attribute.
     :type resource: :class:`~openstack.resource.Resource`
@@ -871,7 +878,7 @@ def wait_for_delete(session, resource, interval, wait):
     """Wait for the resource to be deleted.
 
     :param session: The session to use for making this request.
-    :type session: :class:`~openstack.session.Session`
+    :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param resource: The resource to wait on to be deleted.
     :type resource: :class:`~openstack.resource.Resource`
     :param interval: Number of seconds to wait between checks.

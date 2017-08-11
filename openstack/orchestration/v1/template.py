@@ -47,6 +47,6 @@ class Template(resource.Resource):
             qry = parse.urlencode({'ignore_errors': ignore_errors})
             url = '?'.join([url, qry])
 
-        resp = session.post(url, endpoint_filter=self.service, json=body)
+        resp = session.post(url, json=body)
         self._translate_response(resp)
         return self

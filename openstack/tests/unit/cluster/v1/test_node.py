@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.cluster.v1 import node
+from openstack.clustering.v1 import node
 
 
 FAKE_ID = '123d0955-0099-aabb-b8fa-6a44655ceeff'
@@ -78,7 +78,7 @@ class TestNode(testtools.TestCase):
         self.assertEqual('', sot.check(sess))
         url = 'nodes/%s/actions' % sot.id
         body = {'check': {}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_recover(self):
@@ -91,7 +91,7 @@ class TestNode(testtools.TestCase):
         self.assertEqual('', sot.recover(sess))
         url = 'nodes/%s/actions' % sot.id
         body = {'recover': {}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_operation(self):
@@ -103,7 +103,7 @@ class TestNode(testtools.TestCase):
         sess.post = mock.Mock(return_value=resp)
         self.assertEqual('', sot.op(sess, 'dance', style='tango'))
         url = 'nodes/%s/ops' % sot.id
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json={'dance': {'style': 'tango'}})
 
     def test_adopt_preview(self):
@@ -123,7 +123,6 @@ class TestNode(testtools.TestCase):
         res = sot.adopt(sess, True, **attrs)
         self.assertEqual({"foo": "bar"}, res)
         sess.post.assert_called_once_with("nodes/adopt-preview",
-                                          endpoint_filter=sot.service,
                                           json=attrs)
 
     def test_adopt(self):
@@ -131,13 +130,13 @@ class TestNode(testtools.TestCase):
         resp = mock.Mock()
         resp.headers = {}
         resp.json = mock.Mock(return_value={"foo": "bar"})
+        resp.status_code = 200
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
 
         res = sot.adopt(sess, False, param="value")
         self.assertEqual(sot, res)
         sess.post.assert_called_once_with("nodes/adopt",
-                                          endpoint_filter=sot.service,
                                           json={"param": "value"})
 
 

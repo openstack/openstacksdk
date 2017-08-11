@@ -44,6 +44,20 @@ def deprecated(deprecated_in=None, removed_in=None,
                    details=details)
 
 
+class NullHandler(logging.Handler):
+    def emit(self, record):
+        pass
+
+
+def setup_logging(name):
+    '''Get a logging.Logger and make sure there is at least a NullHandler.'''
+    log = logging.getLogger(name)
+    if len(log.handlers) == 0:
+        h = NullHandler()
+        log.addHandler(h)
+    return log
+
+
 def enable_logging(debug=False, path=None, stream=None):
     """Enable logging to a file at path and/or a console stream.
 

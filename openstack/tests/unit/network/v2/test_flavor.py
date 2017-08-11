@@ -76,7 +76,7 @@ class TestFlavor(testtools.TestCase):
                 sess, '1'))
 
         url = 'flavors/IDENTIFIER/service_profiles'
-        sess.post.assert_called_with(url, endpoint_filter=flav.service,
+        sess.post.assert_called_with(url,
                                      json=response.body)
 
     def test_disassociate_flavor_from_service_profile(self):
@@ -91,4 +91,4 @@ class TestFlavor(testtools.TestCase):
                 sess, '1'))
 
         url = 'flavors/IDENTIFIER/service_profiles/1'
-        sess.delete.assert_called_with(url, endpoint_filter=flav.service)
+        sess.delete.assert_called_with(url,)

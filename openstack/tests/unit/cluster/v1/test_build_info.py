@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.cluster.v1 import build_info
+from openstack.clustering.v1 import build_info
 
 
 FAKE = {

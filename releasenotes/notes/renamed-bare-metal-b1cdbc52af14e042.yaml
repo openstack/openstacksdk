@@ -1,0 +1,4 @@
+---
+upgrade:
+  - Renamed bare-metal to baremetal to align with the official
+    service type.

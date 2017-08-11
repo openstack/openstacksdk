@@ -175,11 +175,11 @@ class TestProxyDelete(testtools.TestCase):
 
     def test_delete(self):
         self.sot._delete(DeleteableResource, self.res)
-        self.res.delete.assert_called_with(self.session)
+        self.res.delete.assert_called_with(self.sot, error_message=mock.ANY)
 
         self.sot._delete(DeleteableResource, self.fake_id)
         DeleteableResource.new.assert_called_with(id=self.fake_id)
-        self.res.delete.assert_called_with(self.session)
+        self.res.delete.assert_called_with(self.sot, error_message=mock.ANY)
 
         # Delete generally doesn't return anything, so we will normally
         # swallow any return from within a service's proxy, but make sure
@@ -195,13 +195,14 @@ class TestProxyDelete(testtools.TestCase):
         rv = self.sot._delete(DeleteableResource, self.fake_id)
         self.assertIsNone(rv)
 
-    def test_delete_ResourceNotFound(self):
+    def test_delete_NotFound(self):
         self.res.delete.side_effect = exceptions.NotFoundException(
             message="test", http_status=404)
 
         self.assertRaisesRegex(
-            exceptions.ResourceNotFound,
-            "No %s found for %s" % (DeleteableResource.__name__, self.res),
+            exceptions.NotFoundException,
+            # TODO(shade) The mocks here are hiding the thing we want to test.
+            "test",
             self.sot._delete, DeleteableResource, self.res,
             ignore_missing=False)
 
@@ -237,13 +238,13 @@ class TestProxyUpdate(testtools.TestCase):
 
         self.assertEqual(rv, self.fake_result)
         self.res._update.assert_called_once_with(**self.attrs)
-        self.res.update.assert_called_once_with(self.session)
+        self.res.update.assert_called_once_with(self.sot)
 
     def test_update_id(self):
         rv = self.sot._update(UpdateableResource, self.fake_id, **self.attrs)
 
         self.assertEqual(rv, self.fake_result)
-        self.res.update.assert_called_once_with(self.session)
+        self.res.update.assert_called_once_with(self.sot)
 
 
 class TestProxyCreate(testtools.TestCase):
@@ -267,7 +268,7 @@ class TestProxyCreate(testtools.TestCase):
 
         self.assertEqual(rv, self.fake_result)
         CreateableResource.new.assert_called_once_with(**attrs)
-        self.res.create.assert_called_once_with(self.session)
+        self.res.create.assert_called_once_with(self.sot)
 
 
 class TestProxyGet(testtools.TestCase):
@@ -290,7 +291,8 @@ class TestProxyGet(testtools.TestCase):
     def test_get_resource(self):
         rv = self.sot._get(RetrieveableResource, self.res)
 
-        self.res.get.assert_called_with(self.session, requires_id=True)
+        self.res.get.assert_called_with(self.sot, requires_id=True,
+                                        error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_resource_with_args(self):
@@ -298,14 +300,16 @@ class TestProxyGet(testtools.TestCase):
         rv = self.sot._get(RetrieveableResource, self.res, **args)
 
         self.res._update.assert_called_once_with(**args)
-        self.res.get.assert_called_with(self.session, requires_id=True)
+        self.res.get.assert_called_with(self.sot, requires_id=True,
+                                        error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_id(self):
         rv = self.sot._get(RetrieveableResource, self.fake_id)
 
         RetrieveableResource.new.assert_called_with(id=self.fake_id)
-        self.res.get.assert_called_with(self.session, requires_id=True)
+        self.res.get.assert_called_with(self.sot, requires_id=True,
+                                        error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_not_found(self):
@@ -313,9 +317,8 @@ class TestProxyGet(testtools.TestCase):
             message="test", http_status=404)
 
         self.assertRaisesRegex(
-            exceptions.ResourceNotFound,
-            "No %s found for %s" % (RetrieveableResource.__name__, self.res),
-            self.sot._get, RetrieveableResource, self.res)
+            exceptions.NotFoundException,
+            "test", self.sot._get, RetrieveableResource, self.res)
 
 
 class TestProxyList(testtools.TestCase):
@@ -337,7 +340,7 @@ class TestProxyList(testtools.TestCase):
 
         self.assertEqual(self.fake_response, rv)
         ListableResource.list.assert_called_once_with(
-            self.session, paginated=paginated, **self.args)
+            self.sot, paginated=paginated, **self.args)
 
     def test_list_paginated(self):
         self._test_list(True)
@@ -366,14 +369,14 @@ class TestProxyHead(testtools.TestCase):
     def test_head_resource(self):
         rv = self.sot._head(HeadableResource, self.res)
 
-        self.res.head.assert_called_with(self.session)
+        self.res.head.assert_called_with(self.sot)
         self.assertEqual(rv, self.fake_result)
 
     def test_head_id(self):
         rv = self.sot._head(HeadableResource, self.fake_id)
 
         HeadableResource.new.assert_called_with(id=self.fake_id)
-        self.res.head.assert_called_with(self.session)
+        self.res.head.assert_called_with(self.sot)
         self.assertEqual(rv, self.fake_result)
 
 
@@ -391,7 +394,7 @@ class TestProxyWaits(testtools.TestCase):
         mock_wait.return_value = mock_resource
         self.sot.wait_for_status(mock_resource, 'ACTIVE')
         mock_wait.assert_called_once_with(
-            self.session, mock_resource, 'ACTIVE', [], 2, 120)
+            self.sot, mock_resource, 'ACTIVE', [], 2, 120)
 
     @mock.patch("openstack.resource2.wait_for_status")
     def test_wait_for_params(self, mock_wait):
@@ -399,20 +402,18 @@ class TestProxyWaits(testtools.TestCase):
         mock_wait.return_value = mock_resource
         self.sot.wait_for_status(mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
         mock_wait.assert_called_once_with(
-            self.session, mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
+            self.sot, mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
 
     @mock.patch("openstack.resource2.wait_for_delete")
     def test_wait_for_delete(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource
         self.sot.wait_for_delete(mock_resource)
-        mock_wait.assert_called_once_with(
-            self.session, mock_resource, 2, 120)
+        mock_wait.assert_called_once_with(self.sot, mock_resource, 2, 120)
 
     @mock.patch("openstack.resource2.wait_for_delete")
     def test_wait_for_delete_params(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource
         self.sot.wait_for_delete(mock_resource, 1, 2)
-        mock_wait.assert_called_once_with(
-            self.session, mock_resource, 1, 2)
+        mock_wait.assert_called_once_with(self.sot, mock_resource, 1, 2)

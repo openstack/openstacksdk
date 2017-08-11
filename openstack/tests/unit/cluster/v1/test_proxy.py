@@ -13,20 +13,20 @@
 import deprecation
 import mock
 
-from openstack.cluster.v1 import _proxy
-from openstack.cluster.v1 import action
-from openstack.cluster.v1 import build_info
-from openstack.cluster.v1 import cluster
-from openstack.cluster.v1 import cluster_attr
-from openstack.cluster.v1 import cluster_policy
-from openstack.cluster.v1 import event
-from openstack.cluster.v1 import node
-from openstack.cluster.v1 import policy
-from openstack.cluster.v1 import policy_type
-from openstack.cluster.v1 import profile
-from openstack.cluster.v1 import profile_type
-from openstack.cluster.v1 import receiver
-from openstack.cluster.v1 import service
+from openstack.clustering.v1 import _proxy
+from openstack.clustering.v1 import action
+from openstack.clustering.v1 import build_info
+from openstack.clustering.v1 import cluster
+from openstack.clustering.v1 import cluster_attr
+from openstack.clustering.v1 import cluster_policy
+from openstack.clustering.v1 import event
+from openstack.clustering.v1 import node
+from openstack.clustering.v1 import policy
+from openstack.clustering.v1 import policy_type
+from openstack.clustering.v1 import profile
+from openstack.clustering.v1 import profile_type
+from openstack.clustering.v1 import receiver
+from openstack.clustering.v1 import service
 from openstack import proxy2 as proxy_base
 from openstack.tests.unit import test_proxy_base2
 
@@ -114,7 +114,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_add_nodes(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.add_nodes",
+        self._verify("openstack.clustering.v1.cluster.Cluster.add_nodes",
                      self.proxy.cluster_add_nodes,
                      method_args=["FAKE_CLUSTER", ["node1"]],
                      expected_args=[["node1"]])
@@ -124,7 +124,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     @deprecation.fail_if_not_removed
     def test_cluster_add_nodes_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.add_nodes",
+        self._verify("openstack.clustering.v1.cluster.Cluster.add_nodes",
                      self.proxy.cluster_add_nodes,
                      method_args=[mock_cluster, ["node1"]],
                      expected_args=[["node1"]])
@@ -134,7 +134,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_del_nodes(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.del_nodes",
+        self._verify("openstack.clustering.v1.cluster.Cluster.del_nodes",
                      self.proxy.cluster_del_nodes,
                      method_args=["FAKE_CLUSTER", ["node1"]],
                      expected_args=[["node1"]])
@@ -144,7 +144,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     @deprecation.fail_if_not_removed
     def test_cluster_del_nodes_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.del_nodes",
+        self._verify("openstack.clustering.v1.cluster.Cluster.del_nodes",
                      self.proxy.cluster_del_nodes,
                      method_args=[mock_cluster, ["node1"]],
                      method_kwargs={"key": "value"},
@@ -156,7 +156,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_replace_nodes(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.replace_nodes",
+        self._verify("openstack.clustering.v1.cluster.Cluster.replace_nodes",
                      self.proxy.cluster_replace_nodes,
                      method_args=["FAKE_CLUSTER", {"node1": "node2"}],
                      expected_args=[{"node1": "node2"}])
@@ -166,7 +166,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     @deprecation.fail_if_not_removed
     def test_cluster_replace_nodes_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.replace_nodes",
+        self._verify("openstack.clustering.v1.cluster.Cluster.replace_nodes",
                      self.proxy.cluster_replace_nodes,
                      method_args=[mock_cluster, {"node1": "node2"}],
                      expected_args=[{"node1": "node2"}])
@@ -176,7 +176,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_scale_out(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.scale_out",
+        self._verify("openstack.clustering.v1.cluster.Cluster.scale_out",
                      self.proxy.cluster_scale_out,
                      method_args=["FAKE_CLUSTER", 3],
                      expected_args=[3])
@@ -186,7 +186,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     @deprecation.fail_if_not_removed
     def test_cluster_scale_out_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.scale_out",
+        self._verify("openstack.clustering.v1.cluster.Cluster.scale_out",
                      self.proxy.cluster_scale_out,
                      method_args=[mock_cluster, 5],
                      expected_args=[5])
@@ -196,7 +196,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_scale_in(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.scale_in",
+        self._verify("openstack.clustering.v1.cluster.Cluster.scale_in",
                      self.proxy.cluster_scale_in,
                      method_args=["FAKE_CLUSTER", 3],
                      expected_args=[3])
@@ -206,7 +206,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     @deprecation.fail_if_not_removed
     def test_cluster_scale_in_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.scale_in",
+        self._verify("openstack.clustering.v1.cluster.Cluster.scale_in",
                      self.proxy.cluster_scale_in,
                      method_args=[mock_cluster, 5],
                      expected_args=[5])
@@ -220,7 +220,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_resize(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.resize",
+        self._verify("openstack.clustering.v1.cluster.Cluster.resize",
                      self.proxy.cluster_resize,
                      method_args=["FAKE_CLUSTER"],
                      method_kwargs={'k1': 'v1', 'k2': 'v2'},
@@ -230,7 +230,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
 
     def test_cluster_resize_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.resize",
+        self._verify("openstack.clustering.v1.cluster.Cluster.resize",
                      self.proxy.cluster_resize,
                      method_args=[mock_cluster],
                      method_kwargs={'k1': 'v1', 'k2': 'v2'},
@@ -241,7 +241,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_attach_policy(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.policy_attach",
+        self._verify("openstack.clustering.v1.cluster.Cluster.policy_attach",
                      self.proxy.cluster_attach_policy,
                      method_args=["FAKE_CLUSTER", "FAKE_POLICY"],
                      method_kwargs={"k1": "v1", "k2": "v2"},
@@ -253,7 +253,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     @deprecation.fail_if_not_removed
     def test_cluster_attach_policy_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.policy_attach",
+        self._verify("openstack.clustering.v1.cluster.Cluster.policy_attach",
                      self.proxy.cluster_attach_policy,
                      method_args=[mock_cluster, "FAKE_POLICY"],
                      method_kwargs={"k1": "v1", "k2": "v2"},
@@ -265,7 +265,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_detach_policy(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.policy_detach",
+        self._verify("openstack.clustering.v1.cluster.Cluster.policy_detach",
                      self.proxy.cluster_detach_policy,
                      method_args=["FAKE_CLUSTER", "FAKE_POLICY"],
                      expected_args=["FAKE_POLICY"])
@@ -275,7 +275,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     @deprecation.fail_if_not_removed
     def test_cluster_detach_policy_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.policy_detach",
+        self._verify("openstack.clustering.v1.cluster.Cluster.policy_detach",
                      self.proxy.cluster_detach_policy,
                      method_args=[mock_cluster, "FAKE_POLICY"],
                      expected_args=["FAKE_POLICY"])
@@ -285,7 +285,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_update_policy(self, mock_find):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_find.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.policy_update",
+        self._verify("openstack.clustering.v1.cluster.Cluster.policy_update",
                      self.proxy.cluster_update_policy,
                      method_args=["FAKE_CLUSTER", "FAKE_POLICY"],
                      method_kwargs={"k1": "v1", "k2": "v2"},
@@ -297,7 +297,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     @deprecation.fail_if_not_removed
     def test_cluster_update_policy_with_obj(self):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
-        self._verify("openstack.cluster.v1.cluster.Cluster.policy_update",
+        self._verify("openstack.clustering.v1.cluster.Cluster.policy_update",
                      self.proxy.cluster_update_policy,
                      method_args=[mock_cluster, "FAKE_POLICY"],
                      method_kwargs={"k1": "v1", "k2": "v2"},
@@ -315,7 +315,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_check(self, mock_get):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_get.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.check",
+        self._verify("openstack.clustering.v1.cluster.Cluster.check",
                      self.proxy.check_cluster,
                      method_args=["FAKE_CLUSTER"])
         mock_get.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER")
@@ -324,7 +324,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_recover(self, mock_get):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_get.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.recover",
+        self._verify("openstack.clustering.v1.cluster.Cluster.recover",
                      self.proxy.recover_cluster,
                      method_args=["FAKE_CLUSTER"])
         mock_get.assert_called_once_with(cluster.Cluster, "FAKE_CLUSTER")
@@ -334,7 +334,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_operation(self, mock_get):
         mock_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
         mock_get.return_value = mock_cluster
-        self._verify("openstack.cluster.v1.cluster.Cluster.op",
+        self._verify("openstack.clustering.v1.cluster.Cluster.op",
                      self.proxy.cluster_operation,
                      method_args=["FAKE_CLUSTER", "dance"],
                      expected_args=["dance"])
@@ -377,7 +377,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_node_check(self, mock_get):
         mock_node = node.Node.new(id='FAKE_NODE')
         mock_get.return_value = mock_node
-        self._verify("openstack.cluster.v1.node.Node.check",
+        self._verify("openstack.clustering.v1.node.Node.check",
                      self.proxy.check_node,
                      method_args=["FAKE_NODE"])
         mock_get.assert_called_once_with(node.Node, "FAKE_NODE")
@@ -386,7 +386,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_node_recover(self, mock_get):
         mock_node = node.Node.new(id='FAKE_NODE')
         mock_get.return_value = mock_node
-        self._verify("openstack.cluster.v1.node.Node.recover",
+        self._verify("openstack.clustering.v1.node.Node.recover",
                      self.proxy.recover_node,
                      method_args=["FAKE_NODE"])
         mock_get.assert_called_once_with(node.Node, "FAKE_NODE")
@@ -395,7 +395,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_node_adopt(self, mock_get):
         mock_node = node.Node.new()
         mock_get.return_value = mock_node
-        self._verify("openstack.cluster.v1.node.Node.adopt",
+        self._verify("openstack.clustering.v1.node.Node.adopt",
                      self.proxy.adopt_node,
                      method_kwargs={"preview": False, "foo": "bar"},
                      expected_kwargs={"preview": False, "foo": "bar"})
@@ -406,7 +406,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_node_adopt_preview(self, mock_get):
         mock_node = node.Node.new()
         mock_get.return_value = mock_node
-        self._verify("openstack.cluster.v1.node.Node.adopt",
+        self._verify("openstack.clustering.v1.node.Node.adopt",
                      self.proxy.adopt_node,
                      method_kwargs={"preview": True, "foo": "bar"},
                      expected_kwargs={"preview": True, "foo": "bar"})
@@ -418,7 +418,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_node_operation(self, mock_get):
         mock_node = node.Node.new(id='FAKE_CLUSTER')
         mock_get.return_value = mock_node
-        self._verify("openstack.cluster.v1.node.Node.op",
+        self._verify("openstack.clustering.v1.node.Node.op",
                      self.proxy.node_operation,
                      method_args=["FAKE_NODE", "dance"],
                      expected_args=["dance"])
@@ -536,7 +536,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
 
         self.proxy.wait_for_status(mock_resource, 'ACTIVE')
 
-        mock_wait.assert_called_once_with(self.session, mock_resource,
+        mock_wait.assert_called_once_with(self.proxy, mock_resource,
                                           'ACTIVE', [], 2, 120)
 
     @mock.patch("openstack.resource2.wait_for_status")
@@ -546,7 +546,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
 
         self.proxy.wait_for_status(mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
 
-        mock_wait.assert_called_once_with(self.session, mock_resource,
+        mock_wait.assert_called_once_with(self.proxy, mock_resource,
                                           'ACTIVE', ['ERROR'], 1, 2)
 
     @mock.patch("openstack.resource2.wait_for_delete")
@@ -556,7 +556,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
 
         self.proxy.wait_for_delete(mock_resource)
 
-        mock_wait.assert_called_once_with(self.session, mock_resource, 2, 120)
+        mock_wait.assert_called_once_with(self.proxy, mock_resource, 2, 120)
 
     @mock.patch("openstack.resource2.wait_for_delete")
     def test_wait_for_delete_params(self, mock_wait):
@@ -565,4 +565,4 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
 
         self.proxy.wait_for_delete(mock_resource, 1, 2)
 
-        mock_wait.assert_called_once_with(self.session, mock_resource, 1, 2)
+        mock_wait.assert_called_once_with(self.proxy, mock_resource, 1, 2)

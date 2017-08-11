@@ -13,22 +13,37 @@
 """
 The :class:`~openstack.connection.Connection` class is the primary interface
 to the Python SDK it maintains a context for a connection to a cloud provider.
-The connection has an attribute to access each supported service.  The service
-attributes are created dynamically based on user profiles and the service
-catalog.
+The connection has an attribute to access each supported service.
 
 Examples
 --------
 
 At a minimum, the :class:`~openstack.connection.Connection` class needs to be
-created with an authenticator or the parameters to build one.
+created with a config or the parameters to build one.
 
 Create a connection
 ~~~~~~~~~~~~~~~~~~~
 
-The following example constructor uses the identity authenticator using
-username and password.  The default settings for the transport are used
-by this connection.::
+The preferred way to create a connection is to manage named configuration
+settings in your clouds.yaml file and refer to them by name.::
+
+    from openstack import connection
+
+    conn = connection.Connection(cloud='example', region_name='earth1')
+
+If you already have an :class:`~openstack.config.cloud_config.CloudConfig`
+you can pass it in instead.::
+
+    from openstack import connection
+    import openstack.config
+
+    config = openstack.config.OpenStackConfig.get_one_cloud(
+        cloud='example', region_name='earth')
+    conn = connection.Connection(config=config)
+
+It's also possible to pass in parameters directly if needed. The following
+example constructor uses the default identity password auth
+plugin and provides a username and password.::
 
     from openstack import connection
     auth_args = {
@@ -42,45 +57,47 @@ by this connection.::
 List
 ~~~~
 
-Services are accessed through an attribute named after the service.  A list
-of all the projects is retrieved in this manner::
+Services are accessed through an attribute named after the service's official
+service-type. A list of all the projects is retrieved in this manner::
 
     projects = conn.identity.list_projects()
 
 Find or create
 ~~~~~~~~~~~~~~
-If you wanted to make sure you had a network named 'jenkins', you would first
+If you wanted to make sure you had a network named 'zuul', you would first
 try to find it and if that fails, you would create it::
 
-    network = conn.network.find_network("jenkins")
+    network = conn.network.find_network("zuul")
     if network is None:
-        network = conn.network.create_network({"name": "jenkins"})
+        network = conn.network.create_network({"name": "zuul"})
 
 """
+import importlib
 import logging
 import sys
 
-from keystoneauth1.loading import base as ksa_loader
-import openstack.config
+import keystoneauth1.exceptions
+import os_service_types
 
+from openstack.cloud import task_manager
+import openstack.config
+from openstack.config import cloud_config
 from openstack import exceptions
-from openstack import profile as _profile
 from openstack import proxy
 from openstack import proxy2
-from openstack import session as _session
 from openstack import utils
 
 _logger = logging.getLogger(__name__)
 
 
 def from_config(cloud_name=None, cloud_config=None, options=None):
-    """Create a Connection using os-client-config
+    """Create a Connection using openstack.config
 
     :param str cloud_name: Use the `cloud_name` configuration details when
                            creating the Connection instance.
     :param cloud_config: An instance of
                          `openstack.config.loader.OpenStackConfig`
-                         as returned from the os-client-config library.
+                         as returned from openstack.config.
                          If no `config` is provided,
                          `openstack.config.OpenStackConfig` will be called,
                          and the provided `cloud_name` will be used in
@@ -95,177 +112,205 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
 
     :rtype: :class:`~openstack.connection.Connection`
     """
-    # TODO(thowe): I proposed that service name defaults to None in OCC
-    defaults = {}
-    prof = _profile.Profile()
-    services = [service.service_type for service in prof.get_services()]
-    for service in services:
-        defaults[service + '_service_name'] = None
-    # TODO(thowe): default is 2 which turns into v2 which doesn't work
-    # this stuff needs to be fixed where we keep version and path separated.
-    defaults['network_api_version'] = 'v2.0'
     if cloud_config is None:
-        occ = openstack.config.OpenStackConfig(override_defaults=defaults)
+        occ = openstack.config.OpenStackConfig()
         cloud_config = occ.get_one_cloud(cloud=cloud_name, argparse=options)
 
     if cloud_config.debug:
         utils.enable_logging(True, stream=sys.stdout)
 
-    # TODO(mordred) we need to add service_type setting to openstacksdk.
-    # Some clouds have type overridden as well as name.
-    services = [service.service_type for service in prof.get_services()]
-    for service in cloud_config.get_services():
-        if service in services:
-            version = cloud_config.get_api_version(service)
-            if version:
-                version = str(version)
-                if not version.startswith("v"):
-                    version = "v" + version
-                prof.set_version(service, version)
-            name = cloud_config.get_service_name(service)
-            if name:
-                prof.set_name(service, name)
-            interface = cloud_config.get_interface(service)
-            if interface:
-                prof.set_interface(service, interface)
-
-    region = cloud_config.get_region_name(service)
-    if region:
-        for service in services:
-            prof.set_region(service, region)
-
-    # Auth
-    auth = cloud_config.config['auth']
-    # TODO(thowe) We should be using auth_type
-    auth['auth_plugin'] = cloud_config.config['auth_type']
-    if 'cacert' in auth:
-        auth['verify'] = auth.pop('cacert')
-    if 'cacert' in cloud_config.config:
-        auth['verify'] = cloud_config.config['cacert']
-    insecure = cloud_config.config.get('insecure', False)
-    if insecure:
-        auth['verify'] = False
-
-    cert = cloud_config.config.get('cert')
-    if cert:
-        key = cloud_config.config.get('key')
-        auth['cert'] = (cert, key) if key else cert
-
-    return Connection(profile=prof, **auth)
+    return Connection(config=cloud_config)
 
 
 class Connection(object):
 
-    def __init__(self, session=None, authenticator=None, profile=None,
-                 verify=True, cert=None, user_agent=None,
-                 auth_plugin="password",
-                 **auth_args):
-        """Create a context for a connection to a cloud provider.
+    def __init__(self, cloud=None, config=None, session=None,
+                 app_name=None, app_version=None,
+                 # TODO(shade) Remove these once we've shifted
+                 # python-openstackclient to not use the profile interface.
+                 authenticator=None, profile=None,
+                 **kwargs):
+        """Create a connection to a cloud.
 
-        A connection needs a transport and an authenticator.  The user may pass
-        in a transport and authenticator they want to use or they may pass in
-        the parameters to create a transport and authenticator.  The connection
-        creates a
-        :class:`~openstack.session.Session` which uses the profile
-        and authenticator to perform HTTP requests.
+        A connection needs information about how to connect, how to
+        authenticate and how to select the appropriate services to use.
 
+        The recommended way to provide this information is by referencing
+        a named cloud config from an existing `clouds.yaml` file. The cloud
+        name ``envvars`` may be used to consume a cloud configured via ``OS_``
+        environment variables.
+
+        A pre-existing :class:`~openstack.config.cloud_config.CloudConfig`
+        object can be passed in lieu of a cloud name, for cases where the user
+        already has a fully formed CloudConfig and just wants to use it.
+
+        Similarly, if for some reason the user already has a
+        :class:`~keystoneauth1.session.Session` and wants to use it, it may be
+        passed in.
+
+        :param str cloud: Name of the cloud from config to use.
+        :param config: CloudConfig object representing the config for the
+            region of the cloud in question.
+        :type config: :class:`~openstack.config.cloud_config.CloudConfig`
         :param session: A session object compatible with
-            :class:`~openstack.session.Session`.
-        :type session: :class:`~openstack.session.Session`
-        :param authenticator: An authenticator derived from the base
-            authenticator plugin that was previously created.  Two common
-            authentication identity plugins are
-            :class:`identity_v2 <openstack.auth.identity.v2.Auth>` and
-            :class:`identity_v3 <openstack.auth.identity.v3.Auth>`.
-            If this parameter is not passed in, the connection will create an
-            authenticator.
-        :type authenticator: :class:`~openstack.auth.base.BaseAuthPlugin`
-        :param profile: If the user has any special profiles such as the
-            service name, region, version or interface, they may be provided
-            in the profile object.  If no profiles are provided, the
-            services that appear first in the service catalog will be used.
-        :type profile: :class:`~openstack.profile.Profile`
-        :param bool verify: If a transport is not provided to the connection,
-            this parameter will be used to create a transport.  If ``verify``
-            is set to true, which is the default, the SSL cert will be
-            verified.  It can also be set to a CA_BUNDLE path.
-        :param cert: If a transport is not provided to the connection then this
-            parameter will be used to create a transport. `cert` allows to
-            provide a client certificate file path or a tuple with client
-            certificate and key paths.
-        :type cert: str or tuple
-        :param str user_agent: If a transport is not provided to the
-            connection, this parameter will be used when creating a transport.
-            The value given here will be prepended to the default, which is
-            specified in :attr:`~openstack.transport.USER_AGENT`.
-            The resulting ``user_agent`` value is used for the ``User-Agent``
-            HTTP header.
-        :param str auth_plugin: The name of authentication plugin to use.
-            The default value is ``password``.
-        :param auth_args: The rest of the parameters provided are assumed to be
-            authentication arguments that are used by the authentication
-            plugin.
+            :class:`~keystoneauth1.session.Session`.
+        :type session: :class:`~keystoneauth1.session.Session`
+        :param str app_name: Name of the application to be added to User Agent.
+        :param str app_version: Version of the application to be added to
+            User Agent.
+        :param authenticator: DEPRECATED. Only exists for short-term backwards
+                              compatibility for python-openstackclient while we
+                              transition.
+        :param profile: DEPRECATED. Only exists for short-term backwards
+                        compatibility for python-openstackclient while we
+                        transition.
+        :param kwargs: If a config is not provided, the rest of the parameters
+            provided are assumed to be arguments to be passed to the
+            CloudConfig contructor.
         """
-        self.profile = profile if profile else _profile.Profile()
+        self.config = config
+        self.service_type_manager = os_service_types.ServiceTypes()
+
+        if not self.config:
+            openstack_config = openstack.config.OpenStackConfig(
+                app_name=app_name, app_version=app_version,
+                load_yaml_config=profile is None)
+            if profile:
+                # TODO(shade) Remove this once we've shifted
+                # python-openstackclient to not use the profile interface.
+                self.config = self._get_config_from_profile(
+                    openstack_config, profile, authenticator, **kwargs)
+            else:
+                self.config = openstack_config.get_one_cloud(
+                    cloud=cloud, validate=session is None, **kwargs)
+
+        self.task_manager = task_manager.TaskManager(
+            name=':'.join([self.config.name, self.config.region]))
+
         if session:
-            # Make sure it is the right kind of session. A keystoneauth1
-            # session would work in some ways but show strange errors in
-            # others. E.g. a Resource.find would work with an id but fail when
-            # given a name because it attempts to catch
-            # openstack.exceptions.NotFoundException to signal that a search by
-            # ID failed before trying a search by name, but with a
-            # keystoneauth1 session the lookup by ID raises
-            # keystoneauth1.exceptions.NotFound instead. We need to ensure our
-            # Session class gets used so that our implementation of various
-            # methods always works as we expect.
-            if not isinstance(session, _session.Session):
-                raise exceptions.SDKException(
-                    'Session instance is from %s but must be from %s' %
-                    (session.__module__, _session.__name__))
-            self.session = session
-        else:
-            self.authenticator = self._create_authenticator(authenticator,
-                                                            auth_plugin,
-                                                            **auth_args)
-            self.session = _session.Session(
-                self.profile, auth=self.authenticator, verify=verify,
-                cert=cert, user_agent=user_agent)
+            # TODO(mordred) Expose constructor option for this in OCC
+            self.config._keystone_session = session
+
+        self.session = self.config.get_session()
 
         self._open()
 
-    def _create_authenticator(self, authenticator, auth_plugin, **args):
-        if authenticator:
-            return authenticator
-        # TODO(thowe): Jamie was suggesting we should support other
-        #              ways of loading the plugin
-        loader = ksa_loader.get_plugin_loader(auth_plugin)
-        load_args = {}
-        for opt in loader.get_options():
-            if args.get(opt.dest):
-                load_args[opt.dest] = args[opt.dest]
-        return loader.load_from_options(**load_args)
+    def _get_config_from_profile(
+            self, openstack_config, profile, authenticator, **kwargs):
+        """Get openstack.config objects from legacy profile."""
+        # TODO(shade) Remove this once we've shifted python-openstackclient
+        # to not use the profile interface.
+        config = openstack_config.get_one_cloud(
+            cloud='defaults', validate=False, **kwargs)
+        config._auth = authenticator
+
+        for service in profile.get_services():
+            service_type = service.service_type
+            if service.interface:
+                key = cloud_config._make_key('interface', service_type)
+                config.config[key] = service.interface
+            if service.region:
+                key = cloud_config._make_key('region_name', service_type)
+                config.config[key] = service.region
+            if service.version:
+                version = service.version
+                if version.startswith('v'):
+                    version = version[1:]
+                key = cloud_config._make_key('api_version', service_type)
+                config.config[key] = service.version
+        return config
 
     def _open(self):
-        """Open the connection.
+        """Open the connection. """
+        for service in self.service_type_manager.services:
+            self._load(service['service_type'])
+        # TODO(mordred) openstacksdk has support for the metric service
+        # which is not in service-types-authority. What do we do about that?
+        self._load('metric')
 
-        NOTE(thowe): Have this set up some lazy loader instead.
-        """
-        for service in self.profile.get_services():
-            self._load(service)
+    def _load(self, service_type):
+        service = self._get_service(service_type)
 
-    def _load(self, service):
-        attr_name = service.get_service_module()
-        module = service.get_module() + "._proxy"
-        try:
-            __import__(module)
-            proxy_class = getattr(sys.modules[module], "Proxy")
+        if service:
+            module_name = service.get_module() + "._proxy"
+            module = importlib.import_module(module_name)
+            proxy_class = getattr(module, "Proxy")
             if not (issubclass(proxy_class, proxy.BaseProxy) or
                     issubclass(proxy_class, proxy2.BaseProxy)):
                 raise TypeError("%s.Proxy must inherit from BaseProxy" %
                                 proxy_class.__module__)
-            setattr(self, attr_name, proxy_class(self.session))
-        except Exception as e:
-            _logger.warn("Unable to load %s: %s" % (module, e))
+        else:
+            # If we don't have a proxy, just instantiate BaseProxy so that
+            # we get an adapter.
+            proxy_class = proxy2.BaseProxy
+
+        proxy_object = proxy_class(
+            session=self.config.get_session(),
+            task_manager=self.task_manager,
+            allow_version_hack=True,
+            service_type=self.config.get_service_type(service_type),
+            service_name=self.config.get_service_name(service_type),
+            interface=self.config.get_interface(service_type),
+            region_name=self.config.region,
+            version=self.config.get_api_version(service_type)
+        )
+        all_types = self.service_type_manager.get_all_types(service_type)
+        # Register the proxy class with every known alias
+        for attr_name in [name.replace('-', '_') for name in all_types]:
+            setattr(self, attr_name, proxy_object)
+
+    def _get_all_types(self, service_type):
+        # We make connection attributes for all official real type names
+        # and aliases. Three services have names they were called by in
+        # openstacksdk that are not covered by Service Types Authority aliases.
+        # Include them here - but take heed, no additional values should ever
+        # be added to this list.
+        # that were only used in openstacksdk resource naming.
+        LOCAL_ALIASES = {
+            'baremetal': 'bare_metal',
+            'block_storage': 'block_store',
+            'clustering': 'cluster',
+        }
+        all_types = self.service_type_manager.get_all_types(service_type)
+        if service_type in LOCAL_ALIASES:
+            all_types.append(LOCAL_ALIASES[service_type])
+        return all_types
+
+    def _get_service(self, official_service_type):
+        service_class = None
+        for service_type in self._get_all_types(official_service_type):
+            service_class = self._find_service_class(service_type)
+            if service_class:
+                break
+        if not service_class:
+            return None
+        # TODO(mordred) Replace this with proper discovery
+        version_string = self.config.get_api_version(official_service_type)
+        version = None
+        if version_string:
+            version = 'v{version}'.format(version=version_string[0])
+        return service_class(version=version)
+
+    def _find_service_class(self, service_type):
+        package_name = 'openstack.{service_type}'.format(
+            service_type=service_type).replace('-', '_')
+        module_name = service_type.replace('-', '_') + '_service'
+        class_name = ''.join(
+            [part.capitalize() for part in module_name.split('_')])
+        try:
+            import_name = '.'.join([package_name, module_name])
+            service_module = importlib.import_module(import_name)
+        except ImportError:
+            return None
+        service_class = getattr(service_module, class_name, None)
+        if not service_class:
+            _logger.warn(
+                'Unable to find class {class_name} in module for service'
+                ' for service {service_type}'.format(
+                    class_name=class_name,
+                    service_type=service_type))
+            return None
+        return service_class
 
     def authorize(self):
         """Authorize this Connection
@@ -278,9 +323,10 @@ class Connection(object):
 
         :raises: :class:`~openstack.exceptions.HttpException` if the
                  authorization fails due to reasons like the credentials
-                 provided are unable to be authorized or the `auth_plugin`
+                 provided are unable to be authorized or the `auth_type`
                  argument is missing, etc.
         """
-        headers = self.session.get_auth_headers()
-
-        return headers.get('X-Auth-Token') if headers else None
+        try:
+            return self.session.get_token()
+        except keystoneauth1.exceptions.ClientException as e:
+            raise exceptions.raise_from_response(e.response)

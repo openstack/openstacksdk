@@ -27,6 +27,7 @@ from six.moves import urllib
 import tempfile
 
 import openstack
+import openstack.connection
 from openstack.tests import base
 
 
@@ -406,6 +407,19 @@ class RequestsMockTestCase(BaseTestCase):
         return _RoleData(role_id, role_name, {'role': response},
                          {'role': request})
 
+    def use_broken_keystone(self):
+        self.adapter = self.useFixture(rm_fixture.Fixture())
+        self.calls = []
+        self._uri_registry.clear()
+        self.__do_register_uris([
+            dict(method='GET', uri='https://identity.example.com/',
+                 text=open(self.discovery_json, 'r').read()),
+            dict(method='POST',
+                 uri='https://identity.example.com/v3/auth/tokens',
+                 status_code=400),
+        ])
+        self._make_test_cloud(identity_api_version='3')
+
     def use_keystone_v3(self, catalog='catalog-v3.json'):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
@@ -444,6 +458,8 @@ class RequestsMockTestCase(BaseTestCase):
         test_cloud = os.environ.get('OPENSTACKSDK_OS_CLOUD', cloud_name)
         self.cloud_config = self.config.get_one_cloud(
             cloud=test_cloud, validate=True, **kwargs)
+        self.conn = openstack.connection.Connection(
+            config=self.cloud_config)
         self.cloud = openstack.OpenStackCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)

@@ -84,54 +84,54 @@ class Router(resource.Resource, tag.TagMixin):
         """Add an internal interface to a logical router.
 
         :param session: The session to communicate through.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
         """
         url = utils.urljoin(self.base_path, self.id, 'add_router_interface')
-        resp = session.put(url, endpoint_filter=self.service, json=body)
+        resp = session.put(url, json=body)
         return resp.json()
 
     def remove_interface(self, session, **body):
         """Remove an internal interface from a logical router.
 
         :param session: The session to communicate through.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
         """
         url = utils.urljoin(self.base_path, self.id, 'remove_router_interface')
-        resp = session.put(url, endpoint_filter=self.service, json=body)
+        resp = session.put(url, json=body)
         return resp.json()
 
     def add_gateway(self, session, **body):
         """Add an external gateway to a logical router.
 
         :param session: The session to communicate through.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
         """
         url = utils.urljoin(self.base_path, self.id,
                             'add_gateway_router')
-        resp = session.put(url, endpoint_filter=self.service, json=body)
+        resp = session.put(url, json=body)
         return resp.json()
 
     def remove_gateway(self, session, **body):
         """Remove an external gateway from a logical router.
 
         :param session: The session to communicate through.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
         """
         url = utils.urljoin(self.base_path, self.id,
                             'remove_gateway_router')
-        resp = session.put(url, endpoint_filter=self.service, json=body)
+        resp = session.put(url, json=body)
         return resp.json()
 
 

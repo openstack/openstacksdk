@@ -44,7 +44,7 @@ class Service(resource2.Resource):
 
     def _action(self, session, action, body):
         url = utils.urljoin(Service.base_path, action)
-        return session.put(url, endpoint_filter=self.service, json=body)
+        return session.put(url, json=body)
 
     def force_down(self, session, host, binary):
         """Force a service down."""

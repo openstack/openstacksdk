@@ -19,9 +19,8 @@ For a full guide see TODO(etoews):link to docs on developer.openstack.org
 import argparse
 import os
 
+import openstack
 from openstack import config as occ
-from openstack import connection
-from openstack import profile
 from openstack import utils
 import sys
 
@@ -49,7 +48,7 @@ def _get_resource_value(resource_key, default):
         return default
 
 config = occ.OpenStackConfig()
-cloud = config.get_one_cloud(TEST_CLOUD)
+cloud = openstack.connect(cloud=TEST_CLOUD)
 
 SERVER_NAME = 'openstacksdk-example'
 IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
@@ -66,10 +65,7 @@ EXAMPLE_IMAGE_NAME = 'openstacksdk-example-public-image'
 
 
 def create_connection_from_config():
-    opts = Opts(cloud_name=TEST_CLOUD)
-    config = occ.OpenStackConfig()
-    cloud = config.get_one_cloud(opts.cloud)
-    return connection.from_config(cloud_config=cloud, options=opts)
+    return openstack.connect(cloud=TEST_CLOUD)
 
 
 def create_connection_from_args():
@@ -77,18 +73,17 @@ def create_connection_from_args():
     config = occ.OpenStackConfig()
     config.register_argparse_arguments(parser, sys.argv[1:])
     args = parser.parse_args()
-    return connection.from_config(options=args)
+    return openstack.connect(config=config.get_one_cloud(argparse=args))
 
 
 def create_connection(auth_url, region, project_name, username, password):
-    prof = profile.Profile()
-    prof.set_region(profile.Profile.ALL, region)
 
-    return connection.Connection(
-        profile=prof,
-        user_agent='examples',
+    return openstack.connect(
         auth_url=auth_url,
         project_name=project_name,
         username=username,
-        password=password
+        password=password,
+        region_name=region,
+        app_name='examples',
+        app_version='1.0',
     )

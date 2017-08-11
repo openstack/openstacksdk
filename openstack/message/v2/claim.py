@@ -71,7 +71,7 @@ class Claim(resource2.Resource):
             "X-PROJECT-ID": self.project_id or session.get_project_id()
         }
         request.headers.update(headers)
-        response = session.post(request.uri, endpoint_filter=self.service,
+        response = session.post(request.url,
                                 json=request.body, headers=request.headers)
 
         # For case no message was claimed successfully, 204 No Content
@@ -90,7 +90,7 @@ class Claim(resource2.Resource):
         }
 
         request.headers.update(headers)
-        response = session.get(request.uri, endpoint_filter=self.service,
+        response = session.get(request.url,
                                headers=request.headers)
         self._translate_response(response)
 
@@ -104,7 +104,7 @@ class Claim(resource2.Resource):
         }
 
         request.headers.update(headers)
-        session.patch(request.uri, endpoint_filter=self.service,
+        session.patch(request.url,
                       json=request.body, headers=request.headers)
 
         return self
@@ -117,7 +117,7 @@ class Claim(resource2.Resource):
         }
 
         request.headers.update(headers)
-        response = session.delete(request.uri, endpoint_filter=self.service,
+        response = session.delete(request.url,
                                   headers=request.headers)
 
         self._translate_response(response, has_body=False)

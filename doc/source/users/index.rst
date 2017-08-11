@@ -28,19 +28,19 @@ approach, this is where you'll want to begin.
    Connect to an OpenStack Cloud <guides/connect>
    Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
    Logging <guides/logging>
-   Bare Metal <guides/bare_metal>
-   Block Store <guides/block_store>
-   Cluster <guides/cluster>
+   Baremetal <guides/baremetal>
+   Block Storage <guides/block_storage>
+   Clustering <guides/clustering>
    Compute <guides/compute>
    Database <guides/database>
    Identity <guides/identity>
    Image <guides/image>
    Key Manager <guides/key_manager>
    Message <guides/message>
+   Meter <guides/meter>
    Network <guides/network>
    Object Store <guides/object_store>
    Orchestration <guides/orchestration>
-   Telemetry <guides/telemetry>
 
 API Documentation
 -----------------
@@ -54,26 +54,26 @@ interface is the layer upon which the *Connection* is built, with
 Connection Interface
 ********************
 
-A *Connection* instance maintains your session, authentication, transport,
-and profile, providing you with a set of higher-level interfaces to work
-with OpenStack services.
+A *Connection* instance maintains your cloud config, session and authentication
+information providing you with a set of higher-level interfaces to work with
+OpenStack services.
 
 .. toctree::
    :maxdepth: 1
 
    connection
-   profile
 
 Once you have a *Connection* instance, the following services may be exposed
-to you. Your user profile determine the full set of exposed services,
-but listed below are the ones provided by this SDK by default.
+to you. The combination of your ``CloudConfig`` and the catalog of the cloud
+in question control which services are exposed, but listed below are the ones
+provided by the SDK.
 
 .. toctree::
    :maxdepth: 1
 
-   Bare Metal <proxies/bare_metal>
-   Block Store <proxies/block_store>
-   Cluster <proxies/cluster>
+   Baremetal <proxies/baremetal>
+   Block Storage <proxies/block_storage>
+   Clustering <proxies/clustering>
    Compute <proxies/compute>
    Database <proxies/database>
    Identity v2 <proxies/identity_v2>
@@ -85,10 +85,10 @@ but listed below are the ones provided by this SDK by default.
    Message v1 <proxies/message_v1>
    Message v2 <proxies/message_v2>
    Network <proxies/network>
+   Meter <proxies/meter>
    Metric <proxies/metric>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
-   Telemetry <proxies/telemetry>
    Workflow <proxies/workflow>
 
 Resource Interface
@@ -106,20 +106,20 @@ The following services have exposed *Resource* classes.
 .. toctree::
    :maxdepth: 1
 
-   Bare Metal <resources/bare_metal/index>
-   Block Store <resources/block_store/index>
-   Cluster <resources/cluster/index>
+   Baremetal <resources/baremetal/index>
+   Block Storage <resources/block_storage/index>
+   Clustering <resources/clustering/index>
    Compute <resources/compute/index>
    Database <resources/database/index>
    Identity <resources/identity/index>
    Image <resources/image/index>
    Key Management <resources/key_manager/index>
    Load Balancer <resources/load_balancer/index>
+   Meter <resources/meter/index>
    Metric <resources/metric/index>
    Network <resources/network/index>
    Orchestration <resources/orchestration/index>
    Object Store <resources/object_store/index>
-   Telemetry <resources/telemetry/index>
    Workflow <resources/workflow/index>
 
 Low-Level Classes
@@ -133,7 +133,6 @@ can be customized.
 .. toctree::
    :maxdepth: 1
 
-   session
    resource
    resource2
    service_filter

@@ -76,18 +76,18 @@ class Limits(resource2.Resource):
     absolute = resource2.Body("absolute", type=AbsoluteLimits)
     rate = resource2.Body("rate", type=list)
 
-    def get(self, session, requires_id=False):
+    def get(self, session, requires_id=False, error_message=None):
         """Get the Limits resource.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :returns: A Limits instance
         :rtype: :class:`~openstack.compute.v2.limits.Limits`
         """
         request = self._prepare_request(requires_id=False, prepend_key=False)
 
-        response = session.get(request.uri, endpoint_filter=self.service)
+        response = session.get(request.url, error_message=error_message)
 
         body = response.json()
         body = body[self.resource_key]

@@ -214,7 +214,7 @@ class Image(resource2.Resource):
     def _action(self, session, action):
         """Call an action on an image ID."""
         url = utils.urljoin(self.base_path, self.id, 'actions', action)
-        return session.post(url, endpoint_filter=self.service)
+        return session.post(url,)
 
     def deactivate(self, session):
         """Deactivate an image
@@ -234,17 +234,17 @@ class Image(resource2.Resource):
     def add_tag(self, session, tag):
         """Add a tag to an image"""
         url = utils.urljoin(self.base_path, self.id, 'tags', tag)
-        session.put(url, endpoint_filter=self.service)
+        session.put(url,)
 
     def remove_tag(self, session, tag):
         """Remove a tag from an image"""
         url = utils.urljoin(self.base_path, self.id, 'tags', tag)
-        session.delete(url, endpoint_filter=self.service)
+        session.delete(url,)
 
     def upload(self, session):
         """Upload data into an existing image"""
         url = utils.urljoin(self.base_path, self.id, 'file')
-        session.put(url, endpoint_filter=self.service, data=self.data,
+        session.put(url, data=self.data,
                     headers={"Content-Type": "application/octet-stream",
                              "Accept": ""})
 
@@ -253,7 +253,7 @@ class Image(resource2.Resource):
         # TODO(briancurtin): This method should probably offload the get
         # operation into another thread or something of that nature.
         url = utils.urljoin(self.base_path, self.id, 'file')
-        resp = session.get(url, endpoint_filter=self.service, stream=stream)
+        resp = session.get(url, stream=stream)
 
         # See the following bug report for details on why the checksum
         # code may sometimes depend on a second GET call.
@@ -294,7 +294,7 @@ class Image(resource2.Resource):
         }
         original = self.to_dict()
         patch_string = jsonpatch.make_patch(original, attrs).to_string()
-        resp = session.patch(url, endpoint_filter=self.service,
+        resp = session.patch(url,
                              data=patch_string,
                              headers=headers)
         self._translate_response(resp, has_body=True)

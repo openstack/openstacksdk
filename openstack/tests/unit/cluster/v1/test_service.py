@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.cluster.v1 import service
+from openstack.clustering.v1 import service
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

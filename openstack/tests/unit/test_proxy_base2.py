@@ -43,11 +43,11 @@ class TestProxyBase(base.TestCase):
 
                 self.assertEqual(expected_result, test_method(*method_args,
                                  **method_kwargs))
-                mocked.assert_called_with(self.session,
+                mocked.assert_called_with(test_method.__self__,
                                           *expected_args, **expected_kwargs)
             else:
                 self.assertEqual(expected_result, test_method())
-                mocked.assert_called_with(self.session)
+                mocked.assert_called_with(test_method.__self__)
 
     # NOTE(briancurtin): This is a duplicate version of _verify that is
     # temporarily here while we shift APIs. The difference is that
@@ -79,7 +79,7 @@ class TestProxyBase(base.TestCase):
                 mocked.assert_called_with(*expected_args, **expected_kwargs)
             else:
                 self.assertEqual(expected_result, test_method())
-                mocked.assert_called_with(self.session)
+                mocked.assert_called_with(test_method.__self__)
 
     def verify_create(self, test_method, resource_type,
                       mock_method="openstack.proxy2.BaseProxy._create",

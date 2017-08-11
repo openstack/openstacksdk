@@ -220,6 +220,7 @@
 - project:
     name: openstack/python-openstacksdk
     templates:
+      - openstack-pypy-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
     check:

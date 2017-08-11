@@ -12,14 +12,26 @@
 
 import itertools
 
+from keystoneauth1 import session
 import mock
+import requests
 import six
 
 from openstack import exceptions
 from openstack import format
 from openstack import resource2
-from openstack import session
 from openstack.tests.unit import base
+
+
+class FakeResponse(object):
+    def __init__(self, response, status_code=200, headers=None):
+        self.body = response
+        self.status_code = status_code
+        headers = headers if headers else {'content-type': 'application/json'}
+        self.headers = requests.structures.CaseInsensitiveDict(headers)
+
+    def json(self):
+        return self.body
 
 
 class TestComponent(base.TestCase):
@@ -337,7 +349,7 @@ class Test_Request(base.TestCase):
 
         sot = resource2._Request(uri, body, headers)
 
-        self.assertEqual(uri, sot.uri)
+        self.assertEqual(uri, sot.url)
         self.assertEqual(body, sot.body)
         self.assertEqual(headers, sot.headers)
 
@@ -791,7 +803,7 @@ class TestResource(base.TestCase):
 
         result = sot._prepare_request(requires_id=True)
 
-        self.assertEqual("something/id", result.uri)
+        self.assertEqual("something/id", result.url)
         self.assertEqual({"x": body_value, "id": the_id}, result.body)
         self.assertEqual({"y": header_value}, result.headers)
 
@@ -817,7 +829,7 @@ class TestResource(base.TestCase):
 
         result = sot._prepare_request(requires_id=False, prepend_key=True)
 
-        self.assertEqual("/something", result.uri)
+        self.assertEqual("/something", result.url)
         self.assertEqual({key: {"x": body_value}}, result.body)
         self.assertEqual({"y": header_value}, result.headers)
 
@@ -840,8 +852,7 @@ class TestResource(base.TestCase):
         class Test(resource2.Resource):
             attr = resource2.Header("attr")
 
-        response = mock.Mock()
-        response.headers = dict()
+        response = FakeResponse({})
 
         sot = Test()
         sot._filter_component = mock.Mock(return_value={"attr": "value"})
@@ -856,9 +867,7 @@ class TestResource(base.TestCase):
             attr = resource2.Body("attr")
 
         body = {"attr": "value"}
-        response = mock.Mock()
-        response.headers = dict()
-        response.json.return_value = body
+        response = FakeResponse(body)
 
         sot = Test()
         sot._filter_component = mock.Mock(side_effect=[body, dict()])
@@ -877,9 +886,7 @@ class TestResource(base.TestCase):
             attr = resource2.Body("attr")
 
         body = {"attr": "value"}
-        response = mock.Mock()
-        response.headers = dict()
-        response.json.return_value = {key: body}
+        response = FakeResponse({key: body})
 
         sot = Test()
         sot._filter_component = mock.Mock(side_effect=[body, dict()])
@@ -941,11 +948,11 @@ class TestResourceActions(base.TestCase):
         self.test_class = Test
 
         self.request = mock.Mock(spec=resource2._Request)
-        self.request.uri = "uri"
+        self.request.url = "uri"
         self.request.body = "body"
         self.request.headers = "headers"
 
-        self.response = mock.Mock()
+        self.response = FakeResponse({})
 
         self.sot = Test(id="id")
         self.sot._prepare_request = mock.Mock(return_value=self.request)
@@ -972,13 +979,11 @@ class TestResourceActions(base.TestCase):
             requires_id=requires_id, prepend_key=prepend_key)
         if requires_id:
             self.session.put.assert_called_once_with(
-                self.request.uri,
-                endpoint_filter=self.service_name,
+                self.request.url,
                 json=self.request.body, headers=self.request.headers)
         else:
             self.session.post.assert_called_once_with(
-                self.request.uri,
-                endpoint_filter=self.service_name,
+                self.request.url,
                 json=self.request.body, headers=self.request.headers)
 
         sot._translate_response.assert_called_once_with(self.response)
@@ -1007,7 +1012,7 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with(requires_id=True)
         self.session.get.assert_called_once_with(
-            self.request.uri, endpoint_filter=self.service_name)
+            self.request.url,)
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1017,7 +1022,7 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with(requires_id=False)
         self.session.get.assert_called_once_with(
-            self.request.uri, endpoint_filter=self.service_name)
+            self.request.url,)
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1027,8 +1032,7 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with()
         self.session.head.assert_called_once_with(
-            self.request.uri,
-            endpoint_filter=self.service_name,
+            self.request.url,
             headers={"Accept": ""})
 
         self.sot._translate_response.assert_called_once_with(self.response)
@@ -1050,13 +1054,11 @@ class TestResourceActions(base.TestCase):
 
         if patch_update:
             self.session.patch.assert_called_once_with(
-                self.request.uri,
-                endpoint_filter=self.service_name,
+                self.request.url,
                 json=self.request.body, headers=self.request.headers)
         else:
             self.session.put.assert_called_once_with(
-                self.request.uri,
-                endpoint_filter=self.service_name,
+                self.request.url,
                 json=self.request.body, headers=self.request.headers)
 
         self.sot._translate_response.assert_called_once_with(
@@ -1083,8 +1085,7 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
-            self.request.uri,
-            endpoint_filter=self.service_name,
+            self.request.url,
             headers={"Accept": ""})
 
         self.sot._translate_response.assert_called_once_with(
@@ -1095,8 +1096,7 @@ class TestResourceActions(base.TestCase):
     # the generator. Wrap calls to self.sot.list in a `list`
     # and then test the results as a list of responses.
     def test_list_empty_response(self):
-        mock_response = mock.Mock()
-        mock_response.json.return_value = []
+        mock_response = FakeResponse([])
 
         self.session.get.return_value = mock_response
 
@@ -1104,7 +1104,6 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.assert_called_once_with(
             self.base_path,
-            endpoint_filter=self.service_name,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1142,7 +1141,6 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.assert_called_once_with(
             self.base_path,
-            endpoint_filter=self.service_name,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1168,7 +1166,6 @@ class TestResourceActions(base.TestCase):
 
         self.session.get.assert_called_once_with(
             self.base_path,
-            endpoint_filter=self.service_name,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1242,7 +1239,6 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result0.id, ids[0])
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1250,14 +1246,12 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result1.id, ids[1])
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
             headers={"Accept": "application/json"},
             params={"limit": 1, "marker": 1})
 
         self.assertRaises(StopIteration, next, results)
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
             headers={"Accept": "application/json"},
             params={"limit": 1, "marker": 2})
 
@@ -1284,7 +1278,6 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result1.id, ids[1])
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
             headers={"Accept": "application/json"},
             params={})
 
@@ -1293,7 +1286,6 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result2.id, ids[2])
         self.session.get.assert_called_with(
             self.base_path,
-            endpoint_filter=self.service_name,
             headers={"Accept": "application/json"},
             params={"limit": 2, "marker": 2})
 
@@ -1315,7 +1307,8 @@ class TestResourceFind(base.TestCase):
 
             @classmethod
             def existing(cls, **kwargs):
-                raise exceptions.NotFoundException
+                raise exceptions.NotFoundException(
+                    'Not Found', response=mock.Mock())
 
             @classmethod
             def list(cls, session):
@@ -1490,8 +1483,12 @@ class TestWaitForDelete(base.TestCase):
 
     @mock.patch("time.sleep", return_value=None)
     def test_success(self, mock_sleep):
+        response = mock.Mock()
+        response.headers = {}
         resource = mock.Mock()
-        resource.get.side_effect = [None, None, exceptions.NotFoundException]
+        resource.get.side_effect = [
+            None, None,
+            exceptions.NotFoundException('Not Found', response)]
 
         result = resource2.wait_for_delete("session", resource, 1, 3)
 

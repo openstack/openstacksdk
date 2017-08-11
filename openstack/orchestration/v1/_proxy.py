@@ -125,7 +125,7 @@ class Proxy(proxy2.BaseProxy):
         else:
             stk_obj = _stack.Stack.existing(id=stack)
 
-        stk_obj.check(self._session)
+        stk_obj.check(self)
 
     def get_stack_template(self, stack):
         """Get template used by a stack
@@ -184,7 +184,7 @@ class Proxy(proxy2.BaseProxy):
             stk = self._find(_stack.Stack, stack, ignore_missing=False)
 
         obj = _stack_files.StackFiles(stack_name=stk.name, stack_id=stk.id)
-        return obj.get(self._session)
+        return obj.get(self)
 
     def resources(self, stack, **query):
         """Return a generator of resources
@@ -357,6 +357,6 @@ class Proxy(proxy2.BaseProxy):
                 "'template_url' must be specified when template is None")
 
         tmpl = _template.Template.new()
-        return tmpl.validate(self._session, template, environment=environment,
+        return tmpl.validate(self, template, environment=environment,
                              template_url=template_url,
                              ignore_errors=ignore_errors)

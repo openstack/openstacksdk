@@ -47,7 +47,7 @@ class TestImageProxy(test_proxy_base2.TestProxyBase):
                                               container_format="x",
                                               disk_format="y",
                                               name="z")
-        created_image.upload.assert_called_with(self.session)
+        created_image.upload.assert_called_with(self.proxy)
         self.assertEqual(rv, created_image)
 
     def test_image_delete(self):

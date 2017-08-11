@@ -57,8 +57,7 @@ class Execution(resource.Resource):
                                         prepend_key=prepend_key)
 
         request_body = request.body["execution"]
-        response = session.post(request.uri,
-                                endpoint_filter=self.service,
+        response = session.post(request.url,
                                 json=request_body,
                                 headers=request.headers)
 

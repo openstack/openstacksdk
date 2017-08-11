@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.cluster.v1 import profile_type
+from openstack.clustering.v1 import profile_type
 
 
 FAKE = {

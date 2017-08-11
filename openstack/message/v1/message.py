@@ -69,7 +69,7 @@ class Message(resource.Resource):
         url = cls._get_url({'queue_name': messages[0].queue_name})
         headers = {'Client-ID': messages[0].client_id}
 
-        resp = session.post(url, endpoint_filter=cls.service, headers=headers,
+        resp = session.post(url, headers=headers,
                             data=json.dumps(messages, cls=MessageEncoder))
         resp = resp.json()
 
@@ -99,7 +99,7 @@ class Message(resource.Resource):
             'Client-ID': message.client_id,
             'Accept': '',
         }
-        session.delete(url, endpoint_filter=cls.service, headers=headers)
+        session.delete(url, headers=headers)
 
 
 class MessageEncoder(json.JSONEncoder):

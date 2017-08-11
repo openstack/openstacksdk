@@ -36,13 +36,13 @@ class BaseResource(resource.Resource):
 
     def set_metadata(self, session, metadata):
         url = self._get_url(self, self.id)
-        session.post(url, endpoint_filter=self.service,
+        session.post(url,
                      headers=self._calculate_headers(metadata))
 
     def delete_metadata(self, session, keys):
         url = self._get_url(self, self.id)
         headers = {key: '' for key in keys}
-        session.post(url, endpoint_filter=self.service,
+        session.post(url,
                      headers=self._calculate_headers(headers))
 
     def _set_metadata(self):
@@ -69,7 +69,7 @@ class BaseResource(resource.Resource):
         """Update a Resource with the given attributes.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param resource_id: This resource's identifier, if needed by
                             the request. The default is ``None``.
         :param dict attrs: The attributes to be sent in the body
@@ -82,5 +82,5 @@ class BaseResource(resource.Resource):
         url = cls._get_url(None, resource_id)
         headers = attrs.get(resource.HEADERS, dict())
         headers['Accept'] = ''
-        return session.post(url, endpoint_filter=cls.service,
+        return session.post(url,
                             headers=headers).headers

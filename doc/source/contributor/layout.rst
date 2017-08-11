@@ -5,15 +5,6 @@ The following diagram shows how the project is laid out.
 
 .. literalinclude:: layout.txt
 
-Session
--------
-
-The :class:`openstack.session.Session` manages an authenticator,
-transport, and user profile. It exposes methods corresponding to
-HTTP verbs, and injects your authentication token into a request,
-determines any service preferences callers may have set, gets the endpoint
-from the authenticator, and sends the request out through the transport.
-
 Resource
 --------
 
@@ -26,7 +17,7 @@ service's ``https://openstack:1234/v2/servers`` resource.
 The base ``Resource`` contains methods to support the typical
 `CRUD <http://en.wikipedia.org/wiki/Create,_read,_update_and_delete>`_
 operations supported by REST APIs, and handles the construction of URLs
-and calling the appropriate HTTP verb on the given ``Session``.
+and calling the appropriate HTTP verb on the given ``Adapter``.
 
 Values sent to or returned from the service are implemented as attributes
 on the ``Resource`` subclass with type :class:`openstack.resource.prop`.
@@ -63,10 +54,10 @@ Each service implements a ``Proxy`` class, within the
 ``openstack/<program_name>/vX/_proxy.py`` module. For example, the v2 compute
 service's ``Proxy`` exists in ``openstack/compute/v2/_proxy.py``.
 
-This ``Proxy`` class manages a :class:`~openstack.sessions.Session` and
+This ``Proxy`` class contains a :class:`~keystoneauth1.adapter.Adapter` and
 provides a higher-level interface for users to work with via a
 :class:`~openstack.connection.Connection` instance. Rather than requiring
-users to maintain their own session and work with lower-level
+users to maintain their own ``Adapter`` and work with lower-level
 :class:`~openstack.resource.Resource` objects, the ``Proxy`` interface
 offers a place to make things easier for the caller.
 
@@ -77,7 +68,7 @@ Each ``Proxy`` class implements methods which act on the underlying
        return flavor.Flavor.list(self.session, **params)
 
 This method is operating on the ``openstack.compute.v2.flavor.Flavor.list``
-method. For the time being, it simply passes on the ``Session`` maintained
+method. For the time being, it simply passes on the ``Adapter`` maintained
 by the ``Proxy``, and returns what the underlying ``Resource.list`` method
 does.
 
@@ -88,9 +79,9 @@ way which will apply nicely across all of the services.
 Connection
 ----------
 
-The :class:`openstack.connection.Connection` class builds atop a ``Session``
-object, and provides a higher level interface constructed of ``Proxy``
-objects from each of the services.
+The :class:`openstack.connection.Connection` class builds atop a
+:class:`os_client_config.config.CloudConfig` object, and provides a higher
+level interface constructed of ``Proxy`` objects from each of the services.
 
 The ``Connection`` class' primary purpose is to act as a high-level interface
 to this SDK, managing the lower level connecton bits and exposing the

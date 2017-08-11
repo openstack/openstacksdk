@@ -178,7 +178,7 @@ class Server(resource2.Resource, metadata.MetadataMixin):
         url = utils.urljoin(Server.base_path, self.id, 'action')
         headers = {'Accept': ''}
         return session.post(
-            url, endpoint_filter=self.service, json=body, headers=headers)
+            url, json=body, headers=headers)
 
     def change_password(self, session, new_password):
         """Change the administrator password to the given password."""

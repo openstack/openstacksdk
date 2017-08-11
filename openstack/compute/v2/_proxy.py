@@ -198,7 +198,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.compute.v2.image.Image`
         """
         res = self._get_base_resource(image, _image.Image)
-        metadata = res.get_metadata(self._session)
+        metadata = res.get_metadata(self)
         result = _image.Image.existing(id=res.id, metadata=metadata)
         return result
 
@@ -219,7 +219,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.compute.v2.image.Image`
         """
         res = self._get_base_resource(image, _image.Image)
-        metadata = res.set_metadata(self._session, **metadata)
+        metadata = res.set_metadata(self, **metadata)
         result = _image.Image.existing(id=res.id, metadata=metadata)
         return result
 
@@ -237,7 +237,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: ``None``
         """
         res = self._get_base_resource(image, _image.Image)
-        return res.delete_metadata(self._session, keys)
+        return res.delete_metadata(self, keys)
 
     def create_keypair(self, **attrs):
         """Create a new keypair from attributes
@@ -341,7 +341,7 @@ class Proxy(proxy2.BaseProxy):
         """
         if force:
             server = self._get_resource(_server.Server, server)
-            server.force_delete(self._session)
+            server.force_delete(self)
         else:
             self._delete(_server.Server, server, ignore_missing=ignore_missing)
 
@@ -434,7 +434,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.change_password(self._session, new_password)
+        server.change_password(self, new_password)
 
     def reset_server_state(self, server, state):
         """Reset the state of server
@@ -447,7 +447,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         res = self._get_base_resource(server, _server.Server)
-        res.reset_state(self._session, state)
+        res.reset_state(self, state)
 
     def reboot_server(self, server, reboot_type):
         """Reboot a server
@@ -460,7 +460,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.reboot(self._session, reboot_type)
+        server.reboot(self, reboot_type)
 
     def rebuild_server(self, server, name, admin_password, **attrs):
         """Rebuild a server
@@ -488,7 +488,7 @@ class Proxy(proxy2.BaseProxy):
                   instance.
         """
         server = self._get_resource(_server.Server, server)
-        return server.rebuild(self._session, name, admin_password, **attrs)
+        return server.rebuild(self, name, admin_password, **attrs)
 
     def resize_server(self, server, flavor):
         """Resize a server
@@ -502,7 +502,7 @@ class Proxy(proxy2.BaseProxy):
         """
         server = self._get_resource(_server.Server, server)
         flavor_id = resource2.Resource._get_id(flavor)
-        server.resize(self._session, flavor_id)
+        server.resize(self, flavor_id)
 
     def confirm_server_resize(self, server):
         """Confirm a server resize
@@ -513,7 +513,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.confirm_resize(self._session)
+        server.confirm_resize(self)
 
     def revert_server_resize(self, server):
         """Revert a server resize
@@ -524,7 +524,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.revert_resize(self._session)
+        server.revert_resize(self)
 
     def create_server_image(self, server, name, metadata=None):
         """Create an image from a server
@@ -537,7 +537,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.create_image(self._session, name, metadata)
+        server.create_image(self, name, metadata)
 
     def add_security_group_to_server(self, server, security_group):
         """Add a security group to a server
@@ -552,7 +552,7 @@ class Proxy(proxy2.BaseProxy):
         """
         server = self._get_resource(_server.Server, server)
         security_group_id = resource2.Resource._get_id(security_group)
-        server.add_security_group(self._session, security_group_id)
+        server.add_security_group(self, security_group_id)
 
     def remove_security_group_from_server(self, server, security_group):
         """Remove a security group from a server
@@ -567,7 +567,7 @@ class Proxy(proxy2.BaseProxy):
         """
         server = self._get_resource(_server.Server, server)
         security_group_id = resource2.Resource._get_id(security_group)
-        server.remove_security_group(self._session, security_group_id)
+        server.remove_security_group(self, security_group_id)
 
     def add_fixed_ip_to_server(self, server, network_id):
         """Adds a fixed IP address to a server instance.
@@ -579,7 +579,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.add_fixed_ip(self._session, network_id)
+        server.add_fixed_ip(self, network_id)
 
     def remove_fixed_ip_from_server(self, server, address):
         """Removes a fixed IP address from a server instance.
@@ -591,7 +591,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.remove_fixed_ip(self._session, address)
+        server.remove_fixed_ip(self, address)
 
     def add_floating_ip_to_server(self, server, address, fixed_address=None):
         """Adds a floating IP address to a server instance.
@@ -605,7 +605,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.add_floating_ip(self._session, address,
+        server.add_floating_ip(self, address,
                                fixed_address=fixed_address)
 
     def remove_floating_ip_from_server(self, server, address):
@@ -618,7 +618,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.remove_floating_ip(self._session, address)
+        server.remove_floating_ip(self, address)
 
     def backup_server(self, server, name, backup_type, rotation):
         """Backup a server
@@ -634,7 +634,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.backup(self._session, name, backup_type, rotation)
+        server.backup(self, name, backup_type, rotation)
 
     def pause_server(self, server):
         """Pauses a server and changes its status to ``PAUSED``.
@@ -644,7 +644,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.pause(self._session)
+        server.pause(self)
 
     def unpause_server(self, server):
         """Unpauses a paused server and changes its status to ``ACTIVE``.
@@ -654,7 +654,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.unpause(self._session)
+        server.unpause(self)
 
     def suspend_server(self, server):
         """Suspends a server and changes its status to ``SUSPENDED``.
@@ -664,7 +664,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.suspend(self._session)
+        server.suspend(self)
 
     def resume_server(self, server):
         """Resumes a suspended server and changes its status to ``ACTIVE``.
@@ -674,7 +674,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.resume(self._session)
+        server.resume(self)
 
     def lock_server(self, server):
         """Locks a server.
@@ -684,7 +684,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.lock(self._session)
+        server.lock(self)
 
     def unlock_server(self, server):
         """Unlocks a locked server.
@@ -694,7 +694,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.unlock(self._session)
+        server.unlock(self)
 
     def rescue_server(self, server, admin_pass=None, image_ref=None):
         """Puts a server in rescue mode and changes it status to ``RESCUE``.
@@ -711,7 +711,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.rescue(self._session, admin_pass=admin_pass,
+        server.rescue(self, admin_pass=admin_pass,
                       image_ref=image_ref)
 
     def unrescue_server(self, server):
@@ -722,7 +722,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.unrescue(self._session)
+        server.unrescue(self)
 
     def evacuate_server(self, server, host=None, admin_pass=None, force=None):
         """Evacuates a server from a failed host to a new host.
@@ -739,7 +739,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.evacuate(self._session, host=host, admin_pass=admin_pass,
+        server.evacuate(self, host=host, admin_pass=admin_pass,
                         force=force)
 
     def start_server(self, server):
@@ -750,7 +750,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.start(self._session)
+        server.start(self)
 
     def stop_server(self, server):
         """Stops a running server and changes its state to ``SHUTOFF``.
@@ -760,7 +760,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.stop(self._session)
+        server.stop(self)
 
     def shelve_server(self, server):
         """Shelves a server.
@@ -775,7 +775,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.shelve(self._session)
+        server.shelve(self)
 
     def unshelve_server(self, server):
         """Unselves or restores a shelved server.
@@ -789,7 +789,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.unshelve(self._session)
+        server.unshelve(self)
 
     def get_server_console_output(self, server, length=None):
         """Return the console output for a server.
@@ -802,11 +802,11 @@ class Proxy(proxy2.BaseProxy):
                     escaped to create a valid JSON string.
         """
         server = self._get_resource(_server.Server, server)
-        return server.get_console_output(self._session, length=length)
+        return server.get_console_output(self, length=length)
 
     def wait_for_server(self, server, status='ACTIVE', failures=['ERROR'],
                         interval=2, wait=120):
-        return resource2.wait_for_status(self._session, server, status,
+        return resource2.wait_for_status(self, server, status,
                                          failures, interval, wait)
 
     def create_server_interface(self, server, **attrs):
@@ -938,7 +938,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
         res = self._get_base_resource(server, _server.Server)
-        metadata = res.get_metadata(self._session)
+        metadata = res.get_metadata(self)
         result = _server.Server.existing(id=res.id, metadata=metadata)
         return result
 
@@ -959,7 +959,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
         res = self._get_base_resource(server, _server.Server)
-        metadata = res.set_metadata(self._session, **metadata)
+        metadata = res.set_metadata(self, **metadata)
         result = _server.Server.existing(id=res.id, metadata=metadata)
         return result
 
@@ -977,7 +977,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: ``None``
         """
         res = self._get_base_resource(server, _server.Server)
-        return res.delete_metadata(self._session, keys)
+        return res.delete_metadata(self, keys)
 
     def create_server_group(self, **attrs):
         """Create a new server group from attributes
@@ -1096,7 +1096,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         service = self._get_resource(_service.Service, service)
-        service.force_down(self._session, host, binary)
+        service.force_down(self, host, binary)
 
     def disable_service(self, service, host, binary, disabled_reason=None):
         """Disable a service
@@ -1110,7 +1110,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         service = self._get_resource(_service.Service, service)
-        service.disable(self._session,
+        service.disable(self,
                         host, binary,
                         disabled_reason)
 
@@ -1126,7 +1126,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         service = self._get_resource(_service.Service, service)
-        service.enable(self._session, host, binary)
+        service.enable(self, host, binary)
 
     def services(self):
         """Return a generator of service
@@ -1268,7 +1268,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.migrate(self._session)
+        server.migrate(self)
 
     def live_migrate_server(self, server, host=None, force=False):
         """Migrate a server from one host to target host
@@ -1281,4 +1281,4 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.live_migrate(self._session, host, force)
+        server.live_migrate(self, host, force)

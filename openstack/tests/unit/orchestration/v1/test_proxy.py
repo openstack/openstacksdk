@@ -64,7 +64,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         res = self.proxy.check_stack(stk)
 
         self.assertIsNone(res)
-        mock_check.assert_called_once_with(self.proxy._session)
+        mock_check.assert_called_once_with(self.proxy)
 
     @mock.patch.object(stack.Stack, 'existing')
     def test_check_stack_with_stack_ID(self, mock_stack):
@@ -75,7 +75,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
 
         self.assertIsNone(res)
         mock_stack.assert_called_once_with(id='FAKE_ID')
-        stk.check.assert_called_once_with(self.proxy._session)
+        stk.check.assert_called_once_with(self.proxy)
 
     @mock.patch.object(stack.Stack, 'find')
     def test_get_stack_environment_with_stack_identity(self, mock_find):
@@ -121,7 +121,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         self.assertEqual({'file': 'content'}, res)
         mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
                                           ignore_missing=False)
-        mock_get.assert_called_once_with(self.proxy._session)
+        mock_get.assert_called_once_with(self.proxy)
 
     @mock.patch.object(stack_files.StackFiles, 'get')
     def test_get_stack_files_with_stack_object(self, mock_get):
@@ -133,7 +133,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         res = self.proxy.get_stack_files(stk)
 
         self.assertEqual({'file': 'content'}, res)
-        mock_get.assert_called_once_with(self.proxy._session)
+        mock_get.assert_called_once_with(self.proxy)
 
     @mock.patch.object(stack.Stack, 'find')
     def test_get_stack_template_with_stack_identity(self, mock_find):
@@ -202,8 +202,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
 
         ex = self.assertRaises(exceptions.ResourceNotFound,
                                self.proxy.resources, stack_name)
-        self.assertEqual('ResourceNotFound: No stack found for test_stack',
-                         six.text_type(ex))
+        self.assertEqual('No stack found for test_stack', six.text_type(ex))
 
     def test_create_software_config(self):
         self.verify_create(self.proxy.create_software_config,
@@ -254,7 +253,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         res = self.proxy.validate_template(tmpl, env, tmpl_url, ignore_errors)
 
         mock_validate.assert_called_once_with(
-            self.proxy._session, tmpl, environment=env, template_url=tmpl_url,
+            self.proxy, tmpl, environment=env, template_url=tmpl_url,
             ignore_errors=ignore_errors)
         self.assertEqual(mock_validate.return_value, res)
 

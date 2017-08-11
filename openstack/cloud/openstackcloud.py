@@ -175,7 +175,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self.manager = manager
         else:
             self.manager = task_manager.TaskManager(
-                name=':'.join([self.name, self.region_name]), client=self)
+                name=':'.join([self.name, self.region_name]))
 
         self._external_ipv4_names = cloud_config.get_external_ipv4_networks()
         self._internal_ipv4_names = cloud_config.get_internal_ipv4_networks()
@@ -402,29 +402,27 @@ class OpenStackCloud(_normalize.Normalizer):
                 version=config_major)
             adapter = _adapter.ShadeAdapter(
                 session=self.keystone_session,
-                manager=self.manager,
+                task_manager=self.manager,
                 service_type=self.cloud_config.get_service_type(service_type),
                 service_name=self.cloud_config.get_service_name(service_type),
                 interface=self.cloud_config.get_interface(service_type),
                 endpoint_override=self.cloud_config.get_endpoint(service_type),
                 region_name=self.cloud_config.region,
                 min_version=request_min_version,
-                max_version=request_max_version,
-                shade_logger=self.log)
+                max_version=request_max_version)
             if adapter.get_endpoint():
                 return adapter
 
         adapter = _adapter.ShadeAdapter(
             session=self.keystone_session,
-            manager=self.manager,
+            task_manager=self.manager,
             service_type=self.cloud_config.get_service_type(service_type),
             service_name=self.cloud_config.get_service_name(service_type),
             interface=self.cloud_config.get_interface(service_type),
             endpoint_override=self.cloud_config.get_endpoint(service_type),
             region_name=self.cloud_config.region,
             min_version=min_version,
-            max_version=max_version,
-            shade_logger=self.log)
+            max_version=max_version)
 
         # data.api_version can be None if no version was detected, such
         # as with neutron
@@ -456,14 +454,13 @@ class OpenStackCloud(_normalize.Normalizer):
             self, service_type, api_version=None, endpoint_override=None):
         return _adapter.ShadeAdapter(
             session=self.keystone_session,
-            manager=self.manager,
+            task_manager=self.manager,
             service_type=self.cloud_config.get_service_type(service_type),
             service_name=self.cloud_config.get_service_name(service_type),
             interface=self.cloud_config.get_interface(service_type),
             endpoint_override=self.cloud_config.get_endpoint(
                 service_type) or endpoint_override,
-            region_name=self.cloud_config.region,
-            shade_logger=self.log)
+            region_name=self.cloud_config.region)
 
     def _is_client_version(self, client, version):
         client_name = '_{client}_client'.format(client=client)

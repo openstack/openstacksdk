@@ -125,7 +125,7 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(response.body, sot.add_interface(sess, **body))
 
         url = 'routers/IDENTIFIER/add_router_interface'
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     json=body)
 
     def test_add_interface_port(self):
@@ -141,7 +141,7 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(response.body, sot.add_interface(sess, **body))
 
         url = 'routers/IDENTIFIER/add_router_interface'
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     json=body)
 
     def test_remove_interface_subnet(self):
@@ -156,7 +156,7 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(response.body, sot.remove_interface(sess, **body))
 
         url = 'routers/IDENTIFIER/remove_router_interface'
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     json=body)
 
     def test_remove_interface_port(self):
@@ -171,7 +171,7 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(response.body, sot.remove_interface(sess, **body))
 
         url = 'routers/IDENTIFIER/remove_router_interface'
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     json=body)
 
     def test_add_router_gateway(self):
@@ -186,7 +186,7 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(response.body, sot.add_gateway(sess, **body))
 
         url = 'routers/IDENTIFIER/add_gateway_router'
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     json=body)
 
     def test_remove_router_gateway(self):
@@ -201,7 +201,7 @@ class TestRouter(testtools.TestCase):
         self.assertEqual(response.body, sot.remove_gateway(sess, **body))
 
         url = 'routers/IDENTIFIER/remove_gateway_router'
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     json=body)
 
 

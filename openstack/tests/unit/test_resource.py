@@ -269,7 +269,6 @@ class HeaderTests(base.TestCase):
         sot.create(sess)
         headers = {'guitar': 'johnny', 'bass': 'deedee'}
         sess.post.assert_called_with(HeaderTests.Test.base_path,
-                                     endpoint_filter=HeaderTests.Test.service,
                                      headers=headers,
                                      json={})
 
@@ -278,7 +277,6 @@ class HeaderTests(base.TestCase):
         headers = {'guitar': 'johnny', 'bass': 'cj'}
         sot.update(sess)
         sess.put.assert_called_with('ramones/1',
-                                    endpoint_filter=HeaderTests.Test.service,
                                     headers=headers,
                                     json={})
 
@@ -296,8 +294,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(method.call_args[0][0], url)
 
     def test_empty_id(self):
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value=fake_body)
+        resp = FakeResponse(fake_body)
         self.session.get.return_value = resp
 
         obj = FakeResource.new(**fake_arguments)
@@ -372,7 +369,6 @@ class ResourceTests(base.TestCase):
         resp = FakeResource2.create_by_id(sess, attrs)
         self.assertEqual(expected_resp, resp)
         sess.post.assert_called_with(FakeResource2.base_path,
-                                     endpoint_filter=FakeResource2.service,
                                      json=json_body)
 
         r_id = "my_id"
@@ -380,14 +376,12 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.put.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            endpoint_filter=FakeResource2.service,
             json=json_body)
 
         path_args = {"parent_name": "my_name"}
         resp = FakeResource2.create_by_id(sess, attrs, path_args=path_args)
         self.assertEqual(response_value, resp)
         sess.post.assert_called_with(FakeResource2.base_path % path_args,
-                                     endpoint_filter=FakeResource2.service,
                                      json=json_body)
 
         resp = FakeResource2.create_by_id(sess, attrs, resource_id=r_id,
@@ -395,7 +389,6 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.put.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            endpoint_filter=FakeResource2.service,
             json=json_body)
 
     def test_create_without_resource_key(self):
@@ -432,8 +425,7 @@ class ResourceTests(base.TestCase):
             resource_key = key
             service = "my_service"
 
-        response = mock.Mock()
-        response.json = mock.Mock(return_value=response_body)
+        response = FakeResponse(response_body)
 
         sess = mock.Mock()
         sess.get = mock.Mock(return_value=response)
@@ -443,7 +435,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.get.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            endpoint_filter=FakeResource2.service)
+        )
 
         path_args = {"parent_name": "my_name"}
         resp = FakeResource2.get_data_by_id(sess, resource_id=r_id,
@@ -451,7 +443,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual(response_value, resp)
         sess.get.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            endpoint_filter=FakeResource2.service)
+        )
 
     def test_get_data_without_resource_key(self):
         key = None
@@ -482,7 +474,6 @@ class ResourceTests(base.TestCase):
         headers = {'Accept': ''}
         sess.head.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            endpoint_filter=FakeResource2.service,
             headers=headers)
 
         path_args = {"parent_name": "my_name"}
@@ -492,7 +483,6 @@ class ResourceTests(base.TestCase):
         headers = {'Accept': ''}
         sess.head.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            endpoint_filter=FakeResource2.service,
             headers=headers)
 
     def test_head_data_without_resource_key(self):
@@ -528,7 +518,6 @@ class ResourceTests(base.TestCase):
         self.assertEqual(expected_resp, resp)
         sess.patch.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            endpoint_filter=FakeResource2.service,
             json=json_body)
 
         path_args = {"parent_name": "my_name"}
@@ -537,7 +526,6 @@ class ResourceTests(base.TestCase):
         self.assertEqual(expected_resp, resp)
         sess.patch.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            endpoint_filter=FakeResource2.service,
             json=json_body)
 
     def test_update_without_resource_key(self):
@@ -574,7 +562,7 @@ class ResourceTests(base.TestCase):
             service = "my_service"
 
         sess = mock.Mock()
-        sess.delete = mock.Mock(return_value=None)
+        sess.delete = mock.Mock(return_value=FakeResponse({}))
 
         r_id = "my_id"
         resp = FakeResource2.delete_by_id(sess, r_id)
@@ -582,7 +570,6 @@ class ResourceTests(base.TestCase):
         headers = {'Accept': ''}
         sess.delete.assert_called_with(
             utils.urljoin(FakeResource2.base_path, r_id),
-            endpoint_filter=FakeResource2.service,
             headers=headers)
 
         path_args = {"parent_name": "my_name"}
@@ -591,13 +578,10 @@ class ResourceTests(base.TestCase):
         headers = {'Accept': ''}
         sess.delete.assert_called_with(
             utils.urljoin(FakeResource2.base_path % path_args, r_id),
-            endpoint_filter=FakeResource2.service,
             headers=headers)
 
     def test_create(self):
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value=fake_body)
-        resp.headers = {'location': 'foo'}
+        resp = FakeResponse(fake_body, headers={'location': 'foo'})
         self.session.post = mock.Mock(return_value=resp)
 
         # Create resource with subset of attributes in order to
@@ -639,9 +623,7 @@ class ResourceTests(base.TestCase):
         self.assertEqual('foo', obj.location)
 
     def test_get(self):
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value=fake_body)
-        resp.headers = {'location': 'foo'}
+        resp = FakeResponse(fake_body, headers={'location': 'foo'})
         self.session.get = mock.Mock(return_value=resp)
 
         # Create resource with subset of attributes in order to
@@ -676,8 +658,7 @@ class ResourceTests(base.TestCase):
         self.assertIsNone(obj.location)
 
     def test_get_by_id(self):
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value=fake_body)
+        resp = FakeResponse(fake_body)
         self.session.get = mock.Mock(return_value=resp)
 
         obj = FakeResource.get_by_id(self.session, fake_id,
@@ -703,8 +684,7 @@ class ResourceTests(base.TestCase):
         headers = {"header1": header1,
                    "header2": header2}
 
-        resp = mock.Mock(headers=headers)
-        resp.json = mock.Mock(return_value=fake_body)
+        resp = FakeResponse(fake_body, headers=headers)
         self.session.get = mock.Mock(return_value=resp)
 
         class FakeResource2(FakeResource):
@@ -737,7 +717,7 @@ class ResourceTests(base.TestCase):
             header1 = resource.header("header1")
             header2 = resource.header("header2")
 
-        resp = mock.Mock(headers={"header1": "one", "header2": "two"})
+        resp = FakeResponse(None, headers={"header1": "one", "header2": "two"})
         self.session.head = mock.Mock(return_value=resp)
 
         obj = FakeResource2.head_by_id(self.session, fake_id,
@@ -757,9 +737,7 @@ class ResourceTests(base.TestCase):
         class FakeResourcePatch(FakeResource):
             patch_update = True
 
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value=fake_body)
-        resp.headers = {'location': 'foo'}
+        resp = FakeResponse(fake_body, headers={'location': 'foo'})
         self.session.patch = mock.Mock(return_value=resp)
 
         # Create resource with subset of attributes in order to
@@ -807,9 +785,7 @@ class ResourceTests(base.TestCase):
             # This is False by default, but explicit for this test.
             patch_update = False
 
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value=fake_body)
-        resp.headers = {'location': 'foo'}
+        resp = FakeResponse(fake_body, headers={'location': 'foo'})
         self.session.put = mock.Mock(return_value=resp)
 
         # Create resource with subset of attributes in order to
@@ -869,6 +845,7 @@ class ResourceTests(base.TestCase):
 
     def test_delete(self):
         obj = FakeResource({"id": fake_id, "parent_name": fake_parent})
+        self.session.delete.return_value = FakeResponse({})
         obj.delete(self.session)
 
         self.assertCalledURL(self.session.delete,
@@ -919,8 +896,7 @@ class ResourceTests(base.TestCase):
     def _test_list_call_count(self, paginated):
         # Test that we've only made one call to receive all data
         results = [fake_data.copy(), fake_data.copy(), fake_data.copy()]
-        resp = mock.Mock()
-        resp.json = mock.Mock(return_value={fake_resources: results})
+        resp = FakeResponse({fake_resources: results})
         attrs = {"get.return_value": resp}
         session = mock.Mock(**attrs)
 
@@ -1315,8 +1291,7 @@ class ResourceMapping(base.TestCase):
                 json.dumps(attrs)
             except TypeError as e:
                 self.fail("Unable to serialize _attrs: %s" % e)
-            resp = mock.Mock()
-            resp.json = mock.Mock(return_value=attrs)
+            resp = FakeResponse(attrs)
             return resp
 
         session = mock.Mock()
@@ -1335,8 +1310,11 @@ class ResourceMapping(base.TestCase):
 
 
 class FakeResponse(object):
-    def __init__(self, response):
+    def __init__(self, response, status_code=200, headers=None):
         self.body = response
+        self.status_code = status_code
+        headers = headers if headers else {'content-type': 'application/json'}
+        self.headers = requests.structures.CaseInsensitiveDict(headers)
 
     def json(self):
         return self.body
@@ -1378,7 +1356,7 @@ class TestFind(base.TestCase):
         self.assertEqual(self.PROP, result.prop)
 
         path = "fakes/" + fake_parent + "/data/" + self.ID
-        self.mock_get.assert_any_call(path, endpoint_filter=None)
+        self.mock_get.assert_any_call(path,)
 
     def test_id_no_retrieve(self):
         self.mock_get.side_effect = [
@@ -1423,7 +1401,7 @@ class TestFind(base.TestCase):
 
         p = {'ip_address': "127.0.0.1"}
         path = fake_path + "?limit=2"
-        self.mock_get.called_once_with(path, params=p, endpoint_filter=None)
+        self.mock_get.called_once_with(path, params=p,)
 
     def test_nada(self):
         self.mock_get.side_effect = [
@@ -1520,7 +1498,8 @@ class TestWaitForDelete(base.TestCase):
         sot.get = mock.Mock()
         sot.get.side_effect = [
             sot,
-            exceptions.NotFoundException()]
+            exceptions.NotFoundException(
+                'not found', FakeResponse({}, status_code=404))]
 
         self.assertEqual(sot, resource.wait_for_delete(sess, sot, 1, 2))
 

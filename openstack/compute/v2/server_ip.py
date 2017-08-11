@@ -41,7 +41,7 @@ class ServerIP(resource2.Resource):
         if network_label is not None:
             url = utils.urljoin(url, network_label)
 
-        resp = session.get(url, endpoint_filter=cls.service)
+        resp = session.get(url,)
         resp = resp.json()
 
         if network_label is None:

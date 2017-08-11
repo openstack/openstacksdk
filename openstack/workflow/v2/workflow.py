@@ -60,11 +60,10 @@ class Workflow(resource.Resource):
         }
 
         scope = "?scope=%s" % self.scope
-        uri = request.uri + scope
+        uri = request.url + scope
 
         request.headers.update(headers)
         response = session.post(uri,
-                                endpoint_filter=self.service,
                                 json=None,
                                 headers=request.headers, **kwargs)
 

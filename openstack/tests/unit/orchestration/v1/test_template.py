@@ -58,7 +58,7 @@ class TestTemplate(testtools.TestCase):
         sot.validate(sess, tmpl)
 
         sess.post.assert_called_once_with(
-            '/validate', endpoint_filter=sot.service, json=body)
+            '/validate', json=body)
         mock_translate.assert_called_once_with(sess.post.return_value)
 
     @mock.patch.object(resource.Resource, '_translate_response')
@@ -72,7 +72,7 @@ class TestTemplate(testtools.TestCase):
         sot.validate(sess, tmpl, environment=env)
 
         sess.post.assert_called_once_with(
-            '/validate', endpoint_filter=sot.service, json=body)
+            '/validate', json=body)
         mock_translate.assert_called_once_with(sess.post.return_value)
 
     @mock.patch.object(resource.Resource, '_translate_response')
@@ -85,7 +85,7 @@ class TestTemplate(testtools.TestCase):
         sot.validate(sess, None, template_url=template_url)
 
         sess.post.assert_called_once_with(
-            '/validate', endpoint_filter=sot.service, json=body)
+            '/validate', json=body)
         mock_translate.assert_called_once_with(sess.post.return_value)
 
     @mock.patch.object(resource.Resource, '_translate_response')
@@ -99,5 +99,5 @@ class TestTemplate(testtools.TestCase):
 
         sess.post.assert_called_once_with(
             '/validate?ignore_errors=123%2C456',
-            endpoint_filter=sot.service, json=body)
+            json=body)
         mock_translate.assert_called_once_with(sess.post.return_value)

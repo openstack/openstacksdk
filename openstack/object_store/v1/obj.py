@@ -206,13 +206,14 @@ class Object(_base.BaseResource):
                 del(metadata[key])
 
         url = self._get_url(self, self.id)
-        session.post(url, endpoint_filter=self.service,
+        session.post(url,
                      headers=self._calculate_headers(metadata))
 
-    def get(self, session, include_headers=False, args=None):
+    def get(self, session, include_headers=False, args=None,
+            error_message=None):
         url = self._get_url(self, self.id)
         headers = {'Accept': 'bytes'}
-        resp = session.get(url, endpoint_filter=self.service, headers=headers)
+        resp = session.get(url, headers=headers, error_message=error_message)
         resp = resp.content
         self._set_metadata()
         return resp
@@ -223,11 +224,11 @@ class Object(_base.BaseResource):
         headers = self.get_headers()
         headers['Accept'] = ''
         if self.data is not None:
-            resp = session.put(url, endpoint_filter=self.service,
+            resp = session.put(url,
                                data=self.data,
                                headers=headers).headers
         else:
-            resp = session.post(url, endpoint_filter=self.service, data=None,
+            resp = session.post(url, data=None,
                                 headers=headers).headers
         self.set_headers(resp)
         return self

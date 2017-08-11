@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.cluster import version
+from openstack.clustering import version
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

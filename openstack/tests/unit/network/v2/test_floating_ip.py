@@ -77,7 +77,6 @@ class TestFloatingIP(testtools.TestCase):
         self.assertEqual('one', result.id)
         mock_session.get.assert_called_with(
             floating_ip.FloatingIP.base_path,
-            endpoint_filter=floating_ip.FloatingIP.service,
             headers={'Accept': 'application/json'},
             params={'port_id': ''})
 

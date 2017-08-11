@@ -12,13 +12,13 @@
 
 import testtools
 
-from openstack.cluster import cluster_service
+from openstack.clustering import clustering_service
 
 
-class TestClusterService(testtools.TestCase):
+class TestClusteringService(testtools.TestCase):
 
     def test_service(self):
-        sot = cluster_service.ClusterService()
+        sot = clustering_service.ClusteringService()
         self.assertEqual('clustering', sot.service_type)
         self.assertEqual('public', sot.interface)
         self.assertIsNone(sot.region)

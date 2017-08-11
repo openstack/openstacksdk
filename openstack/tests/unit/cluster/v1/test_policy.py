@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.cluster.v1 import policy
+from openstack.clustering.v1 import policy
 
 
 FAKE_ID = 'ac5415bd-f522-4160-8be0-f8853e4bc332'

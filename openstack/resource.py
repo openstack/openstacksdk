@@ -427,7 +427,8 @@ class Resource(collections.MutableMapping):
     def _reset_dirty(self):
         self._dirty = set()
 
-    def _update_attrs_from_response(self, resp, include_headers=False):
+    def _update_attrs_from_response(self, resp, include_headers=False,
+                                    error_message=None):
         resp_headers = resp.pop(HEADERS, None)
         self._attrs.update(resp)
         self.update_attrs(self._attrs)
@@ -529,7 +530,7 @@ class Resource(collections.MutableMapping):
         """Create a remote resource from its attributes.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param dict attrs: The attributes to be sent in the body
                            of the request.
         :param resource_id: This resource's identifier, if needed by
@@ -556,9 +557,9 @@ class Resource(collections.MutableMapping):
         if headers:
             args[HEADERS] = headers
         if resource_id:
-            resp = session.put(url, endpoint_filter=cls.service, **args)
+            resp = session.put(url, **args)
         else:
-            resp = session.post(url, endpoint_filter=cls.service, **args)
+            resp = session.post(url, **args)
         resp_headers = resp.headers
         resp = resp.json()
 
@@ -573,7 +574,7 @@ class Resource(collections.MutableMapping):
         """Create a remote resource from this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -590,7 +591,7 @@ class Resource(collections.MutableMapping):
         """Get the attributes of a remote resource from an id.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param resource_id: This resource's identifier, if needed by
                             the request.
         :param dict path_args: A dictionary of arguments to construct
@@ -612,7 +613,8 @@ class Resource(collections.MutableMapping):
         url = cls._get_url(path_args, resource_id)
         if args:
             url = '?'.join([url, url_parse.urlencode(args)])
-        response = session.get(url, endpoint_filter=cls.service)
+        response = session.get(url,)
+        exceptions.raise_from_response(response)
         body = response.json()
 
         if cls.resource_key:
@@ -629,7 +631,7 @@ class Resource(collections.MutableMapping):
         """Get an object representing a remote resource from an id.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param resource_id: This resource's identifier, if needed by
                             the request.
         :param dict path_args: A dictionary of arguments to construct
@@ -648,11 +650,12 @@ class Resource(collections.MutableMapping):
                                   include_headers=include_headers)
         return cls.existing(**body)
 
-    def get(self, session, include_headers=False, args=None):
+    def get(self, session, include_headers=False,
+            args=None, error_message=None):
         """Get the remote resource associated with this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param bool include_headers: ``True`` if header data should be
                                      included in the response body,
                                      ``False`` if not.
@@ -673,7 +676,7 @@ class Resource(collections.MutableMapping):
         """Get a dictionary representing the headers of a remote resource.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param resource_id: This resource's identifier, if needed by
                             the request.
         :param dict path_args: A dictionary of arguments to construct
@@ -690,7 +693,7 @@ class Resource(collections.MutableMapping):
         url = cls._get_url(path_args, resource_id)
 
         headers = {'Accept': ''}
-        resp = session.head(url, endpoint_filter=cls.service, headers=headers)
+        resp = session.head(url, headers=headers)
 
         return {HEADERS: resp.headers}
 
@@ -699,7 +702,7 @@ class Resource(collections.MutableMapping):
         """Get an object representing the headers of a remote resource.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param resource_id: This resource's identifier, if needed by
                             the request.
         :param dict path_args: A dictionary of arguments to construct
@@ -717,7 +720,7 @@ class Resource(collections.MutableMapping):
         """Get the remote resource headers associated with this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -733,7 +736,7 @@ class Resource(collections.MutableMapping):
         """Update a remote resource with the given attributes.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param resource_id: This resource's identifier, if needed by
                             the request.
         :param dict attrs: The attributes to be sent in the body
@@ -762,9 +765,9 @@ class Resource(collections.MutableMapping):
         if headers:
             args[HEADERS] = headers
         if cls.patch_update:
-            resp = session.patch(url, endpoint_filter=cls.service, **args)
+            resp = session.patch(url, **args)
         else:
-            resp = session.put(url, endpoint_filter=cls.service, **args)
+            resp = session.put(url, **args)
         resp_headers = resp.headers
         resp = resp.json()
 
@@ -779,7 +782,7 @@ class Resource(collections.MutableMapping):
         """Update the remote resource associated with this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -802,11 +805,12 @@ class Resource(collections.MutableMapping):
         return self
 
     @classmethod
-    def delete_by_id(cls, session, resource_id, path_args=None):
+    def delete_by_id(cls, session, resource_id, path_args=None,
+                     error_message=None):
         """Delete a remote resource with the given id.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param resource_id: This resource's identifier, if needed by
                             the request.
         :param dict path_args: A dictionary of arguments to construct
@@ -822,19 +826,21 @@ class Resource(collections.MutableMapping):
 
         url = cls._get_url(path_args, resource_id)
         headers = {'Accept': ''}
-        session.delete(url, endpoint_filter=cls.service, headers=headers)
+        response = session.delete(url, headers=headers)
+        exceptions.raise_from_response(response, error_message=error_message)
 
-    def delete(self, session):
+    def delete(self, session, error_message=None):
         """Delete the remote resource associated with this instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
 
         :return: ``None``
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_update` is not set to ``True``.
         """
-        self.delete_by_id(session, self.id, path_args=self)
+        self.delete_by_id(session, self.id, path_args=self,
+                          error_message=error_message)
 
     @classmethod
     def list(cls, session, path_args=None, paginated=False, params=None):
@@ -844,7 +850,7 @@ class Resource(collections.MutableMapping):
         params for response filtering.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param dict path_args: A dictionary of arguments to construct
                                a compound URL.
                                See `How path_args are used`_ for details.
@@ -855,7 +861,7 @@ class Resource(collections.MutableMapping):
                                page of data will be returned regardless
                                of the API's support of pagination.**
         :param dict params: Query parameters to be passed into the underlying
-                            :meth:`~openstack.session.Session.get` method.
+                            :meth:`~keystoneauth1.adapter.Adapter.get` method.
                             Values that the server may support include `limit`
                             and `marker`.
 
@@ -871,7 +877,7 @@ class Resource(collections.MutableMapping):
         url = cls._get_url(path_args)
         headers = {'Accept': 'application/json'}
         while more_data:
-            resp = session.get(url, endpoint_filter=cls.service,
+            resp = session.get(url,
                                headers=headers, params=params)
             resp = resp.json()
             if cls.resources_key:
@@ -903,7 +909,7 @@ class Resource(collections.MutableMapping):
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param name_or_id: This resource's identifier, if needed by
                            the request. The default is ``None``.
         :param dict path_args: A dictionary of arguments to construct
@@ -969,7 +975,7 @@ def wait_for_status(session, resource, status, failures, interval, wait):
     """Wait for the resource to be in a particular status.
 
     :param session: The session to use for making this request.
-    :type session: :class:`~openstack.session.Session`
+    :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param resource: The resource to wait on to reach the status. The resource
                      must have a status attribute.
     :type resource: :class:`~openstack.resource.Resource`
@@ -1012,7 +1018,7 @@ def wait_for_delete(session, resource, interval, wait):
     """Wait for the resource to be deleted.
 
     :param session: The session to use for making this request.
-    :type session: :class:`~openstack.session.Session`
+    :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param resource: The resource to wait on to be deleted.
     :type resource: :class:`~openstack.resource.Resource`
     :param interval: Number of seconds to wait between checks.

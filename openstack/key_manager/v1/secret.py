@@ -81,8 +81,7 @@ class Secret(resource2.Resource):
     def get(self, session, requires_id=True):
         request = self._prepare_request(requires_id=requires_id)
 
-        response = session.get(request.uri,
-                               endpoint_filter=self.service).json()
+        response = session.get(request.url).json()
 
         content_type = None
         if self.payload_content_type is not None:
@@ -93,8 +92,7 @@ class Secret(resource2.Resource):
         # Only try to get the payload if a content type has been explicitly
         # specified or if one was found in the metadata response
         if content_type is not None:
-            payload = session.get(utils.urljoin(request.uri, "payload"),
-                                  endpoint_filter=self.service,
+            payload = session.get(utils.urljoin(request.url, "payload"),
                                   headers={"Accept": content_type})
             response["payload"] = payload.text
 

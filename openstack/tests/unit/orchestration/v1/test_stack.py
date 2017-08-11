@@ -132,9 +132,9 @@ class TestStack(testtools.TestCase):
 
         self.assertEqual(normal_stack, sot.get(sess))
         ex = self.assertRaises(exceptions.NotFoundException, sot.get, sess)
-        self.assertEqual('NotFoundException: oops', six.text_type(ex))
+        self.assertEqual('oops', six.text_type(ex))
         ex = self.assertRaises(exceptions.NotFoundException, sot.get, sess)
-        self.assertEqual('NotFoundException: No stack found for %s' % FAKE_ID,
+        self.assertEqual('No stack found for %s' % FAKE_ID,
                          six.text_type(ex))
 
 

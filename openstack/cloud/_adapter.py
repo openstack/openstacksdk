@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-''' Wrapper around keystoneauth Session to wrap calls in TaskManager '''
+''' Wrapper around keystoneauth Adapter to wrap calls in TaskManager '''
 
 import functools
-from keystoneauth1 import adapter
 from six.moves import urllib
 
-from openstack import _log
-from openstack.cloud import exc
-from openstack.cloud import task_manager
+from keystoneauth1 import adapter
+
+from openstack.cloud import task_manager as _task_manager
+from openstack import exceptions
 
 
-def extract_name(url):
+def _extract_name(url):
     '''Produce a key name to use in logging/metrics from the URL path.
 
     We want to be able to logic/metric sane general things, so we pull
@@ -81,86 +81,67 @@ def extract_name(url):
     return [part for part in name_parts if part]
 
 
-# TODO(shade) This adapter should go away in favor of the work merging
-#             adapter with openstack.proxy.
-class ShadeAdapter(adapter.Adapter):
+class OpenStackSDKAdapter(adapter.Adapter):
+    """Wrapper around keystoneauth1.adapter.Adapter.
 
-    def __init__(self, shade_logger, manager, *args, **kwargs):
-        super(ShadeAdapter, self).__init__(*args, **kwargs)
-        self.shade_logger = shade_logger
-        self.manager = manager
-        self.request_log = _log.setup_logging('openstack.cloud.request_ids')
+    Uses task_manager to run tasks rather than executing them directly.
+    This allows using the nodepool MultiThreaded Rate Limiting TaskManager.
+    """
 
-    def _log_request_id(self, response, obj=None):
-        # Log the request id and object id in a specific logger. This way
-        # someone can turn it on if they're interested in this kind of tracing.
-        request_id = response.headers.get('x-openstack-request-id')
-        if not request_id:
-            return response
-        tmpl = "{meth} call to {service} for {url} used request id {req}"
-        kwargs = dict(
-            meth=response.request.method,
-            service=self.service_type,
-            url=response.request.url,
-            req=request_id)
+    def __init__(self, session=None, task_manager=None, *args, **kwargs):
+        super(OpenStackSDKAdapter, self).__init__(
+            session=session, *args, **kwargs)
+        if not task_manager:
+            task_manager = _task_manager.TaskManager(name=self.service_type)
 
-        if isinstance(obj, dict):
-            obj_id = obj.get('id', obj.get('uuid'))
-            if obj_id:
-                kwargs['obj_id'] = obj_id
-                tmpl += " returning object {obj_id}"
-        self.request_log.debug(tmpl.format(**kwargs))
-        return response
-
-    def _munch_response(self, response, result_key=None, error_message=None):
-        exc.raise_from_response(response, error_message=error_message)
-
-        if not response.content:
-            # This doens't have any content
-            return self._log_request_id(response)
-
-        # Some REST calls do not return json content. Don't decode it.
-        if 'application/json' not in response.headers.get('Content-Type'):
-            return self._log_request_id(response)
-
-        try:
-            result_json = response.json()
-            self._log_request_id(response, result_json)
-        except Exception:
-            return self._log_request_id(response)
-        return result_json
+        self.task_manager = task_manager
 
     def request(
             self, url, method, run_async=False, error_message=None,
-            *args, **kwargs):
-        name_parts = extract_name(url)
+            raise_exc=False, connect_retries=1, *args, **kwargs):
+        name_parts = _extract_name(url)
         name = '.'.join([self.service_type, method] + name_parts)
-        class_name = "".join([
-            part.lower().capitalize() for part in name.split('.')])
 
         request_method = functools.partial(
-            super(ShadeAdapter, self).request, url, method)
+            super(OpenStackSDKAdapter, self).request, url, method)
 
-        class RequestTask(task_manager.BaseTask):
-
-            def __init__(self, **kw):
-                super(RequestTask, self).__init__(**kw)
-                self.name = name
-                self.__class__.__name__ = str(class_name)
-                self.run_async = run_async
-
-            def main(self, client):
-                self.args.setdefault('raise_exc', False)
-                return request_method(**self.args)
-
-        response = self.manager.submit_task(RequestTask(**kwargs))
-        if run_async:
-            return response
-        else:
-            return self._munch_response(response, error_message=error_message)
+        return self.task_manager.submit_function(
+            request_method, run_async=run_async, name=name,
+            connect_retries=connect_retries, raise_exc=raise_exc,
+            **kwargs)
 
     def _version_matches(self, version):
         api_version = self.get_api_major_version()
         if api_version:
             return api_version[0] == version
         return False
+
+
+class ShadeAdapter(OpenStackSDKAdapter):
+    """Wrapper for shade methods that expect json unpacking."""
+
+    def request(self, url, method,
+                run_async=False, error_message=None, **kwargs):
+        response = super(ShadeAdapter, self).request(
+            url, method, run_async=run_async, **kwargs)
+        if run_async:
+            return response
+        else:
+            return self._munch_response(response, error_message=error_message)
+
+    def _munch_response(self, response, result_key=None, error_message=None):
+        exceptions.raise_from_response(response, error_message=error_message)
+
+        if not response.content:
+            # This doens't have any content
+            return response
+
+        # Some REST calls do not return json content. Don't decode it.
+        if 'application/json' not in response.headers.get('Content-Type'):
+            return response
+
+        try:
+            result_json = response.json()
+        except Exception:
+            return response
+        return result_json

@@ -56,7 +56,7 @@ class Proxy(proxy2.BaseProxy):
         # return anything anyway. Otherwise this blocks while uploading
         # significant amounts of image data.
         img.data = data
-        img.upload(self._session)
+        img.upload(self)
 
         return img
 
@@ -92,7 +92,7 @@ class Proxy(proxy2.BaseProxy):
         """
 
         image = self._get_resource(_image.Image, image)
-        return image.download(self._session, stream=stream)
+        return image.download(self, stream=stream)
 
     def delete_image(self, image, ignore_missing=True):
         """Delete an image
@@ -158,7 +158,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.image.v2.image.Image`
         """
         img = self._get_resource(_image.Image, image)
-        return img.update(self._session, **attrs)
+        return img.update(self, **attrs)
 
     def deactivate_image(self, image):
         """Deactivate an image
@@ -169,7 +169,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
-        image.deactivate(self._session)
+        image.deactivate(self)
 
     def reactivate_image(self, image):
         """Deactivate an image
@@ -180,7 +180,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
-        image.reactivate(self._session)
+        image.reactivate(self)
 
     def add_tag(self, image, tag):
         """Add a tag to an image
@@ -193,7 +193,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
-        image.add_tag(self._session, tag)
+        image.add_tag(self, tag)
 
     def remove_tag(self, image, tag):
         """Remove a tag to an image
@@ -206,7 +206,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
-        image.remove_tag(self._session, tag)
+        image.remove_tag(self, tag)
 
     def add_member(self, image, **attrs):
         """Create a new member from attributes

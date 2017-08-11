@@ -12,7 +12,7 @@
 
 import testtools
 
-from openstack.cluster.v1 import action
+from openstack.clustering.v1 import action
 
 
 FAKE_ID = '633bd3c6-520b-420f-8e6a-dc2a47022b53'

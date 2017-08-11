@@ -60,7 +60,7 @@ class Queue(resource2.Resource):
             "X-PROJECT-ID": self.project_id or session.get_project_id()
         }
         request.headers.update(headers)
-        response = session.put(request.uri, endpoint_filter=self.service,
+        response = session.put(request.url,
                                json=request.body, headers=request.headers)
 
         self._translate_response(response, has_body=False)
@@ -84,7 +84,7 @@ class Queue(resource2.Resource):
         }
 
         while more_data:
-            resp = session.get(uri, endpoint_filter=cls.service,
+            resp = session.get(uri,
                                headers=headers, params=query_params)
             resp = resp.json()
             resp = resp[cls.resources_key]
@@ -114,7 +114,7 @@ class Queue(resource2.Resource):
             "X-PROJECT-ID": self.project_id or session.get_project_id()
         }
         request.headers.update(headers)
-        response = session.get(request.uri, endpoint_filter=self.service,
+        response = session.get(request.url,
                                headers=headers)
         self._translate_response(response)
 
@@ -127,7 +127,7 @@ class Queue(resource2.Resource):
             "X-PROJECT-ID": self.project_id or session.get_project_id()
         }
         request.headers.update(headers)
-        response = session.delete(request.uri, endpoint_filter=self.service,
+        response = session.delete(request.url,
                                   headers=headers)
 
         self._translate_response(response, has_body=False)

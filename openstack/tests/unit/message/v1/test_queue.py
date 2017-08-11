@@ -49,7 +49,7 @@ class TestQueue(testtools.TestCase):
 
         url = 'queues/%s' % FAKE_NAME
         headers = {'Accept': ''}
-        sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        sess.put.assert_called_with(url,
                                     headers=headers)
         self.assertEqual(FAKE_NAME, sot.id)
         self.assertEqual(FAKE_NAME, sot.name)

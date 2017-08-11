@@ -227,7 +227,7 @@ class Proxy(proxy2.BaseProxy):
         """
         network = self._get_resource(_network.Network, network)
         agent = self._get_resource(_agent.Agent, agent)
-        return agent.add_agent_to_network(self._session, network.id)
+        return agent.add_agent_to_network(self, network.id)
 
     def remove_dhcp_agent_from_network(self, agent, network):
         """Remove a DHCP Agent from a network
@@ -239,7 +239,7 @@ class Proxy(proxy2.BaseProxy):
         """
         network = self._get_resource(_network.Network, network)
         agent = self._get_resource(_agent.Agent, agent)
-        return agent.remove_agent_from_network(self._session, network.id)
+        return agent.remove_agent_from_network(self, network.id)
 
     def network_hosting_dhcp_agents(self, network, **query):
         """A generator of DHCP agents hosted on a network.
@@ -267,7 +267,7 @@ class Proxy(proxy2.BaseProxy):
 
         # If project option is not given, grab project id from session
         if project is None:
-            project = self._session.get_project_id()
+            project = self.get_project_id()
         return self._get(_auto_allocated_topology.AutoAllocatedTopology,
                          project)
 
@@ -288,7 +288,7 @@ class Proxy(proxy2.BaseProxy):
 
         # If project option is not given, grab project id from session
         if project is None:
-            project = self._session.get_project_id()
+            project = self.get_project_id()
         self._delete(_auto_allocated_topology.AutoAllocatedTopology,
                      project, ignore_missing=ignore_missing)
 
@@ -305,7 +305,7 @@ class Proxy(proxy2.BaseProxy):
 
         # If project option is not given, grab project id from session
         if project is None:
-            project = self._session.get_project_id()
+            project = self.get_project_id()
         return self._get(_auto_allocated_topology.ValidateTopology,
                          project=project, requires_id=False)
 
@@ -453,7 +453,7 @@ class Proxy(proxy2.BaseProxy):
         service_profile = self._get_resource(
             _service_profile.ServiceProfile, service_profile)
         return flavor.associate_flavor_with_service_profile(
-            self._session, service_profile.id)
+            self, service_profile.id)
 
     def disassociate_flavor_from_service_profile(
             self, flavor, service_profile):
@@ -472,7 +472,7 @@ class Proxy(proxy2.BaseProxy):
         service_profile = self._get_resource(
             _service_profile.ServiceProfile, service_profile)
         return flavor.disassociate_flavor_from_service_profile(
-            self._session, service_profile.id)
+            self, service_profile.id)
 
     def create_ip(self, **attrs):
         """Create a new floating ip from attributes
@@ -509,7 +509,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
                   or None
         """
-        return _floating_ip.FloatingIP.find_available(self._session)
+        return _floating_ip.FloatingIP.find_available(self)
 
     def find_ip(self, name_or_id, ignore_missing=True):
         """Find a single IP
@@ -1506,11 +1506,11 @@ class Proxy(proxy2.BaseProxy):
 
     def add_ip_to_port(self, port, ip):
         ip['port_id'] = port.id
-        return ip.update(self._session)
+        return ip.update(self)
 
     def remove_ip_from_port(self, ip):
         ip['port_id'] = None
-        return ip.update(self._session)
+        return ip.update(self)
 
     def get_subnet_ports(self, subnet_id):
         result = []
@@ -2288,7 +2288,7 @@ class Proxy(proxy2.BaseProxy):
         else:
             body = {'subnet_id': subnet_id}
         router = self._get_resource(_router.Router, router)
-        return router.add_interface(self._session, **body)
+        return router.add_interface(self, **body)
 
     def remove_interface_from_router(self, router, subnet_id=None,
                                      port_id=None):
@@ -2308,7 +2308,7 @@ class Proxy(proxy2.BaseProxy):
         else:
             body = {'subnet_id': subnet_id}
         router = self._get_resource(_router.Router, router)
-        return router.remove_interface(self._session, **body)
+        return router.remove_interface(self, **body)
 
     def add_gateway_to_router(self, router, **body):
         """Add Gateway to a router
@@ -2320,7 +2320,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class: `~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
-        return router.add_gateway(self._session, **body)
+        return router.add_gateway(self, **body)
 
     def remove_gateway_from_router(self, router, **body):
         """Remove Gateway from a router
@@ -2332,7 +2332,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class: `~openstack.network.v2.router.Router`
         """
         router = self._get_resource(_router.Router, router)
-        return router.remove_gateway(self._session, **body)
+        return router.remove_gateway(self, **body)
 
     def routers_hosting_l3_agents(self, router, **query):
         """Return a generator of L3 agent hosting a router
@@ -2375,7 +2375,7 @@ class Proxy(proxy2.BaseProxy):
         """
         agent = self._get_resource(_agent.Agent, agent)
         router = self._get_resource(_router.Router, router)
-        return agent.add_router_to_agent(self._session, router.id)
+        return agent.add_router_to_agent(self, router.id)
 
     def remove_router_from_agent(self, agent, router):
         """Remove router from L3 agent
@@ -2388,7 +2388,7 @@ class Proxy(proxy2.BaseProxy):
         """
         agent = self._get_resource(_agent.Agent, agent)
         router = self._get_resource(_router.Router, router)
-        return agent.remove_router_from_agent(self._session, router.id)
+        return agent.remove_router_from_agent(self, router.id)
 
     def create_security_group(self, **attrs):
         """Create a new security group from attributes
@@ -2988,7 +2988,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.resource2.Resource`
         """
         self._check_tag_support(resource)
-        return resource.set_tags(self._session, tags)
+        return resource.set_tags(self, tags)
 
     def create_vpn_service(self, **attrs):
         """Create a new vpn service from attributes

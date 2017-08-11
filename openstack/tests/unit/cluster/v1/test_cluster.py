@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.cluster.v1 import cluster
+from openstack.clustering.v1 import cluster
 
 
 FAKE_ID = '092d0955-2645-461a-b8fa-6a44655cdb2c'
@@ -122,7 +122,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.scale_in(sess, 3))
         url = 'clusters/%s/actions' % sot.id
         body = {'scale_in': {'count': 3}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_scale_out(self):
@@ -135,7 +135,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.scale_out(sess, 3))
         url = 'clusters/%s/actions' % sot.id
         body = {'scale_out': {'count': 3}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_resize(self):
@@ -148,7 +148,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.resize(sess, foo='bar', zoo=5))
         url = 'clusters/%s/actions' % sot.id
         body = {'resize': {'foo': 'bar', 'zoo': 5}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_add_nodes(self):
@@ -161,7 +161,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.add_nodes(sess, ['node-33']))
         url = 'clusters/%s/actions' % sot.id
         body = {'add_nodes': {'nodes': ['node-33']}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_del_nodes(self):
@@ -174,7 +174,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.del_nodes(sess, ['node-11']))
         url = 'clusters/%s/actions' % sot.id
         body = {'del_nodes': {'nodes': ['node-11']}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_del_nodes_with_params(self):
@@ -195,7 +195,7 @@ class TestCluster(testtools.TestCase):
                 'destroy_after_deletion': True,
             }
         }
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_replace_nodes(self):
@@ -208,7 +208,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.replace_nodes(sess, {'node-22': 'node-44'}))
         url = 'clusters/%s/actions' % sot.id
         body = {'replace_nodes': {'nodes': {'node-22': 'node-44'}}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_policy_attach(self):
@@ -230,7 +230,7 @@ class TestCluster(testtools.TestCase):
                 'enabled': True,
             }
         }
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_policy_detach(self):
@@ -244,7 +244,7 @@ class TestCluster(testtools.TestCase):
 
         url = 'clusters/%s/actions' % sot.id
         body = {'policy_detach': {'policy_id': 'POLICY'}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_policy_update(self):
@@ -266,7 +266,7 @@ class TestCluster(testtools.TestCase):
                 'enabled': False
             }
         }
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_check(self):
@@ -279,7 +279,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.check(sess))
         url = 'clusters/%s/actions' % sot.id
         body = {'check': {}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_recover(self):
@@ -292,7 +292,7 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.recover(sess))
         url = 'clusters/%s/actions' % sot.id
         body = {'recover': {}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)
 
     def test_operation(self):
@@ -305,5 +305,5 @@ class TestCluster(testtools.TestCase):
         self.assertEqual('', sot.op(sess, 'dance', style='tango'))
         url = 'clusters/%s/ops' % sot.id
         body = {'dance': {'style': 'tango'}}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           json=body)

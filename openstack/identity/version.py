@@ -32,7 +32,7 @@ class Version(resource.Resource):
 
     @classmethod
     def list(cls, session, paginated=False, **params):
-        resp = session.get(cls.base_path, endpoint_filter=cls.service,
+        resp = session.get(cls.base_path,
                            params=params)
         resp = resp.json()
         for data in resp[cls.resources_key]['values']:

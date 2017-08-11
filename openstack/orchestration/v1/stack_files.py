@@ -36,5 +36,5 @@ class StackFiles(resource.Resource):
         # The stack files response contains a map of filenames and file
         # contents.
         request = self._prepare_request(requires_id=False)
-        resp = session.get(request.uri, endpoint_filter=self.service)
+        resp = session.get(request.url)
         return resp.json()

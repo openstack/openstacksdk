@@ -50,12 +50,12 @@ class TestStackFiles(testtools.TestCase):
         sot.service = mock.Mock()
 
         req = mock.MagicMock()
-        req.uri = ('/stacks/%(stack_name)s/%(stack_id)s/files' %
+        req.url = ('/stacks/%(stack_name)s/%(stack_id)s/files' %
                    {'stack_name': FAKE['stack_name'],
                     'stack_id': FAKE['stack_id']})
         mock_prepare_request.return_value = req
 
         files = sot.get(sess)
 
-        sess.get.assert_called_once_with(req.uri, endpoint_filter=sot.service)
+        sess.get.assert_called_once_with(req.url)
         self.assertEqual({'file': 'file-content'}, files)

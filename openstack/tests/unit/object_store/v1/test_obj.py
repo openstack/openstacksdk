@@ -113,8 +113,9 @@ class TestObject(testtools.TestCase):
         #     "if-match": {"who": "what"}
         # }
         headers = {'Accept': 'bytes'}
-        self.sess.get.assert_called_with(url, endpoint_filter=sot.service,
-                                         headers=headers)
+        self.sess.get.assert_called_with(url,
+                                         headers=headers,
+                                         error_message=None)
         self.assertEqual(self.resp.content, rv)
 
     def _test_create(self, method, data, accept):
@@ -126,7 +127,7 @@ class TestObject(testtools.TestCase):
         rv = sot.create(self.sess)
 
         url = "%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
-        method.assert_called_with(url, endpoint_filter=sot.service, data=data,
+        method.assert_called_with(url, data=data,
                                   headers=headers)
         self.assertEqual(self.resp.headers, rv.get_headers())
 

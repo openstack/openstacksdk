@@ -143,7 +143,7 @@ class TestContainer(testtools.TestCase):
         sot_call(self.sess)
 
         url = "/%s" % CONTAINER_NAME
-        sess_method.assert_called_with(url, endpoint_filter=sot.service,
+        sess_method.assert_called_with(url,
                                        headers=headers)
 
     def test_create(self):
@@ -159,7 +159,7 @@ class TestContainer(testtools.TestCase):
         sot.create(self.sess)
         url = "/%s" % CONTAINER_NAME
         headers = {'Accept': ''}
-        self.sess.put.assert_called_with(url, endpoint_filter=sot.service,
+        self.sess.put.assert_called_with(url,
                                          headers=headers)
 
     def test_create_no_headers(self):

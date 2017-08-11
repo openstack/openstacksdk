@@ -25,46 +25,45 @@ class TestException(Exception):
 
 
 class TaskTest(task_manager.Task):
-    def main(self, client):
+    def main(self):
         raise TestException("This is a test exception")
 
 
 class TaskTestGenerator(task_manager.Task):
-    def main(self, client):
+    def main(self):
         yield 1
 
 
 class TaskTestInt(task_manager.Task):
-    def main(self, client):
+    def main(self):
         return int(1)
 
 
 class TaskTestFloat(task_manager.Task):
-    def main(self, client):
+    def main(self):
         return float(2.0)
 
 
 class TaskTestStr(task_manager.Task):
-    def main(self, client):
+    def main(self):
         return "test"
 
 
 class TaskTestBool(task_manager.Task):
-    def main(self, client):
+    def main(self):
         return True
 
 
 class TaskTestSet(task_manager.Task):
-    def main(self, client):
+    def main(self):
         return set([1, 2])
 
 
 class TaskTestAsync(task_manager.Task):
     def __init__(self):
-        super(task_manager.Task, self).__init__()
-        self.run_async = True
+        super(TaskTestAsync, self).__init__(run_async=True)
 
-    def main(self, client):
+    def main(self):
         pass
 
 
@@ -72,7 +71,7 @@ class TestTaskManager(base.TestCase):
 
     def setUp(self):
         super(TestTaskManager, self).setUp()
-        self.manager = task_manager.TaskManager(name='test', client=self)
+        self.manager = task_manager.TaskManager(name='test')
 
     def test_wait_re_raise(self):
         """Test that Exceptions thrown in a Task is reraised correctly

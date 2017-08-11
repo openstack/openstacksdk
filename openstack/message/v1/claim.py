@@ -60,7 +60,7 @@ class Claim(resource.Resource):
         body = []
 
         try:
-            resp = session.post(url, endpoint_filter=cls.service,
+            resp = session.post(url,
                                 headers=headers,
                                 data=json.dumps(claim, cls=ClaimEncoder),
                                 params=params)

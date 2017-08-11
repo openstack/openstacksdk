@@ -39,17 +39,17 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
                       self.proxy.create_messages,
                       expected_result="result",
                       method_args=[[]],
-                      expected_args=[self.session, []])
+                      expected_args=[self.proxy, []])
 
     def test_messages_claim(self):
         self._verify2("openstack.message.v1.claim.Claim.claim_messages",
                       self.proxy.claim_messages,
                       expected_result="result",
                       method_args=[claim.Claim],
-                      expected_args=[self.session, claim.Claim])
+                      expected_args=[self.proxy, claim.Claim])
 
     def test_message_delete(self):
         self._verify2("openstack.message.v1.message.Message.delete_by_id",
                       self.proxy.delete_message,
                       method_args=[message.Message],
-                      expected_args=[self.session, message.Message])
+                      expected_args=[self.proxy, message.Message])

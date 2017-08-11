@@ -4,28 +4,19 @@ Connect
 In order to work with an OpenStack cloud you first need to create a
 :class:`~openstack.connection.Connection` to it using your credentials. A
 :class:`~openstack.connection.Connection` can be
-created in 3 ways, using the class itself, a file, or environment variables.
-If this is your first time using the SDK, we recommend simply using the
-class itself as illustrated below.
+created in 3 ways, using the class itself, :ref:`config-clouds-yaml`, or
+:ref:`config-environment-variables`. It is recommended to always use
+:ref:`config-clouds-yaml` as the same config can be used across tools and
+languages.
 
 Create Connection
 -----------------
 
-To create a connection you need a :class:`~openstack.profile.Profile` and a
-:class:`~openstack.connection.Connection`.
+To create a :class:`~openstack.connection.Connection` instance, use the
+:func:`~openstack.connect` factory function.
 
 .. literalinclude:: ../examples/connect.py
    :pyobject: create_connection
-
-The :class:`~openstack.profile.Profile` sets your preferences for each
-service. You will pass it the region of the OpenStack cloud that this
-connection will use.
-
-The :class:`~openstack.connection.Connection` is a context for a connection
-to an OpenStack cloud. You will primarily use it to set the
-:class:`~openstack.profile.Profile` and authentication information. You can
-also set the ``user_agent`` to something that describes your application
-(e.g. ``my-web-app/1.3.4``).
 
 Full example at `connect.py <http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/connect.py>`_
 
@@ -37,5 +28,9 @@ Now that you can create a connection, continue with the :ref:`user_guides`
 to work with an OpenStack service.
 
 As an alternative to creating a :class:`~openstack.connection.Connection`
-using the class itself, you can connect using a file or environment
-variables. See the :doc:`connect_from_config` user guide.
+using :ref:config-clouds-yaml, you can connect using
+`config-environment-variables`.
+
+.. TODO(shade) Update the text here and consolidate with the old
+   os-client-config docs so that we have a single and consistent explanation
+   of the envvars cloud, etc.

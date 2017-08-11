@@ -62,10 +62,10 @@ class TestRouterInterface(base.BaseFunctionalTest):
         super(TestRouterInterface, self).tearDown()
 
     def test_router_add_remove_interface(self):
-        iface = self.ROT.add_interface(self.conn.session,
+        iface = self.ROT.add_interface(self.conn.network,
                                        subnet_id=self.SUB_ID)
         self._verification(iface)
-        iface = self.ROT.remove_interface(self.conn.session,
+        iface = self.ROT.remove_interface(self.conn.network,
                                           subnet_id=self.SUB_ID)
         self._verification(iface)
 

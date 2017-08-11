@@ -60,12 +60,12 @@ class Instance(resource.Resource):
         and provides the user with a generated root password.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :returns: A dictionary with keys ``name`` and ``password`` specifying
             the login credentials.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
-        resp = session.post(url, endpoint_filter=self.service)
+        resp = session.post(url,)
         return resp.json()['user']
 
     def is_root_enabled(self, session):
@@ -74,12 +74,12 @@ class Instance(resource.Resource):
         Determine if root is enabled on this particular instance.
 
         :param session: The session to use for making this request.
-        :type session: :class:`~openstack.session.Session`
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
         :returns: ``True`` if root user is enabled for a specified database
             instance or ``False`` otherwise.
         """
         url = utils.urljoin(self.base_path, self.id, 'root')
-        resp = session.get(url, endpoint_filter=self.service)
+        resp = session.get(url,)
         return resp.json()['rootEnabled']
 
     def restart(self, session):
@@ -89,7 +89,7 @@ class Instance(resource.Resource):
         """
         body = {'restart': {}}
         url = utils.urljoin(self.base_path, self.id, 'action')
-        session.post(url, endpoint_filter=self.service, json=body)
+        session.post(url, json=body)
 
     def resize(self, session, flavor_reference):
         """Resize the database instance
@@ -98,7 +98,7 @@ class Instance(resource.Resource):
         """
         body = {'resize': {'flavorRef': flavor_reference}}
         url = utils.urljoin(self.base_path, self.id, 'action')
-        session.post(url, endpoint_filter=self.service, json=body)
+        session.post(url, json=body)
 
     def resize_volume(self, session, volume_size):
         """Resize the volume attached to the instance
@@ -107,4 +107,4 @@ class Instance(resource.Resource):
         """
         body = {'resize': {'volume': volume_size}}
         url = utils.urljoin(self.base_path, self.id, 'action')
-        session.post(url, endpoint_filter=self.service, json=body)
+        session.post(url, json=body)

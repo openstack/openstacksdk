@@ -89,7 +89,7 @@ class TestSubscription(testtools.TestCase):
             "queue": FAKE.pop("queue_name")}
         headers = {"Client-ID": "NEW_CLIENT_ID",
                    "X-PROJECT-ID": "NEW_PROJECT_ID"}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           headers=headers, json=FAKE)
         sess.get_project_id.assert_called_once_with()
         self.assertEqual(sot, res)
@@ -108,7 +108,7 @@ class TestSubscription(testtools.TestCase):
             "queue": FAKE.pop("queue_name")}
         headers = {"Client-ID": FAKE.pop("client_id"),
                    "X-PROJECT-ID": FAKE.pop("project_id")}
-        sess.post.assert_called_once_with(url, endpoint_filter=sot.service,
+        sess.post.assert_called_once_with(url,
                                           headers=headers, json=FAKE)
         self.assertEqual(sot, res)
 
@@ -128,7 +128,7 @@ class TestSubscription(testtools.TestCase):
             "queue": FAKE1["queue_name"], "subscription": FAKE1["id"]}
         headers = {"Client-ID": "NEW_CLIENT_ID",
                    "X-PROJECT-ID": "NEW_PROJECT_ID"}
-        sess.get.assert_called_with(url, endpoint_filter=sot.service,
+        sess.get.assert_called_with(url,
                                     headers=headers)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp)
@@ -147,7 +147,7 @@ class TestSubscription(testtools.TestCase):
             "queue": FAKE2["queue_name"], "subscription": FAKE2["id"]}
         headers = {"Client-ID": "OLD_CLIENT_ID",
                    "X-PROJECT-ID": "OLD_PROJECT_ID"}
-        sess.get.assert_called_with(url, endpoint_filter=sot.service,
+        sess.get.assert_called_with(url,
                                     headers=headers)
         sot._translate_response.assert_called_once_with(resp)
         self.assertEqual(sot, res)
@@ -168,7 +168,7 @@ class TestSubscription(testtools.TestCase):
             "queue": FAKE1["queue_name"], "subscription": FAKE1["id"]}
         headers = {"Client-ID": "NEW_CLIENT_ID",
                    "X-PROJECT-ID": "NEW_PROJECT_ID"}
-        sess.delete.assert_called_with(url, endpoint_filter=sot.service,
+        sess.delete.assert_called_with(url,
                                        headers=headers)
         sess.get_project_id.assert_called_once_with()
         sot._translate_response.assert_called_once_with(resp, has_body=False)
@@ -186,6 +186,6 @@ class TestSubscription(testtools.TestCase):
             "queue": FAKE2["queue_name"], "subscription": FAKE2["id"]}
         headers = {"Client-ID": "OLD_CLIENT_ID",
                    "X-PROJECT-ID": "OLD_PROJECT_ID"}
-        sess.delete.assert_called_with(url, endpoint_filter=sot.service,
+        sess.delete.assert_called_with(url,
                                        headers=headers)
         sot._translate_response.assert_called_once_with(resp, has_body=False)
