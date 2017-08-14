@@ -21,7 +21,6 @@ import uuid
 
 import mock
 import munch
-import os_client_config as occ
 import six
 
 import shade
@@ -385,10 +384,12 @@ class TestImage(BaseTestImage):
             name, imagefile.name, wait=True, timeout=1,
             is_public=False, **kwargs)
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    def test_create_image_put_v1(self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '1'
+    def test_create_image_put_v1(
+            self, mock_image_client, mock_is_client_version):
+        # TODO(mordred) Fix this to use requests_mock
+        mock_is_client_version.return_value = False
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
@@ -421,11 +422,11 @@ class TestImage(BaseTestImage):
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_create_image_put_v1_bad_delete(
-            self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '1'
+            self, mock_image_client, mock_is_client_version):
+        mock_is_client_version.return_value = False
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
 
@@ -459,10 +460,11 @@ class TestImage(BaseTestImage):
             })
         mock_image_client.delete.assert_called_with('/images/42')
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
-    def test_update_image_no_patch(self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '2'
+    def test_update_image_no_patch(
+            self, mock_image_client, mock_is_client_version):
+        mock_is_client_version.return_value = True
         self.cloud.image_api_use_tasks = False
 
         mock_image_client.get.return_value = []
@@ -489,11 +491,11 @@ class TestImage(BaseTestImage):
         mock_image_client.get.assert_called_with('/images', params={})
         mock_image_client.patch.assert_not_called()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_create_image_put_v2_bad_delete(
-            self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '2'
+            self, mock_image_client, mock_is_client_version):
+        mock_is_client_version.return_value = True
         self.cloud.image_api_use_tasks = False
 
         mock_image_client.get.return_value = []
@@ -528,11 +530,11 @@ class TestImage(BaseTestImage):
             data=mock.ANY)
         mock_image_client.delete.assert_called_with('/images/42')
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_create_image_put_bad_int(
-            self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '2'
+            self, mock_image_client, mock_is_client_version):
+        mock_is_client_version.return_value = True
         self.cloud.image_api_use_tasks = False
 
         self.assertRaises(
@@ -540,11 +542,11 @@ class TestImage(BaseTestImage):
             self._call_create_image, '42 name', min_disk='fish', min_ram=0)
         mock_image_client.post.assert_not_called()
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_create_image_put_user_int(
-            self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '2'
+            self, mock_image_client, mock_is_client_version):
+        mock_is_client_version.return_value = True
         self.cloud.image_api_use_tasks = False
 
         args = {'name': '42 name',
@@ -575,11 +577,11 @@ class TestImage(BaseTestImage):
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_create_image_put_meta_int(
-            self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '2'
+            self, mock_image_client, mock_is_client_version):
+        mock_is_client_version.return_value = True
         self.cloud.image_api_use_tasks = False
 
         mock_image_client.get.return_value = []
@@ -604,11 +606,11 @@ class TestImage(BaseTestImage):
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_create_image_put_protected(
-            self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '2'
+            self, mock_image_client, mock_is_client_version):
+        mock_is_client_version.return_value = True
         self.cloud.image_api_use_tasks = False
 
         mock_image_client.get.return_value = []
@@ -642,11 +644,11 @@ class TestImage(BaseTestImage):
             headers={'Content-Type': 'application/octet-stream'})
         self.assertEqual(self._munch_images(ret), self.cloud.list_images())
 
-    @mock.patch.object(occ.cloud_config.CloudConfig, 'get_api_version')
+    @mock.patch.object(shade.OpenStackCloud, '_is_client_version')
     @mock.patch.object(shade.OpenStackCloud, '_image_client')
     def test_create_image_put_user_prop(
-            self, mock_image_client, mock_api_version):
-        mock_api_version.return_value = '2'
+            self, mock_image_client, mock_is_client_version):
+        mock_is_client_version.return_value = True
         self.cloud.image_api_use_tasks = False
 
         mock_image_client.get.return_value = []
@@ -687,8 +689,7 @@ class TestImageV1Only(base.RequestsMockTestCase):
         self.assertEqual(
             'https://image.example.com/v1/',
             self.cloud._image_client.get_endpoint())
-        self.assertEqual(
-            '1', self.cloud_config.get_api_version('image'))
+        self.assertTrue(self.cloud._is_client_version('image', 1))
 
     def test_config_v2(self):
         self.cloud.cloud_config.config['image_api_version'] = '2'
@@ -697,8 +698,7 @@ class TestImageV1Only(base.RequestsMockTestCase):
         self.assertEqual(
             'https://image.example.com/v1/',
             self.cloud._image_client.get_endpoint())
-        self.assertEqual(
-            '1', self.cloud_config.get_api_version('image'))
+        self.assertFalse(self.cloud._is_client_version('image', 2))
 
 
 class TestImageV2Only(base.RequestsMockTestCase):
@@ -714,8 +714,7 @@ class TestImageV2Only(base.RequestsMockTestCase):
         self.assertEqual(
             'https://image.example.com/v2/',
             self.cloud._image_client.get_endpoint())
-        self.assertEqual(
-            '2', self.cloud_config.get_api_version('image'))
+        self.assertTrue(self.cloud._is_client_version('image', 2))
 
     def test_config_v2(self):
         self.cloud.cloud_config.config['image_api_version'] = '2'
@@ -724,26 +723,7 @@ class TestImageV2Only(base.RequestsMockTestCase):
         self.assertEqual(
             'https://image.example.com/v2/',
             self.cloud._image_client.get_endpoint())
-        self.assertEqual(
-            '2', self.cloud_config.get_api_version('image'))
-
-
-class TestImageVersionDiscovery(BaseTestImage):
-
-    def test_version_discovery_skip(self):
-        self.cloud.cloud_config.config['image_endpoint_override'] = \
-            'https://image.example.com/v2/override'
-
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/override/images',
-                 json={'images': []})
-        ])
-        self.assertEqual([], self.cloud.list_images())
-        self.assertEqual(
-            self.cloud._image_client.endpoint_override,
-            'https://image.example.com/v2/override')
-        self.assert_calls()
+        self.assertTrue(self.cloud._is_client_version('image', 2))
 
 
 class TestImageVolume(BaseTestImage):
@@ -829,24 +809,6 @@ class TestImageBrokenDiscovery(base.RequestsMockTestCase):
         ])
         self.assertEqual([], self.cloud.list_images())
         self.assertEqual(
-            self.cloud._image_client.endpoint_override,
+            self.cloud._image_client.get_endpoint(),
             'https://image.example.com/v2/')
-        self.assert_calls()
-
-
-class TestImageDiscoveryOptimization(base.RequestsMockTestCase):
-
-    def setUp(self):
-        super(TestImageDiscoveryOptimization, self).setUp()
-        self.use_keystone_v3(catalog='catalog-versioned-image.json')
-
-    def test_version_discovery_skip(self):
-        self.cloud.cloud_config.config['image_api_version'] = '2'
-
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json={'images': []})
-        ])
-        self.assertEqual([], self.cloud.list_images())
         self.assert_calls()

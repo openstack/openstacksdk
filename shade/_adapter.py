@@ -156,3 +156,9 @@ class ShadeAdapter(adapter.Adapter):
             return response
         else:
             return self._munch_response(response, error_message=error_message)
+
+    def _version_matches(self, version):
+        api_version = self.get_api_major_version()
+        if api_version:
+            return api_version[0] == version
+        return False
