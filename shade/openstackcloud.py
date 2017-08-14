@@ -362,6 +362,10 @@ class OpenStackCloud(
             region_name=self.cloud_config.region,
             shade_logger=self.log)
 
+    def _is_client_version(self, client, version):
+        api_version = self.cloud_config.get_api_version(client)
+        return api_version.startswith(str(version))
+
     @property
     def _application_catalog_client(self):
         if 'application-catalog' not in self._raw_clients:
@@ -718,7 +722,7 @@ class OpenStackCloud(
         # Keystone v2 calls this attribute tenants
         # Keystone v3 calls it projects
         # Yay for usable APIs!
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             return self.keystone_client.tenants
         return self.keystone_client.projects
 
@@ -727,7 +731,7 @@ class OpenStackCloud(
             project = self.get_project(name_or_id)
             if not project:
                 return {}
-            if self.cloud_config.get_api_version('identity') == '3':
+            if self._is_client_version('identity', 3):
                 return {'default_project_id': project['id']}
             else:
                 return {'tenant_id': project['id']}
@@ -741,7 +745,7 @@ class OpenStackCloud(
         # not. However, keystone v2 does not allow user creation by non-admin
         # users, so we can throw an error to the user that does not need to
         # mention api versions
-        if self.cloud_config.get_api_version('identity') == '3':
+        if self._is_client_version('identity', 3):
             if not domain_id:
                 raise OpenStackCloudException(
                     "User or project creation requires an explicit"
@@ -840,14 +844,16 @@ class OpenStackCloud(
         kwargs = dict(
             filters=filters,
             domain_id=domain_id)
-        if self.cloud_config.get_api_version('identity') == '3':
+        if self._is_client_version('identity', 3):
             kwargs['obj_name'] = 'project'
 
         pushdown, filters = _normalize._split_filters(**kwargs)
 
         try:
-            api_version = self.cloud_config.get_api_version('identity')
-            key = 'projects' if api_version == '3' else 'tenants'
+            if self._is_client_version('identity', 3):
+                key = 'projects'
+            else:
+                key = 'tenants'
             data = self._identity_client.get(
                 '/{endpoint}'.format(endpoint=key), params=pushdown)
             projects = self._normalize_projects(
@@ -897,7 +903,7 @@ class OpenStackCloud(
                 kwargs.update({'enabled': enabled})
             # NOTE(samueldmq): Current code only allow updates of description
             # or enabled fields.
-            if self.cloud_config.get_api_version('identity') == '3':
+            if self._is_client_version('identity', 3):
                 data = self._identity_client.patch(
                     '/projects/' + proj['id'], json={'project': kwargs})
                 project = self._get_and_munchify('project', data)
@@ -919,7 +925,7 @@ class OpenStackCloud(
                                 'description': description,
                                 'enabled': enabled})
             endpoint, key = ('tenants', 'tenant')
-            if self.cloud_config.get_api_version('identity') == '3':
+            if self._is_client_version('identity', 3):
                 endpoint, key = ('projects', 'project')
             data = self._identity_client.post(
                 '/{endpoint}'.format(endpoint=endpoint),
@@ -951,7 +957,7 @@ class OpenStackCloud(
                     "Project %s not found for deleting", name_or_id)
                 return False
 
-            if self.cloud_config.get_api_version('identity') == '3':
+            if self._is_client_version('identity', 3):
                 self._identity_client.delete('/projects/' + project['id'])
             else:
                 self._identity_client.delete('/tenants/' + project['id'])
@@ -1034,7 +1040,7 @@ class OpenStackCloud(
         # TODO(mordred) When this changes to REST, force interface=admin
         # in the adapter call if it's an admin force call (and figure out how
         # to make that disctinction)
-        if self.cloud_config.get_api_version('identity') != '3':
+        if not self._is_client_version('identity', 3):
             # Do not pass v3 args to a v2 keystone.
             kwargs.pop('domain_id', None)
             kwargs.pop('description', None)
@@ -1065,7 +1071,7 @@ class OpenStackCloud(
         params = self._get_identity_params(domain_id, default_project)
         params.update({'name': name, 'password': password, 'email': email,
                        'enabled': enabled})
-        if self.cloud_config.get_api_version('identity') == '3':
+        if self._is_client_version('identity', 3):
             params['description'] = description
         elif description is not None:
             self.log.info(
@@ -2161,7 +2167,7 @@ class OpenStackCloud(
         params = {}
         image_list = []
         try:
-            if self.cloud_config.get_api_version('image') == '2':
+            if self._is_client_version('image', 2):
                 endpoint = '/images'
                 if show_all:
                     params['member_status'] = 'all'
@@ -3020,7 +3026,7 @@ class OpenStackCloud(
         if len(image) == 0:
             raise OpenStackCloudResourceNotFound(
                 "No images with name or ID %s were found" % name_or_id, None)
-        if self.cloud_config.get_api_version('image') == '2':
+        if self._is_client_version('image', 2):
             endpoint = '/images/{id}/file'.format(id=image[0]['id'])
         else:
             endpoint = '/images/{id}'.format(id=image[0]['id'])
@@ -4388,7 +4394,7 @@ class OpenStackCloud(
         # boolean. Glance v2 takes "visibility". If the user gives us
         # is_public, we know what they mean. If they give us visibility, they
         # know that they mean.
-        if self.cloud_config.get_api_version('image') == '2':
+        if self._is_client_version('image', 2):
             if 'is_public' in kwargs:
                 is_public = kwargs.pop('is_public')
                 if is_public:
@@ -4537,7 +4543,7 @@ class OpenStackCloud(
             self, name, filename, meta, wait, timeout, **image_kwargs):
         image_data = open(filename, 'rb')
         # Because reasons and crying bunnies
-        if self.cloud_config.get_api_version('image') == '2':
+        if self._is_client_version('image', 2):
             image = self._upload_image_put_v2(
                 name, image_data, meta, **image_kwargs)
         else:
@@ -4652,7 +4658,7 @@ class OpenStackCloud(
             img_props[k] = v
 
         # This makes me want to die inside
-        if self.cloud_config.get_api_version('image') == '2':
+        if self._is_client_version('image', 2):
             return self._update_image_properties_v2(image, meta, img_props)
         else:
             return self._update_image_properties_v1(image, meta, img_props)
@@ -4946,12 +4952,12 @@ class OpenStackCloud(
         description = kwargs.pop('description',
                                  kwargs.pop('display_description', None))
         if name:
-            if self.cloud_config.get_api_version('volume').startswith('2'):
+            if self._is_client_version('volume', 2):
                 kwargs['name'] = name
             else:
                 kwargs['display_name'] = name
         if description:
-            if self.cloud_config.get_api_version('volume').startswith('2'):
+            if self._is_client_version('volume', 2):
                 kwargs['description'] = description
             else:
                 kwargs['display_description'] = description

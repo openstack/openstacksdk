@@ -754,7 +754,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         # TODO(mordred) When this changes to REST, force interface=admin
         # in the adapter call
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             url, key = '/OS-KSADM/services', 'OS-KSADM:service'
             kwargs['type'] = type_ or service_type
         else:
@@ -773,7 +773,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                          'description')
     def update_service(self, name_or_id, **kwargs):
         # NOTE(SamYaple): Service updates are only available on v3 api
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             raise OpenStackCloudUnavailableFeature(
                 'Unavailable Feature: Service update requires Identity v3'
             )
@@ -860,7 +860,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self.log.debug("Service %s not found for deleting", name_or_id)
             return False
 
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             service_kwargs = {'id': service['id']}
         else:
             service_kwargs = {'service': service['id']}
@@ -913,7 +913,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         endpoint_args = []
         if url:
             urlkwargs = {}
-            if self.cloud_config.get_api_version('identity').startswith('2'):
+            if self._is_client_version('identity', 2):
                 if interface != 'public':
                     raise OpenStackCloudException(
                         "Error adding endpoint for service {service}."
@@ -935,7 +935,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             expected_endpoints = [('public', public_url),
                                   ('internal', internal_url),
                                   ('admin', admin_url)]
-            if self.cloud_config.get_api_version('identity').startswith('2'):
+            if self._is_client_version('identity', 2):
                 urlkwargs = {}
                 for interface, url in expected_endpoints:
                     if url:
@@ -949,7 +949,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         urlkwargs['interface'] = interface
                         endpoint_args.append(urlkwargs)
 
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             kwargs['service_id'] = service['id']
             # Keystone v2 requires 'region' arg even if it is None
             kwargs['region'] = region
@@ -978,7 +978,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                          'region')
     def update_endpoint(self, endpoint_id, **kwargs):
         # NOTE(SamYaple): Endpoint updates are only available on v3 api
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             raise OpenStackCloudUnavailableFeature(
                 'Unavailable Feature: Endpoint update'
             )
@@ -1070,7 +1070,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         # TODO(mordred) When this changes to REST, force interface=admin
         # in the adapter call
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             endpoint_kwargs = {'id': endpoint['id']}
         else:
             endpoint_kwargs = {'endpoint': endpoint['id']}
@@ -1357,7 +1357,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        v2 = self.cloud_config.get_api_version('identity').startswith('2')
+        v2 = self._is_client_version('identity', 2)
         url = '/OS-KSADM/roles' if v2 else '/roles'
         data = self._identity_client.get(
             url, error_message="Failed to list roles")
@@ -1459,7 +1459,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if not filters:
             filters = {}
 
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             if filters.get('project') is None or filters.get('user') is None:
                 raise OpenStackCloudException(
                     "Must provide project and user for keystone v2"
@@ -1629,7 +1629,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raise OpenStackCloudException: if the role cannot be created
         """
-        v2 = self.cloud_config.get_api_version('identity').startswith('2')
+        v2 = self._is_client_version('identity', 2)
         url = '/OS-KSADM/roles' if v2 else '/roles'
         msg = 'Failed to create role {name}'.format(name=name)
         data = self._identity_client.post(
@@ -1653,7 +1653,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Role %s not found for deleting", name_or_id)
             return False
 
-        v2 = self.cloud_config.get_api_version('identity').startswith('2')
+        v2 = self._is_client_version('identity', 2)
         url = '{preffix}/{id}'.format(
             preffix='/OS-KSADM/roles' if v2 else '/roles', id=role['id'])
         error_msg = "Unable to delete role {name}".format(name=name_or_id)
@@ -1669,8 +1669,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         data = {'role': role.id}
 
         # domain and group not available in keystone v2.0
-        keystone_version = self.cloud_config.get_api_version('identity')
-        is_keystone_v2 = keystone_version.startswith('2')
+        is_keystone_v2 = self._is_client_version('identity', 2)
 
         filters = {}
         if not is_keystone_v2 and domain:
@@ -1729,7 +1728,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if data.get('user') is None and data.get('group') is None:
             raise OpenStackCloudException(
                 'Must specify either a user or a group')
-        if self.cloud_config.get_api_version('identity').startswith('2') and \
+        if self._is_client_version('identity', 2) and \
                 data.get('project') is None:
             raise OpenStackCloudException(
                 'Must specify project for keystone v2')
@@ -1741,7 +1740,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
                 "Error granting access to role: {0}".format(
                 data)):
-            if self.cloud_config.get_api_version('identity').startswith('2'):
+            if self._is_client_version('identity', 2):
                 data['tenant'] = data.pop('project')
                 self.manager.submit_task(_tasks.RoleAddUser(**data))
             else:
@@ -1792,7 +1791,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if data.get('user') is None and data.get('group') is None:
             raise OpenStackCloudException(
                 'Must specify either a user or a group')
-        if self.cloud_config.get_api_version('identity').startswith('2') and \
+        if self._is_client_version('identity', 2) and \
                 data.get('project') is None:
             raise OpenStackCloudException(
                 'Must specify project for keystone v2')
@@ -1804,7 +1803,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
                 "Error revoking access to role: {0}".format(
                 data)):
-            if self.cloud_config.get_api_version('identity').startswith('2'):
+            if self._is_client_version('identity', 2):
                 data['tenant'] = data.pop('project')
                 self.manager.submit_task(_tasks.RoleRemoveUser(**data))
             else:
