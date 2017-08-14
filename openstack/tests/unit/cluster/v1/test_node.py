@@ -114,11 +114,17 @@ class TestNode(testtools.TestCase):
         sess = mock.Mock()
         sess.post = mock.Mock(return_value=resp)
 
-        res = sot.adopt(sess, True, param="value")
+        attrs = {
+            'identity': 'fake-resource-id',
+            'overrides': {},
+            'type': 'os.nova.server-1.0',
+            'snapshot': False
+        }
+        res = sot.adopt(sess, True, **attrs)
         self.assertEqual({"foo": "bar"}, res)
         sess.post.assert_called_once_with("nodes/adopt-preview",
                                           endpoint_filter=sot.service,
-                                          json={"param": "value"})
+                                          json=attrs)
 
     def test_adopt(self):
         sot = node.Node.new()

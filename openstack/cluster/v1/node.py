@@ -136,9 +136,20 @@ class Node(resource.Resource):
         :param dict params: A dict providing the details of a node to be
                             adopted.
         """
-        path = "adopt-preview" if preview else "adopt"
+        if preview:
+            path = 'adopt-preview'
+            attrs = {
+                'identity': params.get('identity'),
+                'overrides': params.get('overrides'),
+                'type': params.get('type'),
+                'snapshot': params.get('snapshot')
+            }
+        else:
+            path = 'adopt'
+            attrs = params
+
         url = utils.urljoin(self.base_path, path)
-        resp = session.post(url, endpoint_filter=self.service, json=params)
+        resp = session.post(url, endpoint_filter=self.service, json=attrs)
         if preview:
             return resp.json()
 
