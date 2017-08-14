@@ -49,6 +49,8 @@ class Listener(resource.Resource):
     #: List of load balancers associated with this listener.
     #: *Type: list of dicts which contain the load balancer IDs*
     load_balancer_ids = resource.Body('loadbalancers')
+    #: The ID of the load balancer associated with this listener.
+    load_balancer_id = resource.Body('loadbalancer_id')
     #: Name of the listener
     name = resource.Body('name')
     #: The ID of the project this listener is associated with.

@@ -22,6 +22,7 @@ EXAMPLE = {
     'description': '4',
     'id': IDENTIFIER,
     'loadbalancers': [{'id': '6'}],
+    'loadbalancer_id': '6',
     'name': '7',
     'project_id': '8',
     'protocol': '9',
@@ -53,6 +54,7 @@ class TestListener(testtools.TestCase):
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['loadbalancers'], sot.load_balancer_ids)
+        self.assertEqual(EXAMPLE['loadbalancer_id'], sot.load_balancer_id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
