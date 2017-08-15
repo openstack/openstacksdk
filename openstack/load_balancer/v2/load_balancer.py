@@ -30,6 +30,7 @@ class LoadBalancer(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'description', 'flavor', 'name', 'project_id', 'provider',
         'vip_address', 'vip_network_id', 'vip_port_id', 'vip_subnet_id',
+        'provisioning_status', 'operating_status',
         is_admin_state_up='admin_state_up'
     )
 
