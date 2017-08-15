@@ -10,9 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
 
 from openstack.orchestration.v1 import stack_files as sf
+from openstack import resource2 as resource
 
 FAKE = {
     'stack_id': 'ID',
@@ -35,3 +37,25 @@ class TestStackFiles(testtools.TestCase):
         sot = sf.StackFiles(**FAKE)
         self.assertEqual(FAKE['stack_id'], sot.stack_id)
         self.assertEqual(FAKE['stack_name'], sot.stack_name)
+
+    @mock.patch.object(resource.Resource, '_prepare_request')
+    def test_get(self, mock_prepare_request):
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value={'file': 'file-content'})
+
+        sess = mock.Mock()
+        sess.get = mock.Mock(return_value=resp)
+
+        sot = sf.StackFiles(**FAKE)
+        sot.service = mock.Mock()
+
+        req = mock.MagicMock()
+        req.uri = ('/stacks/%(stack_name)s/%(stack_id)s/files' %
+                   {'stack_name': FAKE['stack_name'],
+                    'stack_id': FAKE['stack_id']})
+        mock_prepare_request.return_value = req
+
+        files = sot.get(sess)
+
+        sess.get.assert_called_once_with(req.uri, endpoint_filter=sot.service)
+        self.assertEqual({'file': 'file-content'}, files)
