@@ -297,7 +297,8 @@ class OpenStackCloud(
         self._legacy_clients = {}
         self._raw_clients = {}
 
-        self._local_ipv6 = _utils.localhost_supports_ipv6()
+        self._local_ipv6 = (
+            _utils.localhost_supports_ipv6() if not self.force_ipv4 else False)
 
         self.cloud_config = cloud_config
 
