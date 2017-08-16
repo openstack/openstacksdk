@@ -259,7 +259,10 @@ def localhost_supports_ipv6():
     IPv6 connectivity.
     """
 
-    return netifaces.AF_INET6 in netifaces.gateways()['default']
+    try:
+        return netifaces.AF_INET6 in netifaces.gateways()['default']
+    except AttributeError:
+        return False
 
 
 def normalize_users(users):
