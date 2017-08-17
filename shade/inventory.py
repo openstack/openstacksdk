@@ -27,7 +27,8 @@ class OpenStackInventory(object):
 
     def __init__(
             self, config_files=None, refresh=False, private=False,
-            config_key=None, config_defaults=None, cloud=None):
+            config_key=None, config_defaults=None, cloud=None,
+            use_direct_get=False):
         if config_files is None:
             config_files = []
         config = os_client_config.config.OpenStackConfig(
@@ -82,4 +83,4 @@ class OpenStackInventory(object):
             func = self.search_hosts
         else:
             func = functools.partial(self.search_hosts, expand=False)
-        return _utils._get_entity(func, name_or_id, filters)
+        return _utils._get_entity(self, func, name_or_id, filters)

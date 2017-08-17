@@ -849,7 +849,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call or if multiple matches are found.
         """
-        return _utils._get_entity(self.search_services, name_or_id, filters)
+        return _utils._get_entity(self, 'service', name_or_id, filters)
 
     def delete_service(self, name_or_id):
         """Delete a Keystone service.
@@ -1057,7 +1057,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             - internal_url: <endpoint internal url> (optional)
             - admin_url: <endpoint admin url> (optional)
         """
-        return _utils._get_entity(self.search_endpoints, id, filters)
+        return _utils._get_entity(self, 'endpoint', id, filters)
 
     def delete_endpoint(self, id):
         """Delete a Keystone endpoint.
@@ -1226,7 +1226,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             # duplicate that logic here
             if hasattr(name_or_id, 'id'):
                 return name_or_id
-            return _utils._get_entity(self.search_domains, filters, name_or_id)
+            return _utils._get_entity(self, 'domain', filters, name_or_id)
         else:
             error_msg = 'Failed to get domain {id}'.format(id=domain_id)
             data = self._identity_client.get(
@@ -1281,8 +1281,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        return _utils._get_entity(self.search_groups, name_or_id, filters,
-                                  **kwargs)
+        return _utils._get_entity(self, 'group', name_or_id, filters, **kwargs)
 
     def create_group(self, name, description, domain=None):
         """Create a group.
@@ -1424,7 +1423,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        return _utils._get_entity(self.search_roles, name_or_id, filters)
+        return _utils._get_entity(self, 'role', name_or_id, filters)
 
     def _keystone_v2_role_assignments(self, user, project=None,
                                       role=None, **kwargs):
@@ -1900,7 +1899,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                   found.
 
         """
-        return _utils._get_entity(self.search_aggregates, name_or_id, filters)
+        return _utils._get_entity(self, 'aggregate', name_or_id, filters)
 
     def create_aggregate(self, name, availability_zone=None):
         """Create a new host aggregate.
