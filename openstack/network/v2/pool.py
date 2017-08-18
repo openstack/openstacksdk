@@ -29,9 +29,10 @@ class Pool(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'description', 'lb_algorithm', 'name',
-        'protocol', 'provider', 'subnet_id', 'virtual_ip_id',
+        'protocol', 'provider', 'subnet_id', 'virtual_ip_id', 'listener_id',
         is_admin_state_up='admin_state_up',
         project_id='tenant_id',
+        load_balancer_id='loadbalancer_id',
     )
 
     # Properties
@@ -51,9 +52,13 @@ class Pool(resource.Resource):
     #: List of associated listeners.
     #: *Type: list of dicts which contain the listener IDs*
     listener_ids = resource.Body('listeners', type=list)
+    #: ID of listener associated with this pool
+    listener_id = resource.Body('listener_id')
     #: List of associated load balancers.
     #: *Type: list of dicts which contain the load balancer IDs*
     load_balancer_ids = resource.Body('loadbalancers', type=list)
+    #: ID of load balancer associated with this pool
+    load_balancer_id = resource.Body('loadbalancer_id')
     #: List of members that belong to the pool.
     #: *Type: list of dicts which contain the member IDs*
     member_ids = resource.Body('members', type=list)

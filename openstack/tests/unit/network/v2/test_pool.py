@@ -23,6 +23,7 @@ EXAMPLE = {
     'id': IDENTIFIER,
     'lb_algorithm': '5',
     'listeners': [{'id': '6'}],
+    'listener_id': '6',
     'members': [{'id': '7'}],
     'name': '8',
     'tenant_id': '9',
@@ -33,6 +34,7 @@ EXAMPLE = {
     'status_description': '14',
     'subnet_id': '15',
     'loadbalancers': [{'id': '16'}],
+    'loadbalancer_id': '16',
     'vip_id': '17',
 }
 
@@ -61,6 +63,7 @@ class TestPool(testtools.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['lb_algorithm'], sot.lb_algorithm)
         self.assertEqual(EXAMPLE['listeners'], sot.listener_ids)
+        self.assertEqual(EXAMPLE['listener_id'], sot.listener_id)
         self.assertEqual(EXAMPLE['members'], sot.member_ids)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
@@ -72,4 +75,5 @@ class TestPool(testtools.TestCase):
         self.assertEqual(EXAMPLE['status_description'], sot.status_description)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['loadbalancers'], sot.load_balancer_ids)
+        self.assertEqual(EXAMPLE['loadbalancer_id'], sot.load_balancer_id)
         self.assertEqual(EXAMPLE['vip_id'], sot.virtual_ip_id)
