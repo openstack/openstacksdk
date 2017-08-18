@@ -51,6 +51,8 @@ class HealthMonitor(resource.Resource):
     #: List of pools associated with this health monitor
     #: *Type: list of dicts which contain the pool IDs*
     pool_ids = resource.Body('pools', type=list)
+    #: The ID of the pool associated with this health monitor
+    pool_id = resource.Body('pool_id')
     #: The ID of the project this health monitor is associated with.
     project_id = resource.Body('tenant_id')
     #: The maximum number of seconds for a monitor to wait for a
