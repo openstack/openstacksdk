@@ -28,7 +28,7 @@ Documentation
 -------------
 
 Documentation is available at
-http://developer.openstack.org/sdks/python/openstacksdk/
+https://developer.openstack.org/sdks/python/openstacksdk/
 
 License
 -------
