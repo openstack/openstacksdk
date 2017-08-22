@@ -279,6 +279,27 @@ class TestVolume(base.RequestsMockTestCase):
         self.assertFalse(self.cloud.delete_volume(volume['id']))
         self.assert_calls()
 
+    def test_delete_volume_force(self):
+        vol = {'id': 'volume001', 'status': 'attached',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [volume]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', volume.id, 'action']),
+                 json={'os-force_delete': None}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': []})])
+        self.assertTrue(self.cloud.delete_volume(volume['id'], force=True))
+        self.assert_calls()
+
     def test_list_volumes_with_pagination(self):
         vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
         vol2 = meta.obj_to_munch(fakes.FakeVolume('02', 'available', 'vol2'))

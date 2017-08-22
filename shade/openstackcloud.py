@@ -4763,12 +4763,15 @@ class OpenStackCloud(
 
         return self._normalize_volume(volume)
 
-    def delete_volume(self, name_or_id=None, wait=True, timeout=None):
+    def delete_volume(self, name_or_id=None, wait=True, timeout=None,
+                      force=False):
         """Delete a volume.
 
         :param name_or_id: Name or unique ID of the volume.
         :param wait: If true, waits for volume to be deleted.
         :param timeout: Seconds to wait for volume deletion. None is forever.
+        :param force: Force delete volume even if the volume is in deleting
+            or error_deleting state.
 
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
@@ -4786,8 +4789,13 @@ class OpenStackCloud(
 
         with _utils.shade_exceptions("Error in deleting volume"):
             try:
-                self._volume_client.delete(
-                    'volumes/{id}'.format(id=volume['id']))
+                if force:
+                    self._volume_client.post(
+                        'volumes/{id}/action'.format(id=volume['id']),
+                        json={'os-force_delete': None})
+                else:
+                    self._volume_client.delete(
+                        'volumes/{id}'.format(id=volume['id']))
             except OpenStackCloudURINotFound:
                 self.log.debug(
                     "Volume {id} not found when deleting. Ignoring.".format(
