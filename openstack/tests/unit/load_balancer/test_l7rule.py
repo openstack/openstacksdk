@@ -36,9 +36,9 @@ class TestL7Rule(testtools.TestCase):
 
     def test_basic(self):
         test_l7rule = l7_rule.L7Rule()
-        self.assertEqual('l7rule', test_l7rule.resource_key)
-        self.assertEqual('l7rules', test_l7rule.resources_key)
-        self.assertEqual('/l7policies/%(l7_policy_id)s/rules',
+        self.assertEqual('rule', test_l7rule.resource_key)
+        self.assertEqual('rules', test_l7rule.resources_key)
+        self.assertEqual('/v2.0/lbaas/l7policies/%(l7_policy_id)s/rules',
                          test_l7rule.base_path)
         self.assertEqual('load-balancer', test_l7rule.service.service_type)
         self.assertTrue(test_l7rule.allow_create)
@@ -63,4 +63,4 @@ class TestL7Rule(testtools.TestCase):
                          test_l7rule.provisioning_status)
         self.assertEqual(EXAMPLE['type'], test_l7rule.type)
         self.assertEqual(EXAMPLE['updated_at'], test_l7rule.updated_at)
-        self.assertEqual(EXAMPLE['value'], test_l7rule.value)
+        self.assertEqual(EXAMPLE['value'], test_l7rule.rule_value)

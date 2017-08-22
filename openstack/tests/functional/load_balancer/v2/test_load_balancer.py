@@ -138,7 +138,7 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
         cls.conn.load_balancer.delete_l7_rule(
-            cls.L7RULE_ID, ignore_missing=False)
+            cls.L7RULE_ID, l7_policy=cls.L7POLICY_ID, ignore_missing=False)
         cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
         cls.conn.load_balancer.delete_l7_policy(
@@ -357,35 +357,38 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
 
     def test_l7_rule_find(self):
         test_l7_rule = self.conn.load_balancer.find_l7_rule(
-            self.L7RULE_ID)
+            self.L7RULE_ID, self.L7POLICY_ID)
         self.assertEqual(self.L7RULE_ID, test_l7_rule.id)
         self.assertEqual(self.L7RULE_TYPE, test_l7_rule.type)
 
     def test_l7_rule_get(self):
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
-            self.L7RULE_ID)
+            self.L7RULE_ID, l7_policy=self.L7POLICY_ID)
         self.assertEqual(self.L7RULE_ID, test_l7_rule.id)
         self.assertEqual(self.COMPARE_TYPE, test_l7_rule.compare_type)
         self.assertEqual(self.L7RULE_TYPE, test_l7_rule.type)
-        self.assertEqual(self.L7RULE_VALUE, test_l7_rule.value)
+        self.assertEqual(self.L7RULE_VALUE, test_l7_rule.rule_value)
 
     def test_l7_rule_list(self):
-        ids = [l7.id for l7 in self.conn.load_balancer.l7_rules()]
+        ids = [l7.id for l7 in self.conn.load_balancer.l7_rules(
+            l7_policy=self.L7POLICY_ID)]
         self.assertIn(self.L7RULE_ID, ids)
 
     def test_l7_rule_update(self):
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
-        self.conn.load_balancer.update_l7_rule(
-            self.L7RULE_ID, value=self.UPDATE_NAME)
+        self.conn.load_balancer.update_l7_rule(self.L7RULE_ID,
+                                               l7_policy=self.L7POLICY_ID,
+                                               rule_value=self.UPDATE_NAME)
         self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
-            self.L7RULE_ID)
-        self.assertEqual(self.UPDATE_NAME, test_l7_rule.value)
+            self.L7RULE_ID, l7_policy=self.L7POLICY_ID)
+        self.assertEqual(self.UPDATE_NAME, test_l7_rule.rule_value)
 
-        self.conn.load_balancer.update_l7_policy(self.L7POLICY_ID,
-                                                 value=self.L7RULE_VALUE)
+        self.conn.load_balancer.update_l7_rule(self.L7RULE_ID,
+                                               l7_policy=self.L7POLICY_ID,
+                                               rule_value=self.L7RULE_VALUE)
         self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
-            self.L7RULE_ID)
-        self.assertEqual(self.L7RULE_VALUE, test_l7_rule.value)
+            self.L7RULE_ID, l7_policy=self.L7POLICY_ID,)
+        self.assertEqual(self.L7RULE_VALUE, test_l7_rule.rule_value)
