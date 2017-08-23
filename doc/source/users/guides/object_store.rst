@@ -197,7 +197,7 @@ The metadata attributes to be set can be found on the
 We set the :attr:`~openstack.object_store.obj.Object.delete_after`
 value to 500 seconds, causing the object to be deleted in 300 seconds,
 or five minutes. That attribute corresponds to the ``X-Delete-After``
-header value, which you can see is returned when we retreive the updated
+header value, which you can see is returned when we retrieve the updated
 metadata. ::
 
     >>> conn.object_store.get_object_metadata(ob)

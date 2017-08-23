@@ -335,7 +335,7 @@ class Proxy(proxy2.BaseProxy):
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent server
         :param bool force: When set to ``True``, the server deletion will be
-                           forced immediatly.
+                           forced immediately.
 
         :returns: ``None``
         """

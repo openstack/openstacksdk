@@ -2814,7 +2814,7 @@ class Proxy(proxy2.BaseProxy):
             * ``description``: The subnet description
             * ``gateway_ip``: Subnet gateway IP address
             * ``ip_version``: Subnet IP address version
-            * ``ipv6_address_mode``: The IPv6 adress mode
+            * ``ipv6_address_mode``: The IPv6 address mode
             * ``ipv6_ra_mode``: The IPv6 router advertisement mode
             * ``is_dhcp_enabled``: Subnet has DHCP enabled (boolean)
             * ``name``: Subnet name
