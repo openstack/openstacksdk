@@ -26,7 +26,8 @@ To log debug and higher messages::
     utils.enable_logging(debug=True, stream=sys.stdout)
 
 The ``path`` parameter controls the location of a log file. If set, this
-parameter will send log messages to a file using a :py:class:`~logging.FileHandler`.
+parameter will send log messages to a file using a
+:py:class:`~logging.FileHandler`.
 
 To log messages to a file called ``openstack.log``::
 

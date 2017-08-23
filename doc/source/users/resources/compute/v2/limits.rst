@@ -14,7 +14,8 @@ The ``Limits`` class inherits from :class:`~openstack.resource.Resource`.
 The AbsoluteLimits Class
 ------------------------
 
-The ``AbsoluteLimits`` class inherits from :class:`~openstack.resource.Resource`.
+The ``AbsoluteLimits`` class inherits from
+:class:`~openstack.resource.Resource`.
 
 .. autoclass:: openstack.compute.v2.limits.AbsoluteLimits
    :members:

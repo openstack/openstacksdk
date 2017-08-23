@@ -14,11 +14,12 @@ List Networks
 -------------
 
 A **network** is an isolated `Layer 2 <https://en.wikipedia.org/wiki/Data_link_layer>`_
-networking segment. There are two types of networks, project and provider networks.
-Project networks are fully isolated and are not shared with other projects. Provider
-networks map to existing physical networks in the data center and provide external
-network access for servers. Only an OpenStack administrator can create provider
-networks. Networks can be connected via routers.
+networking segment. There are two types of networks, project and provider
+networks. Project networks are fully isolated and are not shared with other
+projects. Provider networks map to existing physical networks in the data
+center and provide external network access for servers. Only an OpenStack
+administrator can create provider networks. Networks can be connected via
+routers.
 
 .. literalinclude:: ../examples/network/list.py
    :pyobject: list_networks
@@ -66,10 +67,11 @@ Full example: `network resource list`_
 List Routers
 ------------
 
-A **router** is a logical component that forwards data packets between networks.
-It also provides `Layer 3 <https://en.wikipedia.org/wiki/Network_layer>`_ and
-`NAT <https://en.wikipedia.org/wiki/Network_address_translation>`_ forwarding to
-provide external network access for servers on project networks.
+A **router** is a logical component that forwards data packets between
+networks. It also provides
+`Layer 3 <https://en.wikipedia.org/wiki/Network_layer>`_ and
+`NAT <https://en.wikipedia.org/wiki/Network_address_translation>`_
+forwarding to provide external network access for servers on project networks.
 
 .. literalinclude:: ../examples/network/list.py
    :pyobject: list_routers
