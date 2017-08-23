@@ -76,7 +76,8 @@ under ``clouds`` must be named ``test_cloud``.
 .. literalinclude:: clouds.yaml
    :language: yaml
 
-Replace ``xxx.xxx.xxx.xxx`` with the IP address or FQDN of your DevStack instance.
+Replace ``xxx.xxx.xxx.xxx`` with the IP address or FQDN of your DevStack
+instance.
 
 You can also create a ``~/.config/openstack/clouds.yaml`` file for your
 DevStack cloud environment using the following commands. Replace
@@ -114,8 +115,8 @@ practice, this means that the tests should initially be run against a stable
 branch of `DevStack <https://docs.openstack.org/devstack/latest/>`_.
 And like the functional tests, the examples tests connect to an OpenStack cloud
 using `os-client-config <http://git.openstack.org/cgit/openstack/os-client-config/tree/README.rst>`_.
-See the functional tests instructions for information on setting up DevStack and
-os-client-config.
+See the functional tests instructions for information on setting up DevStack
+and os-client-config.
 
 Run
 ***
