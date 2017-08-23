@@ -570,7 +570,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
-        return self._create(_l7rule.L7Rule, l7policy_id=l7policyobj.id,
+        return self._create(_l7rule.L7Rule, l7_policy_id=l7policyobj.id,
                             **attrs)
 
     def delete_l7_rule(self, l7rule, l7_policy, ignore_missing=True):
@@ -591,8 +591,8 @@ class Proxy(proxy2.BaseProxy):
         :returns: ``None``
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
-        self._delete(_l7rule.L7Rule, l7rule,
-                     ignore_missing=ignore_missing, l7policy_id=l7policyobj.id)
+        self._delete(_l7rule.L7Rule, l7rule, ignore_missing=ignore_missing,
+                     l7_policy_id=l7policyobj.id)
 
     def find_l7_rule(self, name_or_id, l7_policy, ignore_missing=True):
         """Find a single l7rule
@@ -613,7 +613,7 @@ class Proxy(proxy2.BaseProxy):
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._find(_l7rule.L7Rule, name_or_id,
                           ignore_missing=ignore_missing,
-                          l7policy_id=l7policyobj.id)
+                          l7_policy_id=l7policyobj.id)
 
     def get_l7_rule(self, l7rule, l7_policy):
         """Get a single l7rule
@@ -631,7 +631,7 @@ class Proxy(proxy2.BaseProxy):
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._get(_l7rule.L7Rule, l7rule,
-                         l7policy_id=l7policyobj.id)
+                         l7_policy_id=l7policyobj.id)
 
     def l7_rules(self, l7_policy, **query):
         """Return a generator of l7rules
@@ -647,7 +647,7 @@ class Proxy(proxy2.BaseProxy):
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._list(_l7rule.L7Rule, paginated=True,
-                          l7policy_id=l7policyobj.id, **query)
+                          l7_policy_id=l7policyobj.id, **query)
 
     def update_l7_rule(self, l7rule, l7_policy, **attrs):
         """Update a l7rule
@@ -666,4 +666,4 @@ class Proxy(proxy2.BaseProxy):
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._update(_l7rule.L7Rule, l7rule,
-                            l7policy_id=l7policyobj.id, **attrs)
+                            l7_policy_id=l7policyobj.id, **attrs)

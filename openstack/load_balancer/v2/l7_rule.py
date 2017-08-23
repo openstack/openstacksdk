@@ -15,9 +15,9 @@ from openstack import resource2 as resource
 
 
 class L7Rule(resource.Resource):
-    resource_key = 'l7rule'
-    resources_key = 'l7rules'
-    base_path = '/l7policies/%(l7_policy_id)s/rules'
+    resource_key = 'rule'
+    resources_key = 'rules'
+    base_path = '/v2.0/lbaas/l7policies/%(l7_policy_id)s/rules'
     service = lb_service.LoadBalancerService()
 
     # capabilities
@@ -29,8 +29,8 @@ class L7Rule(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'compare_type', 'created_at', 'invert', 'key', 'l7_policy_id',
-        'project_id', 'provisioning_status', 'type', 'updated_at', 'value',
-        'operating_status', is_admin_state_up='admin_state_up',
+        'project_id', 'provisioning_status', 'type', 'updated_at',
+        'rule_value', 'operating_status', is_admin_state_up='admin_state_up',
     )
 
     #: Properties
@@ -46,7 +46,7 @@ class L7Rule(resource.Resource):
     #: The key to use for the comparison.
     key = resource.Body('key')
     #: The ID of the associated l7 policy
-    l7_policy_id = resource.Body('l7policy_id')
+    l7_policy_id = resource.URI('l7_policy_id')
     #: The operating status of this l7rule
     operating_status = resource.Body('operating_status')
     #: The ID of the project this l7policy is associated with.
@@ -58,4 +58,4 @@ class L7Rule(resource.Resource):
     #: Timestamp when the L7 rule was updated.
     updated_at = resource.Body('updated_at')
     #: value to be compared with
-    value = resource.Body('value')
+    rule_value = resource.Body('value')
