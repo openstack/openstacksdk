@@ -20,6 +20,7 @@ Functional tests for `shade` block storage methods.
 from testtools import content
 
 from shade import _utils
+from shade import exc
 from shade.tests.functional import base
 
 
@@ -100,18 +101,27 @@ class TestVolume(base.BaseFunctionalTestCase):
             # in the volume list anymore
             for v in volume:
                 self.user_cloud.delete_volume(v, wait=False)
-            for count in _utils._iterate_timeout(
-                    180, "Timeout waiting for volume cleanup"):
-                found = False
+            try:
+                for count in _utils._iterate_timeout(
+                        180, "Timeout waiting for volume cleanup"):
+                    found = False
+                    for existing in self.user_cloud.list_volumes():
+                        for v in volume:
+                            if v['id'] == existing['id']:
+                                found = True
+                                break
+                        if found:
+                            break
+                    if not found:
+                        break
+            except exc.OpenStackCloudTimeout:
+                # NOTE(slaweq): ups, some volumes are still not removed
+                # so we should try to force delete it once again and move
+                # forward
                 for existing in self.user_cloud.list_volumes():
                     for v in volume:
                         if v['id'] == existing['id']:
-                            found = True
-                            break
-                    if found:
-                        break
-                if not found:
-                    break
+                            self.operator_cloud.delete_volume(v, force=True)
 
     def test_list_volumes_pagination(self):
         '''Test pagination for list volumes functionality'''
