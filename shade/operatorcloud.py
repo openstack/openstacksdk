@@ -1227,9 +1227,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             domain = self._get_and_munchify('domain', data)
             return _utils.normalize_domains([domain])[0]
 
+    @_utils.valid_kwargs('domain_id')
     @_utils.cache_on_arguments()
-    def list_groups(self):
+    def list_groups(self, **kwargs):
         """List Keystone Groups.
+
+        :param domain_id: domain id.
 
         :returns: A list of ``munch.Munch`` containing the group description.
 
@@ -1237,35 +1240,41 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         data = self._identity_client.get(
-            '/groups', error_message="Failed to list groups")
+            '/groups', params=kwargs, error_message="Failed to list groups")
         return _utils.normalize_groups(self._get_and_munchify('groups', data))
 
-    def search_groups(self, name_or_id=None, filters=None):
+    @_utils.valid_kwargs('domain_id')
+    def search_groups(self, name_or_id=None, filters=None, **kwargs):
         """Search Keystone groups.
 
         :param name: Group name or id.
         :param filters: A dict containing additional filters to use.
+        :param domain_id: domain id.
 
         :returns: A list of ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        groups = self.list_groups()
-        return _utils._filter_list(groups, name_or_id, filters)
+        groups = self.list_groups(**kwargs)
+        return _utils._filter_list(groups, name_or_id, filters,
+                                   **kwargs)
 
-    def get_group(self, name_or_id, filters=None):
+    @_utils.valid_kwargs('domain_id')
+    def get_group(self, name_or_id, filters=None, **kwargs):
         """Get exactly one Keystone group.
 
         :param id: Group name or id.
         :param filters: A dict containing additional filters to use.
+        :param domain_id: domain id.
 
         :returns: A ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        return _utils._get_entity(self.search_groups, name_or_id, filters)
+        return _utils._get_entity(self.search_groups, name_or_id, filters,
+                                  **kwargs)
 
     def create_group(self, name, description, domain=None):
         """Create a group.
@@ -1298,11 +1307,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         self.list_groups.invalidate(self)
         return _utils.normalize_groups([group])[0]
 
-    def update_group(self, name_or_id, name=None, description=None):
+    @_utils.valid_kwargs('domain_id')
+    def update_group(self, name_or_id, name=None, description=None,
+                     **kwargs):
         """Update an existing group
 
         :param string name: New group name.
         :param string description: New group description.
+        :param domain_id: domain id.
 
         :returns: A ``munch.Munch`` containing the group description.
 
@@ -1310,7 +1322,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         self.list_groups.invalidate(self)
-        group = self.get_group(name_or_id)
+        group = self.get_group(name_or_id, **kwargs)
         if group is None:
             raise OpenStackCloudException(
                 "Group {0} not found for updating".format(name_or_id)
@@ -1330,17 +1342,19 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         self.list_groups.invalidate(self)
         return _utils.normalize_groups([group])[0]
 
-    def delete_group(self, name_or_id):
+    @_utils.valid_kwargs('domain_id')
+    def delete_group(self, name_or_id, **kwargs):
         """Delete a group
 
         :param name_or_id: ID or name of the group to delete.
+        :param domain_id: domain id.
 
         :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        group = self.get_group(name_or_id)
+        group = self.get_group(name_or_id, **kwargs)
         if group is None:
             self.log.debug(
                 "Group %s not found for deleting", name_or_id)
