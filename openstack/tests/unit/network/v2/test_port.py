@@ -71,6 +71,28 @@ class TestPort(testtools.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({"description": "description",
+                              "device_id": "device_id",
+                              "device_owner": "device_owner",
+                              "fixed_ips": "fixed_ips",
+                              "ip_address": "ip_address",
+                              "mac_address": "mac_address",
+                              "name": "name",
+                              "network_id": "network_id",
+                              "status": "status",
+                              "subnet_id": "subnet_id",
+                              "is_admin_state_up": "admin_state_up",
+                              "is_port_security_enabled":
+                                  "port_security_enabled",
+                              "project_id": "tenant_id",
+                              "limit": "limit",
+                              "marker": "marker",
+                              "any_tags": "tags-any",
+                              "not_any_tags": "not-tags-any",
+                              "not_tags": "not-tags",
+                              "tags": "tags"},
+                             sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = port.Port(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
