@@ -965,23 +965,28 @@ class OpenStackCloud(
 
         return True
 
+    @_utils.valid_kwargs('domain_id')
     @_utils.cache_on_arguments()
-    def list_users(self):
+    def list_users(self, **kwargs):
         """List users.
+
+        :param domain_id: Domain ID. (v3)
 
         :returns: a list of ``munch.Munch`` containing the user description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        data = self._identity_client.get('/users')
+        data = self._identity_client.get('/users', params=kwargs)
         return _utils.normalize_users(
             self._get_and_munchify('users', data))
 
-    def search_users(self, name_or_id=None, filters=None):
+    @_utils.valid_kwargs('domain_id')
+    def search_users(self, name_or_id=None, filters=None, **kwargs):
         """Search users.
 
         :param string name_or_id: user name or ID.
+        :param domain_id: Domain ID. (v3)
         :param filters: a dict containing additional filters to use.
             OR
             A string containing a jmespath expression for further filtering.
@@ -992,13 +997,15 @@ class OpenStackCloud(
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        users = self.list_users()
+        users = self.list_users(**kwargs)
         return _utils._filter_list(users, name_or_id, filters)
 
-    def get_user(self, name_or_id, filters=None):
+    @_utils.valid_kwargs('domain_id')
+    def get_user(self, name_or_id, filters=None, **kwargs):
         """Get exactly one user.
 
         :param string name_or_id: user name or ID.
+        :param domain_id: Domain ID. (v3)
         :param filters: a dict containing additional filters to use.
             OR
             A string containing a jmespath expression for further filtering.
@@ -1009,7 +1016,8 @@ class OpenStackCloud(
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        return _utils._get_entity(self.search_users, name_or_id, filters)
+        return _utils._get_entity(self.search_users, name_or_id, filters,
+                                  **kwargs)
 
     def get_user_by_id(self, user_id, normalize=True):
         """Get a user by ID.
@@ -1034,7 +1042,10 @@ class OpenStackCloud(
                          'description', 'default_project')
     def update_user(self, name_or_id, **kwargs):
         self.list_users.invalidate(self)
-        user = self.get_user(name_or_id)
+        user_kwargs = {}
+        if 'domain_id' in kwargs and kwargs['domain_id']:
+            user_kwargs['domain_id'] = kwargs['domain_id']
+        user = self.get_user(name_or_id, **user_kwargs)
         # normalized dict won't work
         kwargs['user'] = self.get_user_by_id(user['id'], normalize=False)
 
@@ -1086,11 +1097,11 @@ class OpenStackCloud(
         self.list_users.invalidate(self)
         return _utils.normalize_users([user])[0]
 
-    def delete_user(self, name_or_id):
-        # TODO(mordred) Support name_or_id as dict to avoid any gets
+    @_utils.valid_kwargs('domain_id')
+    def delete_user(self, name_or_id, **kwargs):
         # TODO(mordred) Why are we invalidating at the TOP?
         self.list_users.invalidate(self)
-        user = self.get_user(name_or_id)
+        user = self.get_user(name_or_id, **kwargs)
         if not user:
             self.log.debug(
                 "User {0} not found for deleting".format(name_or_id))
