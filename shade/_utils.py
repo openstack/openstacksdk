@@ -378,6 +378,7 @@ def normalize_roles(roles):
     """Normalize Identity roles."""
     ret = [
         dict(
+            domain_id=role.get('domain_id'),
             id=role.get('id'),
             name=role.get('name'),
         ) for role in roles

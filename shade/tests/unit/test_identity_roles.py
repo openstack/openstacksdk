@@ -101,6 +101,30 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         self.assertThat(role.id, matchers.Equals(role_data.role_id))
         self.assert_calls()
 
+    def test_update_role(self):
+        role_data = self._get_role_data()
+        req = {'role_id': role_data.role_id,
+               'role': {'name': role_data.role_name}}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json={'roles': [role_data.json_response['role']]}),
+            dict(method='PATCH',
+                 uri=self.get_mock_url(),
+                 status_code=200,
+                 json=role_data.json_response,
+                 validate=dict(json=req))
+        ])
+
+        role = self.op_cloud.update_role(role_data.role_id,
+                                         role_data.role_name)
+
+        self.assertIsNotNone(role)
+        self.assertThat(role.name, matchers.Equals(role_data.role_name))
+        self.assertThat(role.id, matchers.Equals(role_data.role_id))
+        self.assert_calls()
+
     def test_delete_role_by_id(self):
         role_data = self._get_role_data()
         self.register_uris([
