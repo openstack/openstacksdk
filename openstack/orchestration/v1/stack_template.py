@@ -42,3 +42,14 @@ class StackTemplate(resource.Resource):
     #: Key and value pairs that contain definition of resources in the
     #: template
     resources = resource.Body('resources', type=dict)
+    # List parameters grouped.
+    parameter_groups = resource.Body('parameter_groups', type=list)
+    # Restrict conditions.
+    conditions = resource.Body('conditions', type=dict)
+
+    def to_dict(self):
+        mapping = super(StackTemplate, self).to_dict()
+        mapping.pop('location')
+        mapping.pop('id')
+        mapping.pop('name')
+        return mapping
