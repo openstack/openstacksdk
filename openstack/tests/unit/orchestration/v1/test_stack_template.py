@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import testtools
 
 from openstack.orchestration.v1 import stack_template
@@ -53,3 +54,13 @@ class TestStackTemplate(testtools.TestCase):
         self.assertEqual(FAKE['outputs'], sot.outputs)
         self.assertEqual(FAKE['parameters'], sot.parameters)
         self.assertEqual(FAKE['resources'], sot.resources)
+
+    def test_to_dict(self):
+        fake_sot = copy.deepcopy(FAKE)
+        fake_sot['parameter_groups'] = [{
+            "description": "server parameters",
+            "parameters": ["key_name", "image_id"],
+            "label": "server_parameters"}]
+        fake_sot['conditions'] = {"cd1": True}
+        sot = stack_template.StackTemplate(**fake_sot)
+        self.assertEqual(fake_sot, sot.to_dict())
