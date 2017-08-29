@@ -34,6 +34,8 @@ by this connection.::
     auth_args = {
         'auth_url': 'http://172.20.1.108:5000/v3',
         'project_name': 'admin',
+        'user_domain_name': 'default',
+        'project_domain_name': 'default',
         'username': 'admin',
         'password': 'admin',
     }
