@@ -47,6 +47,9 @@ class TestVolume(base.BaseFunctionalTestCase):
             display_name=snapshot_name
         )
 
+        ret_volume = self.user_cloud.get_volume_by_id(volume['id'])
+        self.assertEqual(volume['id'], ret_volume['id'])
+
         volume_ids = [v['id'] for v in self.user_cloud.list_volumes()]
         self.assertIn(volume['id'], volume_ids)
 

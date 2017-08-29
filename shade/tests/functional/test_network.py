@@ -50,6 +50,21 @@ class TestNetwork(base.BaseFunctionalTestCase):
         self.assertFalse(net1['router:external'])
         self.assertTrue(net1['admin_state_up'])
 
+    def test_get_network_by_id(self):
+        net1 = self.operator_cloud.create_network(name=self.network_name)
+        self.assertIn('id', net1)
+        self.assertEqual(self.network_name, net1['name'])
+        self.assertFalse(net1['shared'])
+        self.assertFalse(net1['router:external'])
+        self.assertTrue(net1['admin_state_up'])
+
+        ret_net1 = self.operator_cloud.get_network_by_id(net1.id)
+        self.assertIn('id', ret_net1)
+        self.assertEqual(self.network_name, ret_net1['name'])
+        self.assertFalse(ret_net1['shared'])
+        self.assertFalse(ret_net1['router:external'])
+        self.assertTrue(ret_net1['admin_state_up'])
+
     def test_create_network_advanced(self):
         net1 = self.operator_cloud.create_network(
             name=self.network_name,

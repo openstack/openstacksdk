@@ -234,3 +234,17 @@ class TestNetwork(base.RequestsMockTestCase):
         self.assertRaises(shade.OpenStackCloudException,
                           self.cloud.delete_network, network_name)
         self.assert_calls()
+
+    def test_get_network_by_id(self):
+        network_id = "test-net-id"
+        network_name = "network"
+        network = {'id': network_id, 'name': network_name}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks', "%s" % network_id]),
+                 json={'network': network})
+        ])
+        self.assertTrue(self.cloud.get_network_by_id(network_id))
+        self.assert_calls()
