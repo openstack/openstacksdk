@@ -778,8 +778,6 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 'Unavailable Feature: Service update requires Identity v3'
             )
 
-        # TODO(mordred) When this changes to REST, force interface=admin
-        # in the adapter call
         # NOTE(SamYaple): Keystone v3 only accepts 'type' but shade accepts
         #                 both 'type' and 'service_type' with a preference
         #                 towards 'type'
@@ -788,13 +786,17 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         if type_ or service_type:
             kwargs['type'] = type_ or service_type
 
-        with _utils.shade_exceptions(
-            "Error in updating service {service}".format(service=name_or_id)
-        ):
-            service = self.manager.submit_task(
-                _tasks.ServiceUpdate(service=name_or_id, **kwargs)
-            )
+        if self._is_client_version('identity', 2):
+            url, key = '/OS-KSADM/services', 'OS-KSADM:service'
+        else:
+            url, key = '/services', 'service'
 
+        service = self.get_service(name_or_id)
+        msg = 'Error in updating service {service}'.format(service=name_or_id)
+        data = self._identity_client.patch(
+            '{url}/{id}'.format(url=url, id=service['id']), json={key: kwargs},
+            endpoint_filter={'interface': 'admin'}, error_message=msg)
+        service = self._get_and_munchify(key, data)
         return _utils.normalize_keystone_services([service])[0]
 
     def list_services(self):
