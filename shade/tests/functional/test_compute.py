@@ -17,6 +17,7 @@ test_compute
 Functional tests for `shade` compute methods.
 """
 
+from fixtures import TimeoutException
 import six
 
 from shade import exc
@@ -51,10 +52,19 @@ class TestCompute(base.BaseFunctionalTestCase):
         if not server:
             return
         volumes = self.user_cloud.get_volumes(server)
-        self.user_cloud.delete_server(server.name, wait=True)
-        for volume in volumes:
-            if volume.status != 'deleting':
-                self.user_cloud.delete_volume(volume.id, wait=True)
+        try:
+            self.user_cloud.delete_server(server.name, wait=True)
+            for volume in volumes:
+                if volume.status != 'deleting':
+                    self.user_cloud.delete_volume(volume.id, wait=True)
+        except (exc.OpenStackCloudTimeout, TimeoutException):
+            # Ups, some timeout occured during process of deletion server
+            # or volumes, so now we will try to call delete each of them
+            # once again and we will try to live with it
+            self.user_cloud.delete_server(server.name)
+            for volume in volumes:
+                self.operator_cloud.delete_volume(
+                    volume.id, wait=False, force=True)
 
     def test_create_and_delete_server(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
