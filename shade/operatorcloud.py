@@ -1220,6 +1220,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         if domain_id is None:
+            # NOTE(SamYaple): search_domains() has filters and name_or_id
+            # in the wrong positional order which prevents _get_entity from
+            # being able to return quickly if passing a domain object so we
+            # duplicate that logic here
+            if hasattr(name_or_id, 'id'):
+                return name_or_id
             return _utils._get_entity(self.search_domains, filters, name_or_id)
         else:
             error_msg = 'Failed to get domain {id}'.format(id=domain_id)
