@@ -376,12 +376,8 @@ class TestMemoryCache(base.RequestsMockTestCase):
             # Get updated user
             dict(method='GET', uri=mock_users_url, status_code=200,
                  json=users_list_resp),
-            dict(method='GET', uri=mock_user_resource_url, status_code=200,
-                 json=user_data.json_response),
             dict(method='PUT', uri=mock_user_resource_url, status_code=200,
                  json=new_resp, validate=dict(json=new_req)),
-            dict(method='GET', uri=mock_user_resource_url, status_code=200,
-                 json=new_resp),
             # List Users Call
             dict(method='GET', uri=mock_users_url, status_code=200,
                  json=updated_users_list_resp),

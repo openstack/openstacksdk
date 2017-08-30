@@ -1046,13 +1046,11 @@ class OpenStackCloud(
         if 'domain_id' in kwargs and kwargs['domain_id']:
             user_kwargs['domain_id'] = kwargs['domain_id']
         user = self.get_user(name_or_id, **user_kwargs)
-        # normalized dict won't work
-        kwargs['user'] = self.get_user_by_id(user['id'], normalize=False)
 
         # TODO(mordred) When this changes to REST, force interface=admin
         # in the adapter call if it's an admin force call (and figure out how
         # to make that disctinction)
-        if not self._is_client_version('identity', 3):
+        if self._is_client_version('identity', 2):
             # Do not pass v3 args to a v2 keystone.
             kwargs.pop('domain_id', None)
             kwargs.pop('description', None)
@@ -1062,17 +1060,25 @@ class OpenStackCloud(
                 with _utils.shade_exceptions(
                         "Error updating password for {user}".format(
                             user=name_or_id)):
+                    # normalized dict won't work
                     user = self.manager.submit_task(_tasks.UserPasswordUpdate(
-                        user=kwargs['user'], password=password))
-        elif 'domain_id' in kwargs:
-            # The incoming parameter is domain_id in order to match the
-            # parameter name in create_user(), but UserUpdate() needs it
-            # to be domain.
-            kwargs['domain'] = kwargs.pop('domain_id')
+                        user=self.get_user_by_id(user['id'], normalize=False),
+                        password=password))
 
-        with _utils.shade_exceptions("Error in updating user {user}".format(
-                user=name_or_id)):
-            user = self.manager.submit_task(_tasks.UserUpdate(**kwargs))
+            # Identity v2.0 implements PUT. v3 PATCH. Both work as PATCH.
+            data = self._identity_client.put(
+                '/users/{user}'.format(user=user['id']), json={'user': kwargs},
+                error_message="Error in updating user {}".format(name_or_id))
+        else:
+            # NOTE(samueldmq): now this is a REST call and domain_id is dropped
+            # if None. keystoneclient drops keys with None values.
+            if 'domain_id' in kwargs and kwargs['domain_id'] is None:
+                del kwargs['domain_id']
+            data = self._identity_client.patch(
+                '/users/{user}'.format(user=user['id']), json={'user': kwargs},
+                error_message="Error in updating user {}".format(name_or_id))
+
+        user = self._get_and_munchify('user', data)
         self.list_users.invalidate(self)
         return _utils.normalize_users([user])[0]
 
