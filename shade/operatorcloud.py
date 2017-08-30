@@ -807,7 +807,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             openstack API call.
         """
-        if self.cloud_config.get_api_version('identity').startswith('2'):
+        if self._is_client_version('identity', 2):
             url, key = '/OS-KSADM/services', 'OS-KSADM:services'
         else:
             url, key = '/services', 'services'
