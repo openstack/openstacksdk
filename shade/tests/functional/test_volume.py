@@ -17,6 +17,7 @@ test_volume
 Functional tests for `shade` block storage methods.
 """
 
+from fixtures import TimeoutException
 from testtools import content
 
 from shade import _utils
@@ -117,14 +118,15 @@ class TestVolume(base.BaseFunctionalTestCase):
                             break
                     if not found:
                         break
-            except exc.OpenStackCloudTimeout:
+            except (exc.OpenStackCloudTimeout, TimeoutException):
                 # NOTE(slaweq): ups, some volumes are still not removed
                 # so we should try to force delete it once again and move
                 # forward
                 for existing in self.user_cloud.list_volumes():
                     for v in volume:
                         if v['id'] == existing['id']:
-                            self.operator_cloud.delete_volume(v, force=True)
+                            self.operator_cloud.delete_volume(
+                                v, wait=False, force=True)
 
     def test_list_volumes_pagination(self):
         '''Test pagination for list volumes functionality'''
