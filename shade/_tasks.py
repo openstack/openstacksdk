@@ -22,11 +22,6 @@ class UserPasswordUpdate(task_manager.Task):
         return client.keystone_client.users.update_password(**self.args)
 
 
-class UserCheckInGroup(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.users.check_in_group(**self.args)
-
-
 class UserRemoveFromGroup(task_manager.Task):
     def main(self, client):
         return client.keystone_client.users.remove_from_group(**self.args)

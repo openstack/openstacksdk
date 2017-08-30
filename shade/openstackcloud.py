@@ -1116,15 +1116,13 @@ class OpenStackCloud(
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
         try:
-            return self.manager.submit_task(
-                _tasks.UserCheckInGroup(user=user['id'], group=group['id'])
-            )
-        except keystoneauth1.exceptions.http.NotFound:
-            # Because the keystone API returns either True or raises an
-            # exception, which is awesome.
+            self._identity_client.head(
+                '/groups/{g}/users/{u}'.format(g=group['id'], u=user['id']))
+            return True
+        except OpenStackCloudURINotFound:
+            # NOTE(samueldmq): knowing this URI exists, let's interpret this as
+            # user not found in group rather than URI not found.
             return False
-        except OpenStackCloudException:
-            raise
         except Exception as e:
             raise OpenStackCloudException(
                 "Error adding user {user} to group {group}: {err}".format(
