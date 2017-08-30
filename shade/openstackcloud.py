@@ -1140,13 +1140,11 @@ class OpenStackCloud(
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
-        with _utils.shade_exceptions(
-            "Error removing user {user} from group {group}".format(
-                user=name_or_id, group=group_name_or_id)
-        ):
-            self.manager.submit_task(
-                _tasks.UserRemoveFromGroup(user=user['id'], group=group['id'])
-            )
+        error_msg = "Error removing user {user} from group {group}".format(
+            user=name_or_id, group=group_name_or_id)
+        self._identity_client.delete(
+            '/groups/{g}/users/{u}'.format(g=group['id'], u=user['id']),
+            error_message=error_msg)
 
     def get_template_contents(
             self, template_file=None, template_url=None,
