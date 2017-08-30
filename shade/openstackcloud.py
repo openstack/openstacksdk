@@ -1096,13 +1096,11 @@ class OpenStackCloud(
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
-        with _utils.shade_exceptions(
-            "Error adding user {user} to group {group}".format(
-                user=name_or_id, group=group_name_or_id)
-        ):
-            self.manager.submit_task(
-                _tasks.UserAddToGroup(user=user['id'], group=group['id'])
-            )
+        error_msg = "Error adding user {user} to group {group}".format(
+            user=name_or_id, group=group_name_or_id)
+        self._identity_client.put(
+            '/groups/{g}/users/{u}'.format(g=group['id'], u=user['id']),
+            error_message=error_msg)
 
     def is_user_in_group(self, name_or_id, group_name_or_id):
         """Check to see if a user is in a group.
