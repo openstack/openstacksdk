@@ -643,19 +643,14 @@ class Normalizer(object):
         description = project.pop('description', '')
         is_enabled = project.pop('enabled', True)
 
-        # Projects are global - strip region
-        location = self._get_current_location(project_id=project_id)
-        location['region_name'] = None
-
         # v3 additions
         domain_id = project.pop('domain_id', 'default')
         parent_id = project.pop('parent_id', None)
         is_domain = project.pop('is_domain', False)
 
         # Projects have a special relationship with location
+        location = self._get_identity_location()
         location['project']['domain_id'] = domain_id
-        location['project']['domain_name'] = None
-        location['project']['name'] = None
         location['project']['id'] = parent_id
 
         ret = munch.Munch(
@@ -665,13 +660,13 @@ class Normalizer(object):
             description=description,
             is_enabled=is_enabled,
             is_domain=is_domain,
+            domain_id=domain_id,
             properties=project.copy()
         )
 
         # Backwards compat
         if not self.strict_mode:
             ret['enabled'] = is_enabled
-            ret['domain_id'] = domain_id
             ret['parent_id'] = parent_id
             for key, val in ret['properties'].items():
                 ret.setdefault(key, val)
@@ -1089,3 +1084,21 @@ class Normalizer(object):
         # TODO(mordred) Normalize this resource
 
         return machine
+
+    def _normalize_roles(self, roles):
+        """Normalize Keystone roles"""
+        ret = []
+        for role in roles:
+            ret.append(self._normalize_role(role))
+        return ret
+
+    def _normalize_role(self, role):
+        """Normalize Identity roles."""
+
+        return munch.Munch(
+            id=role.get('id'),
+            name=role.get('name'),
+            domain_id=role.get('domain_id'),
+            location=self._get_identity_location(),
+            properties={},
+        )

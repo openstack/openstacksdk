@@ -670,6 +670,18 @@ class OpenStackCloud(
             project=self._get_project_info(project_id),
         )
 
+    def _get_identity_location(self):
+        '''Identity resources do not exist inside of projects.'''
+        return munch.Munch(
+            cloud=self.name,
+            region_name=None,
+            zone=None,
+            project=munch.Munch(
+                id=None,
+                name=None,
+                domain_id=None,
+                domain_name=None))
+
     def _get_project_id_param_dict(self, name_or_id):
         if name_or_id:
             project = self.get_project(name_or_id)
