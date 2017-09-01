@@ -17,6 +17,7 @@ import hashlib
 import ipaddress
 import json
 import jsonpatch
+import keystoneauth1.session
 import operator
 import os
 import os_client_config
@@ -353,19 +354,108 @@ class OpenStackCloud(
                     service=service_key))
         return client
 
-    def _get_raw_client(self, service_key):
-        return _adapter.ShadeAdapter(
-            manager=self.manager,
+    def _get_major_version_id(self, version):
+        if isinstance(version, int):
+            return version
+        elif isinstance(version, six.string_types + (tuple,)):
+            return int(version[0])
+        return version
+
+    def _get_versioned_client(
+            self, service_type, min_version=None, max_version=None):
+        config_version = self.cloud_config.get_api_version(service_type)
+        config_major = self._get_major_version_id(config_version)
+        max_major = self._get_major_version_id(max_version)
+        min_major = self._get_major_version_id(min_version)
+        # NOTE(mordred) The shade logic for versions is slightly different
+        # than the ksa Adapter constructor logic. shade knows the versions
+        # it knows, and uses them when it detects them. However, if a user
+        # requests a version, and it's not found, and a different one shade
+        # does know about it found, that's a warning in shade.
+        if config_version:
+            if min_major and config_major < min_major:
+                raise OpenStackCloudException(
+                    "Version {config_version} requested for {service_type}"
+                    " but shade understands a minimum of {min_version}".format(
+                        config_version=config_version,
+                        service_type=service_type,
+                        min_version=min_version))
+            elif max_major and config_major > max_major:
+                raise OpenStackCloudException(
+                    "Version {config_version} requested for {service_type}"
+                    " but shade understands a maximum of {max_version}".format(
+                        config_version=config_version,
+                        service_type=service_type,
+                        max_version=max_version))
+            request_min_version = config_version
+            request_max_version = '{version}.latest'.format(
+                version=config_major)
+            adapter = _adapter.ShadeAdapter(
+                session=self.keystone_session,
+                manager=self.manager,
+                service_type=self.cloud_config.get_service_type(service_type),
+                service_name=self.cloud_config.get_service_name(service_type),
+                interface=self.cloud_config.get_interface(service_type),
+                endpoint_override=self.cloud_config.get_endpoint(service_type),
+                region_name=self.cloud_config.region,
+                min_version=request_min_version,
+                max_version=request_max_version,
+                shade_logger=self.log)
+            if adapter.get_endpoint():
+                return adapter
+
+        adapter = _adapter.ShadeAdapter(
             session=self.keystone_session,
-            service_type=self.cloud_config.get_service_type(service_key),
-            service_name=self.cloud_config.get_service_name(service_key),
-            interface=self.cloud_config.get_interface(service_key),
+            manager=self.manager,
+            service_type=self.cloud_config.get_service_type(service_type),
+            service_name=self.cloud_config.get_service_name(service_type),
+            interface=self.cloud_config.get_interface(service_type),
+            endpoint_override=self.cloud_config.get_endpoint(service_type),
+            region_name=self.cloud_config.region,
+            min_version=min_version,
+            max_version=max_version,
+            shade_logger=self.log)
+
+        # data.api_version can be None if no version was detected, such
+        # as with neutron
+        api_version = adapter.get_api_major_version()
+        api_major = self._get_major_version_id(api_version)
+
+        # If we detect a different version that was configured, warn the user.
+        # shade still knows what to do - but if the user gave us an explicit
+        # version and we couldn't find it, they may want to investigate.
+        if api_version and (api_major != config_major):
+            warning_msg = (
+                '{service_type} is configured for {config_version}'
+                ' but only {api_version} is available. shade is happy'
+                ' with this version, but if you were trying to force an'
+                ' override, that did not happen. You may want to check'
+                ' your cloud, or remove the version specification from'
+                ' your config.'.format(
+                    service_type=service_type,
+                    config_version=config_version,
+                    api_version='.'.join([str(f) for f in api_version])))
+            self.log.debug(warning_msg)
+            warnings.warn(warning_msg)
+        return adapter
+
+    def _get_raw_client(
+            self, service_type, api_version=None, endpoint_override=None):
+        return _adapter.ShadeAdapter(
+            session=self.keystone_session,
+            manager=self.manager,
+            service_type=self.cloud_config.get_service_type(service_type),
+            service_name=self.cloud_config.get_service_name(service_type),
+            interface=self.cloud_config.get_interface(service_type),
+            endpoint_override=self.cloud_config.get_endpoint(
+                service_type) or endpoint_override,
             region_name=self.cloud_config.region,
             shade_logger=self.log)
 
     def _is_client_version(self, client, version):
-        api_version = self.cloud_config.get_api_version(client)
-        return api_version.startswith(str(version))
+        client_name = '_{client}_client'.format(client=client)
+        client = getattr(self, client_name)
+        return client._version_matches(version)
 
     @property
     def _application_catalog_client(self):
@@ -409,23 +499,16 @@ class OpenStackCloud(
     @property
     def _dns_client(self):
         if 'dns' not in self._raw_clients:
-            dns_client = self._get_raw_client('dns')
-            dns_url = self._discover_endpoint(
-                'dns', version_required=True)
-            dns_client.endpoint_override = dns_url
+            dns_client = self._get_versioned_client(
+                'dns', min_version=2, max_version='2.latest')
             self._raw_clients['dns'] = dns_client
         return self._raw_clients['dns']
 
     @property
     def _identity_client(self):
         if 'identity' not in self._raw_clients:
-            identity_client = self._get_raw_client('identity')
-            identity_url = self._discover_endpoint(
-                'identity', version_required=True, versions=['3', '2'])
-            identity_client.endpoint_override = identity_url
-            self.cloud_config.config['identity_endpoint_override'] = \
-                identity_url
-            self._raw_clients['identity'] = identity_client
+            self._raw_clients['identity'] = self._get_versioned_client(
+                'identity', min_version=2, max_version='3.latest')
         return self._raw_clients['identity']
 
     @property
@@ -435,154 +518,19 @@ class OpenStackCloud(
             self._raw_clients['raw-image'] = image_client
         return self._raw_clients['raw-image']
 
-    def _get_version_and_base_from_endpoint(self, endpoint):
-        url, version = endpoint.rstrip('/').rsplit('/', 1)
-        if version.endswith(self.current_project_id):
-            url, version = endpoint.rstrip('/').rsplit('/', 1)
-        if version.startswith('v'):
-            return url, version[1]
-        return "/".join([url, version]), None
-
-    def _get_version_from_endpoint(self, endpoint):
-        return self._get_version_and_base_from_endpoint(endpoint)[1]
-
-    def _strip_version_from_endpoint(self, endpoint):
-        return self._get_version_and_base_from_endpoint(endpoint)[0]
-
-    def _match_given_endpoint(self, given, version):
-        given_version = self._get_version_from_endpoint(given)
-        if given_version and version == given_version:
-            return True
-        return False
-
-    def _discover_endpoint(
-            self, service_type, version_required=False,
-            versions=None):
-        # If endpoint_override is set, do nothing
-        service_endpoint = self.cloud_config.get_endpoint(service_type)
-        if service_endpoint:
-            return service_endpoint
-
-        client = self._get_raw_client(service_type)
-        config_version = self.cloud_config.get_api_version(service_type)
-
-        if versions and config_version[0] not in versions:
-            raise OpenStackCloudException(
-                "Version {version} was requested for service {service_type}"
-                " but shade only understands how to handle versions"
-                " {versions}".format(
-                    version=config_version,
-                    service_type=service_type,
-                    versions=versions))
-
-        # shade only groks major versions at the moment
-        if config_version:
-            config_version = config_version[0]
-
-        # First - quick check to see if the endpoint in the catalog
-        # is a versioned endpoint that matches the version we requested.
-        # If it is, don't do any additional work.
-        catalog_endpoint = client.get_endpoint()
-        if self._match_given_endpoint(
-                catalog_endpoint, config_version):
-            return catalog_endpoint
-
-        if not versions and config_version:
-            versions = [config_version]
-
-        candidate_endpoints = []
-        version_key = '{service}_api_version'.format(service=service_type)
-
-        # Next, try built-in keystoneauth discovery so that we can take
-        # advantage of the discovery cache
-        base_url = self._strip_version_from_endpoint(catalog_endpoint)
-        try:
-            discovery = self.keystone_session.auth.get_discovery(
-                self.keystone_session, base_url)
-
-            version_list = discovery.version_data(reverse=True)
-            if config_version:
-                # If we have a specific version request, look for it first.
-                for version_data in version_list:
-                    if str(version_data['version'][0]) == config_version:
-                        candidate_endpoints.append(version_data)
-
-            if not candidate_endpoints:
-                # If we didn't find anything, look again, this time either
-                # for the range, or just grab everything if we don't have
-                # a range
-                if str(version_data['version'][0]) in versions:
-                    candidate_endpoints.append(version_data)
-                elif not config_version and not versions:
-                    candidate_endpoints.append(version_data)
-
-        except keystoneauth1.exceptions.DiscoveryFailure as e:
-            self.log.debug(
-                "Version discovery failed, assuming endpoint in"
-                " the catalog is already versioned. {e}".format(e=str(e)))
-
-        if candidate_endpoints:
-            # If we got more than one, pick the highest
-            endpoint_description = candidate_endpoints[0]
-            service_endpoint = endpoint_description['url']
-            api_version = str(endpoint_description['version'][0])
-        else:
-            # Can't discover a version. Do best-attempt at inferring
-            # version from URL so that later logic can do its best
-            api_version = self._get_version_from_endpoint(catalog_endpoint)
-            if not api_version:
-                if not config_version and version_required:
-                    raise OpenStackCloudException(
-                        "No version for {service_type} could be detected,"
-                        " and also {version_key} is not set. It is impossible"
-                        " to continue without knowing what version this"
-                        " service is.")
-                if not config_version:
-                    return catalog_endpoint
-                api_version = config_version
-            service_endpoint = catalog_endpoint
-
-        # If we detect a different version that was configured,
-        # set the version in occ because we have logic elsewhere
-        # that is different depending on which version we're using
-        if config_version != api_version:
-            warning_msg = (
-                '{version_key} is {config_version}'
-                ' but only {api_version} is available.'.format(
-                    version_key=version_key,
-                    config_version=config_version,
-                    api_version=api_version))
-            self.log.debug(warning_msg)
-            warnings.warn(warning_msg)
-        self.cloud_config.config[version_key] = api_version
-
-        # Sometimes version discovery documents have broken endpoints, but
-        # the catalog has good ones (what?)
-        catalog_endpoint = urllib.parse.urlparse(client.get_endpoint())
-        discovered_endpoint = urllib.parse.urlparse(service_endpoint)
-
-        return urllib.parse.ParseResult(
-            catalog_endpoint.scheme,
-            catalog_endpoint.netloc,
-            discovered_endpoint.path,
-            discovered_endpoint.params,
-            discovered_endpoint.query,
-            discovered_endpoint.fragment).geturl()
-
     @property
     def _image_client(self):
         if 'image' not in self._raw_clients:
-            image_client = self._get_raw_client('image')
-            image_url = self._discover_endpoint(
-                'image', version_required=True, versions=['2', '1'])
-            image_client.endpoint_override = image_url
-            self._raw_clients['image'] = image_client
+            self._raw_clients['image'] = self._get_versioned_client(
+                'image', min_version=1, max_version='2.latest')
         return self._raw_clients['image']
 
     @property
     def _network_client(self):
         if 'network' not in self._raw_clients:
             client = self._get_raw_client('network')
+            # TODO(mordred) I don't care if this is what neutronclient does,
+            # fix this.
             # Don't bother with version discovery - there is only one version
             # of neutron. This is what neutronclient does, fwiw.
             endpoint = client.get_endpoint()

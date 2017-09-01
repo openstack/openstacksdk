@@ -104,10 +104,8 @@ class LegacyClientFactoryMixin(object):
             'keystone', 'identity',
             client_class=client_class.Client,
             deprecated=False,
-            endpoint=self.cloud_config.config[
-                'identity_endpoint_override'],
-            endpoint_override=self.cloud_config.config[
-                'identity_endpoint_override'])
+            endpoint=self._identity_client.get_endpoint(),
+            endpoint_override=self._identity_client.get_endpoint())
 
     # Set the ironic API microversion to a known-good
     # supported/tested with the contents of shade.
