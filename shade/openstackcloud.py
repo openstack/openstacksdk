@@ -1123,11 +1123,6 @@ class OpenStackCloud(
             # NOTE(samueldmq): knowing this URI exists, let's interpret this as
             # user not found in group rather than URI not found.
             return False
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Error adding user {user} to group {group}: {err}".format(
-                    user=name_or_id, group=group_name_or_id, err=str(e))
-            )
 
     def remove_user_from_group(self, name_or_id, group_name_or_id):
         """Remove a user from a group.
