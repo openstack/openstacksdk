@@ -119,9 +119,7 @@ class TestUsers(base.RequestsMockTestCase):
                  json=user_data.json_response),
             dict(method='PUT', uri=mock_user_resource_uri, status_code=200,
                  json=user_data.json_response,
-                 validate=dict(json={'user': {}})),
-            dict(method='GET', uri=mock_user_resource_uri, status_code=200,
-                 json=user_data.json_response)])
+                 validate=dict(json={'user': {}}))])
 
         user = self.op_cloud.update_user(
             user_data.user_id, password=user_data.password)
