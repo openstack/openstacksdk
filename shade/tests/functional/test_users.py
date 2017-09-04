@@ -134,7 +134,7 @@ class TestUsers(base.KeystoneBaseFunctionalTestCase):
             'Member', user=user['id'], project='demo', wait=True)
         self.assertIsNotNone(operator_cloud(
             cloud=self._demo_name,
-            username=user_name, password='new_secret').keystone_client)
+            username=user_name, password='new_secret').service_catalog)
 
     def test_users_and_groups(self):
         i_ver = self.operator_cloud.cloud_config.get_api_version('identity')
