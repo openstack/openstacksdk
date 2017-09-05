@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+from keystoneauth1 import plugin
 
-import ironicclient
-from os_client_config import cloud_config
 import shade
-from shade.tests import base
+from shade.tests.unit import base
 
 
-class TestShadeOperatorNoAuth(base.TestCase):
+class TestShadeOperatorNoAuth(base.RequestsMockTestCase):
     def setUp(self):
         """Setup Noauth OperatorCloud tests
 
@@ -28,32 +26,49 @@ class TestShadeOperatorNoAuth(base.TestCase):
         URL in the auth data.  This is permits testing of the basic
         mechanism that enables Ironic noauth mode to be utilized with
         Shade.
+
+        Uses base.RequestsMockTestCase instead of IronicTestCase because
+        we need to do completely different things with discovery.
         """
         super(TestShadeOperatorNoAuth, self).setUp()
-        self.cloud_noauth = shade.operator_cloud(
-            auth_type='admin_token',
-            auth=dict(endpoint="http://localhost:6385"),
-            validate=False,
-        )
+        # By clearing the URI registry, we remove all calls to a keystone
+        # catalog or getting a token
+        self._uri_registry.clear()
+        # TODO(mordred) Remove this if with next KSA release
+        if hasattr(plugin.BaseAuthPlugin, 'get_endpoint_data'):
+            self.use_ironic()
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     service_type='baremetal', base_url_append='v1',
+                     resource='nodes'),
+                 json={'nodes': []}),
+        ])
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
-    @mock.patch.object(ironicclient.client, 'Client')
-    def test_ironic_noauth_selection_using_a_task(
-            self, mock_client, get_session_mock):
+    def test_ironic_noauth_none_auth_type(self):
         """Test noauth selection for Ironic in OperatorCloud
 
-        Utilize a task to trigger the client connection attempt
-        and evaluate if get_session_endpoint was called while the client
-        was still called.
-
-        We want session_endpoint to be called because we're storing the
-        endpoint in a noauth token Session object now.
+        The new way of doing this is with the keystoneauth none plugin.
         """
-        session_mock = mock.Mock()
-        session_mock.get_endpoint.return_value = None
-        session_mock.get_token.return_value = 'yankee'
-        get_session_mock.return_value = session_mock
+        self.cloud_noauth = shade.operator_cloud(
+            auth_type='none',
+            baremetal_endpoint_override="https://bare-metal.example.com")
 
-        self.cloud_noauth.patch_machine('name', {})
-        self.assertTrue(get_session_mock.called)
-        self.assertTrue(mock_client.called)
+        self.cloud_noauth.list_machines()
+
+        self.assert_calls()
+
+    def test_ironic_noauth_admin_token_auth_type(self):
+        """Test noauth selection for Ironic in OperatorCloud
+
+        The old way of doing this was to abuse admin_token.
+        """
+        self.cloud_noauth = shade.operator_cloud(
+            auth_type='admin_token',
+            auth=dict(
+                endpoint='https://bare-metal.example.com',
+                token='ignored'))
+
+        self.cloud_noauth.list_machines()
+
+        self.assert_calls()

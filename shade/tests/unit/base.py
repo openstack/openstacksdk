@@ -466,6 +466,12 @@ class RequestsMockTestCase(BaseTestCase):
         return dict(method='GET', uri="https://dns.example.com/",
                     text=open(discovery_fixture, 'r').read())
 
+    def get_ironic_discovery_mock_dict(self):
+        discovery_fixture = os.path.join(
+            self.fixtures_directory, "baremetal.json")
+        return dict(method='GET', uri="https://bare-metal.example.com/",
+                    text=open(discovery_fixture, 'r').read())
+
     def use_glance(self, image_version_json='image-version.json'):
         # NOTE(notmorgan): This method is only meant to be used in "setUp"
         # where the ordering of the url being registered is tightly controlled
@@ -483,6 +489,15 @@ class RequestsMockTestCase(BaseTestCase):
         # right location in the mock_uris when calling .register_uris
         self.__do_register_uris([
             self.get_designate_discovery_mock_dict()])
+
+    def use_ironic(self):
+        # NOTE(TheJulia): This method is only meant to be used in "setUp"
+        # where the ordering of the url being registered is tightly controlled
+        # if the functionality of .use_ironic is meant to be used during an
+        # actual test case, use .get_ironic_discovery_mock and apply to the
+        # right location in the mock_uris when calling .register_uris
+        self.__do_register_uris([
+            self.get_ironic_discovery_mock_dict()])
 
     def register_uris(self, uri_mock_list=None):
         """Mock a list of URIs and responses via requests mock.
@@ -613,3 +628,17 @@ class RequestsMockTestCase(BaseTestCase):
         if do_count:
             self.assertEqual(
                 len(self.calls), len(self.adapter.request_history))
+
+
+class IronicTestCase(RequestsMockTestCase):
+
+    def setUp(self):
+        super(IronicTestCase, self).setUp()
+        self.use_ironic()
+        self.uuid = str(uuid.uuid4())
+        self.name = self.getUniqueString('name')
+
+    def get_mock_url(self, resource=None, append=None, qs_elements=None):
+        return super(IronicTestCase, self).get_mock_url(
+            service_type='baremetal', interface='public', resource=resource,
+            append=append, base_url_append='v1', qs_elements=qs_elements)

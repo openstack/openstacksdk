@@ -418,7 +418,8 @@ class OpenStackCloud(
 
         # data.api_version can be None if no version was detected, such
         # as with neutron
-        api_version = adapter.get_api_major_version()
+        api_version = adapter.get_api_major_version(
+            endpoint_override=self.cloud_config.get_endpoint(service_type))
         api_major = self._get_major_version_id(api_version)
 
         # If we detect a different version that was configured, warn the user.
@@ -468,11 +469,13 @@ class OpenStackCloud(
     def _baremetal_client(self):
         if 'baremetal' not in self._raw_clients:
             client = self._get_raw_client('baremetal')
-            # TODO(mordred) Fix this once we've migrated all the way to REST
-            # Don't bother with version discovery - there is only one version
-            # of ironic. This is what ironicclient does, fwiw.
-            client.endpoint_override = urllib.parse.urljoin(
-                client.get_endpoint(), 'v1')
+            # Do this to force version discovery. We need to do that, because
+            # the endpoint-override trick we do for neutron because
+            # ironicclient just appends a /v1 won't work and will break
+            # keystoneauth - because ironic's versioned discovery endpoint
+            # is non-compliant and doesn't return an actual version dict.
+            client = self._get_versioned_client(
+                'baremetal', min_version=1, max_version='1.latest')
             self._raw_clients['baremetal'] = client
         return self._raw_clients['baremetal']
 
