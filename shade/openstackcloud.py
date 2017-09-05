@@ -44,7 +44,6 @@ from shade import _legacy_clients
 from shade import _normalize
 from shade import meta
 from shade import task_manager
-from shade import _tasks
 from shade import _utils
 
 OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
@@ -1008,10 +1007,12 @@ class OpenStackCloud(
                 with _utils.shade_exceptions(
                         "Error updating password for {user}".format(
                             user=name_or_id)):
-                    # normalized dict won't work
-                    user = self.manager.submit_task(_tasks.UserPasswordUpdate(
-                        user=self.get_user_by_id(user['id'], normalize=False),
-                        password=password))
+                    error_msg = "Error updating password for user {}".format(
+                        name_or_id)
+                    data = self._identity_client.put(
+                        '/users/{u}/OS-KSADM/password'.format(u=user['id']),
+                        json={'user': {'password': password}},
+                        error_message=error_msg)
 
             # Identity v2.0 implements PUT. v3 PATCH. Both work as PATCH.
             data = self._identity_client.put(

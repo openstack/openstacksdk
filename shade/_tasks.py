@@ -17,11 +17,6 @@
 from shade import task_manager
 
 
-class UserPasswordUpdate(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.users.update_password(**self.args)
-
-
 class MachineCreate(task_manager.Task):
     def main(self, client):
         return client.ironic_client.node.create(**self.args)
