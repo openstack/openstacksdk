@@ -79,6 +79,8 @@ class Port(resource.Resource, tag.TagMixin):
     device_owner = resource.Body('device_owner')
     #: DNS assignment for the port.
     dns_assignment = resource.Body('dns_assignment')
+    #: DNS domain assigned to the port.
+    dns_domain = resource.Body('dns_domain')
     #: DNS name for the port.
     dns_name = resource.Body('dns_name')
     #: Extra DHCP options.
