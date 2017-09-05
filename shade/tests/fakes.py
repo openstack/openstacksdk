@@ -347,7 +347,7 @@ class FakeMachine(object):
     def __init__(self, id, name=None, driver=None, driver_info=None,
                  chassis_uuid=None, instance_info=None, instance_uuid=None,
                  properties=None):
-        self.id = id
+        self.uuid = id
         self.name = name
         self.driver = driver
         self.driver_info = driver_info
@@ -359,10 +359,9 @@ class FakeMachine(object):
 
 class FakeMachinePort(object):
     def __init__(self, id, address, node_id):
-        self.id = id
+        self.uuid = id
         self.address = address
-        self.node_id = node_id
-
+        self.node_uuid = node_id
 
 def make_fake_neutron_security_group(
         id, name, description, rules, project_id=None):
