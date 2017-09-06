@@ -1456,6 +1456,30 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             })
         return ret
 
+    def _keystone_v3_role_assignments(self, **filters):
+        # NOTE(samueldmq): different parameters have different representation
+        # patterns as query parameters in the call to the list role assignments
+        # API. The code below handles each set of patterns separately and
+        # renames the parameters names accordingly, ignoring 'effective',
+        # 'include_names' and 'include_subtree' whose do not need any renaming.
+        for k in ('group', 'role', 'user'):
+            if k in filters:
+                filters[k + '.id'] = filters[k]
+                del filters[k]
+        for k in ('project', 'domain'):
+            if k in filters:
+                filters['scope.' + k + '.id'] = filters[k]
+                del filters[k]
+        if 'os_inherit_extension_inherited_to' in filters:
+            filters['scope.OS-INHERIT:inherited_to'] = (
+                filters['os_inherit_extension_inherited_to'])
+            del filters['os_inherit_extension_inherited_to']
+
+        data = self._identity_client.get(
+            '/role_assignments', params=filters,
+            error_message="Failed to list role assignments")
+        return self._get_and_munchify('role_assignments', data)
+
     def list_role_assignments(self, filters=None):
         """List Keystone role assignments
 
@@ -1487,6 +1511,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
+        # NOTE(samueldmq): although 'include_names' is a valid query parameter
+        # in the keystone v3 list role assignments API, it would have NO effect
+        # on shade due to normalization. It is not documented as an acceptable
+        # filter in the docs above per design!
+
         if not filters:
             filters = {}
 
@@ -1507,10 +1536,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 )
             assignments = self._keystone_v2_role_assignments(**filters)
         else:
-            with _utils.shade_exceptions("Failed to list role assignments"):
-                assignments = self.manager.submit_task(
-                    _tasks.RoleAssignmentList(**filters)
-                )
+            assignments = self._keystone_v3_role_assignments(**filters)
+
         return _utils.normalize_role_assignments(assignments)
 
     def create_flavor(self, name, ram, vcpus, disk, flavorid="auto",

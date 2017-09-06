@@ -105,8 +105,3 @@ class EndpointCreate(task_manager.Task):
 class EndpointUpdate(task_manager.Task):
     def main(self, client):
         return client.keystone_client.endpoints.update(**self.args)
-
-
-class RoleAssignmentList(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.role_assignments.list(**self.args)
