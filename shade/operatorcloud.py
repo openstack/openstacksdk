@@ -13,6 +13,7 @@
 import datetime
 import iso8601
 import jsonpatch
+import munch
 
 from ironicclient import exceptions as ironic_exceptions
 
@@ -1426,10 +1427,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
     def _keystone_v2_role_assignments(self, user, project=None,
                                       role=None, **kwargs):
-        with _utils.shade_exceptions("Failed to list role assignments"):
-            roles = self.manager.submit_task(
-                _tasks.RolesForUser(user=user, tenant=project)
-            )
+        data = self._identity_client.get(
+            "/tenants/{tenant}/users/{user}/roles".format(
+                tenant=project, user=user),
+            error_message="Failed to list role assignments")
+
+        roles = self._get_and_munchify('roles', data)
+
         ret = []
         for tmprole in roles:
             if role is not None and role != tmprole.id:
@@ -1482,6 +1486,16 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """
         if not filters:
             filters = {}
+
+        # NOTE(samueldmq): the docs above say filters are *IDs*, though if
+        # munch.Munch objects are passed, this still works for backwards
+        # compatibility as keystoneclient allows either IDs or objects to be
+        # passed in.
+        # TODO(samueldmq): fix the docs above to advertise munch.Munch objects
+        # can be provided as parameters too
+        for k, v in filters.items():
+            if isinstance(v, munch.Munch):
+                filters[k] = v['id']
 
         if self._is_client_version('identity', 2):
             if filters.get('project') is None or filters.get('user') is None:
