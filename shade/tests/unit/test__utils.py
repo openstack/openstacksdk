@@ -15,7 +15,9 @@
 import random
 import string
 import tempfile
+from uuid import uuid4
 
+import mock
 import testtools
 
 from shade import _utils
@@ -318,3 +320,61 @@ class TestUtils(base.TestCase):
                 name)
             segment_content += segment.read()
         self.assertEqual(content, segment_content)
+
+    def test_get_entity_pass_object(self):
+        obj = mock.Mock(id=uuid4().hex)
+        self.cloud.use_direct_get = True
+        self.assertEqual(obj, _utils._get_entity(self.cloud, '', obj, {}))
+
+    def test_get_entity_no_use_direct_get(self):
+        # test we are defaulting to the search_<resource> methods
+        # if the use_direct_get flag is set to False(default).
+        uuid = uuid4().hex
+        resource = 'network'
+        func = 'search_%ss' % resource
+        filters = {}
+        with mock.patch.object(self.cloud, func) as search:
+            _utils._get_entity(self.cloud, resource, uuid, filters)
+            search.assert_called_once_with(uuid, filters)
+
+    def test_get_entity_no_uuid_like(self):
+        # test we are defaulting to the search_<resource> methods
+        # if the name_or_id param is a name(string) but not a uuid.
+        self.cloud.use_direct_get = True
+        name = 'name_no_uuid'
+        resource = 'network'
+        func = 'search_%ss' % resource
+        filters = {}
+        with mock.patch.object(self.cloud, func) as search:
+            _utils._get_entity(self.cloud, resource, name, filters)
+            search.assert_called_once_with(name, filters)
+
+    def test_get_entity_pass_uuid(self):
+        uuid = uuid4().hex
+        self.cloud.use_direct_get = True
+        resources = ['flavor', 'image', 'volume', 'network',
+                     'subnet', 'port', 'floating_ip', 'security_group']
+        for r in resources:
+            f = 'get_%s_by_id' % r
+            with mock.patch.object(self.cloud, f) as get:
+                _utils._get_entity(self.cloud, r, uuid, {})
+                get.assert_called_once_with(uuid)
+
+    def test_get_entity_pass_search_methods(self):
+        self.cloud.use_direct_get = True
+        resources = ['flavor', 'image', 'volume', 'network',
+                     'subnet', 'port', 'floating_ip', 'security_group']
+        filters = {}
+        name = 'name_no_uuid'
+        for r in resources:
+            f = 'search_%ss' % r
+            with mock.patch.object(self.cloud, f) as search:
+                _utils._get_entity(self.cloud, r, name, {})
+                search.assert_called_once_with(name, filters)
+
+    def test_get_entity_get_and_search(self):
+        resources = ['flavor', 'image', 'volume', 'network',
+                     'subnet', 'port', 'floating_ip', 'security_group']
+        for r in resources:
+            self.assertTrue(hasattr(self.cloud, 'get_%s_by_id' % r))
+            self.assertTrue(hasattr(self.cloud, 'search_%ss' % r))

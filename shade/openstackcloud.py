@@ -1,4 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -138,6 +138,7 @@ class OpenStackCloud(
             strict=False,
             app_name=None,
             app_version=None,
+            use_direct_get=False,
             **kwargs):
 
         if log_inner_exceptions:
@@ -211,6 +212,7 @@ class OpenStackCloud(
                 warnings.filterwarnings('ignore', category=category)
 
         self._disable_warnings = {}
+        self.use_direct_get = use_direct_get
 
         self._servers = None
         self._servers_time = 0
@@ -838,7 +840,7 @@ class OpenStackCloud(
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        return _utils._get_entity(self.search_projects, name_or_id, filters,
+        return _utils._get_entity(self, 'project', name_or_id, filters,
                                   domain_id=domain_id)
 
     @_utils.valid_kwargs('description')
@@ -967,8 +969,7 @@ class OpenStackCloud(
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        return _utils._get_entity(self.search_users, name_or_id, filters,
-                                  **kwargs)
+        return _utils._get_entity(self, 'user', name_or_id, filters, **kwargs)
 
     def get_user_by_id(self, user_id, normalize=True):
         """Get a user by ID.
@@ -2597,7 +2598,7 @@ class OpenStackCloud(
         :returns: A keypair ``munch.Munch`` or None if no matching keypair is
                   found.
         """
-        return _utils._get_entity(self.search_keypairs, name_or_id, filters)
+        return _utils._get_entity(self, 'keypair', name_or_id, filters)
 
     def get_network(self, name_or_id, filters=None):
         """Get a network by name or ID.
@@ -2622,7 +2623,7 @@ class OpenStackCloud(
                  found.
 
         """
-        return _utils._get_entity(self.search_networks, name_or_id, filters)
+        return _utils._get_entity(self, 'network', name_or_id, filters)
 
     def get_network_by_id(self, id):
         """ Get a network by ID
@@ -2661,7 +2662,7 @@ class OpenStackCloud(
                   found.
 
         """
-        return _utils._get_entity(self.search_routers, name_or_id, filters)
+        return _utils._get_entity(self, 'router', name_or_id, filters)
 
     def get_subnet(self, name_or_id, filters=None):
         """Get a subnet by name or ID.
@@ -2682,7 +2683,7 @@ class OpenStackCloud(
                   found.
 
         """
-        return _utils._get_entity(self.search_subnets, name_or_id, filters)
+        return _utils._get_entity(self, 'subnet', name_or_id, filters)
 
     def get_subnet_by_id(self, id):
         """ Get a subnet by ID
@@ -2720,7 +2721,7 @@ class OpenStackCloud(
         :returns: A port ``munch.Munch`` or None if no matching port is found.
 
         """
-        return _utils._get_entity(self.search_ports, name_or_id, filters)
+        return _utils._get_entity(self, 'port', name_or_id, filters)
 
     def get_port_by_id(self, id):
         """ Get a port by ID
@@ -2760,7 +2761,7 @@ class OpenStackCloud(
 
         """
         return _utils._get_entity(
-            self.search_qos_policies, name_or_id, filters)
+            self, 'qos_policie', name_or_id, filters)
 
     def get_volume(self, name_or_id, filters=None):
         """Get a volume by name or ID.
@@ -2785,7 +2786,7 @@ class OpenStackCloud(
                   found.
 
         """
-        return _utils._get_entity(self.search_volumes, name_or_id, filters)
+        return _utils._get_entity(self, 'volume', name_or_id, filters)
 
     def get_volume_by_id(self, id):
         """ Get a volume by ID
@@ -2826,7 +2827,7 @@ class OpenStackCloud(
 
         """
         return _utils._get_entity(
-            self.search_volume_types, name_or_id, filters)
+            self, 'volume_type', name_or_id, filters)
 
     def get_flavor(self, name_or_id, filters=None, get_extra=True):
         """Get a flavor by name or ID.
@@ -2856,7 +2857,7 @@ class OpenStackCloud(
         """
         search_func = functools.partial(
             self.search_flavors, get_extra=get_extra)
-        return _utils._get_entity(search_func, name_or_id, filters)
+        return _utils._get_entity(self, search_func, name_or_id, filters)
 
     def get_flavor_by_id(self, id, get_extra=True):
         """ Get a flavor by ID
@@ -2918,7 +2919,7 @@ class OpenStackCloud(
 
         """
         return _utils._get_entity(
-            self.search_security_groups, name_or_id, filters)
+            self, 'security_group', name_or_id, filters)
 
     def get_security_group_by_id(self, id):
         """ Get a security group by ID
@@ -3007,7 +3008,7 @@ class OpenStackCloud(
         """
         searchfunc = functools.partial(self.search_servers,
                                        detailed=detailed, bare=True)
-        server = _utils._get_entity(searchfunc, name_or_id, filters)
+        server = _utils._get_entity(self, searchfunc, name_or_id, filters)
         return self._expand_server(server, detailed, bare)
 
     def _expand_server(self, server, detailed, bare):
@@ -3043,7 +3044,7 @@ class OpenStackCloud(
                   is found.
 
         """
-        return _utils._get_entity(self.search_server_groups, name_or_id,
+        return _utils._get_entity(self, 'server_group', name_or_id,
                                   filters)
 
     def get_image(self, name_or_id, filters=None):
@@ -3069,7 +3070,7 @@ class OpenStackCloud(
                   is found
 
         """
-        return _utils._get_entity(self.search_images, name_or_id, filters)
+        return _utils._get_entity(self, 'image', name_or_id, filters)
 
     def get_image_by_id(self, id):
         """ Get a image by ID
@@ -3160,7 +3161,7 @@ class OpenStackCloud(
                   IP is found.
 
         """
-        return _utils._get_entity(self.search_floating_ips, id, filters)
+        return _utils._get_entity(self, 'floating_ip', id, filters)
 
     def get_floating_ip_by_id(self, id):
         """ Get a floating ip by ID
@@ -3213,7 +3214,7 @@ class OpenStackCloud(
             return _utils._filter_list([stack], name_or_id, filters)
 
         return _utils._get_entity(
-            _search_one_stack, name_or_id, filters)
+            self, _search_one_stack, name_or_id, filters)
 
     def create_keypair(self, name, public_key=None):
         """Create a new keypair.
@@ -5175,7 +5176,7 @@ class OpenStackCloud(
         :returns: A volume ``munch.Munch`` or None if no matching volume is
                   found.
         """
-        return _utils._get_entity(self.search_volume_snapshots, name_or_id,
+        return _utils._get_entity(self, 'volume_snapshot', name_or_id,
                                   filters)
 
     def create_volume_backup(self, volume_id, name=None, description=None,
@@ -5234,7 +5235,7 @@ class OpenStackCloud(
         :returns: A backup ``munch.Munch`` or None if no matching backup is
                   found.
         """
-        return _utils._get_entity(self.search_volume_backups, name_or_id,
+        return _utils._get_entity(self, 'volume_backup', name_or_id,
                                   filters)
 
     def list_volume_snapshots(self, detailed=True, search_opts=None):
@@ -6480,7 +6481,6 @@ class OpenStackCloud(
         :raises: OpenStackCloudException on operation error.
         """
         # TODO(mordred) Add support for description starting in 2.19
-
         security_groups = kwargs.get('security_groups', [])
         if security_groups and not isinstance(kwargs['security_groups'], list):
             security_groups = [security_groups]
@@ -8161,7 +8161,7 @@ class OpenStackCloud(
         :returns:  A zone dict or None if no matching zone is found.
 
         """
-        return _utils._get_entity(self.search_zones, name_or_id, filters)
+        return _utils._get_entity(self, 'zone', name_or_id, filters)
 
     def search_zones(self, name_or_id=None, filters=None):
         zones = self.list_zones()
@@ -8453,7 +8453,7 @@ class OpenStackCloud(
         :returns: A cluster template dict or None if no matching
             cluster template is found.
         """
-        return _utils._get_entity(self.search_cluster_templates, name_or_id,
+        return _utils._get_entity(self, 'cluster_template', name_or_id,
                                   filters=filters, detail=detail)
     get_baymodel = get_cluster_template
 

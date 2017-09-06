@@ -23,6 +23,7 @@ import six
 import sre_constants
 import sys
 import time
+import uuid
 
 from decorator import decorator
 
@@ -196,12 +197,15 @@ def _filter_list(data, name_or_id, filters):
     return filtered
 
 
-def _get_entity(func, name_or_id, filters, **kwargs):
+def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
     """Return a single entity from the list returned by a given method.
 
-    :param callable func:
-        A function that takes `name_or_id` and `filters` as parameters
-        and returns a list of entities to filter.
+    :param object cloud:
+        The controller class (Example: the main OpenStackCloud object) .
+    :param string or callable resource:
+        The string that identifies the resource to use to lookup the
+        get_<>_by_id or search_<resource>s methods(Example: network)
+        or a callable to invoke.
     :param string name_or_id:
         The name or ID of the entity being filtered or a dict
     :param filters:
@@ -210,20 +214,33 @@ def _get_entity(func, name_or_id, filters, **kwargs):
         A string containing a jmespath expression for further filtering.
         Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
     """
+
     # Sometimes in the control flow of shade, we already have an object
     # fetched. Rather than then needing to pull the name or id out of that
     # object, pass it in here and rely on caching to prevent us from making
     # an additional call, it's simple enough to test to see if we got an
     # object and just short-circuit return it.
+
     if hasattr(name_or_id, 'id'):
         return name_or_id
-    entities = func(name_or_id, filters, **kwargs)
-    if not entities:
-        return None
-    if len(entities) > 1:
-        raise exc.OpenStackCloudException(
-            "Multiple matches found for %s" % name_or_id)
-    return entities[0]
+
+    # If a uuid is passed short-circuit it calling the
+    # get_<resorce_name>_by_id method
+    if getattr(cloud, 'use_direct_get', False) and _is_uuid_like(name_or_id):
+        get_resource = getattr(cloud, 'get_%s_by_id' % resource, None)
+        if get_resource:
+            return get_resource(name_or_id)
+
+    search = resource if callable(resource) else getattr(
+        cloud, 'search_%ss' % resource, None)
+    if search:
+        entities = search(name_or_id, filters, **kwargs)
+        if entities:
+            if len(entities) > 1:
+                raise exc.OpenStackCloudException(
+                    "Multiple matches found for %s" % name_or_id)
+            return entities[0]
+    return None
 
 
 def normalize_keystone_services(services):
@@ -670,3 +687,27 @@ class FileSegment(object):
 
     def reset(self):
         self._file.seek(self.offset, 0)
+
+
+def _format_uuid_string(string):
+    return (string.replace('urn:', '')
+                  .replace('uuid:', '')
+                  .strip('{}')
+                  .replace('-', '')
+                  .lower())
+
+
+def _is_uuid_like(val):
+    """Returns validation of a value as a UUID.
+
+    :param val: Value to verify
+    :type val: string
+    :returns: bool
+
+    .. versionchanged:: 1.1.1
+       Support non-lowercase UUIDs.
+    """
+    try:
+        return str(uuid.UUID(val)).replace('-', '') == _format_uuid_string(val)
+    except (TypeError, ValueError, AttributeError):
+        return False
