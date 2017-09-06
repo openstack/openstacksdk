@@ -98,16 +98,11 @@ class TestUsers(base.RequestsMockTestCase):
 
         self.register_uris([
             # GET list to find user id
-            # GET user info with user_id from list
             # PUT user with password update
-            # GET user info with id after update
             # PUT empty update (password change is different than update)
             #     but is always chained together [keystoneclient oddity]
-            # GET user info after user update
             dict(method='GET', uri=mock_users_uri, status_code=200,
                  json=self._get_user_list(user_data)),
-            dict(method='GET', uri=mock_user_resource_uri, status_code=200,
-                 json=user_data.json_response),
             dict(method='PUT',
                  uri=self._get_keystone_mock_url(
                      resource='users', v3=False,
@@ -115,8 +110,6 @@ class TestUsers(base.RequestsMockTestCase):
                  status_code=200, json=user_data.json_response,
                  validate=dict(
                      json={'user': {'password': user_data.password}})),
-            dict(method='GET', uri=mock_user_resource_uri, status_code=200,
-                 json=user_data.json_response),
             dict(method='PUT', uri=mock_user_resource_uri, status_code=200,
                  json=user_data.json_response,
                  validate=dict(json={'user': {}}))])
