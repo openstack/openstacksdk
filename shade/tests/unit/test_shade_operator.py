@@ -37,28 +37,8 @@ class TestShadeOperator(base.RequestsMockTestCase):
             machine_id=self.machine_id,
             machine_name=self.machine_name)
 
-    def get_ironic_mock_url(self, append=None, *args, **kwargs):
-        if append:
-            # TODO(mordred): Remove when we do version discovery
-            # properly everywhere
-            append.insert(0, 'v1')
-        return self.get_mock_url('baremetal', append=append, *args, **kwargs)
-
     def test_operator_cloud(self):
         self.assertIsInstance(self.op_cloud, shade.OperatorCloud)
-
-    def test_get_machine(self):
-
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_ironic_mock_url(
-                     append=['nodes', self.machine_name]),
-                 json=self.node),
-        ])
-        machine = self.op_cloud.get_machine(self.machine_name)
-        self.assertEqual(self.node, machine)
-
-        self.assert_calls()
 
     @mock.patch.object(shade.OperatorCloud, 'ironic_client')
     def test_get_machine_by_mac(self, mock_client):

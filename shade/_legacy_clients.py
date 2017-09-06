@@ -12,9 +12,11 @@
 import importlib
 import warnings
 
+from keystoneauth1 import plugin
 from os_client_config import constructors
 
 from shade import _utils
+from shade import exc
 
 
 class LegacyClientFactoryMixin(object):
@@ -144,8 +146,47 @@ class LegacyClientFactoryMixin(object):
     def _get_legacy_ironic_microversion(self):
         return '1.6'
 
+    def _join_ksa_version(self, version):
+        return ".".join([str(x) for x in version])
+
     @property
     def ironic_client(self):
+        # Trigger discovery from ksa. This will make ironicclient and
+        # keystoneauth1.adapter.Adapter code paths both go through discovery.
+        # ironicclient does its own magic with discovery, so we won't
+        # pass an endpoint_override here like we do for keystoneclient.
+        # Just so it's not wasted though, make sure we can handle the
+        # min microversion we need.
+        needed = self._get_legacy_ironic_microversion()
+
+        # TODO(mordred) Bug in ksa - don't do microversion matching for
+        # auth_type = admin_token. Remove this if when the fix lands.
+        if (hasattr(plugin.BaseAuthPlugin, 'get_endpoint_data') or
+                self.cloud_config.config['auth_type'] not in (
+                    'admin_token', 'none')):
+            # TODO(mordred) once we're on REST properly, we need a better
+            # method for matching requested and available microversion
+            endpoint_data = self._baremetal_client.get_endpoint_data()
+            if not endpoint_data.min_microversion:
+                raise exc.OpenStackCloudException(
+                    "shade needs an ironic that supports microversions")
+            if endpoint_data.min_microversion[1] > int(needed[-1]):
+                raise exc.OpenStackCloudException(
+                    "shade needs an ironic that supports microversion {needed}"
+                    " but the ironic found has a minimum microversion"
+                    " of {found}".format(
+                        needed=needed,
+                        found=self._join_ksa_version(
+                            endpoint_data.min_microversion)))
+            if endpoint_data.max_microversion[1] < int(needed[-1]):
+                raise exc.OpenStackCloudException(
+                    "shade needs an ironic that supports microversion {needed}"
+                    " but the ironic found has a maximum microversion"
+                    " of {found}".format(
+                        needed=needed,
+                        found=self._join_ksa_version(
+                            endpoint_data.max_microversion)))
+
         return self._create_legacy_client(
             'ironic', 'baremetal', deprecated=False,
             module_name='ironicclient.client.Client',
