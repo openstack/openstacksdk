@@ -378,10 +378,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             "Error updating machine via patch operation on node "
             "{node}".format(node=name_or_id)
         ):
-            return self.manager.submit_task(
-                _tasks.MachinePatch(node_id=name_or_id,
-                                    patch=patch,
-                                    http_method='PATCH'))
+            return self._normalize_machine(
+                self.manager.submit_task(
+                    _tasks.MachinePatch(node_id=name_or_id,
+                                        patch=patch,
+                                        http_method='PATCH')))
 
     def update_machine(self, name_or_id, chassis_uuid=None, driver=None,
                        driver_info=None, name=None, instance_info=None,

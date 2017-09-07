@@ -57,3 +57,253 @@ class TestBaremetalNode(base.IronicTestCase):
         self.assertEqual(machine['uuid'],
                          self.fake_baremetal_node['uuid'])
         self.assert_calls()
+
+    def test_get_machine_by_mac(self):
+        mac_address = '00:01:02:03:04:05'
+        url_address = 'detail?address=%s' % mac_address
+        node_uuid = self.fake_baremetal_node['uuid']
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='ports',
+                     append=[url_address]),
+                 json={'ports': [{'address': mac_address,
+                                  'node_uuid': node_uuid}]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node),
+        ])
+
+        machine = self.op_cloud.get_machine_by_mac(mac_address)
+        self.assertEqual(machine['uuid'],
+                         self.fake_baremetal_node['uuid'])
+        self.assert_calls()
+
+    def test_validate_node(self):
+        # NOTE(TheJulia): Note: These are only the interfaces
+        # that are validated, and both must be true for an
+        # exception to not be raised.
+        # This should be fixed at some point, as some interfaces
+        # are important in some cases and should be validated,
+        # such as storage.
+        validate_return = {
+            'deploy': {
+                'result': True,
+            },
+            'power': {
+                'result': True,
+            },
+            'foo': {
+                'result': False,
+            }}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid'],
+                             'validate']),
+                 json=validate_return),
+        ])
+        self.op_cloud.validate_node(self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
+
+    # FIXME(TheJulia): So, this doesn't presently fail, but should fail.
+    # Placing the test here, so we can sort out the issue in the actual
+    # method later.
+    # def test_validate_node_raises_exception(self):
+    #    validate_return = {
+    #        'deploy': {
+    #            'result': False,
+    #            'reason': 'error!',
+    #        },
+    #        'power': {
+    #            'result': False,
+    #            'reason': 'meow!',
+    #        },
+    #        'foo': {
+    #            'result': True
+    #        }}
+    #    self.register_uris([
+    #        dict(method='GET',
+    #             uri=self.get_mock_url(
+    #                 resource='nodes',
+    #                 append=[self.fake_baremetal_node['uuid'],
+    #                         'validate']),
+    #             json=validate_return),
+    #    ])
+    #    self.assertRaises(
+    #        Exception,
+    #        self.op_cloud.validate_node,
+    #        self.fake_baremetal_node['uuid'])
+    #
+    #    self.assert_calls()
+
+    def test_patch_machine(self):
+        test_patch = [{
+            'op': 'remove',
+            'path': '/instance_info'}]
+        self.fake_baremetal_node['instance_info'] = {}
+        self.register_uris([
+            dict(method='PATCH',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node,
+                 validate=dict(json=test_patch)),
+        ])
+        self.op_cloud.patch_machine(self.fake_baremetal_node['uuid'],
+                                    test_patch)
+
+        self.assert_calls()
+
+    def test_set_node_instance_info(self):
+        test_patch = [{
+            'op': 'add',
+            'path': '/foo',
+            'value': 'bar'}]
+        self.register_uris([
+            dict(method='PATCH',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node,
+                 validate=dict(json=test_patch)),
+        ])
+        self.op_cloud.set_node_instance_info(
+            self.fake_baremetal_node['uuid'], test_patch)
+
+        self.assert_calls()
+
+    def test_purge_node_instance_info(self):
+        test_patch = [{
+            'op': 'remove',
+            'path': '/instance_info'}]
+        self.fake_baremetal_node['instance_info'] = {}
+        self.register_uris([
+            dict(method='PATCH',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node,
+                 validate=dict(json=test_patch)),
+        ])
+        self.op_cloud.purge_node_instance_info(
+            self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
+
+    def _test_update_machine(self, fake_node, field_name, changed=True):
+        # The model has evolved over time, create the field if
+        # we don't already have it.
+        if field_name not in fake_node:
+            fake_node[field_name] = None
+        value_to_send = fake_node[field_name]
+        if changed:
+            value_to_send = 'meow'
+        uris = [dict(
+            method='GET',
+            uri=self.get_mock_url(
+                resource='nodes',
+                append=[fake_node['uuid']]),
+            json=fake_node),
+        ]
+        if changed:
+            test_patch = [{
+                'op': 'replace',
+                'path': '/' + field_name,
+                'value': 'meow'}]
+            uris.append(
+                dict(
+                    method='PATCH',
+                    uri=self.get_mock_url(
+                        resource='nodes',
+                        append=[fake_node['uuid']]),
+                    json=fake_node,
+                    validate=dict(json=test_patch)))
+
+        self.register_uris(uris)
+
+        call_args = {field_name: value_to_send}
+        update_dict = self.op_cloud.update_machine(
+            fake_node['uuid'], **call_args)
+
+        if not changed:
+            self.assertIsNone(update_dict['changes'])
+        self.assertDictEqual(fake_node, update_dict['node'])
+
+        self.assert_calls()
+
+    def test_update_machine_patch_name(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'name', False)
+
+    def test_update_machine_patch_chassis_uuid(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'chassis_uuid', False)
+
+    def test_update_machine_patch_driver(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'driver', False)
+
+    def test_update_machine_patch_driver_info(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'driver_info', False)
+
+    def test_update_machine_patch_instance_info(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'instance_info', False)
+
+    def test_update_machine_patch_instance_uuid(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'instance_uuid', False)
+
+    def test_update_machine_patch_properties(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'properties', False)
+
+    def test_update_machine_patch_update_name(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'name', True)
+
+    def test_update_machine_patch_update_chassis_uuid(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'chassis_uuid', True)
+
+    def test_update_machine_patch_update_driver(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'driver', True)
+
+    def test_update_machine_patch_update_driver_info(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'driver_info', True)
+
+    def test_update_machine_patch_update_instance_info(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'instance_info', True)
+
+    def test_update_machine_patch_update_instance_uuid(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'instance_uuid', True)
+
+    def test_update_machine_patch_update_properties(self):
+        self._test_update_machine(self.fake_baremetal_node,
+                                  'properties', True)
+
+    def test_update_machine_patch_no_action(self):
+        self.register_uris([dict(
+            method='GET',
+            uri=self.get_mock_url(
+                resource='nodes',
+                append=[self.fake_baremetal_node['uuid']]),
+            json=self.fake_baremetal_node),
+        ])
+        # NOTE(TheJulia): This is just testing mechanics.
+        update_dict = self.op_cloud.update_machine(
+            self.fake_baremetal_node['uuid'])
+        self.assertIsNone(update_dict['changes'])
+        self.assertDictEqual(self.fake_baremetal_node, update_dict['node'])
+
+        self.assert_calls()
