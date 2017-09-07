@@ -19,6 +19,8 @@ Tests for baremetal node related operations
 
 import uuid
 
+from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
+
 from shade import exc
 from shade.tests import fakes
 from shade.tests.unit import base
@@ -818,103 +820,6 @@ class TestBaremetalNode(base.IronicTestCase):
         self.assertIsNone(return_value)
         self.assert_calls()
 
-    def _test_update_machine(self, fake_node, field_name, changed=True):
-        # The model has evolved over time, create the field if
-        # we don't already have it.
-        if field_name not in fake_node:
-            fake_node[field_name] = None
-        value_to_send = fake_node[field_name]
-        if changed:
-            value_to_send = 'meow'
-        uris = [dict(
-            method='GET',
-            uri=self.get_mock_url(
-                resource='nodes',
-                append=[fake_node['uuid']]),
-            json=fake_node),
-        ]
-        if changed:
-            test_patch = [{
-                'op': 'replace',
-                'path': '/' + field_name,
-                'value': 'meow'}]
-            uris.append(
-                dict(
-                    method='PATCH',
-                    uri=self.get_mock_url(
-                        resource='nodes',
-                        append=[fake_node['uuid']]),
-                    json=fake_node,
-                    validate=dict(json=test_patch)))
-
-        self.register_uris(uris)
-
-        call_args = {field_name: value_to_send}
-        update_dict = self.op_cloud.update_machine(
-            fake_node['uuid'], **call_args)
-
-        if not changed:
-            self.assertIsNone(update_dict['changes'])
-        self.assertDictEqual(fake_node, update_dict['node'])
-
-        self.assert_calls()
-
-    def test_update_machine_patch_name(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'name', False)
-
-    def test_update_machine_patch_chassis_uuid(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'chassis_uuid', False)
-
-    def test_update_machine_patch_driver(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'driver', False)
-
-    def test_update_machine_patch_driver_info(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'driver_info', False)
-
-    def test_update_machine_patch_instance_info(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'instance_info', False)
-
-    def test_update_machine_patch_instance_uuid(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'instance_uuid', False)
-
-    def test_update_machine_patch_properties(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'properties', False)
-
-    def test_update_machine_patch_update_name(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'name', True)
-
-    def test_update_machine_patch_update_chassis_uuid(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'chassis_uuid', True)
-
-    def test_update_machine_patch_update_driver(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'driver', True)
-
-    def test_update_machine_patch_update_driver_info(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'driver_info', True)
-
-    def test_update_machine_patch_update_instance_info(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'instance_info', True)
-
-    def test_update_machine_patch_update_instance_uuid(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'instance_uuid', True)
-
-    def test_update_machine_patch_update_properties(self):
-        self._test_update_machine(self.fake_baremetal_node,
-                                  'properties', True)
-
     def test_update_machine_patch_no_action(self):
         self.register_uris([dict(
             method='GET',
@@ -930,3 +835,77 @@ class TestBaremetalNode(base.IronicTestCase):
         self.assertDictEqual(self.fake_baremetal_node, update_dict['node'])
 
         self.assert_calls()
+
+
+class TestUpdateMachinePatch(base.IronicTestCase):
+    # NOTE(TheJulia): As appears, and mordred describes,
+    # this class utilizes black magic, which ultimately
+    # results in additional test runs being executed with
+    # the scenario name appended. Useful for lots of
+    # variables that need to be tested.
+
+    def setUp(self):
+        super(TestUpdateMachinePatch, self).setUp()
+        self.fake_baremetal_node = fakes.make_fake_machine(
+            self.name, self.uuid)
+
+    def test_update_machine_patch(self):
+        # The model has evolved over time, create the field if
+        # we don't already have it.
+        if self.field_name not in self.fake_baremetal_node:
+            self.fake_baremetal_node[self.field_name] = None
+        value_to_send = self.fake_baremetal_node[self.field_name]
+        if self.changed:
+            value_to_send = 'meow'
+        uris = [dict(
+            method='GET',
+            uri=self.get_mock_url(
+                resource='nodes',
+                append=[self.fake_baremetal_node['uuid']]),
+            json=self.fake_baremetal_node),
+        ]
+        if self.changed:
+            test_patch = [{
+                'op': 'replace',
+                'path': '/' + self.field_name,
+                'value': 'meow'}]
+            uris.append(
+                dict(
+                    method='PATCH',
+                    uri=self.get_mock_url(
+                        resource='nodes',
+                        append=[self.fake_baremetal_node['uuid']]),
+                    json=self.fake_baremetal_node,
+                    validate=dict(json=test_patch)))
+
+        self.register_uris(uris)
+
+        call_args = {self.field_name: value_to_send}
+        update_dict = self.op_cloud.update_machine(
+            self.fake_baremetal_node['uuid'], **call_args)
+
+        if not self.changed:
+            self.assertIsNone(update_dict['changes'])
+        self.assertDictEqual(self.fake_baremetal_node, update_dict['node'])
+
+        self.assert_calls()
+
+    scenarios = [
+        ('chassis_uuid', dict(field_name='chassis_uuid', changed=False)),
+        ('chassis_uuid_changed',
+         dict(field_name='chassis_uuid', changed=True)),
+        ('driver', dict(field_name='driver', changed=False)),
+        ('driver_changed', dict(field_name='driver', changed=True)),
+        ('driver_info', dict(field_name='driver_info', changed=False)),
+        ('driver_info_changed', dict(field_name='driver_info', changed=True)),
+        ('instance_info', dict(field_name='instance_info', changed=False)),
+        ('instance_info_changed',
+         dict(field_name='instance_info', changed=True)),
+        ('instance_uuid', dict(field_name='instance_uuid', changed=False)),
+        ('instance_uuid_changed',
+         dict(field_name='instance_uuid', changed=True)),
+        ('name', dict(field_name='name', changed=False)),
+        ('name_changed', dict(field_name='name', changed=True)),
+        ('properties', dict(field_name='properties', changed=False)),
+        ('properties_changed', dict(field_name='properties', changed=True))
+    ]
