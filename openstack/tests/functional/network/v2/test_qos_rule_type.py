@@ -17,6 +17,18 @@ from openstack.tests.functional import base
 
 class TestQoSRuleType(base.BaseFunctionalTest):
 
+    QOS_RULE_TYPE = "bandwidth_limit"
+
+    def test_find(self):
+        sot = self.conn.network.find_qos_rule_type(self.QOS_RULE_TYPE)
+        self.assertEqual(self.QOS_RULE_TYPE, sot.type)
+        self.assertIsInstance(sot.drivers, list)
+
+    def test_get(self):
+        sot = self.conn.network.get_qos_rule_type(self.QOS_RULE_TYPE)
+        self.assertEqual(self.QOS_RULE_TYPE, sot.type)
+        self.assertIsInstance(sot.drivers, list)
+
     def test_list(self):
         rule_types = list(self.conn.network.qos_rule_types())
         self.assertGreater(len(rule_types), 0)

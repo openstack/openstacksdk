@@ -1974,6 +1974,36 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._update(_qos_policy.QoSPolicy, qos_policy, **attrs)
 
+    def find_qos_rule_type(self, rule_type_name, ignore_missing=True):
+        """Find a single QoS rule type details
+
+        :param rule_type_name: The name of a QoS rule type.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.network.v2.qos_rule_type.QoSRuleType`
+                  or None
+        """
+        return self._find(_qos_rule_type.QoSRuleType, rule_type_name,
+                          ignore_missing=ignore_missing)
+
+    def get_qos_rule_type(self, qos_rule_type):
+        """Get details about single QoS rule type
+
+        :param qos_rule_type: The value can be the name of a QoS policy
+                              rule type or a
+                              :class:`~openstack.network.v2.
+                              qos_rule_type.QoSRuleType`
+                              instance.
+
+        :returns: One :class:`~openstack.network.v2.qos_rule_type.QoSRuleType`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_qos_rule_type.QoSRuleType, qos_rule_type)
+
     def qos_rule_types(self, **query):
         """Return a generator of QoS rule types
 

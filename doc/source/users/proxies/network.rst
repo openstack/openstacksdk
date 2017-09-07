@@ -167,6 +167,8 @@ QoS Operations
    .. automethod:: openstack.network.v2._proxy.Proxy.get_qos_policy
    .. automethod:: openstack.network.v2._proxy.Proxy.find_qos_policy
    .. automethod:: openstack.network.v2._proxy.Proxy.qos_policies
+   .. automethod:: openstack.network.v2._proxy.Proxy.get_qos_rule_type
+   .. automethod:: openstack.network.v2._proxy.Proxy.find_qos_rule_type
    .. automethod:: openstack.network.v2._proxy.Proxy.qos_rule_types
 
    .. automethod:: openstack.network.v2._proxy.Proxy.create_qos_minimum_bandwidth_rule

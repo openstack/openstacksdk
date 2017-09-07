@@ -16,6 +16,22 @@ from openstack.network.v2 import qos_rule_type
 
 EXAMPLE = {
     'type': 'bandwidth_limit',
+    'drivers': [{
+        'name': 'openvswitch',
+        'supported_parameters': [{
+            'parameter_values': {'start': 0, 'end': 2147483647},
+            'parameter_type': 'range',
+            'parameter_name': 'max_kbps'
+        }, {
+            'parameter_values': ['ingress', 'egress'],
+            'parameter_type': 'choices',
+            'parameter_name': 'direction'
+        }, {
+            'parameter_values': {'start': 0, 'end': 2147483647},
+            'parameter_type': 'range',
+            'parameter_name': 'max_burst_kbps'
+        }]
+    }]
 }
 
 
@@ -28,7 +44,7 @@ class TestQoSRuleType(testtools.TestCase):
         self.assertEqual('/qos/rule-types', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
@@ -36,3 +52,4 @@ class TestQoSRuleType(testtools.TestCase):
     def test_make_it(self):
         sot = qos_rule_type.QoSRuleType(**EXAMPLE)
         self.assertEqual(EXAMPLE['type'], sot.type)
+        self.assertEqual(EXAMPLE['drivers'], sot.drivers)
