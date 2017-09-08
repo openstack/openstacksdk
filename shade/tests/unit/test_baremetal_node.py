@@ -19,6 +19,7 @@ Tests for baremetal node related operations
 
 import uuid
 
+from shade import exc
 from shade.tests import fakes
 from shade.tests.unit import base
 
@@ -192,6 +193,296 @@ class TestBaremetalNode(base.IronicTestCase):
         ])
         self.op_cloud.purge_node_instance_info(
             self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
+
+    def test_inspect_machine_fail_active(self):
+        self.fake_baremetal_node['provision_state'] = 'active'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node),
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.op_cloud.inspect_machine,
+            self.fake_baremetal_node['uuid'],
+            wait=True,
+            timeout=1)
+
+        self.assert_calls()
+
+    def test_inspect_machine_failed(self):
+        inspecting_node = self.fake_baremetal_node.copy()
+        self.fake_baremetal_node['provision_state'] = 'inspect failed'
+        self.fake_baremetal_node['last_error'] = 'kaboom!'
+        inspecting_node['provision_state'] = 'inspecting'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'inspect'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=inspecting_node)
+        ])
+
+        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
+
+    def test_inspect_machine_manageable(self):
+        self.fake_baremetal_node['provision_state'] = 'manageable'
+        inspecting_node = self.fake_baremetal_node.copy()
+        inspecting_node['provision_state'] = 'inspecting'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'inspect'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=inspecting_node),
+        ])
+        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
+
+    def test_inspect_machine_available(self):
+        available_node = self.fake_baremetal_node.copy()
+        available_node['provision_state'] = 'available'
+        manageable_node = self.fake_baremetal_node.copy()
+        manageable_node['provision_state'] = 'manageable'
+
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'manage'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=manageable_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'inspect'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=manageable_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'provide'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+        ])
+        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
+
+    def test_inspect_machine_available_wait(self):
+        available_node = self.fake_baremetal_node.copy()
+        available_node['provision_state'] = 'available'
+        manageable_node = self.fake_baremetal_node.copy()
+        manageable_node['provision_state'] = 'manageable'
+        inspecting_node = self.fake_baremetal_node.copy()
+        inspecting_node['provision_state'] = 'inspecting'
+
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'manage'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=manageable_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'inspect'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=inspecting_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=manageable_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'provide'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+        ])
+        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'],
+                                      wait=True, timeout=1)
+
+        self.assert_calls()
+
+    def test_inspect_machine_wait(self):
+        self.fake_baremetal_node['provision_state'] = 'manageable'
+        inspecting_node = self.fake_baremetal_node.copy()
+        inspecting_node['provision_state'] = 'inspecting'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'inspect'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=inspecting_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=inspecting_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+        ])
+        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'],
+                                      wait=True, timeout=1)
+
+        self.assert_calls()
+
+    def test_inspect_machine_inspect_failed(self):
+        self.fake_baremetal_node['provision_state'] = 'manageable'
+        inspecting_node = self.fake_baremetal_node.copy()
+        inspecting_node['provision_state'] = 'inspecting'
+        inspect_fail_node = self.fake_baremetal_node.copy()
+        inspect_fail_node['provision_state'] = 'inspect failed'
+        inspect_fail_node['last_error'] = 'Earth Imploded'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'inspect'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=inspecting_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=inspect_fail_node),
+        ])
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.op_cloud.inspect_machine,
+                          self.fake_baremetal_node['uuid'],
+                          wait=True, timeout=1)
 
         self.assert_calls()
 
