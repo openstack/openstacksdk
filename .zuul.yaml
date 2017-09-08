@@ -3,4 +3,4 @@
     check:
       jobs:
         - openstack-doc-build
-        - tox-py35
+        - openstack-tox-py35
