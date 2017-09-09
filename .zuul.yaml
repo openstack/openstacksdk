@@ -1,5 +1,8 @@
 - project:
     name: openstack-infra/shade
+    templates:
+      - publish-to-pypi
+      - publish-openstack-python-docs
     check:
       jobs:
         - openstack-doc-build
