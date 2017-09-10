@@ -1075,15 +1075,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self.log.debug("Endpoint %s not found for deleting", id)
             return False
 
-        # TODO(mordred) When this changes to REST, force interface=admin
-        # in the adapter call
-        if self._is_client_version('identity', 2):
-            endpoint_kwargs = {'id': endpoint['id']}
-        else:
-            endpoint_kwargs = {'endpoint': endpoint['id']}
-        with _utils.shade_exceptions("Failed to delete endpoint {id}".format(
-                id=id)):
-            self.manager.submit_task(_tasks.EndpointDelete(**endpoint_kwargs))
+        # Force admin interface if v2.0 is in use
+        v2 = self._is_client_version('identity', 2)
+        kwargs = {'endpoint_filter': {'interface': 'admin'}} if v2 else {}
+
+        error_msg = "Failed to delete endpoint {id}".format(id=id)
+        self._identity_client.delete('/endpoints/{id}'.format(id=id),
+                                     error_message=error_msg, **kwargs)
 
         return True
 

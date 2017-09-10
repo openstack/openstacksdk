@@ -112,11 +112,6 @@ class EndpointList(task_manager.Task):
         return client.keystone_client.endpoints.list()
 
 
-class EndpointDelete(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.endpoints.delete(**self.args)
-
-
 class RoleAddUser(task_manager.Task):
     def main(self, client):
         return client.keystone_client.roles.add_user_role(**self.args)
