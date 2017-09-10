@@ -34,6 +34,12 @@ class TestBaremetalNode(base.IronicTestCase):
         self.skipTest("Ironic operations not supported yet")
         self.fake_baremetal_node = fakes.make_fake_machine(
             self.name, self.uuid)
+        # TODO(TheJulia): Some tests below have fake ports,
+        # since they are required in some processes. Lets refactor
+        # them at some point to use self.fake_baremetal_port.
+        self.fake_baremetal_port = fakes.make_fake_port(
+            '00:01:02:03:04:05',
+            node_id=self.uuid)
 
     def test_list_machines(self):
         fake_baremetal_two = fakes.make_fake_machine('two', str(uuid.uuid4()))
@@ -820,6 +826,542 @@ class TestBaremetalNode(base.IronicTestCase):
             wait=True)
 
         self.assertIsNone(return_value)
+        self.assert_calls()
+
+    def test_register_machine(self):
+        mac_address = '00:01:02:03:04:05'
+        nics = [{'mac': mac_address}]
+        node_uuid = self.fake_baremetal_node['uuid']
+        # TODO(TheJulia): There is a lot of duplication
+        # in testing creation. Surely this hsould be a helper
+        # or something. We should fix this, after we have
+        # ironicclient removed, as in the mean time visibility
+        # will be helpful.
+        node_to_post = {
+            'chassis_uuid': None,
+            'driver': None,
+            'driver_info': None,
+            'name': self.fake_baremetal_node['name'],
+            'properties': None,
+            'uuid': node_uuid}
+        self.fake_baremetal_node['provision_state'] = 'available'
+        if 'provision_state' in node_to_post:
+            node_to_post.pop('provision_state')
+        self.register_uris([
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes'),
+                json=self.fake_baremetal_node,
+                validate=dict(json=node_to_post)),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+        ])
+        return_value = self.op_cloud.register_machine(nics, **node_to_post)
+
+        self.assertDictEqual(self.fake_baremetal_node, return_value)
+        self.assert_calls()
+
+    # TODO(TheJulia): After we remove ironicclient,
+    # we need to de-duplicate these tests. Possibly
+    # a dedicated class, although we should do it then
+    # as we may find differences that need to be accounted
+    # for newer microversions.
+    def test_register_machine_enroll(self):
+        mac_address = '00:01:02:03:04:05'
+        nics = [{'mac': mac_address}]
+        node_uuid = self.fake_baremetal_node['uuid']
+        node_to_post = {
+            'chassis_uuid': None,
+            'driver': None,
+            'driver_info': None,
+            'name': self.fake_baremetal_node['name'],
+            'properties': None,
+            'uuid': node_uuid}
+        self.fake_baremetal_node['provision_state'] = 'enroll'
+        manageable_node = self.fake_baremetal_node.copy()
+        manageable_node['provision_state'] = 'manageable'
+        available_node = self.fake_baremetal_node.copy()
+        available_node['provision_state'] = 'available'
+        self.register_uris([
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes'),
+                validate=dict(json=node_to_post),
+                json=self.fake_baremetal_node),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'manage'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=manageable_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=manageable_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'provide'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+        ])
+        # NOTE(When we migrate to a newer microversion, this test
+        # may require revision. It was written for microversion
+        # ?1.13?, which accidently got reverted to 1.6 at one
+        # point during code being refactored soon after the
+        # change landed. Presently, with the lock at 1.6,
+        # this code is never used in the current code path.
+        return_value = self.op_cloud.register_machine(nics, **node_to_post)
+
+        self.assertDictEqual(available_node, return_value)
+        self.assert_calls()
+
+    def test_register_machine_enroll_wait(self):
+        mac_address = self.fake_baremetal_port
+        nics = [{'mac': mac_address}]
+        node_uuid = self.fake_baremetal_node['uuid']
+        node_to_post = {
+            'chassis_uuid': None,
+            'driver': None,
+            'driver_info': None,
+            'name': self.fake_baremetal_node['name'],
+            'properties': None,
+            'uuid': node_uuid}
+        self.fake_baremetal_node['provision_state'] = 'enroll'
+        manageable_node = self.fake_baremetal_node.copy()
+        manageable_node['provision_state'] = 'manageable'
+        available_node = self.fake_baremetal_node.copy()
+        available_node['provision_state'] = 'available'
+        self.register_uris([
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes'),
+                validate=dict(json=node_to_post),
+                json=self.fake_baremetal_node),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'manage'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=manageable_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'provide'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=available_node),
+        ])
+        return_value = self.op_cloud.register_machine(nics, wait=True,
+                                                      **node_to_post)
+
+        self.assertDictEqual(available_node, return_value)
+        self.assert_calls()
+
+    def test_register_machine_enroll_failure(self):
+        mac_address = '00:01:02:03:04:05'
+        nics = [{'mac': mac_address}]
+        node_uuid = self.fake_baremetal_node['uuid']
+        node_to_post = {
+            'chassis_uuid': None,
+            'driver': None,
+            'driver_info': None,
+            'name': self.fake_baremetal_node['name'],
+            'properties': None,
+            'uuid': node_uuid}
+        self.fake_baremetal_node['provision_state'] = 'enroll'
+        failed_node = self.fake_baremetal_node.copy()
+        failed_node['reservation'] = 'conductor0'
+        failed_node['provision_state'] = 'verifying'
+        failed_node['last_error'] = 'kaboom!'
+        self.register_uris([
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes'),
+                json=self.fake_baremetal_node,
+                validate=dict(json=node_to_post)),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'manage'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=failed_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=failed_node),
+        ])
+
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.op_cloud.register_machine,
+            nics,
+            **node_to_post)
+        self.assert_calls()
+
+    def test_register_machine_enroll_timeout(self):
+        mac_address = '00:01:02:03:04:05'
+        nics = [{'mac': mac_address}]
+        node_uuid = self.fake_baremetal_node['uuid']
+        node_to_post = {
+            'chassis_uuid': None,
+            'driver': None,
+            'driver_info': None,
+            'name': self.fake_baremetal_node['name'],
+            'properties': None,
+            'uuid': node_uuid}
+        self.fake_baremetal_node['provision_state'] = 'enroll'
+        busy_node = self.fake_baremetal_node.copy()
+        busy_node['reservation'] = 'conductor0'
+        busy_node['provision_state'] = 'verifying'
+        self.register_uris([
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes'),
+                json=self.fake_baremetal_node,
+                validate=dict(json=node_to_post)),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'manage'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=busy_node),
+        ])
+        # NOTE(TheJulia): This test shortcircuits the timeout loop
+        # such that it executes only once. The very last returned
+        # state to the API is essentially a busy state that we
+        # want to block on until it has cleared.
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.op_cloud.register_machine,
+            nics,
+            timeout=0.001,
+            lock_timeout=0.001,
+            **node_to_post)
+        self.assert_calls()
+
+    def test_register_machine_enroll_timeout_wait(self):
+        mac_address = '00:01:02:03:04:05'
+        nics = [{'mac': mac_address}]
+        node_uuid = self.fake_baremetal_node['uuid']
+        node_to_post = {
+            'chassis_uuid': None,
+            'driver': None,
+            'driver_info': None,
+            'name': self.fake_baremetal_node['name'],
+            'properties': None,
+            'uuid': node_uuid}
+        self.fake_baremetal_node['provision_state'] = 'enroll'
+        self.register_uris([
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes'),
+                json=self.fake_baremetal_node,
+                validate=dict(json=node_to_post)),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'manage'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.op_cloud.register_machine,
+            nics,
+            wait=True,
+            timeout=0.001,
+            **node_to_post)
+        self.assert_calls()
+
+    def test_register_machine_port_create_failed(self):
+        mac_address = '00:01:02:03:04:05'
+        nics = [{'mac': mac_address}]
+        node_uuid = self.fake_baremetal_node['uuid']
+        node_to_post = {
+            'chassis_uuid': None,
+            'driver': None,
+            'driver_info': None,
+            'name': self.fake_baremetal_node['name'],
+            'properties': None,
+            'uuid': node_uuid}
+        self.fake_baremetal_node['provision_state'] = 'available'
+        self.register_uris([
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes'),
+                json=self.fake_baremetal_node,
+                validate=dict(json=node_to_post)),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                status_code=400,
+                json={'error': 'invalid'},
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid})),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']])),
+        ])
+        self.assertRaises(exc.OpenStackCloudException,
+                          self.op_cloud.register_machine,
+                          nics, **node_to_post)
+
+        self.assert_calls()
+
+    def test_unregister_machine(self):
+        mac_address = self.fake_baremetal_port['address']
+        nics = [{'mac': mac_address}]
+        port_uuid = self.fake_baremetal_port['uuid']
+        # NOTE(TheJulia): The two values below should be the same.
+        port_node_uuid = self.fake_baremetal_port['node_uuid']
+        port_url_address = 'detail?address=%s' % mac_address
+        self.fake_baremetal_node['provision_state'] = 'available'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[port_url_address]),
+                json={'ports': [{'address': mac_address,
+                                 'node_uuid': port_node_uuid,
+                                 'uuid': port_uuid}]}),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[self.fake_baremetal_port['uuid']])),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']])),
+        ])
+
+        self.op_cloud.unregister_machine(nics,
+                                         self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
+
+    def test_unregister_machine_timeout(self):
+        mac_address = self.fake_baremetal_port['address']
+        nics = [{'mac': mac_address}]
+        port_uuid = self.fake_baremetal_port['uuid']
+        port_node_uuid = self.fake_baremetal_port['node_uuid']
+        port_url_address = 'detail?address=%s' % mac_address
+        self.fake_baremetal_node['provision_state'] = 'available'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[port_url_address]),
+                json={'ports': [{'address': mac_address,
+                                 'node_uuid': port_node_uuid,
+                                 'uuid': port_uuid}]}),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[self.fake_baremetal_port['uuid']])),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']])),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.op_cloud.unregister_machine,
+            nics,
+            self.fake_baremetal_node['uuid'],
+            wait=True,
+            timeout=0.001)
+
+        self.assert_calls()
+
+    def test_unregister_machine_unavailable(self):
+        # This is a list of invalid states that the method
+        # should fail on.
+        invalid_states = ['active', 'cleaning', 'clean wait', 'clean failed']
+        mac_address = self.fake_baremetal_port['address']
+        nics = [{'mac': mac_address}]
+        url_list = []
+        for state in invalid_states:
+            self.fake_baremetal_node['provision_state'] = state
+            url_list.append(
+                dict(
+                    method='GET',
+                    uri=self.get_mock_url(
+                        resource='nodes',
+                        append=[self.fake_baremetal_node['uuid']]),
+                    json=self.fake_baremetal_node))
+
+        self.register_uris(url_list)
+
+        for state in invalid_states:
+            self.assertRaises(
+                exc.OpenStackCloudException,
+                self.op_cloud.unregister_machine,
+                nics,
+                self.fake_baremetal_node['uuid'])
+
         self.assert_calls()
 
     def test_update_machine_patch_no_action(self):

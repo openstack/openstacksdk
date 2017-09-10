@@ -17,81 +17,94 @@
 from openstack import task_manager
 
 
-class MachineCreate(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.create(**self.args)
+class IronicTask(task_manager.Task):
+
+    def __init__(self, client, **kwargs):
+        super(IronicTask, self).__init__(**kwargs)
+        self.client = client
 
 
-class MachineDelete(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.delete(**self.args)
+class MachineCreate(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.create(*self.args, **self.kwargs)
 
 
-class MachinePatch(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.update(**self.args)
+class MachineDelete(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.delete(*self.args, **self.kwargs)
 
 
-class MachinePortGet(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.port.get(**self.args)
+class MachinePatch(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.update(*self.args, **self.kwargs)
 
 
-class MachinePortGetByAddress(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.port.get_by_address(**self.args)
+class MachinePortGet(IronicTask):
+    def main(self):
+        return self.client.ironic_client.port.get(*self.args, **self.kwargs)
 
 
-class MachinePortCreate(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.port.create(**self.args)
+class MachinePortGetByAddress(IronicTask):
+    def main(self):
+        return self.client.ironic_client.port.get_by_address(
+            *self.args, **self.kwargs)
 
 
-class MachinePortDelete(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.port.delete(**self.args)
+class MachinePortCreate(IronicTask):
+    def main(self):
+        return self.client.ironic_client.port.create(*self.args, **self.kwargs)
 
 
-class MachinePortList(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.port.list()
+class MachinePortDelete(IronicTask):
+    def main(self):
+        return self.client.ironic_client.port.delete(*self.args, **self.kwargs)
 
 
-class MachineNodeGet(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.get(**self.args)
+class MachinePortList(IronicTask):
+    def main(self):
+        return self.client.ironic_client.port.list()
 
 
-class MachineNodeList(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.list(**self.args)
+class MachineNodeGet(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.get(*self.args, **self.kwargs)
 
 
-class MachineNodePortList(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.list_ports(**self.args)
+class MachineNodeList(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.list(*self.args, **self.kwargs)
 
 
-class MachineNodeUpdate(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.update(**self.args)
+class MachineNodePortList(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.list_ports(
+            *self.args, **self.kwargs)
 
 
-class MachineNodeValidate(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.validate(**self.args)
+class MachineNodeUpdate(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.update(*self.args, **self.kwargs)
 
 
-class MachineSetMaintenance(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.set_maintenance(**self.args)
+class MachineNodeValidate(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.validate(
+            *self.args, **self.kwargs)
 
 
-class MachineSetPower(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.set_power_state(**self.args)
+class MachineSetMaintenance(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.set_maintenance(
+            *self.args, **self.kwargs)
 
 
-class MachineSetProvision(task_manager.Task):
-    def main(self, client):
-        return client.ironic_client.node.set_provision_state(**self.args)
+class MachineSetPower(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.set_power_state(
+            *self.args, **self.kwargs)
+
+
+class MachineSetProvision(IronicTask):
+    def main(self):
+        return self.client.ironic_client.node.set_provision_state(
+            *self.args, **self.kwargs)
