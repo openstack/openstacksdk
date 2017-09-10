@@ -393,7 +393,8 @@ class RequestsMockTestCase(BaseTestCase):
         request = response.copy()
         request.pop('id')
         for u in ('publicURL', 'internalURL', 'adminURL'):
-            request[u.lower()] = request.pop(u, None)
+            if request.get(u):
+                request[u.lower()] = request.pop(u)
         return _EndpointDataV2(endpoint_id, service_id, region, public_url,
                                internal_url, admin_url, v3_endpoints,
                                {'endpoint': response}, {'endpoint': request})
