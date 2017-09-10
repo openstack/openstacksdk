@@ -918,9 +918,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         endpoints = []
         endpoint_args = []
-        if url:
-            urlkwargs = {}
-            if self._is_client_version('identity', 2):
+        if self._is_client_version('identity', 2):
+            if url:
+                urlkwargs = {}
                 if interface != 'public':
                     raise OpenStackCloudException(
                         "Error adding endpoint for service {service}."
@@ -930,25 +930,53 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         " url and interface".format(
                             service=service_name_or_id))
                 urlkwargs['{}url'.format(interface)] = url
+                endpoint_args.append(urlkwargs)
             else:
-                urlkwargs['url'] = url
-                urlkwargs['interface'] = interface
-            endpoint_args.append(urlkwargs)
-        else:
-            # NOTE(notmorgan): This is done as a list of tuples to ensure we
-            # have a deterministic order we try and create the endpoint
-            # elements. This is done mostly so that it is possible to test the
-            # requests themselves.
-            expected_endpoints = [('public', public_url),
-                                  ('internal', internal_url),
-                                  ('admin', admin_url)]
-            if self._is_client_version('identity', 2):
+                # NOTE(notmorgan): This is done as a list of tuples to ensure
+                # we have a deterministic order we try and create the endpoint
+                # elements. This is done mostly so that it is possible to test
+                # the requests themselves.
+                expected_endpoints = [('public', public_url),
+                                      ('internal', internal_url),
+                                      ('admin', admin_url)]
                 urlkwargs = {}
                 for interface, url in expected_endpoints:
                     if url:
                         urlkwargs['{}url'.format(interface)] = url
                 endpoint_args.append(urlkwargs)
+
+            kwargs['service_id'] = service['id']
+            # Keystone v2 requires 'region' arg even if it is None
+            kwargs['region'] = region
+
+            # TODO(mordred) When this changes to REST, force interface=admin
+            # in the adapter call
+            with _utils.shade_exceptions(
+                "Failed to create endpoint for service"
+                " {service}".format(service=service['name'])
+            ):
+                for args in endpoint_args:
+                    # NOTE(SamYaple): Add shared kwargs to endpoint args
+                    args.update(kwargs)
+                    endpoint = self.manager.submit_task(
+                        _tasks.EndpointCreate(**args)
+                    )
+                    endpoints.append(endpoint)
+                return endpoints
+        else:
+            if url:
+                urlkwargs = {}
+                urlkwargs['url'] = url
+                urlkwargs['interface'] = interface
+                endpoint_args.append(urlkwargs)
             else:
+                # NOTE(notmorgan): This is done as a list of tuples to ensure
+                # we have a deterministic order we try and create the endpoint
+                # elements. This is done mostly so that it is possible to test
+                # the requests themselves.
+                expected_endpoints = [('public', public_url),
+                                      ('internal', internal_url),
+                                      ('admin', admin_url)]
                 for interface, url in expected_endpoints:
                     if url:
                         urlkwargs = {}
@@ -956,30 +984,25 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         urlkwargs['interface'] = interface
                         endpoint_args.append(urlkwargs)
 
-        if self._is_client_version('identity', 2):
-            kwargs['service_id'] = service['id']
-            # Keystone v2 requires 'region' arg even if it is None
-            kwargs['region'] = region
-        else:
             kwargs['service'] = service['id']
             kwargs['enabled'] = enabled
             if region is not None:
                 kwargs['region'] = region
 
-        # TODO(mordred) When this changes to REST, force interface=admin
-        # in the adapter call
-        with _utils.shade_exceptions(
-            "Failed to create endpoint for service"
-            " {service}".format(service=service['name'])
-        ):
-            for args in endpoint_args:
-                # NOTE(SamYaple): Add shared kwargs to endpoint args
-                args.update(kwargs)
-                endpoint = self.manager.submit_task(
-                    _tasks.EndpointCreate(**args)
-                )
-                endpoints.append(endpoint)
-            return endpoints
+            # TODO(mordred) When this changes to REST, force interface=admin
+            # in the adapter call
+            with _utils.shade_exceptions(
+                "Failed to create endpoint for service"
+                " {service}".format(service=service['name'])
+            ):
+                for args in endpoint_args:
+                    # NOTE(SamYaple): Add shared kwargs to endpoint args
+                    args.update(kwargs)
+                    endpoint = self.manager.submit_task(
+                        _tasks.EndpointCreate(**args)
+                    )
+                    endpoints.append(endpoint)
+                return endpoints
 
     @_utils.valid_kwargs('enabled', 'service_name_or_id', 'url', 'interface',
                          'region')
