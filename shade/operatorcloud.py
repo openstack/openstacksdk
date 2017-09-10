@@ -916,11 +916,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException("service {service} not found".format(
                 service=service_name_or_id))
 
-        endpoints = []
-        endpoint_args = []
         if self._is_client_version('identity', 2):
             if url:
-                urlkwargs = {}
+                # v2.0 in use, v3-like arguments, one endpoint created
                 if interface != 'public':
                     raise OpenStackCloudException(
                         "Error adding endpoint for service {service}."
@@ -929,25 +927,20 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                         " internal_url, admin_url parameters instead of"
                         " url and interface".format(
                             service=service_name_or_id))
-                urlkwargs['{}url'.format(interface)] = url
-                endpoint_args.append(urlkwargs)
+                endpoint_args = {'publicurl': url}
             else:
-                # NOTE(notmorgan): This is done as a list of tuples to ensure
-                # we have a deterministic order we try and create the endpoint
-                # elements. This is done mostly so that it is possible to test
-                # the requests themselves.
-                expected_endpoints = [('public', public_url),
-                                      ('internal', internal_url),
-                                      ('admin', admin_url)]
-                urlkwargs = {}
-                for interface, url in expected_endpoints:
-                    if url:
-                        urlkwargs['{}url'.format(interface)] = url
-                endpoint_args.append(urlkwargs)
+                # v2.0 in use, v2.0-like arguments, one endpoint created
+                endpoint_args = {}
+                if public_url:
+                    endpoint_args.update({'publicurl': public_url})
+                if internal_url:
+                    endpoint_args.update({'internalurl': internal_url})
+                if admin_url:
+                    endpoint_args.update({'adminurl': admin_url})
 
-            kwargs['service_id'] = service['id']
-            # Keystone v2 requires 'region' arg even if it is None
-            kwargs['region'] = region
+            # keystone v2.0 requires 'region' arg even if it is None
+            endpoint_args.update(
+                {'service_id': service['id'], 'region': region})
 
             # TODO(mordred) When this changes to REST, force interface=admin
             # in the adapter call
@@ -955,49 +948,42 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Failed to create endpoint for service"
                 " {service}".format(service=service['name'])
             ):
-                for args in endpoint_args:
-                    # NOTE(SamYaple): Add shared kwargs to endpoint args
-                    args.update(kwargs)
-                    endpoint = self.manager.submit_task(
-                        _tasks.EndpointCreate(**args)
-                    )
-                    endpoints.append(endpoint)
-                return endpoints
+                endpoint = self.manager.submit_task(
+                    _tasks.EndpointCreate(**endpoint_args)
+                )
+                return [endpoint]
         else:
+            endpoints_args = []
             if url:
-                urlkwargs = {}
-                urlkwargs['url'] = url
-                urlkwargs['interface'] = interface
-                endpoint_args.append(urlkwargs)
+                # v3 in use, v3-like arguments, one endpoint created
+                endpoints_args.append(
+                    {'url': url, 'interface': interface,
+                     'service': service['id'], 'enabled': enabled,
+                     'region': region})
             else:
-                # NOTE(notmorgan): This is done as a list of tuples to ensure
-                # we have a deterministic order we try and create the endpoint
-                # elements. This is done mostly so that it is possible to test
-                # the requests themselves.
-                expected_endpoints = [('public', public_url),
-                                      ('internal', internal_url),
-                                      ('admin', admin_url)]
-                for interface, url in expected_endpoints:
-                    if url:
-                        urlkwargs = {}
-                        urlkwargs['url'] = url
-                        urlkwargs['interface'] = interface
-                        endpoint_args.append(urlkwargs)
+                # v3 in use, v2.0-like arguments, one endpoint created for each
+                # interface url provided
+                endpoint_args = {'region': region, 'enabled': enabled,
+                                 'service': service['id']}
+                if public_url:
+                    endpoint_args.update({'url': public_url,
+                                          'interface': 'public'})
+                    endpoints_args.append(endpoint_args.copy())
+                if internal_url:
+                    endpoint_args.update({'url': internal_url,
+                                          'interface': 'internal'})
+                    endpoints_args.append(endpoint_args.copy())
+                if admin_url:
+                    endpoint_args.update({'url': admin_url,
+                                          'interface': 'admin'})
+                    endpoints_args.append(endpoint_args.copy())
 
-            kwargs['service'] = service['id']
-            kwargs['enabled'] = enabled
-            if region is not None:
-                kwargs['region'] = region
-
-            # TODO(mordred) When this changes to REST, force interface=admin
-            # in the adapter call
             with _utils.shade_exceptions(
                 "Failed to create endpoint for service"
                 " {service}".format(service=service['name'])
             ):
-                for args in endpoint_args:
-                    # NOTE(SamYaple): Add shared kwargs to endpoint args
-                    args.update(kwargs)
+                endpoints = []
+                for args in endpoints_args:
                     endpoint = self.manager.submit_task(
                         _tasks.EndpointCreate(**args)
                     )
