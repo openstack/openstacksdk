@@ -4806,7 +4806,7 @@ class OpenStackCloud(
 
     def create_volume(
             self, size,
-            wait=True, timeout=None, image=None, **kwargs):
+            wait=True, timeout=None, image=None, bootable=None, **kwargs):
         """Create a volume.
 
         :param size: Size, in GB of the volume to create.
@@ -4816,6 +4816,8 @@ class OpenStackCloud(
         :param timeout: Seconds to wait for volume creation. None is forever.
         :param image: (optional) Image name, ID or object from which to create
                       the volume
+        :param bootable: (optional) Make this volume bootable. If set, wait
+                         will also be set to true.
         :param kwargs: Keyword arguments as expected for cinder client.
 
         :returns: The created volume object.
@@ -4823,6 +4825,9 @@ class OpenStackCloud(
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
+        if bootable is not None:
+            wait = True
+
         if image:
             image_obj = self.get_image(image)
             if not image_obj:
@@ -4858,12 +4863,41 @@ class OpenStackCloud(
                     continue
 
                 if volume['status'] == 'available':
+                    if bootable is not None:
+                        self.set_volume_bootable(volume, bootable=bootable)
+                        # no need to re-fetch to update the flag, just set it.
+                        volume['bootable'] = bootable
                     return volume
 
                 if volume['status'] == 'error':
                     raise OpenStackCloudException("Error in creating volume")
 
         return self._normalize_volume(volume)
+
+    def set_volume_bootable(self, name_or_id, bootable=True):
+        """Set a volume's bootable flag.
+
+        :param name_or_id: Name, unique ID of the volume or a volume dict.
+        :param bool bootable: Whether the volume should be bootable.
+                              (Defaults to True)
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        volume = self.get_volume(name_or_id)
+
+        if not volume:
+            raise OpenStackCloudException(
+                "Volume {name_or_id} does not exist".format(
+                    name_or_id=name_or_id))
+
+        self._volume_client.post(
+            'volumes/{id}/action'.format(id=volume['id']),
+            json={'os-set_bootable': {'bootable': bootable}},
+            error_message="Error setting bootable on volume {volume}".format(
+                volume=volume['id'])
+        )
 
     def delete_volume(self, name_or_id=None, wait=True, timeout=None,
                       force=False):
