@@ -1731,7 +1731,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             in the same role grant, it is required to specify those by ID.
 
         NOTE: for wait and timeout, sometimes granting roles is not
-              instantaneous for granting roles.
+              instantaneous.
 
         NOTE: project is required for keystone v2
 
@@ -1761,17 +1761,32 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self.log.debug('Assignment already exists')
             return False
 
-        with _utils.shade_exceptions(
-                "Error granting access to role: {0}".format(
-                data)):
-            if self._is_client_version('identity', 2):
-                data['tenant'] = data.pop('project')
-                self.manager.submit_task(_tasks.RoleAddUser(**data))
+        error_msg = "Error granting access to role: {0}".format(data)
+        if self._is_client_version('identity', 2):
+            # For v2.0, only tenant/project assignment is supported
+            url = "/tenants/{t}/users/{u}/roles/OS-KSADM/{r}".format(
+                t=data['project']['id'], u=data['user']['id'], r=data['role'])
+
+            self._identity_client.put(url, error_message=error_msg,
+                                      endpoint_filter={'interface': 'admin'})
+        else:
+            if data.get('project') is None and data.get('domain') is None:
+                raise OpenStackCloudException(
+                    'Must specify either a domain or project')
+
+            # For v3, figure out the assignment type and build the URL
+            if data.get('domain'):
+                url = "/domains/{}".format(data['domain'])
             else:
-                if data.get('project') is None and data.get('domain') is None:
-                    raise OpenStackCloudException(
-                        'Must specify either a domain or project')
-                self.manager.submit_task(_tasks.RoleGrantUser(**data))
+                url = "/projects/{}".format(data['project']['id'])
+            if data.get('group'):
+                url += "/groups/{}".format(data['group']['id'])
+            else:
+                url += "/users/{}".format(data['user']['id'])
+            url += "/roles/{}".format(data.get('role'))
+
+            self._identity_client.put(url, error_message=error_msg)
+
         if wait:
             for count in _utils._iterate_timeout(
                     timeout,
@@ -1793,7 +1808,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :param int timeout: Timeout to wait for role to be revoked
 
         NOTE: for wait and timeout, sometimes revoking roles is not
-              instantaneous for revoking roles.
+              instantaneous.
 
         NOTE: project is required for keystone v2
 
@@ -1824,17 +1839,33 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self.log.debug('Assignment does not exist')
             return False
 
-        with _utils.shade_exceptions(
-                "Error revoking access to role: {0}".format(
-                data)):
-            if self._is_client_version('identity', 2):
-                data['tenant'] = data.pop('project')
-                self.manager.submit_task(_tasks.RoleRemoveUser(**data))
+        error_msg = "Error revoking access to role: {0}".format(data)
+        if self._is_client_version('identity', 2):
+            # For v2.0, only tenant/project assignment is supported
+            url = "/tenants/{t}/users/{u}/roles/OS-KSADM/{r}".format(
+                t=data['project']['id'], u=data['user']['id'], r=data['role'])
+
+            self._identity_client.delete(
+                url, error_message=error_msg,
+                endpoint_filter={'interface': 'admin'})
+        else:
+            if data.get('project') is None and data.get('domain') is None:
+                raise OpenStackCloudException(
+                    'Must specify either a domain or project')
+
+            # For v3, figure out the assignment type and build the URL
+            if data.get('domain'):
+                url = "/domains/{}".format(data['domain'])
             else:
-                if data.get('project') is None and data.get('domain') is None:
-                    raise OpenStackCloudException(
-                        'Must specify either a domain or project')
-                self.manager.submit_task(_tasks.RoleRevokeUser(**data))
+                url = "/projects/{}".format(data['project']['id'])
+            if data.get('group'):
+                url += "/groups/{}".format(data['group']['id'])
+            else:
+                url += "/users/{}".format(data['user']['id'])
+            url += "/roles/{}".format(data.get('role'))
+
+            self._identity_client.delete(url, error_message=error_msg)
+
         if wait:
             for count in _utils._iterate_timeout(
                     timeout,
