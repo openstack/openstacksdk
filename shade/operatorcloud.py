@@ -1012,14 +1012,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
-        # NOTE(SamYaple): With keystone v3 we can filter directly via the
-        # the keystone api, but since the return of all the endpoints even in
-        # large environments is small, we can continue to filter in shade just
-        # like the v2 api.
-        # TODO(mordred) When this changes to REST, force interface=admin
-        # in the adapter call
-        with _utils.shade_exceptions("Failed to list endpoints"):
-            endpoints = self.manager.submit_task(_tasks.EndpointList())
+        # Force admin interface if v2.0 is in use
+        v2 = self._is_client_version('identity', 2)
+        kwargs = {'endpoint_filter': {'interface': 'admin'}} if v2 else {}
+
+        data = self._identity_client.get(
+            '/endpoints', error_message="Failed to list endpoints", **kwargs)
+        endpoints = self._get_and_munchify('endpoints', data)
 
         return endpoints
 
@@ -1041,6 +1040,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the openstack API call.
         """
+        # NOTE(SamYaple): With keystone v3 we can filter directly via the
+        # the keystone api, but since the return of all the endpoints even in
+        # large environments is small, we can continue to filter in shade just
+        # like the v2 api.
         endpoints = self.list_endpoints()
         return _utils._filter_list(endpoints, id, filters)
 
