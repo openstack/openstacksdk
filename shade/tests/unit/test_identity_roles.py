@@ -202,7 +202,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  status_code=403)
         ])
         with testtools.ExpectedException(
-            shade.OpenStackCloudException,
+            shade.exc.OpenStackCloudHTTPError,
             "Failed to list role assignments"
         ):
             self.op_cloud.list_role_assignments()
