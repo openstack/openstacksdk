@@ -103,7 +103,7 @@ class LegacyClientFactoryMixin(object):
         return self._create_legacy_client(
             'keystone', 'identity',
             client_class=client_class.Client,
-            deprecated=False,
+            deprecated=True,
             endpoint=self._identity_client.get_endpoint(),
             endpoint_override=self._identity_client.get_endpoint())
 
