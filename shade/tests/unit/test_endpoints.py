@@ -265,11 +265,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  uri=self.get_mock_url(append=[endpoint_data.endpoint_id]),
                  status_code=200,
                  json=endpoint_data.json_response,
-                 validate=dict(json=reference_request)),
-            dict(method='GET',
-                 uri=self.get_mock_url(append=[endpoint_data.endpoint_id]),
-                 status_code=200,
-                 json=endpoint_data.json_response)
+                 validate=dict(json=reference_request))
         ])
         endpoint = self.op_cloud.update_endpoint(
             endpoint_data.endpoint_id,

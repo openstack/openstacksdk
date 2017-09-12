@@ -100,8 +100,3 @@ class MachineSetProvision(task_manager.Task):
 class EndpointCreate(task_manager.Task):
     def main(self, client):
         return client.keystone_client.endpoints.create(**self.args)
-
-
-class EndpointUpdate(task_manager.Task):
-    def main(self, client):
-        return client.keystone_client.endpoints.update(**self.args)

@@ -993,16 +993,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         service_name_or_id = kwargs.pop('service_name_or_id', None)
         if service_name_or_id is not None:
-            kwargs['service'] = service_name_or_id
+            kwargs['service_id'] = service_name_or_id
 
-        # TODO(mordred) When this changes to REST, force interface=admin
-        # in the adapter call
-        with _utils.shade_exceptions(
-            "Failed to update endpoint {}".format(endpoint_id)
-        ):
-            return self.manager.submit_task(_tasks.EndpointUpdate(
-                endpoint=endpoint_id, **kwargs
-            ))
+        data = self._identity_client.patch(
+            '/endpoints/{}'.format(endpoint_id), json={'endpoint': kwargs},
+            error_message="Failed to update endpoint {}".format(endpoint_id))
+        return self._get_and_munchify('endpoint', data)
 
     def list_endpoints(self):
         """List Keystone endpoints.
