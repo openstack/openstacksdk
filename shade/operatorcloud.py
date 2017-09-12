@@ -943,29 +943,25 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             endpoint_args.update(
                 {'service_id': service['id'], 'region': region})
 
-            # TODO(mordred) When this changes to REST, force interface=admin
-            # in the adapter call
-            with _utils.shade_exceptions(
-                "Failed to create endpoint for service"
-                " {service}".format(service=service['name'])
-            ):
-                endpoint = self.manager.submit_task(
-                    _tasks.EndpointCreate(**endpoint_args)
-                )
-                return [endpoint]
+            data = self._identity_client.post(
+                '/endpoints', json={'endpoint': endpoint_args},
+                endpoint_filter={'interface': 'admin'},
+                error_message=("Failed to create endpoint for service"
+                               " {service}".format(service=service['name'])))
+            return [self._get_and_munchify('endpoint', data)]
         else:
             endpoints_args = []
             if url:
                 # v3 in use, v3-like arguments, one endpoint created
                 endpoints_args.append(
                     {'url': url, 'interface': interface,
-                     'service': service['id'], 'enabled': enabled,
+                     'service_id': service['id'], 'enabled': enabled,
                      'region': region})
             else:
                 # v3 in use, v2.0-like arguments, one endpoint created for each
                 # interface url provided
                 endpoint_args = {'region': region, 'enabled': enabled,
-                                 'service': service['id']}
+                                 'service_id': service['id']}
                 if public_url:
                     endpoint_args.update({'url': public_url,
                                           'interface': 'public'})
@@ -979,17 +975,15 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                                           'interface': 'admin'})
                     endpoints_args.append(endpoint_args.copy())
 
-            with _utils.shade_exceptions(
-                "Failed to create endpoint for service"
-                " {service}".format(service=service['name'])
-            ):
-                endpoints = []
-                for args in endpoints_args:
-                    endpoint = self.manager.submit_task(
-                        _tasks.EndpointCreate(**args)
-                    )
-                    endpoints.append(endpoint)
-                return endpoints
+            endpoints = []
+            error_msg = ("Failed to create endpoint for service"
+                         " {service}".format(service=service['name']))
+            for args in endpoints_args:
+                data = self._identity_client.post(
+                    '/endpoints', json={'endpoint': args},
+                    error_message=error_msg)
+                endpoints.append(self._get_and_munchify('endpoint', data))
+            return endpoints
 
     @_utils.valid_kwargs('enabled', 'service_name_or_id', 'url', 'interface',
                          'region')

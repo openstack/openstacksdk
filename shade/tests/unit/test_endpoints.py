@@ -156,11 +156,6 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  validate=dict(
                      json=public_endpoint_data_disabled.json_request)),
             dict(method='GET',
-                 uri=self.get_mock_url(
-                     append=[public_endpoint_data_disabled.endpoint_id]),
-                 status_code=200,
-                 json=public_endpoint_data_disabled.json_response),
-            dict(method='GET',
                  uri=self.get_mock_url(resource='services'),
                  status_code=200,
                  json={'services': [
@@ -170,31 +165,16 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  status_code=200,
                  json=public_endpoint_data.json_response,
                  validate=dict(json=public_endpoint_data.json_request)),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     append=[public_endpoint_data.endpoint_id]),
-                 status_code=200,
-                 json=public_endpoint_data.json_response),
             dict(method='POST',
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=internal_endpoint_data.json_response,
                  validate=dict(json=internal_endpoint_data.json_request)),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     append=[internal_endpoint_data.endpoint_id]),
-                 status_code=200,
-                 json=internal_endpoint_data.json_response),
             dict(method='POST',
                  uri=self.get_mock_url(),
                  status_code=200,
                  json=admin_endpoint_data.json_response,
                  validate=dict(json=admin_endpoint_data.json_request)),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     append=[admin_endpoint_data.endpoint_id]),
-                 status_code=200,
-                 json=admin_endpoint_data.json_response),
         ])
 
         endpoints = self.op_cloud.create_endpoint(
