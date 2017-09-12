@@ -1267,8 +1267,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             the openstack API call.
         """
         groups = self.list_groups(**kwargs)
-        return _utils._filter_list(groups, name_or_id, filters,
-                                   **kwargs)
+        return _utils._filter_list(groups, name_or_id, filters)
 
     @_utils.valid_kwargs('domain_id')
     def get_group(self, name_or_id, filters=None, **kwargs):
