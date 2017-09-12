@@ -670,15 +670,6 @@ class OpenStackCloud(
             project=self._get_project_info(project_id),
         )
 
-    @property
-    def _project_manager(self):
-        # Keystone v2 calls this attribute tenants
-        # Keystone v3 calls it projects
-        # Yay for usable APIs!
-        if self._is_client_version('identity', 2):
-            return self.keystone_client.tenants
-        return self.keystone_client.projects
-
     def _get_project_id_param_dict(self, name_or_id):
         if name_or_id:
             project = self.get_project(name_or_id)
