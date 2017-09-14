@@ -75,3 +75,12 @@ class TestNetworkQuotas(base.BaseFunctionalTestCase):
         self.assertEqual(
             network,
             self.operator_cloud.get_network_quotas('demo')['network'])
+
+    def test_get_quotas_details(self):
+        expected_keys = ['limit', 'used', 'reserved']
+        '''Test getting details about quota usage'''
+        quota_details = self.operator_cloud.get_network_quotas(
+            'demo', details=True)
+        for quota_values in quota_details.values():
+            for expected_key in expected_keys:
+                self.assertTrue(expected_key in quota_values.keys())
