@@ -27,6 +27,7 @@ cover
 .coverage
 .tox
 nosetests.xml
+.stestr/
 .testrepository
 
 # Translations
