@@ -20,6 +20,14 @@ class TestQuota(base.BaseFunctionalTest):
             self.assertIsNotNone(qot.project_id)
             self.assertIsNotNone(qot.networks)
 
+    def test_list_details(self):
+        expected_keys = ['limit', 'used', 'reserved']
+        project_id = self.conn.session.get_project_id()
+        quota_details = self.conn.network.get_quota(project_id, details=True)
+        for details in quota_details._body.attributes.values():
+            for expected_key in expected_keys:
+                self.assertTrue(expected_key in details.keys())
+
     def test_set(self):
         attrs = {'networks': 123456789}
         for project_quota in self.conn.network.quotas():

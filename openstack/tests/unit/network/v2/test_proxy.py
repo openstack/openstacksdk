@@ -679,6 +679,19 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
         self.verify_get(self.proxy.get_quota, quota.Quota)
 
     @mock.patch.object(proxy_base2.BaseProxy, "_get_resource")
+    def test_quota_get_details(self, mock_get):
+        fake_quota = mock.Mock(project_id='PROJECT')
+        mock_get.return_value = fake_quota
+        self._verify2("openstack.proxy2.BaseProxy._get",
+                      self.proxy.get_quota,
+                      method_args=['QUOTA_ID'],
+                      method_kwargs={'details': True},
+                      expected_args=[quota.QuotaDetails],
+                      expected_kwargs={'project': fake_quota.id,
+                                       'requires_id': False})
+        mock_get.assert_called_once_with(quota.Quota, 'QUOTA_ID')
+
+    @mock.patch.object(proxy_base2.BaseProxy, "_get_resource")
     def test_quota_default_get(self, mock_get):
         fake_quota = mock.Mock(project_id='PROJECT')
         mock_get.return_value = fake_quota
