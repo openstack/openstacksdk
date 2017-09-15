@@ -6605,8 +6605,8 @@ class OpenStackCloud(
                 # going to do the wait loop below, this is a waste of a call
                 server = self.get_server_by_id(server.id)
                 if server.status == 'ERROR':
-                    raise OpenStackCloudException(
-                        "Error in creating the server.")
+                    raise OpenStackCloudCreationException(
+                        resource='server', resource_id=server.id)
 
         if wait:
             server = self.wait_for_server(
