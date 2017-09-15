@@ -2363,10 +2363,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             error_message=("Error setting Neutron's quota for "
                            "project {0}".format(proj.id)))
 
-    def get_network_quotas(self, name_or_id):
+    def get_network_quotas(self, name_or_id, details=False):
         """ Get network quotas for a project
 
         :param name_or_id: project name or id
+        :param details: if set to True it will return details about usage
+                        of quotas by given project
         :raises: OpenStackCloudException if it's not a valid project
 
         :returns: Munch object with the quotas
@@ -2374,8 +2376,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
+        url = '/quotas/{project_id}'.format(project_id=proj.id)
+        if details:
+            url = url + "/details"
+        url = url + ".json"
         data = self._network_client.get(
-            '/quotas/{project_id}.json'.format(project_id=proj.id),
+            url,
             error_message=("Error fetching Neutron's quota for "
                            "project {0}".format(proj.id)))
         return self._get_and_munchify('quota', data)

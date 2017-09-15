@@ -186,6 +186,60 @@ class TestQuotas(base.RequestsMockTestCase):
         self.assertDictEqual(quota, received_quota)
         self.assert_calls()
 
+    def test_neutron_get_quotas_details(self):
+        quota_details = {
+            'subnet': {
+                'limit': 100,
+                'used': 7,
+                'reserved': 0},
+            'network': {
+                'limit': 100,
+                'used': 6,
+                'reserved': 0},
+            'floatingip': {
+                'limit': 50,
+                'used': 0,
+                'reserved': 0},
+            'subnetpool': {
+                'limit': -1,
+                'used': 2,
+                'reserved': 0},
+            'security_group_rule': {
+                'limit': 100,
+                'used': 4,
+                'reserved': 0},
+            'security_group': {
+                'limit': 10,
+                'used': 1,
+                'reserved': 0},
+            'router': {
+                'limit': 10,
+                'used': 2,
+                'reserved': 0},
+            'rbac_policy': {
+                'limit': 10,
+                'used': 2,
+                'reserved': 0},
+            'port': {
+                'limit': 500,
+                'used': 7,
+                'reserved': 0}
+        }
+        project = self.mock_for_keystone_projects(project_count=1,
+                                                  list_get=True)[0]
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'quotas',
+                             '%s/details.json' % project.project_id]),
+                 json={'quota': quota_details})
+        ])
+        received_quota_details = self.op_cloud.get_network_quotas(
+            project.project_id, details=True)
+        self.assertDictEqual(quota_details, received_quota_details)
+        self.assert_calls()
+
     def test_neutron_delete_quotas(self):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
