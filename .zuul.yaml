@@ -5,5 +5,4 @@
       - publish-openstack-python-docs
     check:
       jobs:
-        - openstack-doc-build
         - openstack-tox-py35
