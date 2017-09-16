@@ -505,7 +505,7 @@ class CloudConfig(object):
         """
         if self.config['floating_ip_source'] == "None":
             return False
-        return self.config['requires_floating_ip']
+        return self.config.get('requires_floating_ip')
 
     def get_external_networks(self):
         """Get list of network names for external networks."""
