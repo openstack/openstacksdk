@@ -263,6 +263,17 @@ class OpenStackConfig(object):
             if not self.default_cloud:
                 self.default_cloud = self.envvar_key
 
+        if not self.default_cloud and self.cloud_config['clouds']:
+            if len(self.cloud_config['clouds'].keys()) == 1:
+                # If there is only one cloud just use it. This matches envvars
+                # behavior and allows for much less typing.
+                # TODO(mordred) allow someone to mark a cloud as "default" in
+                # clouds.yaml.
+                # The next/iter thing is for python3 compat where dict.keys
+                # returns an iterator but in python2 it's a list.
+                self.default_cloud = next(iter(
+                    self.cloud_config['clouds'].keys()))
+
         # Finally, fall through and make a cloud that starts with defaults
         # because we need somewhere to put arguments, and there are neither
         # config files or env vars

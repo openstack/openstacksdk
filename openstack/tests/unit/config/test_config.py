@@ -56,6 +56,25 @@ class TestConfig(base.TestCase):
         self.assertIsInstance(cloud, cloud_config.CloudConfig)
         self.assertEqual(cloud.name, '')
 
+    def test_get_one_cloud_default_cloud_from_file(self):
+        single_conf = base._write_yaml({
+            'clouds': {
+                'single': {
+                    'auth': {
+                        'auth_url': 'http://example.com/v2',
+                        'username': 'testuser',
+                        'password': 'testpass',
+                        'project_name': 'testproject',
+                    },
+                    'region_name': 'test-region',
+                }
+            }
+        })
+        c = config.OpenStackConfig(config_files=[single_conf],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one_cloud()
+        self.assertEqual(cc.name, 'single')
+
     def test_get_one_cloud_auth_defaults(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
         cc = c.get_one_cloud(cloud='_test-cloud_', auth={'username': 'user'})
