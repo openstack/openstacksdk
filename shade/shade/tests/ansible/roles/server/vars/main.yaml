@@ -1,0 +1,3 @@
+server_network: private
+server_name: ansible_server
+flavor: m1.tiny

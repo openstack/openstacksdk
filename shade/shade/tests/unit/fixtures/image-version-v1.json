@@ -1,0 +1,24 @@
+{
+  "versions": [
+    {
+      "status": "CURRENT",
+      "id": "v1.1",
+      "links": [
+        {
+          "href": "http://image.example.com/v1/",
+          "rel": "self"
+        }
+      ]
+    },
+    {
+      "status": "SUPPORTED",
+      "id": "v1.0",
+      "links": [
+        {
+          "href": "http://image.example.com/v1/",
+          "rel": "self"
+        }
+      ]
+    }
+  ]
+}

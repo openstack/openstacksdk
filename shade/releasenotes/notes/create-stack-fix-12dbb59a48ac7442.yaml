@@ -1,0 +1,4 @@
+---
+fixes:
+  - The create_stack() call was fixed to call the correct iterator
+    method and to return the updated stack object when waiting.

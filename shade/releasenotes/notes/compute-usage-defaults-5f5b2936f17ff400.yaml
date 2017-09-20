@@ -1,0 +1,9 @@
+---
+features:
+  - get_compute_usage now has a default value for the start
+    parameter of 2010-07-06. That was the date the OpenStack
+    project started. It's completely impossible for someone
+    to have Nova usage data that goes back further in time.
+    Also, both the start and end date parameters now also
+    accept strings which will be parsed and timezones will
+    be properly converted to UTC which is what Nova expects.

@@ -1,0 +1,4 @@
+---
+features:
+  - Add support for listing volume types.
+  - Add support for managing volume type access.

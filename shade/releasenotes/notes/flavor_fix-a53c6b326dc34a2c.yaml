@@ -1,0 +1,7 @@
+---
+features:
+  - Flavors will always contain an 'extra_specs' attribute. Client cruft,
+    such as 'links', 'HUMAN_ID', etc. has been removed.
+fixes:
+  - Setting and unsetting flavor extra specs now works. This had
+    been broken since the 1.2.0 release.

@@ -1,0 +1,9 @@
+---
+features:
+  - The image and flavor parameters for create_server
+    now accept name in addition to id and dict. If given
+    as a name or id, shade will do a get_image or a
+    get_flavor to find the matching image or flavor.
+    If you have an id already and are not using any caching
+    and the extra lookup is annoying, passing the id in
+    as "dict(id='my-id')" will avoid the lookup.

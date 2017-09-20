@@ -1,0 +1,6 @@
+---
+fixes:
+  - Fixed magnum service_type. shade was using it as 'container'
+    but the correct type is 'container-infra'. It's possible that on
+    old clouds with magnum shade may now do the wrong thing. If that
+    occurs, please file a bug.

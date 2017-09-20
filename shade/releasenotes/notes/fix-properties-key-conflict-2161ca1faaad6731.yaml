@@ -1,0 +1,4 @@
+---
+issues:
+  - Images in the cloud with a string property named "properties"
+    caused image normalization to bomb.

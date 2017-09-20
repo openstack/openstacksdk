@@ -1,0 +1,4 @@
+---
+issues:
+  - Fixed an issue where glance image list pagination was being ignored,
+    leading to truncated image lists.

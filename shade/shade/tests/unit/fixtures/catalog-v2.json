@@ -1,0 +1,149 @@
+{
+  "access": {
+    "token": {
+      "issued_at": "2016-04-14T10:09:58.014014Z",
+      "expires": "9999-12-31T23:59:59Z",
+      "id": "7fa3037ae2fe48ada8c626a51dc01ffd",
+      "tenant": {
+        "enabled": true,
+        "description": "Bootstrap project for initializing the cloud.",
+        "name": "admin",
+        "id": "1c36b64c840a42cd9e9b931a369337f0"
+      },
+      "audit_ids": [
+        "FgG3Q8T3Sh21r_7HyjHP8A"
+      ]
+    },
+    "serviceCatalog": [
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+            "region": "RegionOne",
+            "publicURL": "https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "https://compute.example.com/v2.1/1c36b64c840a42cd9e9b931a369337f0",
+            "id": "32466f357f3545248c47471ca51b0d3a"
+          }
+        ],
+        "type": "compute",
+        "name": "nova"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
+            "region": "RegionOne",
+            "publicURL": "https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0",
+            "id": "1e875ca2225b408bbf3520a1b8e1a537"
+          }
+        ],
+        "type": "volumev2",
+        "name": "cinderv2"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://image.example.com",
+            "region": "RegionOne",
+            "publicURL": "https://image.example.com",
+            "internalURL": "https://image.example.com",
+            "id": "5a64de3c4a614d8d8f8d1ba3dee5f45f"
+          }
+        ],
+        "type": "image",
+        "name": "glance"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "region": "RegionOne",
+            "publicURL": "https://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "https://volume.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "id": "3d15fdfc7d424f3c8923324417e1a3d1"
+          }
+        ],
+        "type": "volume",
+        "name": "cinder"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://identity.example.com/v2.0",
+            "region": "RegionOne",
+            "publicURL": "https://identity.example.com/v2.0",
+            "internalURL": "https://identity.example.com/v2.0",
+            "id": "4deb4d0504a044a395d4480741ba628c"
+          }
+        ],
+        "type": "identity",
+        "name": "keystone"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://network.example.com",
+            "region": "RegionOne",
+            "publicURL": "https://network.example.com",
+            "internalURL": "https://network.example.com",
+            "id": "4deb4d0504a044a395d4480741ba628d"
+          }
+        ],
+        "type": "network",
+        "name": "neutron"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "region": "RegionOne",
+            "publicURL": "https://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "internalURL": "https://object-store.example.com/v1/1c36b64c840a42cd9e9b931a369337f0",
+            "id": "4deb4d0504a044a395d4480741ba628c"
+          }
+        ],
+        "type": "object-store",
+        "name": "swift"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
+            "adminURL": "https://dns.example.com",
+            "region": "RegionOne",
+            "publicURL": "https://dns.example.com",
+            "internalURL": "https://dns.example.com",
+            "id": "652f0612744042bfbb8a8bb2c777a16d"
+          }
+        ],
+        "type": "dns",
+        "name": "designate"
+      }
+    ],
+    "user": {
+      "username": "dummy",
+      "roles_links": [],
+      "id": "71675f719c3343e8ac441cc28f396474",
+      "roles": [
+        {
+          "name": "admin"
+        }
+      ],
+      "name": "admin"
+    },
+    "metadata": {
+      "is_admin": 0,
+      "roles": [
+        "6d813db50b6e4a1ababdbbb5a83c7de5"
+      ]
+    }
+  }
+}

@@ -1,0 +1,3 @@
+---
+features:
+  - Added list_availability_zone_names API call.

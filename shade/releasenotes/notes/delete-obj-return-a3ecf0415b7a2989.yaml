@@ -1,0 +1,5 @@
+---
+fixes:
+  - The delete_object() method was not returning True/False,
+    similar to other delete methods. It is now consistent with
+    the other delete APIs.

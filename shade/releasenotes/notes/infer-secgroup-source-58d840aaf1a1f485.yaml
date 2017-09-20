@@ -1,0 +1,9 @@
+---
+features:
+  - If a cloud does not have a neutron service, it is now
+    assumed that Nova will be the source of security groups.
+    To handle clouds that have nova-network and do not have
+    the security group extension, setting secgroup_source to
+    None will prevent attempting to use them at all. If the
+    cloud has neutron but it is not a functional source of
+    security groups, set secgroup_source to nova.

@@ -1,0 +1,5 @@
+---
+fixes:
+  - Fixed an issue where a section of code that was supposed to be resetting
+    the SwiftService object was instead resetting the protective mutex around
+    the SwiftService object leading to an exception of "__exit__"

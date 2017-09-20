@@ -1,0 +1,6 @@
+---
+features:
+  - Add 'all_projects' parameter to list_servers and
+    search_servers which will tell Nova to return servers for all projects
+    rather than just for the current project. This is only available to
+    cloud admins.

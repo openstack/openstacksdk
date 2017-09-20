@@ -1,0 +1,3 @@
+---
+features:
+  - Network provider options are now accepted in create_network().

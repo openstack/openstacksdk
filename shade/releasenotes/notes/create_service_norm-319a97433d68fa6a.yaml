@@ -1,0 +1,3 @@
+---
+fixes:
+  - The returned data from a create_service() call was not being normalized.

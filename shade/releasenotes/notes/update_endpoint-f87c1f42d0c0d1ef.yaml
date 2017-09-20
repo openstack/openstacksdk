@@ -1,0 +1,8 @@
+---
+features:
+  - Added update_endpoint as a new function that allows
+    the user to update a created endpoint with new values
+    rather than deleting and recreating that endpoint.
+    This feature only works with keystone v3, with v2 it
+    will raise an exception stating the feature is not
+    available.

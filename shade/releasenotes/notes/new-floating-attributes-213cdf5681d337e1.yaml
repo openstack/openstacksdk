@@ -1,0 +1,4 @@
+---
+features:
+  - Added support for created_at, updated_at, description
+    and revision_number attributes for floating ips.

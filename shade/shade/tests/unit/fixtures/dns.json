@@ -1,0 +1,24 @@
+{
+    "versions": {
+        "values": [{
+            "id": "v1",
+            "links": [
+                {
+                    "href": "https://dns.example.com/v1",
+                    "rel": "self"
+                }
+            ],
+            "status": "DEPRECATED"
+        }, {
+            "id": "v2",
+            "links": [
+                {
+                    "href": "https://dns.example.com/v2",
+                    "rel": "self"
+                }
+            ],
+            "status": "CURRENT"
+        }]
+    }
+}
+

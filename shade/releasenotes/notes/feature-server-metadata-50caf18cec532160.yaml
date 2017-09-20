@@ -1,0 +1,3 @@
+---
+features:
+  - Add new APIs, OpenStackCloud.set_server_metadata() and OpenStackCloud.delete_server_metadata() to manage metadata of existing nova compute instances
