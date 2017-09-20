@@ -1,0 +1,11 @@
+{
+  "name": "datacentred",
+  "profile": {
+    "auth": {
+      "auth_url": "https://compute.datacentred.io:5000"
+    },
+    "region-name": "sal01",
+    "identity_api_version": "3",
+    "image_api_version": "2"
+  }
+}

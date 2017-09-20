@@ -1,0 +1,13 @@
+{
+  "name": "otc",
+  "profile": {
+    "auth": {
+      "auth_url": "https://iam.%(region_name)s.otc.t-systems.com/v3"
+    },
+    "regions": [
+      "eu-de"
+    ],
+    "identity_api_version": "3",
+    "image_format": "vhd"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "entercloudsuite",
+  "profile": {
+    "auth": {
+      "auth_url": "https://api.entercloudsuite.com/"
+    },
+    "identity_api_version": "3",
+    "image_api_version": "1",
+    "volume_api_version": "1",
+    "regions": [
+      "it-mil1",
+      "nl-ams1",
+      "de-fra1"
+    ]
+  }
+}

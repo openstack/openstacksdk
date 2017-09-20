@@ -1,0 +1,15 @@
+{
+  "name": "catalyst",
+  "profile": {
+    "auth": {
+      "auth_url": "https://api.cloud.catalyst.net.nz:5000/v2.0"
+    },
+    "regions": [
+      "nz-por-1",
+      "nz_wlg_2"
+    ],
+    "image_api_version": "1",
+    "volume_api_version": "1",
+    "image_format": "raw"
+  }
+}

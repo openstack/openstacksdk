@@ -1,0 +1,13 @@
+{
+  "name": "zetta",
+  "profile": {
+    "auth": {
+      "auth_url": "https://identity.api.zetta.io/v3"
+    },
+    "regions": [
+      "no-osl1"
+    ],
+    "identity_api_version": "3",
+    "dns_api_version": "2"
+  }
+}

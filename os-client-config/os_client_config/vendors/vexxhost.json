@@ -1,0 +1,15 @@
+{
+  "name": "vexxhost",
+  "profile": {
+    "auth": {
+      "auth_url": "https://auth.vexxhost.net"
+    },
+    "regions": [
+      "ca-ymq-1"
+    ],
+    "dns_api_version": "1",
+    "identity_api_version": "3",
+    "floating_ip_source": "None",
+    "requires_floating_ip": false
+  }
+}

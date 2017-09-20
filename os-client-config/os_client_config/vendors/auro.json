@@ -1,0 +1,11 @@
+{
+  "name": "auro",
+  "profile": {
+    "auth": {
+      "auth_url": "https://api.van1.auro.io:5000/v2.0"
+    },
+    "identity_api_version": "2",
+    "region_name": "van1",
+    "requires_floating_ip": true
+  }
+}

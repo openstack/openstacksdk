@@ -1,0 +1,17 @@
+{
+  "name": "internap",
+  "profile": {
+    "auth": {
+      "auth_url": "https://identity.api.cloud.iweb.com"
+    },
+    "regions": [
+      "ams01",
+      "da01",
+      "nyj01",
+      "sin01",
+      "sjc01"
+    ],
+    "identity_api_version": "3",
+    "floating_ip_source": "None"
+  }
+}

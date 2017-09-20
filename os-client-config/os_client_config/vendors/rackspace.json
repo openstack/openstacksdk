@@ -1,0 +1,29 @@
+{
+  "name": "rackspace",
+  "profile": {
+    "auth": {
+      "auth_url": "https://identity.api.rackspacecloud.com/v2.0/"
+    },
+    "regions": [
+      "DFW",
+      "HKG",
+      "IAD",
+      "ORD",
+      "SYD",
+      "LON"
+    ],
+    "database_service_type": "rax:database",
+    "compute_service_name": "cloudServersOpenStack",
+    "image_api_use_tasks": true,
+    "image_format": "vhd",
+    "floating_ip_source": "None",
+    "secgroup_source": "None",
+    "requires_floating_ip": false,
+    "volume_api_version": "1",
+    "disable_vendor_agent": {
+      "vm_mode": "hvm",
+      "xenapi_use_agent": false
+    },
+    "has_network": false
+  }
+}

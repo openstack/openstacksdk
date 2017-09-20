@@ -1,0 +1,16 @@
+{
+    "application-catalog": "muranoclient.client.Client",
+    "baremetal": "ironicclient.client.Client",
+    "compute": "novaclient.client.Client",
+    "container-infra": "magnumclient.client.Client",
+    "database": "troveclient.client.Client",
+    "dns": "designateclient.client.Client",
+    "identity": "keystoneclient.client.Client",
+    "image": "glanceclient.Client",
+    "key-manager": "barbicanclient.client.Client",
+    "metering": "ceilometerclient.client.Client",
+    "network": "neutronclient.neutron.client.Client",
+    "object-store": "swiftclient.client.Connection",
+    "orchestration": "heatclient.client.Client",
+    "volume": "cinderclient.client.Client"
+}

@@ -1,0 +1,223 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://git.openstack.org/cgit/openstack/cloud-data/plain/vendor-schema.json#",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "auth": {
+          "type": "object",
+          "properties": {
+            "auth_url": {
+              "name": "Auth URL",
+              "description": "URL of the primary Keystone endpoint",
+              "type": "string"
+            }
+          }
+        },
+        "auth_type": {
+          "name": "Auth Type",
+          "description": "Name of authentication plugin to be used",
+          "default": "password",
+          "type": "string"
+        },
+        "disable_vendor_agent": {
+          "name": "Disable Vendor Agent Properties",
+          "description": "Image properties required to disable vendor agent",
+          "type": "object",
+          "properties": {}
+        },
+        "floating_ip_source": {
+          "name": "Floating IP Source",
+          "description": "Which service provides Floating IPs",
+          "enum": [ "neutron", "nova", "None" ],
+          "default": "neutron"
+        },
+        "image_api_use_tasks": {
+          "name": "Image Task API",
+          "description": "Does the cloud require the Image Task API",
+          "default": false,
+          "type": "boolean"
+        },
+        "image_format": {
+          "name": "Image Format",
+          "description": "Format for uploaded Images",
+          "default": "qcow2",
+          "type": "string"
+        },
+        "interface": {
+          "name": "API Interface",
+          "description": "Which API Interface should connections hit",
+          "default": "public",
+          "enum": [ "public", "internal", "admin" ]
+        },
+        "message": {
+          "name": "Status message",
+          "description": "Optional message with information related to status",
+          "type": "string"
+        },
+        "requires_floating_ip": {
+          "name": "Requires Floating IP",
+          "description": "Whether the cloud requires a floating IP to route traffic off of the cloud",
+          "default": null,
+          "type": ["boolean", "null"]
+        },
+        "secgroup_source": {
+          "name": "Security Group Source",
+          "description": "Which service provides security groups",
+          "enum": [ "neutron", "nova", "None" ],
+          "default": "neutron"
+        },
+        "status": {
+          "name": "Vendor status",
+          "description": "Status of the vendor's cloud",
+          "enum": [ "active", "deprecated", "shutdown"],
+          "default": "active"
+        },
+        "compute_service_name": {
+          "name": "Compute API Service Name",
+          "description": "Compute API Service Name",
+          "type": "string"
+        },
+        "database_service_name": {
+          "name": "Database API Service Name",
+          "description": "Database API Service Name",
+          "type": "string"
+        },
+        "dns_service_name": {
+          "name": "DNS API Service Name",
+          "description": "DNS API Service Name",
+          "type": "string"
+        },
+        "identity_service_name": {
+          "name": "Identity API Service Name",
+          "description": "Identity API Service Name",
+          "type": "string"
+        },
+        "image_service_name": {
+          "name": "Image API Service Name",
+          "description": "Image API Service Name",
+          "type": "string"
+        },
+        "volume_service_name": {
+          "name": "Volume API Service Name",
+          "description": "Volume API Service Name",
+          "type": "string"
+        },
+        "network_service_name": {
+          "name": "Network API Service Name",
+          "description": "Network API Service Name",
+          "type": "string"
+        },
+        "object_service_name": {
+          "name": "Object Storage API Service Name",
+          "description": "Object Storage API Service Name",
+          "type": "string"
+        },
+        "baremetal_service_name": {
+          "name": "Baremetal API Service Name",
+          "description": "Baremetal API Service Name",
+          "type": "string"
+        },
+        "compute_service_type": {
+          "name": "Compute API Service Type",
+          "description": "Compute API Service Type",
+          "type": "string"
+        },
+        "database_service_type": {
+          "name": "Database API Service Type",
+          "description": "Database API Service Type",
+          "type": "string"
+        },
+        "dns_service_type": {
+          "name": "DNS API Service Type",
+          "description": "DNS API Service Type",
+          "type": "string"
+        },
+        "identity_service_type": {
+          "name": "Identity API Service Type",
+          "description": "Identity API Service Type",
+          "type": "string"
+        },
+        "image_service_type": {
+          "name": "Image API Service Type",
+          "description": "Image API Service Type",
+          "type": "string"
+        },
+        "volume_service_type": {
+          "name": "Volume API Service Type",
+          "description": "Volume API Service Type",
+          "type": "string"
+        },
+        "network_service_type": {
+          "name": "Network API Service Type",
+          "description": "Network API Service Type",
+          "type": "string"
+        },
+        "object_service_type": {
+          "name": "Object Storage API Service Type",
+          "description": "Object Storage API Service Type",
+          "type": "string"
+        },
+        "baremetal_service_type": {
+          "name": "Baremetal API Service Type",
+          "description": "Baremetal API Service Type",
+          "type": "string"
+        },
+        "compute_api_version": {
+          "name": "Compute API Version",
+          "description": "Compute API Version",
+          "type": "string"
+        },
+        "database_api_version": {
+          "name": "Database API Version",
+          "description": "Database API Version",
+          "type": "string"
+        },
+        "dns_api_version": {
+          "name": "DNS API Version",
+          "description": "DNS API Version",
+          "type": "string"
+        },
+        "identity_api_version": {
+          "name": "Identity API Version",
+          "description": "Identity API Version",
+          "type": "string"
+        },
+        "image_api_version": {
+          "name": "Image API Version",
+          "description": "Image API Version",
+          "type": "string"
+        },
+        "volume_api_version": {
+          "name": "Volume API Version",
+          "description": "Volume API Version",
+          "type": "string"
+        },
+        "network_api_version": {
+          "name": "Network API Version",
+          "description": "Network API Version",
+          "type": "string"
+        },
+        "object_api_version": {
+          "name": "Object Storage API Version",
+          "description": "Object Storage API Version",
+          "type": "string"
+        },
+        "baremetal_api_version": {
+          "name": "Baremetal API Version",
+          "description": "Baremetal API Version",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "profile"
+  ]
+}

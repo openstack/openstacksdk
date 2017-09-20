@@ -1,0 +1,19 @@
+{
+  "name": "citycloud",
+  "profile": {
+    "auth": {
+      "auth_url": "https://identity1.citycloud.com:5000/v3/"
+    },
+    "regions": [
+      "Buf1",
+      "La1",
+      "Fra1",
+      "Lon1",
+      "Sto2",
+      "Kna1"
+    ],
+    "requires_floating_ip": true,
+    "volume_api_version": "1",
+    "identity_api_version": "3"
+  }
+}
