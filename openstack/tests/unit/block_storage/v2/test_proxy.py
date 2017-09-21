@@ -12,6 +12,7 @@
 
 from openstack.block_storage.v2 import _proxy
 from openstack.block_storage.v2 import snapshot
+from openstack.block_storage.v2 import stats
 from openstack.block_storage.v2 import type
 from openstack.block_storage.v2 import volume
 from openstack.tests.unit import test_proxy_base2
@@ -86,3 +87,7 @@ class TestVolumeProxy(test_proxy_base2.TestProxyBase):
 
     def test_volume_delete_ignore(self):
         self.verify_delete(self.proxy.delete_volume, volume.Volume, True)
+
+    def test_backend_pools(self):
+        self.verify_list(self.proxy.backend_pools, stats.Pools,
+                         paginated=False)

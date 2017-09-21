@@ -41,3 +41,10 @@ Snapshot Operations
    .. automethod:: openstack.block_storage.v2._proxy.Proxy.delete_snapshot
    .. automethod:: openstack.block_storage.v2._proxy.Proxy.get_snapshot
    .. automethod:: openstack.block_storage.v2._proxy.Proxy.snapshots
+
+Stats Operations
+^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+
+   .. automethod:: openstack.block_storage.v2._proxy.Proxy.backend_pools
