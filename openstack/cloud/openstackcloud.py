@@ -2033,7 +2033,8 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._normalize_secgroups(
             self._get_and_munchify('security_groups', data))
 
-    def list_servers(self, detailed=False, all_projects=False, bare=False):
+    def list_servers(self, detailed=False, all_projects=False, bare=False,
+                     filters=None):
         """List all available servers.
 
         :param detailed: Whether or not to add detailed additional information.
@@ -2044,6 +2045,7 @@ class OpenStackCloud(_normalize.Normalizer):
                      server record. Defaults to False, meaning the addresses
                      dict will be populated as needed from neutron. Setting
                      to True implies detailed = False.
+        :param filters: Additional query parameters passed to the API server.
 
         :returns: A list of server ``munch.Munch``.
 
@@ -2063,18 +2065,20 @@ class OpenStackCloud(_normalize.Normalizer):
                         self._servers = self._list_servers(
                             detailed=detailed,
                             all_projects=all_projects,
-                            bare=bare)
+                            bare=bare,
+                            filters=filters)
                         self._servers_time = time.time()
                 finally:
                     self._servers_lock.release()
         return self._servers
 
-    def _list_servers(self, detailed=False, all_projects=False, bare=False):
+    def _list_servers(self, detailed=False, all_projects=False, bare=False,
+                      filters=None):
         error_msg = "Error fetching server list on {cloud}:{region}:".format(
             cloud=self.name,
             region=self.region_name)
 
-        params = {}
+        params = filters or {}
         if all_projects:
             params['all_tenants'] = True
         data = self._compute_client.get(

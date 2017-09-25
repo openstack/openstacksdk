@@ -167,6 +167,28 @@ class TestShade(base.RequestsMockTestCase):
 
         self.assert_calls()
 
+    def test_list_servers_filters(self):
+        '''This test verifies that when list_servers is called with
+        `filters` dict that it passes it to nova.'''
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail'],
+                     qs_elements=[
+                         'deleted=True',
+                         'changes-since=2014-12-03T00:00:00Z'
+                     ]),
+                 complete_qs=True,
+                 json={'servers': []}),
+        ])
+
+        self.cloud.list_servers(filters={
+            'deleted': True,
+            'changes-since': '2014-12-03T00:00:00Z'
+        })
+
+        self.assert_calls()
+
     def test_iterate_timeout_bad_wait(self):
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
