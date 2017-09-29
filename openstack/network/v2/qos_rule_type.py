@@ -22,13 +22,15 @@ class QoSRuleType(resource.Resource):
 
     # capabilities
     allow_create = False
-    allow_get = False
+    allow_get = True
     allow_update = False
     allow_delete = False
     allow_list = True
 
-    _query_mapping = resource.QueryParameters('type')
+    _query_mapping = resource.QueryParameters('type', 'drivers')
 
     # Properties
     #: QoS rule type name.
     type = resource.Body('type')
+    #: List of QoS backend drivers supporting this QoS rule type
+    drivers = resource.Body('drivers')

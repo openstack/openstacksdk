@@ -665,6 +665,14 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
     def test_qos_policy_update(self):
         self.verify_update(self.proxy.update_qos_policy, qos_policy.QoSPolicy)
 
+    def test_qos_rule_type_find(self):
+        self.verify_find(self.proxy.find_qos_rule_type,
+                         qos_rule_type.QoSRuleType)
+
+    def test_qos_rule_type_get(self):
+        self.verify_get(self.proxy.get_qos_rule_type,
+                        qos_rule_type.QoSRuleType)
+
     def test_qos_rule_types(self):
         self.verify_list(self.proxy.qos_rule_types, qos_rule_type.QoSRuleType,
                          paginated=False)
