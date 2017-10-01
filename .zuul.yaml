@@ -2,7 +2,7 @@
     name: openstack-infra/shade
     templates:
       - publish-to-pypi
-      - publish-openstack-python-docs
+      - publish-openstack-sphinx-docs
     check:
       jobs:
         - openstack-tox-py35
