@@ -15,7 +15,7 @@ import os
 import fixtures
 from keystoneauth1 import session as ksa_session
 import mock
-import os_client_config
+import openstack.config
 
 from openstack import connection
 from openstack import exceptions
@@ -171,7 +171,7 @@ class TestConnection(base.TestCase):
     def test_from_config_given_data(self):
         self._prepare_test_config()
 
-        data = os_client_config.OpenStackConfig().get_one_cloud("sample")
+        data = openstack.config.OpenStackConfig().get_one_cloud("sample")
 
         sot = connection.from_config(cloud_config=data)
 

@@ -66,8 +66,7 @@ class Proxy(proxy2.BaseProxy):
         This will download an image to memory when ``stream=False``, or allow
         streaming downloads using an iterator when ``stream=True``.
         For examples of working with streamed responses, see
-        :ref:`download_image-stream-true` and the Requests documentation
-        :ref:`body-content-workflow`.
+        :ref:`download_image-stream-true`.
 
         :param image: The value can be either the ID of an image or a
                       :class:`~openstack.image.v2.image.Image` instance.

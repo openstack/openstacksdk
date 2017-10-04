@@ -1,0 +1,14 @@
+{
+  "name": "conoha",
+  "profile": {
+    "auth": {
+      "auth_url": "https://identity.{region_name}.conoha.io"
+    },
+    "regions": [
+      "sin1",
+      "sjc1",
+      "tyo1"
+    ],
+    "identity_api_version": "2"
+  }
+}

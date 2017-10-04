@@ -1,0 +1,26 @@
+clouds:
+  _test_cloud_:
+    auth:
+      auth_url: https://identity.example.com
+      password: password
+      project_name: admin
+      username: admin
+      user_domain_name: default
+      project_domain_name: default
+    region_name: RegionOne
+  _test_cloud_v2_:
+    auth:
+      auth_url: https://identity.example.com
+      password: password
+      project_name: admin
+      username: admin
+    identity_api_version: '2.0'
+    region_name: RegionOne
+  _bogus_test_:
+    auth_type: bogus
+    auth:
+      auth_url: https://identity.example.com/v2.0
+      username: _test_user_
+      password: _test_pass_
+      project_name: _test_project_
+    region_name: _test_region_

@@ -1,0 +1,14 @@
+---
+features:
+  - Removed unneeded calls that were made when deleting servers with
+    floating ips.
+  - Added pagination support for volume listing.
+upgrade:
+  - Removed designateclient as a dependency. All designate operations
+    are now performed with direct REST calls using keystoneauth
+    Adapter.
+  - Server creation calls are now done with direct REST calls.
+fixes:
+  - Fixed a bug related to neutron endpoints that did not have trailing
+    slashes.
+  - Fixed issue with ports not having a created_at attribute.

@@ -1,0 +1,4 @@
+---
+fixes:
+  - When creating a new server, the timeout was not being passed through to
+    floating IP creation, which could also timeout.

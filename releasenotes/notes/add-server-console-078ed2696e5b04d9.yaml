@@ -1,0 +1,6 @@
+---
+features:
+  - Added get_server_console method to fetch the console
+    log from a Server. On clouds that do not expose this
+    feature, a debug line will be logged and an empty
+    string will be returned.

@@ -1,0 +1,13 @@
+---
+fixes:
+  - shade now correctly does not try to attach a floating ip with auto_ip
+    if the cloud has given a public IPv6 address and the calling context
+    supports IPv6 routing. shade has always used this logic to determine
+    the server 'interface_ip', but the auto floating ip was incorrectly only
+    looking at the 'public_v4' value to determine whether the server needed
+    additional networking.
+upgrade:
+  - If your cloud presents a default split IPv4/IPv6 stack with a public
+    v6 and a private v4 address and you have the expectation that auto_ip
+    should procure a v4 floating ip, you need to set 'force_ipv4' to True in
+    your clouds.yaml entry for the cloud.

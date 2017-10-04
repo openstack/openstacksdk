@@ -1,0 +1,13 @@
+---
+features:
+  - Version discovery is now done via the keystoneauth
+    library. shade still has one behavioral difference
+    from default keystoneauth behavior, which is that
+    shade will use a version it understands if it can
+    find one even if the user has requested a different
+    version. This change opens the door for shade to
+    start being able to consume API microversions as
+    needed.
+upgrade:
+  - keystoneauth version 3.2.0 or higher is required
+    because of version discovery.

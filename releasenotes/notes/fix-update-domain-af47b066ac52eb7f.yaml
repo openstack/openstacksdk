@@ -1,0 +1,3 @@
+---
+fixes:
+  - Fix for update_domain() where 'name' was not updatable.

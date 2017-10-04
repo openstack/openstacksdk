@@ -1,0 +1,7 @@
+---
+fixes:
+  - Fixed an issue where shade could report a floating IP being attached
+    to a server erroneously due to only matching on fixed ip. Changed the
+    lookup to match on port ids. This adds an API call in the case where
+    the workaround is needed because of a bug in the cloud, but in most
+    cases it should have no difference.

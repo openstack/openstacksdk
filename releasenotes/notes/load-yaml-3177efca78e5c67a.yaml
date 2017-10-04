@@ -1,0 +1,7 @@
+---
+features:
+  - Added a flag, 'load_yaml_config' that defaults to True.
+    If set to false, no clouds.yaml files will be loaded. This
+    is beneficial if os-client-config wants to be used inside of
+    a service where end-user clouds.yaml files would  make things
+    more confusing.

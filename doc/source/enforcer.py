@@ -123,8 +123,11 @@ def build_finished(app, exception):
     app.info("ENFORCER: Found %d missing proxy methods "
              "in the output" % missing_count)
 
-    for name in sorted(missing):
-        app.warn("ENFORCER: %s was not included in the output" % name)
+    # TODO(shade) Remove the if DEBUG once the build-openstack-sphinx-docs
+    # has been updated to use sphinx-build.
+    if DEBUG:
+        for name in sorted(missing):
+            app.info("ENFORCER: %s was not included in the output" % name)
 
     if app.config.enforcer_warnings_as_errors and missing_count > 0:
         raise EnforcementError(

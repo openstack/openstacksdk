@@ -18,7 +18,7 @@ Default Location
 To create a connection from a file you need a YAML file to contain the
 configuration.
 
-.. literalinclude:: ../../contributors/clouds.yaml
+.. literalinclude:: ../../contributor/clouds.yaml
    :language: yaml
 
 To use a configuration file called ``clouds.yaml`` in one of the default
@@ -33,7 +33,7 @@ function takes three optional arguments:
 
 * **cloud_name** allows you to specify a cloud from your ``clouds.yaml`` file.
 * **cloud_config** allows you to pass in an existing
-  ``os_client_config.config.OpenStackConfig``` object.
+  ``openstack.config.loader.OpenStackConfig``` object.
 * **options** allows you to specify a namespace object with options to be
   added to the cloud config.
 

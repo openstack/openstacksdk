@@ -1,0 +1,7 @@
+---
+features:
+  - Add support for Magnum baymodels, with the
+    usual methods (search/list/get/create/update/delete). Due to upcoming
+    rename in Magnum from baymodel to cluster_template, the shade
+    functionality uses the term cluster_template. However, baymodel aliases
+    are provided for each api call.

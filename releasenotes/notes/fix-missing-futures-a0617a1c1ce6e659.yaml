@@ -1,0 +1,5 @@
+---
+fixes:
+  - Added missing dependency on futures library for python 2.
+    The depend was missed in testing due to it having been listed
+    in test-requirements already.

@@ -1,0 +1,3 @@
+---
+features:
+  - Add new APIs, OperatorCloud.get_network_quotas(), OperatorCloud.set_network_quotas() and OperatorCloud.delete_network_quotas() to manage neutron quotas for projects and users

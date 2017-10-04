@@ -1,16 +1,45 @@
-If you would like to contribute to the development of OpenStack,
-you must follow the steps in this page:
+.. _contributing:
 
-   https://docs.openstack.org/infra/manual/developers.html
+===================================
+Contributing to python-openstacksdk
+===================================
 
-Once those steps have been completed, changes to OpenStack
-should be submitted for review via the Gerrit tool, following
-the workflow documented at:
+If you're interested in contributing to the python-openstacksdk project,
+the following will help get you started.
 
-   https://docs.openstack.org/infra/manual/developers.html#development-workflow
+Contributor License Agreement
+-----------------------------
 
+.. index::
+   single: license; agreement
+
+In order to contribute to the python-openstacksdk project, you need to have
+signed OpenStack's contributor's agreement.
+
+Please read `DeveloperWorkflow`_ before sending your first patch for review.
 Pull requests submitted through GitHub will be ignored.
 
-Bugs should be filed on Launchpad, not GitHub:
+.. seealso::
 
-   https://bugs.launchpad.net/python-openstacksdk
+   * http://wiki.openstack.org/HowToContribute
+   * http://wiki.openstack.org/CLA
+
+.. _DeveloperWorkflow: http://docs.openstack.org/infra/manual/developers.html#development-workflow
+
+Project Hosting Details
+-------------------------
+
+Project Documentation
+    http://docs.openstack.org/sdks/python/openstacksdk/
+
+Bug tracker
+    https://bugs.launchpad.net/python-openstacksdk
+
+Mailing list (prefix subjects with ``[sdk]`` for faster responses)
+    http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-dev
+
+Code Hosting
+    https://git.openstack.org/cgit/openstack/python-openstacksdk
+
+Code Review
+    https://review.openstack.org/#/q/status:open+project:openstack/python-openstacksdk,n,z

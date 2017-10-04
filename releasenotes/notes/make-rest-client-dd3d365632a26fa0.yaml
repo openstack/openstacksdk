@@ -1,0 +1,4 @@
+---
+deprecations:
+  - Renamed session_client to make_rest_client. session_client
+    will continue to be supported for backwards compatability.

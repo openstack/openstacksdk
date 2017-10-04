@@ -1,0 +1,4 @@
+---
+features:
+  - Add support for Cinder volume backup resources, with the
+    usual methods (search/list/get/create/delete).

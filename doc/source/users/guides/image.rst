@@ -44,8 +44,7 @@ efficient method may be to iterate over a stream of the response data.
 By choosing to stream the response content, you determine the ``chunk_size``
 that is appropriate for your needs, meaning only that many bytes of data are
 read for each iteration of the loop until all data has been consumed.
-See :meth:`requests.Response.iter_content` for more information, as well
-as Requests' :ref:`body-content-workflow`.
+See :meth:`requests.Response.iter_content` for more information.
 
 When you choose to stream an image download, openstacksdk is no longer
 able to compute the checksum of the response data for you. This example

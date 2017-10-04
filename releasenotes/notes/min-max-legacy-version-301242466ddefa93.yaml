@@ -1,0 +1,15 @@
+---
+features:
+  - Add min_version and max_version to get_legacy_client
+    and to get_session_endpoint. At the moment this is only
+    really fully plumbed through for cinder, which has extra
+    special fun around volume, volumev2 and volumev3. Min and max
+    versions to both methods will look through the options available
+    in the service catalog and try to return the latest one available
+    from the span of requested versions. This means a user can say
+    volume_api_version=None, min_version=2, max_version=3 will get
+    an endpoint from get_session_endpoint or a Client from cinderclient
+    that will be either v2 or v3 but not v1. In the future, min and max
+    version for get_session_endpoint should be able to sort out
+    appropriate endpoints via version discovery, but that does not
+    currently exist.

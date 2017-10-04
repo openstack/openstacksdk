@@ -1,0 +1,15 @@
+{
+  "name": "ovh",
+  "profile": {
+    "auth": {
+      "auth_url": "https://auth.cloud.ovh.net/"
+    },
+    "regions": [
+      "BHS1",
+      "GRA1",
+      "SBG1"
+    ],
+    "identity_api_version": "3",
+    "floating_ip_source": "None"
+  }
+}

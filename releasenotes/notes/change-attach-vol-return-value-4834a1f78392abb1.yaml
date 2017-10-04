@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The ``attach_volume`` method now always returns a ``volume_attachment``
+    object. Previously, ``attach_volume`` would return a ``volume`` object if
+    it was called with ``wait=True`` and a ``volume_attachment`` object
+    otherwise.
+

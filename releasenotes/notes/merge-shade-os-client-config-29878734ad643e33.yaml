@@ -1,0 +1,4 @@
+---
+other:
+  - The shade and os-client-config libraries have been
+    merged into python-openstacksdk.

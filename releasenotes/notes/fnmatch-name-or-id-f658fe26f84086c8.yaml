@@ -1,0 +1,5 @@
+---
+features:
+  - name_or_id parameters to search/get methods now support
+    filename-like globbing. This means search_servers('nb0*')
+    will return all servers whose names start with 'nb0'.

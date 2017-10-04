@@ -1,0 +1,4 @@
+---
+features:
+  - Add a list_flavor_access method to list all
+    the projects/tenants allowed to access a given flavor.

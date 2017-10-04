@@ -37,6 +37,9 @@ def deprecated(deprecated_in=None, removed_in=None,
     partial = functools.partial(deprecation.deprecated,
                                 current_version=version.__version__)
 
+    # TODO(shade) shade's tags break these - so hard override them for now.
+    # We'll want a patch fixing this before we cut any releases.
+    removed_in = '2.0.0'
     return partial(deprecated_in=deprecated_in, removed_in=removed_in,
                    details=details)
 

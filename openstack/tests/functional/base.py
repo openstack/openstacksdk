@@ -11,7 +11,7 @@
 # under the License.
 
 import os
-import os_client_config
+import openstack.config
 import time
 import unittest
 
@@ -39,7 +39,7 @@ def _get_resource_value(resource_key, default):
         return default
 
 opts = Opts(cloud_name=TEST_CLOUD)
-occ = os_client_config.OpenStackConfig()
+occ = openstack.config.OpenStackConfig()
 cloud = occ.get_one_cloud(opts.cloud, argparse=opts)
 
 IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')

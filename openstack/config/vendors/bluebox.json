@@ -1,0 +1,7 @@
+{
+  "name": "bluebox",
+  "profile": {
+    "volume_api_version": "1",
+    "region_name": "RegionOne"
+  }
+}

@@ -1,0 +1,22 @@
+---
+prelude: >
+    Swiftclient instantiation now provides authentication
+    information so that long lived swiftclient objects can
+    reauthenticate if necessary. This should be a temporary
+    situation until swiftclient supports keystoneauth
+    sessions at which point os-client-config will instantiate
+    swiftclient with a keystoneauth session.
+features:
+  - Swiftclient instantiation now provides authentication
+    information so that long lived swiftclient objects can
+    reauthenticate if necessary.
+  - Add support for explicit v2password auth type.
+  - Add SSL support to VEXXHOST vendor profile.
+  - Add zetta.io cloud vendor profile.
+fixes:
+  - Fix bug where project_domain_{name,id} was set even
+    if project_{name,id} was not set.
+other:
+  - HPCloud vendor profile removed due to cloud shutdown.
+  - RunAbove vendor profile removed due to migration to
+    OVH.

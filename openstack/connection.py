@@ -61,7 +61,7 @@ import logging
 import sys
 
 from keystoneauth1.loading import base as ksa_loader
-import os_client_config
+import openstack.config
 
 from openstack import exceptions
 from openstack import profile as _profile
@@ -79,10 +79,10 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
     :param str cloud_name: Use the `cloud_name` configuration details when
                            creating the Connection instance.
     :param cloud_config: An instance of
-                         `os_client_config.config.OpenStackConfig`
+                         `openstack.config.loader.OpenStackConfig`
                          as returned from the os-client-config library.
                          If no `config` is provided,
-                         `os_client_config.OpenStackConfig` will be called,
+                         `openstack.config.OpenStackConfig` will be called,
                          and the provided `cloud_name` will be used in
                          determining which cloud's configuration details
                          will be used in creation of the
@@ -90,7 +90,7 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
     :param options: A namespace object; allows direct passing in of options to
                     be added to the cloud config. This does not have to be an
                     instance of argparse.Namespace, despite the naming of the
-                    the `os_client_config.config.OpenStackConfig.get_one_cloud`
+                    the `openstack.config.loader.OpenStackConfig.get_one_cloud`
                     argument to which it is passed.
 
     :rtype: :class:`~openstack.connection.Connection`
@@ -105,7 +105,7 @@ def from_config(cloud_name=None, cloud_config=None, options=None):
     # this stuff needs to be fixed where we keep version and path separated.
     defaults['network_api_version'] = 'v2.0'
     if cloud_config is None:
-        occ = os_client_config.OpenStackConfig(override_defaults=defaults)
+        occ = openstack.config.OpenStackConfig(override_defaults=defaults)
         cloud_config = occ.get_one_cloud(cloud=cloud_name, argparse=options)
 
     if cloud_config.debug:

@@ -1,0 +1,10 @@
+---
+prelude: >
+    Fixed a bug where a project was always enabled upon update, unless
+    ``enabled=False`` is passed explicitly.
+fixes:
+  - |
+    [`bug 2001080 <https://storyboard.openstack.org/#!/story/2001080>`_]
+    Project update will only update the enabled field of projects when
+    ``enabled=True`` or ``enabled=False`` is passed explicitly. The previous
+    behavior had ``enabled=True`` as the default.

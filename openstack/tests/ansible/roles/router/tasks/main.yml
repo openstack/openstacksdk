@@ -1,0 +1,76 @@
+---
+- name: Create external network
+  os_network:
+     cloud: "{{ cloud }}"
+     state: present
+     name: "{{ external_network_name }}"
+     external: true
+
+- name: Create internal network
+  os_network:
+     cloud: "{{ cloud }}"
+     state: present
+     name: "{{ network_name }}"
+     external: false
+
+- name: Create subnet1
+  os_subnet:
+     cloud: "{{ cloud }}"
+     state: present
+     network_name: "{{ external_network_name }}"
+     name: shade_subnet1
+     cidr: 10.6.6.0/24
+
+- name: Create subnet2
+  os_subnet:
+     cloud: "{{ cloud }}"
+     state: present
+     network_name: "{{ network_name }}"
+     name: shade_subnet2
+     cidr: 10.7.7.0/24
+
+- name: Create router
+  os_router:
+     cloud: "{{ cloud }}"
+     state: present
+     name: "{{ router_name }}"
+     network: "{{ external_network_name }}"
+
+- name: Update router
+  os_router:
+     cloud: "{{ cloud }}"
+     state: present
+     name: "{{ router_name }}"
+     network: "{{ external_network_name }}"
+     interfaces:
+         - shade_subnet2
+
+- name: Delete router
+  os_router:
+     cloud: "{{ cloud }}"
+     state: absent
+     name: "{{ router_name }}"
+
+- name: Delete subnet1
+  os_subnet:
+     cloud: "{{ cloud }}"
+     state: absent
+     name: shade_subnet1
+
+- name: Delete subnet2
+  os_subnet:
+     cloud: "{{ cloud }}"
+     state: absent
+     name: shade_subnet2
+
+- name: Delete internal network
+  os_network:
+     cloud: "{{ cloud }}"
+     state: absent
+     name: "{{ network_name }}"
+
+- name: Delete external network
+  os_network:
+     cloud: "{{ cloud }}"
+     state: absent
+     name: "{{ external_network_name }}"

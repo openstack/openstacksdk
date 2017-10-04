@@ -1,0 +1,18 @@
+---
+fixes:
+  - Delete swift objects uploaded in service of uploading images
+    at the time that the corresponding image is deleted. On some clouds,
+    image uploads are accomplished by uploading the image to swift and
+    then running a task-import. As shade does this action on behalf of the
+    user, it is not reasonable to assume that the user would then be aware
+    of or manage the swift objects shade created, which led to an ongoing
+    leak of swift objects.
+  - Upload swift Large Objects as Static Large Objects by default. Shade
+    automatically uploads objects as Large Objects when they are over a
+    segment_size threshold. It had been doing this as Dynamic Large Objects,
+    which sound great, but which have the downside of not deleting their
+    sub-segments when the primary object is deleted. Since nothing in the
+    shade interface exposes that the object was segmented, the user would not
+    know they would also need to find and delete the segments. Instead, we
+    now upload as Static Large Objects which behave as expected and delete
+    segments when the object is deleted.

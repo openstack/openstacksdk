@@ -1,0 +1,6 @@
+---
+upgrade:
+  - troveclient is no longer a hard dependency. Users
+    who were using shade to construct a troveclient
+    Client object should use os_client_config.make_legacy_client
+    instead.

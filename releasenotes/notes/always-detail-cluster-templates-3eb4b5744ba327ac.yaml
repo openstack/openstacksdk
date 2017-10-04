@@ -1,0 +1,5 @@
+---
+upgrade:
+  - Cluster Templates have data model and normalization
+    now. As a result, the detail parameter is now ignored
+    and detailed records are always returned.

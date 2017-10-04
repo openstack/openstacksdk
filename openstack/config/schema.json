@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://git.openstack.org/cgit/openstack/cloud-data/plain/schema.json#",
+  "type": "object",
+  "properties": {
+    "auth_type": {
+      "name": "Auth Type",
+      "description": "Name of authentication plugin to be used",
+      "default": "password",
+      "type": "string"
+    },
+    "disable_vendor_agent": {
+      "name": "Disable Vendor Agent Properties",
+      "description": "Image properties required to disable vendor agent",
+      "type": "object",
+      "properties": {}
+    },
+    "floating_ip_source": {
+      "name": "Floating IP Source",
+      "description": "Which service provides Floating IPs",
+      "enum": [ "neutron", "nova", "None" ],
+      "default": "neutron"
+    },
+    "image_api_use_tasks": {
+      "name": "Image Task API",
+      "description": "Does the cloud require the Image Task API",
+      "default": false,
+      "type": "boolean"
+    },
+    "image_format": {
+      "name": "Image Format",
+      "description": "Format for uploaded Images",
+      "default": "qcow2",
+      "type": "string"
+    },
+    "interface": {
+      "name": "API Interface",
+      "description": "Which API Interface should connections hit",
+      "default": "public",
+      "enum": [ "public", "internal", "admin" ]
+    },
+    "secgroup_source": {
+      "name": "Security Group Source",
+      "description": "Which service provides security groups",
+      "default": "neutron",
+      "enum": [ "neutron", "nova", "None" ]
+    },
+    "baremetal_api_version": {
+      "name": "Baremetal API Service Type",
+      "description": "Baremetal API Service Type",
+      "default": "1",
+      "type": "string"
+    },
+    "compute_api_version": {
+      "name": "Compute API Version",
+      "description": "Compute API Version",
+      "default": "2",
+      "type": "string"
+    },
+    "database_api_version": {
+      "name": "Database API Version",
+      "description": "Database API Version",
+      "default": "1.0",
+      "type": "string"
+    },
+    "dns_api_version": {
+      "name": "DNS API Version",
+      "description": "DNS API Version",
+      "default": "2",
+      "type": "string"
+    },
+    "identity_api_version": {
+      "name": "Identity API Version",
+      "description": "Identity API Version",
+      "default": "2",
+      "type": "string"
+    },
+    "image_api_version": {
+      "name": "Image API Version",
+      "description": "Image API Version",
+      "default": "1",
+      "type": "string"
+    },
+    "network_api_version": {
+      "name": "Network API Version",
+      "description": "Network API Version",
+      "default": "2",
+      "type": "string"
+    },
+    "object_store_api_version": {
+      "name": "Object Storage API Version",
+      "description": "Object Storage API Version",
+      "default": "1",
+      "type": "string"
+    },
+    "volume_api_version": {
+      "name": "Volume API Version",
+      "description": "Volume API Version",
+      "default": "2",
+      "type": "string"
+    }
+  },
+  "required": [
+    "auth_type",
+    "baremetal_api_version",
+    "compute_api_version",
+    "database_api_version",
+    "disable_vendor_agent",
+    "dns_api_version",
+    "floating_ip_source",
+    "identity_api_version",
+    "image_api_use_tasks",
+    "image_api_version",
+    "image_format",
+    "interface",
+    "network_api_version",
+    "object_store_api_version",
+    "secgroup_source",
+    "volume_api_version"
+  ]
+}

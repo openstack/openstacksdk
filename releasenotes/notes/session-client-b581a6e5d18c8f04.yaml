@@ -1,0 +1,6 @@
+---
+features:
+  - Added kwargs and argparse processing for session_client.
+deprecations:
+  - Renamed simple_client to session_client. simple_client
+    will remain as an alias for backwards compat.

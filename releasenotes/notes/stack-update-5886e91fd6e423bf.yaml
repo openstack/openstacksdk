@@ -1,0 +1,4 @@
+---
+features:
+  - Implement update_stack to perform the update action on existing
+    orchestration stacks.
