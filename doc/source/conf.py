@@ -19,15 +19,23 @@ import openstackdocstheme
 
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('.'))
+
 # -- General configuration ----------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
+    'openstackdocstheme',
     'enforcer'
 ]
+
+# openstackdocstheme options
+repository_name = 'openstack/python-openstacksdk'
+bug_project = '760'
+bug_tag = ''
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
+html_theme = 'openstackdocs'
 
 # When True, this will raise an exception that kills sphinx-build.
 enforcer_warnings_as_errors = True
@@ -47,18 +55,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'python-openstacksdk'
-copyright = u'2015, OpenStack Foundation'
-
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
-#
-# "version" and "release" are used by the "log-a-bug" feature
-#
-# The short X.Y version.
-version = '1.0'
-# The full version, including alpha/beta/rc tags.
-release = '1.0'
+copyright = u'2017, Various members of the OpenStack Foundation'
 
 # A few variables have to be set for the log-a-bug feature.
 #   giturl: The location of conf.py on Git. Must be set manually.
@@ -101,13 +98,6 @@ exclude_patterns = []
 
 # -- Options for HTML output ----------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = 'openstackdocs'
-
-# Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [openstackdocstheme.get_html_theme_path()]
-
 # Don't let openstackdocstheme insert TOCs automatically.
 theme_include_auto_toc = False
 
@@ -123,10 +113,6 @@ latex_documents = [
      u'%s Documentation' % project,
      u'OpenStack Foundation', 'manual'),
 ]
-
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/3/': None,
-                       'http://docs.python-requests.org/en/master/': None}
 
 # Include both the class and __init__ docstrings when describing the class
 autoclass_content = "both"

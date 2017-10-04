@@ -43,7 +43,7 @@ extensions = [
 ]
 
 # openstackdocstheme options
-repository_name = 'openstack-infra/shade'
+repository_name = 'openstack/python-openstacksdk'
 bug_project = '760'
 bug_tag = ''
 html_last_updated_fmt = '%Y-%m-%d %H:%M'
@@ -61,15 +61,15 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Shade Release Notes'
-copyright = u'2017, Shade Developers'
+project = u'OpenStack SDK Release Notes'
+copyright = u'2017, Various members of the OpenStack Foundation'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 import pbr.version
-version_info = pbr.version.VersionInfo('shade')
+version_info = pbr.version.VersionInfo('openstacksdk')
 # The full version, including alpha/beta/rc tags.
 release = version_info.version_string_with_vcs()
 # The short X.Y version.

@@ -1,3 +1,6 @@
 # Format is:
 # <preferred e-mail> <other e-mail 1>
 # <preferred e-mail> <other e-mail 2>
+<corvus@inaugust.com> <jeblair@redhat.com>
+<corvus@inaugust.com> <jeblair@linux.vnet.ibm.com>
+<corvus@inaugust.com> <jeblair@hp.com>
