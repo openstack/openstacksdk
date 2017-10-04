@@ -2034,19 +2034,27 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)
 
-    def get_quota(self, quota):
+    def get_quota(self, quota, details=False):
         """Get a quota
 
         :param quota: The value can be the ID of a quota or a
                       :class:`~openstack.network.v2.quota.Quota` instance.
                       The ID of a quota is the same as the project ID
                       for the quota.
+        :param details: If set to True, details about quota usage will
+                        be returned.
 
         :returns: One :class:`~openstack.network.v2.quota.Quota`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(_quota.Quota, quota)
+        if details:
+            quota_obj = self._get_resource(_quota.Quota, quota)
+            quota = self._get(_quota.QuotaDetails, project=quota_obj.id,
+                              requires_id=False)
+        else:
+            quota = self._get(_quota.Quota, quota)
+        return quota
 
     def get_quota_default(self, quota):
         """Get a default quota
