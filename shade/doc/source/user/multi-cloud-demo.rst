@@ -62,17 +62,17 @@ Complete Example
 
 .. code:: python
 
-  import shade
+  import openstack.cloud
 
   # Initialize and turn on debug logging
-  shade.simple_logging(debug=True)
+  openstack.cloud.simple_logging(debug=True)
 
   for cloud_name, region_name in [
           ('my-vexxhost', 'ca-ymq-1'),
           ('my-citycloud', 'Buf1'),
           ('my-internap', 'ams01')]:
       # Initialize cloud
-      cloud = shade.openstack_cloud(cloud=cloud_name, region_name=region_name)
+      cloud = openstack.cloud.openstack_cloud(cloud=cloud_name, region_name=region_name)
 
       # Upload an image to the cloud
       image = cloud.create_image(
@@ -314,17 +314,17 @@ Complete Example Again
 
 .. code:: python
 
-  import shade
+  import openstack.cloud
 
   # Initialize and turn on debug logging
-  shade.simple_logging(debug=True)
+  openstack.cloud.simple_logging(debug=True)
 
   for cloud_name, region_name in [
           ('my-vexxhost', 'ca-ymq-1'),
           ('my-citycloud', 'Buf1'),
           ('my-internap', 'ams01')]:
       # Initialize cloud
-      cloud = shade.openstack_cloud(cloud=cloud_name, region_name=region_name)
+      cloud = openstack.cloud.openstack_cloud(cloud=cloud_name, region_name=region_name)
 
       # Upload an image to the cloud
       image = cloud.create_image(
@@ -346,27 +346,27 @@ Import the library
 
 .. code:: python
 
-  import shade
+  import openstack.cloud
 
 Logging
 =======
 
 * `shade` uses standard python logging
-* Special `shade.request_ids` logger for API request IDs
+* Special `openstack.cloud.request_ids` logger for API request IDs
 * `simple_logging` does easy defaults
 * Squelches some meaningless warnings
 
   * `debug`
 
      * Logs shade loggers at debug level
-     * Includes `shade.request_ids` debug logging
+     * Includes `openstack.cloud.request_ids` debug logging
 
   * `http_debug` Implies `debug`, turns on HTTP tracing
 
 .. code:: python
 
   # Initialize and turn on debug logging
-  shade.simple_logging(debug=True)
+  openstack.cloud.simple_logging(debug=True)
 
 Example with Debug Logging
 ==========================
@@ -375,10 +375,10 @@ Example with Debug Logging
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(debug=True)
 
-  cloud = shade.openstack_cloud(
+  cloud = openstack.cloud.openstack_cloud(
       cloud='my-vexxhost', region_name='ca-ymq-1')
   cloud.get_image('Ubuntu 16.04.1 LTS [2017-03-03]')
 
@@ -389,10 +389,10 @@ Example with HTTP Debug Logging
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(http_debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(http_debug=True)
 
-  cloud = shade.openstack_cloud(
+  cloud = openstack.cloud.openstack_cloud(
       cloud='my-vexxhost', region_name='ca-ymq-1')
   cloud.get_image('Ubuntu 16.04.1 LTS [2017-03-03]')
 
@@ -400,7 +400,7 @@ Cloud Regions
 =============
 
 * `cloud` constructor needs `cloud` and `region_name`
-* `shade.openstack_cloud` is a helper factory function
+* `openstack.cloud.openstack_cloud` is a helper factory function
 
 .. code:: python
 
@@ -409,7 +409,7 @@ Cloud Regions
           ('my-citycloud', 'Buf1'),
           ('my-internap', 'ams01')]:
       # Initialize cloud
-      cloud = shade.openstack_cloud(cloud=cloud_name, region_name=region_name)
+      cloud = openstack.cloud.openstack_cloud(cloud=cloud_name, region_name=region_name)
 
 Upload an Image
 ===============
@@ -486,10 +486,10 @@ Image and Flavor by Name or ID
 
 .. code:: python
 
-  import shade
+  import openstack.cloud
 
   # Initialize and turn on debug logging
-  shade.simple_logging(debug=True)
+  openstack.cloud.simple_logging(debug=True)
 
   for cloud_name, region_name, image, flavor in [
           ('my-vexxhost', 'ca-ymq-1',
@@ -499,7 +499,7 @@ Image and Flavor by Name or ID
           ('my-internap', 'ams01',
            'Ubuntu 16.04 LTS (Xenial Xerus)', 'A1.4')]:
       # Initialize cloud
-      cloud = shade.openstack_cloud(cloud=cloud_name, region_name=region_name)
+      cloud = openstack.cloud.openstack_cloud(cloud=cloud_name, region_name=region_name)
 
       # Boot a server, wait for it to boot, and then do whatever is needed
       # to get a public ip for it.
@@ -533,10 +533,10 @@ Image and Flavor by Dict
 
 .. code:: python
 
-  import shade
+  import openstack.cloud
 
   # Initialize and turn on debug logging
-  shade.simple_logging(debug=True)
+  openstack.cloud.simple_logging(debug=True)
 
   for cloud_name, region_name, image, flavor_id in [
           ('my-vexxhost', 'ca-ymq-1', 'Ubuntu 16.04.1 LTS [2017-03-03]',
@@ -546,7 +546,7 @@ Image and Flavor by Dict
           ('my-internap', 'ams01', 'Ubuntu 16.04 LTS (Xenial Xerus)',
            'A1.4')]:
       # Initialize cloud
-      cloud = shade.openstack_cloud(cloud=cloud_name, region_name=region_name)
+      cloud = openstack.cloud.openstack_cloud(cloud=cloud_name, region_name=region_name)
 
       # Boot a server, wait for it to boot, and then do whatever is needed
       # to get a public ip for it.
@@ -564,10 +564,10 @@ Munch Objects
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(debug=True)
 
-  cloud = shade.openstack_cloud(cloud='zetta', region_name='no-osl1')
+  cloud = openstack.cloud.openstack_cloud(cloud='zetta', region_name='no-osl1')
   image = cloud.get_image('Ubuntu 14.04 (AMD64) [Local Storage]')
   print(image.name)
   print(image['name'])
@@ -596,17 +596,17 @@ Cleanup Script
 
 .. code:: python
 
-  import shade
+  import openstack.cloud
 
   # Initialize and turn on debug logging
-  shade.simple_logging(debug=True)
+  openstack.cloud.simple_logging(debug=True)
 
   for cloud_name, region_name in [
           ('my-vexxhost', 'ca-ymq-1'),
           ('my-citycloud', 'Buf1'),
           ('my-internap', 'ams01')]:
       # Initialize cloud
-      cloud = shade.openstack_cloud(cloud=cloud_name, region_name=region_name)
+      cloud = openstack.cloud.openstack_cloud(cloud=cloud_name, region_name=region_name)
       for server in cloud.search_servers('my-server'):
           cloud.delete_server(server, wait=True, delete_ips=True)
 
@@ -618,10 +618,10 @@ Normalization
 
 .. code:: python
 
-  import shade
-  shade.simple_logging()
+  import openstack.cloud
+  openstack.cloud.simple_logging()
 
-  cloud = shade.openstack_cloud(cloud='fuga', region_name='cystack')
+  cloud = openstack.cloud.openstack_cloud(cloud='fuga', region_name='cystack')
   image = cloud.get_image(
       'Ubuntu 16.04 LTS - Xenial Xerus - 64-bit - Fuga Cloud Based Image')
   cloud.pprint(image)
@@ -634,10 +634,10 @@ Strict Normalized Results
 
 .. code:: python
 
-  import shade
-  shade.simple_logging()
+  import openstack.cloud
+  openstack.cloud.simple_logging()
 
-  cloud = shade.openstack_cloud(
+  cloud = openstack.cloud.openstack_cloud(
       cloud='fuga', region_name='cystack', strict=True)
   image = cloud.get_image(
       'Ubuntu 16.04 LTS - Xenial Xerus - 64-bit - Fuga Cloud Based Image')
@@ -651,10 +651,10 @@ How Did I Find the Image Name for the Last Example?
 
 .. code:: python
 
-  import shade
-  shade.simple_logging()
+  import openstack.cloud
+  openstack.cloud.simple_logging()
 
-  cloud = shade.openstack_cloud(cloud='fuga', region_name='cystack')
+  cloud = openstack.cloud.openstack_cloud(cloud='fuga', region_name='cystack')
   cloud.pprint([
       image for image in cloud.list_images()
       if 'ubuntu' in image.name.lower()])
@@ -672,10 +672,10 @@ Added / Modified Information
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(debug=True)
 
-  cloud = shade.openstack_cloud(cloud='my-citycloud', region_name='Buf1')
+  cloud = openstack.cloud.openstack_cloud(cloud='my-citycloud', region_name='Buf1')
   try:
       server = cloud.create_server(
           'my-server', image='Ubuntu 16.04 Xenial Xerus',
@@ -714,10 +714,10 @@ User Agent Info
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(http_debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(http_debug=True)
 
-  cloud = shade.openstack_cloud(
+  cloud = openstack.cloud.openstack_cloud(
       cloud='datacentred', app_name='AmazingApp', app_version='1.0')
   cloud.list_networks()
 
@@ -732,10 +732,10 @@ Uploading Large Objects
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(debug=True)
 
-  cloud = shade.openstack_cloud(cloud='ovh', region_name='SBG1')
+  cloud = openstack.cloud.openstack_cloud(cloud='ovh', region_name='SBG1')
   cloud.create_object(
       container='my-container', name='my-object',
       filename='/home/mordred/briarcliff.sh3d')
@@ -753,10 +753,10 @@ Uploading Large Objects
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(debug=True)
 
-  cloud = shade.openstack_cloud(cloud='ovh', region_name='SBG1')
+  cloud = openstack.cloud.openstack_cloud(cloud='ovh', region_name='SBG1')
   cloud.create_object(
       container='my-container', name='my-object',
       filename='/home/mordred/briarcliff.sh3d',
@@ -769,10 +769,10 @@ Service Conditionals
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(debug=True)
 
-  cloud = shade.openstack_cloud(cloud='kiss', region_name='region1')
+  cloud = openstack.cloud.openstack_cloud(cloud='kiss', region_name='region1')
   print(cloud.has_service('network'))
   print(cloud.has_service('container-orchestration'))
 
@@ -783,10 +783,10 @@ Service Conditional Overrides
 
 .. code:: python
 
-  import shade
-  shade.simple_logging(debug=True)
+  import openstack.cloud
+  openstack.cloud.simple_logging(debug=True)
 
-  cloud = shade.openstack_cloud(cloud='rax', region_name='DFW')
+  cloud = openstack.cloud.openstack_cloud(cloud='rax', region_name='DFW')
   print(cloud.has_service('network'))
 
 .. code:: yaml

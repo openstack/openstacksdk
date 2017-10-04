@@ -4,7 +4,7 @@ Usage
 
 To use shade in a project::
 
-	import shade
+	import openstack.cloud
 
 For a simple example, see :ref:`example`.
 
@@ -15,8 +15,8 @@ For a simple example, see :ref:`example`.
   objects can be accessed using either dictionary or object notation
   (e.g., ``server.id``, ``image.name`` and ``server['id']``, ``image['name']``)
 
-.. autoclass:: shade.OpenStackCloud
+.. autoclass:: openstack.cloud.OpenStackCloud
    :members:
 
-.. autoclass:: shade.OperatorCloud
+.. autoclass:: openstack.cloud.OperatorCloud
    :members:

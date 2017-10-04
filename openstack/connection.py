@@ -61,7 +61,7 @@ import logging
 import sys
 
 from keystoneauth1.loading import base as ksa_loader
-import os_client_config
+import openstack.config as os_client_config
 
 from openstack import exceptions
 from openstack import profile as _profile

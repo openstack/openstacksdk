@@ -1,6 +1,6 @@
-import shade
-shade.simple_logging(http_debug=True)
+import openstack.cloud
+openstack.cloud.simple_logging(http_debug=True)
 
-cloud = shade.openstack_cloud(
+cloud = openstack.cloud.openstack_cloud(
     cloud='datacentred', app_name='AmazingApp', app_version='1.0')
 cloud.list_networks()

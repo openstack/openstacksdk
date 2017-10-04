@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os_client_config
+import openstack.config as os_client_config
 import pprint
 import sys
 import urlparse

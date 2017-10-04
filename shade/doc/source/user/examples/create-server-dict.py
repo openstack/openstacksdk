@@ -1,7 +1,7 @@
-import shade
+import openstack.cloud
 
 # Initialize and turn on debug logging
-shade.simple_logging(debug=True)
+openstack.cloud.simple_logging(debug=True)
 
 for cloud_name, region_name, image, flavor_id in [
         ('my-vexxhost', 'ca-ymq-1', 'Ubuntu 16.04.1 LTS [2017-03-03]',
@@ -11,7 +11,7 @@ for cloud_name, region_name, image, flavor_id in [
         ('my-internap', 'ams01', 'Ubuntu 16.04 LTS (Xenial Xerus)',
          'A1.4')]:
     # Initialize cloud
-    cloud = shade.openstack_cloud(cloud=cloud_name, region_name=region_name)
+    cloud = openstack.cloud.openstack_cloud(cloud=cloud_name, region_name=region_name)
 
     # Boot a server, wait for it to boot, and then do whatever is needed
     # to get a public ip for it.

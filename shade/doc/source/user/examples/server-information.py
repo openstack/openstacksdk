@@ -1,7 +1,7 @@
-import shade
-shade.simple_logging(debug=True)
+import openstack.cloud
+openstack.cloud.simple_logging(debug=True)
 
-cloud = shade.openstack_cloud(cloud='my-citycloud', region_name='Buf1')
+cloud = openstack.cloud.openstack_cloud(cloud='my-citycloud', region_name='Buf1')
 try:
     server = cloud.create_server(
         'my-server', image='Ubuntu 16.04 Xenial Xerus',

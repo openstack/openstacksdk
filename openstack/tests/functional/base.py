@@ -11,7 +11,7 @@
 # under the License.
 
 import os
-import os_client_config
+import openstack.config as os_client_config
 import time
 import unittest
 

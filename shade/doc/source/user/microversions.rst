@@ -8,7 +8,7 @@ logic to handle each microversion for a given REST call it makes, with the
 following rules in mind:
 
 * If an activity shade performs can be done differently or more efficiently
-  with a new microversion, the support should be added to shade.
+  with a new microversion, the support should be added to openstack.cloud.
 
 * shade should always attempt to use the latest microversion it is aware of
   for a given call, unless a microversion removes important data.

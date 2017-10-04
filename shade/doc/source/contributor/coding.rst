@@ -67,7 +67,7 @@ Returned Resources
 ==================
 
 Complex objects returned to the caller must be a `munch.Munch` type. The
-`shade._adapter.Adapter` class makes resources into `munch.Munch`.
+`openstack.cloud._adapter.Adapter` class makes resources into `munch.Munch`.
 
 All objects should be normalized. It is shade's purpose in life to make
 OpenStack consistent for end users, and this means not trusting the clouds
@@ -79,7 +79,7 @@ Fields should not be in the normalization contract if we cannot commit to
 providing them to all users.
 
 Fields should be renamed in normalization to be consistent with
-the rest of shade. For instance, nothing in shade exposes the legacy OpenStack
+the rest of openstack.cloud. For instance, nothing in shade exposes the legacy OpenStack
 concept of "tenant" to a user, but instead uses "project" even if the
 cloud uses tenant.
 

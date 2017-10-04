@@ -18,7 +18,7 @@ Get a named cloud.
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   cloud_config = os_client_config.OpenStackConfig().get_one_cloud(
       'internap', region_name='ams01')
@@ -28,7 +28,7 @@ Or, get all of the clouds.
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   cloud_config = os_client_config.OpenStackConfig().get_all_clouds()
   for cloud in cloud_config:
@@ -47,7 +47,7 @@ with - as well as a consumption argument.
   import argparse
   import sys
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   cloud_config = os_client_config.OpenStackConfig()
   parser = argparse.ArgumentParser()
@@ -67,7 +67,7 @@ a helper function is provided. The following will get you a fully configured
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   sdk = os_client_config.make_sdk()
 
@@ -75,7 +75,7 @@ If you want to do the same thing but on a named cloud.
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   sdk = os_client_config.make_sdk(cloud='mtvexx')
 
@@ -85,7 +85,7 @@ If you want to do the same thing but also support command line parsing.
 
   import argparse
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   sdk = os_client_config.make_sdk(options=argparse.ArgumentParser())
 
@@ -105,7 +105,7 @@ instance.
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   cloud = os_client_config.make_shade()
 
@@ -113,7 +113,7 @@ If you want to do the same thing but on a named cloud.
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   cloud = os_client_config.make_shade(cloud='mtvexx')
 
@@ -123,7 +123,7 @@ If you want to do the same thing but also support command line parsing.
 
   import argparse
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   cloud = os_client_config.make_shade(options=argparse.ArgumentParser())
 
@@ -138,7 +138,7 @@ that is mounted on the endpoint for the service you're looking for.
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   session = os_client_config.make_rest_client('compute', cloud='vexxhost')
 
@@ -155,7 +155,7 @@ will get you a fully configured `novaclient` instance.
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   nova = os_client_config.make_client('compute')
 
@@ -163,7 +163,7 @@ If you want to do the same thing but on a named cloud.
 
 .. code-block:: python
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   nova = os_client_config.make_client('compute', cloud='mtvexx')
 
@@ -173,7 +173,7 @@ If you want to do the same thing but also support command line parsing.
 
   import argparse
 
-  import os_client_config
+  import openstack.config as os_client_config
 
   nova = os_client_config.make_client(
       'compute', options=argparse.ArgumentParser())

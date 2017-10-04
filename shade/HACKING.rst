@@ -44,6 +44,6 @@ Unit Tests
 Unit tests should be virtually instant. If a unit test takes more than 1 second
 to run, it is a bad unit test. Honestly, 1 second is too slow.
 
-All unit test classes should subclass `shade.tests.unit.base.BaseTestCase`. The
+All unit test classes should subclass `openstack.cloud.tests.unit.base.BaseTestCase`. The
 base TestCase class takes care of properly creating `OpenStackCloud` objects
 in a way that protects against local environment.

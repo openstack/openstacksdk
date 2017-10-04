@@ -15,7 +15,7 @@ import os
 import fixtures
 from keystoneauth1 import session as ksa_session
 import mock
-import os_client_config
+import openstack.config as os_client_config
 
 from openstack import connection
 from openstack import exceptions

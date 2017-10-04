@@ -47,14 +47,14 @@ Sometimes an example is nice.
 
 #. Create a server with *shade*, configured with the ``clouds.yml`` file::
 
-    import shade
+    import openstack.cloud
 
     # Initialize and turn on debug logging
-    shade.simple_logging(debug=True)
+    openstack.cloud.simple_logging(debug=True)
 
     # Initialize cloud
     # Cloud configs are read with os-client-config
-    cloud = shade.openstack_cloud(cloud='mordred')
+    cloud = openstack.cloud.openstack_cloud(cloud='mordred')
 
     # Upload an image to the cloud
     image = cloud.create_image(

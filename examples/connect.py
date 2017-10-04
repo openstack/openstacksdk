@@ -19,8 +19,7 @@ For a full guide see TODO(etoews):link to docs on developer.openstack.org
 import argparse
 import os
 
-import os_client_config
-
+from openstack import config as occ
 from openstack import connection
 from openstack import profile
 from openstack import utils
@@ -49,8 +48,8 @@ def _get_resource_value(resource_key, default):
     except KeyError:
         return default
 
-occ = os_client_config.OpenStackConfig()
-cloud = occ.get_one_cloud(TEST_CLOUD)
+config = occ.OpenStackConfig()
+cloud = config.get_one_cloud(TEST_CLOUD)
 
 SERVER_NAME = 'openstacksdk-example'
 IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
@@ -68,14 +67,14 @@ EXAMPLE_IMAGE_NAME = 'openstacksdk-example-public-image'
 
 def create_connection_from_config():
     opts = Opts(cloud_name=TEST_CLOUD)
-    occ = os_client_config.OpenStackConfig()
-    cloud = occ.get_one_cloud(opts.cloud)
+    config = occ.OpenStackConfig()
+    cloud = config.get_one_cloud(opts.cloud)
     return connection.from_config(cloud_config=cloud, options=opts)
 
 
 def create_connection_from_args():
     parser = argparse.ArgumentParser()
-    config = os_client_config.OpenStackConfig()
+    config = occ.OpenStackConfig()
     config.register_argparse_arguments(parser, sys.argv[1:])
     args = parser.parse_args()
     return connection.from_config(options=args)
