@@ -1089,7 +1089,7 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._list(_event.Event, paginated=True, **query)
 
-    def wait_for_status(self, resource, status, failures=[], interval=2,
+    def wait_for_status(self, resource, status, failures=None, interval=2,
                         wait=120):
         """Wait for a resource to be in a particular status.
 
@@ -1111,6 +1111,7 @@ class Proxy(proxy2.BaseProxy):
         :raises: :class:`~AttributeError` if the resource does not have a
                 ``status`` attribute.
         """
+        failures = [] if failures is None else failures
         return resource2.wait_for_status(self, resource, status,
                                          failures, interval, wait)
 
