@@ -6384,7 +6384,7 @@ class OpenStackCloud(
         'block_device_mapping_v2', 'nics', 'scheduler_hints',
         'config_drive', 'admin_pass', 'disk_config')
     def create_server(
-            self, name, image, flavor,
+            self, name, image=None, flavor=None,
             auto_ip=True, ips=None, ip_pool=None,
             root_volume=None, terminate_volume=False,
             wait=False, timeout=180, reuse_ips=True,
@@ -6395,7 +6395,8 @@ class OpenStackCloud(
         """Create a virtual server instance.
 
         :param name: Something to name the server.
-        :param image: Image dict, name or ID to boot with.
+        :param image: Image dict, name or ID to boot with. image is required
+                      unless boot_volume is given.
         :param flavor: Flavor dict, name or ID to boot onto.
         :param auto_ip: Whether to take actions to find a routable IP for
                         the server. (defaults to True)
@@ -6476,6 +6477,14 @@ class OpenStackCloud(
         :returns: A ``munch.Munch`` representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
+        # TODO(shade) Image is optional but flavor is not - yet flavor comes
+        # after image in the argument list. Doh.
+        if not flavor:
+            raise TypeError(
+                "create_server() missing 1 required argument: 'flavor'")
+        if not image and not boot_volume:
+            raise TypeError(
+                "create_server() requires either 'image' or 'boot_volume'")
         # TODO(mordred) Add support for description starting in 2.19
         security_groups = kwargs.get('security_groups', [])
         if security_groups and not isinstance(kwargs['security_groups'], list):
@@ -6578,7 +6587,7 @@ class OpenStackCloud(
                 kwargs['imageRef'] = image['id']
             else:
                 kwargs['imageRef'] = self.get_image(image).id
-        if flavor and isinstance(flavor, dict):
+        if isinstance(flavor, dict):
             kwargs['flavorRef'] = flavor['id']
         else:
             kwargs['flavorRef'] = self.get_flavor(flavor, get_extra=False).id
