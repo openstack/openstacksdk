@@ -7,7 +7,9 @@
     - { role: auth, tags: auth }
     - { role: client_config, tags: client_config }
     - { role: group, tags: group }
-    - { role: image, tags: image }
+    # TODO(mordred) Reenable this once the fixed os_image winds up in an
+    # upstream ansible release.
+    # - { role: image, tags: image }
     - { role: keypair, tags: keypair }
     - { role: keystone_domain, tags: keystone_domain }
     - { role: keystone_role, tags: keystone_role }

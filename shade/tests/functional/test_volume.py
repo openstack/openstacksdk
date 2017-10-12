@@ -32,6 +32,7 @@ class TestVolume(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestVolume, self).setUp()
+        self.skipTest('Volume functional tests temporarily disabled')
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
 
