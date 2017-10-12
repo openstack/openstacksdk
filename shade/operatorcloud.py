@@ -1390,7 +1390,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         url = '/OS-KSADM/roles' if v2 else '/roles'
         data = self._identity_client.get(
             url, params=kwargs, error_message="Failed to list roles")
-        return _utils.normalize_roles(self._get_and_munchify('roles', data))
+        return self._normalize_roles(self._get_and_munchify('roles', data))
 
     @_utils.valid_kwargs('domain_id')
     def search_roles(self, name_or_id=None, filters=None, **kwargs):
@@ -1711,7 +1711,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         data = self._identity_client.post(
             url, json={'role': kwargs}, error_message=msg)
         role = self._get_and_munchify('role', data)
-        return _utils.normalize_roles([role])[0]
+        return self._normalize_role(role)
 
     @_utils.valid_kwargs('domain_id')
     def update_role(self, name_or_id, name, **kwargs):
@@ -1740,7 +1740,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         data = self._identity_client.patch('/roles', error_message=msg,
                                            json=json_kwargs)
         role = self._get_and_munchify('role', data)
-        return _utils.normalize_roles([role])[0]
+        return self._normalize_role(role)
 
     @_utils.valid_kwargs('domain_id')
     def delete_role(self, name_or_id, **kwargs):
