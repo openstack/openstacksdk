@@ -339,7 +339,7 @@ class TestImage(BaseTestImage):
             dict(method='GET',
                  uri='https://image.example.com/v2/tasks/{id}'.format(
                      id=task_id),
-                 json={'images': args}),
+                 json=args),
             dict(method='GET', uri='https://image.example.com/v2/images',
                  json={'images': [image_no_checksums]}),
             dict(method='PATCH',

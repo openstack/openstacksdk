@@ -4704,9 +4704,8 @@ class OpenStackCloud(
                     "Timeout waiting for the image to import."):
                 try:
                     if image_id is None:
-                        data = self._image_client.get(
+                        status = self._image_client.get(
                             '/tasks/{id}'.format(id=glance_task.id))
-                        status = self._get_and_munchify('images', data=data)
                 except OpenStackCloudHTTPError as e:
                     if e.response.status_code == 503:
                         # Clear the exception so that it doesn't linger
@@ -4716,8 +4715,8 @@ class OpenStackCloud(
                         continue
                     raise
 
-                if status.status == 'success':
-                    image_id = status.result['image_id']
+                if status['status'] == 'success':
+                    image_id = status['result']['image_id']
                     try:
                         image = self.get_image(image_id)
                     except OpenStackCloudHTTPError as e:
@@ -4736,15 +4735,15 @@ class OpenStackCloud(
                         "Image Task %s imported %s in %s",
                         glance_task.id, image_id, (time.time() - start))
                     return self.get_image(image_id)
-                if status.status == 'failure':
-                    if status.message == IMAGE_ERROR_396:
+                elif status['status'] == 'failure':
+                    if status['message'] == IMAGE_ERROR_396:
                         glance_task = self._image_client.post(
                             '/tasks', data=task_args)
                         self.list_images.invalidate(self)
                     else:
                         raise OpenStackCloudException(
                             "Image creation failed: {message}".format(
-                                message=status.message),
+                                message=status['message']),
                             extra_data=status)
         else:
             return glance_task
