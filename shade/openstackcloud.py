@@ -6390,6 +6390,7 @@ class OpenStackCloud(
             wait=False, timeout=180, reuse_ips=True,
             network=None, boot_from_volume=False, volume_size='50',
             boot_volume=None, volumes=None, nat_destination=None,
+            group=None,
             **kwargs):
         """Create a virtual server instance.
 
@@ -6468,6 +6469,10 @@ class OpenStackCloud(
                                 be attached to, if it's not possible to
                                 infer from the cloud's configuration.
                                 (Optional, defaults to None)
+        :param group: ServerGroup dict, name or id to boot the server in.
+                      If a group is provided in both scheduler_hints and in
+                      the group param, the group param will win.
+                      (Optional, defaults to None)
         :returns: A ``munch.Munch`` representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
@@ -6477,15 +6482,14 @@ class OpenStackCloud(
             security_groups = [security_groups]
         if security_groups:
             kwargs['security_groups'] = []
-            for group in security_groups:
-                kwargs['security_groups'].append(dict(name=group))
+            for sec_group in security_groups:
+                kwargs['security_groups'].append(dict(name=sec_group))
         if 'userdata' in kwargs:
             user_data = kwargs.pop('userdata')
             if user_data:
                 kwargs['user_data'] = self._encode_server_userdata(user_data)
         for (desired, given) in (
                 ('OS-DCF:diskConfig', 'disk_config'),
-                ('os:scheduler_hints', 'scheduler_hints'),
                 ('config_drive', 'config_drive'),
                 ('key_name', 'key_name'),
                 ('metadata', 'meta'),
@@ -6494,6 +6498,16 @@ class OpenStackCloud(
             if value:
                 kwargs[desired] = value
 
+        hints = kwargs.pop('scheduler_hints', {})
+        if group:
+            group_obj = self.get_server_group(group)
+            if not group_obj:
+                raise OpenStackCloudException(
+                    "Server Group {group} was requested but was not found"
+                    " on the cloud".format(group=group))
+            hints['group'] = group_obj['id']
+        if hints:
+            kwargs['os:scheduler_hints'] = hints
         kwargs.setdefault('max_count', kwargs.get('max_count', 1))
         kwargs.setdefault('min_count', kwargs.get('min_count', 1))
 
