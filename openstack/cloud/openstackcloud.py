@@ -681,6 +681,18 @@ class OpenStackCloud(_normalize.Normalizer):
             project=self._get_project_info(project_id),
         )
 
+    def _get_identity_location(self):
+        '''Identity resources do not exist inside of projects.'''
+        return munch.Munch(
+            cloud=self.name,
+            region_name=None,
+            zone=None,
+            project=munch.Munch(
+                id=None,
+                name=None,
+                domain_id=None,
+                domain_name=None))
+
     def _get_project_id_param_dict(self, name_or_id):
         if name_or_id:
             project = self.get_project(name_or_id)
@@ -4715,9 +4727,8 @@ class OpenStackCloud(_normalize.Normalizer):
                     "Timeout waiting for the image to import."):
                 try:
                     if image_id is None:
-                        data = self._image_client.get(
+                        status = self._image_client.get(
                             '/tasks/{id}'.format(id=glance_task.id))
-                        status = self._get_and_munchify('images', data=data)
                 except OpenStackCloudHTTPError as e:
                     if e.response.status_code == 503:
                         # Clear the exception so that it doesn't linger
@@ -4727,8 +4738,8 @@ class OpenStackCloud(_normalize.Normalizer):
                         continue
                     raise
 
-                if status.status == 'success':
-                    image_id = status.result['image_id']
+                if status['status'] == 'success':
+                    image_id = status['result']['image_id']
                     try:
                         image = self.get_image(image_id)
                     except OpenStackCloudHTTPError as e:
@@ -4747,15 +4758,15 @@ class OpenStackCloud(_normalize.Normalizer):
                         "Image Task %s imported %s in %s",
                         glance_task.id, image_id, (time.time() - start))
                     return self.get_image(image_id)
-                if status.status == 'failure':
-                    if status.message == IMAGE_ERROR_396:
+                elif status['status'] == 'failure':
+                    if status['message'] == IMAGE_ERROR_396:
                         glance_task = self._image_client.post(
                             '/tasks', data=task_args)
                         self.list_images.invalidate(self)
                     else:
                         raise OpenStackCloudException(
                             "Image creation failed: {message}".format(
-                                message=status.message),
+                                message=status['message']),
                             extra_data=status)
         else:
             return glance_task
@@ -4818,7 +4829,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def create_volume(
             self, size,
-            wait=True, timeout=None, image=None, **kwargs):
+            wait=True, timeout=None, image=None, bootable=None, **kwargs):
         """Create a volume.
 
         :param size: Size, in GB of the volume to create.
@@ -4828,6 +4839,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :param timeout: Seconds to wait for volume creation. None is forever.
         :param image: (optional) Image name, ID or object from which to create
                       the volume
+        :param bootable: (optional) Make this volume bootable. If set, wait
+                         will also be set to true.
         :param kwargs: Keyword arguments as expected for cinder client.
 
         :returns: The created volume object.
@@ -4835,6 +4848,9 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
+        if bootable is not None:
+            wait = True
+
         if image:
             image_obj = self.get_image(image)
             if not image_obj:
@@ -4870,12 +4886,41 @@ class OpenStackCloud(_normalize.Normalizer):
                     continue
 
                 if volume['status'] == 'available':
+                    if bootable is not None:
+                        self.set_volume_bootable(volume, bootable=bootable)
+                        # no need to re-fetch to update the flag, just set it.
+                        volume['bootable'] = bootable
                     return volume
 
                 if volume['status'] == 'error':
                     raise OpenStackCloudException("Error in creating volume")
 
         return self._normalize_volume(volume)
+
+    def set_volume_bootable(self, name_or_id, bootable=True):
+        """Set a volume's bootable flag.
+
+        :param name_or_id: Name, unique ID of the volume or a volume dict.
+        :param bool bootable: Whether the volume should be bootable.
+                              (Defaults to True)
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        volume = self.get_volume(name_or_id)
+
+        if not volume:
+            raise OpenStackCloudException(
+                "Volume {name_or_id} does not exist".format(
+                    name_or_id=name_or_id))
+
+        self._volume_client.post(
+            'volumes/{id}/action'.format(id=volume['id']),
+            json={'os-set_bootable': {'bootable': bootable}},
+            error_message="Error setting bootable on volume {volume}".format(
+                volume=volume['id'])
+        )
 
     def delete_volume(self, name_or_id=None, wait=True, timeout=None,
                       force=False):
@@ -6396,17 +6441,19 @@ class OpenStackCloud(_normalize.Normalizer):
         'block_device_mapping_v2', 'nics', 'scheduler_hints',
         'config_drive', 'admin_pass', 'disk_config')
     def create_server(
-            self, name, image, flavor,
+            self, name, image=None, flavor=None,
             auto_ip=True, ips=None, ip_pool=None,
             root_volume=None, terminate_volume=False,
             wait=False, timeout=180, reuse_ips=True,
             network=None, boot_from_volume=False, volume_size='50',
             boot_volume=None, volumes=None, nat_destination=None,
+            group=None,
             **kwargs):
         """Create a virtual server instance.
 
         :param name: Something to name the server.
-        :param image: Image dict, name or ID to boot with.
+        :param image: Image dict, name or ID to boot with. image is required
+                      unless boot_volume is given.
         :param flavor: Flavor dict, name or ID to boot onto.
         :param auto_ip: Whether to take actions to find a routable IP for
                         the server. (defaults to True)
@@ -6480,24 +6527,35 @@ class OpenStackCloud(_normalize.Normalizer):
                                 be attached to, if it's not possible to
                                 infer from the cloud's configuration.
                                 (Optional, defaults to None)
+        :param group: ServerGroup dict, name or id to boot the server in.
+                      If a group is provided in both scheduler_hints and in
+                      the group param, the group param will win.
+                      (Optional, defaults to None)
         :returns: A ``munch.Munch`` representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
+        # TODO(shade) Image is optional but flavor is not - yet flavor comes
+        # after image in the argument list. Doh.
+        if not flavor:
+            raise TypeError(
+                "create_server() missing 1 required argument: 'flavor'")
+        if not image and not boot_volume:
+            raise TypeError(
+                "create_server() requires either 'image' or 'boot_volume'")
         # TODO(mordred) Add support for description starting in 2.19
         security_groups = kwargs.get('security_groups', [])
         if security_groups and not isinstance(kwargs['security_groups'], list):
             security_groups = [security_groups]
         if security_groups:
             kwargs['security_groups'] = []
-            for group in security_groups:
-                kwargs['security_groups'].append(dict(name=group))
+            for sec_group in security_groups:
+                kwargs['security_groups'].append(dict(name=sec_group))
         if 'userdata' in kwargs:
             user_data = kwargs.pop('userdata')
             if user_data:
                 kwargs['user_data'] = self._encode_server_userdata(user_data)
         for (desired, given) in (
                 ('OS-DCF:diskConfig', 'disk_config'),
-                ('os:scheduler_hints', 'scheduler_hints'),
                 ('config_drive', 'config_drive'),
                 ('key_name', 'key_name'),
                 ('metadata', 'meta'),
@@ -6506,6 +6564,16 @@ class OpenStackCloud(_normalize.Normalizer):
             if value:
                 kwargs[desired] = value
 
+        hints = kwargs.pop('scheduler_hints', {})
+        if group:
+            group_obj = self.get_server_group(group)
+            if not group_obj:
+                raise OpenStackCloudException(
+                    "Server Group {group} was requested but was not found"
+                    " on the cloud".format(group=group))
+            hints['group'] = group_obj['id']
+        if hints:
+            kwargs['os:scheduler_hints'] = hints
         kwargs.setdefault('max_count', kwargs.get('max_count', 1))
         kwargs.setdefault('min_count', kwargs.get('min_count', 1))
 
@@ -6576,7 +6644,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 kwargs['imageRef'] = image['id']
             else:
                 kwargs['imageRef'] = self.get_image(image).id
-        if flavor and isinstance(flavor, dict):
+        if isinstance(flavor, dict):
             kwargs['flavorRef'] = flavor['id']
         else:
             kwargs['flavorRef'] = self.get_flavor(flavor, get_extra=False).id

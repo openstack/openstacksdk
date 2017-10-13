@@ -99,6 +99,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertIsNone(self.user_cloud.get_server(self.server_name))
 
     def test_attach_detach_volume(self):
+        self.skipTest('Volume functional tests temporarily disabled')
         server_name = self.getUniqueString()
         self.addCleanup(self._cleanup_servers_and_volumes, server_name)
         server = self.user_cloud.create_server(
@@ -263,6 +264,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         return volume_id
 
     def test_create_boot_from_volume_image(self):
+        self.skipTest('Volume functional tests temporarily disabled')
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
@@ -300,6 +302,7 @@ class TestCompute(base.BaseFunctionalTestCase):
                 return
 
     def test_create_terminate_volume_image(self):
+        self.skipTest('Volume functional tests temporarily disabled')
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
@@ -322,6 +325,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertIsNone(self.user_cloud.get_server(self.server_name))
 
     def test_create_boot_from_volume_preexisting(self):
+        self.skipTest('Volume functional tests temporarily disabled')
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
@@ -349,6 +353,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertIsNone(self.user_cloud.get_volume(volume_id))
 
     def test_create_boot_attach_volume(self):
+        self.skipTest('Volume functional tests temporarily disabled')
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
@@ -376,6 +381,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         self.assertIsNone(self.user_cloud.get_volume(volume_id))
 
     def test_create_boot_from_volume_preexisting_terminate(self):
+        self.skipTest('Volume functional tests temporarily disabled')
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)

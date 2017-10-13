@@ -374,17 +374,6 @@ def normalize_role_assignments(assignments):
     return new_assignments
 
 
-def normalize_roles(roles):
-    """Normalize Identity roles."""
-    ret = [
-        dict(
-            id=role.get('id'),
-            name=role.get('name'),
-        ) for role in roles
-    ]
-    return meta.obj_list_to_munch(ret)
-
-
 def normalize_flavor_accesses(flavor_accesses):
     """Normalize Flavor access list."""
     return [munch.Munch(
