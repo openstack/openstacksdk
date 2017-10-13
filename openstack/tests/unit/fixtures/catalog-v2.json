@@ -47,10 +47,10 @@
         "endpoints_links": [],
         "endpoints": [
           {
-            "adminURL": "https://image.example.com",
+            "adminURL": "https://image.example.com/v2",
             "region": "RegionOne",
-            "publicURL": "https://image.example.com",
-            "internalURL": "https://image.example.com",
+            "publicURL": "https://image.example.com/v2",
+            "internalURL": "https://image.example.com/v2",
             "id": "5a64de3c4a614d8d8f8d1ba3dee5f45f"
           }
         ],

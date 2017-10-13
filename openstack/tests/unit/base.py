@@ -452,10 +452,12 @@ class RequestsMockTestCase(BaseTestCase):
             log_inner_exceptions=True)
 
     def get_glance_discovery_mock_dict(
-            self, image_version_json='image-version.json'):
+            self,
+            image_version_json='image-version.json',
+            image_discovery_url='https://image.example.com/'):
         discovery_fixture = os.path.join(
             self.fixtures_directory, image_version_json)
-        return dict(method='GET', uri='https://image.example.com/',
+        return dict(method='GET', uri=image_discovery_url,
                     status_code=300,
                     text=open(discovery_fixture, 'r').read())
 
@@ -471,14 +473,17 @@ class RequestsMockTestCase(BaseTestCase):
         return dict(method='GET', uri="https://bare-metal.example.com/",
                     text=open(discovery_fixture, 'r').read())
 
-    def use_glance(self, image_version_json='image-version.json'):
+    def use_glance(
+            self, image_version_json='image-version.json',
+            image_discovery_url='https://image.example.com/'):
         # NOTE(notmorgan): This method is only meant to be used in "setUp"
         # where the ordering of the url being registered is tightly controlled
         # if the functionality of .use_glance is meant to be used during an
         # actual test case, use .get_glance_discovery_mock and apply to the
         # right location in the mock_uris when calling .register_uris
         self.__do_register_uris([
-            self.get_glance_discovery_mock_dict(image_version_json)])
+            self.get_glance_discovery_mock_dict(
+                image_version_json, image_discovery_url)])
 
     def use_designate(self):
         # NOTE(slaweq): This method is only meant to be used in "setUp"

@@ -690,6 +690,44 @@ class TestImage(BaseTestImage):
         self.assert_calls()
 
 
+class TestImageSuburl(BaseTestImage):
+
+    def setUp(self):
+        super(TestImageSuburl, self).setUp()
+        self.use_keystone_v3(catalog='catalog-v3-suburl.json')
+        self.use_glance(
+            image_version_json='image-version-suburl.json',
+            image_discovery_url='https://example.com/image')
+
+    def test_list_images(self):
+        self.register_uris([
+            dict(method='GET', uri='https://example.com/image/v2/images',
+                 json=self.fake_search_return)
+        ])
+        self.assertEqual(
+            self.cloud._normalize_images([self.fake_image_dict]),
+            self.cloud.list_images())
+        self.assert_calls()
+
+    def test_list_images_paginated(self):
+        marker = str(uuid.uuid4())
+        self.register_uris([
+            dict(method='GET', uri='https://example.com/image/v2/images',
+                 json={'images': [self.fake_image_dict],
+                       'next': '/v2/images?marker={marker}'.format(
+                           marker=marker)}),
+            dict(method='GET',
+                 uri=('https://example.com/image/v2/images?'
+                      'marker={marker}'.format(marker=marker)),
+                 json=self.fake_search_return)
+        ])
+        self.assertEqual(
+            self.cloud._normalize_images([
+                self.fake_image_dict, self.fake_image_dict]),
+            self.cloud.list_images())
+        self.assert_calls()
+
+
 class TestImageV1Only(base.RequestsMockTestCase):
 
     def setUp(self):

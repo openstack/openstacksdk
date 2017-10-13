@@ -2157,9 +2157,13 @@ class OpenStackCloud(_normalize.Normalizer):
         while 'next' in response:
             image_list.extend(meta.obj_list_to_munch(response['images']))
             endpoint = response['next']
-            # Use the raw endpoint from the catalog not the one from
-            # version discovery so that the next links will work right
-            response = self._raw_image_client.get(endpoint)
+            # next links from glance have the version prefix. If the catalog
+            # has a versioned endpoint, then we can't append the next link to
+            # it. Strip the absolute prefix (/v1/ or /v2/ to turn it into
+            # a proper relative link.
+            if endpoint.startswith('/v'):
+                endpoint = endpoint[4:]
+            response = self._image_client.get(endpoint)
         if 'images' in response:
             image_list.extend(meta.obj_list_to_munch(response['images']))
         else:

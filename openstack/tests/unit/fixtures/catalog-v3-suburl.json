@@ -1,0 +1,185 @@
+{
+  "token": {
+    "audit_ids": [
+      "Rvn7eHkiSeOwucBIPaKdYA"
+    ],
+    "catalog": [
+      {
+        "endpoints": [
+          {
+            "id": "32466f357f3545248c47471ca51b0d3a",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/compute/v2.1/"
+          }
+        ],
+        "name": "nova",
+        "type": "compute"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "1e875ca2225b408bbf3520a1b8e1a537",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/volumev2/v2/1c36b64c840a42cd9e9b931a369337f0"
+          }
+        ],
+        "name": "cinderv2",
+        "type": "volumev2"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "5a64de3c4a614d8d8f8d1ba3dee5f45f",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/image"
+          }
+        ],
+        "name": "glance",
+        "type": "image"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "3d15fdfc7d424f3c8923324417e1a3d1",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/volume/v1/1c36b64c840a42cd9e9b931a369337f0"
+          }
+        ],
+        "name": "cinder",
+        "type": "volume"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "4deb4d0504a044a395d4480741ba628c",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://identity.example.com"
+          },
+          {
+            "id": "012322eeedcd459edabb4933021112bc",
+            "interface": "admin",
+            "region": "RegionOne",
+            "url": "https://example.com/identity"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "keystone",
+        "type": "identity"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "4deb4d0504a044a395d4480741ba628d",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/example"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "neutron",
+        "type": "network"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "4deb4d0504a044a395d4480741ba628e",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/container-infra/v1"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "magnum",
+        "type": "container-infra"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "4deb4d0504a044a395d4480741ba628c",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/object-store/v1/1c36b64c840a42cd9e9b931a369337f0"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "swift",
+        "type": "object-store"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "652f0612744042bfbb8a8bb2c777a16d",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/bare-metal"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "ironic",
+        "type": "baremetal"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "4deb4d0504a044a395d4480741ba628c",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/orchestration/v1/1c36b64c840a42cd9e9b931a369337f0"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "heat",
+        "type": "orchestration"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "10c76ffd2b744a67950ed1365190d352",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/dns"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "designate",
+        "type": "dns"
+      }
+    ],
+    "expires_at": "9999-12-31T23:59:59Z",
+    "issued_at": "2016-12-17T14:25:05.000000Z",
+    "methods": [
+      "password"
+    ],
+    "project": {
+      "domain": {
+        "id": "default",
+        "name": "default"
+      },
+      "id": "1c36b64c840a42cd9e9b931a369337f0",
+      "name": "Default Project"
+    },
+    "roles": [
+      {
+        "id": "9fe2ff9ee4384b1894a90878d3e92bab",
+        "name": "_member_"
+      },
+      {
+        "id": "37071fc082e14c2284c32a2761f71c63",
+        "name": "swiftoperator"
+      }
+    ],
+    "user": {
+      "domain": {
+        "id": "default",
+        "name": "default"
+      },
+      "id": "c17534835f8f42bf98fc367e0bf35e09",
+      "name": "mordred"
+    }
+  }
+}
