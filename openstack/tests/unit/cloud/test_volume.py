@@ -292,12 +292,49 @@ class TestVolume(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'volumev2', 'public',
                      append=['volumes', volume.id, 'action']),
-                 json={'os-force_delete': None}),
+                 validate=dict(
+                     json={'os-force_delete': None})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
                  json={'volumes': []})])
         self.assertTrue(self.cloud.delete_volume(volume['id'], force=True))
+        self.assert_calls()
+
+    def test_set_volume_bootable(self):
+        vol = {'id': 'volume001', 'status': 'attached',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [volume]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', volume.id, 'action']),
+                 json={'os-set_bootable': {'bootable': True}}),
+        ])
+        self.cloud.set_volume_bootable(volume['id'])
+        self.assert_calls()
+
+    def test_set_volume_bootable_false(self):
+        vol = {'id': 'volume001', 'status': 'attached',
+               'name': '', 'attachments': []}
+        volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [volume]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', volume.id, 'action']),
+                 json={'os-set_bootable': {'bootable': False}}),
+        ])
+        self.cloud.set_volume_bootable(volume['id'])
         self.assert_calls()
 
     def test_list_volumes_with_pagination(self):
@@ -447,4 +484,54 @@ class TestVolume(base.RequestsMockTestCase):
         self.assertEqual(
             self.cloud._normalize_volume(vol1),
             self.cloud.get_volume_by_id('01'))
+        self.assert_calls()
+
+    def test_create_volume(self):
+        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes']),
+                 json={'volume': vol1},
+                 validate=dict(json={
+                     'volume': {
+                         'size': 50,
+                         'name': 'vol1',
+                     }})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail']),
+                 json={'volumes': [vol1]}),
+        ])
+
+        self.cloud.create_volume(50, name='vol1')
+        self.assert_calls()
+
+    def test_create_bootable_volume(self):
+        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes']),
+                 json={'volume': vol1},
+                 validate=dict(json={
+                     'volume': {
+                         'size': 50,
+                         'name': 'vol1',
+                     }})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', 'detail']),
+                 json={'volumes': [vol1]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', '01', 'action']),
+                 validate=dict(
+                     json={'os-set_bootable': {'bootable': True}})),
+        ])
+
+        self.cloud.create_volume(50, name='vol1', bootable=True)
         self.assert_calls()

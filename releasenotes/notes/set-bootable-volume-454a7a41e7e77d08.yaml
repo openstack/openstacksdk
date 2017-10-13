@@ -1,0 +1,4 @@
+---
+features:
+  - Added a ``set_volume_bootable`` call to allow toggling the bootable state
+    of a volume.
