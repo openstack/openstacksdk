@@ -1,0 +1,6 @@
+---
+features:
+  - Add version argument to make_rest_client and plumb
+    version discovery through get_session_client so that
+    versioned endpoints are properly found if unversioned
+    are in the catalog.
