@@ -102,6 +102,7 @@ USER_CONF = {
             'networks': [{
                 'name': 'a-public',
                 'routes_externally': True,
+                'nat_source': True,
             }, {
                 'name': 'another-public',
                 'routes_externally': True,

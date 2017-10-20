@@ -550,6 +550,7 @@ class OpenStackConfig(object):
             network = dict(
                 name=name,
                 routes_externally=get_boolean(net.get('routes_externally')),
+                nat_source=get_boolean(net.get('nat_source')),
                 nat_destination=get_boolean(net.get('nat_destination')),
                 default_interface=get_boolean(net.get('default_interface')),
             )

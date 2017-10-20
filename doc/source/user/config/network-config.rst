@@ -58,3 +58,10 @@ by looking for a network that has subnets that have a gateway_ip. But it's
 possible to have more than one network that satisfies that condition, so the
 user might want to tell programs which one to pick. There can be only one
 `nat_destination` per cloud.
+
+`nat_source` is a boolean field that indicates which network floating
+ips should be requested from. It defaults to false. Normally this can be
+inferred by looking for a network that is attached to a router. But it's
+possible to have more than one network that satisfies that condition, so the
+user might want to tell programs which one to pick. There can be only one
+`nat_source` per cloud.
