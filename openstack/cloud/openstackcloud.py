@@ -4114,7 +4114,13 @@ class OpenStackCloud(_normalize.Normalizer):
         # Find only router interface and gateway ports, ignore L3 HA ports etc.
         router_interfaces = self.search_ports(filters={
             'device_id': router['id'],
-            'device_owner': 'network:router_interface'})
+            'device_owner': 'network:router_interface'}
+        ) + self.search_ports(filters={
+            'device_id': router['id'],
+            'device_owner': 'network:router_interface_distributed'}
+        ) + self.search_ports(filters={
+            'device_id': router['id'],
+            'device_owner': 'network:ha_router_replicated_interface'})
         router_gateways = self.search_ports(filters={
             'device_id': router['id'],
             'device_owner': 'network:router_gateway'})
