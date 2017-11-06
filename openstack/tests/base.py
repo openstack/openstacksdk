@@ -13,6 +13,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+# TODO(shade) Remove all use of setUpClass and tearDownClass. setUp and
+# addCleanup should be used instead.
+
 import os
 
 import fixtures

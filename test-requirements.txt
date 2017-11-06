@@ -16,6 +16,8 @@ openstackdocstheme>=1.17.0 # Apache-2.0
 oslotest>=1.10.0 # Apache-2.0
 reno>=2.5.0 # Apache-2.0
 requests-mock>=1.1.0 # Apache-2.0
+# Install shade for tests until the ansible modules import openstack
+shade>=1.17.0  # Apache-2.0
 sphinx>=1.6.2 # BSD
 stestr>=1.0.0 # Apache-2.0
 testrepository>=0.0.18 # Apache-2.0/BSD

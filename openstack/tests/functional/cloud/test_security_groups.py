@@ -17,7 +17,7 @@ test_security_groups
 Functional tests for `shade` security_groups resource.
 """
 
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestSecurityGroups(base.BaseFunctionalTestCase):

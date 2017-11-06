@@ -21,8 +21,8 @@ Functional tests for `shade` inventory methods.
 
 from openstack.cloud import inventory
 
-from openstack.tests.functional import base
-from openstack.tests.functional.util import pick_flavor
+from openstack.tests.functional.cloud import base
+from openstack.tests.functional.cloud.util import pick_flavor
 
 
 class TestInventory(base.BaseFunctionalTestCase):

@@ -26,7 +26,7 @@ import random
 
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.cloud.exc import OpenStackCloudUnavailableFeature
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestServices(base.KeystoneBaseFunctionalTestCase):

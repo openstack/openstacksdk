@@ -1,0 +1,11 @@
+- hosts: all
+  tasks:
+
+  - name: Set openstacksdk libraries to master branch before functional tests
+    command: git checkout master
+    args:
+      chdir: "src/git.openstack.org/{{ item }}"
+    with_items:
+      - openstack-infra/shade
+      - openstack/keystoneauth
+      - openstack/os-client-config

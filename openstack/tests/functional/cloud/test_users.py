@@ -17,9 +17,9 @@ test_users
 Functional tests for `shade` user methods.
 """
 
-from openstack.cloud import operator_cloud
+from openstack import operator_cloud
 from openstack import OpenStackCloudException
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestUsers(base.KeystoneBaseFunctionalTestCase):

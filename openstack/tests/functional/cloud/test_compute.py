@@ -17,12 +17,14 @@ test_compute
 Functional tests for `shade` compute methods.
 """
 
+import datetime
+
 from fixtures import TimeoutException
 import six
 
 from openstack.cloud import exc
-from openstack.tests.functional import base
-from openstack.tests.functional.util import pick_flavor
+from openstack.tests.functional.cloud import base
+from openstack.tests.functional.cloud.util import pick_flavor
 from openstack.cloud import _utils
 
 
@@ -464,3 +466,21 @@ class TestCompute(base.BaseFunctionalTestCase):
             name='new_name'
         )
         self.assertEqual('new_name', server_updated['name'])
+
+    def test_get_compute_usage(self):
+        '''Test usage functionality'''
+        # Add a server so that we can know we have usage
+        self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
+        self.user_cloud.create_server(
+            name=self.server_name,
+            image=self.image,
+            flavor=self.flavor,
+            wait=True)
+        start = datetime.datetime.now() - datetime.timedelta(seconds=5)
+        usage = self.operator_cloud.get_compute_usage('demo', start)
+        self.add_info_on_exception('usage', usage)
+        self.assertIsNotNone(usage)
+        self.assertIn('total_hours', usage)
+        self.assertIn('started_at', usage)
+        self.assertEqual(start.isoformat(), usage['started_at'])
+        self.assertIn('location', usage)

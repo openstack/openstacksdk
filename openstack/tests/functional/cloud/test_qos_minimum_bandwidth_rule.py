@@ -19,7 +19,7 @@ Functional tests for `shade`QoS minimum bandwidth methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestQosMinimumBandwidthRule(base.BaseFunctionalTestCase):

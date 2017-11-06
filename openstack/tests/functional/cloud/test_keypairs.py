@@ -17,7 +17,7 @@ test_keypairs
 Functional tests for `shade` keypairs methods
 """
 from openstack.tests import fakes
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestKeypairs(base.BaseFunctionalTestCase):

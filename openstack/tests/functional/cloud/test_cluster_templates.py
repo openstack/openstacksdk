@@ -19,7 +19,7 @@ Funself.ctional tests for `shade` cluster_template methods.
 
 from testtools import content
 
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 import os
 import subprocess

@@ -22,7 +22,7 @@ from testtools import content
 
 from openstack.cloud import _utils
 from openstack.cloud import exc
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestVolume(base.BaseFunctionalTestCase):

@@ -21,7 +21,7 @@ import filecmp
 import os
 import tempfile
 
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestImage(base.BaseFunctionalTestCase):

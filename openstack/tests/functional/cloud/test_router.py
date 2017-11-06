@@ -20,7 +20,7 @@ Functional tests for `shade` router methods.
 import ipaddress
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 EXPECTED_TOPLEVEL_FIELDS = (

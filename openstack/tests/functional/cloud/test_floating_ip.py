@@ -26,8 +26,8 @@ from testtools import content
 from openstack.cloud import _utils
 from openstack.cloud import meta
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional import base
-from openstack.tests.functional.util import pick_flavor
+from openstack.tests.functional.cloud import base
+from openstack.tests.functional.cloud.util import pick_flavor
 
 
 class TestFloatingIP(base.BaseFunctionalTestCase):

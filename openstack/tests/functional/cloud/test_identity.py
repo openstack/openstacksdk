@@ -21,7 +21,7 @@ import random
 import string
 
 from openstack import OpenStackCloudException
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestIdentity(base.KeystoneBaseFunctionalTestCase):

@@ -17,7 +17,7 @@ test_server_group
 Functional tests for `shade` server_group resource.
 """
 
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestServerGroup(base.BaseFunctionalTestCase):

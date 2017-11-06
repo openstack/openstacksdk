@@ -19,7 +19,7 @@ test_floating_ip_pool
 Functional tests for floating IP pool resource (managed by nova)
 """
 
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 # When using nova-network, floating IP pools are created with nova-manage

@@ -18,7 +18,7 @@ Functional tests for `shade` network methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestNetwork(base.BaseFunctionalTestCase):

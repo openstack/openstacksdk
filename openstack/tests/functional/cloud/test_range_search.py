@@ -16,7 +16,7 @@
 
 
 from openstack.cloud import exc
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestRangeSearch(base.BaseFunctionalTestCase):

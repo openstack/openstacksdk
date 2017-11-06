@@ -19,7 +19,7 @@ Functional tests for `shade` zone methods.
 
 from testtools import content
 
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestZone(base.BaseFunctionalTestCase):

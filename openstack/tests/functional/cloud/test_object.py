@@ -24,7 +24,7 @@ import tempfile
 from testtools import content
 
 from openstack.cloud import exc
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestObject(base.BaseFunctionalTestCase):

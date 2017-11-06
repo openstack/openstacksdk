@@ -20,7 +20,7 @@ Functional tests for `shade` keystone group resource.
 """
 
 import openstack.cloud
-from openstack.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 
 class TestGroup(base.BaseFunctionalTestCase):
