@@ -14,14 +14,14 @@
 test_cluster_templates
 ----------------------------------
 
-Funself.ctional tests for `shade` cluster_template methods.
+Functional tests for `openstack.cloud` cluster_template methods.
 """
 
+import fixtures
 from testtools import content
 
 from openstack.tests.functional.cloud import base
 
-import os
 import subprocess
 
 
@@ -32,6 +32,7 @@ class TestClusterTemplate(base.BaseFunctionalTestCase):
         if not self.user_cloud.has_service('container-infra'):
             self.skipTest('Container service not supported by cloud')
         self.ct = None
+        self.ssh_directory = self.useFixture(fixtures.TempDir()).path
 
     def test_cluster_templates(self):
         '''Test cluster_templates functionality'''
@@ -48,15 +49,12 @@ class TestClusterTemplate(base.BaseFunctionalTestCase):
         self.addCleanup(self.cleanup, name)
 
         # generate a keypair to add to nova
-        ssh_directory = '/tmp/.ssh'
-        if not os.path.isdir(ssh_directory):
-            os.mkdir(ssh_directory)
         subprocess.call(
             ['ssh-keygen', '-t', 'rsa', '-N', '', '-f',
-             '%s/id_rsa_shade' % ssh_directory])
+             '%s/id_rsa_sdk' % self.ssh_directory])
 
         # add keypair to nova
-        with open('%s/id_rsa_openstack.cloud.pub' % ssh_directory) as f:
+        with open('%s/id_rsa_sdk.pub' % self.ssh_directory) as f:
             key_content = f.read()
             self.user_cloud.create_keypair('testkey', key_content)
 
@@ -109,5 +107,3 @@ class TestClusterTemplate(base.BaseFunctionalTestCase):
 
         # delete keypair
         self.user_cloud.delete_keypair('testkey')
-        os.unlink('/tmp/.ssh/id_rsa_shade')
-        os.unlink('/tmp/.ssh/id_rsa_openstack.cloud.pub')
