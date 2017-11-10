@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import network
 from openstack.tests.functional import base
@@ -18,34 +17,29 @@ from openstack.tests.functional import base
 
 class TestAgentNetworks(base.BaseFunctionalTest):
 
-    NETWORK_NAME = 'network-' + uuid.uuid4().hex
     NETWORK_ID = None
     AGENT = None
     AGENT_ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestAgentNetworks, cls).setUpClass()
+    def setUp(self):
+        super(TestAgentNetworks, self).setUp()
 
-        net = cls.conn.network.create_network(name=cls.NETWORK_NAME)
+        self.NETWORK_NAME = self.getUniqueString('network')
+        net = self.conn.network.create_network(name=self.NETWORK_NAME)
+        self.addCleanup(self.conn.network.delete_network, net.id)
         assert isinstance(net, network.Network)
-        cls.NETWORK_ID = net.id
-        agent_list = list(cls.conn.network.agents())
+        self.NETWORK_ID = net.id
+        agent_list = list(self.conn.network.agents())
         agents = [agent for agent in agent_list
                   if agent.agent_type == 'DHCP agent']
-        cls.AGENT = agents[0]
-        cls.AGENT_ID = cls.AGENT.id
+        self.AGENT = agents[0]
+        self.AGENT_ID = self.AGENT.id
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.conn.network.delete_network(cls.NETWORK_ID)
-
-    def test_add_agent_to_network(self):
+    def test_add_remove_agent(self):
         net = self.AGENT.add_agent_to_network(self.conn.session,
                                               network_id=self.NETWORK_ID)
         self._verify_add(net)
 
-    def test_remove_agent_from_network(self):
         net = self.AGENT.remove_agent_from_network(self.conn.session,
                                                    network_id=self.NETWORK_ID)
         self._verify_remove(net)

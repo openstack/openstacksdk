@@ -10,22 +10,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
+import testtools
 
 from examples import connect
 from examples.identity import list as identity_list
 
 
-class TestIdentity(unittest.TestCase):
+class TestIdentity(testtools.TestCase):
     """Test the identity examples
 
     The purpose of these tests is to ensure the examples run without erring
     out.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.conn = connect.create_connection_from_config()
+    def setUp(self):
+        super(TestIdentity, self).setUp()
+        self.conn = connect.create_connection_from_config()
 
     def test_identity(self):
         identity_list.list_users(self.conn)

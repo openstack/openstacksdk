@@ -19,16 +19,15 @@ class TestAutoAllocatedTopology(base.BaseFunctionalTest):
     NETWORK_ID = None
     PROJECT_ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestAutoAllocatedTopology, cls).setUpClass()
-        projects = [o.project_id for o in cls.conn.network.networks()]
-        cls.PROJECT_ID = projects[0]
+    def setUp(self):
+        super(TestAutoAllocatedTopology, self).setUp()
+        projects = [o.project_id for o in self.conn.network.networks()]
+        self.PROJECT_ID = projects[0]
 
-    @classmethod
-    def tearDownClass(cls):
-        res = cls.conn.network.delete_auto_allocated_topology(cls.PROJECT_ID)
-        cls.assertIs(None, res)
+    def tearDown(self):
+        res = self.conn.network.delete_auto_allocated_topology(self.PROJECT_ID)
+        self.assertIsNone(res)
+        super(TestAutoAllocatedTopology, self).tearDown()
 
     def test_dry_run_option_pass(self):
         # Dry run will only pass if there is a public network

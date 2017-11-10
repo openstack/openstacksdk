@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import router
 from openstack.tests.functional import base
@@ -18,22 +17,21 @@ from openstack.tests.functional import base
 
 class TestRouter(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
-    UPDATE_NAME = uuid.uuid4().hex
     ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestRouter, cls).setUpClass()
-        sot = cls.conn.network.create_router(name=cls.NAME)
+    def setUp(self):
+        super(TestRouter, self).setUp()
+        self.NAME = self.getUniqueString()
+        self.UPDATE_NAME = self.getUniqueString()
+        sot = self.conn.network.create_router(name=self.NAME)
         assert isinstance(sot, router.Router)
-        cls.assertIs(cls.NAME, sot.name)
-        cls.ID = sot.id
+        self.assertEqual(self.NAME, sot.name)
+        self.ID = sot.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_router(cls.ID, ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_router(self.ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestRouter, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_router(self.NAME)

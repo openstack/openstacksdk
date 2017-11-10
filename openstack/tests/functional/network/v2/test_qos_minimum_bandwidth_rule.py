@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import (qos_minimum_bandwidth_rule as
                                   _qos_minimum_bandwidth_rule)
@@ -20,7 +19,6 @@ from openstack.tests.functional import base
 class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
 
     QOS_POLICY_ID = None
-    QOS_POLICY_NAME = uuid.uuid4().hex
     QOS_IS_SHARED = False
     QOS_POLICY_DESCRIPTION = "QoS policy description"
     RULE_ID = None
@@ -28,33 +26,33 @@ class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
     RULE_MIN_KBPS_NEW = 1800
     RULE_DIRECTION = 'egress'
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestQoSMinimumBandwidthRule, cls).setUpClass()
-        qos_policy = cls.conn.network.create_qos_policy(
-            description=cls.QOS_POLICY_DESCRIPTION,
-            name=cls.QOS_POLICY_NAME,
-            shared=cls.QOS_IS_SHARED,
+    def setUp(self):
+        super(TestQoSMinimumBandwidthRule, self).setUp()
+        self.QOS_POLICY_NAME = self.getUniqueString()
+        qos_policy = self.conn.network.create_qos_policy(
+            description=self.QOS_POLICY_DESCRIPTION,
+            name=self.QOS_POLICY_NAME,
+            shared=self.QOS_IS_SHARED,
         )
-        cls.QOS_POLICY_ID = qos_policy.id
-        qos_min_bw_rule = cls.conn.network.create_qos_minimum_bandwidth_rule(
-            cls.QOS_POLICY_ID, direction=cls.RULE_DIRECTION,
-            min_kbps=cls.RULE_MIN_KBPS,
+        self.QOS_POLICY_ID = qos_policy.id
+        qos_min_bw_rule = self.conn.network.create_qos_minimum_bandwidth_rule(
+            self.QOS_POLICY_ID, direction=self.RULE_DIRECTION,
+            min_kbps=self.RULE_MIN_KBPS,
         )
         assert isinstance(qos_min_bw_rule,
                           _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule)
-        cls.assertIs(cls.RULE_MIN_KBPS, qos_min_bw_rule.min_kbps)
-        cls.assertIs(cls.RULE_DIRECTION, qos_min_bw_rule.direction)
-        cls.RULE_ID = qos_min_bw_rule.id
+        self.assertEqual(self.RULE_MIN_KBPS, qos_min_bw_rule.min_kbps)
+        self.assertEqual(self.RULE_DIRECTION, qos_min_bw_rule.direction)
+        self.RULE_ID = qos_min_bw_rule.id
 
-    @classmethod
-    def tearDownClass(cls):
-        rule = cls.conn.network.delete_qos_minimum_bandwidth_rule(
-            cls.RULE_ID,
-            cls.QOS_POLICY_ID)
-        qos_policy = cls.conn.network.delete_qos_policy(cls.QOS_POLICY_ID)
-        cls.assertIs(None, rule)
-        cls.assertIs(None, qos_policy)
+    def tearDown(self):
+        rule = self.conn.network.delete_qos_minimum_bandwidth_rule(
+            self.RULE_ID,
+            self.QOS_POLICY_ID)
+        qos_policy = self.conn.network.delete_qos_policy(self.QOS_POLICY_ID)
+        self.assertIsNone(rule)
+        self.assertIsNone(qos_policy)
+        super(TestQoSMinimumBandwidthRule, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_qos_minimum_bandwidth_rule(

@@ -11,28 +11,25 @@
 # under the License.
 
 import unittest
-import uuid
 
 from openstack.telemetry.alarm.v2 import alarm
 from openstack.tests.functional import base
 
 
 @unittest.skip("bug/1524468")
-@unittest.skipUnless(base.service_exists(service_type="alarming"),
-                     "Alarming service does not exist")
-@unittest.skipUnless(base.service_exists(service_type="metering"),
-                     "Metering service does not exist")
 class TestAlarm(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
     ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestAlarm, cls).setUpClass()
-        meter = next(cls.conn.telemetry.meters())
-        sot = cls.conn.alarm.create_alarm(
-            name=cls.NAME,
+    def setUp(self):
+        super(TestAlarm, self).setUp()
+        self.require_service('alarming')
+        self.require_service('metering')
+
+        self.NAME = self.getUniqueString()
+        meter = next(self.conn.telemetry.meters())
+        sot = self.conn.alarm.create_alarm(
+            name=self.NAME,
             type='threshold',
             threshold_rule={
                 'meter_name': meter.name,
@@ -40,13 +37,13 @@ class TestAlarm(base.BaseFunctionalTest):
             },
         )
         assert isinstance(sot, alarm.Alarm)
-        cls.assertIs(cls.NAME, sot.name)
-        cls.ID = sot.id
+        self.assertEqual(self.NAME, sot.name)
+        self.ID = sot.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.alarm.delete_alarm(cls.ID, ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.alarm.delete_alarm(self.ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestAlarm, self).tearDown()
 
     def test_get(self):
         sot = self.conn.alarm.get_alarm(self.ID)

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
+import time
 
 from openstack.compute.v2 import server
 from openstack.tests.functional import base
@@ -19,44 +19,41 @@ from openstack.tests.functional.network.v2 import test_network
 
 class TestServer(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
-    server = None
-    network = None
-    subnet = None
-    cidr = '10.99.99.0/16'
+    def setUp(self):
+        super(TestServer, self).setUp()
+        self.NAME = self.getUniqueString()
+        self.server = None
+        self.network = None
+        self.subnet = None
+        self.cidr = '10.99.99.0/16'
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestServer, cls).setUpClass()
-        flavor = cls.conn.compute.find_flavor(base.FLAVOR_NAME,
-                                              ignore_missing=False)
-        image = cls.conn.compute.find_image(base.IMAGE_NAME,
-                                            ignore_missing=False)
-        cls.network, cls.subnet = test_network.create_network(cls.conn,
-                                                              cls.NAME,
-                                                              cls.cidr)
-        if not cls.network:
-            # We can't call TestCase.fail from within the setUpClass
-            # classmethod, but we need to raise some exception in order
-            # to get this setup to fail and thusly fail the entire class.
-            raise Exception("Unable to create network for TestServer")
+        flavor = self.conn.compute.find_flavor(base.FLAVOR_NAME,
+                                               ignore_missing=False)
+        image = self.conn.compute.find_image(base.IMAGE_NAME,
+                                             ignore_missing=False)
+        self.network, self.subnet = test_network.create_network(
+            self.conn,
+            self.NAME,
+            self.cidr)
+        self.assertIsNotNone(self.network)
 
-        sot = cls.conn.compute.create_server(
-            name=cls.NAME, flavor_id=flavor.id, image_id=image.id,
-            networks=[{"uuid": cls.network.id}])
-        cls.conn.compute.wait_for_server(sot)
+        sot = self.conn.compute.create_server(
+            name=self.NAME, flavor_id=flavor.id, image_id=image.id,
+            networks=[{"uuid": self.network.id}])
+        self.conn.compute.wait_for_server(sot)
         assert isinstance(sot, server.Server)
-        cls.assertIs(cls.NAME, sot.name)
-        cls.server = sot
+        self.assertEqual(self.NAME, sot.name)
+        self.server = sot
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.compute.delete_server(cls.server.id)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.compute.delete_server(self.server.id)
+        self.assertIsNone(sot)
         # Need to wait for the stack to go away before network delete
-        cls.conn.compute.wait_for_delete(cls.server)
-        cls.linger_for_delete()
-        test_network.delete_network(cls.conn, cls.network, cls.subnet)
+        self.conn.compute.wait_for_delete(self.server)
+        # TODO(shade) sleeping in tests is bad mmkay?
+        time.sleep(40)
+        test_network.delete_network(self.conn, self.network, self.subnet)
+        super(TestServer, self).tearDown()
 
     def test_find(self):
         sot = self.conn.compute.find_server(self.NAME)

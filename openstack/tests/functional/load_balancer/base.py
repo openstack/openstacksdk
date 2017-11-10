@@ -19,12 +19,7 @@ from openstack.tests.functional import base
 
 class BaseLBFunctionalTest(base.BaseFunctionalTest):
 
-    @classmethod
-    def setUpClass(cls):
-        super(BaseLBFunctionalTest, cls).setUpClass()
-
-    @classmethod
-    def lb_wait_for_status(cls, lb, status, failures, interval=1, wait=120):
+    def lb_wait_for_status(self, lb, status, failures, interval=1, wait=120):
         """Wait for load balancer to be in a particular provisioning status.
 
         :param lb: The load balancer to wait on to reach the status.
@@ -49,7 +44,7 @@ class BaseLBFunctionalTest(base.BaseFunctionalTest):
             failures = []
 
         while total_sleep < wait:
-            lb = cls.conn.load_balancer.get_load_balancer(lb.id)
+            lb = self.conn.load_balancer.get_load_balancer(lb.id)
             if lb.provisioning_status == status:
                 return None
             if lb.provisioning_status in failures:

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import network
 from openstack.network.v2 import rbac_policy
@@ -19,37 +18,38 @@ from openstack.tests.functional import base
 
 class TestRBACPolicy(base.BaseFunctionalTest):
 
-    NET_NAME = 'net-' + uuid.uuid4().hex
-    UPDATE_NAME = uuid.uuid4().hex
     ACTION = 'access_as_shared'
     OBJ_TYPE = 'network'
     TARGET_TENANT_ID = '*'
     NET_ID = None
     ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestRBACPolicy, cls).setUpClass()
-        net = cls.conn.network.create_network(name=cls.NET_NAME)
+    def setUp(self):
+        super(TestRBACPolicy, self).setUp()
+        self.NET_NAME = self.getUniqueString('net')
+        self.UPDATE_NAME = self.getUniqueString()
+        net = self.conn.network.create_network(name=self.NET_NAME)
         assert isinstance(net, network.Network)
-        cls.NET_ID = net.id
+        self.NET_ID = net.id
 
-        sot = cls.conn.network.\
-            create_rbac_policy(action=cls.ACTION,
-                               object_type=cls.OBJ_TYPE,
-                               target_tenant=cls.TARGET_TENANT_ID,
-                               object_id=cls.NET_ID)
+        sot = self.conn.network.create_rbac_policy(
+            action=self.ACTION,
+            object_type=self.OBJ_TYPE,
+            target_tenant=self.TARGET_TENANT_ID,
+            object_id=self.NET_ID)
         assert isinstance(sot, rbac_policy.RBACPolicy)
-        cls.ID = sot.id
+        self.ID = sot.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_rbac_policy(cls.ID,
-                                                  ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_network(cls.NET_ID,
-                                              ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_rbac_policy(
+            self.ID,
+            ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_network(
+            self.NET_ID,
+            ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestRBACPolicy, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_rbac_policy(self.ID)

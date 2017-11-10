@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import network
 from openstack.network.v2 import router
@@ -20,9 +19,6 @@ from openstack.tests.functional import base
 
 class TestRouterInterface(base.BaseFunctionalTest):
 
-    ROUTER_NAME = uuid.uuid4().hex
-    NET_NAME = uuid.uuid4().hex
-    SUB_NAME = uuid.uuid4().hex
     CIDR = "10.100.0.0/16"
     IPV4 = 4
     ROUTER_ID = None
@@ -30,42 +26,45 @@ class TestRouterInterface(base.BaseFunctionalTest):
     SUB_ID = None
     ROT = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestRouterInterface, cls).setUpClass()
-        sot = cls.conn.network.create_router(name=cls.ROUTER_NAME)
+    def setUp(self):
+        super(TestRouterInterface, self).setUp()
+        self.ROUTER_NAME = self.getUniqueString()
+        self.NET_NAME = self.getUniqueString()
+        self.SUB_NAME = self.getUniqueString()
+        sot = self.conn.network.create_router(name=self.ROUTER_NAME)
         assert isinstance(sot, router.Router)
-        cls.assertIs(cls.ROUTER_NAME, sot.name)
-        net = cls.conn.network.create_network(name=cls.NET_NAME)
+        self.assertEqual(self.ROUTER_NAME, sot.name)
+        net = self.conn.network.create_network(name=self.NET_NAME)
         assert isinstance(net, network.Network)
-        cls.assertIs(cls.NET_NAME, net.name)
-        sub = cls.conn.network.create_subnet(name=cls.SUB_NAME,
-                                             ip_version=cls.IPV4,
-                                             network_id=net.id,
-                                             cidr=cls.CIDR)
+        self.assertEqual(self.NET_NAME, net.name)
+        sub = self.conn.network.create_subnet(
+            name=self.SUB_NAME,
+            ip_version=self.IPV4,
+            network_id=net.id,
+            cidr=self.CIDR)
         assert isinstance(sub, subnet.Subnet)
-        cls.assertIs(cls.SUB_NAME, sub.name)
-        cls.ROUTER_ID = sot.id
-        cls.ROT = sot
-        cls.NET_ID = net.id
-        cls.SUB_ID = sub.id
+        self.assertEqual(self.SUB_NAME, sub.name)
+        self.ROUTER_ID = sot.id
+        self.ROT = sot
+        self.NET_ID = net.id
+        self.SUB_ID = sub.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_router(cls.ROUTER_ID,
-                                             ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_subnet(cls.SUB_ID, ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_network(cls.NET_ID, ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_router(
+            self.ROUTER_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_subnet(
+            self.SUB_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_network(
+            self.NET_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestRouterInterface, self).tearDown()
 
-    def test_router_add_interface(self):
+    def test_router_add_remove_interface(self):
         iface = self.ROT.add_interface(self.conn.session,
                                        subnet_id=self.SUB_ID)
         self._verification(iface)
-
-    def test_router_remove_interface(self):
         iface = self.ROT.remove_interface(self.conn.session,
                                           subnet_id=self.SUB_ID)
         self._verification(iface)

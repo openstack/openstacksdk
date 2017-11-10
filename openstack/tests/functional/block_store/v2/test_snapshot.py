@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.block_store.v2 import snapshot as _snapshot
 from openstack.block_store.v2 import volume as _volume
@@ -19,49 +18,50 @@ from openstack.tests.functional import base
 
 class TestSnapshot(base.BaseFunctionalTest):
 
-    SNAPSHOT_NAME = uuid.uuid4().hex
-    SNAPSHOT_ID = None
-    VOLUME_NAME = uuid.uuid4().hex
-    VOLUME_ID = None
+    def setUp(self):
+        super(TestSnapshot, self).setUp()
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestSnapshot, cls).setUpClass()
-        volume = cls.conn.block_store.create_volume(
-            name=cls.VOLUME_NAME,
+        self.SNAPSHOT_NAME = self.getUniqueString()
+        self.SNAPSHOT_ID = None
+        self.VOLUME_NAME = self.getUniqueString()
+        self.VOLUME_ID = None
+
+        volume = self.conn.block_store.create_volume(
+            name=self.VOLUME_NAME,
             size=1)
-        cls.conn.block_store.wait_for_status(volume,
-                                             status='available',
-                                             failures=['error'],
-                                             interval=2,
-                                             wait=120)
+        self.conn.block_store.wait_for_status(
+            volume,
+            status='available',
+            failures=['error'],
+            interval=2,
+            wait=120)
         assert isinstance(volume, _volume.Volume)
-        cls.assertIs(cls.VOLUME_NAME, volume.name)
-        cls.VOLUME_ID = volume.id
-        snapshot = cls.conn.block_store.create_snapshot(
-            name=cls.SNAPSHOT_NAME,
-            volume_id=cls.VOLUME_ID)
-        cls.conn.block_store.wait_for_status(snapshot,
-                                             status='available',
-                                             failures=['error'],
-                                             interval=2,
-                                             wait=120)
+        self.assertEqual(self.VOLUME_NAME, volume.name)
+        self.VOLUME_ID = volume.id
+        snapshot = self.conn.block_store.create_snapshot(
+            name=self.SNAPSHOT_NAME,
+            volume_id=self.VOLUME_ID)
+        self.conn.block_store.wait_for_status(
+            snapshot,
+            status='available',
+            failures=['error'],
+            interval=2,
+            wait=120)
         assert isinstance(snapshot, _snapshot.Snapshot)
-        cls.assertIs(cls.SNAPSHOT_NAME, snapshot.name)
-        cls.SNAPSHOT_ID = snapshot.id
+        self.assertEqual(self.SNAPSHOT_NAME, snapshot.name)
+        self.SNAPSHOT_ID = snapshot.id
 
-    @classmethod
-    def tearDownClass(cls):
-        snapshot = cls.conn.block_store.get_snapshot(cls.SNAPSHOT_ID)
-        sot = cls.conn.block_store.delete_snapshot(snapshot,
-                                                   ignore_missing=False)
-        cls.conn.block_store.wait_for_delete(snapshot,
-                                             interval=2,
-                                             wait=120)
-        cls.assertIs(None, sot)
-        sot = cls.conn.block_store.delete_volume(cls.VOLUME_ID,
-                                                 ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        snapshot = self.conn.block_store.get_snapshot(self.SNAPSHOT_ID)
+        sot = self.conn.block_store.delete_snapshot(
+            snapshot, ignore_missing=False)
+        self.conn.block_store.wait_for_delete(
+            snapshot, interval=2, wait=120)
+        self.assertIsNone(sot)
+        sot = self.conn.block_store.delete_volume(
+            self.VOLUME_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestSnapshot, self).tearDown()
 
     def test_get(self):
         sot = self.conn.block_store.get_snapshot(self.SNAPSHOT_ID)

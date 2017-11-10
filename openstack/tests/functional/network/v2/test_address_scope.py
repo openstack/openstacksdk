@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.tests.functional import base
@@ -19,27 +18,26 @@ from openstack.tests.functional import base
 class TestAddressScope(base.BaseFunctionalTest):
 
     ADDRESS_SCOPE_ID = None
-    ADDRESS_SCOPE_NAME = uuid.uuid4().hex
-    ADDRESS_SCOPE_NAME_UPDATED = uuid.uuid4().hex
     IS_SHARED = False
     IP_VERSION = 4
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestAddressScope, cls).setUpClass()
-        address_scope = cls.conn.network.create_address_scope(
-            ip_version=cls.IP_VERSION,
-            name=cls.ADDRESS_SCOPE_NAME,
-            shared=cls.IS_SHARED,
+    def setUp(self):
+        super(TestAddressScope, self).setUp()
+        self.ADDRESS_SCOPE_NAME = self.getUniqueString()
+        self.ADDRESS_SCOPE_NAME_UPDATED = self.getUniqueString()
+        address_scope = self.conn.network.create_address_scope(
+            ip_version=self.IP_VERSION,
+            name=self.ADDRESS_SCOPE_NAME,
+            shared=self.IS_SHARED,
         )
         assert isinstance(address_scope, _address_scope.AddressScope)
-        cls.assertIs(cls.ADDRESS_SCOPE_NAME, address_scope.name)
-        cls.ADDRESS_SCOPE_ID = address_scope.id
+        self.assertEqual(self.ADDRESS_SCOPE_NAME, address_scope.name)
+        self.ADDRESS_SCOPE_ID = address_scope.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_address_scope(cls.ADDRESS_SCOPE_ID)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_address_scope(self.ADDRESS_SCOPE_ID)
+        self.assertIsNone(sot)
+        super(TestAddressScope, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_address_scope(self.ADDRESS_SCOPE_NAME)

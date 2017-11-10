@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import network
@@ -22,11 +21,6 @@ from openstack.tests.functional import base
 
 class TestFloatingIP(base.BaseFunctionalTest):
 
-    ROT_NAME = uuid.uuid4().hex
-    EXT_NET_NAME = uuid.uuid4().hex
-    EXT_SUB_NAME = uuid.uuid4().hex
-    INT_NET_NAME = uuid.uuid4().hex
-    INT_SUB_NAME = uuid.uuid4().hex
     IPV4 = 4
     EXT_CIDR = "10.100.0.0/24"
     INT_CIDR = "10.101.0.0/24"
@@ -38,84 +32,89 @@ class TestFloatingIP(base.BaseFunctionalTest):
     PORT_ID = None
     FIP = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestFloatingIP, cls).setUpClass()
+    def setUp(self):
+        super(TestFloatingIP, self).setUp()
+        self.ROT_NAME = self.getUniqueString()
+        self.EXT_NET_NAME = self.getUniqueString()
+        self.EXT_SUB_NAME = self.getUniqueString()
+        self.INT_NET_NAME = self.getUniqueString()
+        self.INT_SUB_NAME = self.getUniqueString()
         # Create Exeternal Network
         args = {'router:external': True}
-        net = cls._create_network(cls.EXT_NET_NAME, **args)
-        cls.EXT_NET_ID = net.id
-        sub = cls._create_subnet(cls.EXT_SUB_NAME, cls.EXT_NET_ID,
-                                 cls.EXT_CIDR)
-        cls.EXT_SUB_ID = sub.id
+        net = self._create_network(self.EXT_NET_NAME, **args)
+        self.EXT_NET_ID = net.id
+        sub = self._create_subnet(
+            self.EXT_SUB_NAME, self.EXT_NET_ID, self.EXT_CIDR)
+        self.EXT_SUB_ID = sub.id
         # Create Internal Network
-        net = cls._create_network(cls.INT_NET_NAME)
-        cls.INT_NET_ID = net.id
-        sub = cls._create_subnet(cls.INT_SUB_NAME, cls.INT_NET_ID,
-                                 cls.INT_CIDR)
-        cls.INT_SUB_ID = sub.id
+        net = self._create_network(self.INT_NET_NAME)
+        self.INT_NET_ID = net.id
+        sub = self._create_subnet(
+            self.INT_SUB_NAME, self.INT_NET_ID, self.INT_CIDR)
+        self.INT_SUB_ID = sub.id
         # Create Router
-        args = {'external_gateway_info': {'network_id': cls.EXT_NET_ID}}
-        sot = cls.conn.network.create_router(name=cls.ROT_NAME, **args)
+        args = {'external_gateway_info': {'network_id': self.EXT_NET_ID}}
+        sot = self.conn.network.create_router(name=self.ROT_NAME, **args)
         assert isinstance(sot, router.Router)
-        cls.assertIs(cls.ROT_NAME, sot.name)
-        cls.ROT_ID = sot.id
-        cls.ROT = sot
+        self.assertEqual(self.ROT_NAME, sot.name)
+        self.ROT_ID = sot.id
+        self.ROT = sot
         # Add Router's Interface to Internal Network
-        sot = cls.ROT.add_interface(cls.conn.session, subnet_id=cls.INT_SUB_ID)
-        cls.assertIs(sot['subnet_id'], cls.INT_SUB_ID)
+        sot = self.ROT.add_interface(
+            self.conn.session, subnet_id=self.INT_SUB_ID)
+        self.assertEqual(sot['subnet_id'], self.INT_SUB_ID)
         # Create Port in Internal Network
-        prt = cls.conn.network.create_port(network_id=cls.INT_NET_ID)
+        prt = self.conn.network.create_port(network_id=self.INT_NET_ID)
         assert isinstance(prt, port.Port)
-        cls.PORT_ID = prt.id
+        self.PORT_ID = prt.id
         # Create Floating IP.
-        fip = cls.conn.network.create_ip(floating_network_id=cls.EXT_NET_ID)
+        fip = self.conn.network.create_ip(floating_network_id=self.EXT_NET_ID)
         assert isinstance(fip, floating_ip.FloatingIP)
-        cls.FIP = fip
+        self.FIP = fip
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_ip(cls.FIP.id, ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_port(cls.PORT_ID, ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.ROT.remove_interface(cls.conn.session,
-                                       subnet_id=cls.INT_SUB_ID)
-        cls.assertIs(sot['subnet_id'], cls.INT_SUB_ID)
-        sot = cls.conn.network.delete_router(cls.ROT_ID, ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_subnet(cls.EXT_SUB_ID,
-                                             ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_network(cls.EXT_NET_ID,
-                                              ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_subnet(cls.INT_SUB_ID,
-                                             ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_network(cls.INT_NET_ID,
-                                              ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_ip(self.FIP.id, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_port(self.PORT_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.ROT.remove_interface(
+            self.conn.session, subnet_id=self.INT_SUB_ID)
+        self.assertEqual(sot['subnet_id'], self.INT_SUB_ID)
+        sot = self.conn.network.delete_router(
+            self.ROT_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_subnet(
+            self.EXT_SUB_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_network(
+            self.EXT_NET_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_subnet(
+            self.INT_SUB_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_network(
+            self.INT_NET_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestFloatingIP, self).tearDown()
 
-    @classmethod
-    def _create_network(cls, name, **args):
-        cls.name = name
-        net = cls.conn.network.create_network(name=name, **args)
+    def _create_network(self, name, **args):
+        self.name = name
+        net = self.conn.network.create_network(name=name, **args)
         assert isinstance(net, network.Network)
-        cls.assertIs(cls.name, net.name)
+        self.assertEqual(self.name, net.name)
         return net
 
-    @classmethod
-    def _create_subnet(cls, name, net_id, cidr):
-        cls.name = name
-        cls.net_id = net_id
-        cls.cidr = cidr
-        sub = cls.conn.network.create_subnet(name=cls.name,
-                                             ip_version=cls.IPV4,
-                                             network_id=cls.net_id,
-                                             cidr=cls.cidr)
+    def _create_subnet(self, name, net_id, cidr):
+        self.name = name
+        self.net_id = net_id
+        self.cidr = cidr
+        sub = self.conn.network.create_subnet(
+            name=self.name,
+            ip_version=self.IPV4,
+            network_id=self.net_id,
+            cidr=self.cidr)
         assert isinstance(sub, subnet.Subnet)
-        cls.assertIs(cls.name, sub.name)
+        self.assertEqual(self.name, sub.name)
         return sub
 
     def test_find_by_id(self):

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import security_group
 from openstack.network.v2 import security_group_rule
@@ -19,7 +18,6 @@ from openstack.tests.functional import base
 
 class TestSecurityGroupRule(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
     IPV4 = 'IPv4'
     PROTO = 'tcp'
     PORT = 22
@@ -27,29 +25,29 @@ class TestSecurityGroupRule(base.BaseFunctionalTest):
     ID = None
     RULE_ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestSecurityGroupRule, cls).setUpClass()
-        sot = cls.conn.network.create_security_group(name=cls.NAME)
+    def setUp(self):
+        super(TestSecurityGroupRule, self).setUp()
+        self.NAME = self.getUniqueString()
+        sot = self.conn.network.create_security_group(name=self.NAME)
         assert isinstance(sot, security_group.SecurityGroup)
-        cls.assertIs(cls.NAME, sot.name)
-        cls.ID = sot.id
-        rul = cls.conn.network.create_security_group_rule(
-            direction=cls.DIR, ethertype=cls.IPV4,
-            port_range_max=cls.PORT, port_range_min=cls.PORT,
-            protocol=cls.PROTO, security_group_id=cls.ID)
+        self.assertEqual(self.NAME, sot.name)
+        self.ID = sot.id
+        rul = self.conn.network.create_security_group_rule(
+            direction=self.DIR, ethertype=self.IPV4,
+            port_range_max=self.PORT, port_range_min=self.PORT,
+            protocol=self.PROTO, security_group_id=self.ID)
         assert isinstance(rul, security_group_rule.SecurityGroupRule)
-        cls.assertIs(cls.ID, rul.security_group_id)
-        cls.RULE_ID = rul.id
+        self.assertEqual(self.ID, rul.security_group_id)
+        self.RULE_ID = rul.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_security_group_rule(cls.RULE_ID,
-                                                          ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_security_group(cls.ID,
-                                                     ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_security_group_rule(
+            self.RULE_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_security_group(
+            self.ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestSecurityGroupRule, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_security_group_rule(self.RULE_ID)

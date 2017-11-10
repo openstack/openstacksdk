@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.compute.v2 import keypair
 from openstack.tests.functional import base
@@ -18,22 +17,23 @@ from openstack.tests.functional import base
 
 class TestKeypair(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
-    ID = None
+    def setUp(self):
+        super(TestKeypair, self).setUp()
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestKeypair, cls).setUpClass()
-        sot = cls.conn.compute.create_keypair(name=cls.NAME)
+        # Keypairs can't have .'s in the name. Because why?
+        self.NAME = self.getUniqueString().split('.')[-1]
+        self.ID = None
+
+        sot = self.conn.compute.create_keypair(name=self.NAME)
         assert isinstance(sot, keypair.Keypair)
-        cls.assertIs(cls.NAME, sot.name)
-        cls._keypair = sot
-        cls.ID = sot.id
+        self.assertEqual(self.NAME, sot.name)
+        self._keypair = sot
+        self.ID = sot.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.compute.delete_keypair(cls._keypair)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.compute.delete_keypair(self._keypair)
+        self.assertIsNone(sot)
+        super(TestKeypair, self).tearDown()
 
     def test_find(self):
         sot = self.conn.compute.find_keypair(self.NAME)

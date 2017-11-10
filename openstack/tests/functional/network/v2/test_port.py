@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import network
 from openstack.network.v2 import port
@@ -20,44 +19,48 @@ from openstack.tests.functional import base
 
 class TestPort(base.BaseFunctionalTest):
 
-    NET_NAME = uuid.uuid4().hex
-    SUB_NAME = uuid.uuid4().hex
-    PORT_NAME = uuid.uuid4().hex
-    UPDATE_NAME = uuid.uuid4().hex
     IPV4 = 4
     CIDR = "10.100.0.0/24"
     NET_ID = None
     SUB_ID = None
     PORT_ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestPort, cls).setUpClass()
-        net = cls.conn.network.create_network(name=cls.NET_NAME)
+    def setUp(self):
+        super(TestPort, self).setUp()
+        self.NET_NAME = self.getUniqueString()
+        self.SUB_NAME = self.getUniqueString()
+        self.PORT_NAME = self.getUniqueString()
+        self.UPDATE_NAME = self.getUniqueString()
+        net = self.conn.network.create_network(name=self.NET_NAME)
         assert isinstance(net, network.Network)
-        cls.assertIs(cls.NET_NAME, net.name)
-        cls.NET_ID = net.id
-        sub = cls.conn.network.create_subnet(name=cls.SUB_NAME,
-                                             ip_version=cls.IPV4,
-                                             network_id=cls.NET_ID,
-                                             cidr=cls.CIDR)
+        self.assertEqual(self.NET_NAME, net.name)
+        self.NET_ID = net.id
+        sub = self.conn.network.create_subnet(
+            name=self.SUB_NAME,
+            ip_version=self.IPV4,
+            network_id=self.NET_ID,
+            cidr=self.CIDR)
         assert isinstance(sub, subnet.Subnet)
-        cls.assertIs(cls.SUB_NAME, sub.name)
-        cls.SUB_ID = sub.id
-        prt = cls.conn.network.create_port(name=cls.PORT_NAME,
-                                           network_id=cls.NET_ID)
+        self.assertEqual(self.SUB_NAME, sub.name)
+        self.SUB_ID = sub.id
+        prt = self.conn.network.create_port(
+            name=self.PORT_NAME,
+            network_id=self.NET_ID)
         assert isinstance(prt, port.Port)
-        cls.assertIs(cls.PORT_NAME, prt.name)
-        cls.PORT_ID = prt.id
+        self.assertEqual(self.PORT_NAME, prt.name)
+        self.PORT_ID = prt.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_port(cls.PORT_ID, ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_subnet(cls.SUB_ID, ignore_missing=False)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_network(cls.NET_ID, ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_port(
+            self.PORT_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_subnet(
+            self.SUB_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_network(
+            self.NET_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestPort, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_port(self.PORT_NAME)

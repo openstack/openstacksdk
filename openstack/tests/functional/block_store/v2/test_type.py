@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.block_store.v2 import type as _type
 from openstack.tests.functional import base
@@ -18,22 +17,22 @@ from openstack.tests.functional import base
 
 class TestType(base.BaseFunctionalTest):
 
-    TYPE_NAME = uuid.uuid4().hex
-    TYPE_ID = None
+    def setUp(self):
+        super(TestType, self).setUp()
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestType, cls).setUpClass()
-        sot = cls.conn.block_store.create_type(name=cls.TYPE_NAME)
+        self.TYPE_NAME = self.getUniqueString()
+        self.TYPE_ID = None
+
+        sot = self.conn.block_store.create_type(name=self.TYPE_NAME)
         assert isinstance(sot, _type.Type)
-        cls.assertIs(cls.TYPE_NAME, sot.name)
-        cls.TYPE_ID = sot.id
+        self.assertEqual(self.TYPE_NAME, sot.name)
+        self.TYPE_ID = sot.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.block_store.delete_type(cls.TYPE_ID,
-                                               ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.block_store.delete_type(
+            self.TYPE_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestType, self).tearDown()
 
     def test_get(self):
         sot = self.conn.block_store.get_type(self.TYPE_ID)

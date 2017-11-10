@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
+import testtools
 
 from examples import connect
 from examples.network import create as network_create
@@ -19,16 +19,16 @@ from examples.network import find as network_find
 from examples.network import list as network_list
 
 
-class TestNetwork(unittest.TestCase):
+class TestNetwork(testtools.TestCase):
     """Test the network examples
 
     The purpose of these tests is to ensure the examples run without erring
     out.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.conn = connect.create_connection_from_config()
+    def setUp(self):
+        super(TestNetwork, self).setUp()
+        self.conn = connect.create_connection_from_config()
 
     def test_network(self):
         network_list.list_networks(self.conn)

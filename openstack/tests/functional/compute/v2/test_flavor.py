@@ -18,11 +18,10 @@ from openstack.tests.functional import base
 
 class TestFlavor(base.BaseFunctionalTest):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestFlavor, cls).setUpClass()
+    def setUp(self):
+        super(TestFlavor, self).setUp()
 
-        cls.one_flavor = list(cls.conn.compute.flavors())[0]
+        self.one_flavor = list(self.conn.compute.flavors())[0]
 
     def test_flavors(self):
         flavors = list(self.conn.compute.flavors())

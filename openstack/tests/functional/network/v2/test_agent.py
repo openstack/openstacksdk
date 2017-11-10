@@ -28,12 +28,11 @@ class TestAgent(base.BaseFunctionalTest):
             return False
         return True
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestAgent, cls).setUpClass()
-        agent_list = list(cls.conn.network.agents())
-        cls.AGENT = agent_list[0]
-        assert isinstance(cls.AGENT, agent.Agent)
+    def setUp(self):
+        super(TestAgent, self).setUp()
+        agent_list = list(self.conn.network.agents())
+        self.AGENT = agent_list[0]
+        assert isinstance(self.AGENT, agent.Agent)
 
     def test_list(self):
         agent_list = list(self.conn.network.agents())

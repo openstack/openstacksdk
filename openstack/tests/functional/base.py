@@ -12,11 +12,10 @@
 
 import os
 import openstack.config
-import time
-import unittest
 
 from keystoneauth1 import exceptions as _exceptions
 from openstack import connection
+from openstack.tests import base
 
 
 #: Defines the OpenStack Client Config (OCC) cloud key in your OCC config
@@ -46,38 +45,34 @@ IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
 FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 
 
-def service_exists(**kwargs):
-    """Decorator function to check whether a service exists
+class BaseFunctionalTest(base.TestCase):
 
-    Usage:
-    @unittest.skipUnless(base.service_exists(service_type="metering"),
-                         "Metering service does not exist")
-    class TestMeter(base.BaseFunctionalTest):
-        ...
+    def setUp(self):
+        super(BaseFunctionalTest, self).setUp()
+        self.conn = connection.from_config(cloud_name=TEST_CLOUD)
 
-    :param kwargs: The kwargs needed to filter an endpoint.
-    :returns: True if the service exists, otherwise False.
-    """
-    try:
-        conn = connection.from_config(cloud_name=TEST_CLOUD)
-        conn.session.get_endpoint(**kwargs)
+    def addEmptyCleanup(self, func, *args, **kwargs):
+        def cleanup():
+            result = func(*args, **kwargs)
+            self.assertIsNone(result)
+        self.addCleanup(cleanup)
 
-        return True
-    except _exceptions.EndpointNotFound:
-        return False
+    # TODO(shade) Replace this with call to conn.has_service when we've merged
+    #             the shade methods into Connection.
+    def require_service(self, service_type, **kwargs):
+        """Method to check whether a service exists
 
+        Usage:
+        class TestMeter(base.BaseFunctionalTest):
+            ...
+            def setUp(self):
+                super(TestMeter, self).setUp()
+                self.require_service('metering')
 
-class BaseFunctionalTest(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.conn = connection.from_config(cloud_name=TEST_CLOUD)
-
-    @classmethod
-    def assertIs(cls, expected, actual):
-        if expected != actual:
-            raise Exception(expected + ' != ' + actual)
-
-    @classmethod
-    def linger_for_delete(cls):
-        time.sleep(40)
+        :returns: True if the service exists, otherwise False.
+        """
+        try:
+            self.conn.session.get_endpoint(service_type=service_type, **kwargs)
+        except _exceptions.EndpointNotFound:
+            self.skipTest('Service {service_type} not found in cloud'.format(
+                service_type=service_type))

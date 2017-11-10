@@ -10,32 +10,26 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-import uuid
-
 from openstack.tests.functional import base
 
 
-@unittest.skipUnless(base.service_exists(service_type='object-store'),
-                     'Object Storage service does not exist')
 class TestObject(base.BaseFunctionalTest):
 
-    FOLDER = uuid.uuid4().hex
-    FILE = uuid.uuid4().hex
     DATA = b'abc'
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestObject, cls).setUpClass()
-        cls.conn.object_store.create_container(name=cls.FOLDER)
-        cls.sot = cls.conn.object_store.upload_object(
-            container=cls.FOLDER, name=cls.FILE, data=cls.DATA)
+    def setUp(self):
+        super(TestObject, self).setUp()
+        self.require_service('object-store')
 
-    @classmethod
-    def tearDownClass(cls):
-        super(TestObject, cls).tearDownClass()
-        cls.conn.object_store.delete_object(cls.sot, ignore_missing=False)
-        cls.conn.object_store.delete_container(cls.FOLDER)
+        self.FOLDER = self.getUniqueString()
+        self.FILE = self.getUniqueString()
+        self.conn.object_store.create_container(name=self.FOLDER)
+        self.addCleanup(self.conn.object_store.delete_container, self.FOLDER)
+        self.sot = self.conn.object_store.upload_object(
+            container=self.FOLDER, name=self.FILE, data=self.DATA)
+        self.addEmptyCleanup(
+            self.conn.object_store.delete_object, self.sot,
+            ignore_missing=False)
 
     def test_list(self):
         names = [o.name for o

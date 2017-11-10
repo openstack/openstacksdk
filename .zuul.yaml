@@ -227,7 +227,6 @@
         - openstacksdk-ansible-devel-functional-devstack
         - openstacksdk-ansible-functional-devstack
         - openstacksdk-functional-devstack
-        - openstacksdk-functional-devstack-legacy
         - openstacksdk-functional-devstack-magnum
         - openstacksdk-functional-devstack-python3
     gate:

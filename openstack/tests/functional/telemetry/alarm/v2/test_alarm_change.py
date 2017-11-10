@@ -11,38 +11,32 @@
 # under the License.
 
 import unittest
-import uuid
 
 from openstack.tests.functional import base
 
 
 @unittest.skip("bug/1524468")
-@unittest.skipUnless(base.service_exists(service_type="metering"),
-                     "Metering service does not exist")
-@unittest.skipUnless(base.service_exists(service_type="alarming"),
-                     "Alarming service does not exist")
 class TestAlarmChange(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
     alarm = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestAlarmChange, cls).setUpClass()
-        meter = next(cls.conn.telemetry.meters())
-        alarm = cls.conn.alarm.create_alarm(
-            name=cls.NAME,
+    def setUp(self):
+        super(TestAlarmChange, self).setUp()
+        self.require_service('alarming')
+        self.require_service('metering')
+
+        self.NAME = self.getUniqueString()
+        meter = next(self.conn.telemetry.meters())
+        self.alarm = self.conn.alarm.create_alarm(
+            name=self.NAME,
             type='threshold',
             threshold_rule={
                 'meter_name': meter.name,
                 'threshold': 1.1,
             },
         )
-        cls.alarm = alarm
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.conn.alarm.delete_alarm(cls.alarm, ignore_missing=False)
+        self.addCleanup(
+            self.conn.alarm.delete_alarm, self.alarm, ignore_missing=False)
 
     def test_list(self):
         change = next(self.conn.alarm.alarm_changes(self.alarm))

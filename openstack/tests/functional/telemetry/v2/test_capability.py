@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-
 from openstack.tests.functional import base
 
 
-@unittest.skipUnless(base.service_exists(service_type="metering"),
-                     "Metering service does not exist")
 class TestCapability(base.BaseFunctionalTest):
+
+    def setUp(self):
+        super(TestCapability, self).setUp()
+        self.require_service('metering')
 
     def test_list(self):
         ids = [o.id for o in self.conn.telemetry.capabilities()]

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.block_store.v2 import volume as _volume
 from openstack.tests.functional import base
@@ -18,29 +17,31 @@ from openstack.tests.functional import base
 
 class TestVolume(base.BaseFunctionalTest):
 
-    VOLUME_NAME = uuid.uuid4().hex
-    VOLUME_ID = None
+    def setUp(self):
+        super(TestVolume, self).setUp()
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestVolume, cls).setUpClass()
-        volume = cls.conn.block_store.create_volume(
-            name=cls.VOLUME_NAME,
+        self.VOLUME_NAME = self.getUniqueString()
+        self.VOLUME_ID = None
+
+        volume = self.conn.block_store.create_volume(
+            name=self.VOLUME_NAME,
             size=1)
-        cls.conn.block_store.wait_for_status(volume,
-                                             status='available',
-                                             failures=['error'],
-                                             interval=2,
-                                             wait=120)
+        self.conn.block_store.wait_for_status(
+            volume,
+            status='available',
+            failures=['error'],
+            interval=2,
+            wait=120)
         assert isinstance(volume, _volume.Volume)
-        cls.assertIs(cls.VOLUME_NAME, volume.name)
-        cls.VOLUME_ID = volume.id
+        self.assertEqual(self.VOLUME_NAME, volume.name)
+        self.VOLUME_ID = volume.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.block_store.delete_volume(cls.VOLUME_ID,
-                                                 ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.block_store.delete_volume(
+            self.VOLUME_ID,
+            ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestVolume, self).tearDown()
 
     def test_get(self):
         sot = self.conn.block_store.get_volume(self.VOLUME_ID)

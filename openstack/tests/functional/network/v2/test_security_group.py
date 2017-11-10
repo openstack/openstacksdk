@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import security_group
 from openstack.tests.functional import base
@@ -18,22 +17,21 @@ from openstack.tests.functional import base
 
 class TestSecurityGroup(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
     ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestSecurityGroup, cls).setUpClass()
-        sot = cls.conn.network.create_security_group(name=cls.NAME)
+    def setUp(self):
+        super(TestSecurityGroup, self).setUp()
+        self.NAME = self.getUniqueString()
+        sot = self.conn.network.create_security_group(name=self.NAME)
         assert isinstance(sot, security_group.SecurityGroup)
-        cls.assertIs(cls.NAME, sot.name)
-        cls.ID = sot.id
+        self.assertEqual(self.NAME, sot.name)
+        self.ID = sot.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_security_group(cls.ID,
-                                                     ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_security_group(
+            self.ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestSecurityGroup, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_security_group(self.NAME)

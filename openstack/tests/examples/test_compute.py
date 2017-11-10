@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
+import testtools
 
 from examples.compute import create
 from examples.compute import delete
@@ -21,16 +21,16 @@ from examples.network import find as network_find
 from examples.network import list as network_list
 
 
-class TestCompute(unittest.TestCase):
+class TestCompute(testtools.TestCase):
     """Test the compute examples
 
     The purpose of these tests is to ensure the examples run without erring
     out.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.conn = connect.create_connection_from_config()
+    def setUp(self):
+        super(TestCompute, self).setUp()
+        self.conn = connect.create_connection_from_config()
 
     def test_compute(self):
         compute_list.list_servers(self.conn)

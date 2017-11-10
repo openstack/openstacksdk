@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-import uuid
-
 from openstack.load_balancer.v2 import health_monitor
 from openstack.load_balancer.v2 import l7_policy
 from openstack.load_balancer.v2 import l7_rule
@@ -20,21 +17,11 @@ from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer
 from openstack.load_balancer.v2 import member
 from openstack.load_balancer.v2 import pool
-from openstack.tests.functional import base
 from openstack.tests.functional.load_balancer import base as lb_base
 
 
-@unittest.skipUnless(base.service_exists(service_type='load-balancer'),
-                     'Load-balancer service does not exist')
 class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
 
-    HM_NAME = uuid.uuid4().hex
-    L7POLICY_NAME = uuid.uuid4().hex
-    LB_NAME = uuid.uuid4().hex
-    LISTENER_NAME = uuid.uuid4().hex
-    MEMBER_NAME = uuid.uuid4().hex
-    POOL_NAME = uuid.uuid4().hex
-    UPDATE_NAME = uuid.uuid4().hex
     HM_ID = None
     L7POLICY_ID = None
     LB_ID = None
@@ -58,110 +45,121 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
     L7RULE_TYPE = 'HOST_NAME'
     L7RULE_VALUE = 'example'
 
-    # Note: Creating load balancers can be slow on some hosts due to nova
-    #       instance boot times (up to ten minutes) so we are consolidating
-    #       all of our functional tests here to reduce test runtime.
-    @classmethod
-    def setUpClass(cls):
-        super(TestLoadBalancer, cls).setUpClass()
-        subnets = list(cls.conn.network.subnets())
-        cls.VIP_SUBNET_ID = subnets[0].id
-        cls.PROJECT_ID = cls.conn.session.get_project_id()
-        test_lb = cls.conn.load_balancer.create_load_balancer(
-            name=cls.LB_NAME, vip_subnet_id=cls.VIP_SUBNET_ID,
-            project_id=cls.PROJECT_ID)
+    # TODO(shade): Creating load balancers can be slow on some hosts due to
+    #              nova instance boot times (up to ten minutes). This used to
+    #              use setUpClass, but that's a whole other pile of bad, so
+    #              we may need to engineer something pleasing here.
+    def setUp(self):
+        super(TestLoadBalancer, self).setUp()
+        self.require_service('load-balancer')
+
+        self.HM_NAME = self.getUniqueString()
+        self.L7POLICY_NAME = self.getUniqueString()
+        self.LB_NAME = self.getUniqueString()
+        self.LISTENER_NAME = self.getUniqueString()
+        self.MEMBER_NAME = self.getUniqueString()
+        self.POOL_NAME = self.getUniqueString()
+        self.UPDATE_NAME = self.getUniqueString()
+        subnets = list(self.conn.network.subnets())
+        self.VIP_SUBNET_ID = subnets[0].id
+        self.PROJECT_ID = self.conn.session.get_project_id()
+        test_lb = self.conn.load_balancer.create_load_balancer(
+            name=self.LB_NAME, vip_subnet_id=self.VIP_SUBNET_ID,
+            project_id=self.PROJECT_ID)
         assert isinstance(test_lb, load_balancer.LoadBalancer)
-        cls.assertIs(cls.LB_NAME, test_lb.name)
+        self.assertEqual(self.LB_NAME, test_lb.name)
         # Wait for the LB to go ACTIVE.  On non-virtualization enabled hosts
         # it can take nova up to ten minutes to boot a VM.
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'], interval=1, wait=600)
-        cls.LB_ID = test_lb.id
+        self.lb_wait_for_status(test_lb, status='ACTIVE',
+                                failures=['ERROR'], interval=1, wait=600)
+        self.LB_ID = test_lb.id
 
-        test_listener = cls.conn.load_balancer.create_listener(
-            name=cls.LISTENER_NAME, protocol=cls.PROTOCOL,
-            protocol_port=cls.PROTOCOL_PORT, loadbalancer_id=cls.LB_ID)
+        test_listener = self.conn.load_balancer.create_listener(
+            name=self.LISTENER_NAME, protocol=self.PROTOCOL,
+            protocol_port=self.PROTOCOL_PORT, loadbalancer_id=self.LB_ID)
         assert isinstance(test_listener, listener.Listener)
-        cls.assertIs(cls.LISTENER_NAME, test_listener.name)
-        cls.LISTENER_ID = test_listener.id
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'])
+        self.assertEqual(self.LISTENER_NAME, test_listener.name)
+        self.LISTENER_ID = test_listener.id
+        self.lb_wait_for_status(test_lb, status='ACTIVE',
+                                failures=['ERROR'])
 
-        test_pool = cls.conn.load_balancer.create_pool(
-            name=cls.POOL_NAME, protocol=cls.PROTOCOL,
-            lb_algorithm=cls.LB_ALGORITHM, listener_id=cls.LISTENER_ID)
+        test_pool = self.conn.load_balancer.create_pool(
+            name=self.POOL_NAME, protocol=self.PROTOCOL,
+            lb_algorithm=self.LB_ALGORITHM, listener_id=self.LISTENER_ID)
         assert isinstance(test_pool, pool.Pool)
-        cls.assertIs(cls.POOL_NAME, test_pool.name)
-        cls.POOL_ID = test_pool.id
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'])
+        self.assertEqual(self.POOL_NAME, test_pool.name)
+        self.POOL_ID = test_pool.id
+        self.lb_wait_for_status(test_lb, status='ACTIVE',
+                                failures=['ERROR'])
 
-        test_member = cls.conn.load_balancer.create_member(
-            pool=cls.POOL_ID, name=cls.MEMBER_NAME, address=cls.MEMBER_ADDRESS,
-            protocol_port=cls.PROTOCOL_PORT, weight=cls.WEIGHT)
+        test_member = self.conn.load_balancer.create_member(
+            pool=self.POOL_ID, name=self.MEMBER_NAME,
+            address=self.MEMBER_ADDRESS,
+            protocol_port=self.PROTOCOL_PORT, weight=self.WEIGHT)
         assert isinstance(test_member, member.Member)
-        cls.assertIs(cls.MEMBER_NAME, test_member.name)
-        cls.MEMBER_ID = test_member.id
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'])
+        self.assertEqual(self.MEMBER_NAME, test_member.name)
+        self.MEMBER_ID = test_member.id
+        self.lb_wait_for_status(test_lb, status='ACTIVE',
+                                failures=['ERROR'])
 
-        test_hm = cls.conn.load_balancer.create_health_monitor(
-            pool_id=cls.POOL_ID, name=cls.HM_NAME, delay=cls.DELAY,
-            timeout=cls.TIMEOUT, max_retries=cls.MAX_RETRY, type=cls.HM_TYPE)
+        test_hm = self.conn.load_balancer.create_health_monitor(
+            pool_id=self.POOL_ID, name=self.HM_NAME, delay=self.DELAY,
+            timeout=self.TIMEOUT, max_retries=self.MAX_RETRY,
+            type=self.HM_TYPE)
         assert isinstance(test_hm, health_monitor.HealthMonitor)
-        cls.assertIs(cls.HM_NAME, test_hm.name)
-        cls.HM_ID = test_hm.id
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'])
+        self.assertEqual(self.HM_NAME, test_hm.name)
+        self.HM_ID = test_hm.id
+        self.lb_wait_for_status(test_lb, status='ACTIVE',
+                                failures=['ERROR'])
 
-        test_l7policy = cls.conn.load_balancer.create_l7_policy(
-            listener_id=cls.LISTENER_ID, name=cls.L7POLICY_NAME,
-            action=cls.ACTION, redirect_url=cls.REDIRECT_URL)
+        test_l7policy = self.conn.load_balancer.create_l7_policy(
+            listener_id=self.LISTENER_ID, name=self.L7POLICY_NAME,
+            action=self.ACTION, redirect_url=self.REDIRECT_URL)
         assert isinstance(test_l7policy, l7_policy.L7Policy)
-        cls.assertIs(cls.L7POLICY_NAME, test_l7policy.name)
-        cls.L7POLICY_ID = test_l7policy.id
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'])
+        self.assertEqual(self.L7POLICY_NAME, test_l7policy.name)
+        self.L7POLICY_ID = test_l7policy.id
+        self.lb_wait_for_status(test_lb, status='ACTIVE',
+                                failures=['ERROR'])
 
-        test_l7rule = cls.conn.load_balancer.create_l7_rule(
-            l7_policy=cls.L7POLICY_ID, compare_type=cls.COMPARE_TYPE,
-            type=cls.L7RULE_TYPE, value=cls.L7RULE_VALUE)
+        test_l7rule = self.conn.load_balancer.create_l7_rule(
+            l7_policy=self.L7POLICY_ID, compare_type=self.COMPARE_TYPE,
+            type=self.L7RULE_TYPE, value=self.L7RULE_VALUE)
         assert isinstance(test_l7rule, l7_rule.L7Rule)
-        cls.assertIs(cls.COMPARE_TYPE, test_l7rule.compare_type)
-        cls.L7RULE_ID = test_l7rule.id
-        cls.lb_wait_for_status(test_lb, status='ACTIVE',
-                               failures=['ERROR'])
+        self.assertEqual(self.COMPARE_TYPE, test_l7rule.compare_type)
+        self.L7RULE_ID = test_l7rule.id
+        self.lb_wait_for_status(test_lb, status='ACTIVE',
+                                failures=['ERROR'])
 
-    @classmethod
-    def tearDownClass(cls):
-        test_lb = cls.conn.load_balancer.get_load_balancer(cls.LB_ID)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+    def tearDown(self):
+        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
-        cls.conn.load_balancer.delete_l7_rule(
-            cls.L7RULE_ID, l7_policy=cls.L7POLICY_ID, ignore_missing=False)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.delete_l7_rule(
+            self.L7RULE_ID, l7_policy=self.L7POLICY_ID, ignore_missing=False)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
-        cls.conn.load_balancer.delete_l7_policy(
-            cls.L7POLICY_ID, ignore_missing=False)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.delete_l7_policy(
+            self.L7POLICY_ID, ignore_missing=False)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
-        cls.conn.load_balancer.delete_health_monitor(
-            cls.HM_ID, ignore_missing=False)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.delete_health_monitor(
+            self.HM_ID, ignore_missing=False)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
-        cls.conn.load_balancer.delete_member(
-            cls.MEMBER_ID, cls.POOL_ID, ignore_missing=False)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.delete_member(
+            self.MEMBER_ID, self.POOL_ID, ignore_missing=False)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
-        cls.conn.load_balancer.delete_pool(cls.POOL_ID, ignore_missing=False)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.delete_pool(self.POOL_ID, ignore_missing=False)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
-        cls.conn.load_balancer.delete_listener(cls.LISTENER_ID,
-                                               ignore_missing=False)
-        cls.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.delete_listener(self.LISTENER_ID,
+                                                ignore_missing=False)
+        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
 
-        cls.conn.load_balancer.delete_load_balancer(
-            cls.LB_ID, ignore_missing=False)
+        self.conn.load_balancer.delete_load_balancer(
+            self.LB_ID, ignore_missing=False)
+        super(TestLoadBalancer, self).tearDown()
 
     def test_lb_find(self):
         test_lb = self.conn.load_balancer.find_load_balancer(self.LB_NAME)

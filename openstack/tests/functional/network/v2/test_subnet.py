@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import network
 from openstack.network.v2 import subnet
@@ -19,9 +18,6 @@ from openstack.tests.functional import base
 
 class TestSubnet(base.BaseFunctionalTest):
 
-    NET_NAME = uuid.uuid4().hex
-    SUB_NAME = uuid.uuid4().hex
-    UPDATE_NAME = uuid.uuid4().hex
     IPV4 = 4
     CIDR = "10.100.0.0/24"
     DNS_SERVERS = ["8.8.4.4", "8.8.8.8"]
@@ -30,30 +26,34 @@ class TestSubnet(base.BaseFunctionalTest):
     NET_ID = None
     SUB_ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestSubnet, cls).setUpClass()
-        net = cls.conn.network.create_network(name=cls.NET_NAME)
+    def setUp(self):
+        super(TestSubnet, self).setUp()
+        self.NET_NAME = self.getUniqueString()
+        self.SUB_NAME = self.getUniqueString()
+        self.UPDATE_NAME = self.getUniqueString()
+        net = self.conn.network.create_network(name=self.NET_NAME)
         assert isinstance(net, network.Network)
-        cls.assertIs(cls.NET_NAME, net.name)
-        cls.NET_ID = net.id
-        sub = cls.conn.network.create_subnet(name=cls.SUB_NAME,
-                                             ip_version=cls.IPV4,
-                                             network_id=cls.NET_ID,
-                                             cidr=cls.CIDR,
-                                             dns_nameservers=cls.DNS_SERVERS,
-                                             allocation_pools=cls.POOL,
-                                             host_routes=cls.ROUTES)
+        self.assertEqual(self.NET_NAME, net.name)
+        self.NET_ID = net.id
+        sub = self.conn.network.create_subnet(
+            name=self.SUB_NAME,
+            ip_version=self.IPV4,
+            network_id=self.NET_ID,
+            cidr=self.CIDR,
+            dns_nameservers=self.DNS_SERVERS,
+            allocation_pools=self.POOL,
+            host_routes=self.ROUTES)
         assert isinstance(sub, subnet.Subnet)
-        cls.assertIs(cls.SUB_NAME, sub.name)
-        cls.SUB_ID = sub.id
+        self.assertEqual(self.SUB_NAME, sub.name)
+        self.SUB_ID = sub.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_subnet(cls.SUB_ID)
-        cls.assertIs(None, sot)
-        sot = cls.conn.network.delete_network(cls.NET_ID, ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_subnet(self.SUB_ID)
+        self.assertIsNone(sot)
+        sot = self.conn.network.delete_network(
+            self.NET_ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestSubnet, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_subnet(self.SUB_NAME)

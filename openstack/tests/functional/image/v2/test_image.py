@@ -22,23 +22,20 @@ class TestImage(base.BaseFunctionalTest):
         def __init__(self):
             self.image_api_version = '2'
 
-    @classmethod
-    def setUpClass(cls):
-        opts = cls.ImageOpts()
-        cls.conn = connection.from_config(cloud_name=base.TEST_CLOUD,
-                                          options=opts)
+    def setUp(self):
+        super(TestImage, self).setUp()
+        opts = self.ImageOpts()
+        self.conn = connection.from_config(
+            cloud_name=base.TEST_CLOUD, options=opts)
 
-        cls.img = cls.conn.image.upload_image(
+        self.img = self.conn.image.upload_image(
             name=TEST_IMAGE_NAME,
             disk_format='raw',
             container_format='bare',
             properties='{"description": "This is not an image"}',
             data=open('CONTRIBUTING.rst', 'r')
         )
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.conn.image.delete_image(cls.img)
+        self.addCleanup(self.conn.image.delete_image, self.img)
 
     def test_get_image(self):
         img2 = self.conn.image.get_image(self.img)

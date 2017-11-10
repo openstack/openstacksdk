@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import time
 import unittest
 
 from openstack import exceptions
@@ -19,8 +20,6 @@ from openstack.tests.functional.network.v2 import test_network
 
 
 @unittest.skip("bug/1525005")
-@unittest.skipUnless(base.service_exists(service_type='orchestration'),
-                     'Orchestration service does not exist')
 class TestStack(base.BaseFunctionalTest):
 
     NAME = 'test_stack'
@@ -29,48 +28,50 @@ class TestStack(base.BaseFunctionalTest):
     subnet = None
     cidr = '10.99.99.0/16'
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestStack, cls).setUpClass()
-        if cls.conn.compute.find_keypair(cls.NAME) is None:
-            cls.conn.compute.create_keypair(name=cls.NAME)
-        image = next(cls.conn.image.images())
+    def setUp(self):
+        super(TestStack, self).setUp()
+        self.require_service('orchestration')
+
+        if self.conn.compute.find_keypair(self.NAME) is None:
+            self.conn.compute.create_keypair(name=self.NAME)
+        image = next(self.conn.image.images())
         tname = "openstack/tests/functional/orchestration/v1/hello_world.yaml"
         with open(tname) as f:
             template = f.read()
-        cls.network, cls.subnet = test_network.create_network(cls.conn,
-                                                              cls.NAME,
-                                                              cls.cidr)
+        self.network, self.subnet = test_network.create_network(
+            self.conn,
+            self.NAME,
+            self.cidr)
         parameters = {
             'image': image.id,
-            'key_name': cls.NAME,
-            'network': cls.network.id,
+            'key_name': self.NAME,
+            'network': self.network.id,
         }
-        sot = cls.conn.orchestration.create_stack(
-            name=cls.NAME,
+        sot = self.conn.orchestration.create_stack(
+            name=self.NAME,
             parameters=parameters,
             template=template,
         )
         assert isinstance(sot, stack.Stack)
-        cls.assertIs(True, (sot.id is not None))
-        cls.stack = sot
-        cls.assertIs(cls.NAME, sot.name)
-        cls.conn.orchestration.wait_for_status(
+        self.assertEqual(True, (sot.id is not None))
+        self.stack = sot
+        self.assertEqual(self.NAME, sot.name)
+        self.conn.orchestration.wait_for_status(
             sot, status='CREATE_COMPLETE', failures=['CREATE_FAILED'])
 
-    @classmethod
-    def tearDownClass(cls):
-        super(TestStack, cls).tearDownClass()
-        cls.conn.orchestration.delete_stack(cls.stack, ignore_missing=False)
-        cls.conn.compute.delete_keypair(cls.NAME)
+    def tearDown(self):
+        self.conn.orchestration.delete_stack(self.stack, ignore_missing=False)
+        self.conn.compute.delete_keypair(self.NAME)
         # Need to wait for the stack to go away before network delete
         try:
-            cls.conn.orchestration.wait_for_status(
-                cls.stack, 'DELETE_COMPLETE')
+            self.conn.orchestration.wait_for_status(
+                self.stack, 'DELETE_COMPLETE')
         except exceptions.NotFoundException:
             pass
-        cls.linger_for_delete()
-        test_network.delete_network(cls.conn, cls.network, cls.subnet)
+        # TODO(shade) sleeping in tests is bad mmkay?
+        time.sleep(40)
+        test_network.delete_network(self.conn, self.network, self.subnet)
+        super(TestStack, self).tearDown()
 
     def test_list(self):
         names = [o.name for o in self.conn.orchestration.stacks()]

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import router
 from openstack.tests.functional import base
@@ -18,24 +17,20 @@ from openstack.tests.functional import base
 
 class TestAgentRouters(base.BaseFunctionalTest):
 
-    ROUTER_NAME = 'router-name-' + uuid.uuid4().hex
     ROUTER = None
     AGENT = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestAgentRouters, cls).setUpClass()
+    def setUp(self):
+        super(TestAgentRouters, self).setUp()
 
-        cls.ROUTER = cls.conn.network.create_router(name=cls.ROUTER_NAME)
-        assert isinstance(cls.ROUTER, router.Router)
-        agent_list = list(cls.conn.network.agents())
+        self.ROUTER_NAME = 'router-name-' + self.getUniqueString('router-name')
+        self.ROUTER = self.conn.network.create_router(name=self.ROUTER_NAME)
+        self.addCleanup(self.conn.network.delete_router, self.ROUTER)
+        assert isinstance(self.ROUTER, router.Router)
+        agent_list = list(self.conn.network.agents())
         agents = [agent for agent in agent_list
                   if agent.agent_type == 'L3 agent']
-        cls.AGENT = agents[0]
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.conn.network.delete_router(cls.ROUTER)
+        self.AGENT = agents[0]
 
     def test_add_router_to_agent(self):
         self.conn.network.add_router_to_agent(self.AGENT, self.ROUTER)

@@ -10,15 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
-
 from openstack.network.v2 import flavor
 from openstack.tests.functional import base
 
 
 class TestFlavor(base.BaseFunctionalTest):
 
-    FLAVOR_NAME = uuid.uuid4().hex
     UPDATE_NAME = "UPDATED-NAME"
     SERVICE_TYPE = "FLAVORS"
     ID = None
@@ -26,29 +23,30 @@ class TestFlavor(base.BaseFunctionalTest):
     SERVICE_PROFILE_DESCRIPTION = "DESCRIPTION"
     METAINFO = "FlAVOR_PROFILE_METAINFO"
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestFlavor, cls).setUpClass()
-        flavors = cls.conn.network.create_flavor(name=cls.FLAVOR_NAME,
-                                                 service_type=cls.SERVICE_TYPE)
+    def setUp(self):
+        super(TestFlavor, self).setUp()
+        self.FLAVOR_NAME = self.getUniqueString('flavor')
+        flavors = self.conn.network.create_flavor(
+            name=self.FLAVOR_NAME,
+            service_type=self.SERVICE_TYPE)
         assert isinstance(flavors, flavor.Flavor)
-        cls.assertIs(cls.FLAVOR_NAME, flavors.name)
-        cls.assertIs(cls.SERVICE_TYPE, flavors.service_type)
+        self.assertEqual(self.FLAVOR_NAME, flavors.name)
+        self.assertEqual(self.SERVICE_TYPE, flavors.service_type)
 
-        cls.ID = flavors.id
+        self.ID = flavors.id
 
-        cls.service_profiles = cls.conn.network.create_service_profile(
-            description=cls.SERVICE_PROFILE_DESCRIPTION,
-            metainfo=cls.METAINFO,)
+        self.service_profiles = self.conn.network.create_service_profile(
+            description=self.SERVICE_PROFILE_DESCRIPTION,
+            metainfo=self.METAINFO,)
 
-    @classmethod
-    def tearDownClass(cls):
-        flavors = cls.conn.network.delete_flavor(cls.ID, ignore_missing=True)
-        cls.assertIs(None, flavors)
+    def tearDown(self):
+        flavors = self.conn.network.delete_flavor(self.ID, ignore_missing=True)
+        self.assertIsNone(flavors)
 
-        service_profiles = cls.conn.network.delete_service_profile(
-            cls.ID, ignore_missing=True)
-        cls.assertIs(None, service_profiles)
+        service_profiles = self.conn.network.delete_service_profile(
+            self.ID, ignore_missing=True)
+        self.assertIsNone(service_profiles)
+        super(TestFlavor, self).tearDown()
 
     def test_find(self):
         flavors = self.conn.network.find_flavor(self.FLAVOR_NAME)
@@ -68,13 +66,12 @@ class TestFlavor(base.BaseFunctionalTest):
                                                  name=self.UPDATE_NAME)
         self.assertEqual(self.UPDATE_NAME, flavor.name)
 
-    def test_associate_flavor_with_service_profile(self):
+    def test_associate_disassociate_flavor_with_service_profile(self):
         response = \
             self.conn.network.associate_flavor_with_service_profile(
                 self.ID, self.service_profiles.id)
         self.assertIsNotNone(response)
 
-    def test_disassociate_flavor_from_service_profile(self):
         response = \
             self.conn.network.disassociate_flavor_from_service_profile(
                 self.ID, self.service_profiles.id)

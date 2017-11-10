@@ -21,25 +21,25 @@ class TestServiceProfile(base.BaseFunctionalTest):
     METAINFO = "FlAVOR_PROFILE_METAINFO"
     ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestServiceProfile, cls).setUpClass()
-        service_profiles = cls.conn.network.create_service_profile(
-            description=cls.SERVICE_PROFILE_DESCRIPTION,
-            metainfo=cls.METAINFO,)
+    def setUp(self):
+        super(TestServiceProfile, self).setUp()
+        service_profiles = self.conn.network.create_service_profile(
+            description=self.SERVICE_PROFILE_DESCRIPTION,
+            metainfo=self.METAINFO,)
         assert isinstance(service_profiles, _service_profile.ServiceProfile)
-        cls.assertIs(cls.SERVICE_PROFILE_DESCRIPTION,
-                     service_profiles.description)
-        cls.assertIs(cls.METAINFO, service_profiles.meta_info)
+        self.assertEqual(
+            self.SERVICE_PROFILE_DESCRIPTION,
+            service_profiles.description)
+        self.assertEqual(self.METAINFO, service_profiles.meta_info)
 
-        cls.ID = service_profiles.id
+        self.ID = service_profiles.id
 
-    @classmethod
-    def tearDownClass(cls):
-        service_profiles = cls.conn.network.delete_service_profile(
-            cls.ID,
+    def tearDown(self):
+        service_profiles = self.conn.network.delete_service_profile(
+            self.ID,
             ignore_missing=True)
-        cls.assertIs(None, service_profiles)
+        self.assertIsNone(service_profiles)
+        super(TestServiceProfile, self).tearDown()
 
     def test_find(self):
         service_profiles = self.conn.network.find_service_profile(

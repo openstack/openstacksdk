@@ -13,9 +13,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# TODO(shade) Remove all use of setUpClass and tearDownClass. setUp and
-# addCleanup should be used instead.
-
 import os
 
 import fixtures
@@ -69,7 +66,7 @@ class TestCase(testtools.TestCase):
         formatter = logging.Formatter('%(asctime)s %(name)-32s %(message)s')
         handler.setFormatter(formatter)
 
-        logger = logging.getLogger('shade')
+        logger = logging.getLogger('openstack')
         logger.setLevel(logging.DEBUG)
         logger.addHandler(handler)
 

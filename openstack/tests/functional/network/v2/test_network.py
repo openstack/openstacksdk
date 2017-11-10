@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import network
 from openstack.tests.functional import base
@@ -40,21 +39,20 @@ def delete_network(conn, network, subnet):
 
 class TestNetwork(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
     ID = None
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestNetwork, cls).setUpClass()
-        sot = cls.conn.network.create_network(name=cls.NAME)
+    def setUp(self):
+        super(TestNetwork, self).setUp()
+        self.NAME = self.getUniqueString()
+        sot = self.conn.network.create_network(name=self.NAME)
         assert isinstance(sot, network.Network)
-        cls.assertIs(cls.NAME, sot.name)
-        cls.ID = sot.id
+        self.assertEqual(self.NAME, sot.name)
+        self.ID = sot.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_network(cls.ID, ignore_missing=False)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_network(self.ID, ignore_missing=False)
+        self.assertIsNone(sot)
+        super(TestNetwork, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_network(self.NAME)

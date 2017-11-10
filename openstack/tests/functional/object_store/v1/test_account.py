@@ -10,20 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-
 from openstack.tests.functional import base
 
 
-@unittest.skipUnless(base.service_exists(service_type='object-store'),
-                     'Object Storage service does not exist')
 class TestAccount(base.BaseFunctionalTest):
 
-    @classmethod
-    def tearDownClass(cls):
-        super(TestAccount, cls).tearDownClass()
-        account = cls.conn.object_store.get_account_metadata()
-        cls.conn.object_store.delete_account_metadata(account.metadata.keys())
+    def setUp(self):
+        super(TestAccount, self).setUp()
+        self.require_service('object-store')
+
+    def tearDown(self):
+        account = self.conn.object_store.get_account_metadata()
+        self.conn.object_store.delete_account_metadata(account.metadata.keys())
+        super(TestAccount, self).tearDown()
 
     def test_system_metadata(self):
         account = self.conn.object_store.get_account_metadata()

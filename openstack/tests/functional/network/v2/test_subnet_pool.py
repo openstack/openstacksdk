@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.tests.functional import base
@@ -18,8 +17,6 @@ from openstack.tests.functional import base
 
 class TestSubnetPool(base.BaseFunctionalTest):
 
-    SUBNET_POOL_NAME = uuid.uuid4().hex
-    SUBNET_POOL_NAME_UPDATED = uuid.uuid4().hex
     SUBNET_POOL_ID = None
     MINIMUM_PREFIX_LENGTH = 8
     DEFAULT_PREFIX_LENGTH = 24
@@ -29,25 +26,26 @@ class TestSubnetPool(base.BaseFunctionalTest):
     IP_VERSION = 4
     PREFIXES = ['10.100.0.0/24', '10.101.0.0/24']
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestSubnetPool, cls).setUpClass()
-        subnet_pool = cls.conn.network.create_subnet_pool(
-            name=cls.SUBNET_POOL_NAME,
-            min_prefixlen=cls.MINIMUM_PREFIX_LENGTH,
-            default_prefixlen=cls.DEFAULT_PREFIX_LENGTH,
-            max_prefixlen=cls.MAXIMUM_PREFIX_LENGTH,
-            default_quota=cls.DEFAULT_QUOTA,
-            shared=cls.IS_SHARED,
-            prefixes=cls.PREFIXES)
+    def setUp(self):
+        super(TestSubnetPool, self).setUp()
+        self.SUBNET_POOL_NAME = self.getUniqueString()
+        self.SUBNET_POOL_NAME_UPDATED = self.getUniqueString()
+        subnet_pool = self.conn.network.create_subnet_pool(
+            name=self.SUBNET_POOL_NAME,
+            min_prefixlen=self.MINIMUM_PREFIX_LENGTH,
+            default_prefixlen=self.DEFAULT_PREFIX_LENGTH,
+            max_prefixlen=self.MAXIMUM_PREFIX_LENGTH,
+            default_quota=self.DEFAULT_QUOTA,
+            shared=self.IS_SHARED,
+            prefixes=self.PREFIXES)
         assert isinstance(subnet_pool, _subnet_pool.SubnetPool)
-        cls.assertIs(cls.SUBNET_POOL_NAME, subnet_pool.name)
-        cls.SUBNET_POOL_ID = subnet_pool.id
+        self.assertEqual(self.SUBNET_POOL_NAME, subnet_pool.name)
+        self.SUBNET_POOL_ID = subnet_pool.id
 
-    @classmethod
-    def tearDownClass(cls):
-        sot = cls.conn.network.delete_subnet_pool(cls.SUBNET_POOL_ID)
-        cls.assertIs(None, sot)
+    def tearDown(self):
+        sot = self.conn.network.delete_subnet_pool(self.SUBNET_POOL_ID)
+        self.assertIsNone(sot)
+        super(TestSubnetPool, self).tearDown()
 
     def test_find(self):
         sot = self.conn.network.find_subnet_pool(self.SUBNET_POOL_NAME)

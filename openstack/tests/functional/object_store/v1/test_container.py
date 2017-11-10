@@ -10,31 +10,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-import uuid
-
 from openstack.object_store.v1 import container as _container
 from openstack.tests.functional import base
 
 
-@unittest.skipUnless(base.service_exists(service_type='object-store'),
-                     'Object Storage service does not exist')
 class TestContainer(base.BaseFunctionalTest):
 
-    NAME = uuid.uuid4().hex
+    def setUp(self):
+        super(TestContainer, self).setUp()
+        self.require_service('object-store')
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestContainer, cls).setUpClass()
-        container = cls.conn.object_store.create_container(name=cls.NAME)
+        self.NAME = self.getUniqueString()
+        container = self.conn.object_store.create_container(name=self.NAME)
+        self.addEmptyCleanup(
+            self.conn.object_store.delete_container,
+            self.NAME, ignore_missing=False)
         assert isinstance(container, _container.Container)
-        cls.assertIs(cls.NAME, container.name)
-
-    @classmethod
-    def tearDownClass(cls):
-        result = cls.conn.object_store.delete_container(cls.NAME,
-                                                        ignore_missing=False)
-        cls.assertIs(None, result)
+        self.assertEqual(self.NAME, container.name)
 
     def test_list(self):
         names = [o.name for o in self.conn.object_store.containers()]
