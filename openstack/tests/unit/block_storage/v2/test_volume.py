@@ -17,6 +17,14 @@ import testtools
 from openstack.block_storage.v2 import volume
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
+IMAGE_METADATA = {
+    'container_format': 'bare',
+    'min_ram': '64', 'disk_format': u'qcow2',
+    'image_name': 'TestVM',
+    'image_id': '625d4f2c-cf67-4af3-afb6-c7220f766947',
+    'checksum': '64d7c1cd2b6f60c92c14662941cb7913',
+    'min_disk': '0', u'size': '13167616'
+}
 
 VOLUME = {
     "status": "creating",
@@ -31,6 +39,7 @@ VOLUME = {
     "source_volid": None,
     "imageRef": "some_image",
     "metadata": {},
+    "volume_image_metadata": IMAGE_METADATA,
     "id": FAKE_ID,
     "size": 10
 }
@@ -87,6 +96,8 @@ class TestVolume(testtools.TestCase):
         self.assertEqual(VOLUME["snapshot_id"], sot.snapshot_id)
         self.assertEqual(VOLUME["source_volid"], sot.source_volume_id)
         self.assertEqual(VOLUME["metadata"], sot.metadata)
+        self.assertEqual(VOLUME["volume_image_metadata"],
+                         sot.volume_image_metadata)
         self.assertEqual(VOLUME["size"], sot.size)
         self.assertEqual(VOLUME["imageRef"], sot.image_id)
 

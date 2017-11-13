@@ -63,6 +63,8 @@ class Volume(resource2.Resource):
     is_bootable = resource2.Body("bootable", type=format.BoolStr)
     #: One or more metadata key and value pairs to associate with the volume.
     metadata = resource2.Body("metadata")
+    #: One or more metadata key and value pairs about image
+    volume_image_metadata = resource2.Body("volume_image_metadata")
 
     #: One of the following values: creating, available, attaching, in-use
     #: deleting, error, error_deleting, backing-up, restoring-backup,
