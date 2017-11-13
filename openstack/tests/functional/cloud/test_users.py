@@ -17,7 +17,6 @@ test_users
 Functional tests for `shade` user methods.
 """
 
-from openstack import operator_cloud
 from openstack import OpenStackCloudException
 from openstack.tests.functional.cloud import base
 
@@ -132,9 +131,16 @@ class TestUsers(base.KeystoneBaseFunctionalTestCase):
         self.addCleanup(
             self.operator_cloud.revoke_role,
             'Member', user=user['id'], project='demo', wait=True)
-        self.assertIsNotNone(operator_cloud(
-            cloud=self._demo_name,
-            username=user_name, password='new_secret').service_catalog)
+
+        new_cloud = self.operator_cloud.connect_as(
+            user_id=user['id'],
+            password='new_secret',
+            project_name='demo')
+
+        self.assertIsNotNone(new_cloud)
+        location = new_cloud.current_location
+        self.assertEqual(location['project']['name'], 'demo')
+        self.assertIsNotNone(new_cloud.service_catalog)
 
     def test_users_and_groups(self):
         i_ver = self.operator_cloud.cloud_config.get_api_version('identity')

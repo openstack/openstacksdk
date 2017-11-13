@@ -20,6 +20,7 @@ test_project
 
 Functional tests for `shade` project resource.
 """
+import pprint
 
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.tests.functional.cloud import base
@@ -60,6 +61,22 @@ class TestProject(base.KeystoneBaseFunctionalTestCase):
         self.assertIsNotNone(project)
         self.assertEqual(project_name, project['name'])
         self.assertEqual('test_create_project', project['description'])
+
+        user_id = self.operator_cloud.keystone_session.auth.get_access(
+            self.operator_cloud.keystone_session).user_id
+
+        # Grant the current user access to the project
+        self.assertTrue(self.operator_cloud.grant_role(
+            'Member', user=user_id, project=project['id'], wait=True))
+        self.addCleanup(
+            self.operator_cloud.revoke_role,
+            'Member', user=user_id, project=project['id'], wait=True)
+
+        new_cloud = self.operator_cloud.connect_as_project(project)
+        self.add_info_on_exception(
+            'new_cloud_config', pprint.pformat(new_cloud.cloud_config.config))
+        location = new_cloud.current_location
+        self.assertEqual(project_name, location['project']['name'])
 
     def test_update_project(self):
         project_name = self.new_project_name + '_update'

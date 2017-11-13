@@ -12,6 +12,7 @@
 
 import base64
 import collections
+import copy
 import functools
 import hashlib
 import ipaddress
@@ -33,6 +34,7 @@ import requestsexceptions
 from six.moves import urllib
 
 import keystoneauth1.exceptions
+import keystoneauth1.session
 
 import openstack
 from openstack import _adapter
@@ -305,6 +307,113 @@ class OpenStackCloud(_normalize.Normalizer):
             _utils.localhost_supports_ipv6() if not self.force_ipv4 else False)
 
         self.cloud_config = cloud_config
+
+    def connect_as(self, **kwargs):
+        """Make a new OpenStackCloud object with new auth context.
+
+        Take the existing settings from the current cloud and construct a new
+        OpenStackCloud object with some of the auth settings overridden. This
+        is useful for getting an object to perform tasks with as another user,
+        or in the context of a different project.
+
+        .. code-block:: python
+
+          cloud = shade.openstack_cloud(cloud='example')
+          # Work normally
+          servers = cloud.list_servers()
+          cloud2 = cloud.connect_as(username='different-user', password='')
+          # Work as different-user
+          servers = cloud2.list_servers()
+
+        :param kwargs: keyword arguments can contain anything that would
+                       normally go in an auth dict. They will override the same
+                       settings from the parent cloud as appropriate. Entries
+                       that do not want to be overridden can be ommitted.
+        """
+
+        config = openstack.config.OpenStackConfig(
+            app_name=self.cloud_config._app_name,
+            app_version=self.cloud_config._app_version,
+            load_yaml_config=False)
+        params = copy.deepcopy(self.cloud_config.config)
+        # Remove profile from current cloud so that overridding works
+        params.pop('profile', None)
+
+        # Utility function to help with the stripping below.
+        def pop_keys(params, auth, name_key, id_key):
+            if name_key in auth or id_key in auth:
+                params['auth'].pop(name_key, None)
+                params['auth'].pop(id_key, None)
+
+        # If there are user, project or domain settings in the incoming auth
+        # dict, strip out both id and name so that a user can say:
+        #     cloud.connect_as(project_name='foo')
+        # and have that work with clouds that have a project_id set in their
+        # config.
+        for prefix in ('user', 'project'):
+            if prefix == 'user':
+                name_key = 'username'
+            else:
+                name_key = 'project_name'
+            id_key = '{prefix}_id'.format(prefix=prefix)
+            pop_keys(params, kwargs, name_key, id_key)
+            id_key = '{prefix}_domain_id'.format(prefix=prefix)
+            name_key = '{prefix}_domain_name'.format(prefix=prefix)
+            pop_keys(params, kwargs, name_key, id_key)
+
+        for key, value in kwargs.items():
+            params['auth'][key] = value
+
+        # Closure to pass to OpenStackConfig to ensure the new cloud shares
+        # the Session with the current cloud. This will ensure that version
+        # discovery cache will be re-used.
+        def session_constructor(*args, **kwargs):
+            # We need to pass our current keystone session to the Session
+            # Constructor, otherwise the new auth plugin doesn't get used.
+            return keystoneauth1.session.Session(session=self.keystone_session)
+
+        # Use cloud='defaults' so that we overlay settings properly
+        cloud_config = config.get_one_cloud(
+            cloud='defaults',
+            session_constructor=session_constructor,
+            **params)
+        # Override the cloud name so that logging/location work right
+        cloud_config.name = self.name
+        cloud_config.config['profile'] = self.name
+        # Use self.__class__ so that OperatorCloud will return an OperatorCloud
+        # instance. This should also help passthrough from sdk work better when
+        # we have it.
+        return self.__class__(cloud_config=cloud_config)
+
+    def connect_as_project(self, project):
+        """Make a new OpenStackCloud object with a new project.
+
+        Take the existing settings from the current cloud and construct a new
+        OpenStackCloud object with the project settings overridden. This
+        is useful for getting an object to perform tasks with as another user,
+        or in the context of a different project.
+
+        .. code-block:: python
+
+          cloud = shade.openstack_cloud(cloud='example')
+          # Work normally
+          servers = cloud.list_servers()
+          cloud2 = cloud.connect_as(dict(name='different-project'))
+          # Work in different-project
+          servers = cloud2.list_servers()
+
+        :param project: Either a project name or a project dict as returned by
+                        `list_projects`.
+        """
+        auth = {}
+        if isinstance(project, dict):
+            auth['project_id'] = project.get('id')
+            auth['project_name'] = project.get('name')
+            if project.get('domain_id'):
+                auth['project_domain_id'] = project['domain_id']
+        else:
+            auth['project_name'] = project
+        return self.connect_as(**auth)
 
     def _make_cache(self, cache_class, expiration_time, arguments):
         return dogpile.cache.make_region(
