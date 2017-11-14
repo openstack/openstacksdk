@@ -1,5 +1,5 @@
 ---
 features:
-  - Added methods and context managers for making new cloud connections
+  - Added methods for making new cloud connections
     based on the current OpenStackCloud. This should enable working
     more easily across projects or user accounts.
