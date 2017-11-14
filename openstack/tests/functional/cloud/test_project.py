@@ -62,8 +62,7 @@ class TestProject(base.KeystoneBaseFunctionalTestCase):
         self.assertEqual(project_name, project['name'])
         self.assertEqual('test_create_project', project['description'])
 
-        user_id = self.operator_cloud.keystone_session.auth.get_access(
-            self.operator_cloud.keystone_session).user_id
+        user_id = self.operator_cloud.current_user_id
 
         # Grant the current user access to the project
         self.assertTrue(self.operator_cloud.grant_role(

@@ -731,6 +731,12 @@ class OpenStackCloud(_normalize.Normalizer):
         return self.keystone_session.get_token()
 
     @property
+    def current_user_id(self):
+        """Get the id of the currently logged-in user from the token."""
+        return self.keystone_session.auth.get_access(
+            self.keystone_session).user_id
+
+    @property
     def current_project_id(self):
         """Get the current project ID.
 
