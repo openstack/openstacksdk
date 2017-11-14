@@ -35,15 +35,15 @@ from six.moves import urllib
 import keystoneauth1.exceptions
 
 import openstack
+from openstack import _adapter
 from openstack import _log
 from openstack.cloud.exc import *  # noqa
-from openstack.cloud import _adapter
 from openstack.cloud._heat import event_utils
 from openstack.cloud._heat import template_utils
 from openstack.cloud import _normalize
 from openstack.cloud import meta
-from openstack.cloud import task_manager
 from openstack.cloud import _utils
+from openstack import task_manager
 
 # TODO(shade) shade keys were x-object-meta-x-sdk-md5 - we need to add those
 #             to freshness checks so that a shade->sdk transition doens't

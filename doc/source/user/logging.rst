@@ -44,19 +44,13 @@ There are additional sub-loggers that are used at times, primarily so that a
 user can decide to turn on or off a specific type of logging. They are listed
 below.
 
-openstack.cloud.task_manager
+openstack.task_manager
   `openstack.cloud` uses a Task Manager to perform remote calls. The
   `openstack.cloud.task_manager` logger emits messages at the start and end
   of each Task announcing what it is going to run and then what it ran and
   how long it took. Logging `openstack.cloud.task_manager` is a good way to
   get a trace of external actions `openstack.cloud` is taking without full
   `HTTP Tracing`_.
-
-openstack.cloud.request_ids
-  The `openstack.cloud.request_ids` logger emits a log line at the end of each
-  HTTP interaction with the OpenStack Request ID associated with the
-  interaction. This can be be useful for tracking action taken on the
-  server-side if one does not want `HTTP Tracing`_.
 
 openstack.cloud.exc
   If `log_inner_exceptions` is set to True, `shade` will emit any wrapped

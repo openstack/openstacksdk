@@ -19,8 +19,8 @@ from six.moves import urllib
 
 from keystoneauth1 import adapter
 
-from openstack.cloud import task_manager as _task_manager
 from openstack import exceptions
+from openstack import task_manager as _task_manager
 
 
 def _extract_name(url):

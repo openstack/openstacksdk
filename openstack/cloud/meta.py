@@ -486,25 +486,6 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     return server_vars
 
 
-def _log_request_id(obj, request_id):
-    if request_id:
-        # Log the request id and object id in a specific logger. This way
-        # someone can turn it on if they're interested in this kind of tracing.
-        log = _log.setup_logging('openstack.cloud.request_ids')
-        obj_id = None
-        if isinstance(obj, dict):
-            obj_id = obj.get('id', obj.get('uuid'))
-        if obj_id:
-            log.debug("Retrieved object %(id)s. Request ID %(request_id)s",
-                      {'id': obj.get('id', obj.get('uuid')),
-                       'request_id': request_id})
-        else:
-            log.debug("Retrieved a response. Request ID %(request_id)s",
-                      {'request_id': request_id})
-
-    return obj
-
-
 def obj_to_munch(obj):
     """ Turn an object with attributes into a dict suitable for serializing.
 

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openstack.cloud import task_manager
+from openstack import task_manager
 
 
 class MachineCreate(task_manager.Task):

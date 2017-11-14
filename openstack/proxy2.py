@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.cloud import _adapter
+from openstack import _adapter
 from openstack import exceptions
 from openstack import resource2
 from openstack import utils

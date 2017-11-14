@@ -12,7 +12,7 @@
 
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
-from openstack.cloud import _adapter
+from openstack import _adapter
 from openstack.tests.unit import base
 
 

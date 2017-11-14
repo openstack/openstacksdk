@@ -16,7 +16,7 @@
 import concurrent.futures
 import mock
 
-from openstack.cloud import task_manager
+from openstack import task_manager
 from openstack.tests.unit import base
 
 

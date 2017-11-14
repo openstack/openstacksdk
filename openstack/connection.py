@@ -79,12 +79,12 @@ import sys
 import keystoneauth1.exceptions
 import os_service_types
 
-from openstack.cloud import task_manager
 import openstack.config
 from openstack.config import cloud_config
 from openstack import exceptions
 from openstack import proxy
 from openstack import proxy2
+from openstack import task_manager
 from openstack import utils
 
 _logger = logging.getLogger(__name__)
