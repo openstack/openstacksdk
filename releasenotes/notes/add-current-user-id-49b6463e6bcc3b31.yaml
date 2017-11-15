@@ -1,0 +1,4 @@
+---
+features:
+  - Added a new property, 'current_user_id' which contains
+    the id of the currently authenticated user from the token.
