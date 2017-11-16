@@ -26,6 +26,7 @@ import six
 import openstack.cloud
 from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack.cloud import openstackcloud
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -44,6 +45,8 @@ class BaseTestImage(base.RequestsMockTestCase):
         self.fake_image_dict = fakes.make_fake_image(image_id=self.image_id)
         self.fake_search_return = {'images': [self.fake_image_dict]}
         self.output = uuid.uuid4().bytes
+        self.image_name = self.getUniqueString('image')
+        self.container_name = self.getUniqueString('container')
 
 
 class TestImage(BaseTestImage):
@@ -260,8 +263,6 @@ class TestImage(BaseTestImage):
 
     def test_create_image_task(self):
         self.cloud.image_api_use_tasks = True
-        image_name = 'name-99'
-        container_name = 'image_upload_v2_test_container'
         endpoint = self.cloud._object_store_client.get_endpoint()
 
         task_id = str(uuid.uuid4())
@@ -288,18 +289,18 @@ class TestImage(BaseTestImage):
                      slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
-                     endpoint=endpoint, container=container_name),
+                     endpoint=endpoint, container=self.container_name),
                  status_code=404),
             dict(method='PUT',
                  uri='{endpoint}/{container}'.format(
-                     endpoint=endpoint, container=container_name),
+                     endpoint=endpoint, container=self.container_name),
                  status_code=201,
                  headers={'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
                           'Content-Length': '0',
                           'Content-Type': 'text/html; charset=UTF-8'}),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
-                     endpoint=endpoint, container=container_name),
+                     endpoint=endpoint, container=self.container_name),
                  headers={'Content-Length': '0',
                           'X-Container-Object-Count': '0',
                           'Accept-Ranges': 'bytes',
@@ -311,13 +312,13 @@ class TestImage(BaseTestImage):
                          'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
-                     endpoint=endpoint, container=container_name,
-                     object=image_name),
+                     endpoint=endpoint, container=self.container_name,
+                     object=self.image_name),
                  status_code=404),
             dict(method='PUT',
                  uri='{endpoint}/{container}/{object}'.format(
-                     endpoint=endpoint, container=container_name,
-                     object=image_name),
+                     endpoint=endpoint, container=self.container_name,
+                     object=self.image_name),
                  status_code=201,
                  validate=dict(
                      headers={'x-object-meta-x-sdk-md5': fakes.NO_MD5,
@@ -331,8 +332,9 @@ class TestImage(BaseTestImage):
                      json=dict(
                          type='import', input={
                              'import_from': '{container}/{object}'.format(
-                                 container=container_name, object=image_name),
-                             'image_properties': {'name': image_name}}))
+                                 container=self.container_name,
+                                 object=self.image_name),
+                             'image_properties': {'name': self.image_name}}))
                  ),
             dict(method='GET',
                  uri='https://image.example.com/v2/tasks/{id}'.format(
@@ -351,22 +353,22 @@ class TestImage(BaseTestImage):
                      json=sorted([
                          {u'op': u'add',
                           u'value': '{container}/{object}'.format(
-                              container=container_name,
-                              object=image_name),
+                              container=self.container_name,
+                              object=self.image_name),
                           u'path': u'/owner_specified.openstack.object'},
                          {u'op': u'add', u'value': fakes.NO_MD5,
                           u'path': u'/owner_specified.openstack.md5'},
                          {u'op': u'add', u'value': fakes.NO_SHA256,
                           u'path': u'/owner_specified.openstack.sha256'}],
-                                 key=operator.itemgetter('value')),
+                         key=operator.itemgetter('value')),
                      headers={
                          'Content-Type':
                              'application/openstack-images-v2.1-json-patch'})
                  ),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
-                     endpoint=endpoint, container=container_name,
-                     object=image_name),
+                     endpoint=endpoint, container=self.container_name,
+                     object=self.image_name),
                  headers={
                      'X-Timestamp': '1429036140.50253',
                      'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
@@ -380,15 +382,94 @@ class TestImage(BaseTestImage):
                      'Etag': fakes.NO_MD5}),
             dict(method='DELETE',
                  uri='{endpoint}/{container}/{object}'.format(
-                     endpoint=endpoint, container=container_name,
-                     object=image_name)),
+                     endpoint=endpoint, container=self.container_name,
+                     object=self.image_name)),
             dict(method='GET', uri='https://image.example.com/v2/images',
                  json=self.fake_search_return)
         ])
 
         self.cloud.create_image(
-            image_name, self.imagefile.name, wait=True, timeout=1,
-            is_public=False, container=container_name)
+            self.image_name, self.imagefile.name, wait=True, timeout=1,
+            is_public=False, container=self.container_name)
+
+        self.assert_calls()
+
+    def test_delete_autocreated_no_tasks(self):
+        self.use_nothing()
+        self.cloud.image_api_use_tasks = False
+        deleted = self.cloud.delete_autocreated_image_objects(
+            container=self.container_name)
+        self.assertFalse(deleted)
+        self.assert_calls()
+
+    def test_delete_autocreated_image_objects(self):
+        self.use_keystone_v3()
+        self.cloud.image_api_use_tasks = True
+        endpoint = self.cloud._object_store_client.get_endpoint()
+        other_image = self.getUniqueString('no-delete')
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     service_type='object-store',
+                     resource=self.container_name,
+                     qs_elements=['format=json']),
+                 json=[{
+                     'content_type': 'application/octet-stream',
+                     'bytes': 1437258240,
+                     'hash': '249219347276c331b87bf1ac2152d9af',
+                     'last_modified': '2015-02-16T17:50:05.289600',
+                     'name': other_image,
+                 }, {
+                     'content_type': 'application/octet-stream',
+                     'bytes': 1290170880,
+                     'hash': fakes.NO_MD5,
+                     'last_modified': '2015-04-14T18:29:00.502530',
+                     'name': self.image_name,
+                 }]),
+            dict(method='HEAD',
+                 uri=self.get_mock_url(
+                     service_type='object-store',
+                     resource=self.container_name,
+                     append=[other_image]),
+                 headers={
+                     'X-Timestamp': '1429036140.50253',
+                     'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
+                     'Content-Length': '1290170880',
+                     'Last-Modified': 'Tue, 14 Apr 2015 18:29:01 GMT',
+                     'X-Object-Meta-X-Shade-Sha256': 'does not matter',
+                     'X-Object-Meta-X-Shade-Md5': 'does not matter',
+                     'Date': 'Thu, 16 Nov 2017 15:24:30 GMT',
+                     'Accept-Ranges': 'bytes',
+                     'Content-Type': 'application/octet-stream',
+                     'Etag': '249219347276c331b87bf1ac2152d9af',
+                 }),
+            dict(method='HEAD',
+                 uri=self.get_mock_url(
+                     service_type='object-store',
+                     resource=self.container_name,
+                     append=[self.image_name]),
+                 headers={
+                     'X-Timestamp': '1429036140.50253',
+                     'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
+                     'Content-Length': '1290170880',
+                     'Last-Modified': 'Tue, 14 Apr 2015 18:29:01 GMT',
+                     'X-Object-Meta-X-Shade-Sha256': fakes.NO_SHA256,
+                     'X-Object-Meta-X-Shade-Md5': fakes.NO_MD5,
+                     'Date': 'Thu, 16 Nov 2017 15:24:30 GMT',
+                     'Accept-Ranges': 'bytes',
+                     'Content-Type': 'application/octet-stream',
+                     openstackcloud.OBJECT_AUTOCREATE_KEY: 'true',
+                     'Etag': fakes.NO_MD5}),
+            dict(method='DELETE',
+                 uri='{endpoint}/{container}/{object}'.format(
+                     endpoint=endpoint, container=self.container_name,
+                     object=self.image_name)),
+        ])
+
+        deleted = self.cloud.delete_autocreated_image_objects(
+            container=self.container_name)
+        self.assertTrue(deleted)
 
         self.assert_calls()
 

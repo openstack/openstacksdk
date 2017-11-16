@@ -420,6 +420,10 @@ class RequestsMockTestCase(BaseTestCase):
         ])
         self._make_test_cloud(identity_api_version='3')
 
+    def use_nothing(self):
+        self.calls = []
+        self._uri_registry.clear()
+
     def use_keystone_v3(self, catalog='catalog-v3.json'):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
