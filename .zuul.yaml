@@ -181,28 +181,6 @@
       tox_environment:
         OPENSTACKSDK_HAS_SWIFT: 0
         OPENSTACKSDK_HAS_MAGNUM: 1
-    voting: false
-
-- job:
-    name: openstacksdk-ansible-functional-devstack
-    parent: openstacksdk-functional-devstack
-    description: |
-      Run openstacksdk ansible functional tests against a master devstack
-      using released version of ansible.
-    vars:
-      tox_envlist: ansible
-
-- job:
-    name: openstacksdk-ansible-devel-functional-devstack
-    parent: openstacksdk-ansible-functional-devstack
-    description: |
-      Run openstacksdk ansible functional tests against a master devstack
-      using git devel branch version of ansible.
-    # required-projects:
-    #   - github.com/ansible/ansible
-    voting: false
-    vars:
-      tox_install_siblings: true
 
 - project-template:
     name: openstacksdk-functional-tips
@@ -223,13 +201,11 @@
       - openstacksdk-tox-tips
     check:
       jobs:
-        - openstacksdk-ansible-devel-functional-devstack
-        - openstacksdk-ansible-functional-devstack
         - openstacksdk-functional-devstack
-        - openstacksdk-functional-devstack-magnum
+        - openstacksdk-functional-devstack-magnum:
+            voting: false
         - openstacksdk-functional-devstack-python3
     gate:
       jobs:
-        - openstacksdk-ansible-functional-devstack
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-python3
