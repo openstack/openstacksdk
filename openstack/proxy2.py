@@ -264,7 +264,7 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
                                "service-specific subclasses should expose "
                                "this as needed. See resource2.wait_for_status "
                                "for this behavior"))
-    def wait_for_status(self, value, status, failures=[], interval=2,
+    def wait_for_status(self, value, status, failures=None, interval=2,
                         wait=120):
         """Wait for a resource to be in a particular status.
 
@@ -285,6 +285,7 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         :raises: :class:`~AttributeError` if the resource does not have a
                  status attribute
         """
+        failures = [] if failures is None else failures
         return resource2.wait_for_status(self, value, status,
                                          failures, interval, wait)
 
