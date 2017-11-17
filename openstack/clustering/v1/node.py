@@ -156,6 +156,14 @@ class Node(resource.Resource):
         self._translate_response(resp)
         return self
 
+    def force_delete(self, session):
+        """Force delete a node."""
+        body = {'force': True}
+        url = utils.urljoin(self.base_path, self.id)
+        resp = session.delete(url, json=body)
+        self._translate_response(resp)
+        return self
+
 
 class NodeDetail(Node):
     base_path = '/nodes/%(node_id)s?show_details=True'

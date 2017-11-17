@@ -196,21 +196,27 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._create(_cluster.Cluster, **attrs)
 
-    def delete_cluster(self, cluster, ignore_missing=True):
+    def delete_cluster(self, cluster, ignore_missing=True, force_delete=False):
         """Delete a cluster.
 
         :param cluster: The value can be either the name or ID of a cluster or
-            a :class:`~openstack.clustering.v1.cluster.Cluster` instance.
+            a :class:`~openstack.cluster.v1.cluster.Cluster` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the cluster could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent cluster.
+        :param bool force_delete: When set to ``True``, the cluster deletion
+                           will be forced immediately.
 
         :returns: The instance of the Cluster which was deleted.
-        :rtype: :class:`~openstack.clustering.v1.cluster.Cluster`.
+        :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`.
         """
-        return self._delete(_cluster.Cluster, cluster,
-                            ignore_missing=ignore_missing)
+        if force_delete:
+            server = self._get_resource(_cluster.Cluster, cluster)
+            return server.force_delete(self)
+        else:
+            return self._delete(_cluster.Cluster, cluster,
+                                ignore_missing=ignore_missing)
 
     def find_cluster(self, name_or_id, ignore_missing=True):
         """Find a single cluster.
@@ -614,20 +620,27 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._create(_node.Node, **attrs)
 
-    def delete_node(self, node, ignore_missing=True):
+    def delete_node(self, node, ignore_missing=True, force_delete=False):
         """Delete a node.
 
         :param node: The value can be either the name or ID of a node or a
-            :class:`~openstack.clustering.v1.node.Node` instance.
+            :class:`~openstack.cluster.v1.node.Node` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the node could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent node.
+        :param bool force_delete: When set to ``True``, the node deletion
+                           will be forced immediately.
 
         :returns: The instance of the Node which was deleted.
-        :rtype: :class:`~openstack.clustering.v1.node.Node`.
+        :rtype: :class:`~openstack.cluster.v1.node.Node`.
         """
-        return self._delete(_node.Node, node, ignore_missing=ignore_missing)
+        if force_delete:
+            server = self._get_resource(_node.Node, node)
+            return server.force_delete(self)
+        else:
+            return self._delete(_node.Node, node,
+                                ignore_missing=ignore_missing)
 
     def find_node(self, name_or_id, ignore_missing=True):
         """Find a single node.

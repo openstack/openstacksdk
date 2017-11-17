@@ -307,3 +307,19 @@ class TestCluster(testtools.TestCase):
         body = {'dance': {'style': 'tango'}}
         sess.post.assert_called_once_with(url,
                                           json=body)
+
+    def test_force_delete(self):
+        sot = cluster.Cluster(**FAKE)
+
+        resp = mock.Mock()
+        resp.headers = {}
+        resp.json = mock.Mock(return_value={"foo": "bar"})
+        resp.status_code = 200
+        sess = mock.Mock()
+        sess.delete = mock.Mock(return_value=resp)
+
+        res = sot.force_delete(sess)
+        self.assertEqual(sot, res)
+        url = 'clusters/%s' % sot.id
+        body = {'force': True}
+        sess.delete.assert_called_once_with(url, json=body)

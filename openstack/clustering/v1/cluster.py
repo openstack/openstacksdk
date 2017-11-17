@@ -181,3 +181,11 @@ class Cluster(resource.Resource):
         resp = session.post(url,
                             json={operation: params})
         return resp.json()
+
+    def force_delete(self, session):
+        """Force delete a cluster."""
+        body = {'force': True}
+        url = utils.urljoin(self.base_path, self.id)
+        resp = session.delete(url, json=body)
+        self._translate_response(resp)
+        return self

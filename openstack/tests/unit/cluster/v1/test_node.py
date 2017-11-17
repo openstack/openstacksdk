@@ -139,6 +139,22 @@ class TestNode(testtools.TestCase):
         sess.post.assert_called_once_with("nodes/adopt",
                                           json={"param": "value"})
 
+    def test_force_delete(self):
+        sot = node.Node(**FAKE)
+
+        resp = mock.Mock()
+        resp.headers = {}
+        resp.json = mock.Mock(return_value={"foo": "bar"})
+        resp.status_code = 200
+        sess = mock.Mock()
+        sess.delete = mock.Mock(return_value=resp)
+
+        res = sot.force_delete(sess)
+        self.assertEqual(sot, res)
+        url = 'nodes/%s' % sot.id
+        body = {'force': True}
+        sess.delete.assert_called_once_with(url, json=body)
+
 
 class TestNodeDetail(testtools.TestCase):
 

@@ -94,6 +94,11 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
     def test_cluster_delete_ignore(self):
         self.verify_delete(self.proxy.delete_cluster, cluster.Cluster, True)
 
+    def test_cluster_force_delete(self):
+        self._verify("openstack.clustering.v1.cluster.Cluster.force_delete",
+                     self.proxy.delete_cluster,
+                     method_args=["value", False, True])
+
     def test_cluster_find(self):
         self.verify_find(self.proxy.find_cluster, cluster.Cluster)
 
@@ -348,6 +353,11 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
 
     def test_node_delete_ignore(self):
         self.verify_delete(self.proxy.delete_node, node.Node, True)
+
+    def test_node_force_delete(self):
+        self._verify("openstack.clustering.v1.node.Node.force_delete",
+                     self.proxy.delete_node,
+                     method_args=["value", False, True])
 
     def test_node_find(self):
         self.verify_find(self.proxy.find_node, node.Node)
