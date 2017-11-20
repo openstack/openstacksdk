@@ -30,8 +30,9 @@ class FloatingIP(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'fixed_ip_address', 'floating_ip_address',
-        'floating_network_id', 'port_id', 'router_id', 'status',
+        'description', 'fixed_ip_address',
+        'floating_ip_address', 'floating_network_id',
+        'port_id', 'router_id', 'status', 'subnet_id',
         project_id='tenant_id')
 
     # Properties
@@ -65,6 +66,8 @@ class FloatingIP(resource.Resource):
     status = resource.Body('status')
     #: Timestamp at which the floating IP was last updated.
     updated_at = resource.Body('updated_at')
+    #: The Subnet ID associated with the floating IP.
+    subnet_id = resource.Body('subnet_id')
 
     @classmethod
     def find_available(cls, session):
