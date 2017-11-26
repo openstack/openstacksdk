@@ -27,6 +27,7 @@ EXAMPLE = {
     'max_retries_down': 3,
     'name': 'test_health_monitor',
     'operating_status': 'ONLINE',
+    'pools': [{'id': uuid.uuid4()}],
     'pool_id': uuid.uuid4(),
     'project_id': uuid.uuid4(),
     'provisioning_status': 'ACTIVE',
@@ -63,6 +64,7 @@ class TestPoolHealthMonitor(testtools.TestCase):
         self.assertEqual(EXAMPLE['max_retries_down'], test_hm.max_retries_down)
         self.assertEqual(EXAMPLE['name'], test_hm.name)
         self.assertEqual(EXAMPLE['operating_status'], test_hm.operating_status)
+        self.assertEqual(EXAMPLE['pools'], test_hm.pools)
         self.assertEqual(EXAMPLE['pool_id'], test_hm.pool_id)
         self.assertEqual(EXAMPLE['project_id'], test_hm.project_id)
         self.assertEqual(EXAMPLE['provisioning_status'],
