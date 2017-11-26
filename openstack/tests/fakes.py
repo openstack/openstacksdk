@@ -358,7 +358,8 @@ class FakeVolumeSnapshot(object):
 class FakeMachine(object):
     def __init__(self, id, name=None, driver=None, driver_info=None,
                  chassis_uuid=None, instance_info=None, instance_uuid=None,
-                 properties=None, reservation=None, last_error=None):
+                 properties=None, reservation=None, last_error=None,
+                 provision_state=None):
         self.uuid = id
         self.name = name
         self.driver = driver
@@ -369,6 +370,7 @@ class FakeMachine(object):
         self.properties = properties
         self.reservation = reservation
         self.last_error = last_error
+        self.provision_state = provision_state
 
 
 class FakeMachinePort(object):

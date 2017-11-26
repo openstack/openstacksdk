@@ -672,6 +672,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def test_node_set_provision_state_wait_timeout_fails(self):
         # Intentionally time out.
+        self.fake_baremetal_node['provision_state'] = 'deploy wait'
         self.register_uris([
             dict(
                 method='PUT',
@@ -780,6 +781,55 @@ class TestBaremetalNode(base.IronicTestCase):
         self.assertEqual(available_node, return_value)
         self.assert_calls()
 
+    def test_wait_for_baremetal_node_lock_locked(self):
+        self.fake_baremetal_node['reservation'] = 'conductor0'
+        unlocked_node = self.fake_baremetal_node.copy()
+        unlocked_node['reservation'] = None
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=unlocked_node),
+        ])
+        self.assertIsNone(
+            self.op_cloud.wait_for_baremetal_node_lock(
+                self.fake_baremetal_node,
+                timeout=1))
+
+        self.assert_calls()
+
+    def test_wait_for_baremetal_node_lock_not_locked(self):
+        self.fake_baremetal_node['reservation'] = None
+        self.assertIsNone(
+            self.op_cloud.wait_for_baremetal_node_lock(
+                self.fake_baremetal_node,
+                timeout=1))
+
+        self.assertEqual(0, len(self.adapter.request_history))
+
+    def test_wait_for_baremetal_node_lock_timeout(self):
+        self.fake_baremetal_node['reservation'] = 'conductor0'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node),
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.op_cloud.wait_for_baremetal_node_lock,
+            self.fake_baremetal_node,
+            timeout=0.001)
+
+        self.assert_calls()
+
     def test_activate_node(self):
         self.fake_baremetal_node['provision_state'] = 'active'
         self.register_uris([
@@ -834,9 +884,7 @@ class TestBaremetalNode(base.IronicTestCase):
         node_uuid = self.fake_baremetal_node['uuid']
         # TODO(TheJulia): There is a lot of duplication
         # in testing creation. Surely this hsould be a helper
-        # or something. We should fix this, after we have
-        # ironicclient removed, as in the mean time visibility
-        # will be helpful.
+        # or something. We should fix this.
         node_to_post = {
             'chassis_uuid': None,
             'driver': None,
@@ -867,11 +915,10 @@ class TestBaremetalNode(base.IronicTestCase):
         self.assertDictEqual(self.fake_baremetal_node, return_value)
         self.assert_calls()
 
-    # TODO(TheJulia): After we remove ironicclient,
-    # we need to de-duplicate these tests. Possibly
-    # a dedicated class, although we should do it then
-    # as we may find differences that need to be accounted
-    # for newer microversions.
+    # TODO(TheJulia): We need to de-duplicate these tests.
+    # Possibly a dedicated class, although we should do it
+    # then as we may find differences that need to be
+    # accounted for newer microversions.
     def test_register_machine_enroll(self):
         mac_address = '00:01:02:03:04:05'
         nics = [{'mac': mac_address}]
@@ -1334,6 +1381,33 @@ class TestBaremetalNode(base.IronicTestCase):
             wait=True,
             timeout=0.001)
 
+        self.assert_calls()
+
+    def test_unregister_machine_locked_timeout(self):
+        mac_address = self.fake_baremetal_port['address']
+        nics = [{'mac': mac_address}]
+        self.fake_baremetal_node['provision_state'] = 'available'
+        self.fake_baremetal_node['reservation'] = 'conductor99'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+        ])
+        self.assertRaises(
+            exc.OpenStackCloudException,
+            self.op_cloud.unregister_machine,
+            nics,
+            self.fake_baremetal_node['uuid'],
+            timeout=0.001)
         self.assert_calls()
 
     def test_unregister_machine_unavailable(self):
