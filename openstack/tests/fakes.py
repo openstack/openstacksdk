@@ -211,7 +211,8 @@ def make_fake_stack_event(
 
 
 def make_fake_image(
-        image_id=None, md5=NO_MD5, sha256=NO_SHA256, status='active'):
+        image_id=None, md5=NO_MD5, sha256=NO_SHA256, status='active',
+        image_name=u'fake_image'):
     return {
         u'image_state': u'available',
         u'container_format': u'bare',
@@ -232,12 +233,13 @@ def make_fake_image(
             u'metadata': {}}],
         u'min_disk': 40,
         u'virtual_size': None,
-        u'name': u'fake_image',
+        u'name': image_name,
         u'checksum': u'ee36e35a297980dee1b514de9803ec6d',
         u'created_at': u'2016-02-10T05:03:11Z',
         u'owner_specified.openstack.md5': NO_MD5,
         u'owner_specified.openstack.sha256': NO_SHA256,
-        u'owner_specified.openstack.object': 'images/fake_image',
+        u'owner_specified.openstack.object': 'images/{name}'.format(
+            name=image_name),
         u'protected': False}
 
 

@@ -173,6 +173,7 @@ class RequestsMockTestCase(BaseTestCase):
         self.use_keystone_v3()
         self.__register_uris_called = False
 
+    # TODO(shade) Update this to handle service type aliases
     def get_mock_url(self, service_type, interface='public', resource=None,
                      append=None, base_url_append=None,
                      qs_elements=None):

@@ -39,13 +39,15 @@ class BaseTestImage(base.RequestsMockTestCase):
     def setUp(self):
         super(BaseTestImage, self).setUp()
         self.image_id = str(uuid.uuid4())
+        self.image_name = self.getUniqueString('image')
+        self.object_name = u'images/{name}'.format(name=self.image_name)
         self.imagefile = tempfile.NamedTemporaryFile(delete=False)
         self.imagefile.write(b'\0')
         self.imagefile.close()
-        self.fake_image_dict = fakes.make_fake_image(image_id=self.image_id)
+        self.fake_image_dict = fakes.make_fake_image(
+            image_id=self.image_id, image_name=self.image_name)
         self.fake_search_return = {'images': [self.fake_image_dict]}
         self.output = uuid.uuid4().bytes
-        self.image_name = self.getUniqueString('image')
         self.container_name = self.getUniqueString('container')
 
 
@@ -77,12 +79,12 @@ class TestImage(BaseTestImage):
 
     def test_download_image_no_output(self):
         self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.download_image, 'fake_image')
+                          self.cloud.download_image, self.image_name)
 
     def test_download_image_two_outputs(self):
         fake_fd = six.BytesIO()
         self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.download_image, 'fake_image',
+                          self.cloud.download_image, self.image_name,
                           output_path='fake_path', output_file=fake_fd)
 
     def test_download_image_no_images_found(self):
@@ -91,7 +93,7 @@ class TestImage(BaseTestImage):
                  uri='https://image.example.com/v2/images',
                  json=dict(images=[]))])
         self.assertRaises(exc.OpenStackCloudResourceNotFound,
-                          self.cloud.download_image, 'fake_image',
+                          self.cloud.download_image, self.image_name,
                           output_path='fake_path')
         self.assert_calls()
 
@@ -110,7 +112,7 @@ class TestImage(BaseTestImage):
     def test_download_image_with_fd(self):
         self._register_image_mocks()
         output_file = six.BytesIO()
-        self.cloud.download_image('fake_image', output_file=output_file)
+        self.cloud.download_image(self.image_name, output_file=output_file)
         output_file.seek(0)
         self.assertEqual(output_file.read(), self.output)
         self.assert_calls()
@@ -118,14 +120,78 @@ class TestImage(BaseTestImage):
     def test_download_image_with_path(self):
         self._register_image_mocks()
         output_file = tempfile.NamedTemporaryFile()
-        self.cloud.download_image('fake_image', output_path=output_file.name)
+        self.cloud.download_image(
+            self.image_name, output_path=output_file.name)
         output_file.seek(0)
         self.assertEqual(output_file.read(), self.output)
         self.assert_calls()
 
+    def test_get_image_name(self, cloud=None):
+        cloud = cloud or self.cloud
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_search_return),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_search_return),
+        ])
+
+        self.assertEqual(
+            self.image_name, cloud.get_image_name(self.image_id))
+        self.assertEqual(
+            self.image_name, cloud.get_image_name(self.image_name))
+
+        self.assert_calls()
+
+    def test_get_image_by_id(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id],
+                     base_url_append='v2'),
+                 json=self.fake_image_dict)
+        ])
+        self.assertEqual(
+            self.cloud._normalize_image(self.fake_image_dict),
+            self.cloud.get_image_by_id(self.image_id))
+        self.assert_calls()
+
+    def test_get_image_id(self, cloud=None):
+        cloud = cloud or self.cloud
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_search_return),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_search_return),
+        ])
+
+        self.assertEqual(
+            self.image_id, cloud.get_image_id(self.image_id))
+        self.assertEqual(
+            self.image_id, cloud.get_image_id(self.image_name))
+
+        self.assert_calls()
+
+    def test_get_image_name_operator(self):
+        # This should work the same as non-operator, just verifying it does.
+        self.test_get_image_name(cloud=self.op_cloud)
+
+    def test_get_image_id_operator(self):
+        # This should work the same as the other test, just verifying it does.
+        self.test_get_image_id(cloud=self.op_cloud)
+
     def test_empty_list_images(self):
         self.register_uris([
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': []})
         ])
         self.assertEqual([], self.cloud.list_images())
@@ -133,7 +199,9 @@ class TestImage(BaseTestImage):
 
     def test_list_images(self):
         self.register_uris([
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
         self.assertEqual(
@@ -144,7 +212,9 @@ class TestImage(BaseTestImage):
     def test_list_images_show_all(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images?member_status=all',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2',
+                     qs_elements=['member_status=all']),
                  json=self.fake_search_return)
         ])
         self.assertEqual(
@@ -157,7 +227,9 @@ class TestImage(BaseTestImage):
         deleted_image['status'] = 'deleted'
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images?member_status=all',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2',
+                     qs_elements=['member_status=all']),
                  json={'images': [self.fake_image_dict, deleted_image]})
         ])
         self.assertEqual(
@@ -171,7 +243,8 @@ class TestImage(BaseTestImage):
         deleted_image['status'] = 'deleted'
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': [self.fake_image_dict, deleted_image]})
         ])
         self.assertEqual(
@@ -185,7 +258,8 @@ class TestImage(BaseTestImage):
         deleted_image['status'] = 'deleted'
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': [self.fake_image_dict, deleted_image]})
         ])
         self.assertEqual(
@@ -197,7 +271,9 @@ class TestImage(BaseTestImage):
         image_dict = self.fake_image_dict.copy()
         image_dict['properties'] = 'list,of,properties'
         self.register_uris([
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': [image_dict]}),
         ])
         images = self.cloud.list_images()
@@ -212,13 +288,16 @@ class TestImage(BaseTestImage):
     def test_list_images_paginated(self):
         marker = str(uuid.uuid4())
         self.register_uris([
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': [self.fake_image_dict],
                        'next': '/v2/images?marker={marker}'.format(
                            marker=marker)}),
             dict(method='GET',
-                 uri=('https://image.example.com/v2/images?'
-                      'marker={marker}'.format(marker=marker)),
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2',
+                     qs_elements=['marker={marker}'.format(marker=marker)]),
                  json=self.fake_search_return)
         ])
         self.assertEqual(
@@ -231,31 +310,37 @@ class TestImage(BaseTestImage):
         self.cloud.image_api_use_tasks = False
 
         self.register_uris([
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': []}),
-            dict(method='POST', uri='https://image.example.com/v2/images',
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json=self.fake_image_dict,
                  validate=dict(
                      json={
                          u'container_format': u'bare',
                          u'disk_format': u'qcow2',
-                         u'name': u'fake_image',
+                         u'name': self.image_name,
                          u'owner_specified.openstack.md5': fakes.NO_MD5,
-                         u'owner_specified.openstack.object':
-                         u'images/fake_image',
+                         u'owner_specified.openstack.object': self.object_name,
                          u'owner_specified.openstack.sha256': fakes.NO_SHA256,
                          u'visibility': u'private'})
                  ),
             dict(method='PUT',
-                 uri='https://image.example.com/v2/images/{id}/file'.format(
-                     id=self.image_id),
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id, 'file'],
+                     base_url_append='v2'),
                  request_headers={'Content-Type': 'application/octet-stream'}),
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
 
         self.cloud.create_image(
-            'fake_image', self.imagefile.name, wait=True, timeout=1,
+            self.image_name, self.imagefile.name, wait=True, timeout=1,
             is_public=False)
 
         self.assert_calls()
@@ -281,9 +366,14 @@ class TestImage(BaseTestImage):
         del(image_no_checksums['owner_specified.openstack.object'])
 
         self.register_uris([
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': []}),
-            dict(method='GET', uri='https://object-store.example.com/info',
+            dict(method='GET',
+                 # This is explicitly not using get_mock_url because that
+                 # gets us a project-id oriented URL.
+                 uri='https://object-store.example.com/info',
                  json=dict(
                      swift={'max_file_size': 1000},
                      slo={'min_segment_size': 500})),
@@ -301,15 +391,16 @@ class TestImage(BaseTestImage):
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=endpoint, container=self.container_name),
-                 headers={'Content-Length': '0',
-                          'X-Container-Object-Count': '0',
-                          'Accept-Ranges': 'bytes',
-                          'X-Storage-Policy': 'Policy-0',
-                          'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                          'X-Timestamp': '1481912480.41664',
-                          'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',  # noqa
-                          'X-Container-Bytes-Used': '0',
-                         'Content-Type': 'text/plain; charset=utf-8'}),
+                 headers={
+                     'Content-Length': '0',
+                     'X-Container-Object-Count': '0',
+                     'Accept-Ranges': 'bytes',
+                     'X-Storage-Policy': 'Policy-0',
+                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                     'X-Timestamp': '1481912480.41664',
+                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                     'X-Container-Bytes-Used': '0',
+                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=endpoint, container=self.container_name,
@@ -324,9 +415,13 @@ class TestImage(BaseTestImage):
                      headers={'x-object-meta-x-sdk-md5': fakes.NO_MD5,
                               'x-object-meta-x-sdk-sha256': fakes.NO_SHA256})
                  ),
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': []}),
-            dict(method='POST', uri='https://image.example.com/v2/tasks',
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'image', append=['tasks'], base_url_append='v2'),
                  json=args,
                  validate=dict(
                      json=dict(
@@ -337,18 +432,21 @@ class TestImage(BaseTestImage):
                              'image_properties': {'name': self.image_name}}))
                  ),
             dict(method='GET',
-                 uri='https://image.example.com/v2/tasks/{id}'.format(
-                     id=task_id),
+                 uri=self.get_mock_url(
+                     'image', append=['tasks', task_id], base_url_append='v2'),
                  status_code=503, text='Random error'),
             dict(method='GET',
-                 uri='https://image.example.com/v2/tasks/{id}'.format(
-                     id=task_id),
+                 uri=self.get_mock_url(
+                     'image', append=['tasks', task_id], base_url_append='v2'),
                  json=args),
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': [image_no_checksums]}),
             dict(method='PATCH',
-                 uri='https://image.example.com/v2/images/{id}'.format(
-                     id=self.image_id),
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id],
+                     base_url_append='v2'),
                  validate=dict(
                      json=sorted([
                          {u'op': u'add',
@@ -384,7 +482,9 @@ class TestImage(BaseTestImage):
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=endpoint, container=self.container_name,
                      object=self.image_name)),
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
 
@@ -487,11 +587,11 @@ class TestImage(BaseTestImage):
             name, imagefile.name, wait=True, timeout=1,
             is_public=False, **kwargs)
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_create_image_put_v1(
             self, mock_image_client, mock_is_client_version):
-        # TODO(mordred) Fix this to use requests_mock
         mock_is_client_version.return_value = False
         mock_image_client.get.return_value = []
         self.assertEqual([], self.cloud.list_images())
@@ -525,6 +625,7 @@ class TestImage(BaseTestImage):
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_create_image_put_v1_bad_delete(
@@ -563,6 +664,7 @@ class TestImage(BaseTestImage):
             })
         mock_image_client.delete.assert_called_with('/images/42')
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_update_image_no_patch(
@@ -594,6 +696,7 @@ class TestImage(BaseTestImage):
         mock_image_client.get.assert_called_with('/images', params={})
         mock_image_client.patch.assert_not_called()
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_create_image_put_v2_bad_delete(
@@ -633,6 +736,7 @@ class TestImage(BaseTestImage):
             data=mock.ANY)
         mock_image_client.delete.assert_called_with('/images/42')
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_create_image_put_bad_int(
@@ -645,6 +749,7 @@ class TestImage(BaseTestImage):
             self._call_create_image, '42 name', min_disk='fish', min_ram=0)
         mock_image_client.post.assert_not_called()
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_create_image_put_user_int(
@@ -680,6 +785,7 @@ class TestImage(BaseTestImage):
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_create_image_put_meta_int(
@@ -709,6 +815,7 @@ class TestImage(BaseTestImage):
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_create_image_put_protected(
@@ -747,6 +854,7 @@ class TestImage(BaseTestImage):
             headers={'Content-Type': 'application/octet-stream'})
         self.assertEqual(self._munch_images(ret), self.cloud.list_images())
 
+    # TODO(shade) Migrate this to requests-mock
     @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
     @mock.patch.object(openstack.OpenStackCloud, '_image_client')
     def test_create_image_put_user_prop(
@@ -777,18 +885,6 @@ class TestImage(BaseTestImage):
         self.assertEqual(
             self._munch_images(ret), self.cloud.list_images())
 
-    def test_get_image_by_id(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images/{id}'.format(
-                     id=self.image_id),
-                 json=self.fake_image_dict)
-        ])
-        self.assertEqual(
-            self.cloud._normalize_image(self.fake_image_dict),
-            self.cloud.get_image_by_id(self.image_id))
-        self.assert_calls()
-
 
 class TestImageSuburl(BaseTestImage):
 
@@ -801,7 +897,9 @@ class TestImageSuburl(BaseTestImage):
 
     def test_list_images(self):
         self.register_uris([
-            dict(method='GET', uri='https://example.com/image/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
         self.assertEqual(
@@ -812,13 +910,16 @@ class TestImageSuburl(BaseTestImage):
     def test_list_images_paginated(self):
         marker = str(uuid.uuid4())
         self.register_uris([
-            dict(method='GET', uri='https://example.com/image/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': [self.fake_image_dict],
                        'next': '/v2/images?marker={marker}'.format(
                            marker=marker)}),
             dict(method='GET',
-                 uri=('https://example.com/image/v2/images?'
-                      'marker={marker}'.format(marker=marker)),
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2',
+                     qs_elements=['marker={marker}'.format(marker=marker)]),
                  json=self.fake_search_return)
         ])
         self.assertEqual(
@@ -881,14 +982,16 @@ class TestImageV2Only(base.RequestsMockTestCase):
 
 class TestImageVolume(BaseTestImage):
 
-    def test_create_image_volume(self):
+    def setUp(self):
+        super(TestImageVolume, self).setUp()
+        self.volume_id = str(uuid.uuid4())
 
-        volume_id = 'some-volume'
+    def test_create_image_volume(self):
 
         self.register_uris([
             dict(method='POST',
-                 uri='{endpoint}/volumes/{id}/action'.format(
-                     endpoint=CINDER_URL, id=volume_id),
+                 uri=self.get_mock_url(
+                     'volumev2', append=['volumes', self.volume_id, 'action']),
                  json={'os-volume_upload_image': {'image_id': self.image_id}},
                  validate=dict(json={
                      u'os-volume_upload_image': {
@@ -902,24 +1005,24 @@ class TestImageVolume(BaseTestImage):
             # .use_glance() method, that is intended only for use in
             # .setUp
             self.get_glance_discovery_mock_dict(),
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
 
         self.cloud.create_image(
             'fake_image', self.imagefile.name, wait=True, timeout=1,
-            volume={'id': volume_id})
+            volume={'id': self.volume_id})
 
         self.assert_calls()
 
     def test_create_image_volume_duplicate(self):
 
-        volume_id = 'some-volume'
-
         self.register_uris([
             dict(method='POST',
-                 uri='{endpoint}/volumes/{id}/action'.format(
-                     endpoint=CINDER_URL, id=volume_id),
+                 uri=self.get_mock_url(
+                     'volumev2', append=['volumes', self.volume_id, 'action']),
                  json={'os-volume_upload_image': {'image_id': self.image_id}},
                  validate=dict(json={
                      u'os-volume_upload_image': {
@@ -933,13 +1036,15 @@ class TestImageVolume(BaseTestImage):
             # .use_glance() method, that is intended only for use in
             # .setUp
             self.get_glance_discovery_mock_dict(),
-            dict(method='GET', uri='https://image.example.com/v2/images',
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
 
         self.cloud.create_image(
             'fake_image', self.imagefile.name, wait=True, timeout=1,
-            volume={'id': volume_id}, allow_duplicates=True)
+            volume={'id': self.volume_id}, allow_duplicates=True)
 
         self.assert_calls()
 
@@ -957,7 +1062,8 @@ class TestImageBrokenDiscovery(base.RequestsMockTestCase):
         # reason.
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': []})
         ])
         self.assertEqual([], self.cloud.list_images())

@@ -11,7 +11,6 @@
 # under the License.
 
 import mock
-import munch
 import testtools
 
 import openstack
@@ -23,9 +22,6 @@ from openstack.tests.unit import base
 
 
 class TestOperatorCloud(base.RequestsMockTestCase):
-
-    def setUp(self):
-        super(TestOperatorCloud, self).setUp()
 
     def test_operator_cloud(self):
         self.assertIsInstance(self.op_cloud, openstack.OperatorCloud)
@@ -60,28 +56,6 @@ class TestOperatorCloud(base.RequestsMockTestCase):
         mock_client.node.list_ports.side_effect = Exception()
         self.assertRaises(exc.OpenStackCloudException,
                           self.op_cloud.list_nics_for_machine, None)
-
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
-    def test_get_image_name(self, mock_client):
-
-        fake_image = munch.Munch(
-            id='22',
-            name='22 name',
-            status='success')
-        mock_client.get.return_value = [fake_image]
-        self.assertEqual('22 name', self.op_cloud.get_image_name('22'))
-        self.assertEqual('22 name', self.op_cloud.get_image_name('22 name'))
-
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
-    def test_get_image_id(self, mock_client):
-
-        fake_image = munch.Munch(
-            id='22',
-            name='22 name',
-            status='success')
-        mock_client.get.return_value = [fake_image]
-        self.assertEqual('22', self.op_cloud.get_image_id('22'))
-        self.assertEqual('22', self.op_cloud.get_image_id('22 name'))
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_endpoint')
     def test_get_session_endpoint_provided(self, fake_get_endpoint):
