@@ -15,6 +15,7 @@ import iso8601
 import jsonpatch
 import munch
 
+from openstack import _adapter
 from openstack.cloud.exc import *  # noqa
 from openstack.cloud import openstackcloud
 from openstack.cloud import _utils
@@ -1710,9 +1711,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             }
             if flavorid == 'auto':
                 payload['id'] = None
-            data = self._compute_client.post(
+            data = _adapter._json_response(self._conn.compute.post(
                 '/flavors',
-                json=dict(flavor=payload))
+                json=dict(flavor=payload)))
 
         return self._normalize_flavor(
             self._get_and_munchify('flavor', data))
@@ -1732,10 +1733,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Flavor %s not found for deleting", name_or_id)
             return False
 
-        with _utils.shade_exceptions("Unable to delete flavor {name}".format(
-                name=name_or_id)):
-            self._compute_client.delete(
-                '/flavors/{id}'.format(id=flavor['id']))
+        _adapter._json_response(
+            self._conn.compute.delete(
+                '/flavors/{id}'.format(id=flavor['id'])),
+            error_message="Unable to delete flavor {name}".format(
+                name=name_or_id))
 
         return True
 
@@ -1748,14 +1750,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
-        try:
-            self._compute_client.post(
+        _adapter._json_response(
+            self._conn.compute.post(
                 "/flavors/{id}/os-extra_specs".format(id=flavor_id),
-                json=dict(extra_specs=extra_specs))
-        except Exception as e:
-            raise OpenStackCloudException(
-                "Unable to set flavor specs: {0}".format(str(e))
-            )
+                json=dict(extra_specs=extra_specs)),
+            error_message="Unable to set flavor specs")
 
     def unset_flavor_specs(self, flavor_id, keys):
         """Delete extra specs from a flavor
@@ -1767,14 +1766,11 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
         for key in keys:
-            try:
-                self._compute_client.delete(
+            _adapter._json_response(
+                self._conn.compute.delete(
                     "/flavors/{id}/os-extra_specs/{key}".format(
-                        id=flavor_id, key=key))
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Unable to delete flavor spec {0}: {1}".format(
-                        key, str(e)))
+                        id=flavor_id, key=key)),
+                error_message="Unable to delete flavor spec {0}".format(key))
 
     def _mod_flavor_access(self, action, flavor_id, project_id):
         """Common method for adding and removing flavor access
@@ -1786,7 +1782,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             access = {'tenant': project_id}
             access_key = '{action}TenantAccess'.format(action=action)
 
-            self._compute_client.post(endpoint, json={access_key: access})
+            _adapter._json_response(
+                self._conn.compute.post(endpoint, json={access_key: access}))
 
     def add_flavor_access(self, flavor_id, project_id):
         """Grant access to a private flavor for a project/tenant.
@@ -1817,11 +1814,12 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
         """
-        with _utils.shade_exceptions("Error trying to list access from "
-                                     "flavor ID {flavor}".format(
-                flavor=flavor_id)):
-            data = self._compute_client.get(
-                '/flavors/{id}/os-flavor-access'.format(id=flavor_id))
+        data = _adapter._json_response(
+            self._conn.compute.get(
+                '/flavors/{id}/os-flavor-access'.format(id=flavor_id)),
+            error_message=(
+                "Error trying to list access from flavorID {flavor}".format(
+                    flavor=flavor_id)))
         return _utils.normalize_flavor_accesses(
             self._get_and_munchify('flavor_access', data))
 
@@ -2095,8 +2093,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: A list of hypervisor ``munch.Munch``.
         """
 
-        data = self._compute_client.get(
-            '/os-hypervisors/detail',
+        data = _adapter._json_response(
+            self._conn.compute.get('/os-hypervisors/detail'),
             error_message="Error fetching hypervisor list")
         return self._get_and_munchify('hypervisors', data)
 
@@ -2120,8 +2118,8 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: A list of aggregate dicts.
 
         """
-        data = self._compute_client.get(
-            '/os-aggregates',
+        data = _adapter._json_response(
+            self._conn.compute.get('/os-aggregates'),
             error_message="Error fetching aggregate list")
         return self._get_and_munchify('aggregates', data)
 
@@ -2156,12 +2154,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = self._compute_client.post(
-            '/os-aggregates',
-            json={'aggregate': {
-                'name': name,
-                'availability_zone': availability_zone
-            }},
+        data = _adapter._json_response(
+            self._conn.compute.post(
+                '/os-aggregates',
+                json={'aggregate': {
+                    'name': name,
+                    'availability_zone': availability_zone
+                }}),
             error_message="Unable to create host aggregate {name}".format(
                 name=name))
         return self._get_and_munchify('aggregate', data)
@@ -2183,9 +2182,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        data = self._compute_client.put(
-            '/os-aggregates/{id}'.format(id=aggregate['id']),
-            json={'aggregate': kwargs},
+        data = _adapter._json_response(
+            self._conn.compute.put(
+                '/os-aggregates/{id}'.format(id=aggregate['id']),
+                json={'aggregate': kwargs}),
             error_message="Error updating aggregate {name}".format(
                 name=name_or_id))
         return self._get_and_munchify('aggregate', data)
@@ -2204,8 +2204,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self.log.debug("Aggregate %s not found for deleting", name_or_id)
             return False
 
-        return self._compute_client.delete(
-            '/os-aggregates/{id}'.format(id=aggregate['id']),
+        return _adapter._json_response(
+            self._conn.compute.delete(
+                '/os-aggregates/{id}'.format(id=aggregate['id'])),
             error_message="Error deleting aggregate {name}".format(
                 name=name_or_id))
 
@@ -2230,9 +2231,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         err_msg = "Unable to set metadata for host aggregate {name}".format(
             name=name_or_id)
 
-        data = self._compute_client.post(
-            '/os-aggregates/{id}/action'.format(id=aggregate['id']),
-            json={'set_metadata': {'metadata': metadata}},
+        data = _adapter._json_response(
+            self._conn.compute.post(
+                '/os-aggregates/{id}/action'.format(id=aggregate['id']),
+                json={'set_metadata': {'metadata': metadata}}),
             error_message=err_msg)
         return self._get_and_munchify('aggregate', data)
 
@@ -2252,9 +2254,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         err_msg = "Unable to add host {host} to aggregate {name}".format(
             host=host_name, name=name_or_id)
 
-        return self._compute_client.post(
-            '/os-aggregates/{id}/action'.format(id=aggregate['id']),
-            json={'add_host': {'host': host_name}},
+        return _adapter._json_response(
+            self._conn.compute.post(
+                '/os-aggregates/{id}/action'.format(id=aggregate['id']),
+                json={'add_host': {'host': host_name}}),
             error_message=err_msg)
 
     def remove_host_from_aggregate(self, name_or_id, host_name):
@@ -2273,9 +2276,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         err_msg = "Unable to remove host {host} to aggregate {name}".format(
             host=host_name, name=name_or_id)
 
-        return self._compute_client.post(
-            '/os-aggregates/{id}/action'.format(id=aggregate['id']),
-            json={'remove_host': {'host': host_name}},
+        return _adapter._json_response(
+            self._conn.compute.post(
+                '/os-aggregates/{id}/action'.format(id=aggregate['id']),
+                json={'remove_host': {'host': host_name}}),
             error_message=err_msg)
 
     def get_volume_type_access(self, name_or_id):
@@ -2364,9 +2368,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         #                 if key in quota.VOLUME_QUOTAS}
 
         kwargs['force'] = True
-        self._compute_client.put(
-            '/os-quota-sets/{project}'.format(project=proj.id),
-            json={'quota_set': kwargs},
+        _adapter._json_response(
+            self._conn.compute.put(
+                '/os-quota-sets/{project}'.format(project=proj.id),
+                json={'quota_set': kwargs}),
             error_message="No valid quota or resource")
 
     def get_compute_quotas(self, name_or_id):
@@ -2380,8 +2385,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
-        data = self._compute_client.get(
-            '/os-quota-sets/{project}'.format(project=proj.id))
+        data = _adapter._json_response(
+            self._conn.compute.get(
+                '/os-quota-sets/{project}'.format(project=proj.id)))
         return self._get_and_munchify('quota_set', data)
 
     def delete_compute_quotas(self, name_or_id):
@@ -2396,8 +2402,9 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         proj = self.get_project(name_or_id)
         if not proj:
             raise OpenStackCloudException("project does not exist")
-        return self._compute_client.delete(
-            '/os-quota-sets/{project}'.format(project=proj.id))
+        return _adapter._json_response(
+            self._conn.compute.delete(
+                '/os-quota-sets/{project}'.format(project=proj.id)))
 
     def get_compute_usage(self, name_or_id, start=None, end=None):
         """ Get usage for a specific project
@@ -2454,9 +2461,10 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             raise OpenStackCloudException("project does not exist: {}".format(
                 name=proj.id))
 
-        data = self._compute_client.get(
-            '/os-simple-tenant-usage/{project}'.format(project=proj.id),
-            params=dict(start=start.isoformat(), end=end.isoformat()),
+        data = _adapter._json_response(
+            self._conn.compute.get(
+                '/os-simple-tenant-usage/{project}'.format(project=proj.id),
+                params=dict(start=start.isoformat(), end=end.isoformat())),
             error_message="Unable to get usage for project: {name}".format(
                 name=proj.id))
         return self._normalize_compute_usage(

@@ -23,6 +23,7 @@ import pprint
 
 from testtools import content
 
+from openstack import _adapter
 from openstack.cloud import _utils
 from openstack.cloud import meta
 from openstack.cloud.exc import OpenStackCloudException
@@ -161,7 +162,8 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
                     self.user_cloud.list_networks())))
         else:
             # Find network names for nova-net
-            data = self.user_cloud._compute_client.get('/os-tenant-networks')
+            data = _adapter._json_response(
+                self.user_cloud._conn.compute.get('/os-tenant-networks'))
             nets = meta.get_and_munchify('networks', data)
             self.addDetail(
                 'networks-nova',

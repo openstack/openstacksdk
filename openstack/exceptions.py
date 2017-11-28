@@ -86,7 +86,11 @@ class HttpException(SDKException, _rex.HTTPError):
             self.source = "Client"
 
     def __unicode__(self):
-        if not self.url and not self.url:
+        # 'Error' is the default value for self.message. If self.message isn't
+        # 'Error', then someone has set a more informative error message
+        # and we should use it. If it is 'Error', then we should construct a
+        # better message from the information we do have.
+        if not self.url or self.message != 'Error':
             return super(HttpException, self).__str__()
         if self.url:
             remote_error = "{source} Error for url: {url}".format(

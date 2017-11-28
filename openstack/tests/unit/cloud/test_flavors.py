@@ -75,7 +75,7 @@ class TestFlavors(base.RequestsMockTestCase):
                  json={'flavors': fakes.FAKE_FLAVOR_LIST}),
             dict(method='DELETE',
                  uri='{endpoint}/flavors/{id}'.format(
-                     endpoint=fakes.FAKE_FLAVOR_LIST, id=fakes.FLAVOR_ID),
+                     endpoint=fakes.COMPUTE_ENDPOINT, id=fakes.FLAVOR_ID),
                  status_code=503)])
 
         self.assertRaises(openstack.OpenStackCloudException,
