@@ -1307,8 +1307,10 @@ class TestResourceFind(base.TestCase):
 
             @classmethod
             def existing(cls, **kwargs):
+                response = mock.Mock()
+                response.status_code = 404
                 raise exceptions.NotFoundException(
-                    'Not Found', response=mock.Mock())
+                    'Not Found', response=response)
 
             @classmethod
             def list(cls, session):
@@ -1485,6 +1487,7 @@ class TestWaitForDelete(base.TestCase):
     def test_success(self, mock_sleep):
         response = mock.Mock()
         response.headers = {}
+        response.status_code = 404
         resource = mock.Mock()
         resource.get.side_effect = [
             None, None,

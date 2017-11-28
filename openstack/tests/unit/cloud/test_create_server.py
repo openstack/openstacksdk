@@ -376,7 +376,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         Test that a server passed user-data sends it base64 encoded.
         """
         user_data = self.getUniqueString('user_data')
-        user_data_b64 = base64.b64encode(user_data).decode('utf-8')
+        user_data_b64 = base64.b64encode(
+            user_data.encode('utf-8')).decode('utf-8')
         fake_server = fakes.make_fake_server('1234', '', 'BUILD')
         fake_server['user_data'] = user_data
 
