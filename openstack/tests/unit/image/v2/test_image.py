@@ -11,6 +11,7 @@
 # under the License.
 
 import json
+import operator
 
 import mock
 import requests
@@ -329,4 +330,8 @@ class TestImage(testtools.TestCase):
         call = self.sess.patch.call_args
         call_args, call_kwargs = call
         self.assertEqual(url, call_args[0])
-        self.assertEqual(json.loads(value), json.loads(call_kwargs['data']))
+        self.assertEqual(
+            sorted(json.loads(value), key=operator.itemgetter('value')),
+            sorted(
+                json.loads(call_kwargs['data']),
+                key=operator.itemgetter('value')))
