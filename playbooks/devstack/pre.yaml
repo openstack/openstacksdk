@@ -6,5 +6,3 @@
       bindep_dir: "{{ zuul_work_dir }}"
     - test-setup
     - ensure-tox
-    - role: tox-siblings
-      when: tox_install_siblings
