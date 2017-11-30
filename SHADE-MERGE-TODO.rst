@@ -1,8 +1,8 @@
-Tasks Needed for merging shade and openstacksdk
-===============================================
+Tasks Needed for rationalizing shade and openstacksdk
+======================================================
 
-A large portion of the important things have already been done in the stack
-leading up to this change. For reference, those are:
+A large portion of the important things have already been done and landed
+already. For reference, those are:
 
 * shade and os-client-config library content have been merged into the tree.
 * Use official service-type names from Service Types Authority via
@@ -16,7 +16,7 @@ leading up to this change. For reference, those are:
   .. code-block:: python
 
     connection = connection.Connection()
-    servers = connection.compute.list_servers()
+    servers = connection.compute.servers()
     server_response = connection.compute.get('/servers')
 
 * Removed the Profile object in favor of openstack.config.
@@ -28,18 +28,58 @@ Next steps
 ==========
 
 * Finish migrating to Resource2 and Proxy2, rename them to Resource and Proxy.
-* Rename self.session and session parameter in all usage in proxy and resource
-  to self.adapter.
+* Maybe rename self.session and session parameter in all usage in proxy and
+  resource to self.adapter. They are Adapters not Sessions, but that may not
+  mean anything to people.
 * Migrate unit tests to requests-mock instead of mocking python calls to
   session.
-* Consider removing ServiceFilter and the various Service objects if an
+* Investigate removing ServiceFilter and the various Service objects if an
   acceptable plan can be found for using discovery.
 * Replace _prepare_request with requests.Session.prepare_request.
+
+shade integration
+-----------------
+
+* Merge OpenStackCloud and OperatorCloud into Connection. This should result
+  in being able to use the connection interact with the cloud using all three
+  interfaces. For instance:
+
+  .. code-block:: python
+
+    conn = connection.Connection()
+    servers = conn.list_servers()  # High-level resource interface from shade
+    servers = conn.compute.servers()  # SDK Service/Object Interface
+    response = conn.compute.get('/servers')  # REST passthrough
+
+* Invent some terminology that is clear and makes sense to distinguish between
+  the object interface that came originally from python-openstacksdk and the
+  interface that came from shade.
+* Shift the shade interface methods to use the Object Interface for their
+  operations. It's possible there may be cases where the REST layer needs to
+  be used instead, but we should try to sort those out.
+* Investigate options and then make a plan as to whether shade methods should
+  return SDK objects or return dicts/munches as they do today. Should we make
+  Resource objects extend dict/munch so they can be used like the shade ones
+  today? Or should we just have the external shade shim library get objects
+  from the high-level SDK 'shade' interface and call to_dict() on them all?
+* Add support for shade expressing normalization model/contract into Resource,
+  or for just leveraging what's in Resource for shade-layer normalization.
+* Make a plan for normalization supporting shade users continuing
+  to get shade normalized resource Munch objects from shade API calls, sdk
+  proxy/resource users getting SDK objects, and both of them being able to opt
+  in to "strict" normalization at Connection constructor time. Perhaps making
+  Resource subclass Munch would allow mixed use? Needs investigation.
+* Investigate auto-generating the bulk of shade's API based on introspection of
+  SDK objects, leaving only the code with extra special logic in the shade
+  layer.
+* Rationalize openstack.util.enable_logging and shade.simple_logging.
 
 Service Proxies
 ---------------
 
-* Authenticate at Connection() creation time. Having done that, use the
+These are all things to think about.
+
+* Authenticate at Connection() creation time? Having done that, use the
   catalog in the token to determine which service proxies to add to the
   Connection object.
 * Filter the above service list from the token by has_service() from
@@ -98,23 +138,3 @@ Microversions
   support is added to calls, it needs to be on a per-request basis. This
   has implications to both Resource and Proxy, as cloud payloads for data
   mapping can be different on a per-microversion basis.
-
-shade integration
------------------
-
-* Add support for shade expressing normalization model/contract into Resource.
-* Make a plan for normalization supporting shade users continuing
-  to get shade normalized resource Munch objects from shade API calls, sdk
-  proxy/resource users getting SDK objects, and both of them being able to opt
-  in to "strict" normalization at Connection constructor time. Perhaps making
-  Resource subclass Munch would allow mixed use? Needs investigation.
-* Investigate auto-generating the bulk of shade's API based on introspection of
-  SDK objects, leaving only the code with extra special logic in shade itself.
-* Rationalize openstack.util.enable_logging and shade.simple_logging.
-
-caching
--------
-
-* Make a plan for caching that can work with shade's batched-access/client-side
-  rate-limiting, per-resource configurable caching and direct get models. It
-  may want to actually live in keystoneauth.
