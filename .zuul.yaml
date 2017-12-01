@@ -198,6 +198,7 @@
     templates:
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
+      - osc-tox-unit-tips
     check:
       jobs:
         - openstacksdk-functional-devstack
