@@ -52,6 +52,8 @@ from openstack import task_manager
 #             result in a re-upload
 OBJECT_MD5_KEY = 'x-object-meta-x-sdk-md5'
 OBJECT_SHA256_KEY = 'x-object-meta-x-sdk-sha256'
+OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-sdk-autocreated'
+OBJECT_AUTOCREATE_CONTAINER = 'images'
 # TODO(shade) shade keys were owner_specified.shade.md5 - we need to add those
 #             to freshness checks so that a shade->sdk transition doens't
 #             result in a re-upload
@@ -4534,7 +4536,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return up_to_date
 
     def create_image(
-            self, name, filename=None, container='images',
+            self, name, filename=None, container=OBJECT_AUTOCREATE_CONTAINER,
             md5=None, sha256=None,
             disk_format=None, container_format=None,
             disable_vendor_agent=True,
@@ -4831,6 +4833,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self.create_object(
             container, name, filename,
             md5=md5, sha256=sha256,
+            metadata={OBJECT_AUTOCREATE_KEY: 'true'},
             **{'content-type': 'application/octet-stream'})
         if not current_image:
             current_image = self.get_image(name)
@@ -7568,11 +7571,13 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._object_store_client.get(
             container, params=dict(format='json'))
 
-    def delete_object(self, container, name):
+    def delete_object(self, container, name, meta=None):
         """Delete an object from a container.
 
         :param string container: Name of the container holding the object.
         :param string name: Name of the object to delete.
+        :param dict meta: Metadata for the object in question. (optional, will
+                          be fetched if not provided)
 
         :returns: True if delete succeeded, False if the object was not found.
 
@@ -7587,7 +7592,8 @@ class OpenStackCloud(_normalize.Normalizer):
         #   Errors:
         # We should ultimately do something with that
         try:
-            meta = self.get_object_metadata(container, name)
+            if not meta:
+                meta = self.get_object_metadata(container, name)
             if not meta:
                 return False
             params = {}
@@ -7600,6 +7606,28 @@ class OpenStackCloud(_normalize.Normalizer):
             return True
         except OpenStackCloudHTTPError:
             return False
+
+    def delete_autocreated_image_objects(
+            self, container=OBJECT_AUTOCREATE_CONTAINER):
+        """Delete all objects autocreated for image uploads.
+
+        This method should generally not be needed, as shade should clean up
+        the objects it uses for object-based image creation. If something
+        goes wrong and it is found that there are leaked objects, this method
+        can be used to delete any objects that shade has created on the user's
+        behalf in service of image uploads.
+        """
+        # This method only makes sense on clouds that use tasks
+        if not self.image_api_use_tasks:
+            return False
+
+        deleted = False
+        for obj in self.list_objects(container):
+            meta = self.get_object_metadata(container, obj['name'])
+            if meta.get(OBJECT_AUTOCREATE_KEY) == 'true':
+                if self.delete_object(container, obj['name'], meta):
+                    deleted = True
+        return deleted
 
     def get_object_metadata(self, container, name):
         try:

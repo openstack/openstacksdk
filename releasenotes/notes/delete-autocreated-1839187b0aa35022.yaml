@@ -1,0 +1,5 @@
+---
+features:
+  - Added new method, delete_autocreated_image_objects
+    that can be used to delete any leaked objects shade
+    may have created on behalf of the user.
