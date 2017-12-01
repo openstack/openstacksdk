@@ -200,15 +200,11 @@
       - openstacksdk-tox-tips
     check:
       jobs:
-        - openstack-tox-pypy:
-            nodeset: fedora-26
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-python3
     gate:
       jobs:
-        - openstack-tox-pypy:
-            nodeset: fedora-26
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-python3
