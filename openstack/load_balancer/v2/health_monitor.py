@@ -55,6 +55,9 @@ class HealthMonitor(resource.Resource):
     name = resource.Body('name')
     #: Operating status of the member.
     operating_status = resource.Body('operating_status')
+    #: List of associated pools.
+    #: *Type: list of dicts which contain the pool IDs*
+    pools = resource.Body('pools', type=list)
     #: The ID of the associated Pool
     pool_id = resource.Body('pool_id')
     #: The ID of the project
