@@ -363,6 +363,25 @@ class TestImage(BaseTestImage):
                          'Content-Type':
                              'application/openstack-images-v2.1-json-patch'})
                  ),
+            dict(method='HEAD',
+                 uri='{endpoint}/{container}/{object}'.format(
+                     endpoint=endpoint, container=container_name,
+                     object=image_name),
+                 headers={
+                     'X-Timestamp': '1429036140.50253',
+                     'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
+                     'Content-Length': '1290170880',
+                     'Last-Modified': 'Tue, 14 Apr 2015 18:29:01 GMT',
+                     'X-Object-Meta-X-Shade-Sha256': fakes.NO_SHA256,
+                     'X-Object-Meta-X-Shade-Md5': fakes.NO_MD5,
+                     'Date': 'Thu, 16 Nov 2017 15:24:30 GMT',
+                     'Accept-Ranges': 'bytes',
+                     'Content-Type': 'application/octet-stream',
+                     'Etag': fakes.NO_MD5}),
+            dict(method='DELETE',
+                 uri='{endpoint}/{container}/{object}'.format(
+                     endpoint=endpoint, container=container_name,
+                     object=image_name)),
             dict(method='GET', uri='https://image.example.com/v2/images',
                  json=self.fake_search_return)
         ])

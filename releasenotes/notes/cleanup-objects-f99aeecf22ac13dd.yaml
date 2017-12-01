@@ -1,0 +1,6 @@
+---
+features:
+  - If shade has to create objects in swift to upload an
+    image, it will now delete those objects upon successful
+    image creation as they are no longer needed. They will
+    also be deleted on fatal import errors.
