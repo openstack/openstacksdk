@@ -248,6 +248,16 @@ def make_fake_machine(machine_name, machine_id=None):
         id=machine_id,
         name=machine_name))
 
+def make_fake_port(address, node_id=None, port_id=None):
+    if not node_id:
+         node_id = uuid.uuid4().hex
+    if not port_id:
+         port_id = uuid.uuid4().hex
+    return meta.obj_to_munch(FakeMachinePort(
+        id=port_id,
+        address=address,
+        node_id=node_id))
+
 
 class FakeFloatingIP(object):
     def __init__(self, id, pool, ip, fixed_ip, instance_id):
@@ -346,7 +356,7 @@ class FakeVolumeSnapshot(object):
 class FakeMachine(object):
     def __init__(self, id, name=None, driver=None, driver_info=None,
                  chassis_uuid=None, instance_info=None, instance_uuid=None,
-                 properties=None):
+                 properties=None, reservation=None, last_error=None):
         self.uuid = id
         self.name = name
         self.driver = driver
@@ -355,6 +365,8 @@ class FakeMachine(object):
         self.instance_info = instance_info
         self.instance_uuid = instance_uuid
         self.properties = properties
+        self.reservation = reservation
+        self.last_error = last_error
 
 
 class FakeMachinePort(object):
