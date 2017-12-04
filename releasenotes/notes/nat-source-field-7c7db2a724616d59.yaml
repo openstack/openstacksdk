@@ -1,0 +1,6 @@
+---
+features:
+  - Added nat_source flag for networks. In some more complex clouds there
+    can not only be more than one valid network on a server that NAT can
+    attach to, there can also be more than one valid network from which to
+    get a NAT address. Allow flagging a network so that it can be found.

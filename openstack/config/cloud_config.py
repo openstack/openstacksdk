@@ -583,3 +583,10 @@ class CloudConfig(object):
             if net['nat_destination']:
                 return net['name']
         return None
+
+    def get_nat_source(self):
+        """Get network used for NAT source."""
+        for net in self.config['networks']:
+            if net.get('nat_source'):
+                return net['name']
+        return None
