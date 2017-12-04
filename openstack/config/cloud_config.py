@@ -237,7 +237,27 @@ class CloudConfig(object):
         """Helper method to grab the service catalog."""
         return self._auth.get_access(self.get_session()).service_catalog
 
-    def get_session_client(self, service_key):
+    def _get_version_args(self, service_key, version):
+        """Translate OCC version args to those needed by ksa adapter.
+
+        If no version is requested explicitly and we have a configured version,
+        set the version parameter and let ksa deal with expanding that to
+        min=ver.0, max=ver.latest.
+
+        If version is set, pass it through.
+
+        If version is not set and we don't have a configured version, default
+        to latest.
+        """
+        if version == 'latest':
+            return None, None, 'latest'
+        if not version:
+            version = self.get_api_version(service_key)
+        if not version:
+            return None, None, 'latest'
+        return version, None, None
+
+    def get_session_client(self, service_key, version=None):
         """Return a prepped requests adapter for a given service.
 
         This is useful for making direct requests calls against a
@@ -251,13 +271,18 @@ class CloudConfig(object):
 
         and it will work like you think.
         """
+        (version, min_version, max_version) = self._get_version_args(
+            service_key, version)
 
         return adapter.Adapter(
             session=self.get_session(),
             service_type=self.get_service_type(service_key),
             service_name=self.get_service_name(service_key),
             interface=self.get_interface(service_key),
-            region_name=self.get_region_name(service_key))
+            region_name=self.get_region_name(service_key),
+            version=version,
+            min_version=min_version,
+            max_version=max_version)
 
     def _get_highest_endpoint(self, service_types, kwargs):
         session = self.get_session()
