@@ -1,0 +1,7 @@
+---
+issues:
+  - If there was only one cloud defined in clouds.yaml
+    os-client-config was requiring the cloud parameter
+    be passed. This is inconsistent with how the envvars
+    cloud works which WILL work without setting the cloud
+    parameter if it's the only cloud.
