@@ -9187,7 +9187,9 @@ class OpenStackCloud(_normalize.Normalizer):
             port = self._baremetal_client.get(port_url, microversion=1.6,
                                               error_message=port_msg)
             port_url = '/ports/{uuid}'.format(uuid=port['ports'][0]['uuid'])
-            self._baremetal_client.delete(port_url, error_message=port_msg)
+            _utils._call_client_and_retry(self._baremetal_client.delete,
+                                          port_url, retry_on=[409, 503],
+                                          error_message=port_msg)
 
         with _utils.shade_exceptions(
                 "Error unregistering machine {node_id} from the baremetal "
@@ -9199,10 +9201,11 @@ class OpenStackCloud(_normalize.Normalizer):
             # microversions in future releases, as such, we explicitly set
             # the version to what we have been using with the client library..
             version = "1.6"
-            msg = "Baremetal machine failed to be deleted."
+            msg = "Baremetal machine failed to be deleted"
             url = '/nodes/{node_id}'.format(
                 node_id=uuid)
-            self._baremetal_client.delete(url,
+            _utils._call_client_and_retry(self._baremetal_client.delete,
+                                          url, retry_on=[409, 503],
                                           error_message=msg,
                                           microversion=version)
 
@@ -9428,10 +9431,12 @@ class OpenStackCloud(_normalize.Normalizer):
         if configdrive:
             payload['configdrive'] = configdrive
 
-        machine = self._baremetal_client.put(url,
-                                             json=payload,
-                                             error_message=msg,
-                                             microversion=version)
+        machine = _utils._call_client_and_retry(self._baremetal_client.put,
+                                                url,
+                                                retry_on=[409, 503],
+                                                json=payload,
+                                                error_message=msg,
+                                                microversion=version)
         if wait:
             for count in utils.iterate_timeout(
                     timeout,
@@ -9532,10 +9537,12 @@ class OpenStackCloud(_normalize.Normalizer):
         else:
             desired_state = 'power {state}'.format(state=state)
         payload = {'target': desired_state}
-        self._baremetal_client.put(url,
-                                   json=payload,
-                                   error_message=msg,
-                                   microversion="1.6")
+        _utils._call_client_and_retry(self._baremetal_client.put,
+                                      url,
+                                      retry_on=[409, 503],
+                                      json=payload,
+                                      error_message=msg,
+                                      microversion="1.6")
         return None
 
     def set_machine_power_on(self, name_or_id):
