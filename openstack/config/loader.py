@@ -961,7 +961,7 @@ class OpenStackConfig(object):
     def option_prompt(self, config, p_opt):
         """Prompt user for option that requires a value"""
         if (
-                p_opt.prompt is not None and
+                getattr(p_opt, 'prompt', None) is not None and
                 p_opt.dest not in config['auth'] and
                 self._pw_callback is not None
         ):
