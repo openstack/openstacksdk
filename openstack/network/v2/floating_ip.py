@@ -56,6 +56,8 @@ class FloatingIP(resource.Resource):
     floating_network_id = resource.Body('floating_network_id')
     #: The port ID.
     port_id = resource.Body('port_id')
+    #: The ID of the QoS policy attached to the floating IP.
+    qos_policy_id = resource.Body('qos_policy_id')
     #: The ID of the project this floating IP is associated with.
     project_id = resource.Body('tenant_id')
     #: Revision number of the floating IP. *Type: int*

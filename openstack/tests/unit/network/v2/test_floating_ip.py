@@ -23,6 +23,7 @@ EXAMPLE = {
     'floating_network_id': '3',
     'id': IDENTIFIER,
     'port_id': '5',
+    'qos_policy_id': '51',
     'tenant_id': '6',
     'router_id': '7',
     'description': '8',
