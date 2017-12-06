@@ -1762,9 +1762,11 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: A list of port ``munch.Munch``.
 
         """
-        # If pushdown filters are specified, bypass local caching.
-        if filters:
+        # If pushdown filters are specified and we do not have batched caching
+        # enabled, bypass local caching and push down the filters.
+        if filters and self._PORT_AGE == 0:
             return self._list_ports(filters)
+
         # Translate None from search interface to empty {} for kwargs below
         filters = {}
         if (time.time() - self._ports_time) >= self._PORT_AGE:
@@ -2369,8 +2371,9 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: A list of floating IP ``munch.Munch``.
 
         """
-        # If pushdown filters are specified, bypass local caching.
-        if filters:
+        # If pushdown filters are specified and we do not have batched caching
+        # enabled, bypass local caching and push down the filters.
+        if filters and self._FLOAT_AGE == 0:
             return self._list_floating_ips(filters)
 
         if (time.time() - self._floating_ips_time) >= self._FLOAT_AGE:
