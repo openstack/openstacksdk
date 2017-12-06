@@ -49,8 +49,8 @@ class TestBaremetalPort(base.IronicTestCase):
         ])
 
         return_value = self.cloud.list_nics()
-        self.assertEqual(2, len(return_value['ports']))
-        self.assertEqual(self.fake_baremetal_port, return_value['ports'][0])
+        self.assertEqual(2, len(return_value))
+        self.assertEqual(self.fake_baremetal_port, return_value[0])
         self.assert_calls()
 
     def test_list_nics_failure(self):
@@ -75,8 +75,8 @@ class TestBaremetalPort(base.IronicTestCase):
 
         return_value = self.cloud.list_nics_for_machine(
             self.fake_baremetal_node['uuid'])
-        self.assertEqual(2, len(return_value['ports']))
-        self.assertEqual(self.fake_baremetal_port, return_value['ports'][0])
+        self.assertEqual(2, len(return_value))
+        self.assertEqual(self.fake_baremetal_port, return_value[0])
         self.assert_calls()
 
     def test_list_nics_for_machine_failure(self):
