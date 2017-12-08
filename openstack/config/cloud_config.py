@@ -169,12 +169,14 @@ class CloudConfig(object):
         # TODO(shade) This should get removed when we have os-service-types
         # alias support landed in keystoneauth.
         if service_type in ('volume', 'block-storage'):
-            if self.get_api_version('volume').startswith('2'):
+            vol_ver = self.get_api_version('volume')
+            if vol_ver and vol_ver.startswith('2'):
                 service_type = 'volumev2'
-            elif self.get_api_version('volume').startswith('3'):
+            elif vol_ver and vol_ver.startswith('3'):
                 service_type = 'volumev3'
         elif service_type == 'workflow':
-            if self.get_api_version(service_type).startswith('2'):
+            wk_ver = self.get_api_version(service_type)
+            if wk_ver and wk_ver.startswith('2'):
                 service_type = 'workflowv2'
         return self.config.get(key, service_type)
 

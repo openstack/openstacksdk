@@ -167,6 +167,13 @@ class TestCloudConfig(base.TestCase):
         cc.config['workflow_api_version'] = '2'
         self.assertEqual('workflowv2', cc.get_service_type('workflow'))
 
+    def test_no_override(self):
+        """Test no override happens when defaults are not configured"""
+        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+        self.assertEqual('volume', cc.get_service_type('volume'))
+        self.assertEqual('workflow', cc.get_service_type('workflow'))
+        self.assertEqual('not-exist', cc.get_service_type('not-exist'))
+
     def test_get_session_no_auth(self):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
