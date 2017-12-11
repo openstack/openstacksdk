@@ -16,9 +16,7 @@ import jsonpatch
 import munch
 
 from openstack.cloud.exc import *  # noqa
-from openstack.cloud import meta
 from openstack.cloud import openstackcloud
-from openstack.cloud import _tasks
 from openstack.cloud import _utils
 
 
@@ -35,29 +33,42 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
     ironic_client = None
 
     def list_nics(self):
-        with _utils.shade_exceptions("Error fetching machine port list"):
-            return meta.obj_list_to_munch(
-                self.manager.submit_task(_tasks.MachinePortList(self)))
+        msg = "Error fetching machine port list"
+        return self._baremetal_client.get("/ports",
+                                          microversion="1.6",
+                                          error_message=msg)
 
     def list_nics_for_machine(self, uuid):
-        with _utils.shade_exceptions(
-                "Error fetching port list for node {node_id}".format(
-                node_id=uuid)):
-            return meta.obj_list_to_munch(self.manager.submit_task(
-                _tasks.MachineNodePortList(self, node_id=uuid)))
+        """Returns a list of ports present on the machine node.
+
+        :param uuid: String representing machine UUID value in
+                     order to identify the machine.
+        :returns: A dictionary containing containing a list of ports,
+                  associated with the label "ports".
+        """
+        msg = "Error fetching port list for node {node_id}".format(
+            node_id=uuid)
+        url = "/nodes/{node_id}/ports".format(node_id=uuid)
+        return self._baremetal_client.get(url,
+                                          microversion="1.6",
+                                          error_message=msg)
 
     def get_nic_by_mac(self, mac):
-        """Get Machine by MAC address"""
-        # TODO(shade) Finish porting ironic to REST/sdk
-        # try:
-        #     return self.manager.submit_task(
-        #         _tasks.MachineNodePortGet(self, port_id=mac))
-        # except ironic_exceptions.ClientException:
-        #     return None
+        try:
+            url = '/ports/detail?address=%s' % mac
+            data = self._baremetal_client.get(url)
+            if len(data['ports']) == 1:
+                return data['ports'][0]
+        except Exception:
+            pass
+        return None
 
     def list_machines(self):
-        return self._normalize_machines(
-            self.manager.submit_task(_tasks.MachineNodeList(self)))
+        msg = "Error fetching machine node list"
+        data = self._baremetal_client.get("/nodes",
+                                          microversion="1.6",
+                                          error_message=msg)
+        return self._get_and_munchify('nodes', data)
 
     def get_machine(self, name_or_id):
         """Get Machine by name or uuid
@@ -70,13 +81,20 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: ``munch.Munch`` representing the node found or None if no
                   nodes are found.
         """
-        # TODO(shade) Finish porting ironic to REST/sdk
-        # try:
-        #     return self._normalize_machine(
-        #         self.manager.submit_task(
-        #             _tasks.MachineNodeGet(node_id=name_or_id)))
-        # except ironic_exceptions.ClientException:
-        #     return None
+        # NOTE(TheJulia): This is the initial microversion shade support for
+        # ironic was created around. Ironic's default behavior for newer
+        # versions is to expose the field, but with a value of None for
+        # calls by a supported, yet older microversion.
+        # Consensus for moving forward with microversion handling in shade
+        # seems to be to take the same approach, although ironic's API
+        # does it for the user.
+        version = "1.6"
+        try:
+            url = '/nodes/{node_id}'.format(node_id=name_or_id)
+            return self._normalize_machine(
+                self._baremetal_client.get(url, microversion=version))
+        except Exception:
+            return None
 
     def get_machine_by_mac(self, mac):
         """Get machine by port MAC address
@@ -86,13 +104,14 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: ``munch.Munch`` representing the node found or None
                   if the node is not found.
         """
-        # try:
-        #     port = self.manager.submit_task(
-        #         _tasks.MachinePortGetByAddress(address=mac))
-        #     return self.manager.submit_task(
-        #         _tasks.MachineNodeGet(node_id=port.node_uuid))
-        # except ironic_exceptions.ClientException:
-        #     return None
+        try:
+            port_url = '/ports/detail?address={mac}'.format(mac=mac)
+            port = self._baremetal_client.get(port_url, microversion=1.6)
+            machine_url = '/nodes/{machine}'.format(
+                machine=port['ports'][0]['node_uuid'])
+            return self._baremetal_client.get(machine_url, microversion=1.6)
+        except Exception:
+            return None
 
     def inspect_machine(self, name_or_id, wait=False, timeout=3600):
         """Inspect a Barmetal machine
@@ -204,15 +223,27 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: Returns a ``munch.Munch`` representing the new
                   baremetal node.
         """
-        with _utils.shade_exceptions("Error registering machine with Ironic"):
-            machine = self.manager.submit_task(_tasks.MachineCreate(**kwargs))
+
+        msg = ("Baremetal machine node failed to be created.")
+        port_msg = ("Baremetal machine port failed to be created.")
+
+        url = '/nodes'
+        # TODO(TheJulia): At some point we need to figure out how to
+        # handle data across when the requestor is defining newer items
+        # with the older api.
+        machine = self._baremetal_client.post(url,
+                                              json=kwargs,
+                                              error_message=msg,
+                                              microversion="1.6")
 
         created_nics = []
         try:
             for row in nics:
-                nic = self.manager.submit_task(
-                    _tasks.MachinePortCreate(address=row['mac'],
-                                             node_uuid=machine['uuid']))
+                payload = {'address': row['mac'],
+                           'node_uuid': machine['uuid']}
+                nic = self._baremetal_client.post('/ports',
+                                                  json=payload,
+                                                  error_message=port_msg)
                 created_nics.append(nic['uuid'])
 
         except Exception as e:
@@ -221,14 +252,23 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             try:
                 for uuid in created_nics:
                     try:
-                        self.manager.submit_task(
-                            _tasks.MachinePortDelete(
-                                port_id=uuid))
+                        port_url = '/ports/{uuid}'.format(uuid=uuid)
+                        # NOTE(TheJulia): Added in hope that it is logged.
+                        port_msg = ('Failed to delete port {port} for node'
+                                    '{node}').format(port=uuid,
+                                                     node=machine['uuid'])
+                        self._baremetal_client.delete(port_url,
+                                                      error_message=port_msg)
                     except Exception:
                         pass
             finally:
-                self.manager.submit_task(
-                    _tasks.MachineDelete(node_id=machine['uuid']))
+                version = "1.6"
+                msg = "Baremetal machine failed to be deleted."
+                url = '/nodes/{node_id}'.format(
+                    node_id=machine['uuid'])
+                self._baremetal_client.delete(url,
+                                              error_message=msg,
+                                              microversion=version)
             raise OpenStackCloudException(
                 "Error registering NICs with the baremetal service: %s"
                 % str(e))
@@ -329,19 +369,44 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 "Error unregistering node '%s' due to current provision "
                 "state '%s'" % (uuid, machine['provision_state']))
 
+        # NOTE(TheJulia) There is a high possibility of a lock being present
+        # if the machine was just moved through the state machine. This was
+        # previously concealed by exception retry logic that detected the
+        # failure, and resubitted the request in python-ironicclient.
+        try:
+            self.wait_for_baremetal_node_lock(machine, timeout=timeout)
+        except OpenStackCloudException as e:
+            raise OpenStackCloudException("Error unregistering node '%s': "
+                                          "Exception occured while waiting "
+                                          "to be able to proceed: %s"
+                                          % (machine['uuid'], e))
+
         for nic in nics:
-            with _utils.shade_exceptions(
-                    "Error removing NIC {nic} from baremetal API for node "
-                    "{uuid}".format(nic=nic, uuid=uuid)):
-                port = self.manager.submit_task(
-                    _tasks.MachinePortGetByAddress(address=nic['mac']))
-                self.manager.submit_task(
-                    _tasks.MachinePortDelete(port_id=port.uuid))
+            port_msg = ("Error removing NIC {nic} from baremetal API for "
+                        "node {uuid}").format(nic=nic, uuid=uuid)
+            port_url = '/ports/detail?address={mac}'.format(mac=nic['mac'])
+            port = self._baremetal_client.get(port_url, microversion=1.6,
+                                              error_message=port_msg)
+            port_url = '/ports/{uuid}'.format(uuid=port['ports'][0]['uuid'])
+            self._baremetal_client.delete(port_url, error_message=port_msg)
+
         with _utils.shade_exceptions(
                 "Error unregistering machine {node_id} from the baremetal "
                 "API".format(node_id=uuid)):
-            self.manager.submit_task(
-                _tasks.MachineDelete(node_id=uuid))
+
+            # NOTE(TheJulia): While this should not matter microversion wise,
+            # ironic assumes all calls without an explicit microversion to be
+            # version 1.0. Ironic expects to deprecate support for older
+            # microversions in future releases, as such, we explicitly set
+            # the version to what we have been using with the client library..
+            version = "1.6"
+            msg = "Baremetal machine failed to be deleted."
+            url = '/nodes/{node_id}'.format(
+                node_id=uuid)
+            self._baremetal_client.delete(url,
+                                          error_message=msg,
+                                          microversion=version)
+
             if wait:
                 for count in _utils._iterate_timeout(
                         timeout,
@@ -353,9 +418,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         """Patch Machine Information
 
         This method allows for an interface to manipulate node entries
-        within Ironic.  Specifically, it is a pass-through for the
-        ironicclient.nodes.update interface which allows the Ironic Node
-        properties to be updated.
+        within Ironic.
 
         :param node_id: The server object to attach to.
         :param patch:
@@ -386,15 +449,13 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: ``munch.Munch`` representing the newly updated node.
         """
 
-        with _utils.shade_exceptions(
-            "Error updating machine via patch operation on node "
-            "{node}".format(node=name_or_id)
-        ):
-            return self._normalize_machine(
-                self.manager.submit_task(
-                    _tasks.MachinePatch(node_id=name_or_id,
-                                        patch=patch,
-                                        http_method='PATCH')))
+        msg = ("Error updating machine via patch operation on node "
+               "{node}".format(node=name_or_id))
+        url = '/nodes/{node_id}'.format(node_id=name_or_id)
+        return self._normalize_machine(
+            self._baremetal_client.patch(url,
+                                         json=patch,
+                                         error_message=msg))
 
     def update_machine(self, name_or_id, chassis_uuid=None, driver=None,
                        driver_info=None, name=None, instance_info=None,
@@ -506,14 +567,20 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                 )
 
     def validate_node(self, uuid):
-        with _utils.shade_exceptions():
-            ifaces = self.manager.submit_task(
-                _tasks.MachineNodeValidate(node_uuid=uuid))
+        # TODO(TheJulia): There are soooooo many other interfaces
+        # that we can support validating, while these are essential,
+        # we should support more.
+        # TODO(TheJulia): Add a doc string :(
+        msg = ("Failed to query the API for validation status of "
+               "node {node_id}").format(node_id=uuid)
+        url = '/nodes/{node_id}/validate'.format(node_id=uuid)
+        ifaces = self._baremetal_client.get(url, error_message=msg)
 
-        if not ifaces.deploy or not ifaces.power:
+        if not ifaces['deploy'] or not ifaces['power']:
             raise OpenStackCloudException(
                 "ironic node %s failed to validate. "
-                "(deploy: %s, power: %s)" % (ifaces.deploy, ifaces.power))
+                "(deploy: %s, power: %s)" % (ifaces['deploy'],
+                                             ifaces['power']))
 
     def node_set_provision_state(self,
                                  name_or_id,
@@ -549,36 +616,44 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         :returns: ``munch.Munch`` representing the current state of the machine
                   upon exit of the method.
         """
-        with _utils.shade_exceptions(
-            "Baremetal machine node failed change provision state to "
-            "{state}".format(state=state)
-        ):
-            machine = self.manager.submit_task(
-                _tasks.MachineSetProvision(node_uuid=name_or_id,
-                                           state=state,
-                                           configdrive=configdrive))
+        # NOTE(TheJulia): Default microversion for this call is 1.6.
+        # Setting locally until we have determined our master plan regarding
+        # microversion handling.
+        version = "1.6"
+        msg = ("Baremetal machine node failed change provision state to "
+               "{state}".format(state=state))
 
-            if wait:
-                for count in _utils._iterate_timeout(
-                        timeout,
-                        "Timeout waiting for node transition to "
-                        "target state of '%s'" % state):
-                    machine = self.get_machine(name_or_id)
-                    if 'failed' in machine['provision_state']:
-                        raise OpenStackCloudException(
-                            "Machine encountered a failure.")
-                    # NOTE(TheJulia): This performs matching if the requested
-                    # end state matches the state the node has reached.
-                    if state in machine['provision_state']:
-                        break
-                    # NOTE(TheJulia): This performs matching for cases where
-                    # the reqeusted state action ends in available state.
-                    if ("available" in machine['provision_state'] and
-                            state in ["provide", "deleted"]):
-                        break
-            else:
+        url = '/nodes/{node_id}/states/provision'.format(
+            node_id=name_or_id)
+        payload = {'target': state}
+        if configdrive:
+            payload['configdrive'] = configdrive
+
+        machine = self._baremetal_client.put(url,
+                                             json=payload,
+                                             error_message=msg,
+                                             microversion=version)
+        if wait:
+            for count in _utils._iterate_timeout(
+                    timeout,
+                    "Timeout waiting for node transition to "
+                    "target state of '%s'" % state):
                 machine = self.get_machine(name_or_id)
-            return machine
+                if 'failed' in machine['provision_state']:
+                    raise OpenStackCloudException(
+                        "Machine encountered a failure.")
+                # NOTE(TheJulia): This performs matching if the requested
+                # end state matches the state the node has reached.
+                if state in machine['provision_state']:
+                    break
+                # NOTE(TheJulia): This performs matching for cases where
+                # the reqeusted state action ends in available state.
+                if ("available" in machine['provision_state'] and
+                        state in ["provide", "deleted"]):
+                    break
+        else:
+            machine = self.get_machine(name_or_id)
+        return machine
 
     def set_machine_maintenance_state(
             self,
@@ -603,25 +678,17 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :returns: None
         """
-        with _utils.shade_exceptions(
-            "Error setting machine maintenance state to {state} on node "
-            "{node}".format(state=state, node=name_or_id)
-        ):
-            if state:
-                result = self.manager.submit_task(
-                    _tasks.MachineSetMaintenance(node_id=name_or_id,
-                                                 state='true',
-                                                 maint_reason=reason))
-            else:
-                result = self.manager.submit_task(
-                    _tasks.MachineSetMaintenance(node_id=name_or_id,
-                                                 state='false'))
-            if result is not None:
-                raise OpenStackCloudException(
-                    "Failed setting machine maintenance state to %s "
-                    "on node %s. Received: %s" % (
-                        state, name_or_id, result))
-            return None
+        msg = ("Error setting machine maintenance state to {state} on node "
+               "{node}").format(state=state, node=name_or_id)
+        url = '/nodes/{name_or_id}/maintenance'.format(name_or_id=name_or_id)
+        if state:
+            payload = {'reason': reason}
+            self._baremetal_client.put(url,
+                                       json=payload,
+                                       error_message=msg)
+        else:
+            self._baremetal_client.delete(url, error_message=msg)
+        return None
 
     def remove_machine_from_maintenance(self, name_or_id):
         """Remove Baremetal Machine from Maintenance State
@@ -658,18 +725,19 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
 
         :returns: None
         """
-        with _utils.shade_exceptions(
-            "Error setting machine power state to {state} on node "
-            "{node}".format(state=state, node=name_or_id)
-        ):
-            power = self.manager.submit_task(
-                _tasks.MachineSetPower(node_id=name_or_id,
-                                       state=state))
-            if power is not None:
-                raise OpenStackCloudException(
-                    "Failed setting machine power state %s on node %s. "
-                    "Received: %s" % (state, name_or_id, power))
-            return None
+        msg = ("Error setting machine power state to {state} on node "
+               "{node}").format(state=state, node=name_or_id)
+        url = '/nodes/{name_or_id}/states/power'.format(name_or_id=name_or_id)
+        if 'reboot' in state:
+            desired_state = 'rebooting'
+        else:
+            desired_state = 'power {state}'.format(state=state)
+        payload = {'target': desired_state}
+        self._baremetal_client.put(url,
+                                   json=payload,
+                                   error_message=msg,
+                                   microversion="1.6")
+        return None
 
     def set_machine_power_on(self, name_or_id):
         """Activate baremetal machine power
@@ -729,16 +797,69 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             uuid, 'deleted', wait=wait, timeout=timeout)
 
     def set_node_instance_info(self, uuid, patch):
-        with _utils.shade_exceptions():
-            return self.manager.submit_task(
-                _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
+        msg = ("Error updating machine via patch operation on node "
+               "{node}".format(node=uuid))
+        url = '/nodes/{node_id}'.format(node_id=uuid)
+        return self._baremetal_client.patch(url,
+                                            json=patch,
+                                            error_message=msg)
 
     def purge_node_instance_info(self, uuid):
         patch = []
         patch.append({'op': 'remove', 'path': '/instance_info'})
-        with _utils.shade_exceptions():
-            return self.manager.submit_task(
-                _tasks.MachineNodeUpdate(node_id=uuid, patch=patch))
+        msg = ("Error updating machine via patch operation on node "
+               "{node}".format(node=uuid))
+        url = '/nodes/{node_id}'.format(node_id=uuid)
+        return self._baremetal_client.patch(url,
+                                            json=patch,
+                                            error_message=msg)
+
+    def wait_for_baremetal_node_lock(self, node, timeout=30):
+        """Wait for a baremetal node to have no lock.
+
+        Baremetal nodes in ironic have a reservation lock that
+        is used to represent that a conductor has locked the node
+        while performing some sort of action, such as changing
+        configuration as a result of a machine state change.
+
+        This lock can occur during power syncronization, and prevents
+        updates to objects attached to the node, such as ports.
+
+        In the vast majority of cases, locks should clear in a few
+        seconds, and as such this method will only wait for 30 seconds.
+        The default wait is two seconds between checking if the lock
+        has cleared.
+
+        This method is intended for use by methods that need to
+        gracefully block without genreating errors, however this
+        method does prevent another client or a timer from
+        triggering a lock immediately after we see the lock as
+        having cleared.
+
+        :param node: The json representation of the node,
+                     specificially looking for the node
+                     'uuid' and 'reservation' fields.
+        :param timeout: Integer in seconds to wait for the
+                        lock to clear. Default: 30
+
+        :raises: OpenStackCloudException upon client failure.
+        :returns: None
+        """
+        # TODO(TheJulia): This _can_ still fail with a race
+        # condition in that between us checking the status,
+        # a conductor where the conductor could still obtain
+        # a lock before we are able to obtain a lock.
+        # This means we should handle this with such conections
+
+        if node['reservation'] is None:
+            return
+        else:
+            msg = 'Waiting for lock to be released for node {node}'.format(
+                node=node['uuid'])
+            for count in _utils._iterate_timeout(timeout, msg, 2):
+                current_node = self.get_machine(node['uuid'])
+                if current_node['reservation'] is None:
+                    return
 
     @_utils.valid_kwargs('type', 'service_type', 'description')
     def create_service(self, name, enabled=True, **kwargs):

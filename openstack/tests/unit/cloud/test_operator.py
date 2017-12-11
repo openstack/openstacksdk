@@ -15,7 +15,6 @@ import testtools
 
 import openstack
 from openstack.cloud import exc
-from openstack.cloud import meta
 from openstack.config import cloud_config
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -25,37 +24,6 @@ class TestOperatorCloud(base.RequestsMockTestCase):
 
     def test_operator_cloud(self):
         self.assertIsInstance(self.op_cloud, openstack.OperatorCloud)
-
-    @mock.patch.object(openstack.OperatorCloud, 'ironic_client')
-    def test_list_nics(self, mock_client):
-        port1 = fakes.FakeMachinePort(1, "aa:bb:cc:dd", "node1")
-        port2 = fakes.FakeMachinePort(2, "dd:cc:bb:aa", "node2")
-        port_list = [port1, port2]
-        port_dict_list = meta.obj_list_to_munch(port_list)
-
-        mock_client.port.list.return_value = port_list
-        nics = self.op_cloud.list_nics()
-
-        self.assertTrue(mock_client.port.list.called)
-        self.assertEqual(port_dict_list, nics)
-
-    @mock.patch.object(openstack.OperatorCloud, 'ironic_client')
-    def test_list_nics_failure(self, mock_client):
-        mock_client.port.list.side_effect = Exception()
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.list_nics)
-
-    @mock.patch.object(openstack.OperatorCloud, 'ironic_client')
-    def test_list_nics_for_machine(self, mock_client):
-        mock_client.node.list_ports.return_value = []
-        self.op_cloud.list_nics_for_machine("123")
-        mock_client.node.list_ports.assert_called_with(node_id="123")
-
-    @mock.patch.object(openstack.OperatorCloud, 'ironic_client')
-    def test_list_nics_for_machine_failure(self, mock_client):
-        mock_client.node.list_ports.side_effect = Exception()
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.list_nics_for_machine, None)
 
     @mock.patch.object(cloud_config.CloudConfig, 'get_endpoint')
     def test_get_session_endpoint_provided(self, fake_get_endpoint):
