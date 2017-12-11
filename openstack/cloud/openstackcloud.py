@@ -1286,7 +1286,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Error in processing template files: %s" % str(e))
 
     def create_stack(
-            self, name,
+            self, name, tags=None,
             template_file=None, template_url=None,
             template_object=None, files=None,
             rollback=True,
@@ -1296,6 +1296,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """Create a stack.
 
         :param string name: Name of the stack.
+        :param tags: List of tag(s) of the stack. (optional)
         :param string template_file: Path to the template.
         :param string template_url: URL of template.
         :param string template_object: URL to retrieve template object.
@@ -1325,6 +1326,7 @@ class OpenStackCloud(_normalize.Normalizer):
             files=files)
         params = dict(
             stack_name=name,
+            tags=tags,
             disable_rollback=not rollback,
             parameters=parameters,
             template=template,
