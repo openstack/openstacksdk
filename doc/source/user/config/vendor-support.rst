@@ -39,6 +39,22 @@ van1           Vancouver, BC
 
 * Public IPv4 is provided via NAT with Neutron Floating IP
 
+betacloud
+---------
+
+https://api-1.betacloud.io:5000
+
+============== ==================
+Region Name    Location
+============== ==================
+betacloud-1    Nuremberg, Germany
+============== ==================
+
+* Identity API Version is 3
+* Images must be in `raw` format
+* Public IPv4 is provided via NAT with Neutron Floating IP
+* Volume API Version is 3
+
 catalyst
 --------
 
