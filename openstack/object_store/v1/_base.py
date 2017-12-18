@@ -27,10 +27,15 @@ class BaseResource(resource.Resource):
     def _calculate_headers(self, metadata):
         headers = dict()
         for key in metadata:
-            if key in self._system_metadata:
+            if key in self._system_metadata.keys():
                 header = self._system_metadata[key]
+            elif key in self._system_metadata.values():
+                header = key
             else:
-                header = self._custom_metadata_prefix + key
+                if key.startswith(self._custom_metadata_prefix):
+                    header = key
+                else:
+                    header = self._custom_metadata_prefix + key
             headers[header] = metadata[key]
         return headers
 
