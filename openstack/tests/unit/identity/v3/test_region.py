@@ -38,6 +38,14 @@ class TestRegion(testtools.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
 
+        self.assertDictEqual(
+            {
+                'parent_region_id': 'parent_region_id',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = region.Region(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)

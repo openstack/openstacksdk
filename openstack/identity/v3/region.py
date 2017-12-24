@@ -28,6 +28,10 @@ class Region(resource.Resource):
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'parent_region_id',
+    )
+
     # Properties
     #: User-facing description of the region. *Type: string*
     description = resource.Body('description')

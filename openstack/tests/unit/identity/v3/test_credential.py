@@ -39,6 +39,15 @@ class TestCredential(testtools.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
 
+        self.assertDictEqual(
+            {
+                'type': 'type',
+                'user_id': 'user_id',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = credential.Credential(**EXAMPLE)
         self.assertEqual(EXAMPLE['blob'], sot.blob)

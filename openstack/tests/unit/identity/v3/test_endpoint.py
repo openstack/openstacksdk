@@ -40,6 +40,14 @@ class TestEndpoint(testtools.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
+        self.assertDictEqual(
+            {
+                'interface': 'interface',
+                'service_id': 'service_id',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
 
     def test_make_it(self):
         sot = endpoint.Endpoint(**EXAMPLE)

@@ -28,6 +28,10 @@ class Group(resource.Resource):
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'domain_id', 'name',
+    )
+
     # Properties
     #: The description of this group. *Type: string*
     description = resource.Body('description')

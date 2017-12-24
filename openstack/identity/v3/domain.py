@@ -29,6 +29,11 @@ class Domain(resource.Resource):
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'name',
+        is_enabled='enabled',
+    )
+
     # Properties
     #: The description of this domain. *Type: string*
     description = resource.Body('description')

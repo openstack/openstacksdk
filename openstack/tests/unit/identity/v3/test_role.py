@@ -36,6 +36,15 @@ class TestRole(testtools.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual(
+            {
+                'domain_id': 'domain_id',
+                'name': 'name',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = role.Role(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
