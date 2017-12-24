@@ -44,6 +44,17 @@ class TestUser(testtools.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
 
+        self.assertDictEqual(
+            {
+                'domain_id': 'domain_id',
+                'name': 'name',
+                'password_expires_at': 'password_expires_at',
+                'is_enabled': 'enabled',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = user.User(**EXAMPLE)
         self.assertEqual(EXAMPLE['default_project_id'],

@@ -459,7 +459,7 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(_project.Project, project, ignore_missing=ignore_missing)
 
-    def find_project(self, name_or_id, ignore_missing=True):
+    def find_project(self, name_or_id, ignore_missing=True, **attrs):
         """Find a single project
 
         :param name_or_id: The name or ID of a project.
@@ -471,7 +471,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.identity.v3.project.Project` or None
         """
         return self._find(_project.Project, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **attrs)
 
     def get_project(self, project):
         """Get a single project
@@ -615,7 +615,7 @@ class Proxy(proxy.BaseProxy):
         """
         self._delete(_user.User, user, ignore_missing=ignore_missing)
 
-    def find_user(self, name_or_id, ignore_missing=True):
+    def find_user(self, name_or_id, ignore_missing=True, **attrs):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
@@ -627,7 +627,7 @@ class Proxy(proxy.BaseProxy):
         :returns: One :class:`~openstack.identity.v3.user.User` or None
         """
         return self._find(_user.User, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **attrs)
 
     def get_user(self, user):
         """Get a single user

@@ -28,6 +28,13 @@ class User(resource.Resource):
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'domain_id',
+        'name',
+        'password_expires_at',
+        is_enabled='enabled',
+    )
+
     # Properties
     #: References the user's default project ID against which to authorize,
     #: if the API user does not explicitly specify one when creating a token.
