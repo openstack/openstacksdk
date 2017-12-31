@@ -133,6 +133,6 @@ def operator_cloud(
     return OperatorCloud(cloud_config=cloud_config, strict=strict)
 
 
-def connect(self, *args, **kwargs):
+def connect(*args, **kwargs):
     """Create a `openstack.connection.Connection`."""
     return openstack.connection.Connection(*args, **kwargs)
