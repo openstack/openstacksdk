@@ -65,6 +65,7 @@ class TestSample(testtools.TestCase):
         sess = mock.Mock()
         resp = mock.Mock()
         resp.json = mock.Mock(return_value=[SAMPLE])
+        resp.status_code = 200
         sess.get = mock.Mock(return_value=resp)
 
         found = sample.Sample.list(sess, counter_name='name_of_meter')
