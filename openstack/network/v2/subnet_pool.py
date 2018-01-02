@@ -81,4 +81,4 @@ class SubnetPool(resource.Resource, tag.TagMixin):
     updated_at = resource.Body('updated_at')
     #: A list of assocaited tags
     #: *Type: list of tag strings*
-    tags = resource.Body('tags', type=list)
+    tags = resource.Body('tags', type=list, default=[])

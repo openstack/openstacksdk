@@ -91,4 +91,4 @@ class Subnet(resource.Resource, tag.TagMixin):
     )
     #: A list of assocaited tags
     #: *Type: list of tag strings*
-    tags = resource.Body('tags', type=list)
+    tags = resource.Body('tags', type=list, default=[])
