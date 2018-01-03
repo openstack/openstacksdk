@@ -194,7 +194,6 @@
         - openstacksdk-functional-devstack-tips-python3
 
 - project:
-    name: openstack/python-openstacksdk
     templates:
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
