@@ -1424,39 +1424,40 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertEqual(result, resource)
 
-    @mock.patch("time.sleep", return_value=None)
-    def test_status_match(self, mock_sleep):
+    def _resources_from_statuses(self, *statuses):
+        resources = []
+        for status in statuses:
+            res = mock.Mock()
+            res.status = status
+            resources.append(res)
+        for index, res in enumerate(resources[:-1]):
+            res.get.return_value = resources[index + 1]
+        return resources
+
+    def test_status_match(self):
         status = "loling"
-        resource = mock.Mock()
 
         # other gets past the first check, two anothers gets through
         # the sleep loop, and the third matches
-        statuses = ["other", "another", "another", status]
-        type(resource).status = mock.PropertyMock(side_effect=statuses)
+        resources = self._resources_from_statuses(
+            "first", "other", "another", "another", status)
 
-        result = resource2.wait_for_status("session", resource, status,
-                                           None, 1, 5)
+        result = resource2.wait_for_status(
+            mock.Mock(), resources[0], status, None, 1, 5)
 
-        self.assertEqual(result, resource)
+        self.assertEqual(result, resources[-1])
 
-    @mock.patch("time.sleep", return_value=None)
-    def test_status_fails(self, mock_sleep):
-        status = "loling"
+    def test_status_fails(self):
         failure = "crying"
-        resource = mock.Mock()
 
-        # other gets past the first check, the first failure doesn't
-        # match the expected, the third matches the failure,
-        # the fourth is used in creating the exception message
-        statuses = ["other", failure, failure, failure]
-        type(resource).status = mock.PropertyMock(side_effect=statuses)
+        resources = self._resources_from_statuses("success", "other", failure)
 
-        self.assertRaises(exceptions.ResourceFailure,
-                          resource2.wait_for_status,
-                          "session", resource, status, [failure], 1, 5)
+        self.assertRaises(
+            exceptions.ResourceFailure,
+            resource2.wait_for_status,
+            mock.Mock(), resources[0], "loling", [failure], 1, 5)
 
-    @mock.patch("time.sleep", return_value=None)
-    def test_timeout(self, mock_sleep):
+    def test_timeout(self):
         status = "loling"
         resource = mock.Mock()
 
@@ -1483,8 +1484,7 @@ class TestWaitForStatus(base.TestCase):
 
 class TestWaitForDelete(base.TestCase):
 
-    @mock.patch("time.sleep", return_value=None)
-    def test_success(self, mock_sleep):
+    def test_success(self):
         response = mock.Mock()
         response.headers = {}
         response.status_code = 404
@@ -1497,11 +1497,11 @@ class TestWaitForDelete(base.TestCase):
 
         self.assertEqual(result, resource)
 
-    @mock.patch("time.sleep", return_value=None)
-    def test_timeout(self, mock_sleep):
+    def test_timeout(self):
         resource = mock.Mock()
-        resource.get.side_effect = [None, None, None]
+        resource.status = 'ACTIVE'
+        resource.get.return_value = resource
 
         self.assertRaises(exceptions.ResourceTimeout,
                           resource2.wait_for_delete,
-                          "session", resource, 1, 3)
+                          "session", resource, 0.1, 0.3)

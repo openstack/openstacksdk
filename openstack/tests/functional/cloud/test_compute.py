@@ -25,7 +25,7 @@ import six
 from openstack.cloud import exc
 from openstack.tests.functional.cloud import base
 from openstack.tests.functional.cloud.util import pick_flavor
-from openstack.cloud import _utils
+from openstack import utils
 
 
 class TestCompute(base.BaseFunctionalTestCase):
@@ -293,7 +293,7 @@ class TestCompute(base.BaseFunctionalTestCase):
         # Volumes do not show up as unattached for a bit immediately after
         # deleting a server that had had a volume attached. Yay for eventual
         # consistency!
-        for count in _utils._iterate_timeout(
+        for count in utils.iterate_timeout(
                 60,
                 'Timeout waiting for volume {volume_id} to detach'.format(
                     volume_id=volume_id)):

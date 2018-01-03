@@ -19,6 +19,7 @@ from openstack import _adapter
 from openstack.cloud.exc import *  # noqa
 from openstack.cloud import openstackcloud
 from openstack.cloud import _utils
+from openstack import utils
 
 
 class OperatorCloud(openstackcloud.OpenStackCloud):
@@ -158,7 +159,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions("Error inspecting machine"):
             machine = self.node_set_provision_state(machine['uuid'], 'inspect')
             if wait:
-                for count in _utils._iterate_timeout(
+                for count in utils.iterate_timeout(
                         timeout,
                         "Timeout waiting for node transition to "
                         "target state of 'inspect'"):
@@ -277,7 +278,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         with _utils.shade_exceptions(
                 "Error transitioning node to available state"):
             if wait:
-                for count in _utils._iterate_timeout(
+                for count in utils.iterate_timeout(
                         timeout,
                         "Timeout waiting for node transition to "
                         "available state"):
@@ -313,7 +314,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                     # Note(TheJulia): We need to wait for the lock to clear
                     # before we attempt to set the machine into provide state
                     # which allows for the transition to available.
-                    for count in _utils._iterate_timeout(
+                    for count in utils.iterate_timeout(
                             lock_timeout,
                             "Timeout waiting for reservation to clear "
                             "before setting provide state"):
@@ -409,7 +410,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                                           microversion=version)
 
             if wait:
-                for count in _utils._iterate_timeout(
+                for count in utils.iterate_timeout(
                         timeout,
                         "Timeout waiting for machine to be deleted"):
                     if not self.get_machine(uuid):
@@ -635,7 +636,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
                                              error_message=msg,
                                              microversion=version)
         if wait:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for node transition to "
                     "target state of '%s'" % state):
@@ -857,7 +858,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
         else:
             msg = 'Waiting for lock to be released for node {node}'.format(
                 node=node['uuid'])
-            for count in _utils._iterate_timeout(timeout, msg, 2):
+            for count in utils.iterate_timeout(timeout, msg, 2):
                 current_node = self.get_machine(node['uuid'])
                 if current_node['reservation'] is None:
                     return
@@ -2001,7 +2002,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self._identity_client.put(url, error_message=error_msg)
 
         if wait:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for role to be granted"):
                 if self.list_role_assignments(filters=filters):
@@ -2080,7 +2081,7 @@ class OperatorCloud(openstackcloud.OpenStackCloud):
             self._identity_client.delete(url, error_message=error_msg)
 
         if wait:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for role to be revoked"):
                 if not self.list_role_assignments(filters=filters):

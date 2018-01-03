@@ -57,10 +57,10 @@ openstack.cloud.exc
   exception to the `openstack.cloud.exc` logger. Wrapped exceptions are usually
   considered implementation details, but can be useful for debugging problems.
 
-openstack.cloud.iterate_timeout
+openstack.iterate_timeout
   When `shade` needs to poll a resource, it does so in a loop that waits
   between iterations and ultimately timesout. The
-  `openstack.cloud.iterate_timeout` logger emits messages for each iteration
+  `openstack.iterate_timeout` logger emits messages for each iteration
   indicating it is waiting and for how long. These can be useful to see for
   long running tasks so that one can know things are not stuck, but can also
   be noisy.

@@ -33,7 +33,6 @@ and then returned to the caller.
 
 import collections
 import itertools
-import time
 
 from openstack import exceptions
 from openstack import format
@@ -841,7 +840,7 @@ def wait_for_status(session, resource, status, failures, interval, wait):
     :type resource: :class:`~openstack.resource.Resource`
     :param status: Desired status of the resource.
     :param list failures: Statuses that would indicate the transition
-                          failed such as 'ERROR'.
+                          failed such as 'ERROR'. Defaults to ['ERROR'].
     :param interval: Number of seconds to wait between checks.
     :param wait: Maximum number of seconds to wait for transition.
 
@@ -856,22 +855,31 @@ def wait_for_status(session, resource, status, failures, interval, wait):
     if resource.status == status:
         return resource
 
-    total_sleep = 0
     if failures is None:
-        failures = []
+        failures = ['ERROR']
 
-    while total_sleep < wait:
-        resource.get(session)
-        if resource.status == status:
+    failures = [f.lower() for f in failures]
+    name = "{res}:{id}".format(res=resource.__class__.__name__, id=resource.id)
+    msg = "Timeout waiting for {name} to transition to {status}".format(
+        name=name, status=status)
+
+    for count in utils.iterate_timeout(
+            timeout=wait,
+            message=msg,
+            wait=interval):
+        resource = resource.get(session)
+        new_status = resource.status
+
+        if not resource:
+            raise exceptions.ResourceFailure(
+                "{name} went away while waiting for {status}".format(
+                    name=name, status=status))
+        if new_status.lower() == status.lower():
             return resource
-        if resource.status in failures:
-            msg = ("Resource %s transitioned to failure state %s" %
-                   (resource.id, resource.status))
-            raise exceptions.ResourceFailure(msg)
-        time.sleep(interval)
-        total_sleep += interval
-    msg = "Timeout waiting for %s to transition to %s" % (resource.id, status)
-    raise exceptions.ResourceTimeout(msg)
+        if resource.status.lower() in failures:
+            raise exceptions.ResourceFailure(
+                "{name} transitioned to failure state {status}".format(
+                    name=name, status=resource.status))
 
 
 def wait_for_delete(session, resource, interval, wait):
@@ -888,13 +896,18 @@ def wait_for_delete(session, resource, interval, wait):
     :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
              to status failed to occur in wait seconds.
     """
-    total_sleep = 0
-    while total_sleep < wait:
+    orig_resource = resource
+    for count in utils.iterate_timeout(
+            timeout=wait,
+            message="Timeout waiting for {res}:{id} to delete".format(
+                res=resource.__class__.__name__,
+                id=resource.id),
+            wait=interval):
         try:
-            resource.get(session)
+            resource = resource.get(session)
+            if not resource:
+                return orig_resource
+            if resource.status.lower() == 'deleted':
+                return resource
         except exceptions.NotFoundException:
-            return resource
-        time.sleep(interval)
-        total_sleep += interval
-    msg = "Timeout waiting for %s delete" % (resource.id)
-    raise exceptions.ResourceTimeout(msg)
+            return orig_resource
