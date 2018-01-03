@@ -15,6 +15,12 @@
 ''' Wrapper around keystoneauth Adapter to wrap calls in TaskManager '''
 
 import functools
+try:
+    import simplejson
+    JSONDecodeError = simplejson.scanner.JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
+
 from six.moves import urllib
 
 from keystoneauth1 import adapter
@@ -81,6 +87,25 @@ def _extract_name(url):
     return [part for part in name_parts if part]
 
 
+def _json_response(response, result_key=None, error_message=None):
+    """Temporary method to use to bridge from ShadeAdapter to SDK calls."""
+    exceptions.raise_from_response(response, error_message=error_message)
+
+    if not response.content:
+        # This doesn't have any content
+        return response
+
+    # Some REST calls do not return json content. Don't decode it.
+    if 'application/json' not in response.headers.get('Content-Type'):
+        return response
+
+    try:
+        result_json = response.json()
+    except JSONDecodeError:
+        return response
+    return result_json
+
+
 class OpenStackSDKAdapter(adapter.Adapter):
     """Wrapper around keystoneauth1.adapter.Adapter.
 
@@ -127,21 +152,4 @@ class ShadeAdapter(OpenStackSDKAdapter):
         if run_async:
             return response
         else:
-            return self._munch_response(response, error_message=error_message)
-
-    def _munch_response(self, response, result_key=None, error_message=None):
-        exceptions.raise_from_response(response, error_message=error_message)
-
-        if not response.content:
-            # This doens't have any content
-            return response
-
-        # Some REST calls do not return json content. Don't decode it.
-        if 'application/json' not in response.headers.get('Content-Type'):
-            return response
-
-        try:
-            result_json = response.json()
-        except Exception:
-            return response
-        return result_json
+            return _json_response(response, error_message=error_message)
