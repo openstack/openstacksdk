@@ -121,10 +121,35 @@
     parent: openstacksdk-functional-devstack-base
     description: |
       Run openstacksdk functional tests against a master devstack
+    required-projects:
+      - openstack/octavia
     vars:
       devstack_localrc:
         Q_SERVICE_PLUGIN_CLASSES: qos
         Q_ML2_PLUGIN_EXT_DRIVERS: qos,port_security
+        DISABLE_AMP_IMAGE_BUILD: True
+      devstack_local_conf:
+        post-config:
+          $OCTAVIA_CONF:
+            DEFAULT:
+              debug: True
+            controller_worker:
+              amphora_driver: amphora_noop_driver
+              compute_driver: compute_noop_driver
+              network_driver: network_noop_driver
+            certificates:
+              cert_manager: local_cert_manager
+      devstack_plugins:
+        octavia: https://git.openstack.org/openstack/octavia
+      devstack_services:
+        octavia: true
+        o-api: true
+        o-cw: true
+        o-hm: true
+        o-hk: true
+        neutron-qos: true
+      tox_environment:
+        OPENSTACKSDK_HAS_OCTAVIA: 1
 
 - job:
     name: openstacksdk-functional-devstack-python3

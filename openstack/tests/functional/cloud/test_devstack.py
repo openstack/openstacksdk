@@ -34,6 +34,7 @@ class TestDevstack(base.BaseFunctionalTestCase):
         ('heat', dict(env='HEAT', service='orchestration')),
         ('magnum', dict(env='MAGNUM', service='container-infra')),
         ('neutron', dict(env='NEUTRON', service='network')),
+        ('octavia', dict(env='OCTAVIA', service='load-balancer')),
         ('swift', dict(env='SWIFT', service='object-store')),
     ]
 
