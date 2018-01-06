@@ -121,8 +121,8 @@ class TestConnection(base.RequestsMockTestCase):
         self.assertEqual(CONFIG_PROJECT,
                          sot.config.config['auth']['project_name'])
 
-    def test_from_config_given_cloud_name(self):
-        sot = connection.from_config(cloud_name="sample")
+    def test_from_config_given_cloud(self):
+        sot = connection.from_config(cloud="sample")
 
         self.assertEqual(CONFIG_USERNAME,
                          sot.config.config['auth']['username'])
@@ -147,8 +147,8 @@ class TestConnection(base.RequestsMockTestCase):
         self.assertEqual(CONFIG_PROJECT,
                          sot.config.config['auth']['project_name'])
 
-    def test_from_config_given_cloud(self):
-        sot = connection.from_config(cloud="sample")
+    def test_from_config_given_cloud_name(self):
+        sot = connection.from_config(cloud_name="sample")
 
         self.assertEqual(CONFIG_USERNAME,
                          sot.config.config['auth']['username'])

@@ -188,7 +188,9 @@ class Connection(object):
                     cloud=cloud, validate=session is None, **kwargs)
 
         self.task_manager = task_manager.TaskManager(
-            name=':'.join([self.config.name, self.config.region]))
+            name=':'.join([
+                self.config.name,
+                self.config.region_name or 'unknown']))
 
         if session:
             # TODO(mordred) Expose constructor option for this in OCC
@@ -222,7 +224,7 @@ class Connection(object):
                 kwargs[key] = service.version
 
         config = cloud_region.CloudRegion(
-            name=name, region=region_name, config=kwargs)
+            name=name, region_name=region_name, config=kwargs)
         config._auth = authenticator
 
     def _open(self):
@@ -256,7 +258,7 @@ class Connection(object):
             service_type=self.config.get_service_type(service_type),
             service_name=self.config.get_service_name(service_type),
             interface=self.config.get_interface(service_type),
-            region_name=self.config.region,
+            region_name=self.config.region_name,
             version=self.config.get_api_version(service_type)
         )
         all_types = self.service_type_manager.get_all_types(service_type)

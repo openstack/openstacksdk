@@ -1106,7 +1106,7 @@ class OpenStackConfig(object):
             cloud_name = str(cloud)
         return cloud_region.CloudRegion(
             name=cloud_name,
-            region=config['region_name'],
+            region_name=config['region_name'],
             config=config,
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
@@ -1203,7 +1203,7 @@ class OpenStackConfig(object):
             cloud_name = str(cloud)
         return cloud_region.CloudRegion(
             name=cloud_name,
-            region=config['region_name'],
+            region_name=config['region_name'],
             config=self._normalize_keys(config),
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
