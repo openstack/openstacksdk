@@ -80,7 +80,7 @@ Connection
 ----------
 
 The :class:`openstack.connection.Connection` class builds atop a
-:class:`os_client_config.config.CloudConfig` object, and provides a higher
+:class:`os_client_config.config.CloudRegion` object, and provides a higher
 level interface constructed of ``Proxy`` objects from each of the services.
 
 The ``Connection`` class' primary purpose is to act as a high-level interface

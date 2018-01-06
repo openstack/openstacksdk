@@ -36,14 +36,14 @@ class BaseFunctionalTestCase(base.TestCase):
             self.operator_cloud.cloud_config.get_api_version('identity')
 
     def _set_user_cloud(self, **kwargs):
-        user_config = self.config.get_one_cloud(
+        user_config = self.config.get_one(
             cloud=self._demo_name, **kwargs)
         self.user_cloud = openstack.OpenStackCloud(
             cloud_config=user_config,
             log_inner_exceptions=True)
 
     def _set_operator_cloud(self, **kwargs):
-        operator_config = self.config.get_one_cloud(
+        operator_config = self.config.get_one(
             cloud=self._op_name, **kwargs)
         self.operator_cloud = openstack.OperatorCloud(
             cloud_config=operator_config,

@@ -73,7 +73,7 @@ def create_connection_from_args():
     config = occ.OpenStackConfig()
     config.register_argparse_arguments(parser, sys.argv[1:])
     args = parser.parse_args()
-    return openstack.connect(config=config.get_one_cloud(argparse=args))
+    return openstack.connect(config=config.get_one(argparse=args))
 
 
 def create_connection(auth_url, region, project_name, username, password):

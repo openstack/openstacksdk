@@ -20,9 +20,9 @@ Get a named cloud.
 
   import openstack.config
 
-  cloud_config = openstack.config.OpenStackConfig().get_one_cloud(
+  cloud_region = openstack.config.OpenStackConfig().get_one(
       'internap', region_name='ams01')
-  print(cloud_config.name, cloud_config.region, cloud_config.config)
+  print(cloud_region.name, cloud_region.region, cloud_region.config)
 
 Or, get all of the clouds.
 
@@ -30,9 +30,9 @@ Or, get all of the clouds.
 
   import openstack.config
 
-  cloud_config = openstack.config.OpenStackConfig().get_all_clouds()
-  for cloud in cloud_config:
-      print(cloud.name, cloud.region, cloud.config)
+  cloud_regions = openstack.config.OpenStackConfig().get_all()
+  for cloud_region in cloud_regions:
+      print(cloud_region.name, cloud_region.region, cloud_region.config)
 
 argparse
 --------
@@ -49,13 +49,13 @@ with - as well as a consumption argument.
 
   import openstack.config
 
-  cloud_config = openstack.config.OpenStackConfig()
+  config = openstack.config.OpenStackConfig()
   parser = argparse.ArgumentParser()
-  cloud_config.register_argparse_arguments(parser, sys.argv)
+  config.register_argparse_arguments(parser, sys.argv)
 
   options = parser.parse_args()
 
-  cloud = cloud_config.get_one_cloud(argparse=options)
+  cloud_region = config.get_one(argparse=options)
 
 Constructing a Connection object
 --------------------------------
@@ -89,8 +89,8 @@ If you want to do the same thing but also support command line parsing.
 
   conn = openstack.config.make_connection(options=argparse.ArgumentParser())
 
-Constructing cloud objects
---------------------------
+Constructing OpenStackCloud objects
+-----------------------------------
 
 If what you want to do is get an
 `opentack.cloud.openstackcloud.OpenStackCloud` object, a

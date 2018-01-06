@@ -132,7 +132,7 @@ class OpenStackCloud(_normalize.Normalizer):
                      string. Optional, defaults to None.
     :param app_version: Version of the application to be appended to the
                         user-agent string. Optional, defaults to None.
-    :param CloudConfig cloud_config: Cloud config object from os-client-config
+    :param CloudRegion cloud_config: Cloud config object from os-client-config
                                      In the future, this will be the only way
                                      to pass in cloud configuration, but is
                                      being phased in currently.
@@ -157,7 +157,7 @@ class OpenStackCloud(_normalize.Normalizer):
             config = openstack.config.OpenStackConfig(
                 app_name=app_name, app_version=app_version)
 
-            cloud_config = config.get_one_cloud(**kwargs)
+            cloud_config = config.get_one(**kwargs)
 
         self.name = cloud_config.name
         self.auth = cloud_config.get_auth_args()
@@ -375,6 +375,8 @@ class OpenStackCloud(_normalize.Normalizer):
         for key, value in kwargs.items():
             params['auth'][key] = value
 
+        # TODO(mordred) Replace this chunk with the next patch that allows
+        # passing a Session to CloudRegion.
         # Closure to pass to OpenStackConfig to ensure the new cloud shares
         # the Session with the current cloud. This will ensure that version
         # discovery cache will be re-used.
@@ -384,7 +386,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return keystoneauth1.session.Session(session=self.keystone_session)
 
         # Use cloud='defaults' so that we overlay settings properly
-        cloud_config = config.get_one_cloud(
+        cloud_config = config.get_one(
             cloud='defaults',
             session_constructor=session_constructor,
             **params)

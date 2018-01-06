@@ -37,14 +37,14 @@ class OpenStackInventory(object):
 
         if cloud is None:
             self.clouds = [
-                openstack.OpenStackCloud(cloud_config=cloud_config)
-                for cloud_config in config.get_all_clouds()
+                openstack.OpenStackCloud(cloud_config=cloud_region)
+                for cloud_region in config.get_all()
             ]
         else:
             try:
                 self.clouds = [
                     openstack.OpenStackCloud(
-                        cloud_config=config.get_one_cloud(cloud))
+                        cloud_config=config.get_one(cloud))
                 ]
             except openstack.config.exceptions.OpenStackConfigException as e:
                 raise openstack.OpenStackCloudException(e)

@@ -1,7 +1,7 @@
 ---
 upgrade:
   - The Profile object has been replaced with the use of
-    CloudConfig objects from openstack.config.
+    CloudRegion objects from openstack.config.
   - The openstacksdk specific Session object has been removed.
   - Proxy objects are now subclasses of
     keystoneauth1.adapter.Adapter.

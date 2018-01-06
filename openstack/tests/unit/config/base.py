@@ -20,7 +20,7 @@ import copy
 import os
 import tempfile
 
-from openstack.config import cloud_config
+from openstack.config import cloud_region
 
 import extras
 import fixtures
@@ -227,7 +227,7 @@ class TestCase(base.BaseTestCase):
             self.useFixture(fixtures.EnvironmentVariable(env))
 
     def _assert_cloud_details(self, cc):
-        self.assertIsInstance(cc, cloud_config.CloudConfig)
+        self.assertIsInstance(cc, cloud_region.CloudRegion)
         self.assertTrue(extras.safe_hasattr(cc, 'auth'))
         self.assertIsInstance(cc.auth, dict)
         self.assertIsNone(cc.cloud)

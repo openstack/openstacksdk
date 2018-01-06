@@ -15,7 +15,7 @@ import testtools
 
 import openstack
 from openstack.cloud import exc
-from openstack.config import cloud_config
+from openstack.config import cloud_region
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -25,13 +25,13 @@ class TestOperatorCloud(base.RequestsMockTestCase):
     def test_operator_cloud(self):
         self.assertIsInstance(self.op_cloud, openstack.OperatorCloud)
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_endpoint')
     def test_get_session_endpoint_provided(self, fake_get_endpoint):
         fake_get_endpoint.return_value = 'http://fake.url'
         self.assertEqual(
             'http://fake.url', self.op_cloud.get_session_endpoint('image'))
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_session(self, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = 'http://fake.url'
@@ -39,7 +39,7 @@ class TestOperatorCloud(base.RequestsMockTestCase):
         self.assertEqual(
             'http://fake.url', self.op_cloud.get_session_endpoint('image'))
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_exception(self, get_session_mock):
         class FakeException(Exception):
             pass
@@ -57,7 +57,7 @@ class TestOperatorCloud(base.RequestsMockTestCase):
                 " No service"):
             self.op_cloud.get_session_endpoint("image")
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_unavailable(self, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = None
@@ -65,7 +65,7 @@ class TestOperatorCloud(base.RequestsMockTestCase):
         image_endpoint = self.op_cloud.get_session_endpoint("image")
         self.assertIsNone(image_endpoint)
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_identity(self, get_session_mock):
         session_mock = mock.Mock()
         get_session_mock.return_value = session_mock
@@ -76,14 +76,14 @@ class TestOperatorCloud(base.RequestsMockTestCase):
 
         session_mock.get_endpoint.assert_called_with(**kwargs)
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_has_service_no(self, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = None
         get_session_mock.return_value = session_mock
         self.assertFalse(self.op_cloud.has_service("image"))
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_has_service_yes(self, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = 'http://fake.url'

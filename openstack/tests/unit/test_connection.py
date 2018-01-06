@@ -107,10 +107,10 @@ class TestConnection(base.RequestsMockTestCase):
         self.assertEqual('openstack.workflow.v2._proxy',
                          conn.workflow.__class__.__module__)
 
-    def test_from_config_given_data(self):
-        data = openstack.config.OpenStackConfig().get_one_cloud("sample")
+    def test_from_config_given_config(self):
+        cloud_region = openstack.config.OpenStackConfig().get_one("sample")
 
-        sot = connection.from_config(cloud_config=data)
+        sot = connection.from_config(config=cloud_region)
 
         self.assertEqual(CONFIG_USERNAME,
                          sot.config.config['auth']['username'])
@@ -121,8 +121,34 @@ class TestConnection(base.RequestsMockTestCase):
         self.assertEqual(CONFIG_PROJECT,
                          sot.config.config['auth']['project_name'])
 
-    def test_from_config_given_name(self):
+    def test_from_config_given_cloud_name(self):
         sot = connection.from_config(cloud_name="sample")
+
+        self.assertEqual(CONFIG_USERNAME,
+                         sot.config.config['auth']['username'])
+        self.assertEqual(CONFIG_PASSWORD,
+                         sot.config.config['auth']['password'])
+        self.assertEqual(CONFIG_AUTH_URL,
+                         sot.config.config['auth']['auth_url'])
+        self.assertEqual(CONFIG_PROJECT,
+                         sot.config.config['auth']['project_name'])
+
+    def test_from_config_given_cloud_config(self):
+        cloud_region = openstack.config.OpenStackConfig().get_one("sample")
+
+        sot = connection.from_config(cloud_config=cloud_region)
+
+        self.assertEqual(CONFIG_USERNAME,
+                         sot.config.config['auth']['username'])
+        self.assertEqual(CONFIG_PASSWORD,
+                         sot.config.config['auth']['password'])
+        self.assertEqual(CONFIG_AUTH_URL,
+                         sot.config.config['auth']['auth_url'])
+        self.assertEqual(CONFIG_PROJECT,
+                         sot.config.config['auth']['project_name'])
+
+    def test_from_config_given_cloud(self):
+        sot = connection.from_config(cloud="sample")
 
         self.assertEqual(CONFIG_USERNAME,
                          sot.config.config['auth']['username'])
@@ -139,15 +165,15 @@ class TestConnection(base.RequestsMockTestCase):
         class Opts(object):
             compute_api_version = version
 
-        sot = connection.from_config(cloud_name="sample", options=Opts)
+        sot = connection.from_config(cloud="sample", options=Opts)
 
         self.assertEqual(version, sot.compute.version)
 
     def test_from_config_verify(self):
-        sot = connection.from_config(cloud_name="insecure")
+        sot = connection.from_config(cloud="insecure")
         self.assertFalse(sot.session.verify)
 
-        sot = connection.from_config(cloud_name="cacert")
+        sot = connection.from_config(cloud="cacert")
         self.assertEqual(CONFIG_CACERT, sot.session.verify)
 
 

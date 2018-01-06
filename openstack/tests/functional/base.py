@@ -22,24 +22,16 @@ from openstack.tests import base
 #: file, typically in $HOME/.config/openstack/clouds.yaml. That configuration
 #: will determine where the functional tests will be run and what resource
 #: defaults will be used to run the functional tests.
-TEST_CLOUD = os.getenv('OS_CLOUD', 'devstack-admin')
-
-
-class Opts(object):
-    def __init__(self, cloud_name='devstack-admin', debug=False):
-        self.cloud = cloud_name
-        self.debug = debug
+TEST_CLOUD_NAME = os.getenv('OS_CLOUD', 'devstack-admin')
+TEST_CLOUD_REGION = openstack.config.get_config(cloud=TEST_CLOUD_NAME)
 
 
 def _get_resource_value(resource_key, default):
     try:
-        return cloud.config['functional'][resource_key]
+        return TEST_CLOUD_REGION.config['functional'][resource_key]
     except KeyError:
         return default
 
-opts = Opts(cloud_name=TEST_CLOUD)
-occ = openstack.config.OpenStackConfig()
-cloud = occ.get_one_cloud(opts.cloud, argparse=opts)
 
 IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
 FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
@@ -49,7 +41,7 @@ class BaseFunctionalTest(base.TestCase):
 
     def setUp(self):
         super(BaseFunctionalTest, self).setUp()
-        self.conn = connection.from_config(cloud_name=TEST_CLOUD)
+        self.conn = connection.Connection(config=TEST_CLOUD_REGION)
 
     def addEmptyCleanup(self, func, *args, **kwargs):
         def cleanup():

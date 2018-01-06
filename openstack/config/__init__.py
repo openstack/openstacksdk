@@ -35,7 +35,7 @@ def get_config(
     else:
         parsed_options = None
 
-    return _config.get_one_cloud(options=parsed_options, **kwargs)
+    return _config.get_one(options=parsed_options, **kwargs)
 
 
 def make_rest_client(
@@ -54,11 +54,11 @@ def make_rest_client(
     get_session_client on it. This function is to make it easy to poke
     at OpenStack REST APIs with a properly configured keystone session.
     """
-    cloud = get_config(
+    cloud_region = get_config(
         service_key=service_key, options=options,
         app_name=app_name, app_version=app_version,
         **kwargs)
-    return cloud.get_session_client(service_key, version=version)
+    return cloud_region.get_session_client(service_key, version=version)
 # Backwards compat - simple_client was a terrible name
 simple_client = make_rest_client
 # Backwards compat - session_client was a terrible name
@@ -74,8 +74,8 @@ def make_connection(options=None, **kwargs):
     :rtype: :class:`~openstack.connection.Connection`
     """
     from openstack import connection
-    cloud = get_config(options=options, **kwargs)
-    return connection.from_config(cloud_config=cloud, options=options)
+    cloud_region = get_config(options=options, **kwargs)
+    return connection.from_config(cloud_region=cloud_region, options=options)
 
 
 def make_cloud(options=None, **kwargs):
@@ -86,5 +86,5 @@ def make_cloud(options=None, **kwargs):
     :rtype: :class:`~openstack.OpenStackCloud`
     """
     import openstack.cloud
-    cloud = get_config(options=options, **kwargs)
-    return openstack.OpenStackCloud(cloud_config=cloud, **kwargs)
+    cloud_region = get_config(options=options, **kwargs)
+    return openstack.OpenStackCloud(cloud_config=cloud_region, **kwargs)

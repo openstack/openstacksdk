@@ -16,7 +16,7 @@ from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
 import mock
 
-from openstack.config import cloud_config
+from openstack.config import cloud_region
 from openstack.config import defaults
 from openstack.config import exceptions
 from openstack.tests.unit.config import base
@@ -37,10 +37,10 @@ fake_services_dict = {
 }
 
 
-class TestCloudConfig(base.TestCase):
+class TestCloudRegion(base.TestCase):
 
     def test_arbitrary_attributes(self):
-        cc = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
         self.assertEqual("test1", cc.name)
         self.assertEqual("region-al", cc.region)
 
@@ -61,25 +61,25 @@ class TestCloudConfig(base.TestCase):
         self.assertFalse(cc.force_ipv4)
 
     def test_iteration(self):
-        cc = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
         self.assertTrue('a' in cc)
         self.assertFalse('x' in cc)
 
     def test_equality(self):
-        cc1 = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
-        cc2 = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
+        cc1 = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
+        cc2 = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
         self.assertEqual(cc1, cc2)
 
     def test_inequality(self):
-        cc1 = cloud_config.CloudConfig("test1", "region-al", fake_config_dict)
+        cc1 = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
 
-        cc2 = cloud_config.CloudConfig("test2", "region-al", fake_config_dict)
+        cc2 = cloud_region.CloudRegion("test2", "region-al", fake_config_dict)
         self.assertNotEqual(cc1, cc2)
 
-        cc2 = cloud_config.CloudConfig("test1", "region-xx", fake_config_dict)
+        cc2 = cloud_region.CloudRegion("test1", "region-xx", fake_config_dict)
         self.assertNotEqual(cc1, cc2)
 
-        cc2 = cloud_config.CloudConfig("test1", "region-al", {})
+        cc2 = cloud_region.CloudRegion("test1", "region-al", {})
         self.assertNotEqual(cc1, cc2)
 
     def test_verify(self):
@@ -87,12 +87,12 @@ class TestCloudConfig(base.TestCase):
         config_dict['cacert'] = None
 
         config_dict['verify'] = False
-        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
         (verify, cert) = cc.get_requests_verify_args()
         self.assertFalse(verify)
 
         config_dict['verify'] = True
-        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
         (verify, cert) = cc.get_requests_verify_args()
         self.assertTrue(verify)
 
@@ -101,12 +101,12 @@ class TestCloudConfig(base.TestCase):
         config_dict['cacert'] = "certfile"
 
         config_dict['verify'] = False
-        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
         (verify, cert) = cc.get_requests_verify_args()
         self.assertFalse(verify)
 
         config_dict['verify'] = True
-        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
         (verify, cert) = cc.get_requests_verify_args()
         self.assertEqual("certfile", verify)
 
@@ -118,17 +118,17 @@ class TestCloudConfig(base.TestCase):
         config_dict['cert'] = 'cert'
         config_dict['key'] = 'key'
 
-        cc = cloud_config.CloudConfig("test1", "region-xx", config_dict)
+        cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
         (verify, cert) = cc.get_requests_verify_args()
         self.assertEqual(("cert", "key"), cert)
 
     def test_ipv6(self):
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", fake_config_dict, force_ipv4=True)
         self.assertTrue(cc.force_ipv4)
 
     def test_getters(self):
-        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
 
         self.assertEqual(['compute', 'identity', 'image', 'volume'],
                          sorted(cc.get_services()))
@@ -153,23 +153,23 @@ class TestCloudConfig(base.TestCase):
         self.assertEqual('locks', cc.get_service_name('identity'))
 
     def test_volume_override(self):
-        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
         cc.config['volume_api_version'] = '2'
         self.assertEqual('volumev2', cc.get_service_type('volume'))
 
     def test_volume_override_v3(self):
-        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
         cc.config['volume_api_version'] = '3'
         self.assertEqual('volumev3', cc.get_service_type('volume'))
 
     def test_workflow_override_v2(self):
-        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
         cc.config['workflow_api_version'] = '2'
         self.assertEqual('workflowv2', cc.get_service_type('workflow'))
 
     def test_no_override(self):
         """Test no override happens when defaults are not configured"""
-        cc = cloud_config.CloudConfig("test1", "region-al", fake_services_dict)
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
         self.assertEqual('volume', cc.get_service_type('volume'))
         self.assertEqual('workflow', cc.get_service_type('workflow'))
         self.assertEqual('not-exist', cc.get_service_type('not-exist'))
@@ -177,7 +177,7 @@ class TestCloudConfig(base.TestCase):
     def test_get_session_no_auth(self):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig("test1", "region-al", config_dict)
+        cc = cloud_region.CloudRegion("test1", "region-al", config_dict)
         self.assertRaises(
             exceptions.OpenStackConfigException,
             cc.get_session)
@@ -189,7 +189,7 @@ class TestCloudConfig(base.TestCase):
         fake_session = mock.Mock()
         fake_session.additional_user_agent = []
         mock_session.return_value = fake_session
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_session()
         mock_session.assert_called_with(
@@ -208,7 +208,7 @@ class TestCloudConfig(base.TestCase):
         fake_session.app_name = None
         fake_session.app_version = None
         mock_session.return_value = fake_session
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock(),
             app_name="test_app", app_version="test_version")
         cc.get_session()
@@ -229,7 +229,7 @@ class TestCloudConfig(base.TestCase):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         config_dict['api_timeout'] = 9
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_session()
         mock_session.assert_called_with(
@@ -243,7 +243,7 @@ class TestCloudConfig(base.TestCase):
     def test_override_session_endpoint_override(self, mock_session):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         self.assertEqual(
             cc.get_session_endpoint('compute'),
@@ -253,19 +253,19 @@ class TestCloudConfig(base.TestCase):
     def test_override_session_endpoint(self, mock_session):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         self.assertEqual(
             cc.get_session_endpoint('telemetry'),
             fake_services_dict['telemetry_endpoint'])
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_session_endpoint(self, mock_get_session):
         mock_session = mock.Mock()
         mock_get_session.return_value = mock_session
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_session_endpoint('orchestration')
         mock_session.get_endpoint.assert_called_with(
@@ -274,17 +274,17 @@ class TestCloudConfig(base.TestCase):
             region_name='region-al',
             service_type='orchestration')
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_session_endpoint_not_found(self, mock_get_session):
         exc_to_raise = ksa_exceptions.catalog.EndpointNotFound
         mock_get_session.return_value.get_endpoint.side_effect = exc_to_raise
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", {}, auth_plugin=mock.Mock())
         self.assertIsNone(cc.get_session_endpoint('notfound'))
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_api_version')
-    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_api_version')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_auth_args')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_object_store_password(
             self,
             mock_get_session_endpoint,
@@ -301,7 +301,7 @@ class TestCloudConfig(base.TestCase):
         )
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
@@ -313,8 +313,8 @@ class TestCloudConfig(base.TestCase):
                 'endpoint_type': 'public',
             })
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_auth_args')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_object_store_password_v2(
             self, mock_get_session_endpoint, mock_get_auth_args):
         mock_client = mock.Mock()
@@ -327,7 +327,7 @@ class TestCloudConfig(base.TestCase):
         )
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
@@ -339,8 +339,8 @@ class TestCloudConfig(base.TestCase):
                 'endpoint_type': 'public',
             })
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_auth_args')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_object_store(
             self, mock_get_session_endpoint, mock_get_auth_args):
         mock_client = mock.Mock()
@@ -348,7 +348,7 @@ class TestCloudConfig(base.TestCase):
         mock_get_auth_args.return_value = {}
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
@@ -360,8 +360,8 @@ class TestCloudConfig(base.TestCase):
                 'endpoint_type': 'public',
             })
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_auth_args')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_object_store_timeout(
             self, mock_get_session_endpoint, mock_get_auth_args):
         mock_client = mock.Mock()
@@ -370,7 +370,7 @@ class TestCloudConfig(base.TestCase):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         config_dict['api_timeout'] = 9
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
@@ -382,7 +382,7 @@ class TestCloudConfig(base.TestCase):
                 'endpoint_type': 'public',
             })
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_auth_args')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_auth_args')
     def test_legacy_client_object_store_endpoint(
             self, mock_get_auth_args):
         mock_client = mock.Mock()
@@ -390,7 +390,7 @@ class TestCloudConfig(base.TestCase):
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         config_dict['object_store_endpoint'] = 'http://example.com/swift'
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('object-store', mock_client)
         mock_client.assert_called_with(
@@ -402,13 +402,13 @@ class TestCloudConfig(base.TestCase):
                 'endpoint_type': 'public',
             })
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_image(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/v2'
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
@@ -422,14 +422,14 @@ class TestCloudConfig(base.TestCase):
             service_type='mage'
         )
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_image_override(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/v2'
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         config_dict['image_endpoint_override'] = 'http://example.com/override'
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
@@ -443,7 +443,7 @@ class TestCloudConfig(base.TestCase):
             service_type='mage'
         )
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_image_versioned(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/v2'
@@ -451,7 +451,7 @@ class TestCloudConfig(base.TestCase):
         config_dict.update(fake_services_dict)
         # v2 endpoint was passed, 1 requested in config, endpoint wins
         config_dict['image_api_version'] = '1'
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
@@ -465,7 +465,7 @@ class TestCloudConfig(base.TestCase):
             service_type='mage'
         )
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_image_unversioned(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/'
@@ -473,7 +473,7 @@ class TestCloudConfig(base.TestCase):
         config_dict.update(fake_services_dict)
         # Versionless endpoint, config wins
         config_dict['image_api_version'] = '1'
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client)
         mock_client.assert_called_with(
@@ -487,7 +487,7 @@ class TestCloudConfig(base.TestCase):
             service_type='mage'
         )
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_image_argument(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/v3'
@@ -495,7 +495,7 @@ class TestCloudConfig(base.TestCase):
         config_dict.update(fake_services_dict)
         # Versionless endpoint, config wins
         config_dict['image_api_version'] = '6'
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('image', mock_client, version='beef')
         mock_client.assert_called_with(
@@ -509,13 +509,13 @@ class TestCloudConfig(base.TestCase):
             service_type='mage'
         )
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_network(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/v2'
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('network', mock_client)
         mock_client.assert_called_with(
@@ -527,13 +527,13 @@ class TestCloudConfig(base.TestCase):
             session=mock.ANY,
             service_name=None)
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_compute(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/v2'
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('compute', mock_client)
         mock_client.assert_called_with(
@@ -545,13 +545,13 @@ class TestCloudConfig(base.TestCase):
             session=mock.ANY,
             service_name=None)
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_identity(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com/v2'
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('identity', mock_client)
         mock_client.assert_called_with(
@@ -564,14 +564,14 @@ class TestCloudConfig(base.TestCase):
             session=mock.ANY,
             service_name='locks')
 
-    @mock.patch.object(cloud_config.CloudConfig, 'get_session_endpoint')
+    @mock.patch.object(cloud_region.CloudRegion, 'get_session_endpoint')
     def test_legacy_client_identity_v3(self, mock_get_session_endpoint):
         mock_client = mock.Mock()
         mock_get_session_endpoint.return_value = 'http://example.com'
         config_dict = defaults.get_defaults()
         config_dict.update(fake_services_dict)
         config_dict['identity_api_version'] = '3'
-        cc = cloud_config.CloudConfig(
+        cc = cloud_region.CloudRegion(
             "test1", "region-al", config_dict, auth_plugin=mock.Mock())
         cc.get_legacy_client('identity', mock_client)
         mock_client.assert_called_with(
