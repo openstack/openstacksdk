@@ -117,17 +117,20 @@ def build_finished(app, exception):
 
     # TEMPORARY: Ignore the wait_for names when determining what is missing.
     app.info("ENFORCER: Ignoring wait_for_* names...")
-    missing = set(itertools.ifilterfalse(is_ignored, missing))
+    missing = set(itertools.filterfalse(is_ignored, missing))
 
     missing_count = len(missing)
     app.info("ENFORCER: Found %d missing proxy methods "
              "in the output" % missing_count)
 
-    # TODO(shade) Remove the if DEBUG once the build-openstack-sphinx-docs
-    # has been updated to use sphinx-build.
-    if DEBUG:
-        for name in sorted(missing):
-            app.info("ENFORCER: %s was not included in the output" % name)
+    # TODO(shade) This is spewing a bunch of content for missing thing that
+    # are not actually missing. Leave it as info rather than warn so that the
+    # gate doesn't break ... but we should figure out why this is broken and
+    # fix it.
+    # We also need to deal with Proxy subclassing keystoneauth.adapter.Adapter
+    # now - some of the warnings come from Adapter elements.
+    for name in sorted(missing):
+        app.info("ENFORCER: %s was not included in the output" % name)
 
     if app.config.enforcer_warnings_as_errors and missing_count > 0:
         raise EnforcementError(
