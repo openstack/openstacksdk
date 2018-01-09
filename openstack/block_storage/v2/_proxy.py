@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.block_storage.v2 import snapshot as _snapshot
+from openstack.block_storage.v2 import stats as _stats
 from openstack.block_storage.v2 import type as _type
 from openstack.block_storage.v2 import volume as _volume
 from openstack import proxy2
@@ -187,3 +188,10 @@ class Proxy(proxy2.BaseProxy):
         :returns: ``None``
         """
         self._delete(_volume.Volume, volume, ignore_missing=ignore_missing)
+
+    def backend_pools(self):
+        """Returns a generator of cinder Back-end storage pools
+
+        :returns A generator of cinder Back-end storage pools objects
+        """
+        return self._list(_stats.Pools, paginated=False)
