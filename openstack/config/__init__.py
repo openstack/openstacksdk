@@ -19,7 +19,7 @@ from openstack.config.loader import OpenStackConfig  # noqa
 _config = None
 
 
-def get_config(
+def get_cloud_region(
         service_key=None, options=None,
         app_name=None, app_version=None,
         **kwargs):
@@ -36,55 +36,3 @@ def get_config(
         parsed_options = None
 
     return _config.get_one(options=parsed_options, **kwargs)
-
-
-def make_rest_client(
-        service_key, options=None,
-        app_name=None, app_version=None, version=None,
-        **kwargs):
-    """Simple wrapper function. It has almost no features.
-
-    This will get you a raw requests Session Adapter that is mounted
-    on the given service from the keystone service catalog. If you leave
-    off cloud and region_name, it will assume that you've got env vars
-    set, but if you give them, it'll use clouds.yaml as you'd expect.
-
-    This function is deliberately simple. It has no flexibility. If you
-    want flexibility, you can make a cloud config object and call
-    get_session_client on it. This function is to make it easy to poke
-    at OpenStack REST APIs with a properly configured keystone session.
-    """
-    cloud_region = get_config(
-        service_key=service_key, options=options,
-        app_name=app_name, app_version=app_version,
-        **kwargs)
-    return cloud_region.get_session_client(service_key, version=version)
-# Backwards compat - simple_client was a terrible name
-simple_client = make_rest_client
-# Backwards compat - session_client was a terrible name
-session_client = make_rest_client
-
-
-def make_connection(options=None, **kwargs):
-    """Simple wrapper for getting an OpenStack SDK Connection.
-
-    For completeness, provide a mechanism that matches make_client and
-    make_rest_client. The heavy lifting here is done in openstacksdk.
-
-    :rtype: :class:`~openstack.connection.Connection`
-    """
-    from openstack import connection
-    cloud_region = get_config(options=options, **kwargs)
-    return connection.from_config(cloud_region=cloud_region, options=options)
-
-
-def make_cloud(options=None, **kwargs):
-    """Simple wrapper for getting an OpenStackCloud object
-
-    A mechanism that matches make_connection and make_rest_client.
-
-    :rtype: :class:`~openstack.OpenStackCloud`
-    """
-    import openstack.cloud
-    cloud_region = get_config(options=options, **kwargs)
-    return openstack.OpenStackCloud(cloud_config=cloud_region, **kwargs)

@@ -23,7 +23,7 @@ from openstack.tests import base
 #: will determine where the functional tests will be run and what resource
 #: defaults will be used to run the functional tests.
 TEST_CLOUD_NAME = os.getenv('OS_CLOUD', 'devstack-admin')
-TEST_CLOUD_REGION = openstack.config.get_config(cloud=TEST_CLOUD_NAME)
+TEST_CLOUD_REGION = openstack.config.get_cloud_region(cloud=TEST_CLOUD_NAME)
 
 
 def _get_resource_value(resource_key, default):
