@@ -72,7 +72,6 @@ shade integration
 * Investigate auto-generating the bulk of shade's API based on introspection of
   SDK objects, leaving only the code with extra special logic in the shade
   layer.
-* Rationalize openstack.util.enable_logging and shade.simple_logging.
 
 Service Proxies
 ---------------

@@ -62,10 +62,10 @@ Complete Example
 
 .. code:: python
 
-  import openstack.cloud
+  import openstack
 
   # Initialize and turn on debug logging
-  openstack.cloud.simple_logging(debug=True)
+  openstack.enable_logging(debug=True)
 
   for cloud_name, region_name in [
           ('my-vexxhost', 'ca-ymq-1'),
@@ -314,10 +314,10 @@ Complete Example Again
 
 .. code:: python
 
-  import openstack.cloud
+  import openstack
 
   # Initialize and turn on debug logging
-  openstack.cloud.simple_logging(debug=True)
+  openstack.enable_logging(debug=True)
 
   for cloud_name, region_name in [
           ('my-vexxhost', 'ca-ymq-1'),
@@ -346,27 +346,25 @@ Import the library
 
 .. code:: python
 
-  import openstack.cloud
+  import openstack
 
 Logging
 =======
 
-* `shade` uses standard python logging
-* Special `openstack.cloud.request_ids` logger for API request IDs
-* `simple_logging` does easy defaults
+* `openstacksdk` uses standard python logging
+* ``openstack.enable_logging`` does easy defaults
 * Squelches some meaningless warnings
 
   * `debug`
 
      * Logs shade loggers at debug level
-     * Includes `openstack.cloud.request_ids` debug logging
 
   * `http_debug` Implies `debug`, turns on HTTP tracing
 
 .. code:: python
 
   # Initialize and turn on debug logging
-  openstack.cloud.simple_logging(debug=True)
+  openstack.enable_logging(debug=True)
 
 Example with Debug Logging
 ==========================
@@ -375,8 +373,8 @@ Example with Debug Logging
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(debug=True)
+  import openstack
+  openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(
       cloud='my-vexxhost', region_name='ca-ymq-1')
@@ -389,8 +387,8 @@ Example with HTTP Debug Logging
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(http_debug=True)
+  import openstack
+  openstack.enable_logging(http_debug=True)
 
   cloud = openstack.openstack_cloud(
       cloud='my-vexxhost', region_name='ca-ymq-1')
@@ -486,10 +484,10 @@ Image and Flavor by Name or ID
 
 .. code:: python
 
-  import openstack.cloud
+  import openstack
 
   # Initialize and turn on debug logging
-  openstack.cloud.simple_logging(debug=True)
+  openstack.enable_logging(debug=True)
 
   for cloud_name, region_name, image, flavor in [
           ('my-vexxhost', 'ca-ymq-1',
@@ -533,10 +531,10 @@ Image and Flavor by Dict
 
 .. code:: python
 
-  import openstack.cloud
+  import openstack
 
   # Initialize and turn on debug logging
-  openstack.cloud.simple_logging(debug=True)
+  openstack.enable_logging(debug=True)
 
   for cloud_name, region_name, image, flavor_id in [
           ('my-vexxhost', 'ca-ymq-1', 'Ubuntu 16.04.1 LTS [2017-03-03]',
@@ -564,8 +562,8 @@ Munch Objects
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(debug=True)
+  import openstack
+  openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='zetta', region_name='no-osl1')
   image = cloud.get_image('Ubuntu 14.04 (AMD64) [Local Storage]')
@@ -596,10 +594,10 @@ Cleanup Script
 
 .. code:: python
 
-  import openstack.cloud
+  import openstack
 
   # Initialize and turn on debug logging
-  openstack.cloud.simple_logging(debug=True)
+  openstack.enable_logging(debug=True)
 
   for cloud_name, region_name in [
           ('my-vexxhost', 'ca-ymq-1'),
@@ -618,8 +616,8 @@ Normalization
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging()
+  import openstack
+  openstack.enable_logging()
 
   cloud = openstack.openstack_cloud(cloud='fuga', region_name='cystack')
   image = cloud.get_image(
@@ -634,8 +632,8 @@ Strict Normalized Results
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging()
+  import openstack
+  openstack.enable_logging()
 
   cloud = openstack.openstack_cloud(
       cloud='fuga', region_name='cystack', strict=True)
@@ -651,8 +649,8 @@ How Did I Find the Image Name for the Last Example?
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging()
+  import openstack
+  openstack.enable_logging()
 
   cloud = openstack.openstack_cloud(cloud='fuga', region_name='cystack')
   cloud.pprint([
@@ -672,8 +670,8 @@ Added / Modified Information
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(debug=True)
+  import openstack
+  openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='my-citycloud', region_name='Buf1')
   try:
@@ -714,8 +712,8 @@ User Agent Info
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(http_debug=True)
+  import openstack
+  openstack.enable_logging(http_debug=True)
 
   cloud = openstack.openstack_cloud(
       cloud='datacentred', app_name='AmazingApp', app_version='1.0')
@@ -732,8 +730,8 @@ Uploading Large Objects
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(debug=True)
+  import openstack
+  openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='ovh', region_name='SBG1')
   cloud.create_object(
@@ -753,8 +751,8 @@ Uploading Large Objects
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(debug=True)
+  import openstack
+  openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='ovh', region_name='SBG1')
   cloud.create_object(
@@ -769,8 +767,8 @@ Service Conditionals
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(debug=True)
+  import openstack
+  openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='kiss', region_name='region1')
   print(cloud.has_service('network'))
@@ -783,8 +781,8 @@ Service Conditional Overrides
 
 .. code:: python
 
-  import openstack.cloud
-  openstack.cloud.simple_logging(debug=True)
+  import openstack
+  openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='rax', region_name='DFW')
   print(cloud.has_service('network'))

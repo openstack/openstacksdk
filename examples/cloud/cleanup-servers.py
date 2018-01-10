@@ -13,7 +13,7 @@
 import openstack
 
 # Initialize and turn on debug logging
-openstack.simple_logging(debug=True)
+openstack.enable_logging(debug=True)
 
 for cloud_name, region_name in [
         ('my-vexxhost', 'ca-ymq-1'),

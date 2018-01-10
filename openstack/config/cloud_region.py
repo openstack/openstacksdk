@@ -69,7 +69,7 @@ class CloudRegion(object):
         self.name = name
         self.region_name = region_name
         self.config = config
-        self.log = _log.setup_logging(__name__)
+        self.log = _log.setup_logging('openstack.config')
         self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
         self._openstack_config = openstack_config

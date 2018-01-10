@@ -94,7 +94,7 @@ def _filter_list(data, name_or_id, filters):
     # The logger is openstack.cloud.fmmatch to allow a user/operator to
     # configure logging not to communicate about fnmatch misses
     # (they shouldn't be too spammy, but one never knows)
-    log = _log.setup_logging('openstack.cloud.fnmatch')
+    log = _log.setup_logging('openstack.fnmatch')
     if name_or_id:
         # name_or_id might already be unicode
         name_or_id = _make_unicode(name_or_id)

@@ -11,7 +11,7 @@
 # under the License.
 
 import openstack
-openstack.simple_logging(debug=True)
+openstack.enable_logging(debug=True)
 
 cloud = openstack.openstack_cloud(cloud='ovh', region_name='SBG1')
 image = cloud.get_image('Ubuntu 16.10')

@@ -22,10 +22,10 @@ import time
 import keystoneauth1.exceptions
 import six
 
+import openstack._log
 from openstack import exceptions
-from openstack import utils
 
-_log = utils.setup_logging(__name__)
+_log = openstack._log.setup_logging('openstack.task_manager')
 
 
 class Task(object):

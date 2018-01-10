@@ -11,16 +11,16 @@
 # under the License.
 
 import hashlib
-import logging
 
 import jsonpatch
 
+from openstack import _log
 from openstack import exceptions
 from openstack.image import image_service
 from openstack import resource2
 from openstack import utils
 
-_logger = logging.getLogger(__name__)
+_logger = _log.setup_logging('openstack')
 
 
 class Image(resource2.Resource):

@@ -75,22 +75,20 @@ try to find it and if that fails, you would create it::
 
 """
 import importlib
-import logging
-import sys
 
 import keystoneauth1.exceptions
 import os_service_types
 from six.moves import urllib
 
+from openstack import _log
 import openstack.config
 from openstack.config import cloud_region
 from openstack import exceptions
 from openstack import proxy
 from openstack import proxy2
 from openstack import task_manager
-from openstack import utils
 
-_logger = logging.getLogger(__name__)
+_logger = _log.setup_logging('openstack')
 
 
 def from_config(cloud=None, config=None, options=None, **kwargs):
@@ -118,9 +116,6 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
     if config is None:
         config = openstack.config.OpenStackConfig().get_one(
             cloud=cloud, argparse=options)
-
-    if config.debug:
-        utils.enable_logging(True, stream=sys.stdout)
 
     return Connection(config=config)
 
