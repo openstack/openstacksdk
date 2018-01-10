@@ -15,6 +15,7 @@
 from openstack import exceptions
 
 OpenStackCloudException = exceptions.SDKException
+OpenStackCloudTimeout = exceptions.ResourceTimeout
 
 
 class OpenStackCloudCreateException(OpenStackCloudException):
@@ -25,10 +26,6 @@ class OpenStackCloudCreateException(OpenStackCloudException):
                 resource=resource, resource_id=resource_id),
             extra_data=extra_data, **kwargs)
         self.resource_id = resource_id
-
-
-class OpenStackCloudTimeout(OpenStackCloudException):
-    pass
 
 
 class OpenStackCloudUnavailableExtension(OpenStackCloudException):

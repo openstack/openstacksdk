@@ -16,10 +16,10 @@ import uuid
 import testtools
 
 import openstack.cloud
-from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack import utils
 
 
 RANGE_DATA = [
@@ -193,13 +193,13 @@ class TestShade(base.RequestsMockTestCase):
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
                 "Wait value must be an int or float value."):
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     1, "test_iterate_timeout_bad_wait", wait="timeishard"):
                 pass
 
     @mock.patch('time.sleep')
     def test_iterate_timeout_str_wait(self, mock_sleep):
-        iter = _utils._iterate_timeout(
+        iter = utils.iterate_timeout(
             10, "test_iterate_timeout_str_wait", wait="1.6")
         next(iter)
         next(iter)
@@ -207,7 +207,7 @@ class TestShade(base.RequestsMockTestCase):
 
     @mock.patch('time.sleep')
     def test_iterate_timeout_int_wait(self, mock_sleep):
-        iter = _utils._iterate_timeout(
+        iter = utils.iterate_timeout(
             10, "test_iterate_timeout_int_wait", wait=1)
         next(iter)
         next(iter)
@@ -219,7 +219,7 @@ class TestShade(base.RequestsMockTestCase):
         with testtools.ExpectedException(
                 exc.OpenStackCloudTimeout,
                 message):
-            for count in _utils._iterate_timeout(0.1, message, wait=1):
+            for count in utils.iterate_timeout(0.1, message, wait=1):
                 pass
         mock_sleep.assert_called_with(1.0)
 

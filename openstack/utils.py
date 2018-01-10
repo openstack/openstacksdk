@@ -12,9 +12,12 @@
 
 import functools
 import logging
+import time
 
 import deprecation
 
+from openstack import _log
+from openstack import exceptions
 from openstack import version
 
 
@@ -113,3 +116,39 @@ def urljoin(*args):
     link. We generally won't care about that in client.
     """
     return '/'.join(str(a or '').strip('/') for a in args)
+
+
+def iterate_timeout(timeout, message, wait=2):
+    """Iterate and raise an exception on timeout.
+
+    This is a generator that will continually yield and sleep for
+    wait seconds, and if the timeout is reached, will raise an exception
+    with <message>.
+
+    """
+    log = _log.setup_logging('openstack.iterate_timeout')
+
+    try:
+        # None as a wait winds up flowing well in the per-resource cache
+        # flow. We could spread this logic around to all of the calling
+        # points, but just having this treat None as "I don't have a value"
+        # seems friendlier
+        if wait is None:
+            wait = 2
+        elif wait == 0:
+            # wait should be < timeout, unless timeout is None
+            wait = 0.1 if timeout is None else min(0.1, timeout)
+        wait = float(wait)
+    except ValueError:
+        raise exceptions.SDKException(
+            "Wait value must be an int or float value. {wait} given"
+            " instead".format(wait=wait))
+
+    start = time.time()
+    count = 0
+    while (timeout is None) or (time.time() < start + timeout):
+        count += 1
+        yield count
+        log.debug('Waiting %s seconds', wait)
+        time.sleep(wait)
+    raise exceptions.ResourceTimeout(message)

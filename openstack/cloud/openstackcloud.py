@@ -47,6 +47,7 @@ import openstack.config
 import openstack.config.defaults
 import openstack.connection
 from openstack import task_manager
+from openstack import utils
 
 # TODO(shade) shade keys were x-object-meta-x-sdk-md5 - we need to add those
 #             to freshness checks so that a shade->sdk transition doens't
@@ -4471,7 +4472,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def wait_for_image(self, image, timeout=3600):
         image_id = image['id']
-        for count in _utils._iterate_timeout(
+        for count in utils.iterate_timeout(
                 timeout, "Timeout waiting for image to snapshot"):
             self.list_images.invalidate(self)
             image = self.get_image(image_id)
@@ -4510,7 +4511,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self.delete_object(container=container, name=objname)
 
         if wait:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to be deleted."):
                 self._get_cache(None).invalidate()
@@ -4740,7 +4741,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if not wait:
             return self.get_image(response['image_id'])
         try:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to finish."):
                 image_obj = self.get_image(response['image_id'])
@@ -4829,7 +4830,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if not wait:
             return image
         try:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to finish."):
                 image_obj = self.get_image(image.id)
@@ -4869,7 +4870,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if wait:
             start = time.time()
             image_id = None
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to import."):
                 try:
@@ -5032,7 +5033,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if wait:
             vol_id = volume['id']
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume to be available."):
                 volume = self.get_volume(vol_id)
@@ -5118,7 +5119,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         self.list_volumes.invalidate(self)
         if wait:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume to be deleted."):
 
@@ -5180,7 +5181,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     volume=volume['id'], server=server['id'])))
 
         if wait:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for volume %s to detach." % volume['id']):
                 try:
@@ -5249,7 +5250,7 @@ class OpenStackCloud(_normalize.Normalizer):
                                                server_id=server['id']))
 
         if wait:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for volume %s to attach." % volume['id']):
                 try:
@@ -5324,7 +5325,7 @@ class OpenStackCloud(_normalize.Normalizer):
         snapshot = self._get_and_munchify('snapshot', data)
         if wait:
             snapshot_id = snapshot['id']
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume snapshot to be available."
             ):
@@ -5420,7 +5421,7 @@ class OpenStackCloud(_normalize.Normalizer):
             backup_id = backup['id']
             msg = ("Timeout waiting for the volume backup {} to be "
                    "available".format(backup_id))
-            for _ in _utils._iterate_timeout(timeout, msg):
+            for _ in utils.iterate_timeout(timeout, msg):
                 backup = self.get_volume_backup(backup_id)
 
                 if backup['status'] == 'available':
@@ -5511,7 +5512,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 error_message=msg)
         if wait:
             msg = "Timeout waiting for the volume backup to be deleted."
-            for count in _utils._iterate_timeout(timeout, msg):
+            for count in utils.iterate_timeout(timeout, msg):
                 if not self.get_volume_backup(volume_backup['id']):
                     break
 
@@ -5541,7 +5542,7 @@ class OpenStackCloud(_normalize.Normalizer):
             error_message="Error in deleting volume snapshot")
 
         if wait:
-            for count in _utils._iterate_timeout(
+            for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the volume snapshot to be deleted."):
                 if not self.get_volume_snapshot(volumesnapshot['id']):
@@ -5842,7 +5843,7 @@ class OpenStackCloud(_normalize.Normalizer):
             # if we've provided a port as a parameter
             if wait:
                 try:
-                    for count in _utils._iterate_timeout(
+                    for count in utils.iterate_timeout(
                             timeout,
                             "Timeout waiting for the floating IP"
                             " to be ACTIVE",
@@ -6050,7 +6051,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if wait:
             # Wait for the address to be assigned to the server
             server_id = server['id']
-            for _ in _utils._iterate_timeout(
+            for _ in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the floating IP to be attached.",
                     wait=self._SERVER_AGE):
@@ -6082,7 +6083,7 @@ class OpenStackCloud(_normalize.Normalizer):
             timeout = self._PORT_AGE * 2
         else:
             timeout = None
-        for count in _utils._iterate_timeout(
+        for count in utils.iterate_timeout(
                 timeout,
                 "Timeout waiting for port to show up in list",
                 wait=self._PORT_AGE):
@@ -6869,7 +6870,7 @@ class OpenStackCloud(_normalize.Normalizer):
         start_time = time.time()
 
         # There is no point in iterating faster than the list_servers cache
-        for count in _utils._iterate_timeout(
+        for count in utils.iterate_timeout(
                 timeout,
                 timeout_message,
                 # if _SERVER_AGE is 0 we still want to wait a bit
@@ -6960,7 +6961,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 self._normalize_server(server), bare=bare, detailed=detailed)
 
         admin_pass = server.get('adminPass') or admin_pass
-        for count in _utils._iterate_timeout(
+        for count in utils.iterate_timeout(
                 timeout,
                 "Timeout waiting for server {0} to "
                 "rebuild.".format(server_id),
@@ -7119,7 +7120,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 and self.get_volumes(server)):
             reset_volume_cache = True
 
-        for count in _utils._iterate_timeout(
+        for count in utils.iterate_timeout(
                 timeout,
                 "Timed out waiting for server to get deleted.",
                 # if _SERVER_AGE is 0 we still want to wait a bit

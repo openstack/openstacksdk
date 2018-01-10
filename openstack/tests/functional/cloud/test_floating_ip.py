@@ -24,11 +24,11 @@ import pprint
 from testtools import content
 
 from openstack import _adapter
-from openstack.cloud import _utils
 from openstack.cloud import meta
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.tests.functional.cloud import base
 from openstack.tests.functional.cloud.util import pick_flavor
+from openstack import utils
 
 
 class TestFloatingIP(base.BaseFunctionalTestCase):
@@ -195,7 +195,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
         # ToDo: remove the following iteration when create_server waits for
         # the IP to be attached
         ip = None
-        for _ in _utils._iterate_timeout(
+        for _ in utils.iterate_timeout(
                 self.timeout, "Timeout waiting for IP address to be attached"):
             ip = meta.get_server_external_ipv4(self.user_cloud, new_server)
             if ip is not None:
@@ -215,7 +215,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
         # ToDo: remove the following iteration when create_server waits for
         # the IP to be attached
         ip = None
-        for _ in _utils._iterate_timeout(
+        for _ in utils.iterate_timeout(
                 self.timeout, "Timeout waiting for IP address to be attached"):
             ip = meta.get_server_external_ipv4(self.user_cloud, new_server)
             if ip is not None:

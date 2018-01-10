@@ -22,7 +22,6 @@ import re
 import six
 import sre_constants
 import sys
-import time
 import uuid
 
 from decorator import decorator
@@ -38,42 +37,6 @@ def _exc_clear():
     """Because sys.exc_clear is gone in py3 and is not in six."""
     if sys.version_info[0] == 2:
         sys.exc_clear()
-
-
-def _iterate_timeout(timeout, message, wait=2):
-    """Iterate and raise an exception on timeout.
-
-    This is a generator that will continually yield and sleep for
-    wait seconds, and if the timeout is reached, will raise an exception
-    with <message>.
-
-    """
-    log = _log.setup_logging('openstack.cloud.iterate_timeout')
-
-    try:
-        # None as a wait winds up flowing well in the per-resource cache
-        # flow. We could spread this logic around to all of the calling
-        # points, but just having this treat None as "I don't have a value"
-        # seems friendlier
-        if wait is None:
-            wait = 2
-        elif wait == 0:
-            # wait should be < timeout, unless timeout is None
-            wait = 0.1 if timeout is None else min(0.1, timeout)
-        wait = float(wait)
-    except ValueError:
-        raise exc.OpenStackCloudException(
-            "Wait value must be an int or float value. {wait} given"
-            " instead".format(wait=wait))
-
-    start = time.time()
-    count = 0
-    while (timeout is None) or (time.time() < start + timeout):
-        count += 1
-        yield count
-        log.debug('Waiting %s seconds', wait)
-        time.sleep(wait)
-    raise exc.OpenStackCloudTimeout(message)
 
 
 def _make_unicode(input):

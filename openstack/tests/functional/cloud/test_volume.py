@@ -20,9 +20,9 @@ Functional tests for `shade` block storage methods.
 from fixtures import TimeoutException
 from testtools import content
 
-from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.tests.functional.cloud import base
+from openstack import utils
 
 
 class TestVolume(base.BaseFunctionalTestCase):
@@ -107,7 +107,7 @@ class TestVolume(base.BaseFunctionalTestCase):
             for v in volume:
                 self.user_cloud.delete_volume(v, wait=False)
             try:
-                for count in _utils._iterate_timeout(
+                for count in utils.iterate_timeout(
                         180, "Timeout waiting for volume cleanup"):
                     found = False
                     for existing in self.user_cloud.list_volumes():
