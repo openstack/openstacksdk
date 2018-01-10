@@ -18,8 +18,9 @@ import warnings
 
 from keystoneauth1 import adapter
 import keystoneauth1.exceptions.catalog
-from keystoneauth1 import session
+from keystoneauth1 import session as ks_session
 import requestsexceptions
+from six.moves import urllib
 
 import openstack
 from openstack import _log
@@ -69,25 +70,47 @@ def _make_key(key, service_type):
         return "_".join([service_type, key])
 
 
+def from_session(session, name=None, config=None, **kwargs):
+    """Construct a CloudRegion from an existing `keystoneauth1.session.Session`
+
+    When a Session already exists, we don't actually even need to go through
+    the OpenStackConfig.get_one_cloud dance. We have a Session with Auth info.
+    The only parameters that are really needed are adapter/catalog related.
+
+    :param keystoneauth1.session.session session:
+        An existing Session to use.
+    :param str name:
+        A name to use for this cloud region in logging. If left empty, the
+        hostname of the auth_url found in the Session will be used.
+    :param dict config:
+        Config settings for this cloud region.
+    """
+    # If someone is constructing one of these from a Session, then they are
+    # not using a named config. Use the hostname of their auth_url instead.
+    name = name or urllib.parse.urlparse(session.auth.auth_url).hostname
+    config = config or {}
+    return CloudRegion(name=name, session=session, config=config, **kwargs)
+
+
 class CloudRegion(object):
     """The configuration for a Region of an OpenStack Cloud.
 
     A CloudRegion encapsulates the config information needed for connections
     to all of the services in a Region of a Cloud.
     """
-    def __init__(self, name, region, config,
+    def __init__(self, name, region_name=None, config=None,
                  force_ipv4=False, auth_plugin=None,
                  openstack_config=None, session_constructor=None,
-                 app_name=None, app_version=None):
+                 app_name=None, app_version=None, session=None):
         self.name = name
-        self.region = region
+        self.region_name = region_name
         self.config = config
         self.log = _log.setup_logging(__name__)
         self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
         self._openstack_config = openstack_config
-        self._keystone_session = None
-        self._session_constructor = session_constructor or session.Session
+        self._keystone_session = session
+        self._session_constructor = session_constructor or ks_session.Session
         self._app_name = app_name
         self._app_version = app_version
 
@@ -106,8 +129,10 @@ class CloudRegion(object):
         return self.config.__iter__()
 
     def __eq__(self, other):
-        return (self.name == other.name and self.region == other.region
-                and self.config == other.config)
+        return (
+            self.name == other.name
+            and self.region_name == other.region_name
+            and self.config == other.config)
 
     def __ne__(self, other):
         return not self == other
@@ -145,18 +170,12 @@ class CloudRegion(object):
         return list(set(services))
 
     def get_auth_args(self):
-        return self.config['auth']
+        return self.config.get('auth', {})
 
     def get_interface(self, service_type=None):
         key = _make_key('interface', service_type)
         interface = self.config.get('interface')
         return self.config.get(key, interface)
-
-    def get_region_name(self, service_type=None):
-        if not service_type:
-            return self.region
-        key = _make_key('region_name', service_type)
-        return self.config.get(key, self.region)
 
     def get_api_version(self, service_type):
         key = _make_key('api_version', service_type)
@@ -220,7 +239,7 @@ class CloudRegion(object):
                 self.log.debug(
                     "Turning off SSL warnings for {cloud}:{region}"
                     " since verify=False".format(
-                        cloud=self.name, region=self.region))
+                        cloud=self.name, region=self.region_name))
             requestsexceptions.squelch_warnings(insecure_requests=not verify)
             self._keystone_session = self._session_constructor(
                 auth=self._auth,
@@ -286,7 +305,7 @@ class CloudRegion(object):
             service_type=self.get_service_type(service_key),
             service_name=self.get_service_name(service_key),
             interface=self.get_interface(service_key),
-            region_name=self.get_region_name(service_key),
+            region_name=self.region_name,
             version=version,
             min_version=min_version,
             max_version=max_version)
@@ -321,7 +340,7 @@ class CloudRegion(object):
         endpoint = None
         kwargs = {
             'service_name': self.get_service_name(service_key),
-            'region_name': self.region
+            'region_name': self.region_name
         }
         kwargs['interface'] = self.get_interface(service_key)
         if service_key == 'volume' and not self.get_api_version('volume'):
@@ -410,14 +429,14 @@ class CloudRegion(object):
                 os_options=dict(
                     service_type=self.get_service_type(service_key),
                     object_storage_url=endpoint_override,
-                    region_name=self.region))
+                    region_name=self.region_name))
         else:
             constructor_kwargs = dict(
                 session=self.get_session(),
                 service_name=self.get_service_name(service_key),
                 service_type=self.get_service_type(service_key),
                 endpoint_override=endpoint_override,
-                region_name=self.region)
+                region_name=self.region_name)
 
         if service_key == 'image':
             # os-client-config does not depend on glanceclient, but if

@@ -164,7 +164,6 @@ class OpenStackCloud(_normalize.Normalizer):
         self.region_name = cloud_config.region_name
         self.default_interface = cloud_config.get_interface()
         self.private = cloud_config.config.get('private', False)
-        self.api_timeout = cloud_config.config['api_timeout']
         self.image_api_use_tasks = cloud_config.config['image_api_use_tasks']
         self.secgroup_source = cloud_config.config['secgroup_source']
         self.force_ipv4 = cloud_config.force_ipv4
@@ -529,7 +528,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 service_name=self.cloud_config.get_service_name(service_type),
                 interface=self.cloud_config.get_interface(service_type),
                 endpoint_override=self.cloud_config.get_endpoint(service_type),
-                region_name=self.cloud_config.region,
+                region_name=self.cloud_config.region_name,
                 min_version=request_min_version,
                 max_version=request_max_version)
             if adapter.get_endpoint():
@@ -542,7 +541,7 @@ class OpenStackCloud(_normalize.Normalizer):
             service_name=self.cloud_config.get_service_name(service_type),
             interface=self.cloud_config.get_interface(service_type),
             endpoint_override=self.cloud_config.get_endpoint(service_type),
-            region_name=self.cloud_config.region,
+            region_name=self.cloud_config.region_name,
             min_version=min_version,
             max_version=max_version)
 
@@ -582,7 +581,7 @@ class OpenStackCloud(_normalize.Normalizer):
             interface=self.cloud_config.get_interface(service_type),
             endpoint_override=self.cloud_config.get_endpoint(
                 service_type) or endpoint_override,
-            region_name=self.cloud_config.region)
+            region_name=self.cloud_config.region_name)
 
     def _is_client_version(self, client, version):
         client_name = '_{client}_client'.format(client=client)

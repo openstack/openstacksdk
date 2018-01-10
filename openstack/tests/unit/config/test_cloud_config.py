@@ -26,7 +26,6 @@ fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
 fake_services_dict = {
     'compute_api_version': '2',
     'compute_endpoint_override': 'http://compute.example.com',
-    'compute_region_name': 'region-bl',
     'telemetry_endpoint': 'http://telemetry.example.com',
     'interface': 'public',
     'image_service_type': 'mage',
@@ -42,7 +41,7 @@ class TestCloudRegion(base.TestCase):
     def test_arbitrary_attributes(self):
         cc = cloud_region.CloudRegion("test1", "region-al", fake_config_dict)
         self.assertEqual("test1", cc.name)
-        self.assertEqual("region-al", cc.region)
+        self.assertEqual("region-al", cc.region_name)
 
         # Look up straight value
         self.assertEqual(1, cc.a)
@@ -137,9 +136,7 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual('public', cc.get_interface())
         self.assertEqual('public', cc.get_interface('compute'))
         self.assertEqual('admin', cc.get_interface('identity'))
-        self.assertEqual('region-al', cc.get_region_name())
-        self.assertEqual('region-al', cc.get_region_name('image'))
-        self.assertEqual('region-bl', cc.get_region_name('compute'))
+        self.assertEqual('region-al', cc.region_name)
         self.assertIsNone(cc.get_api_version('image'))
         self.assertEqual('2', cc.get_api_version('compute'))
         self.assertEqual('mage', cc.get_service_type('image'))
