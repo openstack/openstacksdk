@@ -39,6 +39,15 @@ class TestDomain(testtools.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
 
+        self.assertDictEqual(
+            {
+                'name': 'name',
+                'is_enabled': 'enabled',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = domain.Domain(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)

@@ -40,6 +40,14 @@ class TestService(testtools.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
 
+        self.assertDictEqual(
+            {
+                'type': 'type',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = service.Service(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)

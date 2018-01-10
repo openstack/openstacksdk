@@ -28,6 +28,10 @@ class Credential(resource.Resource):
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'type', 'user_id',
+    )
+
     # Properties
     #: Arbitrary blob of the credential data, to be parsed according to the
     #: ``type``. *Type: string*

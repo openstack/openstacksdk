@@ -38,6 +38,15 @@ class TestGroup(testtools.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
 
+        self.assertDictEqual(
+            {
+                'domain_id': 'domain_id',
+                'name': 'name',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = group.Group(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)

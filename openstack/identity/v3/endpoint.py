@@ -28,6 +28,10 @@ class Endpoint(resource.Resource):
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'interface', 'service_id',
+    )
+
     # Properties
     #: Describes the interface of the endpoint according to one of the
     #: following values:

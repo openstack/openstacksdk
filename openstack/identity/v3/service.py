@@ -28,6 +28,10 @@ class Service(resource.Resource):
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'type',
+    )
+
     # Properties
     #: User-facing description of the service. *Type: string*
     description = resource.Body('description')
