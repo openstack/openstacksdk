@@ -41,6 +41,18 @@ class TestProject(testtools.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.patch_update)
 
+        self.assertDictEqual(
+            {
+                'domain_id': 'domain_id',
+                'is_domain': 'is_domain',
+                'name': 'name',
+                'parent_id': 'parent_id',
+                'is_enabled': 'enabled',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = project.Project(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)

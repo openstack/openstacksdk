@@ -29,6 +29,14 @@ class Project(resource.Resource):
     allow_list = True
     patch_update = True
 
+    _query_mapping = resource.QueryParameters(
+        'domain_id',
+        'is_domain',
+        'name',
+        'parent_id',
+        is_enabled='enabled',
+    )
+
     # Properties
     #: The description of the project. *Type: string*
     description = resource.Body('description')
