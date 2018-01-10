@@ -16,7 +16,7 @@ from examples.connect import EXAMPLE_IMAGE_NAME
 Delete resources with the Image service.
 
 For a full guide see
-http://developer.openstack.org/sdks/python/openstacksdk/users/guides/image.html
+http://developer.openstack.org/sdks/python/openstacksdk/user/guides/image.html
 """
 
 

@@ -10,24 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
-Managing policy types in the Cluster service.
+import openstack
+openstack.simple_logging(debug=True)
 
-For a full guide see
-https://developer.openstack.org/sdks/python/openstacksdk/user/guides/cluster.html
-"""
-
-
-def list_policy_types(conn):
-    print("List Policy Types:")
-
-    for pt in conn.cluster.policy_types():
-        print(pt.to_dict())
-
-
-def get_policy_type(conn):
-    print("Get Policy Type:")
-
-    pt = conn.cluster.get_policy_type('senlin.policy.deletion-1.0')
-
-    print(pt.to_dict())
+cloud = openstack.openstack_cloud(cloud='ovh', region_name='SBG1')
+cloud.create_object(
+    container='my-container', name='my-object',
+    filename='/home/mordred/briarcliff.sh3d',
+    segment_size=1000000)
+cloud.delete_object('my-container', 'my-object')
+cloud.delete_container('my-container')
