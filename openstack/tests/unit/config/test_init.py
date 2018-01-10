@@ -18,18 +18,18 @@ from openstack.tests.unit.config import base
 
 class TestInit(base.TestCase):
     def test_get_config_without_arg_parser(self):
-        cloud_config = openstack.config.get_config(
+        cloud_region = openstack.config.get_config(
             options=None, validate=False)
         self.assertIsInstance(
-            cloud_config,
-            openstack.config.cloud_config.CloudConfig
+            cloud_region,
+            openstack.config.cloud_region.CloudRegion
         )
 
     def test_get_config_with_arg_parser(self):
-        cloud_config = openstack.config.get_config(
+        cloud_region = openstack.config.get_config(
             options=argparse.ArgumentParser(),
             validate=False)
         self.assertIsInstance(
-            cloud_config,
-            openstack.config.cloud_config.CloudConfig
+            cloud_region,
+            openstack.config.cloud_region.CloudRegion
         )

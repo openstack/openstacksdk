@@ -31,13 +31,13 @@ settings in your clouds.yaml file and refer to them by name.::
 
     conn = connection.Connection(cloud='example', region_name='earth1')
 
-If you already have an :class:`~openstack.config.cloud_config.CloudConfig`
+If you already have an :class:`~openstack.config.cloud_region.CloudRegion`
 you can pass it in instead.::
 
     from openstack import connection
     import openstack.config
 
-    config = openstack.config.OpenStackConfig.get_one_cloud(
+    config = openstack.config.OpenStackConfig.get_one(
         cloud='example', region_name='earth')
     conn = connection.Connection(config=config)
 
@@ -80,9 +80,10 @@ import sys
 
 import keystoneauth1.exceptions
 import os_service_types
+from six.moves import urllib
 
 import openstack.config
-from openstack.config import cloud_config
+from openstack.config import cloud_region
 from openstack import exceptions
 from openstack import proxy
 from openstack import proxy2
@@ -92,36 +93,36 @@ from openstack import utils
 _logger = logging.getLogger(__name__)
 
 
-def from_config(cloud_name=None, cloud_config=None, options=None):
+def from_config(cloud=None, config=None, options=None, **kwargs):
     """Create a Connection using openstack.config
 
-    :param str cloud_name: Use the `cloud_name` configuration details when
-                           creating the Connection instance.
-    :param cloud_config: An instance of
-                         `openstack.config.loader.OpenStackConfig`
-                         as returned from openstack.config.
-                         If no `config` is provided,
-                         `openstack.config.OpenStackConfig` will be called,
-                         and the provided `cloud_name` will be used in
-                         determining which cloud's configuration details
-                         will be used in creation of the
-                         `Connection` instance.
-    :param options: A namespace object; allows direct passing in of options to
-                    be added to the cloud config. This does not have to be an
-                    instance of argparse.Namespace, despite the naming of the
-                    the `openstack.config.loader.OpenStackConfig.get_one_cloud`
-                    argument to which it is passed.
+    :param str cloud:
+        Use the `cloud` configuration details when creating the Connection.
+    :param openstack.config.cloud_region.CloudRegion config:
+        An existing CloudRegion configuration. If no `config` is provided,
+        `openstack.config.OpenStackConfig` will be called, and the provided
+        `name` will be used in determining which cloud's configuration
+        details will be used in creation of the `Connection` instance.
+    :param argparse.Namespace options:
+        Allows direct passing in of options to be added to the cloud config.
+        This does not have to be an actual instance of argparse.Namespace,
+        despite the naming of the the
+        `openstack.config.loader.OpenStackConfig.get_one` argument to which
+        it is passed.
 
     :rtype: :class:`~openstack.connection.Connection`
     """
-    if cloud_config is None:
-        occ = openstack.config.OpenStackConfig()
-        cloud_config = occ.get_one_cloud(cloud=cloud_name, argparse=options)
+    # TODO(mordred) Backwards compat while we transition
+    cloud = cloud or kwargs.get('cloud_name')
+    config = config or kwargs.get('cloud_config')
+    if config is None:
+        config = openstack.config.OpenStackConfig().get_one(
+            cloud=cloud, argparse=options)
 
-    if cloud_config.debug:
+    if config.debug:
         utils.enable_logging(True, stream=sys.stdout)
 
-    return Connection(config=cloud_config)
+    return Connection(config=config)
 
 
 class Connection(object):
@@ -142,18 +143,18 @@ class Connection(object):
         name ``envvars`` may be used to consume a cloud configured via ``OS_``
         environment variables.
 
-        A pre-existing :class:`~openstack.config.cloud_config.CloudConfig`
+        A pre-existing :class:`~openstack.config.cloud_region.CloudRegion`
         object can be passed in lieu of a cloud name, for cases where the user
-        already has a fully formed CloudConfig and just wants to use it.
+        already has a fully formed CloudRegion and just wants to use it.
 
         Similarly, if for some reason the user already has a
         :class:`~keystoneauth1.session.Session` and wants to use it, it may be
         passed in.
 
         :param str cloud: Name of the cloud from config to use.
-        :param config: CloudConfig object representing the config for the
+        :param config: CloudRegion object representing the config for the
             region of the cloud in question.
-        :type config: :class:`~openstack.config.cloud_config.CloudConfig`
+        :type config: :class:`~openstack.config.cloud_region.CloudRegion`
         :param session: A session object compatible with
             :class:`~keystoneauth1.session.Session`.
         :type session: :class:`~keystoneauth1.session.Session`
@@ -168,22 +169,22 @@ class Connection(object):
                         transition.
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
-            CloudConfig contructor.
+            CloudRegion contructor.
         """
         self.config = config
         self.service_type_manager = os_service_types.ServiceTypes()
 
         if not self.config:
-            openstack_config = openstack.config.OpenStackConfig(
-                app_name=app_name, app_version=app_version,
-                load_yaml_config=profile is None)
             if profile:
                 # TODO(shade) Remove this once we've shifted
                 # python-openstackclient to not use the profile interface.
                 self.config = self._get_config_from_profile(
-                    openstack_config, profile, authenticator, **kwargs)
+                    profile, authenticator, **kwargs)
             else:
-                self.config = openstack_config.get_one_cloud(
+                openstack_config = openstack.config.OpenStackConfig(
+                    app_name=app_name, app_version=app_version,
+                    load_yaml_config=profile is None)
+                self.config = openstack_config.get_one(
                     cloud=cloud, validate=session is None, **kwargs)
 
         self.task_manager = task_manager.TaskManager(
@@ -197,30 +198,32 @@ class Connection(object):
 
         self._open()
 
-    def _get_config_from_profile(
-            self, openstack_config, profile, authenticator, **kwargs):
+    def _get_config_from_profile(self, profile, authenticator, **kwargs):
         """Get openstack.config objects from legacy profile."""
         # TODO(shade) Remove this once we've shifted python-openstackclient
         # to not use the profile interface.
-        config = openstack_config.get_one_cloud(
-            cloud='defaults', validate=False, **kwargs)
-        config._auth = authenticator
 
+        # We don't have a cloud name. Make one up from the auth_url hostname
+        # so that log messages work.
+        name = urllib.parse.urlparse(authenticator.auth_url).hostname
+        region_name = None
         for service in profile.get_services():
+            if service.region:
+                region_name = service.region
             service_type = service.service_type
             if service.interface:
-                key = cloud_config._make_key('interface', service_type)
-                config.config[key] = service.interface
-            if service.region:
-                key = cloud_config._make_key('region_name', service_type)
-                config.config[key] = service.region
+                key = cloud_region._make_key('interface', service_type)
+                kwargs[key] = service.interface
             if service.version:
                 version = service.version
                 if version.startswith('v'):
                     version = version[1:]
-                key = cloud_config._make_key('api_version', service_type)
-                config.config[key] = service.version
-        return config
+                key = cloud_region._make_key('api_version', service_type)
+                kwargs[key] = service.version
+
+        config = cloud_region.CloudRegion(
+            name=name, region=region_name, config=kwargs)
+        config._auth = authenticator
 
     def _open(self):
         """Open the connection. """

@@ -81,20 +81,18 @@ def openstack_clouds(
             return [
                 OpenStackCloud(
                     cloud=f.name, debug=debug,
-                    cloud_config=f,
-                    strict=strict,
-                    **f.config)
-                for f in config.get_all_clouds()
+                    cloud_config=cloud_region,
+                    strict=strict)
+                for cloud_region in config.get_all()
             ]
         else:
             return [
                 OpenStackCloud(
                     cloud=f.name, debug=debug,
-                    cloud_config=f,
-                    strict=strict,
-                    **f.config)
-                for f in config.get_all_clouds()
-                if f.name == cloud
+                    cloud_config=cloud_region,
+                    strict=strict)
+                for cloud_region in config.get_all()
+                if cloud_region.name == cloud
             ]
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
@@ -110,11 +108,11 @@ def openstack_cloud(
     if not config:
         config = _get_openstack_config(app_name, app_version)
     try:
-        cloud_config = config.get_one_cloud(**kwargs)
+        cloud_region = config.get_one(**kwargs)
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
-    return OpenStackCloud(cloud_config=cloud_config, strict=strict)
+    return OpenStackCloud(cloud_config=cloud_region, strict=strict)
 
 
 # TODO(shade) This wants to be renamed before we make a release - there is
@@ -126,11 +124,11 @@ def operator_cloud(
     if not config:
         config = _get_openstack_config(app_name, app_version)
     try:
-        cloud_config = config.get_one_cloud(**kwargs)
+        cloud_region = config.get_one(**kwargs)
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
-    return OperatorCloud(cloud_config=cloud_config, strict=strict)
+    return OperatorCloud(cloud_config=cloud_region, strict=strict)
 
 
 def connect(*args, **kwargs):

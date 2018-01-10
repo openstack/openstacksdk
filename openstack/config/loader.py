@@ -29,7 +29,7 @@ from keystoneauth1 import loading
 import yaml
 
 from openstack import _log
-from openstack.config import cloud_config
+from openstack.config import cloud_region
 from openstack.config import defaults
 from openstack.config import exceptions
 from openstack.config import vendors
@@ -707,7 +707,7 @@ class OpenStackConfig(object):
         # for from the user passing it explicitly. We'll stash it for later
         local_parser.add_argument('--timeout', metavar='<timeout>')
 
-        # We need for get_one_cloud to be able to peek at whether a token
+        # We need for get_one to be able to peek at whether a token
         # was passed so that we can swap the default from password to
         # token if it was. And we need to also peek for --os-auth-token
         # for novaclient backwards compat
@@ -729,8 +729,8 @@ class OpenStackConfig(object):
         # the rest of the arguments given are invalid for the plugin
         # chosen (for instance, --help may be requested, so that the
         # user can see what options he may want to give
-        cloud = self.get_one_cloud(argparse=options, validate=False)
-        default_auth_type = cloud.config['auth_type']
+        cloud_region = self.get_one(argparse=options, validate=False)
+        default_auth_type = cloud_region.config['auth_type']
 
         try:
             loading.register_auth_argparse_arguments(
@@ -802,16 +802,18 @@ class OpenStackConfig(object):
                 new_cloud['api_timeout'] = new_cloud.pop('timeout')
         return new_cloud
 
-    def get_all_clouds(self):
+    def get_all(self):
 
         clouds = []
 
         for cloud in self.get_cloud_names():
             for region in self._get_regions(cloud):
                 if region:
-                    clouds.append(self.get_one_cloud(
+                    clouds.append(self.get_one(
                         cloud, region_name=region['name']))
         return clouds
+    # TODO(mordred) Backwards compat for OSC transition
+    get_all_clouds = get_all
 
     def _fix_args(self, args=None, argparse=None):
         """Massage the passed-in options
@@ -1022,9 +1024,9 @@ class OpenStackConfig(object):
 
         return config
 
-    def get_one_cloud(self, cloud=None, validate=True,
-                      argparse=None, **kwargs):
-        """Retrieve a single cloud configuration and merge additional options
+    def get_one(
+            self, cloud=None, validate=True, argparse=None, **kwargs):
+        """Retrieve a single CloudRegion and merge additional options
 
         :param string cloud:
             The name of the configuration to load from clouds.yaml
@@ -1038,6 +1040,7 @@ class OpenStackConfig(object):
         :param region_name: Name of the region of the cloud.
         :param kwargs: Additional configuration options
 
+        :returns: openstack.config.cloud_region.CloudRegion
         :raises: keystoneauth1.exceptions.MissingRequiredOptions
             on missing required auth parameters
         """
@@ -1101,7 +1104,7 @@ class OpenStackConfig(object):
             cloud_name = ''
         else:
             cloud_name = str(cloud)
-        return cloud_config.CloudConfig(
+        return cloud_region.CloudRegion(
             name=cloud_name,
             region=config['region_name'],
             config=config,
@@ -1112,6 +1115,8 @@ class OpenStackConfig(object):
             app_name=self._app_name,
             app_version=self._app_version,
         )
+    # TODO(mordred) Backwards compat for OSC transition
+    get_one_cloud = get_one
 
     def get_one_cloud_osc(
         self,
@@ -1120,7 +1125,7 @@ class OpenStackConfig(object):
         argparse=None,
         **kwargs
     ):
-        """Retrieve a single cloud configuration and merge additional options
+        """Retrieve a single CloudRegion and merge additional options
 
         :param string cloud:
             The name of the configuration to load from clouds.yaml
@@ -1196,7 +1201,7 @@ class OpenStackConfig(object):
             cloud_name = ''
         else:
             cloud_name = str(cloud)
-        return cloud_config.CloudConfig(
+        return cloud_region.CloudRegion(
             name=cloud_name,
             region=config['region_name'],
             config=self._normalize_keys(config),

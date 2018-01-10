@@ -117,7 +117,7 @@ class BaseTestCase(base.TestCase):
             config_files=[config.name],
             vendor_files=[vendor.name],
             secure_files=['non-existant'])
-        self.cloud_config = self.config.get_one_cloud(
+        self.cloud_config = self.config.get_one(
             cloud=test_cloud, validate=False)
         self.cloud = openstack.OpenStackCloud(
             cloud_config=self.cloud_config,
@@ -141,7 +141,7 @@ class TestCase(BaseTestCase):
 
         super(TestCase, self).setUp(cloud_config_fixture=cloud_config_fixture)
         self.session_fixture = self.useFixture(fixtures.MonkeyPatch(
-            'openstack.config.cloud_config.CloudConfig.get_session',
+            'openstack.config.cloud_region.CloudRegion.get_session',
             mock.Mock()))
 
 
@@ -461,7 +461,7 @@ class RequestsMockTestCase(BaseTestCase):
 
     def _make_test_cloud(self, cloud_name='_test_cloud_', **kwargs):
         test_cloud = os.environ.get('OPENSTACKSDK_OS_CLOUD', cloud_name)
-        self.cloud_config = self.config.get_one_cloud(
+        self.cloud_config = self.config.get_one(
             cloud=test_cloud, validate=True, **kwargs)
         self.conn = openstack.connection.Connection(
             config=self.cloud_config)

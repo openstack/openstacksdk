@@ -26,7 +26,7 @@ class TestImage(base.BaseFunctionalTest):
         super(TestImage, self).setUp()
         opts = self.ImageOpts()
         self.conn = connection.from_config(
-            cloud_name=base.TEST_CLOUD, options=opts)
+            cloud_name=base.TEST_CLOUD_NAME, options=opts)
 
         self.img = self.conn.image.upload_image(
             name=TEST_IMAGE_NAME,
