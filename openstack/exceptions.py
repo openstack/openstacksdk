@@ -152,6 +152,11 @@ class ResourceFailure(SDKException):
     pass
 
 
+class InvalidResourceQuery(SDKException):
+    """Invalid query params for resource."""
+    pass
+
+
 def raise_from_response(response, error_message=None):
     """Raise an instance of an HTTPException based on keystoneauth response."""
     if response.status_code < 400:

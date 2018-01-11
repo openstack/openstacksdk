@@ -73,7 +73,7 @@ class FloatingIP(resource.Resource):
 
     @classmethod
     def find_available(cls, session):
-        info = cls.list(session, fields='id', port_id='')
+        info = cls.list(session, port_id='')
         try:
             return next(info)
         except StopIteration:

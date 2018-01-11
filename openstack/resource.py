@@ -819,9 +819,20 @@ class Resource(object):
         :return: A generator of :class:`Resource` objects.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_list` is not set to ``True``.
+        :raises: :exc:`~openstack.exceptions.InvalidResourceQuery` if query
+                 contains invalid params.
         """
         if not cls.allow_list:
             raise exceptions.MethodNotSupported(cls, "list")
+
+        expected_params = utils.get_string_format_keys(cls.base_path)
+        expected_params += cls._query_mapping._mapping.keys()
+
+        invalid_keys = set(params.keys()) - set(expected_params)
+        if invalid_keys:
+            raise exceptions.InvalidResourceQuery(
+                message="Invalid query params: %s" % ",".join(invalid_keys),
+                extra_data=invalid_keys)
 
         query_params = cls._query_mapping._transpose(params)
         uri = cls.base_path % params

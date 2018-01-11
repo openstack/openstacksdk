@@ -1290,6 +1290,30 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(self.session.get.call_args_list[0][0][0],
                          Test.base_path % {"something": uri_param})
 
+    def test_invalid_list_params(self):
+        id = 1
+        qp = "query param!"
+        qp_name = "query-param"
+        uri_param = "uri param!"
+
+        mock_response = mock.Mock()
+        mock_response.json.side_effect = [[{"id": id}],
+                                          []]
+
+        self.session.get.return_value = mock_response
+
+        class Test(self.test_class):
+            _query_mapping = resource.QueryParameters(query_param=qp_name)
+            base_path = "/%(something)s/blah"
+            something = resource.URI("something")
+
+        try:
+            list(Test.list(self.session, paginated=True, query_param=qp,
+                           something=uri_param, something_wrong=True))
+            self.assertFail('The above line should fail')
+        except exceptions.InvalidResourceQuery as err:
+            self.assertEqual(str(err), 'Invalid query params: something_wrong')
+
     def test_list_multi_page_response_paginated(self):
         ids = [1, 2]
         resp1 = mock.Mock()

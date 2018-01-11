@@ -11,6 +11,7 @@
 # under the License.
 
 import functools
+import string
 import time
 
 import deprecation
@@ -101,3 +102,29 @@ def iterate_timeout(timeout, message, wait=2):
         log.debug('Waiting %s seconds', wait)
         time.sleep(wait)
     raise exceptions.ResourceTimeout(message)
+
+
+def get_string_format_keys(fmt_string, old_style=True):
+    """Gets a list of required keys from a format string
+
+    Required mostly for parsing base_path urls for required keys, which
+    use the old style string formatting.
+    """
+    if old_style:
+        class AccessSaver(object):
+            def __init__(self):
+                self.keys = []
+
+            def __getitem__(self, key):
+                self.keys.append(key)
+
+        a = AccessSaver()
+        fmt_string % a
+
+        return a.keys
+    else:
+        keys = []
+        for t in string.Formatter().parse(fmt_string):
+            if t[1] is not None:
+                keys.append(t[1])
+        return keys
