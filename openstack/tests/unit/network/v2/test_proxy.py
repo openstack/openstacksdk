@@ -315,6 +315,15 @@ class TestNetworkProxy(test_proxy_base2.TestProxyBase):
     def test_network_find(self):
         self.verify_find(self.proxy.find_network, network.Network)
 
+    def test_network_find_with_filter(self):
+        self._verify2('openstack.proxy2.BaseProxy._find',
+                      self.proxy.find_network,
+                      method_args=["net1"],
+                      method_kwargs={"project_id": "1"},
+                      expected_args=[network.Network, "net1"],
+                      expected_kwargs={"project_id": "1",
+                                       "ignore_missing": True})
+
     def test_network_get(self):
         self.verify_get(self.proxy.get_network, network.Network)
 

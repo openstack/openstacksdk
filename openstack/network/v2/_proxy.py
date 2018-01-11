@@ -84,7 +84,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_address_scope.AddressScope, address_scope,
                      ignore_missing=ignore_missing)
 
-    def find_address_scope(self, name_or_id, ignore_missing=True):
+    def find_address_scope(self, name_or_id, ignore_missing=True, **args):
         """Find a single address scope
 
         :param name_or_id: The name or ID of an address scope.
@@ -93,11 +93,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.address_scope.AddressScope`
                   or None
         """
         return self._find(_address_scope.AddressScope, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_address_scope(self, address_scope):
         """Get a single address scope
@@ -324,7 +326,7 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._list(availability_zone.AvailabilityZone, paginated=False)
 
-    def find_extension(self, name_or_id, ignore_missing=True):
+    def find_extension(self, name_or_id, ignore_missing=True, **args):
         """Find a single extension
 
         :param name_or_id: The name or ID of a extension.
@@ -333,11 +335,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.extension.Extension`
                   or None
         """
         return self._find(extension.Extension, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def extensions(self, **query):
         """Return a generator of extensions
@@ -379,7 +383,7 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
 
-    def find_flavor(self, name_or_id, ignore_missing=True):
+    def find_flavor(self, name_or_id, ignore_missing=True, **args):
         """Find a single network service flavor
 
         :param name_or_id: The name or ID of a flavor.
@@ -388,10 +392,12 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.flavor.Flavor` or None
         """
         return self._find(_flavor.Flavor, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_flavor(self, flavor):
         """Get a single network service flavor
@@ -511,7 +517,7 @@ class Proxy(proxy2.BaseProxy):
         """
         return _floating_ip.FloatingIP.find_available(self)
 
-    def find_ip(self, name_or_id, ignore_missing=True):
+    def find_ip(self, name_or_id, ignore_missing=True, **args):
         """Find a single IP
 
         :param name_or_id: The name or ID of an IP.
@@ -520,11 +526,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.floating_ip.FloatingIP`
                   or None
         """
         return self._find(_floating_ip.FloatingIP, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_ip(self, floating_ip):
         """Get a single floating ip
@@ -608,7 +616,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_health_monitor.HealthMonitor, health_monitor,
                      ignore_missing=ignore_missing)
 
-    def find_health_monitor(self, name_or_id, ignore_missing=True):
+    def find_health_monitor(self, name_or_id, ignore_missing=True, **args):
         """Find a single health monitor
 
         :param name_or_id: The name or ID of a health monitor.
@@ -617,11 +625,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.health_monitor.
                   HealthMonitor` or None
         """
         return self._find(_health_monitor.HealthMonitor,
-                          name_or_id, ignore_missing=ignore_missing)
+                          name_or_id, ignore_missing=ignore_missing, **args)
 
     def get_health_monitor(self, health_monitor):
         """Get a single health monitor
@@ -709,7 +719,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_listener.Listener, listener,
                      ignore_missing=ignore_missing)
 
-    def find_listener(self, name_or_id, ignore_missing=True):
+    def find_listener(self, name_or_id, ignore_missing=True, **args):
         """Find a single listener
 
         :param name_or_id: The name or ID of a listener.
@@ -718,10 +728,12 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.listener.Listener` or None
         """
         return self._find(_listener.Listener, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_listener(self, listener):
         """Get a single listener
@@ -802,7 +814,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_load_balancer.LoadBalancer, load_balancer,
                      ignore_missing=ignore_missing)
 
-    def find_load_balancer(self, name_or_id, ignore_missing=True):
+    def find_load_balancer(self, name_or_id, ignore_missing=True, **args):
         """Find a single load balancer
 
         :param name_or_id: The name or ID of a load balancer.
@@ -811,11 +823,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.load_balancer.LoadBalancer`
                   or None
         """
         return self._find(_load_balancer.LoadBalancer, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_load_balancer(self, load_balancer):
         """Get a single load balancer
@@ -887,7 +901,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_metering_label.MeteringLabel, metering_label,
                      ignore_missing=ignore_missing)
 
-    def find_metering_label(self, name_or_id, ignore_missing=True):
+    def find_metering_label(self, name_or_id, ignore_missing=True, **args):
         """Find a single metering label
 
         :param name_or_id: The name or ID of a metering label.
@@ -896,11 +910,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.metering_label.
                   MeteringLabel` or None
         """
         return self._find(_metering_label.MeteringLabel, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_metering_label(self, metering_label):
         """Get a single metering label
@@ -983,7 +999,8 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_metering_label_rule.MeteringLabelRule,
                      metering_label_rule, ignore_missing=ignore_missing)
 
-    def find_metering_label_rule(self, name_or_id, ignore_missing=True):
+    def find_metering_label_rule(self, name_or_id, ignore_missing=True,
+                                 **args):
         """Find a single metering label rule
 
         :param name_or_id: The name or ID of a metering label rule.
@@ -992,11 +1009,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.metering_label_rule.
                   MeteringLabelRule` or None
         """
         return self._find(_metering_label_rule.MeteringLabelRule, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_metering_label_rule(self, metering_label_rule):
         """Get a single metering label rule
@@ -1082,7 +1101,7 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_network.Network, network, ignore_missing=ignore_missing)
 
-    def find_network(self, name_or_id, ignore_missing=True):
+    def find_network(self, name_or_id, ignore_missing=True, **args):
         """Find a single network
 
         :param name_or_id: The name or ID of a network.
@@ -1091,10 +1110,12 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.network.Network` or None
         """
         return self._find(_network.Network, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_network(self, network):
         """Get a single network
@@ -1150,7 +1171,8 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._update(_network.Network, network, **attrs)
 
-    def find_network_ip_availability(self, name_or_id, ignore_missing=True):
+    def find_network_ip_availability(self, name_or_id, ignore_missing=True,
+                                     **args):
         """Find IP availability of a network
 
         :param name_or_id: The name or ID of a network.
@@ -1159,11 +1181,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.network_ip_availability.
                        NetworkIPAvailability` or None
         """
         return self._find(network_ip_availability.NetworkIPAvailability,
-                          name_or_id, ignore_missing=ignore_missing)
+                          name_or_id, ignore_missing=ignore_missing, **args)
 
     def get_network_ip_availability(self, network):
         """Get IP availability of a network
@@ -1227,7 +1251,7 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_pool.Pool, pool, ignore_missing=ignore_missing)
 
-    def find_pool(self, name_or_id, ignore_missing=True):
+    def find_pool(self, name_or_id, ignore_missing=True, **args):
         """Find a single pool
 
         :param name_or_id: The name or ID of a pool.
@@ -1236,10 +1260,12 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.pool.Pool` or None
         """
         return self._find(_pool.Pool, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_pool(self, pool):
         """Get a single pool
@@ -1330,7 +1356,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_pool_member.PoolMember, pool_member,
                      ignore_missing=ignore_missing, pool_id=poolobj.id)
 
-    def find_pool_member(self, name_or_id, pool, ignore_missing=True):
+    def find_pool_member(self, name_or_id, pool, ignore_missing=True, **args):
         """Find a single pool member
 
         :param str name_or_id: The name or ID of a pool member.
@@ -1342,12 +1368,15 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.pool_member.PoolMember`
                   or None
         """
         poolobj = self._get_resource(_pool.Pool, pool)
         return self._find(_pool_member.PoolMember, name_or_id,
-                          ignore_missing=ignore_missing, pool_id=poolobj.id)
+                          ignore_missing=ignore_missing, pool_id=poolobj.id,
+                          **args)
 
     def get_pool_member(self, pool_member, pool):
         """Get a single pool member
@@ -1441,7 +1470,7 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_port.Port, port, ignore_missing=ignore_missing)
 
-    def find_port(self, name_or_id, ignore_missing=True):
+    def find_port(self, name_or_id, ignore_missing=True, **args):
         """Find a single port
 
         :param name_or_id: The name or ID of a port.
@@ -1450,10 +1479,12 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.port.Port` or None
         """
         return self._find(_port.Port, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_port(self, port):
         """Get a single port
@@ -1566,7 +1597,7 @@ class Proxy(proxy2.BaseProxy):
                      qos_policy_id=policy.id)
 
     def find_qos_bandwidth_limit_rule(self, qos_rule_id, qos_policy,
-                                      ignore_missing=True):
+                                      ignore_missing=True, **args):
         """Find a bandwidth limit rule
 
         :param qos_rule_id: The ID of a bandwidth limit rule.
@@ -1578,13 +1609,15 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.qos_bandwidth_limit_rule.
                     QoSBandwidthLimitRule` or None
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._find(_qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
                           qos_rule_id, ignore_missing=ignore_missing,
-                          qos_policy_id=policy.id)
+                          qos_policy_id=policy.id, **args)
 
     def get_qos_bandwidth_limit_rule(self, qos_rule, qos_policy):
         """Get a single bandwidth limit rule
@@ -1688,7 +1721,7 @@ class Proxy(proxy2.BaseProxy):
                      qos_policy_id=policy.id)
 
     def find_qos_dscp_marking_rule(self, qos_rule_id, qos_policy,
-                                   ignore_missing=True):
+                                   ignore_missing=True, **args):
         """Find a QoS DSCP marking rule
 
         :param qos_rule_id: The ID of a QoS DSCP marking rule.
@@ -1700,13 +1733,15 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.qos_dscp_marking_rule.
                     QoSDSCPMarkingRule` or None
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._find(_qos_dscp_marking_rule.QoSDSCPMarkingRule,
                           qos_rule_id, ignore_missing=ignore_missing,
-                          qos_policy_id=policy.id)
+                          qos_policy_id=policy.id, **args)
 
     def get_qos_dscp_marking_rule(self, qos_rule, qos_policy):
         """Get a single QoS DSCP marking rule
@@ -1808,7 +1843,7 @@ class Proxy(proxy2.BaseProxy):
                      qos_policy_id=policy.id)
 
     def find_qos_minimum_bandwidth_rule(self, qos_rule_id, qos_policy,
-                                        ignore_missing=True):
+                                        ignore_missing=True, **args):
         """Find a minimum bandwidth rule
 
         :param qos_rule_id: The ID of a minimum bandwidth rule.
@@ -1820,13 +1855,15 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.
                     QoSMinimumBandwidthRule` or None
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._find(_qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
                           qos_rule_id, ignore_missing=ignore_missing,
-                          qos_policy_id=policy.id)
+                          qos_policy_id=policy.id, **args)
 
     def get_qos_minimum_bandwidth_rule(self, qos_rule, qos_policy):
         """Get a single minimum bandwidth rule
@@ -1916,7 +1953,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_qos_policy.QoSPolicy, qos_policy,
                      ignore_missing=ignore_missing)
 
-    def find_qos_policy(self, name_or_id, ignore_missing=True):
+    def find_qos_policy(self, name_or_id, ignore_missing=True, **args):
         """Find a single QoS policy
 
         :param name_or_id: The name or ID of a QoS policy.
@@ -1925,11 +1962,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.qos_policy.QoSPolicy` or
                   None
         """
         return self._find(_qos_policy.QoSPolicy, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_qos_policy(self, qos_policy):
         """Get a single QoS policy
@@ -2127,7 +2166,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_rbac_policy.RBACPolicy, rbac_policy,
                      ignore_missing=ignore_missing)
 
-    def find_rbac_policy(self, rbac_policy, ignore_missing=True):
+    def find_rbac_policy(self, rbac_policy, ignore_missing=True, **args):
         """Find a single RBAC policy
 
         :param rbac_policy: The ID of a RBAC policy.
@@ -2136,11 +2175,13 @@ class Proxy(proxy2.BaseProxy):
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One
             :class:`~openstack.network.v2.rbac_policy.RBACPolicy` or None
         """
         return self._find(_rbac_policy.RBACPolicy, rbac_policy,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_rbac_policy(self, rbac_policy):
         """Get a single RBAC policy
@@ -2212,7 +2253,7 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_router.Router, router, ignore_missing=ignore_missing)
 
-    def find_router(self, name_or_id, ignore_missing=True):
+    def find_router(self, name_or_id, ignore_missing=True, **args):
         """Find a single router
 
         :param name_or_id: The name or ID of a router.
@@ -2221,10 +2262,12 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.router.Router` or None
         """
         return self._find(_router.Router, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_router(self, router):
         """Get a single router
@@ -2420,7 +2463,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_security_group.SecurityGroup, security_group,
                      ignore_missing=ignore_missing)
 
-    def find_security_group(self, name_or_id, ignore_missing=True):
+    def find_security_group(self, name_or_id, ignore_missing=True, **args):
         """Find a single security group
 
         :param name_or_id: The name or ID of a security group.
@@ -2429,11 +2472,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.security_group.
                   SecurityGroup` or None
         """
         return self._find(_security_group.SecurityGroup, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_security_group(self, security_group):
         """Get a single security group
@@ -2542,7 +2587,8 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_security_group_rule.SecurityGroupRule,
                      security_group_rule, ignore_missing=ignore_missing)
 
-    def find_security_group_rule(self, name_or_id, ignore_missing=True):
+    def find_security_group_rule(self, name_or_id, ignore_missing=True,
+                                 **args):
         """Find a single security group rule
 
         :param str name_or_id: The ID of a security group rule.
@@ -2551,11 +2597,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.security_group_rule.
                   SecurityGroupRule` or None
         """
         return self._find(_security_group_rule.SecurityGroupRule,
-                          name_or_id, ignore_missing=ignore_missing)
+                          name_or_id, ignore_missing=ignore_missing, **args)
 
     def get_security_group_rule(self, security_group_rule):
         """Get a single security group rule
@@ -2624,7 +2672,7 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_segment.Segment, segment, ignore_missing=ignore_missing)
 
-    def find_segment(self, name_or_id, ignore_missing=True):
+    def find_segment(self, name_or_id, ignore_missing=True, **args):
         """Find a single segment
 
         :param name_or_id: The name or ID of a segment.
@@ -2633,10 +2681,12 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.segment.Segment` or None
         """
         return self._find(_segment.Segment, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_segment(self, segment):
         """Get a single segment
@@ -2728,7 +2778,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_service_profile.ServiceProfile, service_profile,
                      ignore_missing=ignore_missing)
 
-    def find_service_profile(self, name_or_id, ignore_missing=True):
+    def find_service_profile(self, name_or_id, ignore_missing=True, **args):
         """Find a single network service flavor profile
 
         :param name_or_id: The name or ID of a service profile.
@@ -2737,11 +2787,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.service_profile
                       .ServiceProfile` or None
         """
         return self._find(_service_profile.ServiceProfile, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_service_profile(self, service_profile):
         """Get a single network service flavor profile
@@ -2816,7 +2868,7 @@ class Proxy(proxy2.BaseProxy):
         """
         self._delete(_subnet.Subnet, subnet, ignore_missing=ignore_missing)
 
-    def find_subnet(self, name_or_id, ignore_missing=True):
+    def find_subnet(self, name_or_id, ignore_missing=True, **args):
         """Find a single subnet
 
         :param name_or_id: The name or ID of a subnet.
@@ -2825,10 +2877,12 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.subnet.Subnet` or None
         """
         return self._find(_subnet.Subnet, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_subnet(self, subnet):
         """Get a single subnet
@@ -2907,7 +2961,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_subnet_pool.SubnetPool, subnet_pool,
                      ignore_missing=ignore_missing)
 
-    def find_subnet_pool(self, name_or_id, ignore_missing=True):
+    def find_subnet_pool(self, name_or_id, ignore_missing=True, **args):
         """Find a single subnet pool
 
         :param name_or_id: The name or ID of a subnet pool.
@@ -2916,11 +2970,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.subnet_pool.SubnetPool`
                   or None
         """
         return self._find(_subnet_pool.SubnetPool, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_subnet_pool(self, subnet_pool):
         """Get a single subnet pool
@@ -3019,7 +3075,7 @@ class Proxy(proxy2.BaseProxy):
         self._delete(_vpn_service.VPNService, vpn_service,
                      ignore_missing=ignore_missing)
 
-    def find_vpn_service(self, name_or_id, ignore_missing=True):
+    def find_vpn_service(self, name_or_id, ignore_missing=True, **args):
         """Find a single vpn service
 
         :param name_or_id: The name or ID of a vpn service.
@@ -3028,11 +3084,13 @@ class Proxy(proxy2.BaseProxy):
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
                     attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
         :returns: One :class:`~openstack.network.v2.vpn_service.VPNService`
                   or None
         """
         return self._find(_vpn_service.VPNService, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing, **args)
 
     def get_vpn_service(self, vpn_service):
         """Get a single vpn service

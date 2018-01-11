@@ -58,6 +58,19 @@ class TestNetwork(base.BaseFunctionalTest):
         sot = self.conn.network.find_network(self.NAME)
         self.assertEqual(self.ID, sot.id)
 
+    def test_find_with_filter(self):
+        project_id_1 = "1"
+        project_id_2 = "2"
+        sot1 = self.conn.network.create_network(name=self.NAME,
+                                                project_id=project_id_1)
+        sot2 = self.conn.network.create_network(name=self.NAME,
+                                                project_id=project_id_2)
+        sot = self.conn.network.find_network(self.NAME,
+                                             project_id=project_id_1)
+        self.assertEqual(project_id_1, sot.project_id)
+        self.conn.network.delete_network(sot1.id)
+        self.conn.network.delete_network(sot2.id)
+
     def test_get(self):
         sot = self.conn.network.get_network(self.ID)
         self.assertEqual(self.NAME, sot.name)
