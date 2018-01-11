@@ -43,8 +43,6 @@ def get_proxy_methods():
              "openstack.network.v2._proxy",
              "openstack.object_store.v1._proxy",
              "openstack.orchestration.v1._proxy",
-             "openstack.meter.v2._proxy",
-             "openstack.meter.alarm.v2._proxy",
              "openstack.workflow.v2._proxy"]
 
     modules = (importlib.import_module(name) for name in names)

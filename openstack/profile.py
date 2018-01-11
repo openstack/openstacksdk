@@ -65,8 +65,6 @@ from openstack.image import image_service
 from openstack.key_manager import key_manager_service
 from openstack.load_balancer import load_balancer_service as lb_service
 from openstack.message import message_service
-from openstack.meter.alarm import alarm_service
-from openstack.meter import meter_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
@@ -92,7 +90,6 @@ class Profile(object):
         """
         self._services = {}
 
-        self._add_service(alarm_service.AlarmService(version="v2"))
         self._add_service(baremetal_service.BaremetalService(version="v1"))
         self._add_service(
             block_storage_service.BlockStorageService(version="v2"))
@@ -104,7 +101,6 @@ class Profile(object):
         self._add_service(key_manager_service.KeyManagerService(version="v1"))
         self._add_service(lb_service.LoadBalancerService(version="v2"))
         self._add_service(message_service.MessageService(version="v1"))
-        self._add_service(meter_service.MeterService(version="v2"))
         self._add_service(network_service.NetworkService(version="v2"))
         self._add_service(
             object_store_service.ObjectStoreService(version="v1"))

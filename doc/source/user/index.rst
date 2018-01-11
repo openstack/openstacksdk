@@ -40,7 +40,6 @@ approach, this is where you'll want to begin.
    Image <guides/image>
    Key Manager <guides/key_manager>
    Message <guides/message>
-   Meter <guides/meter>
    Network <guides/network>
    Object Store <guides/object_store>
    Orchestration <guides/orchestration>
@@ -95,7 +94,6 @@ provided by the SDK.
    Message v1 <proxies/message_v1>
    Message v2 <proxies/message_v2>
    Network <proxies/network>
-   Meter <proxies/meter>
    Metric <proxies/metric>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
@@ -125,7 +123,6 @@ The following services have exposed *Resource* classes.
    Image <resources/image/index>
    Key Management <resources/key_manager/index>
    Load Balancer <resources/load_balancer/index>
-   Meter <resources/meter/index>
    Metric <resources/metric/index>
    Network <resources/network/index>
    Orchestration <resources/orchestration/index>
