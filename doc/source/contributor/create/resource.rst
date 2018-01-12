@@ -1,3 +1,5 @@
+.. TODO(shade) Update this guide.
+
 Creating a New Resource
 =======================
 
@@ -108,14 +110,6 @@ service is called in the service catalog. When a request is made for this
 resource, the Session now knows how to construct the appropriate URL using
 this ``FakeService`` instance.
 
-``id_attribute``
-****************
-
-*Line 12* specifies that this resource uses a different identifier than
-the default of ``id``. While IDs are used internally, such as for creating
-request URLs to interact with an individual resource, they are exposed for
-consistency so users always have one place to find the resource's identity.
-
 Supported Operations
 --------------------
 
@@ -136,7 +130,7 @@ value by setting it to ``True``:
 +----------------------------------------------+----------------+
 | :class:`~openstack.resource.Resource.list`   | allow_list     |
 +----------------------------------------------+----------------+
-| :class:`~openstack.resource.Resource.get`    | allow_retrieve |
+| :class:`~openstack.resource.Resource.get`    | allow_get      |
 +----------------------------------------------+----------------+
 | :class:`~openstack.resource.Resource.update` | allow_update   |
 +----------------------------------------------+----------------+
@@ -147,6 +141,8 @@ used for ``Resource.update``.
 
 Properties
 ----------
+
+.. TODO(shade) Especially this section
 
 The way resource classes communicate values between the user and the server
 are :class:`~openstack.resource.prop` objects. These act similarly to Python's
