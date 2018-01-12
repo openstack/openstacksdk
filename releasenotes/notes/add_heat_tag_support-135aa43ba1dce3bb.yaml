@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add tags support when creating a stack, as specified by the openstack
+    orchestration api at [1]
+
+    [1]https://developer.openstack.org/api-ref/orchestration/v1/#create-stack
