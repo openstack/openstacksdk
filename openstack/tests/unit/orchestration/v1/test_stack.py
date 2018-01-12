@@ -16,7 +16,7 @@ import testtools
 
 from openstack import exceptions
 from openstack.orchestration.v1 import stack
-from openstack import resource2 as resource
+from openstack import resource
 
 
 FAKE_ID = 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf'

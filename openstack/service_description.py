@@ -22,7 +22,7 @@ import warnings
 import os_service_types
 
 from openstack import _log
-from openstack import proxy2
+from openstack import proxy
 
 _logger = _log.setup_logging('openstack')
 _service_type_manager = os_service_types.ServiceTypes()
@@ -51,15 +51,11 @@ def _get_all_types(service_type, aliases=None):
 class ServiceDescription(object):
 
     #: Proxy class for this service
-    proxy_class = proxy2.BaseProxy
+    proxy_class = proxy.BaseProxy
     #: main service_type to use to find this service in the catalog
     service_type = None
     #: list of aliases this service might be registered as
     aliases = []
-    #: Internal temporary flag to control whether or not a warning is
-    #: emitted for use of old Proxy class. In-tree things should not
-    #: emit a warning - but out of tree things should only use Proxy2.
-    _warn_if_old = True
 
     def __init__(self, service_type, proxy_class=None, aliases=None):
         """Class describing how to interact with a REST service.
@@ -80,10 +76,10 @@ class ServiceDescription(object):
 
         :param string service_type:
             service_type to look for in the keystone catalog
-        :param proxy2.BaseProxy proxy_class:
-            subclass of :class:`~openstack.proxy2.BaseProxy` implementing
+        :param proxy.BaseProxy proxy_class:
+            subclass of :class:`~openstack.proxy.BaseProxy` implementing
             an interface for this service. Defaults to
-            :class:`~openstack.proxy2.BaseProxy` which provides REST operations
+            :class:`~openstack.proxy.BaseProxy` which provides REST operations
             but no additional features.
         :param list aliases:
             Optional list of aliases, if there is more than one name that might
@@ -96,7 +92,7 @@ class ServiceDescription(object):
         self._validate_proxy_class()
 
     def _validate_proxy_class(self):
-        if not issubclass(self.proxy_class, proxy2.BaseProxy):
+        if not issubclass(self.proxy_class, proxy.BaseProxy):
             raise TypeError(
                 "{module}.{proxy_class} must inherit from BaseProxy".format(
                     module=self.proxy_class.__module__,
@@ -104,9 +100,6 @@ class ServiceDescription(object):
 
 
 class OpenStackServiceDescription(ServiceDescription):
-
-    #: Override _warn_if_old so we don't spam people with warnings
-    _warn_if_old = False
 
     def __init__(self, service, config):
         """Official OpenStack ServiceDescription.

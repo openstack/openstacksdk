@@ -17,13 +17,13 @@ import jsonpatch
 from openstack import _log
 from openstack import exceptions
 from openstack.image import image_service
-from openstack import resource2
+from openstack import resource
 from openstack import utils
 
 _logger = _log.setup_logging('openstack')
 
 
-class Image(resource2.Resource):
+class Image(resource.Resource):
     resources_key = 'images'
     base_path = '/images'
     service = image_service.ImageService()
@@ -36,12 +36,13 @@ class Image(resource2.Resource):
     allow_list = True
     update_method = 'PATCH'
 
-    _query_mapping = resource2.QueryParameters("name", "visibility",
-                                               "member_status", "owner",
-                                               "status", "size_min",
-                                               "size_max", "sort_key",
-                                               "sort_dir", "sort", "tag",
-                                               "created_at", "updated_at")
+    _query_mapping = resource.QueryParameters(
+        "name", "visibility",
+        "member_status", "owner",
+        "status", "size_min",
+        "size_max", "sort_key",
+        "sort_dir", "sort", "tag",
+        "created_at", "updated_at")
 
     # NOTE: Do not add "self" support here. If you've used Python before,
     # you know that self, while not being a reserved word, has special
@@ -57,159 +58,159 @@ class Image(resource2.Resource):
     # Properties
     #: Hash of the image data used. The Image service uses this value
     #: for verification.
-    checksum = resource2.Body('checksum')
+    checksum = resource.Body('checksum')
     #: The container format refers to whether the VM image is in a file
     #: format that also contains metadata about the actual VM.
     #: Container formats include OVF and Amazon AMI. In addition,
     #: a VM image might not have a container format - instead,
     #: the image is just a blob of unstructured data.
-    container_format = resource2.Body('container_format')
+    container_format = resource.Body('container_format')
     #: The date and time when the image was created.
-    created_at = resource2.Body('created_at')
+    created_at = resource.Body('created_at')
     #: Valid values are: aki, ari, ami, raw, iso, vhd, vdi, qcow2, or vmdk.
     #: The disk format of a VM image is the format of the underlying
     #: disk image. Virtual appliance vendors have different formats
     #: for laying out the information contained in a VM disk image.
-    disk_format = resource2.Body('disk_format')
+    disk_format = resource.Body('disk_format')
     #: Defines whether the image can be deleted.
     #: *Type: bool*
-    is_protected = resource2.Body('protected', type=bool)
+    is_protected = resource.Body('protected', type=bool)
     #: The minimum disk size in GB that is required to boot the image.
-    min_disk = resource2.Body('min_disk')
+    min_disk = resource.Body('min_disk')
     #: The minimum amount of RAM in MB that is required to boot the image.
-    min_ram = resource2.Body('min_ram')
+    min_ram = resource.Body('min_ram')
     #: The name of the image.
-    name = resource2.Body('name')
+    name = resource.Body('name')
     #: The ID of the owner, or project, of the image.
-    owner_id = resource2.Body('owner')
+    owner_id = resource.Body('owner')
     #: Properties, if any, that are associated with the image.
-    properties = resource2.Body('properties', type=dict)
+    properties = resource.Body('properties', type=dict)
     #: The size of the image data, in bytes.
-    size = resource2.Body('size', type=int)
+    size = resource.Body('size', type=int)
     #: When present, Glance will attempt to store the disk image data in the
     #: backing store indicated by the value of the header. When not present,
     #: Glance will store the disk image data in the backing store that is
     #: marked default. Valid values are: file, s3, rbd, swift, cinder,
     #: gridfs, sheepdog, or vsphere.
-    store = resource2.Body('store')
+    store = resource.Body('store')
     #: The image status.
-    status = resource2.Body('status')
+    status = resource.Body('status')
     #: Tags, if any, that are associated with the image.
-    tags = resource2.Body('tags')
+    tags = resource.Body('tags')
     #: The date and time when the image was updated.
-    updated_at = resource2.Body('updated_at')
+    updated_at = resource.Body('updated_at')
     #: The virtual size of the image.
-    virtual_size = resource2.Body('virtual_size')
+    virtual_size = resource.Body('virtual_size')
     #: The image visibility.
-    visibility = resource2.Body('visibility')
+    visibility = resource.Body('visibility')
     #: The URL for the virtual machine image file.
-    file = resource2.Body('file')
+    file = resource.Body('file')
     #: A list of URLs to access the image file in external store.
     #: This list appears if the show_multiple_locations option is set
     #: to true in the Image service's configuration file.
-    locations = resource2.Body('locations')
+    locations = resource.Body('locations')
     #: The URL to access the image file kept in external store. It appears
     #: when you set the show_image_direct_url option to true in the
     #: Image service's configuration file.
-    direct_url = resource2.Body('direct_url')
+    direct_url = resource.Body('direct_url')
     #: An image property.
-    path = resource2.Body('path')
+    path = resource.Body('path')
     #: Value of image property used in add or replace operations expressed
     #: in JSON notation. For example, you must enclose strings in quotation
     #: marks, and you do not enclose numeric values in quotation marks.
-    value = resource2.Body('value')
+    value = resource.Body('value')
     #: The URL to access the image file kept in external store.
-    url = resource2.Body('url')
+    url = resource.Body('url')
     #: The location metadata.
-    metadata = resource2.Body('metadata', type=dict)
+    metadata = resource.Body('metadata', type=dict)
 
     # Additional Image Properties
     # https://docs.openstack.org/glance/latest/user/common-image-properties.html
     # http://docs.openstack.org/cli-reference/glance-property-keys.html
     #: The CPU architecture that must be supported by the hypervisor.
-    architecture = resource2.Body("architecture")
+    architecture = resource.Body("architecture")
     #: The hypervisor type. Note that qemu is used for both QEMU and
     #: KVM hypervisor types.
-    hypervisor_type = resource2.Body("hypervisor-type")
+    hypervisor_type = resource.Body("hypervisor-type")
     #: Optional property allows created servers to have a different bandwidth
     #: cap than that defined in the network they are attached to.
-    instance_type_rxtx_factor = resource2.Body("instance_type_rxtx_factor",
-                                               type=float)
+    instance_type_rxtx_factor = resource.Body(
+        "instance_type_rxtx_factor", type=float)
     # For snapshot images, this is the UUID of the server used to
     #: create this image.
-    instance_uuid = resource2.Body('instance_uuid')
+    instance_uuid = resource.Body('instance_uuid')
     #: Specifies whether the image needs a config drive.
     #: `mandatory` or `optional` (default if property is not used).
-    needs_config_drive = resource2.Body('img_config_drive')
+    needs_config_drive = resource.Body('img_config_drive')
     #: The ID of an image stored in the Image service that should be used
     #: as the kernel when booting an AMI-style image.
-    kernel_id = resource2.Body('kernel_id')
+    kernel_id = resource.Body('kernel_id')
     #: The common name of the operating system distribution in lowercase
-    os_distro = resource2.Body('os_distro')
+    os_distro = resource.Body('os_distro')
     #: The operating system version as specified by the distributor.
-    os_version = resource2.Body('os_version')
+    os_version = resource.Body('os_version')
     #: Secure Boot is a security standard. When the instance starts,
     #: Secure Boot first examines software such as firmware and OS by
     #: their signature and only allows them to run if the signatures are valid.
-    needs_secure_boot = resource2.Body('os_secure_boot')
+    needs_secure_boot = resource.Body('os_secure_boot')
     #: The ID of image stored in the Image service that should be used as
     #: the ramdisk when booting an AMI-style image.
-    ramdisk_id = resource2.Body('ramdisk_id')
+    ramdisk_id = resource.Body('ramdisk_id')
     #: The virtual machine mode. This represents the host/guest ABI
     #: (application binary interface) used for the virtual machine.
-    vm_mode = resource2.Body('vm_mode')
+    vm_mode = resource.Body('vm_mode')
     #: The preferred number of sockets to expose to the guest.
-    hw_cpu_sockets = resource2.Body('hw_cpu_sockets', type=int)
+    hw_cpu_sockets = resource.Body('hw_cpu_sockets', type=int)
     #: The preferred number of cores to expose to the guest.
-    hw_cpu_cores = resource2.Body('hw_cpu_cores', type=int)
+    hw_cpu_cores = resource.Body('hw_cpu_cores', type=int)
     #: The preferred number of threads to expose to the guest.
-    hw_cpu_threads = resource2.Body('hw_cpu_threads', type=int)
+    hw_cpu_threads = resource.Body('hw_cpu_threads', type=int)
     #: Specifies the type of disk controller to attach disk devices to.
     #: One of scsi, virtio, uml, xen, ide, or usb.
-    hw_disk_bus = resource2.Body('hw_disk_bus')
+    hw_disk_bus = resource.Body('hw_disk_bus')
     #: Adds a random-number generator device to the image's instances.
-    hw_rng_model = resource2.Body('hw_rng_model')
+    hw_rng_model = resource.Body('hw_rng_model')
     #: For libvirt: Enables booting an ARM system using the specified
     #: machine type.
     #: For Hyper-V: Specifies whether the Hyper-V instance will be a
     #: generation 1 or generation 2 VM.
-    hw_machine_type = resource2.Body('hw_machine_type')
+    hw_machine_type = resource.Body('hw_machine_type')
     #: Enables the use of VirtIO SCSI (virtio-scsi) to provide block device
     #: access for compute instances; by default, instances use VirtIO Block
     #: (virtio-blk).
-    hw_scsi_model = resource2.Body('hw_scsi_model')
+    hw_scsi_model = resource.Body('hw_scsi_model')
     #: Specifies the count of serial ports that should be provided.
-    hw_serial_port_count = resource2.Body('hw_serial_port_count', type=int)
+    hw_serial_port_count = resource.Body('hw_serial_port_count', type=int)
     #: The video image driver used.
-    hw_video_model = resource2.Body('hw_video_model')
+    hw_video_model = resource.Body('hw_video_model')
     #: Maximum RAM for the video image.
-    hw_video_ram = resource2.Body('hw_video_ram', type=int)
+    hw_video_ram = resource.Body('hw_video_ram', type=int)
     #: Enables a virtual hardware watchdog device that carries out the
     #: specified action if the server hangs.
-    hw_watchdog_action = resource2.Body('hw_watchdog_action')
+    hw_watchdog_action = resource.Body('hw_watchdog_action')
     #: The kernel command line to be used by the libvirt driver, instead
     #: of the default.
-    os_command_line = resource2.Body('os_command_line')
+    os_command_line = resource.Body('os_command_line')
     #: Specifies the model of virtual network interface device to use.
-    hw_vif_model = resource2.Body('hw_vif_model')
+    hw_vif_model = resource.Body('hw_vif_model')
     #: If true, this enables the virtio-net multiqueue feature.
     #: In this case, the driver sets the number of queues equal to the
     #: number of guest vCPUs. This makes the network performance scale
     #: across a number of vCPUs.
-    is_hw_vif_multiqueue_enabled = resource2.Body('hw_vif_multiqueue_enabled',
-                                                  type=bool)
+    is_hw_vif_multiqueue_enabled = resource.Body(
+        'hw_vif_multiqueue_enabled', type=bool)
     #: If true, enables the BIOS bootmenu.
-    is_hw_boot_menu_enabled = resource2.Body('hw_boot_menu', type=bool)
+    is_hw_boot_menu_enabled = resource.Body('hw_boot_menu', type=bool)
     #: The virtual SCSI or IDE controller used by the hypervisor.
-    vmware_adaptertype = resource2.Body('vmware_adaptertype')
+    vmware_adaptertype = resource.Body('vmware_adaptertype')
     #: A VMware GuestID which describes the operating system installed
     #: in the image.
-    vmware_ostype = resource2.Body('vmware_ostype')
+    vmware_ostype = resource.Body('vmware_ostype')
     #: If true, the root partition on the disk is automatically resized
     #: before the instance boots.
-    has_auto_disk_config = resource2.Body('auto_disk_config', type=bool)
+    has_auto_disk_config = resource.Body('auto_disk_config', type=bool)
     #: The operating system installed on the image.
-    os_type = resource2.Body('os_type')
+    os_type = resource.Body('os_type')
 
     def _action(self, session, action):
         """Call an action on an image ID."""

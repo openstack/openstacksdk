@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.database import database_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Flavor(resource.Resource):

@@ -14,11 +14,11 @@ from openstack.message.v2 import claim as _claim
 from openstack.message.v2 import message as _message
 from openstack.message.v2 import queue as _queue
 from openstack.message.v2 import subscription as _subscription
-from openstack import proxy2
-from openstack import resource2
+from openstack import proxy
+from openstack import resource
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def create_queue(self, **attrs):
         """Create a new queue from attributes
@@ -148,7 +148,7 @@ class Proxy(proxy2.BaseProxy):
         """
         message = self._get_resource(_message.Message, value,
                                      queue_name=queue_name)
-        message.claim_id = resource2.Resource._get_id(claim)
+        message.claim_id = resource.Resource._get_id(claim)
         return self._delete(_message.Message, message,
                             ignore_missing=ignore_missing)
 

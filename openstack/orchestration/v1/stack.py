@@ -12,7 +12,7 @@
 
 from openstack import exceptions
 from openstack.orchestration import orchestration_service
-from openstack import resource2 as resource
+from openstack import resource
 from openstack import utils
 
 

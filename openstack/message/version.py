@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.message import message_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Version(resource.Resource):

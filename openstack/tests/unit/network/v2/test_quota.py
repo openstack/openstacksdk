@@ -13,7 +13,7 @@
 import testtools
 
 from openstack.network.v2 import quota
-from openstack import resource2 as resource
+from openstack import resource
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

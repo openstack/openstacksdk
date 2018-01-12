@@ -17,13 +17,13 @@ from openstack.message.v2 import claim
 from openstack.message.v2 import message
 from openstack.message.v2 import queue
 from openstack.message.v2 import subscription
-from openstack import proxy2 as proxy_base
-from openstack.tests.unit import test_proxy_base2
+from openstack import proxy as proxy_base
+from openstack.tests.unit import test_proxy_base
 
 QUEUE_NAME = 'test_queue'
 
 
-class TestMessageProxy(test_proxy_base2.TestProxyBase):
+class TestMessageProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestMessageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -57,7 +57,7 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
     @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
     def test_message_get(self, mock_get_resource):
         mock_get_resource.return_value = "resource_or_id"
-        self._verify2("openstack.proxy2.BaseProxy._get",
+        self._verify2("openstack.proxy.BaseProxy._get",
                       self.proxy.get_message,
                       method_args=["test_queue", "resource_or_id"],
                       expected_args=[message.Message, "resource_or_id"])
@@ -75,7 +75,7 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
         fake_message = mock.Mock()
         fake_message.id = "message_id"
         mock_get_resource.return_value = fake_message
-        self._verify2("openstack.proxy2.BaseProxy._delete",
+        self._verify2("openstack.proxy.BaseProxy._delete",
                       self.proxy.delete_message,
                       method_args=["test_queue", "resource_or_id", None,
                                    False],
@@ -92,7 +92,7 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
         fake_message = mock.Mock()
         fake_message.id = "message_id"
         mock_get_resource.return_value = fake_message
-        self._verify2("openstack.proxy2.BaseProxy._delete",
+        self._verify2("openstack.proxy.BaseProxy._delete",
                       self.proxy.delete_message,
                       method_args=["test_queue", "resource_or_id", "claim_id",
                                    False],
@@ -109,7 +109,7 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
         fake_message = mock.Mock()
         fake_message.id = "message_id"
         mock_get_resource.return_value = fake_message
-        self._verify2("openstack.proxy2.BaseProxy._delete",
+        self._verify2("openstack.proxy.BaseProxy._delete",
                       self.proxy.delete_message,
                       method_args=["test_queue", "resource_or_id", None,
                                    True],
@@ -129,7 +129,7 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
     @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
     def test_subscription_get(self, mock_get_resource):
         mock_get_resource.return_value = "resource_or_id"
-        self._verify2("openstack.proxy2.BaseProxy._get",
+        self._verify2("openstack.proxy.BaseProxy._get",
                       self.proxy.get_subscription,
                       method_args=["test_queue", "resource_or_id"],
                       expected_args=[subscription.Subscription,
@@ -169,7 +169,7 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
                      method_args=["test_queue"])
 
     def test_claim_get(self):
-        self._verify2("openstack.proxy2.BaseProxy._get",
+        self._verify2("openstack.proxy.BaseProxy._get",
                       self.proxy.get_claim,
                       method_args=["test_queue", "resource_or_id"],
                       expected_args=[claim.Claim,
@@ -177,7 +177,7 @@ class TestMessageProxy(test_proxy_base2.TestProxyBase):
                       expected_kwargs={"queue_name": "test_queue"})
 
     def test_claim_update(self):
-        self._verify2("openstack.proxy2.BaseProxy._update",
+        self._verify2("openstack.proxy.BaseProxy._update",
                       self.proxy.update_claim,
                       method_args=["test_queue", "resource_or_id"],
                       method_kwargs={"k1": "v1"},

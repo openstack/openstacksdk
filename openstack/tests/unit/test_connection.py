@@ -83,7 +83,7 @@ class TestConnection(base.RequestsMockTestCase):
 
     def test_create_session(self):
         conn = connection.Connection(cloud='sample')
-        self.assertEqual('openstack.proxy2',
+        self.assertEqual('openstack.proxy',
                          conn.alarm.__class__.__module__)
         self.assertEqual('openstack.clustering.v1._proxy',
                          conn.clustering.__class__.__module__)

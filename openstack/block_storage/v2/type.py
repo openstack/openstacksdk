@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.block_storage import block_storage_service
-from openstack import resource2
+from openstack import resource
 
 
-class Type(resource2.Resource):
+class Type(resource.Resource):
     resource_key = "volume_type"
     resources_key = "volume_types"
     base_path = "/types"
@@ -28,8 +28,8 @@ class Type(resource2.Resource):
 
     # Properties
     #: A ID representing this type.
-    id = resource2.Body("id")
+    id = resource.Body("id")
     #: Name of the type.
-    name = resource2.Body("name")
+    name = resource.Body("name")
     #: A dict of extra specifications. "capabilities" is a usual key.
-    extra_specs = resource2.Body("extra_specs", type=dict)
+    extra_specs = resource.Body("extra_specs", type=dict)

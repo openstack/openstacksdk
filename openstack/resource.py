@@ -15,11 +15,11 @@ The :class:`~openstack.resource.Resource` class is a base
 class that represent a remote resource. The attributes that
 comprise a request or response for this resource are specified
 as class members on the Resource subclass where their values
-are of a component type, including :class:`~openstack.resource2.Body`,
-:class:`~openstack.resource2.Header`, and :class:`~openstack.resource2.URI`.
+are of a component type, including :class:`~openstack.resource.Body`,
+:class:`~openstack.resource.Header`, and :class:`~openstack.resource.URI`.
 
-For update management, :class:`~openstack.resource2.Resource` employs
-a series of :class:`~openstack.resource2._ComponentManager` instances
+For update management, :class:`~openstack.resource.Resource` employs
+a series of :class:`~openstack.resource._ComponentManager` instances
 to look after the attributes of that particular component type. This is
 particularly useful for Body and Header types, so that only the values
 necessary are sent in requests to the server.
@@ -296,8 +296,8 @@ class Resource(object):
         """The base resource
 
         :param bool _synchronized: This is not intended to be used directly.
-                    See :meth:`~openstack.resource2.Resource.new` and
-                    :meth:`~openstack.resource2.Resource.existing`.
+                    See :meth:`~openstack.resource.Resource.new` and
+                    :meth:`~openstack.resource.Resource.existing`.
         """
 
         # NOTE: _collect_attrs modifies **attrs in place, removing
@@ -532,9 +532,9 @@ class Resource(object):
     def to_dict(self, body=True, headers=True, ignore_none=False):
         """Return a dictionary of this resource's contents
 
-        :param bool body: Include the :class:`~openstack.resource2.Body`
+        :param bool body: Include the :class:`~openstack.resource.Body`
                           attributes in the returned dictionary.
-        :param bool headers: Include the :class:`~openstack.resource2.Header`
+        :param bool headers: Include the :class:`~openstack.resource.Header`
                              attributes in the returned dictionary.
         :param bool ignore_none: When True, exclude key/value pairs where
                                  the value is None. This will exclude
@@ -807,12 +807,12 @@ class Resource(object):
                                page of data will be returned regardless
                                of the API's support of pagination.**
         :param dict params: These keyword arguments are passed through the
-            :meth:`~openstack.resource2.QueryParamter._transpose` method
+            :meth:`~openstack.resource.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be
             sent in the *params* argument to
             :meth:`~keystoneauth1.adapter.Adapter.get`. They are additionally
             checked against the
-            :data:`~openstack.resource2.Resource.base_path` format string
+            :data:`~openstack.resource.Resource.base_path` format string
             to see if any path fragments need to be filled in by the contents
             of this argument.
 
@@ -964,7 +964,7 @@ class Resource(object):
                     attempting to find a nonexistent resource.
         :param dict params: Any additional parameters to be passed into
                             underlying methods, such as to
-                            :meth:`~openstack.resource2.Resource.existing`
+                            :meth:`~openstack.resource.Resource.existing`
                             in order to pass on URI parameters.
 
         :return: The :class:`Resource` object matching the given name or id

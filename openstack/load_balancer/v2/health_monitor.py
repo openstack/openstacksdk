@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.load_balancer import load_balancer_service as lb_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class HealthMonitor(resource.Resource):

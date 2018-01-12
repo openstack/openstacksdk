@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource2
+from openstack import resource
 
 
-class Keypair(resource2.Resource):
+class Keypair(resource.Resource):
     resource_key = 'keypair'
     resources_key = 'keypairs'
     base_path = '/os-keypairs'
@@ -29,7 +29,7 @@ class Keypair(resource2.Resource):
     # Properties
     #: The short fingerprint associated with the ``public_key`` for
     #: this keypair.
-    fingerprint = resource2.Body('fingerprint')
+    fingerprint = resource.Body('fingerprint')
     # NOTE: There is in fact an 'id' field. However, it's not useful
     # because all operations use the 'name' as an identifier.
     # Additionally, the 'id' field only appears *after* creation,
@@ -37,13 +37,13 @@ class Keypair(resource2.Resource):
     # and it just gets in the way. We need to cover this up by listing
     # name as alternate_id and listing id as coming from name.
     #: The id identifying the keypair
-    id = resource2.Body('name')
+    id = resource.Body('name')
     #: A name identifying the keypair
-    name = resource2.Body('name', alternate_id=True)
+    name = resource.Body('name', alternate_id=True)
     #: The private key for the keypair
-    private_key = resource2.Body('private_key')
+    private_key = resource.Body('private_key')
     #: The SSH public key that is paired with the server.
-    public_key = resource2.Body('public_key')
+    public_key = resource.Body('public_key')
 
     def _consume_attrs(self, mapping, attrs):
         # TODO(mordred) This should not be required. However, without doing

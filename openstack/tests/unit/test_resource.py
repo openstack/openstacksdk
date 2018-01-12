@@ -19,7 +19,7 @@ import six
 
 from openstack import exceptions
 from openstack import format
-from openstack import resource2
+from openstack import resource
 from openstack.tests.unit import base
 
 
@@ -36,7 +36,7 @@ class FakeResponse(object):
 
 class TestComponent(base.TestCase):
 
-    class ExampleComponent(resource2._BaseComponent):
+    class ExampleComponent(resource._BaseComponent):
         key = "_example"
 
     # Since we're testing ExampleComponent, which is as isolated as we
@@ -47,13 +47,13 @@ class TestComponent(base.TestCase):
     # keys and values to test against.
 
     def test_implementations(self):
-        self.assertEqual("_body", resource2.Body.key)
-        self.assertEqual("_header", resource2.Header.key)
-        self.assertEqual("_uri", resource2.URI.key)
+        self.assertEqual("_body", resource.Body.key)
+        self.assertEqual("_header", resource.Header.key)
+        self.assertEqual("_uri", resource.URI.key)
 
     def test_creation(self):
-        sot = resource2._BaseComponent("name", type=int, default=1,
-                                       alternate_id=True)
+        sot = resource._BaseComponent(
+            "name", type=int, default=1, alternate_id=True)
 
         self.assertEqual("name", sot.name)
         self.assertEqual(int, sot.type)
@@ -61,7 +61,7 @@ class TestComponent(base.TestCase):
         self.assertTrue(sot.alternate_id)
 
     def test_get_no_instance(self):
-        sot = resource2._BaseComponent("test")
+        sot = resource._BaseComponent("test")
 
         # Test that we short-circuit everything when given no instance.
         result = sot.__get__(None, None)
@@ -248,7 +248,7 @@ class TestComponent(base.TestCase):
 class TestComponentManager(base.TestCase):
 
     def test_create_basic(self):
-        sot = resource2._ComponentManager()
+        sot = resource._ComponentManager()
         self.assertEqual(dict(), sot.attributes)
         self.assertEqual(set(), sot._dirty)
 
@@ -256,7 +256,7 @@ class TestComponentManager(base.TestCase):
         attrs = {"hey": 1, "hi": 2, "hello": 3}
         sync = False
 
-        sot = resource2._ComponentManager(attributes=attrs, synchronized=sync)
+        sot = resource._ComponentManager(attributes=attrs, synchronized=sync)
         self.assertEqual(attrs, sot.attributes)
         self.assertEqual(set(attrs.keys()), sot._dirty)
 
@@ -264,7 +264,7 @@ class TestComponentManager(base.TestCase):
         attrs = {"hey": 1, "hi": 2, "hello": 3}
         sync = True
 
-        sot = resource2._ComponentManager(attributes=attrs, synchronized=sync)
+        sot = resource._ComponentManager(attributes=attrs, synchronized=sync)
         self.assertEqual(attrs, sot.attributes)
         self.assertEqual(set(), sot._dirty)
 
@@ -273,14 +273,14 @@ class TestComponentManager(base.TestCase):
         value = "value"
         attrs = {key: value}
 
-        sot = resource2._ComponentManager(attributes=attrs)
+        sot = resource._ComponentManager(attributes=attrs)
         self.assertEqual(value, sot.__getitem__(key))
 
     def test_setitem_new(self):
         key = "key"
         value = "value"
 
-        sot = resource2._ComponentManager()
+        sot = resource._ComponentManager()
         sot.__setitem__(key, value)
 
         self.assertIn(key, sot.attributes)
@@ -291,7 +291,7 @@ class TestComponentManager(base.TestCase):
         value = "value"
         attrs = {key: value}
 
-        sot = resource2._ComponentManager(attributes=attrs, synchronized=True)
+        sot = resource._ComponentManager(attributes=attrs, synchronized=True)
         # This shouldn't end up in the dirty list since we're just re-setting.
         sot.__setitem__(key, value)
 
@@ -303,19 +303,19 @@ class TestComponentManager(base.TestCase):
         value = "value"
         attrs = {key: value}
 
-        sot = resource2._ComponentManager(attributes=attrs, synchronized=True)
+        sot = resource._ComponentManager(attributes=attrs, synchronized=True)
         sot.__delitem__(key)
 
         self.assertIsNone(sot.dirty[key])
 
     def test_iter(self):
         attrs = {"key": "value"}
-        sot = resource2._ComponentManager(attributes=attrs)
+        sot = resource._ComponentManager(attributes=attrs)
         self.assertItemsEqual(iter(attrs), sot.__iter__())
 
     def test_len(self):
         attrs = {"key": "value"}
-        sot = resource2._ComponentManager(attributes=attrs)
+        sot = resource._ComponentManager(attributes=attrs)
         self.assertEqual(len(attrs), sot.__len__())
 
     def test_dirty(self):
@@ -323,7 +323,7 @@ class TestComponentManager(base.TestCase):
         key2 = "key2"
         value = "value"
         attrs = {key: value}
-        sot = resource2._ComponentManager(attributes=attrs, synchronized=False)
+        sot = resource._ComponentManager(attributes=attrs, synchronized=False)
         self.assertEqual({key: value}, sot.dirty)
 
         sot.__setitem__(key2, value)
@@ -333,7 +333,7 @@ class TestComponentManager(base.TestCase):
         key = "key"
         value = "value"
         attrs = {key: value}
-        sot = resource2._ComponentManager(attributes=attrs, synchronized=False)
+        sot = resource._ComponentManager(attributes=attrs, synchronized=False)
         self.assertEqual(attrs, sot.dirty)
 
         sot.clean()
@@ -348,7 +348,7 @@ class Test_Request(base.TestCase):
         body = 2
         headers = 3
 
-        sot = resource2._Request(uri, body, headers)
+        sot = resource._Request(uri, body, headers)
 
         self.assertEqual(uri, sot.url)
         self.assertEqual(body, sot.body)
@@ -361,7 +361,7 @@ class TestQueryParameters(base.TestCase):
         location = "location"
         mapping = {"first_name": "first-name"}
 
-        sot = resource2.QueryParameters(location, **mapping)
+        sot = resource.QueryParameters(location, **mapping)
 
         self.assertEqual({"location": "location",
                           "first_name": "first-name",
@@ -373,7 +373,7 @@ class TestQueryParameters(base.TestCase):
         location = "location"
         mapping = {"first_name": "first-name"}
 
-        sot = resource2.QueryParameters(location, **mapping)
+        sot = resource.QueryParameters(location, **mapping)
         result = sot._transpose({"location": "Brooklyn",
                                  "first_name": "Brian",
                                  "last_name": "Curtin"})
@@ -386,7 +386,7 @@ class TestQueryParameters(base.TestCase):
         location = "location"
         mapping = {"first_name": "first-name"}
 
-        sot = resource2.QueryParameters(location, **mapping)
+        sot = resource.QueryParameters(location, **mapping)
         result = sot._transpose({"location": "Brooklyn"})
 
         # first_name not being in the query shouldn't affect results
@@ -406,17 +406,17 @@ class TestResource(base.TestCase):
         mock_collect = mock.Mock()
         mock_collect.return_value = body, header, uri
 
-        with mock.patch.object(resource2.Resource,
+        with mock.patch.object(resource.Resource,
                                "_collect_attrs", mock_collect):
-            sot = resource2.Resource(_synchronized=False, **everything)
+            sot = resource.Resource(_synchronized=False, **everything)
             mock_collect.assert_called_once_with(everything)
         self.assertEqual("somewhere", sot.location)
 
-        self.assertIsInstance(sot._body, resource2._ComponentManager)
+        self.assertIsInstance(sot._body, resource._ComponentManager)
         self.assertEqual(body, sot._body.dirty)
-        self.assertIsInstance(sot._header, resource2._ComponentManager)
+        self.assertIsInstance(sot._header, resource._ComponentManager)
         self.assertEqual(header, sot._header.dirty)
-        self.assertIsInstance(sot._uri, resource2._ComponentManager)
+        self.assertIsInstance(sot._uri, resource._ComponentManager)
         self.assertEqual(uri, sot._uri.dirty)
 
         self.assertFalse(sot.allow_create)
@@ -433,7 +433,7 @@ class TestResource(base.TestCase):
         b = {"b": 2}
         c = {"c": 3}
 
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             def __init__(self):
                 self._body = mock.Mock()
                 self._body.attributes.items = mock.Mock(
@@ -451,16 +451,16 @@ class TestResource(base.TestCase):
 
         # Don't test the arguments all together since the dictionary order
         # they're rendered in can't be depended on, nor does it matter.
-        self.assertIn("openstack.tests.unit.test_resource2.Test", the_repr)
+        self.assertIn("openstack.tests.unit.test_resource.Test", the_repr)
         self.assertIn("a=1", the_repr)
         self.assertIn("b=2", the_repr)
         self.assertIn("c=3", the_repr)
 
     def test_equality(self):
-        class Example(resource2.Resource):
-            x = resource2.Body("x")
-            y = resource2.Header("y")
-            z = resource2.URI("z")
+        class Example(resource.Resource):
+            x = resource.Body("x")
+            y = resource.Header("y")
+            z = resource.URI("z")
 
         e1 = Example(x=1, y=2, z=3)
         e2 = Example(x=1, y=2, z=3)
@@ -470,7 +470,7 @@ class TestResource(base.TestCase):
         self.assertNotEqual(e1, e3)
 
     def test__update(self):
-        sot = resource2.Resource()
+        sot = resource.Resource()
 
         body = "body"
         header = "header"
@@ -490,7 +490,7 @@ class TestResource(base.TestCase):
         sot._uri.update.assert_called_once_with(uri)
 
     def test__collect_attrs(self):
-        sot = resource2.Resource()
+        sot = resource.Resource()
 
         expected_attrs = ["body", "header", "uri"]
 
@@ -518,7 +518,7 @@ class TestResource(base.TestCase):
                  serverside_key2: value2,
                  other_key: other_value}
 
-        sot = resource2.Resource()
+        sot = resource.Resource()
 
         result = sot._consume_attrs(mapping, attrs)
 
@@ -536,9 +536,9 @@ class TestResource(base.TestCase):
         # Check that even on an empty class, we get the expected
         # built-in attributes.
 
-        self.assertIn("location", resource2.Resource._header_mapping())
-        self.assertIn("name", resource2.Resource._body_mapping())
-        self.assertIn("id", resource2.Resource._body_mapping())
+        self.assertIn("location", resource.Resource._header_mapping())
+        self.assertIn("name", resource.Resource._body_mapping())
+        self.assertIn("id", resource.Resource._body_mapping())
 
     def test__mapping_overrides(self):
         # Iterating through the MRO used to wipe out overrides of mappings
@@ -546,9 +546,9 @@ class TestResource(base.TestCase):
         new_name = "MyName"
         new_id = "MyID"
 
-        class Test(resource2.Resource):
-            name = resource2.Body(new_name)
-            id = resource2.Body(new_id)
+        class Test(resource.Resource):
+            name = resource.Body(new_name)
+            id = resource.Body(new_id)
 
         mapping = Test._body_mapping()
 
@@ -556,30 +556,30 @@ class TestResource(base.TestCase):
         self.assertEqual("id", mapping["MyID"])
 
     def test__body_mapping(self):
-        class Test(resource2.Resource):
-            x = resource2.Body("x")
-            y = resource2.Body("y")
-            z = resource2.Body("z")
+        class Test(resource.Resource):
+            x = resource.Body("x")
+            y = resource.Body("y")
+            z = resource.Body("z")
 
         self.assertIn("x", Test._body_mapping())
         self.assertIn("y", Test._body_mapping())
         self.assertIn("z", Test._body_mapping())
 
     def test__header_mapping(self):
-        class Test(resource2.Resource):
-            x = resource2.Header("x")
-            y = resource2.Header("y")
-            z = resource2.Header("z")
+        class Test(resource.Resource):
+            x = resource.Header("x")
+            y = resource.Header("y")
+            z = resource.Header("z")
 
         self.assertIn("x", Test._header_mapping())
         self.assertIn("y", Test._header_mapping())
         self.assertIn("z", Test._header_mapping())
 
     def test__uri_mapping(self):
-        class Test(resource2.Resource):
-            x = resource2.URI("x")
-            y = resource2.URI("y")
-            z = resource2.URI("z")
+        class Test(resource.Resource):
+            x = resource.URI("x")
+            y = resource.URI("y")
+            z = resource.URI("z")
 
         self.assertIn("x", Test._uri_mapping())
         self.assertIn("y", Test._uri_mapping())
@@ -587,7 +587,7 @@ class TestResource(base.TestCase):
 
     def test__getattribute__id_in_body(self):
         id = "lol"
-        sot = resource2.Resource(id=id)
+        sot = resource.Resource(id=id)
 
         result = getattr(sot, "id")
         self.assertEqual(result, id)
@@ -595,8 +595,8 @@ class TestResource(base.TestCase):
     def test__getattribute__id_with_alternate(self):
         id = "lol"
 
-        class Test(resource2.Resource):
-            blah = resource2.Body("blah", alternate_id=True)
+        class Test(resource.Resource):
+            blah = resource.Body("blah", alternate_id=True)
 
         sot = Test(blah=id)
 
@@ -604,18 +604,18 @@ class TestResource(base.TestCase):
         self.assertEqual(result, id)
 
     def test__getattribute__id_without_alternate(self):
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             id = None
 
         sot = Test()
         self.assertIsNone(sot.id)
 
     def test__alternate_id_None(self):
-        self.assertEqual("", resource2.Resource._alternate_id())
+        self.assertEqual("", resource.Resource._alternate_id())
 
     def test__alternate_id(self):
-        class Test(resource2.Resource):
-            alt = resource2.Body("the_alt", alternate_id=True)
+        class Test(resource.Resource):
+            alt = resource.Body("the_alt", alternate_id=True)
 
         self.assertTrue("the_alt", Test._alternate_id())
 
@@ -630,8 +630,8 @@ class TestResource(base.TestCase):
         self.assertEqual(sot.id, value2)
 
     def test__get_id_instance(self):
-        class Test(resource2.Resource):
-            id = resource2.Body("id")
+        class Test(resource.Resource):
+            id = resource.Body("id")
 
         value = "id"
         sot = Test(id=value)
@@ -639,8 +639,8 @@ class TestResource(base.TestCase):
         self.assertEqual(value, sot._get_id(sot))
 
     def test__get_id_instance_alternate(self):
-        class Test(resource2.Resource):
-            attr = resource2.Body("attr", alternate_id=True)
+        class Test(resource.Resource):
+            attr = resource.Body("attr", alternate_id=True)
 
         value = "id"
         sot = Test(attr=value)
@@ -649,13 +649,13 @@ class TestResource(base.TestCase):
 
     def test__get_id_value(self):
         value = "id"
-        self.assertEqual(value, resource2.Resource._get_id(value))
+        self.assertEqual(value, resource.Resource._get_id(value))
 
     def test_to_dict(self):
 
-        class Test(resource2.Resource):
-            foo = resource2.Header('foo')
-            bar = resource2.Body('bar')
+        class Test(resource.Resource):
+            foo = resource.Header('foo')
+            bar = resource.Body('bar')
 
         res = Test(id='FAKE_ID')
 
@@ -670,9 +670,9 @@ class TestResource(base.TestCase):
 
     def test_to_dict_no_body(self):
 
-        class Test(resource2.Resource):
-            foo = resource2.Header('foo')
-            bar = resource2.Body('bar')
+        class Test(resource.Resource):
+            foo = resource.Header('foo')
+            bar = resource.Body('bar')
 
         res = Test(id='FAKE_ID')
 
@@ -684,9 +684,9 @@ class TestResource(base.TestCase):
 
     def test_to_dict_no_header(self):
 
-        class Test(resource2.Resource):
-            foo = resource2.Header('foo')
-            bar = resource2.Body('bar')
+        class Test(resource.Resource):
+            foo = resource.Header('foo')
+            bar = resource.Body('bar')
 
         res = Test(id='FAKE_ID')
 
@@ -699,9 +699,9 @@ class TestResource(base.TestCase):
 
     def test_to_dict_ignore_none(self):
 
-        class Test(resource2.Resource):
-            foo = resource2.Header('foo')
-            bar = resource2.Body('bar')
+        class Test(resource.Resource):
+            foo = resource.Header('foo')
+            bar = resource.Body('bar')
 
         res = Test(id='FAKE_ID', bar='BAR')
 
@@ -713,13 +713,13 @@ class TestResource(base.TestCase):
 
     def test_to_dict_with_mro(self):
 
-        class Parent(resource2.Resource):
-            foo = resource2.Header('foo')
-            bar = resource2.Body('bar')
+        class Parent(resource.Resource):
+            foo = resource.Header('foo')
+            bar = resource.Body('bar')
 
         class Child(Parent):
-            foo_new = resource2.Header('foo_baz_server')
-            bar_new = resource2.Body('bar_baz_server')
+            foo_new = resource.Header('foo_baz_server')
+            bar_new = resource.Body('bar_baz_server')
 
         res = Child(id='FAKE_ID')
 
@@ -736,9 +736,9 @@ class TestResource(base.TestCase):
 
     def test_to_dict_value_error(self):
 
-        class Test(resource2.Resource):
-            foo = resource2.Header('foo')
-            bar = resource2.Body('bar')
+        class Test(resource.Resource):
+            foo = resource.Header('foo')
+            bar = resource.Body('bar')
 
         res = Test(id='FAKE_ID')
 
@@ -749,15 +749,15 @@ class TestResource(base.TestCase):
 
     def test_to_dict_with_mro_no_override(self):
 
-        class Parent(resource2.Resource):
-            header = resource2.Header('HEADER')
-            body = resource2.Body('BODY')
+        class Parent(resource.Resource):
+            header = resource.Header('HEADER')
+            body = resource.Body('BODY')
 
         class Child(Parent):
             # The following two properties are not supposed to be overridden
             # by the parent class property values.
-            header = resource2.Header('ANOTHER_HEADER')
-            body = resource2.Body('ANOTHER_BODY')
+            header = resource.Header('ANOTHER_HEADER')
+            body = resource.Body('ANOTHER_BODY')
 
         res = Child(id='FAKE_ID', body='BODY_VALUE', header='HEADER_VALUE')
 
@@ -771,8 +771,8 @@ class TestResource(base.TestCase):
         self.assertEqual(expected, res.to_dict())
 
     def test_new(self):
-        class Test(resource2.Resource):
-            attr = resource2.Body("attr")
+        class Test(resource.Resource):
+            attr = resource.Body("attr")
 
         value = "value"
         sot = Test.new(attr=value)
@@ -781,8 +781,8 @@ class TestResource(base.TestCase):
         self.assertEqual(value, sot.attr)
 
     def test_existing(self):
-        class Test(resource2.Resource):
-            attr = resource2.Body("attr")
+        class Test(resource.Resource):
+            attr = resource.Body("attr")
 
         value = "value"
         sot = Test.existing(attr=value)
@@ -791,10 +791,10 @@ class TestResource(base.TestCase):
         self.assertEqual(value, sot.attr)
 
     def test__prepare_request_with_id(self):
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             base_path = "/something"
-            body_attr = resource2.Body("x")
-            header_attr = resource2.Header("y")
+            body_attr = resource.Body("x")
+            header_attr = resource.Header("y")
 
         the_id = "id"
         body_value = "body"
@@ -809,7 +809,7 @@ class TestResource(base.TestCase):
         self.assertEqual({"y": header_value}, result.headers)
 
     def test__prepare_request_missing_id(self):
-        sot = resource2.Resource(id=None)
+        sot = resource.Resource(id=None)
 
         self.assertRaises(exceptions.InvalidRequest,
                           sot._prepare_request, requires_id=True)
@@ -817,11 +817,11 @@ class TestResource(base.TestCase):
     def test__prepare_request_with_key(self):
         key = "key"
 
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             base_path = "/something"
             resource_key = key
-            body_attr = resource2.Body("x")
-            header_attr = resource2.Header("y")
+            body_attr = resource.Body("x")
+            header_attr = resource.Header("y")
 
         body_value = "body"
         header_value = "header"
@@ -835,8 +835,8 @@ class TestResource(base.TestCase):
         self.assertEqual({"y": header_value}, result.headers)
 
     def test__translate_response_no_body(self):
-        class Test(resource2.Resource):
-            attr = resource2.Header("attr")
+        class Test(resource.Resource):
+            attr = resource.Header("attr")
 
         response = FakeResponse({}, headers={"attr": "value"})
 
@@ -848,8 +848,8 @@ class TestResource(base.TestCase):
         self.assertEqual("value", sot.attr)
 
     def test__translate_response_with_body_no_resource_key(self):
-        class Test(resource2.Resource):
-            attr = resource2.Body("attr")
+        class Test(resource.Resource):
+            attr = resource.Body("attr")
 
         body = {"attr": "value"}
         response = FakeResponse(body)
@@ -866,9 +866,9 @@ class TestResource(base.TestCase):
     def test__translate_response_with_body_with_resource_key(self):
         key = "key"
 
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             resource_key = key
-            attr = resource2.Body("attr")
+            attr = resource.Body("attr")
 
         body = {"attr": "value"}
         response = FakeResponse({key: body})
@@ -883,7 +883,7 @@ class TestResource(base.TestCase):
         self.assertEqual(dict(), sot._header.dirty)
 
     def test_cant_do_anything(self):
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             allow_create = False
             allow_get = False
             allow_update = False
@@ -920,7 +920,7 @@ class TestResourceActions(base.TestCase):
         self.service_name = "service"
         self.base_path = "base_path"
 
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
             resources_key = 'resources'
@@ -933,7 +933,7 @@ class TestResourceActions(base.TestCase):
 
         self.test_class = Test
 
-        self.request = mock.Mock(spec=resource2._Request)
+        self.request = mock.Mock(spec=resource._Request)
         self.request.url = "uri"
         self.request.body = "body"
         self.request.headers = "headers"
@@ -976,7 +976,7 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result, sot)
 
     def test_put_create(self):
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
@@ -985,7 +985,7 @@ class TestResourceActions(base.TestCase):
         self._test_create(Test, requires_id=True, prepend_key=True)
 
     def test_post_create(self):
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
@@ -1274,9 +1274,9 @@ class TestResourceActions(base.TestCase):
         self.session.get.side_effect = [mock_response, mock_empty]
 
         class Test(self.test_class):
-            _query_mapping = resource2.QueryParameters(query_param=qp_name)
+            _query_mapping = resource.QueryParameters(query_param=qp_name)
             base_path = "/%(something)s/blah"
-            something = resource2.URI("something")
+            something = resource.URI("something")
 
         results = list(Test.list(self.session, paginated=True,
                                  query_param=qp, something=uri_param))
@@ -1523,7 +1523,7 @@ class TestResourceFind(base.TestCase):
 
         self.result = 1
 
-        class Base(resource2.Resource):
+        class Base(resource.Resource):
 
             @classmethod
             def existing(cls, **kwargs):
@@ -1554,7 +1554,7 @@ class TestResourceFind(base.TestCase):
     def test_find_short_circuit(self):
         value = 1
 
-        class Test(resource2.Resource):
+        class Test(resource.Resource):
 
             @classmethod
             def existing(cls, **kwargs):
@@ -1578,43 +1578,43 @@ class TestResourceFind(base.TestCase):
         self.assertEqual(self.result, self.one_result.find("session", "name"))
 
     def test_match_empty_results(self):
-        self.assertIsNone(resource2.Resource._get_one_match("name", []))
+        self.assertIsNone(resource.Resource._get_one_match("name", []))
 
     def test_no_match_by_name(self):
         the_name = "Brian"
 
-        match = mock.Mock(spec=resource2.Resource)
+        match = mock.Mock(spec=resource.Resource)
         match.name = the_name
 
-        result = resource2.Resource._get_one_match("Richard", [match])
+        result = resource.Resource._get_one_match("Richard", [match])
 
         self.assertIsNone(result, match)
 
     def test_single_match_by_name(self):
         the_name = "Brian"
 
-        match = mock.Mock(spec=resource2.Resource)
+        match = mock.Mock(spec=resource.Resource)
         match.name = the_name
 
-        result = resource2.Resource._get_one_match(the_name, [match])
+        result = resource.Resource._get_one_match(the_name, [match])
 
         self.assertIs(result, match)
 
     def test_single_match_by_id(self):
         the_id = "Brian"
 
-        match = mock.Mock(spec=resource2.Resource)
+        match = mock.Mock(spec=resource.Resource)
         match.id = the_id
 
-        result = resource2.Resource._get_one_match(the_id, [match])
+        result = resource.Resource._get_one_match(the_id, [match])
 
         self.assertIs(result, match)
 
     def test_single_match_by_alternate_id(self):
         the_id = "Richard"
 
-        class Test(resource2.Resource):
-            other_id = resource2.Body("other_id", alternate_id=True)
+        class Test(resource.Resource):
+            other_id = resource.Body("other_id", alternate_id=True)
 
         match = Test(other_id=the_id)
         result = Test._get_one_match(the_id, [match])
@@ -1624,25 +1624,25 @@ class TestResourceFind(base.TestCase):
     def test_multiple_matches(self):
         the_id = "Brian"
 
-        match = mock.Mock(spec=resource2.Resource)
+        match = mock.Mock(spec=resource.Resource)
         match.id = the_id
 
         self.assertRaises(
             exceptions.DuplicateResource,
-            resource2.Resource._get_one_match, the_id, [match, match])
+            resource.Resource._get_one_match, the_id, [match, match])
 
 
 class TestWaitForStatus(base.TestCase):
 
     def test_immediate_status(self):
         status = "loling"
-        resource = mock.Mock()
-        resource.status = status
+        res = mock.Mock()
+        res.status = status
 
-        result = resource2.wait_for_status("session", resource, status,
-                                           "failures", "interval", "wait")
+        result = resource.wait_for_status(
+            "session", res, status, "failures", "interval", "wait")
 
-        self.assertEqual(result, resource)
+        self.assertTrue(result, res)
 
     def _resources_from_statuses(self, *statuses):
         resources = []
@@ -1662,7 +1662,7 @@ class TestWaitForStatus(base.TestCase):
         resources = self._resources_from_statuses(
             "first", "other", "another", "another", status)
 
-        result = resource2.wait_for_status(
+        result = resource.wait_for_status(
             mock.Mock(), resources[0], status, None, 1, 5)
 
         self.assertEqual(result, resources[-1])
@@ -1674,32 +1674,32 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertRaises(
             exceptions.ResourceFailure,
-            resource2.wait_for_status,
+            resource.wait_for_status,
             mock.Mock(), resources[0], "loling", [failure], 1, 5)
 
     def test_timeout(self):
         status = "loling"
-        resource = mock.Mock()
+        res = mock.Mock()
 
         # The first "other" gets past the first check, and then three
         # pairs of "other" statuses run through the sleep counter loop,
         # after which time should be up. This is because we have a
         # one second interval and three second waiting period.
         statuses = ["other"] * 7
-        type(resource).status = mock.PropertyMock(side_effect=statuses)
+        type(res).status = mock.PropertyMock(side_effect=statuses)
 
         self.assertRaises(exceptions.ResourceTimeout,
-                          resource2.wait_for_status,
-                          "session", resource, status, None, 1, 3)
+                          resource.wait_for_status,
+                          "session", res, status, None, 1, 3)
 
     def test_no_sleep(self):
-        resource = mock.Mock()
+        res = mock.Mock()
         statuses = ["other"]
-        type(resource).status = mock.PropertyMock(side_effect=statuses)
+        type(res).status = mock.PropertyMock(side_effect=statuses)
 
         self.assertRaises(exceptions.ResourceTimeout,
-                          resource2.wait_for_status,
-                          "session", resource, "status", None, 0, -1)
+                          resource.wait_for_status,
+                          "session", res, "status", None, 0, -1)
 
 
 class TestWaitForDelete(base.TestCase):
@@ -1708,20 +1708,21 @@ class TestWaitForDelete(base.TestCase):
         response = mock.Mock()
         response.headers = {}
         response.status_code = 404
-        resource = mock.Mock()
-        resource.get.side_effect = [
+        res = mock.Mock()
+        res.get.side_effect = [
             None, None,
             exceptions.NotFoundException('Not Found', response)]
 
-        result = resource2.wait_for_delete("session", resource, 1, 3)
+        result = resource.wait_for_delete("session", res, 1, 3)
 
-        self.assertEqual(result, resource)
+        self.assertEqual(result, res)
 
     def test_timeout(self):
-        resource = mock.Mock()
-        resource.status = 'ACTIVE'
-        resource.get.return_value = resource
+        res = mock.Mock()
+        res.status = 'ACTIVE'
+        res.get.return_value = res
 
-        self.assertRaises(exceptions.ResourceTimeout,
-                          resource2.wait_for_delete,
-                          "session", resource, 0.1, 0.3)
+        self.assertRaises(
+            exceptions.ResourceTimeout,
+            resource.wait_for_delete,
+            "session", res, 0.1, 0.3)

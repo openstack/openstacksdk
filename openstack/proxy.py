@@ -12,7 +12,7 @@
 
 from openstack import _adapter
 from openstack import exceptions
-from openstack import resource2
+from openstack import resource
 from openstack import utils
 
 
@@ -28,9 +28,9 @@ def _check_resource(strict=False):
     def wrap(method):
         def check(self, expected, actual=None, *args, **kwargs):
             if (strict and actual is not None and not
-               isinstance(actual, resource2.Resource)):
+               isinstance(actual, resource.Resource)):
                 raise ValueError("A %s must be passed" % expected.__name__)
-            elif (isinstance(actual, resource2.Resource) and not
+            elif (isinstance(actual, resource.Resource) and not
                   isinstance(actual, expected)):
                 raise ValueError("Expected %s but received %s" % (
                                  expected.__name__, actual.__class__.__name__))
@@ -47,7 +47,7 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
 
         :param resource_type: The type of resource to operate on. This should
                               be a subclass of
-                              :class:`~openstack.resource2.Resource` with a
+                              :class:`~openstack.resource.Resource` with a
                               ``from_id`` method.
         :param value: The ID of a resource or an object of ``resource_type``
                       class if using an existing instance, or None to create a
@@ -80,7 +80,7 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         if parent is None:
             value = getattr(child, name)
         else:
-            value = resource2.Resource._get_id(parent)
+            value = resource.Resource._get_id(parent)
         return value
 
     def _find(self, resource_type, name_or_id, ignore_missing=True,
@@ -92,9 +92,9 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
                     When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource2.
+                    attempting to find a nonexistent resource.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource2.Resource.find`
+                           :meth:`~openstack.resource.Resource.find`
                            method, such as query parameters.
 
         :returns: An instance of ``resource_type`` or None
@@ -108,23 +108,23 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         """Delete a resource
 
         :param resource_type: The type of resource to delete. This should
-                              be a :class:`~openstack.resource2.Resource`
+                              be a :class:`~openstack.resource.Resource`
                               subclass with a ``from_id`` method.
         :param value: The value to delete. Can be either the ID of a
-                      resource or a :class:`~openstack.resource2.Resource`
+                      resource or a :class:`~openstack.resource.Resource`
                       subclass.
         :param bool ignore_missing: When set to ``False``
                     :class:`~openstack.exceptions.ResourceNotFound` will be
                     raised when the resource does not exist.
                     When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent resource2.
+                    attempting to delete a nonexistent resource.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource2.Resource.delete`
+                           :meth:`~openstack.resource.Resource.delete`
                            method, such as the ID of a parent resource.
 
         :returns: The result of the ``delete``
         :raises: ``ValueError`` if ``value`` is a
-                 :class:`~openstack.resource2.Resource` that doesn't match
+                 :class:`~openstack.resource.Resource` that doesn't match
                  the ``resource_type``.
                  :class:`~openstack.exceptions.ResourceNotFound` when
                  ignore_missing if ``False`` and a nonexistent resource
@@ -155,19 +155,19 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         """Update a resource
 
         :param resource_type: The type of resource to update.
-        :type resource_type: :class:`~openstack.resource2.Resource`
+        :type resource_type: :class:`~openstack.resource.Resource`
         :param value: The resource to update. This must either be a
-                      :class:`~openstack.resource2.Resource` or an id
-                      that corresponds to a resource2.
+                      :class:`~openstack.resource.Resource` or an id
+                      that corresponds to a resource.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource2.Resource.update`
+                           :meth:`~openstack.resource.Resource.update`
                            method to be updated. These should correspond
-                           to either :class:`~openstack.resource2.Body`
-                           or :class:`~openstack.resource2.Header`
+                           to either :class:`~openstack.resource.Body`
+                           or :class:`~openstack.resource.Header`
                            values on this resource.
 
         :returns: The result of the ``update``
-        :rtype: :class:`~openstack.resource2.Resource`
+        :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
         return res.update(self)
@@ -176,18 +176,18 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
-        :type resource_type: :class:`~openstack.resource2.Resource`
+        :type resource_type: :class:`~openstack.resource.Resource`
         :param path_args: A dict containing arguments for forming the request
                           URL, if needed.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource2.Resource.create`
+                           :meth:`~openstack.resource.Resource.create`
                            method to be created. These should correspond
-                           to either :class:`~openstack.resource2.Body`
-                           or :class:`~openstack.resource2.Header`
+                           to either :class:`~openstack.resource.Body`
+                           or :class:`~openstack.resource.Header`
                            values on this resource.
 
         :returns: The result of the ``create``
-        :rtype: :class:`~openstack.resource2.Resource`
+        :rtype: :class:`~openstack.resource.Resource`
         """
         res = resource_type.new(**attrs)
         return res.create(self)
@@ -197,19 +197,19 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         """Get a resource
 
         :param resource_type: The type of resource to get.
-        :type resource_type: :class:`~openstack.resource2.Resource`
+        :type resource_type: :class:`~openstack.resource.Resource`
         :param value: The value to get. Can be either the ID of a
-                      resource or a :class:`~openstack.resource2.Resource`
+                      resource or a :class:`~openstack.resource.Resource`
                       subclass.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource2.Resource.get`
+                           :meth:`~openstack.resource.Resource.get`
                            method. These should correspond
-                           to either :class:`~openstack.resource2.Body`
-                           or :class:`~openstack.resource2.Header`
+                           to either :class:`~openstack.resource.Body`
+                           or :class:`~openstack.resource.Header`
                            values on this resource.
 
         :returns: The result of the ``get``
-        :rtype: :class:`~openstack.resource2.Resource`
+        :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
 
@@ -222,23 +222,23 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         """List a resource
 
         :param resource_type: The type of resource to delete. This should
-                              be a :class:`~openstack.resource2.Resource`
+                              be a :class:`~openstack.resource.Resource`
                               subclass with a ``from_id`` method.
         :param value: The resource to list. It can be the ID of a resource, or
-                      a :class:`~openstack.resource2.Resource` object. When set
+                      a :class:`~openstack.resource.Resource` object. When set
                       to None, a new bare resource is created.
         :param bool paginated: When set to ``False``, expect all of the data
                                to be returned in one response. When set to
                                ``True``, the resource supports data being
                                returned across multiple pages.
         :param dict attrs: Attributes to be passed onto the
-            :meth:`~openstack.resource2.Resource.list` method. These should
-            correspond to either :class:`~openstack.resource2.URI` values
-            or appear in :data:`~openstack.resource2.Resource._query_mapping`.
+            :meth:`~openstack.resource.Resource.list` method. These should
+            correspond to either :class:`~openstack.resource.URI` values
+            or appear in :data:`~openstack.resource.Resource._query_mapping`.
 
         :returns: A generator of Resource objects.
         :raises: ``ValueError`` if ``value`` is a
-                 :class:`~openstack.resource2.Resource` that doesn't match
+                 :class:`~openstack.resource.Resource` that doesn't match
                  the ``resource_type``.
         """
         res = self._get_resource(resource_type, value, **attrs)
@@ -248,18 +248,18 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         """Retrieve a resource's header
 
         :param resource_type: The type of resource to retrieve.
-        :type resource_type: :class:`~openstack.resource2.Resource`
+        :type resource_type: :class:`~openstack.resource.Resource`
         :param value: The value of a specific resource to retreive headers
                       for. Can be either the ID of a resource,
-                      a :class:`~openstack.resource2.Resource` subclass,
+                      a :class:`~openstack.resource.Resource` subclass,
                       or ``None``.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource2.Resource.head` method.
+                           :meth:`~openstack.resource.Resource.head` method.
                            These should correspond to
-                           :class:`~openstack.resource2.URI` values.
+                           :class:`~openstack.resource.URI` values.
 
         :returns: The result of the ``head`` call
-        :rtype: :class:`~openstack.resource2.Resource`
+        :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
         return res.head(self)
@@ -267,7 +267,7 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details=("This is no longer a part of the proxy base, "
                                "service-specific subclasses should expose "
-                               "this as needed. See resource2.wait_for_status "
+                               "this as needed. See resource.wait_for_status "
                                "for this behavior"))
     def wait_for_status(self, value, status, failures=None, interval=2,
                         wait=120):
@@ -275,8 +275,8 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
 
         :param value: The resource to wait on to reach the status. The
                       resource must have a status attribute.
-        :type value: :class:`~openstack.resource2.Resource`
-        :param status: Desired status of the resource2.
+        :type value: :class:`~openstack.resource.Resource`
+        :param status: Desired status of the resource.
         :param list failures: Statuses that would indicate the transition
                               failed such as 'ERROR'.
         :param interval: Number of seconds to wait between checks.
@@ -291,19 +291,19 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
                  status attribute
         """
         failures = [] if failures is None else failures
-        return resource2.wait_for_status(self, value, status,
-                                         failures, interval, wait)
+        return resource.wait_for_status(
+            self, value, status, failures, interval, wait)
 
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details=("This is no longer a part of the proxy base, "
                                "service-specific subclasses should expose "
-                               "this as needed. See resource2.wait_for_delete "
+                               "this as needed. See resource.wait_for_delete "
                                "for this behavior"))
     def wait_for_delete(self, value, interval=2, wait=120):
         """Wait for the resource to be deleted.
 
         :param value: The resource to wait on to be deleted.
-        :type value: :class:`~openstack.resource2.Resource`
+        :type value: :class:`~openstack.resource.Resource`
         :param interval: Number of seconds to wait between checks.
         :param wait: Maximum number of seconds to wait for the delete.
 
@@ -311,4 +311,4 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
                  to delete failed to occur in wait seconds.
         """
-        return resource2.wait_for_delete(self, value, interval, wait)
+        return resource.wait_for_delete(self, value, interval, wait)

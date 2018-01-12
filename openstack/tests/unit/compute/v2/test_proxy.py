@@ -23,10 +23,10 @@ from openstack.compute.v2 import server_group
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import service
-from openstack.tests.unit import test_proxy_base2
+from openstack.tests.unit import test_proxy_base
 
 
-class TestComputeProxy(test_proxy_base2.TestProxyBase):
+class TestComputeProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestComputeProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -126,7 +126,7 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
         test_interface.server_id = server_id
 
         # Case1: ServerInterface instance is provided as value
-        self._verify2("openstack.proxy2.BaseProxy._delete",
+        self._verify2("openstack.proxy.BaseProxy._delete",
                       self.proxy.delete_server_interface,
                       method_args=[test_interface],
                       method_kwargs={"server": server_id},
@@ -136,7 +136,7 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                                        "ignore_missing": True})
 
         # Case2: ServerInterface ID is provided as value
-        self._verify2("openstack.proxy2.BaseProxy._delete",
+        self._verify2("openstack.proxy.BaseProxy._delete",
                       self.proxy.delete_server_interface,
                       method_args=[interface_id],
                       method_kwargs={"server": server_id},
@@ -163,7 +163,7 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
         test_interface.server_id = server_id
 
         # Case1: ServerInterface instance is provided as value
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_server_interface,
                       method_args=[test_interface],
                       method_kwargs={"server": server_id},
@@ -172,7 +172,7 @@ class TestComputeProxy(test_proxy_base2.TestProxyBase):
                                        "server_id": server_id})
 
         # Case2: ServerInterface ID is provided as value
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_server_interface,
                       method_args=[interface_id],
                       method_kwargs={"server": server_id},

@@ -14,7 +14,7 @@ from openstack.identity.v2 import extension as _extension
 from openstack.identity.v2 import role as _role
 from openstack.identity.v2 import tenant as _tenant
 from openstack.identity.v2 import user as _user
-from openstack import proxy2 as proxy
+from openstack import proxy
 
 
 class Proxy(proxy.BaseProxy):

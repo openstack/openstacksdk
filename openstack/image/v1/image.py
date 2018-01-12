@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.image import image_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Image(resource.Resource):

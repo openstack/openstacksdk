@@ -10,13 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import test_proxy_base2
+from openstack.tests.unit import test_proxy_base
 from openstack.workflow.v2 import _proxy
 from openstack.workflow.v2 import execution
 from openstack.workflow.v2 import workflow
 
 
-class TestWorkflowProxy(test_proxy_base2.TestProxyBase):
+class TestWorkflowProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestWorkflowProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)

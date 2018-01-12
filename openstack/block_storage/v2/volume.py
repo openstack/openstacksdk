@@ -12,17 +12,17 @@
 
 from openstack.block_storage import block_storage_service
 from openstack import format
-from openstack import resource2
+from openstack import resource
 
 
-class Volume(resource2.Resource):
+class Volume(resource.Resource):
     resource_key = "volume"
     resources_key = "volumes"
     base_path = "/volumes"
     service = block_storage_service.BlockStorageService()
 
-    _query_mapping = resource2.QueryParameters('all_tenants', 'name',
-                                               'status', 'project_id')
+    _query_mapping = resource.QueryParameters(
+        'all_tenants', 'name', 'status', 'project_id')
 
     # capabilities
     allow_get = True
@@ -33,48 +33,48 @@ class Volume(resource2.Resource):
 
     # Properties
     #: A ID representing this volume.
-    id = resource2.Body("id")
+    id = resource.Body("id")
     #: The name of this volume.
-    name = resource2.Body("name")
+    name = resource.Body("name")
     #: A list of links associated with this volume. *Type: list*
-    links = resource2.Body("links", type=list)
+    links = resource.Body("links", type=list)
 
     #: The availability zone.
-    availability_zone = resource2.Body("availability_zone")
+    availability_zone = resource.Body("availability_zone")
     #: To create a volume from an existing volume, specify the ID of
     #: the existing volume. If specified, the volume is created with
     #: same size of the source volume.
-    source_volume_id = resource2.Body("source_volid")
+    source_volume_id = resource.Body("source_volid")
     #: The volume description.
-    description = resource2.Body("description")
+    description = resource.Body("description")
     #: To create a volume from an existing snapshot, specify the ID of
     #: the existing volume snapshot. If specified, the volume is created
     #: in same availability zone and with same size of the snapshot.
-    snapshot_id = resource2.Body("snapshot_id")
+    snapshot_id = resource.Body("snapshot_id")
     #: The size of the volume, in GBs. *Type: int*
-    size = resource2.Body("size", type=int)
+    size = resource.Body("size", type=int)
     #: The ID of the image from which you want to create the volume.
     #: Required to create a bootable volume.
-    image_id = resource2.Body("imageRef")
+    image_id = resource.Body("imageRef")
     #: The name of the associated volume type.
-    volume_type = resource2.Body("volume_type")
+    volume_type = resource.Body("volume_type")
     #: Enables or disables the bootable attribute. You can boot an
     #: instance from a bootable volume. *Type: bool*
-    is_bootable = resource2.Body("bootable", type=format.BoolStr)
+    is_bootable = resource.Body("bootable", type=format.BoolStr)
     #: One or more metadata key and value pairs to associate with the volume.
-    metadata = resource2.Body("metadata")
+    metadata = resource.Body("metadata")
     #: One or more metadata key and value pairs about image
-    volume_image_metadata = resource2.Body("volume_image_metadata")
+    volume_image_metadata = resource.Body("volume_image_metadata")
 
     #: One of the following values: creating, available, attaching, in-use
     #: deleting, error, error_deleting, backing-up, restoring-backup,
     #: error_restoring. For details on these statuses, see the
     #: Block Storage API documentation.
-    status = resource2.Body("status")
+    status = resource.Body("status")
     #: TODO(briancurtin): This is currently undocumented in the API.
-    attachments = resource2.Body("attachments")
+    attachments = resource.Body("attachments")
     #: The timestamp of this volume creation.
-    created_at = resource2.Body("created_at")
+    created_at = resource.Body("created_at")
 
 
 class VolumeDetail(Volume):
@@ -82,24 +82,24 @@ class VolumeDetail(Volume):
     base_path = "/volumes/detail"
 
     #: The volume's current back-end.
-    host = resource2.Body("os-vol-host-attr:host")
+    host = resource.Body("os-vol-host-attr:host")
     #: The project ID associated with current back-end.
-    project_id = resource2.Body("os-vol-tenant-attr:tenant_id")
+    project_id = resource.Body("os-vol-tenant-attr:tenant_id")
     #: The status of this volume's migration (None means that a migration
     #: is not currently in progress).
-    migration_status = resource2.Body("os-vol-mig-status-attr:migstat")
+    migration_status = resource.Body("os-vol-mig-status-attr:migstat")
     #: The volume ID that this volume's name on the back-end is based on.
-    migration_id = resource2.Body("os-vol-mig-status-attr:name_id")
+    migration_id = resource.Body("os-vol-mig-status-attr:name_id")
     #: Status of replication on this volume.
-    replication_status = resource2.Body("replication_status")
+    replication_status = resource.Body("replication_status")
     #: Extended replication status on this volume.
-    extended_replication_status = resource2.Body(
+    extended_replication_status = resource.Body(
         "os-volume-replication:extended_status")
     #: ID of the consistency group.
-    consistency_group_id = resource2.Body("consistencygroup_id")
+    consistency_group_id = resource.Body("consistencygroup_id")
     #: Data set by the replication driver
-    replication_driver_data = resource2.Body(
+    replication_driver_data = resource.Body(
         "os-volume-replication:driver_data")
     #: ``True`` if this volume is encrypted, ``False`` if not.
     #: *Type: bool*
-    is_encrypted = resource2.Body("encrypted", type=format.BoolStr)
+    is_encrypted = resource.Body("encrypted", type=format.BoolStr)

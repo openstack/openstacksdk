@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.image import image_service
-from openstack import resource2
+from openstack import resource
 
 
-class Member(resource2.Resource):
+class Member(resource.Resource):
     resources_key = 'members'
     base_path = '/images/%(image_id)s/members'
     service = image_service.ImageService()
@@ -32,14 +32,14 @@ class Member(resource2.Resource):
 
     #: The ID of the image member. An image member is a tenant
     #: with whom the image is shared.
-    member_id = resource2.Body('member', alternate_id=True)
+    member_id = resource.Body('member', alternate_id=True)
     #: The date and time when the member was created.
-    created_at = resource2.Body('created_at')
+    created_at = resource.Body('created_at')
     #: Image ID stored through the image API. Typically a UUID.
-    image_id = resource2.URI('image_id')
+    image_id = resource.URI('image_id')
     #: The status of the image.
-    status = resource2.Body('status')
+    status = resource.Body('status')
     #: The URL for schema of the member.
-    schema = resource2.Body('schema')
+    schema = resource.Body('schema')
     #: The date and time when the member was updated.
-    updated_at = resource2.Body('updated_at')
+    updated_at = resource.Body('updated_at')

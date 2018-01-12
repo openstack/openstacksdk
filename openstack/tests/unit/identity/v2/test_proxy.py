@@ -14,7 +14,7 @@ from openstack.identity.v2 import _proxy
 from openstack.identity.v2 import role
 from openstack.identity.v2 import tenant
 from openstack.identity.v2 import user
-from openstack.tests.unit import test_proxy_base2 as test_proxy_base
+from openstack.tests.unit import test_proxy_base as test_proxy_base
 
 
 class TestIdentityProxy(test_proxy_base.TestProxyBase):

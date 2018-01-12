@@ -11,7 +11,7 @@
 # under the License.
 
 
-from openstack import resource2 as resource
+from openstack import resource
 from openstack.workflow import workflow_service
 
 

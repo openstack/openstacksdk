@@ -16,7 +16,7 @@ import copy
 from openstack import exceptions
 from openstack.object_store import object_store_service
 from openstack.object_store.v1 import _base
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Object(_base.BaseResource):

@@ -12,10 +12,10 @@
 
 from openstack.key_manager import key_manager_service
 from openstack.key_manager.v1 import _format
-from openstack import resource2
+from openstack import resource
 
 
-class Container(resource2.Resource):
+class Container(resource.Resource):
     resources_key = 'containers'
     base_path = '/containers'
     service = key_manager_service.KeyManagerService()
@@ -29,21 +29,22 @@ class Container(resource2.Resource):
 
     # Properties
     #: A URI for this container
-    container_ref = resource2.Body('container_ref')
+    container_ref = resource.Body('container_ref')
     #: The ID for this container
-    container_id = resource2.Body('container_ref', alternate_id=True,
-                                  type=_format.HREFToUUID)
+    container_id = resource.Body(
+        'container_ref', alternate_id=True,
+        type=_format.HREFToUUID)
     #: The timestamp when this container was created.
-    created_at = resource2.Body('created')
+    created_at = resource.Body('created')
     #: The name of this container
-    name = resource2.Body('name')
+    name = resource.Body('name')
     #: A list of references to secrets in this container
-    secret_refs = resource2.Body('secret_refs', type=list)
+    secret_refs = resource.Body('secret_refs', type=list)
     #: The status of this container
-    status = resource2.Body('status')
+    status = resource.Body('status')
     #: The type of this container
-    type = resource2.Body('type')
+    type = resource.Body('type')
     #: The timestamp when this container was updated.
-    updated_at = resource2.Body('updated')
+    updated_at = resource.Body('updated')
     #: A party interested in this container.
-    consumers = resource2.Body('consumers', type=list)
+    consumers = resource.Body('consumers', type=list)

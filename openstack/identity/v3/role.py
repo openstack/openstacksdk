@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.identity import identity_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Role(resource.Resource):

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Extension(resource.Resource):

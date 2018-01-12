@@ -23,11 +23,11 @@ from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import volume_attachment as _volume_attachment
-from openstack import proxy2
-from openstack import resource2
+from openstack import proxy
+from openstack import resource
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def find_extension(self, name_or_id, ignore_missing=True):
         """Find a single extension
@@ -501,7 +501,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        flavor_id = resource2.Resource._get_id(flavor)
+        flavor_id = resource.Resource._get_id(flavor)
         server.resize(self, flavor_id)
 
     def confirm_server_resize(self, server):
@@ -551,7 +551,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        security_group_id = resource2.Resource._get_id(security_group)
+        security_group_id = resource.Resource._get_id(security_group)
         server.add_security_group(self, security_group_id)
 
     def remove_security_group_from_server(self, server, security_group):
@@ -566,7 +566,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        security_group_id = resource2.Resource._get_id(security_group)
+        security_group_id = resource.Resource._get_id(security_group)
         server.remove_security_group(self, security_group_id)
 
     def add_fixed_ip_to_server(self, server, network_id):
@@ -806,8 +806,8 @@ class Proxy(proxy2.BaseProxy):
 
     def wait_for_server(self, server, status='ACTIVE', failures=['ERROR'],
                         interval=2, wait=120):
-        return resource2.wait_for_status(self, server, status,
-                                         failures, interval, wait)
+        return resource.wait_for_status(
+            self, server, status, failures, interval, wait)
 
     def create_server_interface(self, server, **attrs):
         """Create a new server interface from attributes
@@ -822,7 +822,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: The results of server interface creation
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
-        server_id = resource2.Resource._get_id(server)
+        server_id = resource.Resource._get_id(server)
         return self._create(_server_interface.ServerInterface,
                             server_id=server_id, **attrs)
 
@@ -848,7 +848,7 @@ class Proxy(proxy2.BaseProxy):
         """
         server_id = self._get_uri_attribute(server_interface, server,
                                             "server_id")
-        server_interface = resource2.Resource._get_id(server_interface)
+        server_interface = resource.Resource._get_id(server_interface)
 
         self._delete(_server_interface.ServerInterface,
                      port_id=server_interface,
@@ -874,7 +874,7 @@ class Proxy(proxy2.BaseProxy):
         """
         server_id = self._get_uri_attribute(server_interface, server,
                                             "server_id")
-        server_interface = resource2.Resource._get_id(server_interface)
+        server_interface = resource.Resource._get_id(server_interface)
 
         return self._get(_server_interface.ServerInterface,
                          server_id=server_id, port_id=server_interface)
@@ -888,7 +888,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A generator of ServerInterface objects
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
-        server_id = resource2.Resource._get_id(server)
+        server_id = resource.Resource._get_id(server)
         return self._list(_server_interface.ServerInterface, paginated=False,
                           server_id=server_id)
 
@@ -903,7 +903,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A generator of ServerIP objects
         :rtype: :class:`~openstack.compute.v2.server_ip.ServerIP`
         """
-        server_id = resource2.Resource._get_id(server)
+        server_id = resource.Resource._get_id(server)
         return self._list(server_ip.ServerIP, paginated=False,
                           server_id=server_id, network_label=network_label)
 
@@ -1150,7 +1150,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype:
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
         """
-        server_id = resource2.Resource._get_id(server)
+        server_id = resource.Resource._get_id(server)
         return self._create(_volume_attachment.VolumeAttachment,
                             server_id=server_id, **attrs)
 
@@ -1177,7 +1177,7 @@ class Proxy(proxy2.BaseProxy):
         """
         server_id = self._get_uri_attribute(volume_attachment, server,
                                             "server_id")
-        volume_attachment = resource2.Resource._get_id(volume_attachment)
+        volume_attachment = resource.Resource._get_id(volume_attachment)
 
         return self._update(_volume_attachment.VolumeAttachment,
                             attachment_id=volume_attachment,
@@ -1206,7 +1206,7 @@ class Proxy(proxy2.BaseProxy):
         """
         server_id = self._get_uri_attribute(volume_attachment, server,
                                             "server_id")
-        volume_attachment = resource2.Resource._get_id(volume_attachment)
+        volume_attachment = resource.Resource._get_id(volume_attachment)
 
         self._delete(_volume_attachment.VolumeAttachment,
                      attachment_id=volume_attachment,
@@ -1239,7 +1239,7 @@ class Proxy(proxy2.BaseProxy):
         """
         server_id = self._get_uri_attribute(volume_attachment, server,
                                             "server_id")
-        volume_attachment = resource2.Resource._get_id(volume_attachment)
+        volume_attachment = resource.Resource._get_id(volume_attachment)
 
         return self._get(_volume_attachment.VolumeAttachment,
                          server_id=server_id,
@@ -1256,7 +1256,7 @@ class Proxy(proxy2.BaseProxy):
         :rtype:
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
         """
-        server_id = resource2.Resource._get_id(server)
+        server_id = resource.Resource._get_id(server)
         return self._list(_volume_attachment.VolumeAttachment, paginated=False,
                           server_id=server_id)
 

@@ -13,7 +13,7 @@
 from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import obj as _obj
-from openstack import proxy2 as proxy
+from openstack import proxy
 
 
 class Proxy(proxy.BaseProxy):
