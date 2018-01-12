@@ -73,6 +73,7 @@ class TestFloatingIP(testtools.TestCase):
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: [data]}
         fake_response.json = mock.Mock(return_value=body)
+        fake_response.status_code = 200
         mock_session.get = mock.Mock(return_value=fake_response)
 
         result = floating_ip.FloatingIP.find_available(mock_session)
@@ -88,6 +89,7 @@ class TestFloatingIP(testtools.TestCase):
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: []}
         fake_response.json = mock.Mock(return_value=body)
+        fake_response.status_code = 200
         mock_session.get = mock.Mock(return_value=fake_response)
 
         self.assertIsNone(floating_ip.FloatingIP.find_available(mock_session))

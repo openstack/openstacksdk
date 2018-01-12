@@ -216,6 +216,8 @@ class Resource(object):
     resource_key = None
     #: Plural form of key for resource.
     resources_key = None
+    #: Key used for pagination links
+    pagination_key = None
 
     #: The ID of this resource.
     id = Body("id")
@@ -726,45 +728,111 @@ class Resource(object):
         if not cls.allow_list:
             raise exceptions.MethodNotSupported(cls, "list")
 
-        more_data = True
         query_params = cls._query_mapping._transpose(params)
         uri = cls.base_path % params
 
-        while more_data:
-            resp = session.get(uri,
-                               headers={"Accept": "application/json"},
-                               params=query_params)
-            resp = resp.json()
+        limit = query_params.get('limit')
+
+        # Track the total number of resources yielded so we can paginate
+        # swift objects
+        total_yielded = 0
+        while uri:
+            # Copy query_params due to weird mock unittest interactions
+            response = session.get(
+                uri,
+                headers={"Accept": "application/json"},
+                params=query_params.copy())
+            exceptions.raise_from_response(response)
+            data = response.json()
+
+            # Discard any existing pagination keys
+            query_params.pop('marker', None)
+            query_params.pop('limit', None)
+
             if cls.resources_key:
-                resp = resp[cls.resources_key]
+                resources = data[cls.resources_key]
+            else:
+                resources = data
 
-            if not resp:
-                more_data = False
+            if not isinstance(resources, list):
+                resources = [resources]
 
-            # Keep track of how many items we've yielded. If we yielded
-            # less than our limit, we don't need to do an extra request
-            # to get back an empty data set, which acts as a sentinel.
+            # Keep track of how many items we've yielded. The server should
+            # handle this, but it's easy for us to as well.
             yielded = 0
-            new_marker = None
-            for data in resp:
+            marker = None
+            for raw_resource in resources:
                 # Do not allow keys called "self" through. Glance chose
                 # to name a key "self", so we need to pop it out because
                 # we can't send it through cls.existing and into the
                 # Resource initializer. "self" is already the first
                 # argument and is practically a reserved word.
-                data.pop("self", None)
+                raw_resource.pop("self", None)
 
-                value = cls.existing(**data)
-                new_marker = value.id
-                yielded += 1
+                value = cls.existing(**raw_resource)
+                marker = value.id
                 yield value
+                yielded += 1
+                total_yielded += 1
 
-            if not paginated:
+            # If a limit was given by the user and we have not returned
+            # as many records as the limit, then it stands to reason that
+            # there are no more records to return and we don't need to do
+            # anything else.
+            if limit and yielded < limit:
                 return
-            if "limit" in query_params and yielded < query_params["limit"]:
+
+            if resources and paginated:
+                uri, next_params = cls._get_next_link(
+                    uri, response, data, marker, limit, total_yielded)
+                query_params.update(next_params)
+            else:
                 return
-            query_params["limit"] = yielded
-            query_params["marker"] = new_marker
+
+    @classmethod
+    def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):
+        next_link = None
+        params = {}
+        if isinstance(data, dict):
+            pagination_key = cls.pagination_key
+
+            if not pagination_key and 'links' in data:
+                # api-wg guidelines are for a links dict in the main body
+                pagination_key == 'links'
+            if not pagination_key and cls.resources_key:
+                # Nova has a {key}_links dict in the main body
+                pagination_key = '{key}_links'.format(key=cls.resources_key)
+            if pagination_key:
+                links = data.get(pagination_key, {})
+                for item in links:
+                    if item.get('rel') == 'next' and 'href' in item:
+                        next_link = item['href']
+                        break
+            # Glance has a next field in the main body
+            next_link = next_link or data.get('next')
+        if not next_link and 'next' in response.links:
+            # RFC5988 specifies Link headers and requests parses them if they
+            # are there. We prefer link dicts in resource body, but if those
+            # aren't there and Link headers are, use them.
+            next_link = response.links['next']['uri']
+        # Swift provides a count of resources in a header and a list body
+        if not next_link and cls.pagination_key:
+            total_count = response.headers.get(cls.pagination_key)
+            if total_count:
+                total_count = int(total_count)
+                if total_count > total_yielded:
+                    params['marker'] = marker
+                    if limit:
+                        params['limit'] = limit
+                    next_link = uri
+        # If we still have no link, and limit was given and is non-zero,
+        # and the number of records yielded equals the limit, then the user
+        # is playing pagination ball so we should go ahead and try once more.
+        if not next_link and limit:
+            next_link = uri
+            params['marker'] = marker
+            params['limit'] = limit
+        return next_link, params
 
     @classmethod
     def _get_one_match(cls, name_or_id, results):

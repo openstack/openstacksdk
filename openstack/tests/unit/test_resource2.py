@@ -938,6 +938,7 @@ class TestResourceActions(base.TestCase):
         class Test(resource2.Resource):
             service = self.service_name
             base_path = self.base_path
+            resources_key = 'resources'
             allow_create = True
             allow_get = True
             allow_head = True
@@ -1096,7 +1097,9 @@ class TestResourceActions(base.TestCase):
     # the generator. Wrap calls to self.sot.list in a `list`
     # and then test the results as a list of responses.
     def test_list_empty_response(self):
-        mock_response = FakeResponse([])
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"resources": []}
 
         self.session.get.return_value = mock_response
 
@@ -1112,8 +1115,9 @@ class TestResourceActions(base.TestCase):
     def test_list_one_page_response_paginated(self):
         id_value = 1
         mock_response = mock.Mock()
-        mock_response.json.side_effect = [[{"id": id_value}],
-                                          []]
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.return_value = {"resources": [{"id": id_value}]}
 
         self.session.get.return_value = mock_response
 
@@ -1123,17 +1127,15 @@ class TestResourceActions(base.TestCase):
 
         self.assertEqual(1, len(results))
 
-        # Look at the `params` argument to each of the get calls that
-        # were made.
-        self.session.get.call_args_list[0][1]["params"] = {}
-        self.session.get.call_args_list[1][1]["params"] = {"marker": id_value}
+        self.assertEqual(1, len(self.session.get.call_args_list))
         self.assertEqual(id_value, results[0].id)
         self.assertIsInstance(results[0], self.test_class)
 
     def test_list_one_page_response_not_paginated(self):
         id_value = 1
         mock_response = mock.Mock()
-        mock_response.json.return_value = [{"id": id_value}]
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"resources": [{"id": id_value}]}
 
         self.session.get.return_value = mock_response
 
@@ -1156,6 +1158,7 @@ class TestResourceActions(base.TestCase):
 
         id_value = 1
         mock_response = mock.Mock()
+        mock_response.status_code = 200
         mock_response.json.return_value = {key: [{"id": id_value}]}
 
         self.session.get.return_value = mock_response
@@ -1173,11 +1176,85 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(id_value, results[0].id)
         self.assertIsInstance(results[0], self.test_class)
 
+    def test_list_response_paginated_without_links(self):
+        ids = [1, 2]
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.return_value = {
+            "resources": [{"id": ids[0]}],
+            "resources_links": [{
+                "href": "https://example.com/next-url",
+                "rel": "next",
+            }]
+        }
+        mock_response2 = mock.Mock()
+        mock_response2.status_code = 200
+        mock_response2.links = {}
+        mock_response2.json.return_value = {
+            "resources": [{"id": ids[1]}],
+        }
+
+        self.session.get.side_effect = [mock_response, mock_response2]
+
+        results = list(self.sot.list(self.session, paginated=True))
+
+        self.assertEqual(2, len(results))
+        self.assertEqual(ids[0], results[0].id)
+        self.assertEqual(ids[1], results[1].id)
+        self.assertEqual(
+            mock.call('base_path',
+                      headers={'Accept': 'application/json'}, params={}),
+            self.session.get.mock_calls[0])
+        self.assertEqual(
+            mock.call('https://example.com/next-url',
+                      headers={'Accept': 'application/json'}, params={}),
+            self.session.get.mock_calls[1])
+        self.assertEqual(2, len(self.session.get.call_args_list))
+        self.assertIsInstance(results[0], self.test_class)
+
+    def test_list_response_paginated_with_links(self):
+        ids = [1, 2]
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.side_effect = [
+            {
+                "resources": [{"id": ids[0]}],
+                "resources_links": [{
+                    "href": "https://example.com/next-url",
+                    "rel": "next",
+                }]
+            }, {
+                "resources": [{"id": ids[1]}],
+            }]
+
+        self.session.get.return_value = mock_response
+
+        results = list(self.sot.list(self.session, paginated=True))
+
+        self.assertEqual(2, len(results))
+        self.assertEqual(ids[0], results[0].id)
+        self.assertEqual(ids[1], results[1].id)
+        self.assertEqual(
+            mock.call('base_path',
+                      headers={'Accept': 'application/json'}, params={}),
+            self.session.get.mock_calls[0])
+        self.assertEqual(
+            mock.call('https://example.com/next-url',
+                      headers={'Accept': 'application/json'}, params={}),
+            self.session.get.mock_calls[2])
+        self.assertEqual(2, len(self.session.get.call_args_list))
+        self.assertIsInstance(results[0], self.test_class)
+
     def test_list_multi_page_response_not_paginated(self):
         ids = [1, 2]
         mock_response = mock.Mock()
-        mock_response.json.side_effect = [[{"id": ids[0]}],
-                                          [{"id": ids[1]}]]
+        mock_response.status_code = 200
+        mock_response.json.side_effect = [
+            {"resources": [{"id": ids[0]}]},
+            {"resources": [{"id": ids[1]}]},
+        ]
 
         self.session.get.return_value = mock_response
 
@@ -1194,10 +1271,16 @@ class TestResourceActions(base.TestCase):
         uri_param = "uri param!"
 
         mock_response = mock.Mock()
-        mock_response.json.side_effect = [[{"id": id}],
-                                          []]
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.return_value = {"resources": [{"id": id}]}
 
-        self.session.get.return_value = mock_response
+        mock_empty = mock.Mock()
+        mock_empty.status_code = 200
+        mock_empty.links = {}
+        mock_empty.json.return_value = {"resources": []}
+
+        self.session.get.side_effect = [mock_response, mock_empty]
 
         class Test(self.test_class):
             _query_mapping = resource2.QueryParameters(query_param=qp_name)
@@ -1217,19 +1300,33 @@ class TestResourceActions(base.TestCase):
                          Test.base_path % {"something": uri_param})
 
     def test_list_multi_page_response_paginated(self):
-        # This tests our ability to stop making calls once
-        # we've received all of the data. However, this tests
-        # the case that we always receive full pages of data
-        # and then the signal that there is no more data - an empty list.
-        # In this case, we need to make one extra request beyond
-        # the end of data to ensure we've received it all.
         ids = [1, 2]
         resp1 = mock.Mock()
-        resp1.json.return_value = [{"id": ids[0]}]
+        resp1.status_code = 200
+        resp1.links = {}
+        resp1.json.return_value = {
+            "resources": [{"id": ids[0]}],
+            "resources_links": [{
+                "href": "https://example.com/next-url",
+                "rel": "next",
+            }],
+        }
         resp2 = mock.Mock()
-        resp2.json.return_value = [{"id": ids[1]}]
+        resp2.status_code = 200
+        resp2.links = {}
+        resp2.json.return_value = {
+            "resources": [{"id": ids[1]}],
+            "resources_links": [{
+                "href": "https://example.com/next-url",
+                "rel": "next",
+            }],
+        }
         resp3 = mock.Mock()
-        resp3.json.return_value = []
+        resp3.status_code = 200
+        resp3.links = {}
+        resp3.json.return_value = {
+            "resources": []
+        }
 
         self.session.get.side_effect = [resp1, resp2, resp3]
 
@@ -1245,26 +1342,113 @@ class TestResourceActions(base.TestCase):
         result1 = next(results)
         self.assertEqual(result1.id, ids[1])
         self.session.get.assert_called_with(
-            self.base_path,
+            'https://example.com/next-url',
             headers={"Accept": "application/json"},
-            params={"limit": 1, "marker": 1})
+            params={})
 
         self.assertRaises(StopIteration, next, results)
         self.session.get.assert_called_with(
-            self.base_path,
+            'https://example.com/next-url',
             headers={"Accept": "application/json"},
-            params={"limit": 1, "marker": 2})
+            params={})
 
     def test_list_multi_page_early_termination(self):
         # This tests our ability to be somewhat smart when evaluating
-        # the contents of the responses. When we receive a full page
-        # of data, we can be smart about terminating our responses
-        # once we see that we've received a page with less data than
-        # expected, saving one request.
+        # the contents of the responses. When we request a limit and
+        # receive less than that limit and there are no next links,
+        # we can be pretty sure there are no more pages.
+        ids = [1, 2]
+        resp1 = mock.Mock()
+        resp1.status_code = 200
+        resp1.json.return_value = {
+            "resources": [{"id": ids[0]}, {"id": ids[1]}],
+        }
+
+        self.session.get.return_value = resp1
+
+        results = self.sot.list(self.session, limit=3, paginated=True)
+
+        result0 = next(results)
+        self.assertEqual(result0.id, ids[0])
+        result1 = next(results)
+        self.assertEqual(result1.id, ids[1])
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={"limit": 3})
+
+        # Ensure we're done after those two items
+        self.assertRaises(StopIteration, next, results)
+
+        # Ensure we only made one calls to get this done
+        self.assertEqual(1, len(self.session.get.call_args_list))
+
+    def test_list_multi_page_inferred_additional(self):
+        # If we explicitly request a limit and we receive EXACTLY that
+        # amount of results and there is no next link, we make one additional
+        # call to check to see if there are more records and the service is
+        # just sad.
+        # NOTE(mordred) In a perfect world we would not do this. But it's 2018
+        # and I don't think anyone has any illusions that we live in a perfect
+        # world anymore.
         ids = [1, 2, 3]
         resp1 = mock.Mock()
+        resp1.status_code = 200
+        resp1.links = {}
+        resp1.json.return_value = {
+            "resources": [{"id": ids[0]}, {"id": ids[1]}],
+        }
+        resp2 = mock.Mock()
+        resp2.status_code = 200
+        resp2.links = {}
+        resp2.json.return_value = {"resources": [{"id": ids[2]}]}
+
+        self.session.get.side_effect = [resp1, resp2]
+
+        results = self.sot.list(self.session, limit=2, paginated=True)
+
+        # Get the first page's two items
+        result0 = next(results)
+        self.assertEqual(result0.id, ids[0])
+        result1 = next(results)
+        self.assertEqual(result1.id, ids[1])
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={"limit": 2})
+
+        result2 = next(results)
+        self.assertEqual(result2.id, ids[2])
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={'limit': 2, 'marker': 2})
+
+        # Ensure we're done after those three items
+        self.assertRaises(StopIteration, next, results)
+
+        # Ensure we only made two calls to get this done
+        self.assertEqual(2, len(self.session.get.call_args_list))
+
+    def test_list_multi_page_header_count(self):
+        class Test(self.test_class):
+            resources_key = None
+            pagination_key = 'X-Container-Object-Count'
+        self.sot = Test()
+
+        # Swift returns a total number of objects in a header and we compare
+        # that against the total number returned to know if we need to fetch
+        # more objects.
+        ids = [1, 2, 3]
+        resp1 = mock.Mock()
+        resp1.status_code = 200
+        resp1.links = {}
+        resp1.headers = {'X-Container-Object-Count': 3}
         resp1.json.return_value = [{"id": ids[0]}, {"id": ids[1]}]
         resp2 = mock.Mock()
+        resp2.status_code = 200
+        resp2.links = {}
+        resp2.headers = {'X-Container-Object-Count': 3}
         resp2.json.return_value = [{"id": ids[2]}]
 
         self.session.get.side_effect = [resp1, resp2]
@@ -1281,13 +1465,58 @@ class TestResourceActions(base.TestCase):
             headers={"Accept": "application/json"},
             params={})
 
-        # Second page only has one item
         result2 = next(results)
         self.assertEqual(result2.id, ids[2])
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={"limit": 2, "marker": 2})
+            params={'marker': 2})
+
+        # Ensure we're done after those three items
+        self.assertRaises(StopIteration, next, results)
+
+        # Ensure we only made two calls to get this done
+        self.assertEqual(2, len(self.session.get.call_args_list))
+
+    def test_list_multi_page_link_header(self):
+        # Swift returns a total number of objects in a header and we compare
+        # that against the total number returned to know if we need to fetch
+        # more objects.
+        ids = [1, 2, 3]
+        resp1 = mock.Mock()
+        resp1.status_code = 200
+        resp1.links = {
+            'next': {'uri': 'https://example.com/next-url', 'rel': 'next'}}
+        resp1.headers = {}
+        resp1.json.return_value = {
+            "resources": [{"id": ids[0]}, {"id": ids[1]}],
+        }
+        resp2 = mock.Mock()
+        resp2.status_code = 200
+        resp2.links = {}
+        resp2.headers = {}
+        resp2.json.return_value = {"resources": [{"id": ids[2]}]}
+
+        self.session.get.side_effect = [resp1, resp2]
+
+        results = self.sot.list(self.session, paginated=True)
+
+        # Get the first page's two items
+        result0 = next(results)
+        self.assertEqual(result0.id, ids[0])
+        result1 = next(results)
+        self.assertEqual(result1.id, ids[1])
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={})
+
+        result2 = next(results)
+        self.assertEqual(result2.id, ids[2])
+        self.session.get.assert_called_with(
+            'https://example.com/next-url',
+            headers={"Accept": "application/json"},
+            params={})
 
         # Ensure we're done after those three items
         self.assertRaises(StopIteration, next, results)
