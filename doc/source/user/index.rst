@@ -91,7 +91,6 @@ provided by the SDK.
    Image v2 <proxies/image_v2>
    Key Manager <proxies/key_manager>
    Load Balancer <proxies/load_balancer_v2>
-   Message v1 <proxies/message_v1>
    Message v2 <proxies/message_v2>
    Network <proxies/network>
    Object Store <proxies/object_store>
