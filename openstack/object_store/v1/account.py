@@ -12,7 +12,7 @@
 # under the License.
 
 from openstack.object_store.v1 import _base
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class Account(_base.BaseResource):
@@ -20,23 +20,26 @@ class Account(_base.BaseResource):
 
     base_path = "/"
 
-    allow_retrieve = True
+    allow_get = True
     allow_update = True
     allow_head = True
 
     #: The total number of bytes that are stored in Object Storage for
     #: the account.
-    account_bytes_used = resource.header("x-account-bytes-used", type=int)
+    account_bytes_used = resource.Header("x-account-bytes-used", type=int)
     #: The number of containers.
-    account_container_count = resource.header("x-account-container-count",
+    account_container_count = resource.Header("x-account-container-count",
                                               type=int)
     #: The number of objects in the account.
-    account_object_count = resource.header("x-account-object-count", type=int)
+    account_object_count = resource.Header("x-account-object-count", type=int)
     #: The secret key value for temporary URLs. If not set,
     #: this header is not returned by this operation.
-    meta_temp_url_key = resource.header("x-account-meta-temp-url-key")
+    meta_temp_url_key = resource.Header("x-account-meta-temp-url-key")
     #: A second secret key value for temporary URLs. If not set,
     #: this header is not returned by this operation.
-    meta_temp_url_key_2 = resource.header("x-account-meta-temp-url-key-2")
+    meta_temp_url_key_2 = resource.Header("x-account-meta-temp-url-key-2")
     #: The timestamp of the transaction.
-    timestamp = resource.header("x-timestamp")
+    timestamp = resource.Header("x-timestamp")
+
+    has_body = False
+    requires_id = False

@@ -29,7 +29,7 @@ from openstack import exceptions
 from openstack import task_manager as _task_manager
 
 
-def _extract_name(url):
+def _extract_name(url, service_type=None):
     '''Produce a key name to use in logging/metrics from the URL path.
 
     We want to be able to logic/metric sane general things, so we pull
@@ -81,7 +81,10 @@ def _extract_name(url):
 
     # Getting the root of an endpoint is doing version discovery
     if not name_parts:
-        name_parts = ['discovery']
+        if service_type == 'object-store':
+            name_parts = ['account']
+        else:
+            name_parts = ['discovery']
 
     # Strip out anything that's empty or None
     return [part for part in name_parts if part]
@@ -124,8 +127,14 @@ class OpenStackSDKAdapter(adapter.Adapter):
     def request(
             self, url, method, run_async=False, error_message=None,
             raise_exc=False, connect_retries=1, *args, **kwargs):
-        name_parts = _extract_name(url)
-        name = '.'.join([self.service_type, method] + name_parts)
+        name_parts = _extract_name(url, self.service_type)
+        # TODO(mordred) This if is in service of unit tests that are making
+        # calls without a service_type. It should be fixable once we shift
+        # to requests-mock and stop mocking internals.
+        if self.service_type:
+            name = '.'.join([self.service_type, method] + name_parts)
+        else:
+            name = '.'.join([method] + name_parts)
 
         request_method = functools.partial(
             super(OpenStackSDKAdapter, self).request, url, method)

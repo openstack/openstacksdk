@@ -34,6 +34,8 @@ and then returned to the caller.
 import collections
 import itertools
 
+from requests import structures
+
 from openstack import exceptions
 from openstack import format
 from openstack import utils
@@ -44,7 +46,8 @@ class _BaseComponent(object):
     # The name this component is being tracked as in the Resource
     key = None
 
-    def __init__(self, name, type=None, default=None, alternate_id=False):
+    def __init__(self, name, type=None, default=None, alias=None,
+                 alternate_id=False, **kwargs):
         """A typed descriptor for a component that makes up a Resource
 
         :param name: The name this component exists as on the server
@@ -53,6 +56,7 @@ class _BaseComponent(object):
                      will work. If you specify type=dict and then set a
                      component to a string, __set__ will fail, for example.
         :param default: Typically None, but any other default can be set.
+        :param alias: If set, alternative attribute on object to return.
         :param alternate_id: When `True`, this property is known
                              internally as a value that can be sent
                              with requests that require an ID but
@@ -63,6 +67,7 @@ class _BaseComponent(object):
         self.name = name
         self.type = type
         self.default = default
+        self.alias = alias
         self.alternate_id = alternate_id
 
     def __get__(self, instance, owner):
@@ -74,6 +79,8 @@ class _BaseComponent(object):
         try:
             value = attributes[self.name]
         except KeyError:
+            if self.alias:
+                return getattr(instance, self.alias)
             return self.default
 
         # self.type() should not be called on None objects.
@@ -253,6 +260,11 @@ class Resource(object):
     #: Method for creating a resource (POST, PUT)
     create_method = "POST"
 
+    #: Do calls for this resource require an id
+    requires_id = True
+    #: Do responses for this resource have bodies
+    has_body = True
+
     def __init__(self, _synchronized=False, **attrs):
         """The base resource
 
@@ -331,12 +343,13 @@ class Resource(object):
         attributes that exist on this class.
         """
         body = self._consume_attrs(self._body_mapping(), attrs)
-        header = self._consume_attrs(self._header_mapping(), attrs)
+        header = self._consume_attrs(
+            self._header_mapping(), attrs, insensitive=True)
         uri = self._consume_attrs(self._uri_mapping(), attrs)
 
         return body, header, uri
 
-    def _consume_attrs(self, mapping, attrs):
+    def _consume_attrs(self, mapping, attrs, insensitive=False):
         """Given a mapping and attributes, return relevant matches
 
         This method finds keys in attrs that exist in the mapping, then
@@ -347,16 +360,29 @@ class Resource(object):
         same source dict several times.
         """
         relevant_attrs = {}
+        if insensitive:
+            relevant_attrs = structures.CaseInsensitiveDict()
         consumed_keys = []
+        nonce = object()
+        # TODO(mordred) Invert the loop - loop over mapping, look in attrs
+        # and we should be able to simplify the logic, since CID should
+        # handle the case matching
         for key in attrs:
-            if key in mapping:
+            value = mapping.get(key, nonce)
+            if value is not nonce:
                 # Convert client-side key names into server-side.
                 relevant_attrs[mapping[key]] = attrs[key]
                 consumed_keys.append(key)
-            elif key in mapping.values():
+            else:
                 # Server-side names can be stored directly.
-                relevant_attrs[key] = attrs[key]
-                consumed_keys.append(key)
+                search_key = key
+                values = mapping.values()
+                if insensitive:
+                    search_key = search_key.lower()
+                    values = [v.lower() for v in values]
+                if search_key in values:
+                    relevant_attrs[key] = attrs[key]
+                    consumed_keys.append(key)
 
         for key in consumed_keys:
             attrs.pop(key)
@@ -366,6 +392,10 @@ class Resource(object):
     @classmethod
     def _get_mapping(cls, component):
         """Return a dict of attributes of a given component on the class"""
+        # TODO(mordred) Invert this mapping, it should be server-side to local.
+        # The reason for that is that headers are case insensitive, whereas
+        # our local values are case sensitive. If we invert this dict, we can
+        # rely on CaseInsensitiveDict when doing comparisons.
         mapping = {}
         # Since we're looking at class definitions we need to include
         # subclasses, so check the whole MRO.
@@ -386,7 +416,8 @@ class Resource(object):
     @classmethod
     def _header_mapping(cls):
         """Return all Header members of this class"""
-        return cls._get_mapping(Header)
+        # TODO(mordred) this isn't helpful until we invert the dict
+        return structures.CaseInsensitiveDict(cls._get_mapping(Header))
 
     @classmethod
     def _uri_mapping(cls):
@@ -501,7 +532,7 @@ class Resource(object):
 
         return mapping
 
-    def _prepare_request(self, requires_id=True, prepend_key=False):
+    def _prepare_request(self, requires_id=None, prepend_key=False):
         """Prepare a request to be sent to the server
 
         Create operations don't require an ID, but all others do,
@@ -515,11 +546,20 @@ class Resource(object):
         as well a body and headers that are ready to send.
         Only dirty body and header contents will be returned.
         """
+        if requires_id is None:
+            requires_id = self.requires_id
+
         body = self._body.dirty
         if prepend_key and self.resource_key is not None:
             body = {self.resource_key: body}
 
-        headers = self._header.dirty
+        # TODO(mordred) Ensure headers have string values better than this
+        headers = {}
+        for k, v in self._header.dirty.items():
+            if isinstance(v, list):
+                headers[k] = ", ".join(v)
+            else:
+                headers[k] = str(v)
 
         uri = self.base_path % self._uri.attributes
         if requires_id:
@@ -539,7 +579,7 @@ class Resource(object):
         """
         return {k: v for k, v in component.items() if k in mapping.values()}
 
-    def _translate_response(self, response, has_body=True, error_message=None):
+    def _translate_response(self, response, has_body=None, error_message=None):
         """Given a KSA response, inflate this instance with its data
 
         DELETE operations don't return a body, so only try to work
@@ -548,6 +588,8 @@ class Resource(object):
         This method updates attributes that correspond to headers
         and body on this instance and clears the dirty set.
         """
+        if has_body is None:
+            has_body = self.has_body
         exceptions.raise_from_response(response, error_message=error_message)
         if has_body:
             body = response.json()
@@ -560,6 +602,8 @@ class Resource(object):
 
         headers = self._filter_component(response.headers,
                                          self._header_mapping())
+        headers = self._consume_attrs(
+            self._header_mapping(), response.headers.copy(), insensitive=True)
         self._header.attributes.update(headers)
         self._header.clean()
 
@@ -637,7 +681,7 @@ class Resource(object):
         response = session.head(request.url,
                                 headers={"Accept": ""})
 
-        self._translate_response(response)
+        self._translate_response(response, has_body=False)
         return self
 
     def update(self, session, prepend_key=True, has_body=True):

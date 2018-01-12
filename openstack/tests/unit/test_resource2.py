@@ -852,10 +852,9 @@ class TestResource(base.TestCase):
         class Test(resource2.Resource):
             attr = resource2.Header("attr")
 
-        response = FakeResponse({})
+        response = FakeResponse({}, headers={"attr": "value"})
 
         sot = Test()
-        sot._filter_component = mock.Mock(return_value={"attr": "value"})
 
         sot._translate_response(response, has_body=False)
 
@@ -1036,7 +1035,8 @@ class TestResourceActions(base.TestCase):
             self.request.url,
             headers={"Accept": ""})
 
-        self.sot._translate_response.assert_called_once_with(self.response)
+        self.sot._translate_response.assert_called_once_with(
+            self.response, has_body=False)
         self.assertEqual(result, self.sot)
 
     def _test_update(self, update_method='PUT', prepend_key=True,

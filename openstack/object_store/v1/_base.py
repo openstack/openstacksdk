@@ -11,12 +11,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack.object_store import object_store_service
-from openstack import resource
+from openstack import resource2 as resource
 
 
 class BaseResource(resource.Resource):
     service = object_store_service.ObjectStoreService()
+
+    update_method = 'POST'
+    create_method = 'PUT'
 
     #: Metadata stored for this resource. *Type: dict*
     metadata = dict()
@@ -25,7 +29,7 @@ class BaseResource(resource.Resource):
     _system_metadata = dict()
 
     def _calculate_headers(self, metadata):
-        headers = dict()
+        headers = {}
         for key in metadata:
             if key in self._system_metadata.keys():
                 header = self._system_metadata[key]
@@ -40,52 +44,34 @@ class BaseResource(resource.Resource):
         return headers
 
     def set_metadata(self, session, metadata):
-        url = self._get_url(self, self.id)
-        session.post(url,
-                     headers=self._calculate_headers(metadata))
+        request = self._prepare_request()
+        response = session.post(
+            request.url,
+            headers=self._calculate_headers(metadata))
+        self._translate_response(response, has_body=False)
+        response = session.head(request.url)
+        self._translate_response(response, has_body=False)
+        return self
 
     def delete_metadata(self, session, keys):
-        url = self._get_url(self, self.id)
+        request = self._prepare_request()
         headers = {key: '' for key in keys}
-        session.post(url,
-                     headers=self._calculate_headers(headers))
+        response = session.post(
+            request.url,
+            headers=self._calculate_headers(headers))
+        exceptions.raise_from_response(
+            response, error_message="Error deleting metadata keys")
+        return self
 
-    def _set_metadata(self):
+    def _set_metadata(self, headers):
         self.metadata = dict()
-        headers = self.get_headers()
 
         for header in headers:
             if header.startswith(self._custom_metadata_prefix):
                 key = header[len(self._custom_metadata_prefix):].lower()
                 self.metadata[key] = headers[header]
 
-    def get(self, session, include_headers=False, args=None):
-        super(BaseResource, self).get(session, include_headers, args)
-        self._set_metadata()
-        return self
-
-    def head(self, session):
-        super(BaseResource, self).head(session)
-        self._set_metadata()
-        return self
-
-    @classmethod
-    def update_by_id(cls, session, resource_id, attrs, path_args=None):
-        """Update a Resource with the given attributes.
-
-        :param session: The session to use for making this request.
-        :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param resource_id: This resource's identifier, if needed by
-                            the request. The default is ``None``.
-        :param dict attrs: The attributes to be sent in the body
-                           of the request.
-        :param dict path_args: This parameter is sent by the base
-                               class but is ignored for this method.
-
-        :return: A ``dict`` representing the response headers.
-        """
-        url = cls._get_url(None, resource_id)
-        headers = attrs.get(resource.HEADERS, dict())
-        headers['Accept'] = ''
-        return session.post(url,
-                            headers=headers).headers
+    def _translate_response(self, response, has_body=None, error_message=None):
+        super(BaseResource, self)._translate_response(
+            response, has_body=has_body, error_message=error_message)
+        self._set_metadata(response.headers)
