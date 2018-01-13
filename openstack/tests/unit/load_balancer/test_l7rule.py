@@ -38,7 +38,7 @@ class TestL7Rule(testtools.TestCase):
         test_l7rule = l7_rule.L7Rule()
         self.assertEqual('rule', test_l7rule.resource_key)
         self.assertEqual('rules', test_l7rule.resources_key)
-        self.assertEqual('/v2.0/lbaas/l7policies/%(l7_policy_id)s/rules',
+        self.assertEqual('/v2.0/lbaas/l7policies/%(l7policy_id)s/rules',
                          test_l7rule.base_path)
         self.assertEqual('load-balancer', test_l7rule.service.service_type)
         self.assertTrue(test_l7rule.allow_create)

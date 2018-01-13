@@ -17,7 +17,7 @@ from openstack import resource2 as resource
 class L7Rule(resource.Resource):
     resource_key = 'rule'
     resources_key = 'rules'
-    base_path = '/v2.0/lbaas/l7policies/%(l7_policy_id)s/rules'
+    base_path = '/v2.0/lbaas/l7policies/%(l7policy_id)s/rules'
     service = lb_service.LoadBalancerService()
 
     # capabilities
@@ -28,9 +28,10 @@ class L7Rule(resource.Resource):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'compare_type', 'created_at', 'invert', 'key', 'l7_policy_id',
-        'project_id', 'provisioning_status', 'type', 'updated_at',
-        'rule_value', 'operating_status', is_admin_state_up='admin_state_up',
+        'compare_type', 'created_at', 'invert', 'key', 'project_id',
+        'provisioning_status', 'type', 'updated_at', 'rule_value',
+        'operating_status', is_admin_state_up='admin_state_up',
+        l7_policy_id='l7policy_id',
     )
 
     #: Properties
@@ -46,7 +47,7 @@ class L7Rule(resource.Resource):
     #: The key to use for the comparison.
     key = resource.Body('key')
     #: The ID of the associated l7 policy
-    l7_policy_id = resource.URI('l7_policy_id')
+    l7_policy_id = resource.URI('l7policy_id')
     #: The operating status of this l7rule
     operating_status = resource.Body('operating_status')
     #: The ID of the project this l7policy is associated with.

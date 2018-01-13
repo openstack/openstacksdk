@@ -203,33 +203,33 @@ class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
                          l7_rule.L7Rule,
                          paginated=True,
                          method_kwargs={'l7_policy': self.L7_POLICY_ID},
-                         expected_kwargs={'l7_policy_id': self.L7_POLICY_ID})
+                         expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
 
     def test_l7_rule_get(self):
         self.verify_get(self.proxy.get_l7_rule,
                         l7_rule.L7Rule,
                         method_kwargs={'l7_policy': self.L7_POLICY_ID},
-                        expected_kwargs={'l7_policy_id': self.L7_POLICY_ID})
+                        expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
 
     def test_l7_rule_create(self):
         self.verify_create(self.proxy.create_l7_rule,
                            l7_rule.L7Rule,
                            method_kwargs={'l7_policy': self.L7_POLICY_ID},
-                           expected_kwargs={'l7_policy_id': self.L7_POLICY_ID})
+                           expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
 
     def test_l7_rule_delete(self):
         self.verify_delete(self.proxy.delete_l7_rule,
                            l7_rule.L7Rule,
                            True,
                            method_kwargs={'l7_policy': self.L7_POLICY_ID},
-                           expected_kwargs={'l7_policy_id': self.L7_POLICY_ID})
+                           expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
 
     def test_l7_rule_find(self):
         self._verify2('openstack.proxy2.BaseProxy._find',
                       self.proxy.find_l7_rule,
                       method_args=["RULE", self.L7_POLICY_ID],
                       expected_args=[l7_rule.L7Rule, "RULE"],
-                      expected_kwargs={"l7_policy_id": self.L7_POLICY_ID,
+                      expected_kwargs={"l7policy_id": self.L7_POLICY_ID,
                                        "ignore_missing": True})
 
     def test_l7_rule_update(self):
@@ -237,4 +237,4 @@ class TestLoadBalancerProxy(test_proxy_base2.TestProxyBase):
                       self.proxy.update_l7_rule,
                       method_args=["RULE", self.L7_POLICY_ID],
                       expected_args=[l7_rule.L7Rule, "RULE"],
-                      expected_kwargs={"l7_policy_id": self.L7_POLICY_ID})
+                      expected_kwargs={"l7policy_id": self.L7_POLICY_ID})
