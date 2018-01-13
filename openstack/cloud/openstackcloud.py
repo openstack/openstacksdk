@@ -459,26 +459,6 @@ class OpenStackCloud(_normalize.Normalizer):
         else:
             return self._cache
 
-    def _get_client(
-            self, service_key, client_class=None, interface_key=None,
-            pass_version_arg=True, **kwargs):
-        try:
-            client = self.cloud_config.get_legacy_client(
-                service_key=service_key, client_class=client_class,
-                interface_key=interface_key, pass_version_arg=pass_version_arg,
-                **kwargs)
-        except Exception:
-            self.log.debug(
-                "Couldn't construct %(service)s object",
-                {'service': service_key}, exc_info=True)
-            raise
-        if client is None:
-            raise OpenStackCloudException(
-                "Failed to instantiate {service} client."
-                " This could mean that your credentials are wrong.".format(
-                    service=service_key))
-        return client
-
     def _get_major_version_id(self, version):
         if isinstance(version, int):
             return version

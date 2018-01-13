@@ -542,21 +542,6 @@ def obj_list_to_munch(obj_list):
 obj_list_to_dict = obj_list_to_munch
 
 
-def warlock_to_dict(obj):
-    # This function is unused in shade - but it is a public function, so
-    # removing it would be rude. We don't actually have to depend on warlock
-    # ourselves to keep this - so just leave it here.
-    #
-    # glanceclient v2 uses warlock to construct its objects. Warlock does
-    # deep black magic to attribute look up to support validation things that
-    # means we cannot use normal obj_to_munch
-    obj_dict = munch.Munch()
-    for (key, value) in obj.items():
-        if isinstance(value, NON_CALLABLES) and not key.startswith('_'):
-            obj_dict[key] = value
-    return obj_dict
-
-
 def get_and_munchify(key, data):
     """Get the value associated to key and convert it.
 
