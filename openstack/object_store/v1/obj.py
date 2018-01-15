@@ -72,8 +72,6 @@ class Object(_base.BaseResource):
     #: TODO(briancurtin) there's a lot of content here...
     range = resource.Header("range", type=dict)
     #: See http://www.ietf.org/rfc/rfc2616.txt.
-    # TODO(mordred) We need a string-or-list formatter. type=list with a string
-    # value results in a list containing the characters.
     if_match = resource.Header("if-match", type=list)
     #: In combination with Expect: 100-Continue, specify an
     #: "If-None-Match: \*" header to query whether the server already

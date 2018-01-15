@@ -118,7 +118,9 @@ class TestObject(base_test_object.BaseTestObject):
         ])
         sot = obj.Object.new(container=self.container, name=self.object)
         sot.is_newest = True
-        sot.if_match = [self.headers['Etag']]
+        # if_match is a list type, but we're passing a string. This tests
+        # the up-conversion works properly.
+        sot.if_match = self.headers['Etag']
 
         rv = sot.download(self.conn.object_store)
 

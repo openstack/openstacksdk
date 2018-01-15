@@ -41,6 +41,37 @@ from openstack import format
 from openstack import utils
 
 
+def _convert_type(value, data_type, list_type=None):
+    # This should allow handling list of dicts that have their own
+    # Component type directly. See openstack/compute/v2/limits.py
+    # and the RateLimit type for an example.
+    if not data_type:
+        return value
+    if issubclass(data_type, list):
+        if isinstance(value, (list, tuple, set)):
+            if not list_type:
+                return value
+            ret = []
+            for raw in value:
+                ret.append(_convert_type(raw, list_type))
+            return ret
+        elif list_type:
+            return [_convert_type(value, list_type)]
+        # "if-match" in Object is a good example of the need here
+        return [value]
+    elif isinstance(value, data_type):
+        return value
+    if not isinstance(value, data_type):
+        if issubclass(data_type, format.Formatter):
+            return data_type.deserialize(value)
+        # This should allow handling sub-dicts that have their own
+        # Component type directly. See openstack/compute/v2/limits.py
+        # and the AbsoluteLimits type for an example.
+        if isinstance(value, dict):
+            return data_type(**value)
+        return data_type(value)
+
+
 class _BaseComponent(object):
 
     # The name this component is being tracked as in the Resource
@@ -49,7 +80,7 @@ class _BaseComponent(object):
     _map_cls = dict
 
     def __init__(self, name, type=None, default=None, alias=None,
-                 alternate_id=False, **kwargs):
+                 alternate_id=False, list_type=None, **kwargs):
         """A typed descriptor for a component that makes up a Resource
 
         :param name: The name this component exists as on the server
@@ -65,12 +96,15 @@ class _BaseComponent(object):
                              when `id` is not a name the Resource has.
                              This is a relatively uncommon case, and this
                              setting should only be used once per Resource.
+        :param list_type: If type is `list`, list_type designates what the
+                          type of the elements of the list should be.
         """
         self.name = name
         self.type = type
         self.default = default
         self.alias = alias
         self.alternate_id = alternate_id
+        self.list_type = list_type
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -89,21 +123,11 @@ class _BaseComponent(object):
         if value is None:
             return None
 
-        if self.type and not isinstance(value, self.type):
-            if issubclass(self.type, format.Formatter):
-                value = self.type.deserialize(value)
-            else:
-                value = self.type(value)
-
-        return value
+        return _convert_type(value, self.type, self.list_type)
 
     def __set__(self, instance, value):
-        if (self.type and not isinstance(value, self.type) and
-                value != self.default):
-            if issubclass(self.type, format.Formatter):
-                value = self.type.serialize(value)
-            else:
-                value = str(self.type(value))  # validate to fail fast
+        if value != self.default:
+            value = _convert_type(value, self.type, self.list_type)
 
         attributes = getattr(instance, self.key)
         attributes[self.name] = value
@@ -548,7 +572,16 @@ class Resource(object):
                         value = getattr(self, key, None)
                         if ignore_none and value is None:
                             continue
-                        mapping[key] = value
+                        if isinstance(value, Resource):
+                            mapping[key] = value.to_dict()
+                        elif (value and isinstance(value, list)
+                              and isinstance(value[0], Resource)):
+                            converted = []
+                            for raw in value:
+                                converted.append(raw.to_dict())
+                            mapping[key] = converted
+                        else:
+                            mapping[key] = value
 
         return mapping
 
