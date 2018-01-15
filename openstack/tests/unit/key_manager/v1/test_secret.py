@@ -98,10 +98,10 @@ class TestSecret(testtools.TestCase):
 
     def _test_payload(self, sot, metadata, content_type):
         content_type = "some/type"
-        sot = secret.Secret(id="id", payload_content_type=content_type)
 
         metadata_response = mock.Mock()
-        metadata_response.json = mock.Mock(return_value=metadata)
+        # Use copy because the dict gets consumed.
+        metadata_response.json = mock.Mock(return_value=metadata.copy())
 
         payload_response = mock.Mock()
         payload = "secret info"

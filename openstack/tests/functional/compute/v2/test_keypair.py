@@ -22,13 +22,11 @@ class TestKeypair(base.BaseFunctionalTest):
 
         # Keypairs can't have .'s in the name. Because why?
         self.NAME = self.getUniqueString().split('.')[-1]
-        self.ID = None
 
         sot = self.conn.compute.create_keypair(name=self.NAME)
         assert isinstance(sot, keypair.Keypair)
         self.assertEqual(self.NAME, sot.name)
         self._keypair = sot
-        self.ID = sot.id
 
     def tearDown(self):
         sot = self.conn.compute.delete_keypair(self._keypair)
@@ -37,12 +35,13 @@ class TestKeypair(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.conn.compute.find_keypair(self.NAME)
-        self.assertEqual(self.ID, sot.id)
+        self.assertEqual(self.NAME, sot.name)
+        self.assertEqual(self.NAME, sot.id)
 
     def test_get(self):
         sot = self.conn.compute.get_keypair(self.NAME)
         self.assertEqual(self.NAME, sot.name)
-        self.assertEqual(self.ID, sot.id)
+        self.assertEqual(self.NAME, sot.id)
 
     def test_list(self):
         names = [o.name for o in self.conn.compute.keypairs()]

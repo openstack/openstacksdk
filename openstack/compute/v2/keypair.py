@@ -34,8 +34,8 @@ class Keypair(resource2.Resource):
     # because all operations use the 'name' as an identifier.
     # Additionally, the 'id' field only appears *after* creation,
     # so suddenly you have an 'id' field filled in after the fact,
-    # and it just gets in the way. We need to cover this up by having
-    # the name be both our id and name.
+    # and it just gets in the way. We need to cover this up by listing
+    # name as alternate_id and listing id as coming from name.
     #: The id identifying the keypair
     id = resource2.Body('name')
     #: A name identifying the keypair
@@ -44,6 +44,12 @@ class Keypair(resource2.Resource):
     private_key = resource2.Body('private_key')
     #: The SSH public key that is paired with the server.
     public_key = resource2.Body('public_key')
+
+    def __init__(self, **attrs):
+        # TODO(mordred) Maybe let's figure out how to make the base constructor
+        # do this if alternate_id is specified?
+        attrs.setdefault('name', attrs.pop('id', None))
+        super(Keypair, self).__init__(**attrs)
 
     @classmethod
     def list(cls, session, paginated=False):

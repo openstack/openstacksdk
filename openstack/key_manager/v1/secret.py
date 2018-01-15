@@ -97,7 +97,7 @@ class Secret(resource2.Resource):
             response["payload"] = payload.text
 
         # We already have the JSON here so don't call into _translate_response
-        body = self._filter_component(response, self._body_mapping())
+        body = self._consume_attrs(self._body_mapping(), response)
         self._body.attributes.update(body)
         self._body.clean()
 
