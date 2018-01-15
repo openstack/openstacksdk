@@ -38,7 +38,7 @@ class TestPolicy(testtools.TestCase):
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.patch_update)
+        self.assertEqual('PATCH', sot.update_method)
 
     def test_make_it(self):
         sot = policy.Policy(**EXAMPLE)

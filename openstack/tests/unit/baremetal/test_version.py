@@ -37,8 +37,8 @@ class TestVersion(testtools.TestCase):
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_head)
-        self.assertFalse(sot.patch_update)
-        self.assertFalse(sot.put_create)
+        self.assertEqual('PUT', sot.update_method)
+        self.assertEqual('POST', sot.create_method)
 
     def test_make_it(self):
         sot = version.Version(**EXAMPLE)

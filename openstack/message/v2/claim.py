@@ -31,7 +31,7 @@ class Claim(resource2.Resource):
     allow_get = True
     allow_update = True
     allow_delete = True
-    patch_update = True
+    update_method = 'PATCH'
 
     # Properties
     #: The value in seconds indicating how long the claim has existed.

@@ -27,7 +27,7 @@ class Receiver(resource.Resource):
     allow_update = True
     allow_delete = True
 
-    patch_update = True
+    update_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'name', 'type', 'cluster_id', 'action', 'sort', 'global_project',

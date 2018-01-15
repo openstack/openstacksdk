@@ -27,7 +27,7 @@ class Policy(resource.Resource):
     allow_delete = True
     allow_update = True
 
-    patch_update = True
+    update_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'name', 'type', 'sort', 'global_project')
@@ -63,4 +63,4 @@ class PolicyValidate(Policy):
     allow_delete = False
     allow_update = False
 
-    patch_update = False
+    update_method = 'PUT'
