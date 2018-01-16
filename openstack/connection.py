@@ -252,7 +252,7 @@ class Connection(object):
         # If we don't have a proxy, just instantiate BaseProxy so that
         # we get an adapter.
         if isinstance(service, six.string_types):
-            service_type = service_description
+            service_type = service
             service = service_description.ServiceDescription(service_type)
         else:
             service_type = service.service_type
