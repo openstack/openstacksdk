@@ -27,7 +27,7 @@ class Profile(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    patch_update = True
+    update_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'sort', 'global_project', 'type', 'name')
@@ -61,4 +61,4 @@ class ProfileValidate(Profile):
     allow_delete = False
     allow_list = False
 
-    patch_update = False
+    update_method = 'PUT'

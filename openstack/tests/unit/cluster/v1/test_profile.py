@@ -57,7 +57,7 @@ class TestProfile(testtools.TestCase):
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.patch_update)
+        self.assertEqual('PATCH', sot.update_method)
 
     def test_instantiate(self):
         sot = profile.Profile(**FAKE)
@@ -89,4 +89,4 @@ class TestProfileValidate(testtools.TestCase):
         self.assertFalse(sot.allow_update)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
-        self.assertFalse(sot.patch_update)
+        self.assertEqual('PUT', sot.update_method)

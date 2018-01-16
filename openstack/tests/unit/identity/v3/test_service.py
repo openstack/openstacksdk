@@ -38,7 +38,7 @@ class TestService(testtools.TestCase):
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.patch_update)
+        self.assertEqual('PATCH', sot.update_method)
 
         self.assertDictEqual(
             {

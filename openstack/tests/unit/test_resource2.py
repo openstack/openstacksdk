@@ -424,8 +424,8 @@ class TestResource(base.TestCase):
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
         self.assertFalse(sot.allow_head)
-        self.assertFalse(sot.patch_update)
-        self.assertFalse(sot.put_create)
+        self.assertEqual('PUT', sot.update_method)
+        self.assertEqual('POST', sot.create_method)
 
     def test_repr(self):
         a = {"a": 1}
@@ -995,7 +995,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            put_create = True
+            create_method = 'PUT'
 
         self._test_create(Test, requires_id=True, prepend_key=True)
 
@@ -1004,7 +1004,7 @@ class TestResourceActions(base.TestCase):
             service = self.service_name
             base_path = self.base_path
             allow_create = True
-            put_create = False
+            create_method = 'POST'
 
         self._test_create(Test, requires_id=False, prepend_key=True)
 
@@ -1039,9 +1039,9 @@ class TestResourceActions(base.TestCase):
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
 
-    def _test_update(self, patch_update=False, prepend_key=True,
+    def _test_update(self, update_method='PUT', prepend_key=True,
                      has_body=True):
-        self.sot.patch_update = patch_update
+        self.sot.update_method = update_method
 
         # Need to make sot look dirty so we can attempt an update
         self.sot._body = mock.Mock()
@@ -1053,11 +1053,15 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with(
             prepend_key=prepend_key)
 
-        if patch_update:
+        if update_method == 'PATCH':
             self.session.patch.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers)
-        else:
+        elif update_method == 'POST':
+            self.session.post.assert_called_once_with(
+                self.request.url,
+                json=self.request.body, headers=self.request.headers)
+        elif update_method == 'PUT':
             self.session.put.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers)
@@ -1066,10 +1070,11 @@ class TestResourceActions(base.TestCase):
             self.response, has_body=has_body)
 
     def test_update_put(self):
-        self._test_update(patch_update=False, prepend_key=True, has_body=True)
+        self._test_update(update_method='PUT', prepend_key=True, has_body=True)
 
     def test_update_patch(self):
-        self._test_update(patch_update=True, prepend_key=False, has_body=False)
+        self._test_update(
+            update_method='PATCH', prepend_key=False, has_body=False)
 
     def test_update_not_dirty(self):
         self.sot._body = mock.Mock()

@@ -28,7 +28,7 @@ class Node(resource.Resource):
     allow_delete = True
     allow_list = True
 
-    patch_update = True
+    update_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'show_details', 'name', 'sort', 'global_project', 'cluster_id',

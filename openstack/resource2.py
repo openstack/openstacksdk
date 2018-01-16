@@ -247,10 +247,11 @@ class Resource(object):
     allow_list = False
     #: Allow head operation for this resource.
     allow_head = False
-    #: Use PATCH for update operations on this resource.
-    patch_update = False
-    #: Use PUT for create operations on this resource.
-    put_create = False
+
+    #: Method for udating a resource (PUT, PATCH, POST)
+    update_method = "PUT"
+    #: Method for creating a resource (POST, PUT)
+    create_method = "POST"
 
     def __init__(self, _synchronized=False, **attrs):
         """The base resource
@@ -578,16 +579,19 @@ class Resource(object):
         if not self.allow_create:
             raise exceptions.MethodNotSupported(self, "create")
 
-        if self.put_create:
+        if self.create_method == 'PUT':
             request = self._prepare_request(requires_id=True,
                                             prepend_key=prepend_key)
             response = session.put(request.url,
                                    json=request.body, headers=request.headers)
-        else:
+        elif self.create_method == 'POST':
             request = self._prepare_request(requires_id=False,
                                             prepend_key=prepend_key)
             response = session.post(request.url,
                                     json=request.body, headers=request.headers)
+        else:
+            raise exceptions.ResourceFailure(
+                msg="Invalid create method: %s" % self.create_method)
 
         self._translate_response(response)
         return self
@@ -661,13 +665,18 @@ class Resource(object):
 
         request = self._prepare_request(prepend_key=prepend_key)
 
-        if self.patch_update:
-            response = session.patch(request.url,
-                                     json=request.body,
-                                     headers=request.headers)
+        if self.update_method == 'PATCH':
+            response = session.patch(
+                request.url, json=request.body, headers=request.headers)
+        elif self.update_method == 'POST':
+            response = session.post(
+                request.url, json=request.body, headers=request.headers)
+        elif self.update_method == 'PUT':
+            response = session.put(
+                request.url, json=request.body, headers=request.headers)
         else:
-            response = session.put(request.url,
-                                   json=request.body, headers=request.headers)
+            raise exceptions.ResourceFailure(
+                msg="Invalid update method: %s" % self.update_method)
 
         self._translate_response(response, has_body=has_body)
         return self

@@ -783,7 +783,7 @@ class ResourceTests(base.TestCase):
     def test_put_update(self):
         class FakeResourcePut(FakeResource):
             # This is False by default, but explicit for this test.
-            patch_update = False
+            update_method = 'PUT'
 
         resp = FakeResponse(fake_body, headers={'location': 'foo'})
         self.session.put = mock.Mock(return_value=resp)

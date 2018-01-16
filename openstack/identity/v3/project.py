@@ -27,7 +27,7 @@ class Project(resource.Resource):
     allow_update = True
     allow_delete = True
     allow_list = True
-    patch_update = True
+    update_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'domain_id',
