@@ -14,7 +14,7 @@
 Managing policies in the Cluster service.
 
 For a full guide see
-https://developer.openstack.org/sdks/python/openstacksdk/users/guides/cluster.html
+https://developer.openstack.org/sdks/python/openstacksdk/user/guides/cluster.html
 """
 
 
