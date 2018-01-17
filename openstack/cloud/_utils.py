@@ -188,7 +188,7 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
         return name_or_id
 
     # If a uuid is passed short-circuit it calling the
-    # get_<resorce_name>_by_id method
+    # get_<resource_name>_by_id method
     if getattr(cloud, 'use_direct_get', False) and _is_uuid_like(name_or_id):
         get_resource = getattr(cloud, 'get_%s_by_id' % resource, None)
         if get_resource:
