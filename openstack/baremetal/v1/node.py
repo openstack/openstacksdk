@@ -107,7 +107,7 @@ class Node(resource.Resource):
     target_provision_state = resource.Body("target_provision_state")
     #: The requested state during a state transition.
     target_power_state = resource.Body("target_power_state")
-    #: The requested RAID configration of the node which will be applied when
+    #: The requested RAID configuration of the node which will be applied when
     #: the node next transitions through the CLEANING state.
     target_raid_config = resource.Body("target_raid_config")
     #: Timestamp at which the node was last updated.
