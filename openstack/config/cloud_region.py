@@ -21,7 +21,7 @@ from keystoneauth1 import session as ks_session
 import requestsexceptions
 from six.moves import urllib
 
-import openstack
+from openstack import version as openstack_version
 from openstack import _log
 from openstack.config import exceptions
 
@@ -212,7 +212,7 @@ class CloudRegion(object):
                 timeout=self.config['api_timeout'])
             if hasattr(self._keystone_session, 'additional_user_agent'):
                 self._keystone_session.additional_user_agent.append(
-                    ('openstacksdk', openstack.__version__))
+                    ('openstacksdk', openstack_version.__version__))
             # Using old keystoneauth with new os-client-config fails if
             # we pass in app_name and app_version. Those are not essential,
             # nor a reason to bump our minimum, so just test for the session

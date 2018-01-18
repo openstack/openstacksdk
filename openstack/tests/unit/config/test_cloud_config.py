@@ -16,6 +16,7 @@ from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
 import mock
 
+from openstack import version as openstack_version
 from openstack.config import cloud_region
 from openstack.config import defaults
 from openstack.config import exceptions
@@ -194,7 +195,7 @@ class TestCloudRegion(base.TestCase):
             verify=True, cert=None, timeout=None)
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', '1.2.3')])
+            [('openstacksdk', openstack_version.__version__)])
 
     @mock.patch.object(ksa_session, 'Session')
     def test_get_session_with_app_name(self, mock_session):
@@ -216,7 +217,7 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual(fake_session.app_version, "test_version")
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', '1.2.3')])
+            [('openstacksdk', openstack_version.__version__)])
 
     @mock.patch.object(ksa_session, 'Session')
     def test_get_session_with_timeout(self, mock_session):
@@ -234,7 +235,7 @@ class TestCloudRegion(base.TestCase):
             verify=True, cert=None, timeout=9)
         self.assertEqual(
             fake_session.additional_user_agent,
-            [('openstacksdk', '1.2.3')])
+            [('openstacksdk', openstack_version.__version__)])
 
     @mock.patch.object(ksa_session, 'Session')
     def test_override_session_endpoint_override(self, mock_session):

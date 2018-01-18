@@ -34,7 +34,7 @@ from six.moves import urllib
 import keystoneauth1.exceptions
 import keystoneauth1.session
 
-import openstack
+from openstack import version as openstack_version
 from openstack import _adapter
 from openstack import _log
 from openstack.cloud.exc import *  # noqa
@@ -691,7 +691,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 self._keystone_session = self.cloud_config.get_session()
                 if hasattr(self._keystone_session, 'additional_user_agent'):
                     self._keystone_session.additional_user_agent.append(
-                        ('openstacksdk', openstack.__version__))
+                        ('openstacksdk', openstack_version.__version__))
             except Exception as e:
                 raise OpenStackCloudException(
                     "Error authenticating to keystone: %s " % str(e))

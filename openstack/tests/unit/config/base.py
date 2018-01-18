@@ -213,8 +213,6 @@ class TestCase(base.BaseTestCase):
         self.secure_yaml = _write_yaml(SECURE_CONF)
         self.vendor_yaml = _write_yaml(VENDOR_CONF)
         self.no_yaml = _write_yaml(NO_CONF)
-        self.useFixture(fixtures.MonkeyPatch(
-            'openstack.__version__', '1.2.3'))
 
         # Isolate the test runs from the environment
         # Do this as two loops because you can't modify the dict in a loop

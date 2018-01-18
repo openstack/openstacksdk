@@ -13,7 +13,6 @@
 # limitations under the License.
 
 __all__ = [
-    '__version__',
     'connect',
     'enable_logging',
 ]
@@ -21,7 +20,6 @@ __all__ = [
 import warnings
 
 import keystoneauth1.exceptions
-import pbr.version
 import requestsexceptions
 
 from openstack._log import enable_logging  # noqa
@@ -30,8 +28,6 @@ from openstack.cloud.exc import *  # noqa
 from openstack.cloud.openstackcloud import OpenStackCloud
 from openstack.cloud.operatorcloud import OperatorCloud
 import openstack.connection
-
-__version__ = pbr.version.VersionInfo('openstacksdk').version_string()
 
 if requestsexceptions.SubjectAltNameWarning:
     warnings.filterwarnings(
