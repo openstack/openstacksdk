@@ -20,7 +20,7 @@ Functional tests for `shade` identity methods.
 import random
 import string
 
-from openstack import OpenStackCloudException
+from openstack.cloud.exc import OpenStackCloudException
 from openstack.tests.functional.cloud import base
 
 

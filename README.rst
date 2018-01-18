@@ -138,14 +138,14 @@ Create a server using objects configured with the ``clouds.yaml`` file:
 
 .. code-block:: python
 
-    import openstack
+    import openstack.cloud
 
     # Initialize and turn on debug logging
     openstack.enable_logging(debug=True)
 
     # Initialize cloud
     # Cloud configs are read with openstack.config
-    cloud = openstack.openstack_cloud(cloud='mordred')
+    cloud = openstack.cloud.openstack_cloud(cloud='mordred')
 
     # Upload an image to the cloud
     image = cloud.create_image(

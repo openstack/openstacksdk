@@ -57,7 +57,7 @@ class TestStack(base.RequestsMockTestCase):
                  status_code=404)
         ])
         with testtools.ExpectedException(
-                openstack.OpenStackCloudURINotFound):
+                openstack.cloud.OpenStackCloudURINotFound):
             self.cloud.list_stacks()
         self.assert_calls()
 
@@ -110,7 +110,7 @@ class TestStack(base.RequestsMockTestCase):
                  status_code=404)
         ])
         with testtools.ExpectedException(
-                openstack.OpenStackCloudURINotFound):
+                openstack.cloud.OpenStackCloudURINotFound):
             self.cloud.search_stacks()
 
     def test_delete_stack(self):
@@ -171,7 +171,7 @@ class TestStack(base.RequestsMockTestCase):
                  reason="ouch"),
         ])
         with testtools.ExpectedException(
-                openstack.OpenStackCloudBadRequest):
+                openstack.cloud.OpenStackCloudBadRequest):
             self.cloud.delete_stack(self.stack_id)
         self.assert_calls()
 
@@ -288,7 +288,7 @@ class TestStack(base.RequestsMockTestCase):
         ])
 
         with testtools.ExpectedException(
-                openstack.OpenStackCloudException):
+                openstack.cloud.OpenStackCloudException):
             self.cloud.delete_stack(self.stack_id, wait=True)
 
         self.assert_calls()

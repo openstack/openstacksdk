@@ -38,14 +38,14 @@ class BaseFunctionalTestCase(base.TestCase):
     def _set_user_cloud(self, **kwargs):
         user_config = self.config.get_one(
             cloud=self._demo_name, **kwargs)
-        self.user_cloud = openstack.OpenStackCloud(
+        self.user_cloud = openstack.cloud.OpenStackCloud(
             cloud_config=user_config,
             log_inner_exceptions=True)
 
     def _set_operator_cloud(self, **kwargs):
         operator_config = self.config.get_one(
             cloud=self._op_name, **kwargs)
-        self.operator_cloud = openstack.OperatorCloud(
+        self.operator_cloud = openstack.cloud.OperatorCloud(
             cloud_config=operator_config,
             log_inner_exceptions=True)
 

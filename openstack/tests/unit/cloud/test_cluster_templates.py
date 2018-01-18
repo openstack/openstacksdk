@@ -152,7 +152,7 @@ class TestClusterTemplates(base.RequestsMockTestCase):
         # match the more specific HTTPError, even though it's a subclass
         # of OpenStackCloudException.
         with testtools.ExpectedException(
-                openstack.OpenStackCloudHTTPError):
+                openstack.cloud.OpenStackCloudHTTPError):
             self.cloud.create_cluster_template('fake-cluster-template')
         self.assert_calls()
 

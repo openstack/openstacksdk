@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import openstack
+import openstack.cloud
 from openstack.tests.unit import base
 
 
@@ -50,7 +50,7 @@ class TestOpenStackCloudOperatorNoAuth(base.RequestsMockTestCase):
         # with 'v1'. As such, since we are overriding the endpoint,
         # we must explicitly do the same as we move away from the
         # client library.
-        self.cloud_noauth = openstack.operator_cloud(
+        self.cloud_noauth = openstack.cloud.operator_cloud(
             auth_type='none',
             baremetal_endpoint_override="https://bare-metal.example.com/v1")
 
@@ -63,7 +63,7 @@ class TestOpenStackCloudOperatorNoAuth(base.RequestsMockTestCase):
 
         The old way of doing this was to abuse admin_token.
         """
-        self.cloud_noauth = openstack.operator_cloud(
+        self.cloud_noauth = openstack.cloud.operator_cloud(
             auth_type='admin_token',
             auth=dict(
                 endpoint='https://bare-metal.example.com/v1',

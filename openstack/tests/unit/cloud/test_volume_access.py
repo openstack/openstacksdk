@@ -187,7 +187,7 @@ class TestVolumeAccess(base.RequestsMockTestCase):
                      qs_elements=['is_public=None']),
                  json={'volume_types': [volume_type]})])
         with testtools.ExpectedException(
-                openstack.OpenStackCloudException,
+                openstack.cloud.OpenStackCloudException,
                 "VolumeType not found: MISSING"):
             self.op_cloud.add_volume_type_access(
                 "MISSING", project_001['project_id'])

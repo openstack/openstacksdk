@@ -144,7 +144,7 @@ class TestObject(BaseTestObject):
             dict(method='DELETE', uri=self.container_endpoint,
                  status_code=409)])
         self.assertRaises(
-            openstack.OpenStackCloudException,
+            openstack.cloud.OpenStackCloudException,
             self.cloud.delete_container, self.container)
         self.assert_calls()
 
@@ -171,7 +171,7 @@ class TestObject(BaseTestObject):
             dict(method='POST', uri=self.container_endpoint,
                  status_code=409)])
         self.assertRaises(
-            openstack.OpenStackCloudException,
+            openstack.cloud.OpenStackCloudException,
             self.cloud.update_container, self.container, dict(foo='bar'))
         self.assert_calls()
 
@@ -205,7 +205,7 @@ class TestObject(BaseTestObject):
 
     def test_set_container_access_invalid(self):
         self.assertRaises(
-            openstack.OpenStackCloudException,
+            openstack.cloud.OpenStackCloudException,
             self.cloud.set_container_access, self.container, 'invalid')
 
     def test_get_container_access(self):
@@ -360,7 +360,7 @@ class TestObject(BaseTestObject):
                                  status_code=416)])
 
         self.assertRaises(
-            openstack.OpenStackCloudException,
+            openstack.cloud.OpenStackCloudException,
             self.cloud.get_object,
             self.container, self.object)
 

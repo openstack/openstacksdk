@@ -22,7 +22,7 @@ Tests floating IP resource methods for Neutron and Nova-network.
 from mock import patch
 
 from openstack.cloud import meta
-from openstack import OpenStackCloud
+from openstack.cloud import OpenStackCloud
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
