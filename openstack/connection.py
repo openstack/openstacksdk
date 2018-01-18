@@ -74,18 +74,16 @@ try to find it and if that fails, you would create it::
         network = conn.network.create_network({"name": "zuul"})
 
 """
-import importlib
-
 import keystoneauth1.exceptions
 import os_service_types
+import six
 from six.moves import urllib
 
 from openstack import _log
 import openstack.config
 from openstack.config import cloud_region
 from openstack import exceptions
-from openstack import proxy
-from openstack import proxy2
+from openstack import service_description
 from openstack import task_manager
 
 _logger = _log.setup_logging('openstack')
@@ -127,6 +125,7 @@ class Connection(object):
                  # TODO(shade) Remove these once we've shifted
                  # python-openstackclient to not use the profile interface.
                  authenticator=None, profile=None,
+                 extra_services=None,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -162,12 +161,19 @@ class Connection(object):
         :param profile: DEPRECATED. Only exists for short-term backwards
                         compatibility for python-openstackclient while we
                         transition.
+        :param extra_services: List of
+            :class:`~openstack.service_description.ServiceDescription`
+            objects describing services that openstacksdk otherwise does not
+            know about.
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion contructor.
         """
         self.config = config
-        self.service_type_manager = os_service_types.ServiceTypes()
+        self._extra_services = {}
+        if extra_services:
+            for service in extra_services:
+                self._extra_services[service.service_type] = service
 
         if not self.config:
             if profile:
@@ -193,7 +199,16 @@ class Connection(object):
 
         self.session = self.config.get_session()
 
-        self._open()
+        service_type_manager = os_service_types.ServiceTypes()
+        for service in service_type_manager.services:
+            self.add_service(
+                service_description.OpenStackServiceDescription(
+                    service, self.config))
+        # TODO(mordred) openstacksdk has support for the metric service
+        # which is not in service-types-authority. What do we do about that?
+        self.add_service(
+            service_description.OpenStackServiceDescription(
+                dict(service_type='metric'), self.config))
 
     def _get_config_from_profile(self, profile, authenticator, **kwargs):
         """Get openstack.config objects from legacy profile."""
@@ -222,31 +237,31 @@ class Connection(object):
             name=name, region_name=region_name, config=kwargs)
         config._auth = authenticator
 
-    def _open(self):
-        """Open the connection. """
-        for service in self.service_type_manager.services:
-            self._load(service['service_type'])
-        # TODO(mordred) openstacksdk has support for the metric service
-        # which is not in service-types-authority. What do we do about that?
-        self._load('metric')
+    def add_service(self, service):
+        """Add a service to the Connection.
 
-    def _load(self, service_type):
-        service = self._get_service(service_type)
+        Attaches an instance of the :class:`~openstack.proxy2.BaseProxy`
+        class contained in
+        :class:`~openstack.service_description.ServiceDescription`.
+        The :class:`~openstack.proxy2.BaseProxy` will be attached to the
+        `Connection` by its ``service_type`` and by any ``aliases`` that
+        may be specified.
 
-        if service:
-            module_name = service.get_module() + "._proxy"
-            module = importlib.import_module(module_name)
-            proxy_class = getattr(module, "Proxy")
-            if not (issubclass(proxy_class, proxy.BaseProxy) or
-                    issubclass(proxy_class, proxy2.BaseProxy)):
-                raise TypeError("%s.Proxy must inherit from BaseProxy" %
-                                proxy_class.__module__)
+        :param openstack.service_description.ServiceDescription service:
+            Object describing the service to be attached. As a convenience,
+            if ``service`` is a string it will be treated as a ``service_type``
+            and a basic
+            :class:`~openstack.service_description.ServiceDescription`
+            will be created.
+        """
+        # If we don't have a proxy, just instantiate BaseProxy so that
+        # we get an adapter.
+        if isinstance(service, six.string_types):
+            service_type = service_description
+            service = service_description.ServiceDescription(service_type)
         else:
-            # If we don't have a proxy, just instantiate BaseProxy so that
-            # we get an adapter.
-            proxy_class = proxy2.BaseProxy
-
-        proxy_object = proxy_class(
+            service_type = service.service_type
+        proxy_object = service.proxy_class(
             session=self.config.get_session(),
             task_manager=self.task_manager,
             allow_version_hack=True,
@@ -256,63 +271,10 @@ class Connection(object):
             region_name=self.config.region_name,
             version=self.config.get_api_version(service_type)
         )
-        all_types = self.service_type_manager.get_all_types(service_type)
+
         # Register the proxy class with every known alias
-        for attr_name in [name.replace('-', '_') for name in all_types]:
-            setattr(self, attr_name, proxy_object)
-
-    def _get_all_types(self, service_type):
-        # We make connection attributes for all official real type names
-        # and aliases. Three services have names they were called by in
-        # openstacksdk that are not covered by Service Types Authority aliases.
-        # Include them here - but take heed, no additional values should ever
-        # be added to this list.
-        # that were only used in openstacksdk resource naming.
-        LOCAL_ALIASES = {
-            'baremetal': 'bare_metal',
-            'block_storage': 'block_store',
-            'clustering': 'cluster',
-        }
-        all_types = self.service_type_manager.get_all_types(service_type)
-        if service_type in LOCAL_ALIASES:
-            all_types.append(LOCAL_ALIASES[service_type])
-        return all_types
-
-    def _get_service(self, official_service_type):
-        service_class = None
-        for service_type in self._get_all_types(official_service_type):
-            service_class = self._find_service_class(service_type)
-            if service_class:
-                break
-        if not service_class:
-            return None
-        # TODO(mordred) Replace this with proper discovery
-        version_string = self.config.get_api_version(official_service_type)
-        version = None
-        if version_string:
-            version = 'v{version}'.format(version=version_string[0])
-        return service_class(version=version)
-
-    def _find_service_class(self, service_type):
-        package_name = 'openstack.{service_type}'.format(
-            service_type=service_type).replace('-', '_')
-        module_name = service_type.replace('-', '_') + '_service'
-        class_name = ''.join(
-            [part.capitalize() for part in module_name.split('_')])
-        try:
-            import_name = '.'.join([package_name, module_name])
-            service_module = importlib.import_module(import_name)
-        except ImportError:
-            return None
-        service_class = getattr(service_module, class_name, None)
-        if not service_class:
-            _logger.warn(
-                'Unable to find class {class_name} in module for service'
-                ' for service {service_type}'.format(
-                    class_name=class_name,
-                    service_type=service_type))
-            return None
-        return service_class
+        for attr_name in service.all_types:
+            setattr(self, attr_name.replace('-', '_'), proxy_object)
 
     def authorize(self):
         """Authorize this Connection

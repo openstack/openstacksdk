@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added a new method `openstack.connection.Connection.add_service` which
+    allows the registration of Proxy/Resource classes defined externally.
