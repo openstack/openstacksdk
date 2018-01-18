@@ -23,6 +23,7 @@ from six.moves import urllib
 
 import openstack
 from openstack import _log
+from openstack.config import defaults as config_defaults
 from openstack.config import exceptions
 
 
@@ -52,8 +53,10 @@ def from_session(session, name=None, config=None, **kwargs):
     # If someone is constructing one of these from a Session, then they are
     # not using a named config. Use the hostname of their auth_url instead.
     name = name or urllib.parse.urlparse(session.auth.auth_url).hostname
-    config = config or {}
-    return CloudRegion(name=name, session=session, config=config, **kwargs)
+    config_dict = config_defaults.get_defaults()
+    config_dict.update(config or {})
+    return CloudRegion(
+        name=name, session=session, config=config_dict, **kwargs)
 
 
 class CloudRegion(object):
