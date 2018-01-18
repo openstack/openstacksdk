@@ -11,7 +11,7 @@
 # under the License.
 
 import openstack
-openstack.simple_logging(http_debug=True)
+openstack.enable_logging(http_debug=True)
 
 cloud = openstack.openstack_cloud(
     cloud='datacentred', app_name='AmazingApp', app_version='1.0')

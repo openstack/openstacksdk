@@ -13,7 +13,7 @@
 import openstack
 
 # Initialize and turn on debug logging
-openstack.simple_logging(debug=True)
+openstack.enable_logging(debug=True)
 
 for cloud_name, region_name, image, flavor_id in [
         ('my-vexxhost', 'ca-ymq-1', 'Ubuntu 16.04.1 LTS [2017-03-03]',

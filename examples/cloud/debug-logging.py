@@ -11,7 +11,7 @@
 # under the License.
 
 import openstack
-openstack.simple_logging(debug=True)
+openstack.enable_logging(debug=True)
 
 cloud = openstack.openstack_cloud(
     cloud='my-vexxhost', region_name='ca-ymq-1')

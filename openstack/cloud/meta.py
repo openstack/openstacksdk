@@ -232,7 +232,7 @@ def find_best_address(addresses, family, public=False, cloud_public=True):
                 pass
     # Give up and return the first - none work as far as we can tell
     if do_check:
-        log = _log.setup_logging('shade')
+        log = _log.setup_logging('openstack')
         log.debug(
             'The cloud returned multiple addresses, and none of them seem'
             ' to work. That might be what you wanted, but we have no clue'
@@ -381,7 +381,7 @@ def _get_supplemental_addresses(cloud, server):
                         # This SHOULD return one and only one FIP - but doing
                         # it as a search/list lets the logic work regardless
                     if fip['fixed_ip_address'] not in fixed_ip_mapping:
-                        log = _log.setup_logging('shade')
+                        log = _log.setup_logging('openstack')
                         log.debug(
                             "The cloud returned floating ip %(fip)s attached"
                             " to server %(server)s but the fixed ip associated"

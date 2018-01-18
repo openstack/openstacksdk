@@ -182,7 +182,7 @@ class OpenStackConfig(object):
                  pw_func=None, session_constructor=None,
                  app_name=None, app_version=None,
                  load_yaml_config=True):
-        self.log = _log.setup_logging(__name__)
+        self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
         self._app_name = app_name
         self._app_version = app_version

@@ -22,8 +22,6 @@ These guides walk you through how to make use of the libraries we provide
 to work with each OpenStack service. If you're looking for a cookbook
 approach, this is where you'll want to begin.
 
-.. TODO(shade) Merge guides/logging and logging
-
 .. toctree::
    :maxdepth: 1
 
@@ -32,7 +30,6 @@ approach, this is where you'll want to begin.
    Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
    Using Cloud Abstration Layer <usage>
    Logging <guides/logging>
-   Shade Logging <logging>
    Microversions <microversions>
    Baremetal <guides/baremetal>
    Block Storage <guides/block_storage>

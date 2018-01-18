@@ -52,8 +52,8 @@ The resulting preference print out would look something like::
 """
 
 import copy
-import logging
 
+from openstack import _log
 from openstack.baremetal import baremetal_service
 from openstack.block_storage import block_storage_service
 from openstack.clustering import clustering_service
@@ -72,7 +72,7 @@ from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
 from openstack.workflow import workflow_service
 
-_logger = logging.getLogger(__name__)
+_logger = _log.setup_logging('openstack')
 
 
 class Profile(object):

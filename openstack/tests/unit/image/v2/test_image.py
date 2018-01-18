@@ -272,7 +272,7 @@ class TestImage(testtools.TestCase):
 
         self.sess.get.side_effect = [resp1, resp2]
 
-        with self.assertLogs(logger=image.__name__, level="WARNING") as log:
+        with self.assertLogs(logger='openstack', level="WARNING") as log:
             rv = sot.download(self.sess)
 
             self.assertEqual(len(log.records), 1,

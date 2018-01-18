@@ -11,7 +11,7 @@
 # under the License.
 
 import openstack
-openstack.simple_logging()
+openstack.enable_logging()
 
 cloud = openstack.openstack_cloud(cloud='fuga', region_name='cystack')
 image = cloud.get_image(

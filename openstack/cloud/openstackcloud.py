@@ -152,7 +152,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if log_inner_exceptions:
             OpenStackCloudException.log_inner_exceptions = True
 
-        self.log = _log.setup_logging('openstack.cloud')
+        self.log = _log.setup_logging('openstack')
 
         if not cloud_config:
             config = openstack.config.OpenStackConfig(
