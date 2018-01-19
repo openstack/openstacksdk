@@ -136,8 +136,13 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
         try:
             rv = res.delete(
                 self,
-                error_message="No {resource_type} found for {value}".format(
-                    resource_type=resource_type.__name__, value=value))
+                error_message=(
+                    "Unable to delete {resource_type} for {value}".format(
+                        resource_type=resource_type.__name__,
+                        value=value,
+                    )
+                )
+            )
         except exceptions.NotFoundException:
             if ignore_missing:
                 return None
