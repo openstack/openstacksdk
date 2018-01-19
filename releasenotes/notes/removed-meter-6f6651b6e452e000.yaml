@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    Meter and Alarm services have been removed. The Ceilometer REST API has
+    been deprecated for quite some time and is no longer supported.

@@ -102,8 +102,6 @@ class TestConnection(base.RequestsMockTestCase):
                          conn.load_balancer.__class__.__module__)
         self.assertEqual('openstack.orchestration.v1._proxy',
                          conn.orchestration.__class__.__module__)
-        self.assertEqual('openstack.meter.v2._proxy',
-                         conn.meter.__class__.__module__)
         self.assertEqual('openstack.workflow.v2._proxy',
                          conn.workflow.__class__.__module__)
 
