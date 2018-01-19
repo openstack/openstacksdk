@@ -11,44 +11,8 @@
 # under the License.
 
 """
-:class:`~openstack.profile.Profile` is the class that is used to
-define the various preferences for different services.  The preferences that
-are currently supported are service name, region, version and interface.
-The :class:`~openstack.profile.Profile` and the
-:class:`~openstack.connection.Connection` classes are the most important
-user facing classes.
-
-Examples
---------
-
-The :class:`~openstack.profile.Profile` class is constructed
-with no arguments.
-
-Set Methods
-~~~~~~~~~~~
-
-A user's preferences are set based on the service type.  Service type would
-normally be something like 'compute', 'identity', 'object-store', etc.::
-
-    from openstack import profile
-    prof = profile.Profile()
-    prof.set_name('compute', 'matrix')
-    prof.set_region(prof.ALL, 'zion')
-    prof.set_version('identity', 'v3')
-    prof.set_interface('object-store', 'internal')
-    for service in prof.get_services():
-        print(prof.get_filter(service.service_type)
-
-The resulting preference print out would look something like::
-
-    service_type=compute,region=zion,service_name=matrix
-    service_type=network,region=zion
-    service_type=database,region=zion
-    service_type=image,region=zion
-    service_type=metering,region=zion
-    service_type=orchestration,region=zion
-    service_type=object-store,interface=internal,region=zion
-    service_type=identity,region=zion,version=v3
+:class:`~openstack.profile.Profile` is deprecated. Code should use
+:class:`~openstack.config.cloud_region.CloudRegion` instead.
 """
 
 import copy
@@ -68,6 +32,7 @@ from openstack.message import message_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
+from openstack import utils
 from openstack.workflow import workflow_service
 
 _logger = _log.setup_logging('openstack')
@@ -78,6 +43,8 @@ class Profile(object):
     ALL = "*"
     """Wildcard service identifier representing all services."""
 
+    @utils.deprecated(deprecated_in="0.10.0", removed_in="1.0",
+                      details="Use openstack.config instead")
     def __init__(self, plugins=None):
         """User preference for each service.
 
@@ -117,6 +84,8 @@ class Profile(object):
         serv.interface = None
         self._services[serv.service_type] = serv
 
+    @utils.deprecated(deprecated_in="0.10.0", removed_in="1.0",
+                      details="Use openstack.config instead")
     def get_filter(self, service):
         """Get a service preference.
 
@@ -143,6 +112,8 @@ class Profile(object):
         for service in self._get_services(service):
             setattr(self._get_filter(service), attr, value)
 
+    @utils.deprecated(deprecated_in="0.10.0", removed_in="1.0",
+                      details="Use openstack.config instead")
     def get_services(self):
         """Get a list of all the known services."""
         services = []
@@ -150,6 +121,8 @@ class Profile(object):
             services.append(service)
         return services
 
+    @utils.deprecated(deprecated_in="0.10.0", removed_in="1.0",
+                      details="Use openstack.config instead")
     def set_name(self, service, name):
         """Set the desired name for the specified service.
 
@@ -158,6 +131,8 @@ class Profile(object):
         """
         self._setter(service, "service_name", name)
 
+    @utils.deprecated(deprecated_in="0.10.0", removed_in="1.0",
+                      details="Use openstack.config instead")
     def set_region(self, service, region):
         """Set the desired region for the specified service.
 
@@ -166,6 +141,8 @@ class Profile(object):
         """
         self._setter(service, "region", region)
 
+    @utils.deprecated(deprecated_in="0.10.0", removed_in="1.0",
+                      details="Use openstack.config instead")
     def set_version(self, service, version):
         """Set the desired version for the specified service.
 
@@ -174,6 +151,8 @@ class Profile(object):
         """
         self._get_filter(service).version = version
 
+    @utils.deprecated(deprecated_in="0.10.0", removed_in="1.0",
+                      details="Use openstack.config instead")
     def set_api_version(self, service, api_version):
         """Set the desired API micro-version for the specified service.
 
@@ -182,6 +161,8 @@ class Profile(object):
         """
         self._setter(service, "api_version", api_version)
 
+    @utils.deprecated(deprecated_in="0.10.0", removed_in="1.0",
+                      details="Use openstack.config instead")
     def set_interface(self, service, interface):
         """Set the desired interface for the specified service.
 

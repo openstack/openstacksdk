@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    ``openstack.profile.Profile`` has been deprecated and will be removed
+    in the ``1.0`` release. Users should use the functions in
+    ``openstack.config`` instead.
