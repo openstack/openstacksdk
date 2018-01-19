@@ -18,6 +18,7 @@ import mock
 
 from openstack import connection
 import openstack.config
+from openstack import profile
 from openstack.tests.unit import base
 
 
@@ -173,6 +174,21 @@ class TestConnection(base.RequestsMockTestCase):
 
         sot = connection.from_config(cloud="cacert")
         self.assertEqual(CONFIG_CACERT, sot.session.verify)
+
+    def test_from_profile(self):
+        """Copied from openstackclient/network/client.py make_client."""
+        API_NAME = "network"
+        instance = self.cloud_config
+
+        prof = profile.Profile()
+        prof.set_region(API_NAME, instance.region_name)
+        prof.set_version(API_NAME, instance.get_api_version(API_NAME))
+        prof.set_interface(API_NAME, instance.get_interface(API_NAME))
+        connection.Connection(
+            authenticator=instance.get_session().auth,
+            verify=instance.get_session().verify,
+            cert=instance.get_session().cert,
+            profile=prof)
 
 
 class TestAuthorize(base.RequestsMockTestCase):

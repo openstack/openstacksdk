@@ -82,6 +82,7 @@ from six.moves import urllib
 from openstack import _log
 import openstack.config
 from openstack.config import cloud_region
+from openstack.config import defaults as config_defaults
 from openstack import exceptions
 from openstack import service_description
 from openstack import task_manager
@@ -188,10 +189,14 @@ class Connection(object):
                 self.config = openstack_config.get_one(
                     cloud=cloud, validate=session is None, **kwargs)
 
-        self.task_manager = task_manager.TaskManager(
-            name=':'.join([
+        if self.config.name:
+            tm_name = ':'.join([
                 self.config.name,
-                self.config.region_name or 'unknown']))
+                self.config.region_name or 'unknown'])
+        else:
+            tm_name = self.config.region_name or 'unknown'
+
+        self.task_manager = task_manager.TaskManager(name=tm_name)
 
         if session:
             # TODO(mordred) Expose constructor option for this in OCC
@@ -228,9 +233,12 @@ class Connection(object):
                 key = cloud_region._make_key('api_version', service_type)
                 kwargs[key] = service.version
 
+        config_kwargs = config_defaults.get_defaults()
+        config_kwargs.update(kwargs)
         config = cloud_region.CloudRegion(
-            name=name, region_name=region_name, config=kwargs)
+            name=name, region_name=region_name, config=config_kwargs)
         config._auth = authenticator
+        return config
 
     def add_service(self, service):
         """Add a service to the Connection.
