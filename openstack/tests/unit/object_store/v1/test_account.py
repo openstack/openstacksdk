@@ -32,20 +32,20 @@ ACCOUNT_EXAMPLE = {
 class TestAccount(testtools.TestCase):
 
     def test_basic(self):
-        sot = account.Account.new(**ACCOUNT_EXAMPLE)
+        sot = account.Account(**ACCOUNT_EXAMPLE)
         self.assertIsNone(sot.resources_key)
         self.assertIsNone(sot.id)
         self.assertEqual('/', sot.base_path)
         self.assertEqual('object-store', sot.service.service_type)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_head)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
         self.assertFalse(sot.allow_create)
 
     def test_make_it(self):
-        sot = account.Account.new(**{'headers': ACCOUNT_EXAMPLE})
+        sot = account.Account(**ACCOUNT_EXAMPLE)
         self.assertIsNone(sot.id)
         self.assertEqual(int(ACCOUNT_EXAMPLE['x-account-bytes-used']),
                          sot.account_bytes_used)

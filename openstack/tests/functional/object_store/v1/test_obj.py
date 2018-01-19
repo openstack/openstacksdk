@@ -36,11 +36,11 @@ class TestObject(base.BaseFunctionalTest):
                  in self.conn.object_store.objects(container=self.FOLDER)]
         self.assertIn(self.FILE, names)
 
-    def test_get_object(self):
-        result = self.conn.object_store.get_object(
+    def test_download_object(self):
+        result = self.conn.object_store.download_object(
             self.FILE, container=self.FOLDER)
         self.assertEqual(self.DATA, result)
-        result = self.conn.object_store.get_object(self.sot)
+        result = self.conn.object_store.download_object(self.sot)
         self.assertEqual(self.DATA, result)
 
     def test_system_metadata(self):

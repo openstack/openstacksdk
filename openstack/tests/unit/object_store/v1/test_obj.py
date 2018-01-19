@@ -10,14 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-import testtools
-
 from openstack.object_store.v1 import obj
-
-
-CONTAINER_NAME = "mycontainer"
-OBJECT_NAME = "myobject"
+from openstack.tests.unit.cloud import test_object as base_test_object
 
 # Object can receive both last-modified in headers and last_modified in
 # the body. However, originally, only last-modified was handled as an
@@ -30,109 +24,127 @@ OBJECT_NAME = "myobject"
 # attribute which would follow the same pattern.
 # This example should represent the body values returned by a GET, so the keys
 # must be underscores.
-OBJ_EXAMPLE = {
-    "hash": "243f87b91224d85722564a80fd3cb1f1",
-    "last_modified": "2014-07-13T18:41:03.319240",
-    "bytes": 252466,
-    "name": OBJECT_NAME,
-    "content_type": "application/octet-stream"
-}
-
-DICT_EXAMPLE = {
-    'container': CONTAINER_NAME,
-    'name': OBJECT_NAME,
-    'content_type': 'application/octet-stream',
-    'headers': {
-        'content-length': '252466',
-        'accept-ranges': 'bytes',
-        'last-modified': 'Sun, 13 Jul 2014 18:41:04 GMT',
-        'etag': '243f87b91224d85722564a80fd3cb1f1',
-        'x-timestamp': '1453414256.28112',
-        'date': 'Thu, 28 Aug 2014 14:41:59 GMT',
-        'id': 'tx5fb5ad4f4d0846c6b2bc7-0053ff3fb7',
-        'x-delete-at': '1453416226.16744'
-    }
-}
 
 
-class TestObject(testtools.TestCase):
+class TestObject(base_test_object.BaseTestObject):
 
     def setUp(self):
         super(TestObject, self).setUp()
-        self.resp = mock.Mock()
-        self.resp.content = "lol here's some content"
-        self.resp.headers = {"X-Trans-Id": "abcdef"}
-        self.sess = mock.Mock()
-        self.sess.get = mock.Mock(return_value=self.resp)
-        self.sess.put = mock.Mock(return_value=self.resp)
-        self.sess.post = mock.Mock(return_value=self.resp)
+        self.the_data = b'test body'
+        self.the_data_length = len(self.the_data)
+        # TODO(mordred) Make the_data be from getUniqueString and then
+        # have hash and etag be actual md5 sums of that string
+        self.body = {
+            "hash": "243f87b91224d85722564a80fd3cb1f1",
+            "last_modified": "2014-07-13T18:41:03.319240",
+            "bytes": self.the_data_length,
+            "name": self.object,
+            "content_type": "application/octet-stream"
+        }
+        self.headers = {
+            'Content-Length': str(len(self.the_data)),
+            'Content-Type': 'application/octet-stream',
+            'Accept-Ranges': 'bytes',
+            'Last-Modified': 'Thu, 15 Dec 2016 13:34:14 GMT',
+            'Etag': '"b5c454b44fbd5344793e3fb7e3850768"',
+            'X-Timestamp': '1481808853.65009',
+            'X-Trans-Id': 'tx68c2a2278f0c469bb6de1-005857ed80dfw1',
+            'Date': 'Mon, 19 Dec 2016 14:24:00 GMT',
+            'X-Static-Large-Object': 'True',
+            'X-Object-Meta-Mtime': '1481513709.168512',
+            'X-Delete-At': '1453416226.16744',
+        }
 
     def test_basic(self):
-        sot = obj.Object.new(**OBJ_EXAMPLE)
+        sot = obj.Object.new(**self.body)
+        self.assert_no_calls()
         self.assertIsNone(sot.resources_key)
-        self.assertEqual("name", sot.id_attribute)
+        self.assertEqual('name', sot._alternate_id())
         self.assertEqual('/%(container)s', sot.base_path)
         self.assertEqual('object-store', sot.service.service_type)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_retrieve)
+        self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_head)
 
     def test_new(self):
-        sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)
-        self.assertEqual(OBJECT_NAME, sot.name)
-        self.assertEqual(CONTAINER_NAME, sot.container)
+        sot = obj.Object.new(container=self.container, name=self.object)
+        self.assert_no_calls()
+        self.assertEqual(self.object, sot.name)
+        self.assertEqual(self.container, sot.container)
 
-    def test_head(self):
-        sot = obj.Object.existing(**DICT_EXAMPLE)
+    def test_from_body(self):
+        sot = obj.Object.existing(container=self.container, **self.body)
+        self.assert_no_calls()
 
         # Attributes from header
-        self.assertEqual(DICT_EXAMPLE['container'], sot.container)
-        headers = DICT_EXAMPLE['headers']
-        self.assertEqual(headers['content-length'], sot.content_length)
-        self.assertEqual(headers['accept-ranges'], sot.accept_ranges)
-        self.assertEqual(headers['last-modified'], sot.last_modified_at)
-        self.assertEqual(headers['etag'], sot.etag)
-        self.assertEqual(headers['x-timestamp'], sot.timestamp)
-        self.assertEqual(headers['content-type'], sot.content_type)
-        self.assertEqual(headers['x-delete-at'], sot.delete_at)
+        self.assertEqual(self.container, sot.container)
+        self.assertEqual(
+            int(self.body['bytes']), sot.content_length)
+        self.assertEqual(self.body['last_modified'], sot.last_modified_at)
+        self.assertEqual(self.body['hash'], sot.etag)
+        self.assertEqual(self.body['content_type'], sot.content_type)
 
-    def test_get(self):
-        sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME)
+    def test_from_headers(self):
+        sot = obj.Object.existing(container=self.container, **self.headers)
+        self.assert_no_calls()
+
+        # Attributes from header
+        self.assertEqual(self.container, sot.container)
+        self.assertEqual(
+            int(self.headers['Content-Length']), sot.content_length)
+        self.assertEqual(self.headers['Accept-Ranges'], sot.accept_ranges)
+        self.assertEqual(self.headers['Last-Modified'], sot.last_modified_at)
+        self.assertEqual(self.headers['Etag'], sot.etag)
+        self.assertEqual(self.headers['X-Timestamp'], sot.timestamp)
+        self.assertEqual(self.headers['Content-Type'], sot.content_type)
+        self.assertEqual(self.headers['X-Delete-At'], sot.delete_at)
+
+    def test_download(self):
+        headers = {
+            'X-Newest': 'True',
+            'If-Match': self.headers['Etag'],
+            'Accept': 'bytes'
+        }
+        self.register_uris([
+            dict(method='GET', uri=self.object_endpoint,
+                 headers=self.headers,
+                 content=self.the_data,
+                 validate=dict(
+                     headers=headers
+                 ))
+        ])
+        sot = obj.Object.new(container=self.container, name=self.object)
         sot.is_newest = True
-        sot.if_match = {"who": "what"}
+        sot.if_match = [self.headers['Etag']]
 
-        rv = sot.get(self.sess)
+        rv = sot.download(self.conn.object_store)
 
-        url = "%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
-        # TODO(thowe): Should allow filtering bug #1488269
-        # headers = {
-        #     "x-newest": True,
-        #     "if-match": {"who": "what"}
-        # }
-        headers = {'Accept': 'bytes'}
-        self.sess.get.assert_called_with(url,
-                                         headers=headers,
-                                         error_message=None)
-        self.assertEqual(self.resp.content, rv)
+        self.assertEqual(self.the_data, rv)
 
-    def _test_create(self, method, data, accept):
-        sot = obj.Object.new(container=CONTAINER_NAME, name=OBJECT_NAME,
+        self.assert_calls()
+
+    def _test_create(self, method, data):
+        sot = obj.Object.new(container=self.container, name=self.object,
                              data=data)
         sot.is_newest = True
-        headers = {"x-newest": True, "Accept": ""}
+        sent_headers = {"x-newest": 'True', "Accept": ""}
+        self.register_uris([
+            dict(method=method, uri=self.object_endpoint,
+                 headers=self.headers,
+                 validate=dict(
+                     headers=sent_headers))
+        ])
 
-        rv = sot.create(self.sess)
+        rv = sot.create(self.conn.object_store)
+        self.assertEqual(rv.etag, self.headers['Etag'])
 
-        url = "%s/%s" % (CONTAINER_NAME, OBJECT_NAME)
-        method.assert_called_with(url, data=data,
-                                  headers=headers)
-        self.assertEqual(self.resp.headers, rv.get_headers())
+        self.assert_calls()
 
     def test_create_data(self):
-        self._test_create(self.sess.put, "data", "bytes")
+        self._test_create('PUT', self.the_data)
 
     def test_create_no_data(self):
-        self._test_create(self.sess.post, None, None)
+        self._test_create('PUT', None)

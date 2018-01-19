@@ -611,6 +611,13 @@ class RequestsMockTestCase(BaseTestCase):
                 mock_method, mock_uri, params['response_list'],
                 **params['kw_params'])
 
+    def assert_no_calls(self):
+        # TODO(mordred) For now, creating the adapter for self.conn is
+        # triggering catalog lookups. Make sure no_calls is only 2.
+        # When we can make that on-demand through a descriptor object,
+        # drop this to 0.
+        self.assertEqual(2, len(self.adapter.request_history))
+
     def assert_calls(self, stop_after=None, do_count=True):
         for (x, (call, history)) in enumerate(
                 zip(self.calls, self.adapter.request_history)):

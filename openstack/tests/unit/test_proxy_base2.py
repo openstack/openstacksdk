@@ -16,6 +16,11 @@ from openstack.tests.unit import base
 
 
 class TestProxyBase(base.TestCase):
+    # object_store makes calls with container= rather than
+    # path_args=dict(container= because container needs to wind up
+    # in the uri components.
+    kwargs_to_path_args = True
+
     def setUp(self):
         super(TestProxyBase, self).setUp()
         self.session = mock.Mock()
@@ -131,7 +136,7 @@ class TestProxyBase(base.TestCase):
         method_kwargs = kwargs.pop("method_kwargs", kwargs)
         if args:
             expected_kwargs["args"] = args
-        if kwargs:
+        if kwargs and self.kwargs_to_path_args:
             expected_kwargs["path_args"] = kwargs
         if not expected_args:
             expected_args = [resource_type] + the_value
@@ -145,7 +150,10 @@ class TestProxyBase(base.TestCase):
                     mock_method="openstack.proxy2.BaseProxy._head",
                     value=None, **kwargs):
         the_value = [value] if value is not None else []
-        expected_kwargs = {"path_args": kwargs} if kwargs else {}
+        if self.kwargs_to_path_args:
+            expected_kwargs = {"path_args": kwargs} if kwargs else {}
+        else:
+            expected_kwargs = kwargs or {}
         self._verify2(mock_method, test_method,
                       method_args=the_value,
                       method_kwargs=kwargs,

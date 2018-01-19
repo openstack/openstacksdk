@@ -13,10 +13,14 @@
 from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import obj as _obj
-from openstack import proxy
+from openstack import proxy2 as proxy
 
 
 class Proxy(proxy.BaseProxy):
+
+    Account = _account.Account
+    Container = _container.Container
+    Object = _obj.Object
 
     def get_account_metadata(self):
         """Get metadata for this account.
@@ -54,11 +58,12 @@ class Proxy(proxy.BaseProxy):
         :rtype: A generator of
             :class:`~openstack.object_store.v1.container.Container` objects.
         """
-        return _container.Container.list(self, **query)
+        return self._list(_container.Container, paginated=True, **query)
 
-    def create_container(self, **attrs):
+    def create_container(self, name, **attrs):
         """Create a new container from attributes
 
+        :param container: Name of the container to create.
         :param dict attrs: Keyword arguments which will be used to create
                a :class:`~openstack.object_store.v1.container.Container`,
                comprised of the properties on the Container class.
@@ -66,7 +71,7 @@ class Proxy(proxy.BaseProxy):
         :returns: The results of container creation
         :rtype: :class:`~openstack.object_store.v1.container.Container`
         """
-        return self._create(_container.Container, **attrs)
+        return self._create(_container.Container, name=name, **attrs)
 
     def delete_container(self, container, ignore_missing=True):
         """Delete a container
@@ -122,6 +127,7 @@ class Proxy(proxy.BaseProxy):
         """
         res = self._get_resource(_container.Container, container)
         res.set_metadata(self, metadata)
+        return res
 
     def delete_container_metadata(self, container, keys):
         """Delete metadata for a container.
@@ -133,6 +139,7 @@ class Proxy(proxy.BaseProxy):
         """
         res = self._get_resource(_container.Container, container)
         res.delete_metadata(self, keys)
+        return res
 
     def objects(self, container, **query):
         """Return a generator that yields the Container's objects.
@@ -147,21 +154,21 @@ class Proxy(proxy.BaseProxy):
         :rtype: A generator of
             :class:`~openstack.object_store.v1.obj.Object` objects.
         """
-        container = _container.Container.from_id(container)
+        container = self._get_container_name(container=container)
 
-        objs = _obj.Object.list(self,
-                                path_args={"container": container.name},
-                                **query)
-        for obj in objs:
-            obj.container = container.name
+        for obj in self._list(
+                _obj.Object, container=container,
+                paginated=True, **query):
+            obj.container = container
             yield obj
 
-    def _get_container_name(self, obj, container):
-        if isinstance(obj, _obj.Object):
+    def _get_container_name(self, obj=None, container=None):
+        if obj is not None:
+            obj = self._get_resource(_obj.Object, obj)
             if obj.container is not None:
                 return obj.container
         if container is not None:
-            container = _container.Container.from_id(container)
+            container = self._get_resource(_container.Container, container)
             return container.name
 
         raise ValueError("container must be specified")
@@ -181,52 +188,69 @@ class Proxy(proxy.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        # TODO(briancurtin): call this download_object and make sure it's
-        # just returning the raw data, like download_image does
-        container_name = self._get_container_name(obj, container)
+        container_name = self._get_container_name(
+            obj=obj, container=container)
+        return self._get(_obj.Object, obj, container=container_name)
 
-        return self._get(_obj.Object, obj,
-                         path_args={"container": container_name})
-
-    def download_object(self, obj, container=None, path=None):
-        """Download the data contained inside an object to disk.
+    def download_object(self, obj, container=None, **attrs):
+        """Download the data contained inside an object.
 
         :param obj: The value can be the name of an object or a
                        :class:`~openstack.object_store.v1.obj.Object` instance.
         :param container: The value can be the name of a container or a
                :class:`~openstack.object_store.v1.container.Container`
                instance.
-        :param path str: Location to write the object contents.
 
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        # TODO(briancurtin): download_object should really have the behavior
-        # of get_object, and this writing to a file should not exist.
-        # TODO(briancurtin): This method should probably offload the get
-        # operation into another thread or something of that nature.
-        with open(path, "w") as out:
-            out.write(self.get_object(obj, container))
+        container_name = self._get_container_name(
+            obj=obj, container=container)
+        obj = self._get_resource(
+            _obj.Object, obj, container=container_name, **attrs)
+        return obj.download(self)
 
-    def upload_object(self, **attrs):
+    def stream_object(self, obj, container=None, chunk_size=1024, **attrs):
+        """Stream the data contained inside an object.
+
+        :param obj: The value can be the name of an object or a
+                       :class:`~openstack.object_store.v1.obj.Object` instance.
+        :param container: The value can be the name of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
+
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        :returns: An iterator that iterates over chunk_size bytes
+        """
+        container_name = self._get_container_name(
+            obj=obj, container=container)
+        container_name = self._get_container_name(container=container)
+        obj = self._get_resource(
+            _obj.Object, obj, container=container_name, **attrs)
+        return obj.stream(self, chunk_size=chunk_size)
+
+    def create_object(self, container, name, **attrs):
         """Upload a new object from attributes
 
+        :param container: The value can be the name of a container or a
+               :class:`~openstack.object_store.v1.container.Container`
+               instance.
+        :param name: Name of the object to create.
         :param dict attrs: Keyword arguments which will be used to create
                a :class:`~openstack.object_store.v1.obj.Object`,
                comprised of the properties on the Object class.
-               **Required**: A `container` argument must be specified,
-               which is either the ID of a container or a
-               :class:`~openstack.object_store.v1.container.Container`
-               instance.
 
         :returns: The results of object creation
         :rtype: :class:`~openstack.object_store.v1.container.Container`
         """
-        container = attrs.pop("container", None)
-        container_name = self._get_container_name(None, container)
-
-        return self._create(_obj.Object,
-                            path_args={"container": container_name}, **attrs)
+        # TODO(mordred) Add ability to stream data from a file
+        # TODO(mordred) Use create_object from OpenStackCloud
+        container_name = self._get_container_name(container=container)
+        return self._create(
+            _obj.Object, container=container_name, name=name, **attrs)
+    # Backwards compat
+    upload_object = create_object
 
     def copy_object(self):
         """Copy an object."""
@@ -252,7 +276,7 @@ class Proxy(proxy.BaseProxy):
         container_name = self._get_container_name(obj, container)
 
         self._delete(_obj.Object, obj, ignore_missing=ignore_missing,
-                     path_args={"container": container_name})
+                     container=container_name)
 
     def get_object_metadata(self, obj, container=None):
         """Get metadata for an object.
@@ -269,8 +293,7 @@ class Proxy(proxy.BaseProxy):
         """
         container_name = self._get_container_name(obj, container)
 
-        return self._head(_obj.Object, obj,
-                          path_args={"container": container_name})
+        return self._head(_obj.Object, obj, container=container_name)
 
     def set_object_metadata(self, obj, container=None, **metadata):
         """Set metadata for an object.
@@ -298,9 +321,9 @@ class Proxy(proxy.BaseProxy):
                                 - `is_content_type_detected`
         """
         container_name = self._get_container_name(obj, container)
-        res = self._get_resource(_obj.Object, obj,
-                                 path_args={"container": container_name})
+        res = self._get_resource(_obj.Object, obj, container=container_name)
         res.set_metadata(self, metadata)
+        return res
 
     def delete_object_metadata(self, obj, container=None, keys=None):
         """Delete metadata for an object.
@@ -313,6 +336,6 @@ class Proxy(proxy.BaseProxy):
         :param keys: The keys of metadata to be deleted.
         """
         container_name = self._get_container_name(obj, container)
-        res = self._get_resource(_obj.Object, obj,
-                                 path_args={"container": container_name})
+        res = self._get_resource(_obj.Object, obj, container=container_name)
         res.delete_metadata(self, keys)
+        return res

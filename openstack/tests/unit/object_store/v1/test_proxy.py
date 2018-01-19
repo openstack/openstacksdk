@@ -10,17 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
 import six
 
 from openstack.object_store.v1 import _proxy
 from openstack.object_store.v1 import account
 from openstack.object_store.v1 import container
 from openstack.object_store.v1 import obj
-from openstack.tests.unit import test_proxy_base
+from openstack.tests.unit.cloud import test_object as base_test_object
+from openstack.tests.unit import test_proxy_base2
 
 
-class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
+class TestObjectStoreProxy(test_proxy_base2.TestProxyBase):
+
+    kwargs_to_path_args = False
 
     def setUp(self):
         super(TestObjectStoreProxy, self).setUp()
@@ -42,21 +44,26 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
                            container.Container, True)
 
     def test_container_create_attrs(self):
-        self.verify_create(self.proxy.create_container, container.Container)
+        self.verify_create(
+            self.proxy.create_container,
+            container.Container,
+            method_args=['container_name'],
+            expected_kwargs={'name': 'container_name', "x": 1, "y": 2, "z": 3})
 
     def test_object_metadata_get(self):
         self.verify_head(self.proxy.get_object_metadata, obj.Object,
                          value="object", container="container")
 
     def _test_object_delete(self, ignore):
-        expected_kwargs = {"path_args": {"container": "name"}}
-        expected_kwargs["ignore_missing"] = ignore
+        expected_kwargs = {
+            "ignore_missing": ignore,
+            "container": "name",
+        }
 
-        self._verify2("openstack.proxy.BaseProxy._delete",
+        self._verify2("openstack.proxy2.BaseProxy._delete",
                       self.proxy.delete_object,
                       method_args=["resource"],
-                      method_kwargs={"container": "name",
-                                     "ignore_missing": ignore},
+                      method_kwargs=expected_kwargs,
                       expected_args=[obj.Object, "resource"],
                       expected_kwargs=expected_kwargs)
 
@@ -67,25 +74,24 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self._test_object_delete(True)
 
     def test_object_create_attrs(self):
-        path_args = {"path_args": {"container": "name"}}
-        method_kwargs = {"name": "test", "data": "data", "container": "name"}
+        kwargs = {"name": "test", "data": "data", "container": "name"}
 
-        expected_kwargs = path_args.copy()
-        expected_kwargs.update(method_kwargs)
-        expected_kwargs.pop("container")
-
-        self._verify2("openstack.proxy.BaseProxy._create",
+        self._verify2("openstack.proxy2.BaseProxy._create",
                       self.proxy.upload_object,
-                      method_kwargs=method_kwargs,
+                      method_kwargs=kwargs,
                       expected_args=[obj.Object],
-                      expected_kwargs=expected_kwargs)
+                      expected_kwargs=kwargs)
 
     def test_object_create_no_container(self):
-        self.assertRaises(ValueError, self.proxy.upload_object)
+        self.assertRaises(TypeError, self.proxy.upload_object)
 
     def test_object_get(self):
-        self.verify_get(self.proxy.get_object, obj.Object,
-                        value=["object"], container="container")
+        kwargs = dict(container="container")
+        self.verify_get(
+            self.proxy.get_object, obj.Object,
+            value=["object"],
+            method_kwargs=kwargs,
+            expected_kwargs=kwargs)
 
 
 class Test_containers(TestObjectStoreProxy):
@@ -252,23 +258,45 @@ class Test_objects(TestObjectStoreProxy):
 #                      httpretty.last_request().path)
 
 
-class Test_download_object(TestObjectStoreProxy):
+class Test_download_object(base_test_object.BaseTestObject):
 
-    @mock.patch("openstack.object_store.v1._proxy.Proxy.get_object")
-    def test_download(self, mock_get):
-        the_data = "here's some data"
-        mock_get.return_value = the_data
-        ob = mock.Mock()
+    def setUp(self):
+        super(Test_download_object, self).setUp()
+        self.the_data = b'test body'
+        self.register_uris([
+            dict(method='GET', uri=self.object_endpoint,
+                 headers={
+                     'Content-Length': str(len(self.the_data)),
+                     'Content-Type': 'application/octet-stream',
+                     'Accept-Ranges': 'bytes',
+                     'Last-Modified': 'Thu, 15 Dec 2016 13:34:14 GMT',
+                     'Etag': '"b5c454b44fbd5344793e3fb7e3850768"',
+                     'X-Timestamp': '1481808853.65009',
+                     'X-Trans-Id': 'tx68c2a2278f0c469bb6de1-005857ed80dfw1',
+                     'Date': 'Mon, 19 Dec 2016 14:24:00 GMT',
+                     'X-Static-Large-Object': 'True',
+                     'X-Object-Meta-Mtime': '1481513709.168512',
+                 },
+                 content=self.the_data)])
 
-        fake_open = mock.mock_open()
-        file_path = "blarga/somefile"
-        with mock.patch("openstack.object_store.v1._proxy.open",
-                        fake_open, create=True):
-            self.proxy.download_object(ob, container="tainer", path=file_path)
+    def test_download(self):
+        data = self.conn.object_store.download_object(
+            self.object, container=self.container)
 
-        fake_open.assert_called_once_with(file_path, "w")
-        fake_handle = fake_open()
-        fake_handle.write.assert_called_once_with(the_data)
+        self.assertEqual(data, self.the_data)
+        self.assert_calls()
+
+    def test_stream(self):
+        chunk_size = 2
+        for index, chunk in enumerate(self.conn.object_store.stream_object(
+                self.object, container=self.container,
+                chunk_size=chunk_size)):
+            chunk_len = len(chunk)
+            start = index * chunk_size
+            end = start + chunk_len
+            self.assertLessEqual(chunk_len, chunk_size)
+            self.assertEqual(chunk, self.the_data[start:end])
+        self.assert_calls()
 
 
 class Test_copy_object(TestObjectStoreProxy):
