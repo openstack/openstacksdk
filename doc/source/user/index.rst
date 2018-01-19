@@ -94,7 +94,6 @@ provided by the SDK.
    Message v1 <proxies/message_v1>
    Message v2 <proxies/message_v2>
    Network <proxies/network>
-   Metric <proxies/metric>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
    Workflow <proxies/workflow>
@@ -123,7 +122,6 @@ The following services have exposed *Resource* classes.
    Image <resources/image/index>
    Key Management <resources/key_manager/index>
    Load Balancer <resources/load_balancer/index>
-   Metric <resources/metric/index>
    Network <resources/network/index>
    Orchestration <resources/orchestration/index>
    Object Store <resources/object_store/index>

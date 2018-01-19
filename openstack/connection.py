@@ -204,11 +204,6 @@ class Connection(object):
             self.add_service(
                 service_description.OpenStackServiceDescription(
                     service, self.config))
-        # TODO(mordred) openstacksdk has support for the metric service
-        # which is not in service-types-authority. What do we do about that?
-        self.add_service(
-            service_description.OpenStackServiceDescription(
-                dict(service_type='metric'), self.config))
 
     def _get_config_from_profile(self, profile, authenticator, **kwargs):
         """Get openstack.config objects from legacy profile."""

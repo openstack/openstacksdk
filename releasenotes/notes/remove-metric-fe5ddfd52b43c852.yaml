@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    Removed the metric service. It is not an OpenStack service and does not
+    have an entry in service-types-authority.

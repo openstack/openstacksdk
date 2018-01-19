@@ -1,5 +1,3 @@
-# TODO(shade) Add job that enables ceilometer
-
 - job:
     name: openstacksdk-tox-py27-tips
     parent: openstack-tox-py27
@@ -72,13 +70,6 @@
             DEFAULT:
               osapi_max_limit: 6
       devstack_services:
-        ceilometer-acentral: false
-        ceilometer-acompute: false
-        ceilometer-alarm-evaluator: false
-        ceilometer-alarm-notifier: false
-        ceilometer-anotification: false
-        ceilometer-api: false
-        ceilometer-collector: false
         horizon: false
         s-account: true
         s-container: true
