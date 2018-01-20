@@ -15,4 +15,33 @@
 Working with Actions
 ====================
 
-.. TODO(Qiming): Implement this guide
+An action is an abstraction of some logic that can be executed by a worker
+thread. Most of the operations supported by Senlin are executed asynchronously,
+which means they are queued into database and then picked up by certain worker
+thread for execution.
+
+
+List Actions
+~~~~~~~~~~~~
+
+To examine the list of actions:
+
+.. literalinclude:: ../../examples/clustering/action.py
+   :pyobject: list_actions
+
+When listing actions, you can specify the sorting option using the ``sort``
+parameter and you can do pagination using the ``limit`` and ``marker``
+parameters.
+
+Full example: `manage action`_
+
+
+Get Action
+~~~~~~~~~~
+
+To get a action based on its name or ID:
+
+.. literalinclude:: ../../examples/clustering/action.py
+   :pyobject: get_action
+
+.. _manage action: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/clustering/action.py
