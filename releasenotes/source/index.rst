@@ -1,10 +1,10 @@
-=====================
- Shade Release Notes
-=====================
+============================
+ openstacksdk Release Notes
+============================
 
  .. toctree::
     :maxdepth: 1
 
-    mainline
     unreleased
     pike
+    ocata
