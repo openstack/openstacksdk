@@ -88,7 +88,7 @@ def get_server_ip(server, public=False, cloud_public=True, **kwargs):
     """
     addrs = find_nova_addresses(server['addresses'], **kwargs)
     return find_best_address(
-        addrs, socket.AF_INET, public=public, cloud_public=cloud_public)
+        addrs, public=public, cloud_public=cloud_public)
 
 
 def get_server_private_ip(server, cloud=None):
@@ -211,7 +211,7 @@ def get_server_external_ipv4(cloud, server):
     return None
 
 
-def find_best_address(addresses, family, public=False, cloud_public=True):
+def find_best_address(addresses, public=False, cloud_public=True):
     do_check = public == cloud_public
     if not addresses:
         return None
@@ -224,10 +224,13 @@ def find_best_address(addresses, family, public=False, cloud_public=True):
         for address in addresses:
             # Return the first one that is reachable
             try:
-                connect_socket = socket.socket(family, socket.SOCK_STREAM, 0)
-                connect_socket.settimeout(1)
-                connect_socket.connect((address, 22, 0, 0))
-                return address
+                for res in socket.getaddrinfo(
+                        address, 22, socket.AF_UNSPEC, socket.SOCK_STREAM, 0):
+                    family, socktype, proto, _, sa = res
+                    connect_socket = socket.socket(family, socktype, proto)
+                    connect_socket.settimeout(1)
+                    connect_socket.connect(sa)
+                    return address
             except Exception:
                 pass
     # Give up and return the first - none work as far as we can tell
@@ -252,7 +255,7 @@ def get_server_external_ipv6(server):
     if server['accessIPv6']:
         return server['accessIPv6']
     addresses = find_nova_addresses(addresses=server['addresses'], version=6)
-    return find_best_address(addresses, socket.AF_INET6, public=True)
+    return find_best_address(addresses, public=True)
 
 
 def get_server_default_ip(cloud, server):
