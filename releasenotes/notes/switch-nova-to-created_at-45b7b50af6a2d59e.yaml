@@ -1,0 +1,5 @@
+---
+features:
+  - The `created` field which was returned by the Nova API is now returned as
+    `created_at` as well when not using strict mode for consistency with other
+    models.

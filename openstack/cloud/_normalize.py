@@ -503,6 +503,11 @@ class Normalizer(object):
         # Protect against security_groups being None
         ret['security_groups'] = server.pop('security_groups', None) or []
 
+        # NOTE(mnaser): The Nova API returns the creation date in `created`
+        #               however the Shade contract returns `created_at` for
+        #               all resources.
+        ret['created_at'] = server.get('created')
+
         for field in _SERVER_FIELDS:
             ret[field] = server.pop(field, None)
         if not ret['networks']:

@@ -208,6 +208,7 @@ A Server from Nova
     accessIPv6=str(),
     addresses=dict(),  # string, list(Address)
     created=str(),
+    created_at=str(),
     key_name=str(),
     metadata=dict(),  # string, string
     private_v4=str(),
