@@ -264,6 +264,21 @@ class TestMeta(base.RequestsMockTestCase):
         self.assertEqual([], meta.find_nova_addresses(
             addrs, key_name='public', ext_tag='fixed', version=6))
 
+    def test_find_nova_addresses_floating_first(self):
+        # Note 198.51.100.0/24 is TEST-NET-2 from rfc5737
+        addrs = {
+            'private': [{
+                'addr': '192.0.2.5',
+                'version': 4,
+                'OS-EXT-IPS:type': 'fixed'}],
+            'public': [{
+                'addr': '198.51.100.1',
+                'version': 4,
+                'OS-EXT-IPS:type': 'floating'}]}
+        self.assertEqual(
+            ['198.51.100.1', '192.0.2.5'],
+            meta.find_nova_addresses(addrs))
+
     def test_get_server_ip(self):
         srv = meta.obj_to_munch(standard_fake_server)
         self.assertEqual(
