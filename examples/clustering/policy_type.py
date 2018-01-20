@@ -21,13 +21,13 @@ https://developer.openstack.org/sdks/python/openstacksdk/user/guides/cluster.htm
 def list_policy_types(conn):
     print("List Policy Types:")
 
-    for pt in conn.cluster.policy_types():
+    for pt in conn.clustering.policy_types():
         print(pt.to_dict())
 
 
 def get_policy_type(conn):
     print("Get Policy Type:")
 
-    pt = conn.cluster.get_policy_type('senlin.policy.deletion-1.0')
+    pt = conn.clustering.get_policy_type('senlin.policy.deletion-1.0')
 
     print(pt.to_dict())

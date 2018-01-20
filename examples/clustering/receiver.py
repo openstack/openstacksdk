@@ -24,10 +24,10 @@ CLUSTER_ID = "ae63a10b-4a90-452c-aef1-113a0b255ee3"
 def list_receivers(conn):
     print("List Receivers:")
 
-    for receiver in conn.cluster.receivers():
+    for receiver in conn.clustering.receivers():
         print(receiver.to_dict())
 
-    for receiver in conn.cluster.receivers(sort='name:asc'):
+    for receiver in conn.clustering.receivers(sort='name:asc'):
         print(receiver.to_dict())
 
 
@@ -45,21 +45,21 @@ def create_receiver(conn):
         "type": "webhook"
     }
 
-    receiver = conn.cluster.create_receiver(**spec)
+    receiver = conn.clustering.create_receiver(**spec)
     print(receiver.to_dict())
 
 
 def get_receiver(conn):
     print("Get Receiver:")
 
-    receiver = conn.cluster.get_receiver(FAKE_NAME)
+    receiver = conn.clustering.get_receiver(FAKE_NAME)
     print(receiver.to_dict())
 
 
 def find_receiver(conn):
     print("Find Receiver:")
 
-    receiver = conn.cluster.find_receiver(FAKE_NAME)
+    receiver = conn.clustering.find_receiver(FAKE_NAME)
     print(receiver.to_dict())
 
 
@@ -72,12 +72,12 @@ def update_receiver(conn):
             "count": "2"
         }
     }
-    receiver = conn.cluster.update_receiver(FAKE_NAME, **spec)
+    receiver = conn.clustering.update_receiver(FAKE_NAME, **spec)
     print(receiver.to_dict())
 
 
 def delete_receiver(conn):
     print("Delete Receiver:")
 
-    conn.cluster.delete_receiver(FAKE_NAME)
+    conn.clustering.delete_receiver(FAKE_NAME)
     print("Receiver deleted.")

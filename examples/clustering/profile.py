@@ -26,10 +26,10 @@ https://developer.openstack.org/sdks/python/openstacksdk/user/guides/cluster.htm
 def list_profiles(conn):
     print("List Profiles:")
 
-    for profile in conn.cluster.profiles():
+    for profile in conn.clustering.profiles():
         print(profile.to_dict())
 
-    for profile in conn.cluster.profiles(sort='name:asc'):
+    for profile in conn.clustering.profiles(sort='name:asc'):
         print(profile.to_dict())
 
 
@@ -49,34 +49,34 @@ def create_profile(conn):
         }
     }
 
-    profile = conn.cluster.create_profile('os_server', spec)
+    profile = conn.clustering.create_profile('os_server', spec)
     print(profile.to_dict())
 
 
 def get_profile(conn):
     print("Get Profile:")
 
-    profile = conn.cluster.get_profile('os_server')
+    profile = conn.clustering.get_profile('os_server')
     print(profile.to_dict())
 
 
 def find_profile(conn):
     print("Find Profile:")
 
-    profile = conn.cluster.find_profile('os_server')
+    profile = conn.clustering.find_profile('os_server')
     print(profile.to_dict())
 
 
 def update_profile(conn):
     print("Update Profile:")
 
-    profile = conn.cluster.update_profile('os_server', name='old_server')
+    profile = conn.clustering.update_profile('os_server', name='old_server')
     print(profile.to_dict())
 
 
 def delete_profile(conn):
     print("Delete Profile:")
 
-    conn.cluster.delete_profile('os_server')
+    conn.clustering.delete_profile('os_server')
 
     print("Profile deleted.")

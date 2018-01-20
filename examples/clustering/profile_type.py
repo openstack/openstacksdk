@@ -21,13 +21,13 @@ https://developer.openstack.org/sdks/python/openstacksdk/user/guides/clustering.
 def list_profile_types(conn):
     print("List Profile Types:")
 
-    for pt in conn.cluster.profile_types():
+    for pt in conn.clustering.profile_types():
         print(pt.to_dict())
 
 
 def get_profile_type(conn):
     print("Get Profile Type:")
 
-    pt = conn.cluster.get_profile_type('os.nova.server-1.0')
+    pt = conn.clustering.get_profile_type('os.nova.server-1.0')
 
     print(pt.to_dict())

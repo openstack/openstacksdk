@@ -21,10 +21,10 @@ https://developer.openstack.org/sdks/python/openstacksdk/user/guides/cluster.htm
 def list_policies(conn):
     print("List Policies:")
 
-    for policy in conn.cluster.policies():
+    for policy in conn.clustering.policies():
         print(policy.to_dict())
 
-    for policy in conn.cluster.policies(sort='name:asc'):
+    for policy in conn.clustering.policies(sort='name:asc'):
         print(policy.to_dict())
 
 
@@ -40,34 +40,34 @@ def create_policy(conn):
         }
     }
 
-    policy = conn.cluster.create_policy('dp01', spec)
+    policy = conn.clustering.create_policy('dp01', spec)
     print(policy.to_dict())
 
 
 def get_policy(conn):
     print("Get Policy:")
 
-    policy = conn.cluster.get_policy('dp01')
+    policy = conn.clustering.get_policy('dp01')
     print(policy.to_dict())
 
 
 def find_policy(conn):
     print("Find Policy:")
 
-    policy = conn.cluster.find_policy('dp01')
+    policy = conn.clustering.find_policy('dp01')
     print(policy.to_dict())
 
 
 def update_policy(conn):
     print("Update Policy:")
 
-    policy = conn.cluster.update_policy('dp01', name='dp02')
+    policy = conn.clustering.update_policy('dp01', name='dp02')
     print(policy.to_dict())
 
 
 def delete_policy(conn):
     print("Delete Policy:")
 
-    conn.cluster.delete_policy('dp01')
+    conn.clustering.delete_policy('dp01')
 
     print("Policy deleted.")
