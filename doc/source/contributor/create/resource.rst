@@ -35,7 +35,7 @@ Resources
 
 Resources are named after the server-side resource, which is set in the
 ``base_path`` attribute of the resource class. This guide creates a
-resouce class for the ``/fake`` server resource, so the resource module
+resource class for the ``/fake`` server resource, so the resource module
 is called ``fake.py`` and the class is called ``Fake``.
 
 An Example
