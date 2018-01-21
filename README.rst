@@ -167,3 +167,4 @@ Links
 * `Documentation <https://developer.openstack.org/sdks/python/openstacksdk/>`_
 * `PyPI <https://pypi.python.org/pypi/python-openstacksdk/>`_
 * `Mailing list <http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-dev>`_
+* `Bugs <https://bugs.launchpad.net/python-openstacksdk>`_
