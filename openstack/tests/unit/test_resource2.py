@@ -508,8 +508,8 @@ class TestResource(base.TestCase):
         clientside_key2 = "some_key2"
         value1 = "value1"
         value2 = "value2"
-        mapping = {clientside_key1: serverside_key1,
-                   clientside_key2: serverside_key2}
+        mapping = {serverside_key1: clientside_key1,
+                   serverside_key2: clientside_key2}
 
         other_key = "otherKey"
         other_value = "other"
@@ -551,8 +551,8 @@ class TestResource(base.TestCase):
 
         mapping = Test._body_mapping()
 
-        self.assertEqual(new_name, mapping["name"])
-        self.assertEqual(new_id, mapping["id"])
+        self.assertEqual("name", mapping["MyName"])
+        self.assertEqual("id", mapping["MyID"])
 
     def test__body_mapping(self):
         class Test(resource2.Resource):
@@ -832,21 +832,6 @@ class TestResource(base.TestCase):
         self.assertEqual("/something", result.url)
         self.assertEqual({key: {"x": body_value}}, result.body)
         self.assertEqual({"y": header_value}, result.headers)
-
-    def test__filter_component(self):
-        client_name = "client_name"
-        server_name = "serverName"
-        value = "value"
-        # Include something in the mapping that we don't receive
-        # so the branch that looks at existence in the compoment is checked.
-        mapping = {client_name: server_name, "other": "blah"}
-        component = {server_name: value, "something": "else"}
-
-        sot = resource2.Resource()
-        result = sot._filter_component(component, mapping)
-
-        # The something:else mapping should not make it into here.
-        self.assertEqual({server_name: value}, result)
 
     def test__translate_response_no_body(self):
         class Test(resource2.Resource):

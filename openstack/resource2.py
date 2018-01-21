@@ -344,12 +344,13 @@ class Resource(object):
         """
         body = self._consume_attrs(self._body_mapping(), attrs)
         header = self._consume_attrs(
-            self._header_mapping(), attrs, insensitive=True)
+            self._header_mapping(), attrs,
+            map_cls=structures.CaseInsensitiveDict)
         uri = self._consume_attrs(self._uri_mapping(), attrs)
 
         return body, header, uri
 
-    def _consume_attrs(self, mapping, attrs, insensitive=False):
+    def _consume_attrs(self, mapping, attrs, map_cls=dict):
         """Given a mapping and attributes, return relevant matches
 
         This method finds keys in attrs that exist in the mapping, then
@@ -360,29 +361,20 @@ class Resource(object):
         same source dict several times.
         """
         relevant_attrs = {}
-        if insensitive:
-            relevant_attrs = structures.CaseInsensitiveDict()
         consumed_keys = []
-        nonce = object()
-        # TODO(mordred) Invert the loop - loop over mapping, look in attrs
-        # and we should be able to simplify the logic, since CID should
-        # handle the case matching
-        for key in attrs:
-            value = mapping.get(key, nonce)
-            if value is not nonce:
-                # Convert client-side key names into server-side.
-                relevant_attrs[mapping[key]] = attrs[key]
-                consumed_keys.append(key)
-            else:
-                # Server-side names can be stored directly.
-                search_key = key
-                values = mapping.values()
-                if insensitive:
-                    search_key = search_key.lower()
-                    values = [v.lower() for v in values]
-                if search_key in values:
-                    relevant_attrs[key] = attrs[key]
-                    consumed_keys.append(key)
+        for key, value in attrs.items():
+            # We want the key lookup in mapping to be case insensitive if the
+            # mapping is, thus the use of get. We want value to be exact.
+            # If we find a match, we then have to loop over the mapping for
+            # to find the key to return, as there isn't really a "get me the
+            # key that matches this other key". We lower() in the inner loop
+            # because we've already done case matching in the outer loop.
+            if key in mapping.values() or mapping.get(key):
+                for map_key, map_value in mapping.items():
+                    if key.lower() in (map_key.lower(), map_value.lower()):
+                        relevant_attrs[map_key] = value
+                        consumed_keys.append(key)
+                continue
 
         for key in consumed_keys:
             attrs.pop(key)
@@ -390,13 +382,10 @@ class Resource(object):
         return relevant_attrs
 
     @classmethod
-    def _get_mapping(cls, component):
+    def _get_mapping(cls, component, map_cls=dict):
         """Return a dict of attributes of a given component on the class"""
-        # TODO(mordred) Invert this mapping, it should be server-side to local.
-        # The reason for that is that headers are case insensitive, whereas
-        # our local values are case sensitive. If we invert this dict, we can
-        # rely on CaseInsensitiveDict when doing comparisons.
-        mapping = {}
+        mapping = map_cls()
+        ret = map_cls()
         # Since we're looking at class definitions we need to include
         # subclasses, so check the whole MRO.
         for klass in cls.__mro__:
@@ -405,8 +394,11 @@ class Resource(object):
                     # Make sure base classes don't end up overwriting
                     # mappings we've found previously in subclasses.
                     if key not in mapping:
+                        # Make it this way first, to get MRO stuff correct.
                         mapping[key] = value.name
-        return mapping
+        for k, v in mapping.items():
+            ret[v] = k
+        return ret
 
     @classmethod
     def _body_mapping(cls):
@@ -416,8 +408,8 @@ class Resource(object):
     @classmethod
     def _header_mapping(cls):
         """Return all Header members of this class"""
-        # TODO(mordred) this isn't helpful until we invert the dict
-        return structures.CaseInsensitiveDict(cls._get_mapping(Header))
+        return cls._get_mapping(
+            Header, map_cls=structures.CaseInsensitiveDict)
 
     @classmethod
     def _uri_mapping(cls):
@@ -571,14 +563,6 @@ class Resource(object):
 
         return _Request(uri, body, headers)
 
-    def _filter_component(self, component, mapping):
-        """Filter the keys in component based on a mapping
-
-        This method converts a dict of server-side data to contain
-        only the appropriate keys for attributes on this instance.
-        """
-        return {k: v for k, v in component.items() if k in mapping.values()}
-
     def _translate_response(self, response, has_body=None, error_message=None):
         """Given a KSA response, inflate this instance with its data
 
@@ -596,14 +580,12 @@ class Resource(object):
             if self.resource_key and self.resource_key in body:
                 body = body[self.resource_key]
 
-            body = self._filter_component(body, self._body_mapping())
+            body = self._consume_attrs(self._body_mapping(), body)
             self._body.attributes.update(body)
             self._body.clean()
 
-        headers = self._filter_component(response.headers,
-                                         self._header_mapping())
         headers = self._consume_attrs(
-            self._header_mapping(), response.headers.copy(), insensitive=True)
+            self._header_mapping(), response.headers.copy())
         self._header.attributes.update(headers)
         self._header.clean()
 

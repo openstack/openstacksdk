@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+
 import mock
 import testtools
 
@@ -147,7 +149,7 @@ class TestLimits(testtools.TestCase):
         sess = mock.Mock()
         resp = mock.Mock()
         sess.get.return_value = resp
-        resp.json.return_value = LIMITS_BODY
+        resp.json.return_value = copy.deepcopy(LIMITS_BODY)
 
         sot = limits.Limits().get(sess)
 
