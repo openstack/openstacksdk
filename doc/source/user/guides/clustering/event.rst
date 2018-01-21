@@ -15,4 +15,33 @@
 Working with Events
 ===================
 
-.. TODO(Qiming): Implement this guide
+An event is a record generated during engine execution. Such an event
+captures what has happened inside the senlin-engine. The senlin-engine service
+generates event records when it is performing some actions or checking
+policies.
+
+
+List Events
+~~~~~~~~~~~~
+
+To examine the list of events:
+
+.. literalinclude:: ../../examples/clustering/event.py
+   :pyobject: list_events
+
+When listing events, you can specify the sorting option using the ``sort``
+parameter and you can do pagination using the ``limit`` and ``marker``
+parameters.
+
+Full example: `manage event`_
+
+
+Get Event
+~~~~~~~~~
+
+To get a event based on its name or ID:
+
+.. literalinclude:: ../../examples/clustering/event.py
+   :pyobject: get_event
+
+.. _manage event: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/clustering/event.py
