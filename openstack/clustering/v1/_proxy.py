@@ -488,7 +488,7 @@ class Proxy(proxy2.BaseProxy):
     @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
                       details="Use detach_policy_from_cluster instead")
     def cluster_detach_policy(self, cluster, policy):
-        """Attach a policy to a cluster.
+        """Detach a policy from a cluster.
 
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
