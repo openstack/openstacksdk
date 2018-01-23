@@ -9,7 +9,7 @@ complete documentation, examples, and tools.
 It also contains an abstraction interface layer. Clouds can do many things, but
 there are probably only about 10 of them that most people care about with any
 regularity. If you want to do complicated things, the per-service oriented
-portions of the SDK are for you. However, if what you want to be able to
+portions of the SDK are for you. However, if what you want is to be able to
 write an application that talks to clouds no matter what crazy choices the
 deployer has made in an attempt to be more hipster than their self-entitled
 narcissist peers, then the Cloud Abstraction layer is for you.
@@ -59,10 +59,10 @@ This led to the merge of the three projects.
 
 The original contents of the shade library have been moved into
 ``openstack.cloud`` and os-client-config has been moved in to
-``openstack.config``. The next release of shade will be a thin compatibility
-layer that subclasses the objects from ``openstack.cloud`` and provides
-different argument defaults where needed for compat.
-Similarly the next release of os-client-config will be a compat
+``openstack.config``. Future releases of shade will provide a thin
+compatibility layer that subclasses the objects from ``openstack.cloud``
+and provides different argument defaults where needed for compatibility.
+Similarly future releases of os-client-config will provide a compatibility
 layer shim around ``openstack.config``.
 
 .. note::
