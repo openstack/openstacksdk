@@ -45,6 +45,8 @@ class _BaseComponent(object):
 
     # The name this component is being tracked as in the Resource
     key = None
+    # The class to be used for mappings
+    _map_cls = dict
 
     def __init__(self, name, type=None, default=None, alias=None,
                  alternate_id=False, **kwargs):
@@ -124,6 +126,7 @@ class Header(_BaseComponent):
     """Header attributes"""
 
     key = "_header"
+    _map_cls = structures.CaseInsensitiveDict
 
 
 class URI(_BaseComponent):
@@ -342,15 +345,41 @@ class Resource(object):
         that correspond to the relevant body, header, and uri
         attributes that exist on this class.
         """
-        body = self._consume_attrs(self._body_mapping(), attrs)
-        header = self._consume_attrs(
-            self._header_mapping(), attrs,
-            map_cls=structures.CaseInsensitiveDict)
-        uri = self._consume_attrs(self._uri_mapping(), attrs)
+        body = self._consume_body_attrs(attrs)
+        header = self._consume_header_attrs(attrs)
+        uri = self._consume_uri_attrs(attrs)
 
         return body, header, uri
 
-    def _consume_attrs(self, mapping, attrs, map_cls=dict):
+    def _consume_body_attrs(self, attrs):
+        return self._consume_mapped_attrs(Body, attrs)
+
+    def _consume_header_attrs(self, attrs):
+        return self._consume_mapped_attrs(Header, attrs)
+
+    def _consume_uri_attrs(self, attrs):
+        return self._consume_mapped_attrs(URI, attrs)
+
+    def _update_from_body_attrs(self, attrs):
+        body = self._consume_body_attrs(attrs)
+        self._body.attributes.update(body)
+        self._body.clean()
+
+    def _update_from_header_attrs(self, attrs):
+        headers = self._consume_header_attrs(attrs)
+        self._header.attributes.update(headers)
+        self._header.clean()
+
+    def _update_uri_from_attrs(self, attrs):
+        uri = self._consume_uri_attrs(attrs)
+        self._uri.attributes.update(uri)
+        self._uri.clean()
+
+    def _consume_mapped_attrs(self, mapping_cls, attrs):
+        mapping = self._get_mapping(mapping_cls)
+        return self._consume_attrs(mapping, attrs)
+
+    def _consume_attrs(self, mapping, attrs):
         """Given a mapping and attributes, return relevant matches
 
         This method finds keys in attrs that exist in the mapping, then
@@ -382,10 +411,10 @@ class Resource(object):
         return relevant_attrs
 
     @classmethod
-    def _get_mapping(cls, component, map_cls=dict):
+    def _get_mapping(cls, component):
         """Return a dict of attributes of a given component on the class"""
-        mapping = map_cls()
-        ret = map_cls()
+        mapping = component._map_cls()
+        ret = component._map_cls()
         # Since we're looking at class definitions we need to include
         # subclasses, so check the whole MRO.
         for klass in cls.__mro__:
@@ -408,8 +437,7 @@ class Resource(object):
     @classmethod
     def _header_mapping(cls):
         """Return all Header members of this class"""
-        return cls._get_mapping(
-            Header, map_cls=structures.CaseInsensitiveDict)
+        return cls._get_mapping(Header)
 
     @classmethod
     def _uri_mapping(cls):
@@ -580,12 +608,11 @@ class Resource(object):
             if self.resource_key and self.resource_key in body:
                 body = body[self.resource_key]
 
-            body = self._consume_attrs(self._body_mapping(), body)
+            body = self._consume_body_attrs(body)
             self._body.attributes.update(body)
             self._body.clean()
 
-        headers = self._consume_attrs(
-            self._header_mapping(), response.headers.copy())
+        headers = self._consume_header_attrs(response.headers)
         self._header.attributes.update(headers)
         self._header.clean()
 

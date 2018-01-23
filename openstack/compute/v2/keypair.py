@@ -45,11 +45,12 @@ class Keypair(resource2.Resource):
     #: The SSH public key that is paired with the server.
     public_key = resource2.Body('public_key')
 
-    def __init__(self, **attrs):
-        # TODO(mordred) Maybe let's figure out how to make the base constructor
-        # do this if alternate_id is specified?
-        attrs.setdefault('name', attrs.pop('id', None))
-        super(Keypair, self).__init__(**attrs)
+    def _consume_attrs(self, mapping, attrs):
+        # TODO(mordred) This should not be required. However, without doing
+        # it **SOMETIMES** keypair picks up id and not name. This is a hammer.
+        if 'id' in attrs:
+            attrs.setdefault('name', attrs.pop('id'))
+        return super(Keypair, self)._consume_attrs(mapping, attrs)
 
     @classmethod
     def list(cls, session, paginated=False):
