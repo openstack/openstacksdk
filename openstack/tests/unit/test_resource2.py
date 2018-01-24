@@ -135,7 +135,7 @@ class TestComponent(base.TestCase):
         class Parent(object):
             _example = {name: value}
 
-        class FakeFormatter(object):
+        class FakeFormatter(format.Formatter):
             @classmethod
             def deserialize(cls, value):
                 return expected_result
@@ -145,10 +145,7 @@ class TestComponent(base.TestCase):
 
         # Mock out issubclass rather than having an actual format.Formatter
         # This can't be mocked via decorator, isolate it to wrapping the call.
-        mock_issubclass = mock.Mock(return_value=True)
-        module = six.moves.builtins.__name__
-        with mock.patch("%s.issubclass" % module, mock_issubclass):
-            result = sot.__get__(instance, None)
+        result = sot.__get__(instance, None)
         self.assertEqual(expected_result, result)
 
     def test_set_name_untyped(self):
@@ -205,6 +202,10 @@ class TestComponent(base.TestCase):
 
             @classmethod
             def serialize(cls, arg):
+                FakeFormatter.calls.append(arg)
+
+            @classmethod
+            def deserialize(cls, arg):
                 FakeFormatter.calls.append(arg)
 
         sot = TestComponent.ExampleComponent("name", type=FakeFormatter)

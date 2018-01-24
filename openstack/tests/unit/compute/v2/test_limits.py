@@ -150,6 +150,8 @@ class TestLimits(testtools.TestCase):
         resp = mock.Mock()
         sess.get.return_value = resp
         resp.json.return_value = copy.deepcopy(LIMITS_BODY)
+        resp.headers = {}
+        resp.status_code = 200
 
         sot = limits.Limits().get(sess)
 
@@ -195,3 +197,12 @@ class TestLimits(testtools.TestCase):
         self.assertEqual(RATE_LIMIT["uri"], sot.rate[0].uri)
         self.assertEqual(RATE_LIMIT["regex"], sot.rate[0].regex)
         self.assertEqual(RATE_LIMIT["limit"], sot.rate[0].limits)
+
+        dsot = sot.to_dict()
+
+        self.assertIsInstance(dsot['rate'][0], dict)
+        self.assertIsInstance(dsot['absolute'], dict)
+        self.assertEqual(RATE_LIMIT["uri"], dsot['rate'][0]['uri'])
+        self.assertEqual(
+            ABSOLUTE_LIMITS["totalSecurityGroupsUsed"],
+            dsot['absolute']['security_groups_used'])

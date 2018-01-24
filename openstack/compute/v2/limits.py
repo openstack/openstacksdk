@@ -58,6 +58,8 @@ class AbsoluteLimits(resource2.Resource):
 
 class RateLimit(resource2.Resource):
 
+    # TODO(mordred) Make a resource type for the contents of limit and add
+    # it to list_type here.
     #: A list of the specific limits that apply to the ``regex`` and ``uri``.
     limits = resource2.Body("limit", type=list)
     #: A regex representing which routes this rate limit applies to.
@@ -74,7 +76,7 @@ class Limits(resource2.Resource):
     allow_get = True
 
     absolute = resource2.Body("absolute", type=AbsoluteLimits)
-    rate = resource2.Body("rate", type=list)
+    rate = resource2.Body("rate", type=list, list_type=RateLimit)
 
     def get(self, session, requires_id=False, error_message=None):
         """Get the Limits resource.
@@ -85,21 +87,7 @@ class Limits(resource2.Resource):
         :returns: A Limits instance
         :rtype: :class:`~openstack.compute.v2.limits.Limits`
         """
-        request = self._prepare_request(requires_id=False, prepend_key=False)
-
-        response = session.get(request.url, error_message=error_message)
-
-        body = response.json()
-        body = body[self.resource_key]
-
-        self.absolute = AbsoluteLimits.existing(**body["absolute"])
-
-        rates_body = body["rate"]
-
-        rates = []
-        for rate_body in rates_body:
-            rates.append(RateLimit(**rate_body))
-
-        self.rate = rates
-
-        return self
+        # TODO(mordred) We shouldn't have to subclass just to declare
+        # requires_id = False.
+        return super(Limits, self).get(
+            session=session, requires_id=False, error_message=error_message)
