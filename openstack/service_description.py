@@ -22,7 +22,6 @@ import warnings
 import os_service_types
 
 from openstack import _log
-from openstack import proxy
 from openstack import proxy2
 
 _logger = _log.setup_logging('openstack')
@@ -97,17 +96,11 @@ class ServiceDescription(object):
         self._validate_proxy_class()
 
     def _validate_proxy_class(self):
-        if not issubclass(
-                self.proxy_class, (proxy.BaseProxy, proxy2.BaseProxy)):
+        if not issubclass(self.proxy_class, proxy2.BaseProxy):
             raise TypeError(
                 "{module}.{proxy_class} must inherit from BaseProxy".format(
                     module=self.proxy_class.__module__,
                     proxy_class=self.proxy_class.__name__))
-        if issubclass(self.proxy_class, proxy.BaseProxy) and self._warn_if_old:
-            warnings.warn(
-                "Use of proxy.BaseProxy is not supported."
-                " Please update to use proxy2.BaseProxy.",
-                DeprecationWarning)
 
 
 class OpenStackServiceDescription(ServiceDescription):

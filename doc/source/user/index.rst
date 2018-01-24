@@ -137,7 +137,6 @@ can be customized.
 .. toctree::
    :maxdepth: 1
 
-   resource
    resource2
    service_filter
    utils
