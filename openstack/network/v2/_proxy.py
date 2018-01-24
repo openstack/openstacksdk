@@ -1536,7 +1536,7 @@ class Proxy(proxy2.BaseProxy):
         return self._update(_port.Port, port, **attrs)
 
     def add_ip_to_port(self, port, ip):
-        ip['port_id'] = port.id
+        ip.port_id = port.id
         return ip.update(self)
 
     def remove_ip_from_port(self, ip):
