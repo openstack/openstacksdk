@@ -56,8 +56,8 @@ List Security Groups
 --------------------
 
 A **security group** acts as a virtual firewall for servers. It is a container
-for security group rules which specify the type of network traffic and direction
-that is allowed to pass through a port.
+for security group rules which specify the type of network traffic and
+direction that is allowed to pass through a port.
 
 .. literalinclude:: ../examples/network/list.py
    :pyobject: list_security_groups
