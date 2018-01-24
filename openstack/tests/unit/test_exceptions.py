@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 import testtools
+import uuid
 
 from openstack import exceptions
 
@@ -55,3 +57,69 @@ class Test_HttpException(testtools.TestCase):
 
         self.assertEqual(self.message, exc.message)
         self.assertEqual(http_status, exc.status_code)
+
+
+class TestRaiseFromResponse(testtools.TestCase):
+
+    def setUp(self):
+        super(TestRaiseFromResponse, self).setUp()
+        self.message = "Where is my kitty?"
+
+    def _do_raise(self, *args, **kwargs):
+        return exceptions.raise_from_response(*args, **kwargs)
+
+    def test_raise_no_exception(self):
+        response = mock.Mock()
+        response.status_code = 200
+        self.assertIsNone(self._do_raise(response))
+
+    def test_raise_not_found_exception(self):
+        response = mock.Mock()
+        response.status_code = 404
+        response.headers = {
+            'content-type': 'application/json',
+            'x-openstack-request-id': uuid.uuid4().hex,
+        }
+        exc = self.assertRaises(exceptions.NotFoundException,
+                                self._do_raise, response,
+                                error_message=self.message)
+        self.assertEqual(self.message, exc.message)
+        self.assertEqual(response.status_code, exc.status_code)
+        self.assertEqual(
+            response.headers.get('x-openstack-request-id'),
+            exc.request_id
+        )
+
+    def test_raise_bad_request_exception(self):
+        response = mock.Mock()
+        response.status_code = 400
+        response.headers = {
+            'content-type': 'application/json',
+            'x-openstack-request-id': uuid.uuid4().hex,
+        }
+        exc = self.assertRaises(exceptions.BadRequestException,
+                                self._do_raise, response,
+                                error_message=self.message)
+        self.assertEqual(self.message, exc.message)
+        self.assertEqual(response.status_code, exc.status_code)
+        self.assertEqual(
+            response.headers.get('x-openstack-request-id'),
+            exc.request_id
+        )
+
+    def test_raise_http_exception(self):
+        response = mock.Mock()
+        response.status_code = 403
+        response.headers = {
+            'content-type': 'application/json',
+            'x-openstack-request-id': uuid.uuid4().hex,
+        }
+        exc = self.assertRaises(exceptions.HttpException,
+                                self._do_raise, response,
+                                error_message=self.message)
+        self.assertEqual(self.message, exc.message)
+        self.assertEqual(response.status_code, exc.status_code)
+        self.assertEqual(
+            response.headers.get('x-openstack-request-id'),
+            exc.request_id
+        )

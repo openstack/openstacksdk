@@ -76,7 +76,7 @@ class HttpException(SDKException, _rex.HTTPError):
             self.request_id = response.headers.get('x-openstack-request-id')
             self.status_code = response.status_code
         else:
-            self.request_id = None
+            self.request_id = request_id
             self.status_code = http_status
         self.details = details
         self.url = self.request and self.request.url or None
@@ -192,7 +192,13 @@ def raise_from_response(response, error_message=None):
     else:
         details = response.text
 
-    raise cls(message=error_message, response=response, details=details)
+    http_status = response.status_code
+    request_id = response.headers.get('x-openstack-request-id')
+
+    raise cls(
+        message=error_message, response=response, details=details,
+        http_status=http_status, request_id=request_id
+    )
 
 
 class ArgumentDeprecationWarning(Warning):
