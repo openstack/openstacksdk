@@ -11,8 +11,8 @@ Environment Variables
 provide backwards compatibility to service-specific variables such as
 `NOVA_USERNAME`.
 
-If you have OpenStack environment variables set, `os-client-config` will produce
-a cloud config object named `envvars` containing your values from the
+If you have OpenStack environment variables set, `os-client-config` will
+produce a cloud config object named `envvars` containing your values from the
 environment. If you don't like the name `envvars`, that's ok, you can override
 it by setting `OS_CLOUD_NAME`.
 
@@ -119,11 +119,11 @@ location rules previously mentioned for the config files.
 `regions` can be a list of regions. When you call `get_all_clouds`,
 you'll get a cloud config object for each cloud/region combo.
 
-As seen with `dns_service_type`, any setting that makes sense to be per-service,
-like `service_type` or `endpoint` or `api_version` can be set by prefixing
-the setting with the default service type. That might strike you funny when
-setting `service_type` and it does me too - but that's just the world we live
-in.
+As seen with `dns_service_type`, any setting that makes sense to be
+per-service, like `service_type` or `endpoint` or `api_version` can be set
+by prefixing the setting with the default service type. That might strike you
+funny when setting `service_type` and it does me too - but that's just the
+world we live in.
 
 Auth Settings
 -------------
