@@ -399,6 +399,66 @@ class TestConfig(base.TestCase):
         self.assertEqual(region, {'name': 'no-cloud-region', 'values': {}})
 
 
+class TestExcludedFormattedConfigValue(base.TestCase):
+    # verify LaunchPad bug #1635696
+    #
+    # get_one_cloud() and get_one_cloud_osc() iterate over config
+    # values and try to expand any variables in those values by
+    # calling value.format(), however some config values
+    # (e.g. password) should never have format() applied to them, not
+    # only might that change the password but it will also cause the
+    # format() function to raise an exception if it can not parse the
+    # format string. Examples would be single brace (e.g. 'foo{')
+    # which raises an ValueError because it's looking for a matching
+    # end brace or a brace pair with a key value that cannot be found
+    # (e.g. 'foo{bar}') which raises a KeyError.
+
+    def setUp(self):
+        super(TestExcludedFormattedConfigValue, self).setUp()
+
+        self.args = dict(
+            auth_url='http://example.com/v2',
+            username='user',
+            project_name='project',
+            region_name='region2',
+            snack_type='cookie',
+            os_auth_token='no-good-things',
+        )
+
+        self.options = argparse.Namespace(**self.args)
+
+    def test_get_one_cloud_password_brace(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        password = 'foo{'       # Would raise ValueError, single brace
+        self.options.password = password
+        cc = c.get_one_cloud(
+            cloud='_test_cloud_regions', argparse=self.options, validate=False)
+        self.assertEqual(cc.password, password)
+
+        password = 'foo{bar}'   # Would raise KeyError, 'bar' not found
+        self.options.password = password
+        cc = c.get_one_cloud(
+            cloud='_test_cloud_regions', argparse=self.options, validate=False)
+        self.assertEqual(cc.password, password)
+
+    def test_get_one_cloud_osc_password_brace(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        password = 'foo{'       # Would raise ValueError, single brace
+        self.options.password = password
+        cc = c.get_one_cloud_osc(
+            cloud='_test_cloud_regions', argparse=self.options, validate=False)
+        self.assertEqual(cc.password, password)
+
+        password = 'foo{bar}'   # Would raise KeyError, 'bar' not found
+        self.options.password = password
+        cc = c.get_one_cloud_osc(
+            cloud='_test_cloud_regions', argparse=self.options, validate=False)
+        self.assertEqual(cc.password, password)
+
+
 class TestConfigArgparse(base.TestCase):
 
     def setUp(self):
