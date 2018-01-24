@@ -1540,7 +1540,7 @@ class Proxy(proxy2.BaseProxy):
         return ip.update(self)
 
     def remove_ip_from_port(self, ip):
-        ip['port_id'] = None
+        ip.port_id = None
         return ip.update(self)
 
     def get_subnet_ports(self, subnet_id):
