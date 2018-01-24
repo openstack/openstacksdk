@@ -62,7 +62,7 @@ List
 Services are accessed through an attribute named after the service's official
 service-type. A list of all the projects is retrieved in this manner::
 
-    projects = conn.identity.list_projects()
+    projects = [project for project in conn.identity.projects()]
 
 Find or create
 ~~~~~~~~~~~~~~
