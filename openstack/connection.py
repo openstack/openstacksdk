@@ -250,10 +250,10 @@ class Connection(object):
     def add_service(self, service):
         """Add a service to the Connection.
 
-        Attaches an instance of the :class:`~openstack.proxy2.BaseProxy`
+        Attaches an instance of the :class:`~openstack.proxy.BaseProxy`
         class contained in
         :class:`~openstack.service_description.ServiceDescription`.
-        The :class:`~openstack.proxy2.BaseProxy` will be attached to the
+        The :class:`~openstack.proxy.BaseProxy` will be attached to the
         `Connection` by its ``service_type`` and by any ``aliases`` that
         may be specified.
 

@@ -13,7 +13,7 @@
 from six.moves.urllib import parse
 
 from openstack.orchestration import orchestration_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Template(resource.Resource):

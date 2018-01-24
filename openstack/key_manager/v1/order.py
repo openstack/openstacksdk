@@ -12,10 +12,10 @@
 
 from openstack.key_manager import key_manager_service
 from openstack.key_manager.v1 import _format
-from openstack import resource2
+from openstack import resource
 
 
-class Order(resource2.Resource):
+class Order(resource.Resource):
     resources_key = 'orders'
     base_path = '/orders'
     service = key_manager_service.KeyManagerService()
@@ -28,28 +28,28 @@ class Order(resource2.Resource):
     allow_list = True
 
     #: Timestamp in ISO8601 format of when the order was created
-    created_at = resource2.Body('created')
+    created_at = resource.Body('created')
     #: Keystone Id of the user who created the order
-    creator_id = resource2.Body('creator_id')
+    creator_id = resource.Body('creator_id')
     #: A dictionary containing key-value parameters which specify the
     #: details of an order request
-    meta = resource2.Body('meta', type=dict)
+    meta = resource.Body('meta', type=dict)
     #: A URI for this order
-    order_ref = resource2.Body('order_ref')
+    order_ref = resource.Body('order_ref')
     #: The ID of this order
-    order_id = resource2.Body('order_ref', alternate_id=True,
-                              type=_format.HREFToUUID)
+    order_id = resource.Body(
+        'order_ref', alternate_id=True, type=_format.HREFToUUID)
     #: Secret href associated with the order
-    secret_ref = resource2.Body('secret_ref')
+    secret_ref = resource.Body('secret_ref')
     #: Secret ID associated with the order
-    secret_id = resource2.Body('secret_ref', type=_format.HREFToUUID)
+    secret_id = resource.Body('secret_ref', type=_format.HREFToUUID)
     # The status of this order
-    status = resource2.Body('status')
+    status = resource.Body('status')
     #: Metadata associated with the order
-    sub_status = resource2.Body('sub_status')
+    sub_status = resource.Body('sub_status')
     #: Metadata associated with the order
-    sub_status_message = resource2.Body('sub_status_message')
+    sub_status_message = resource.Body('sub_status_message')
     # The type of order
-    type = resource2.Body('type')
+    type = resource.Body('type')
     #: 	Timestamp in ISO8601 format of the last time the order was updated.
-    updated_at = resource2.Body('updated')
+    updated_at = resource.Body('updated')

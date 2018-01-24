@@ -98,21 +98,26 @@ class TestProxyBase(base.TestCase):
 
     def verify_delete(self, test_method, resource_type, ignore,
                       input_path_args=None, expected_path_args=None,
+                      method_kwargs=None, expected_args=None,
+                      expected_kwargs=None,
                       mock_method="openstack.proxy.BaseProxy._delete"):
         method_args = ["resource_or_id"]
-        method_kwargs = {"ignore_missing": ignore}
+        method_kwargs = method_kwargs or {}
+        method_kwargs["ignore_missing"] = ignore
         if isinstance(input_path_args, dict):
             for key in input_path_args:
                 method_kwargs[key] = input_path_args[key]
         elif isinstance(input_path_args, list):
             method_args = input_path_args
-        expected_kwargs = {"ignore_missing": ignore}
+        expected_kwargs = expected_kwargs or {}
+        expected_kwargs["ignore_missing"] = ignore
         if expected_path_args:
-            expected_kwargs["path_args"] = expected_path_args
+            expected_kwargs.update(expected_path_args)
+        expected_args = expected_args or [resource_type, "resource_or_id"]
         self._verify2(mock_method, test_method,
                       method_args=method_args,
                       method_kwargs=method_kwargs,
-                      expected_args=[resource_type, "resource_or_id"],
+                      expected_args=expected_args,
                       expected_kwargs=expected_kwargs)
 
     def verify_get(self, test_method, resource_type, value=None, args=None,
@@ -179,9 +184,7 @@ class TestProxyBase(base.TestCase):
                     **kwargs):
         expected_kwargs = kwargs.pop("expected_kwargs", {})
         expected_kwargs.update({"paginated": paginated})
-        expected_kwargs['limit'] = 2
         method_kwargs = kwargs.pop("method_kwargs", {})
-        method_kwargs['limit'] = 2
         self._verify2(mock_method, test_method,
                       method_kwargs=method_kwargs,
                       expected_args=[resource_type],

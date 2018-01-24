@@ -13,14 +13,14 @@
 import uuid
 
 from openstack.message import message_service
-from openstack import resource2
+from openstack import resource
 
 
-class Message(resource2.Resource):
+class Message(resource.Resource):
     # FIXME(anyone): The name string of `location` field of Zaqar API response
     # is lower case. That is inconsistent with the guide from API-WG. This is
     # a workaround for this issue.
-    location = resource2.Header("location")
+    location = resource.Header("location")
 
     resources_key = 'messages'
     base_path = '/queues/%(queue_name)s/messages'
@@ -32,28 +32,28 @@ class Message(resource2.Resource):
     allow_get = True
     allow_delete = True
 
-    _query_mapping = resource2.QueryParameters("echo", "include_claimed")
+    _query_mapping = resource.QueryParameters("echo", "include_claimed")
 
     # Properties
     #: The value in second to specify how long the message has been
     #: posted to the queue.
-    age = resource2.Body("age")
+    age = resource.Body("age")
     #: A dictionary specifies an arbitrary document that constitutes the
     #: body of the message being sent.
-    body = resource2.Body("body")
+    body = resource.Body("body")
     #: An uri string describe the location of the message resource.
-    href = resource2.Body("href")
+    href = resource.Body("href")
     #: The value in seconds to specify how long the server waits before
     #: marking the message as expired and removing it from the queue.
-    ttl = resource2.Body("ttl")
+    ttl = resource.Body("ttl")
     #: The name of target queue message is post to or got from.
-    queue_name = resource2.URI("queue_name")
+    queue_name = resource.URI("queue_name")
     #: The ID to identify the client accessing Zaqar API. Must be specified
     #: in header for each API request.
-    client_id = resource2.Header("Client-ID")
+    client_id = resource.Header("Client-ID")
     #: The ID to identify the project accessing Zaqar API. Must be specified
     #: in case keystone auth is not enabled in Zaqar service.
-    project_id = resource2.Header("X-PROJECT-ID")
+    project_id = resource.Header("X-PROJECT-ID")
 
     def post(self, session, messages):
         request = self._prepare_request(requires_id=False, prepend_key=True)
@@ -72,7 +72,7 @@ class Message(resource2.Resource):
     def list(cls, session, paginated=True, **params):
         """This method is a generator which yields message objects.
 
-        This is almost the copy of list method of resource2.Resource class.
+        This is almost the copy of list method of resource.Resource class.
         The only difference is the request header now includes `Client-ID`
         and `X-PROJECT-ID` fields which are required by Zaqar v2 API.
         """

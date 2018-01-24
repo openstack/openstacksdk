@@ -23,11 +23,11 @@ already. For reference, those are:
 * Removed the Session object in favor of using keystoneauth.
 * Plumbed Proxy use of Adapter through the Adapter subclass from shade that
   uses the TaskManager to run REST calls.
+* Finish migrating to Resource2 and Proxy2, rename them to Resource and Proxy.
 
 Next steps
 ==========
 
-* Finish migrating to Resource2 and Proxy2, rename them to Resource and Proxy.
 * Maybe rename self.session and session parameter in all usage in proxy and
   resource to self.adapter. They are Adapters not Sessions, but that may not
   mean anything to people.

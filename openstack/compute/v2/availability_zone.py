@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource2
+from openstack import resource
 
 
-class AvailabilityZone(resource2.Resource):
+class AvailabilityZone(resource.Resource):
     resources_key = 'availabilityZoneInfo'
     base_path = '/os-availability-zone'
 
@@ -25,11 +25,11 @@ class AvailabilityZone(resource2.Resource):
 
     # Properties
     #: name of availability zone
-    name = resource2.Body('zoneName')
+    name = resource.Body('zoneName')
     #: state of availability zone
-    state = resource2.Body('zoneState')
+    state = resource.Body('zoneState')
     #: hosts of availability zone
-    hosts = resource2.Body('hosts')
+    hosts = resource.Body('hosts')
 
 
 class AvailabilityZoneDetail(AvailabilityZone):

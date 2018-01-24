@@ -14,7 +14,7 @@ import mock
 import testtools
 
 from openstack.orchestration.v1 import template
-from openstack import resource2 as resource
+from openstack import resource
 
 
 FAKE = {

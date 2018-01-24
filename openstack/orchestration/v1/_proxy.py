@@ -19,10 +19,10 @@ from openstack.orchestration.v1 import stack_environment as _stack_environment
 from openstack.orchestration.v1 import stack_files as _stack_files
 from openstack.orchestration.v1 import stack_template as _stack_template
 from openstack.orchestration.v1 import template as _template
-from openstack import proxy2
+from openstack import proxy
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def create_stack(self, preview=False, **attrs):
         """Create a new stack from attributes

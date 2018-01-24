@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.block_storage import block_storage_service
-from openstack import resource2
+from openstack import resource
 
 
-class Pools(resource2.Resource):
+class Pools(resource.Resource):
     resource_key = "pool"
     resources_key = "pools"
     base_path = "/scheduler-stats/get_pools?detail=True"
@@ -28,7 +28,6 @@ class Pools(resource2.Resource):
 
     # Properties
     #: The Cinder name for the pool
-    name = resource2.Body("name")
+    name = resource.Body("name")
     #: returns a dict with information about the pool
-    capabilities = resource2.Body("capabilities",
-                                  type=dict)
+    capabilities = resource.Body("capabilities", type=dict)

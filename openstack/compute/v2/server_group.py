@@ -11,16 +11,16 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource2
+from openstack import resource
 
 
-class ServerGroup(resource2.Resource):
+class ServerGroup(resource.Resource):
     resource_key = 'server_group'
     resources_key = 'server_groups'
     base_path = '/os-server-groups'
     service = compute_service.ComputeService()
 
-    _query_mapping = resource2.QueryParameters("all_projects")
+    _query_mapping = resource.QueryParameters("all_projects")
 
     # capabilities
     allow_create = True
@@ -30,10 +30,10 @@ class ServerGroup(resource2.Resource):
 
     # Properties
     #: A name identifying the server group
-    name = resource2.Body('name')
+    name = resource.Body('name')
     #: The list of policies supported by the server group
-    policies = resource2.Body('policies')
+    policies = resource.Body('policies')
     #: The list of members in the server group
-    member_ids = resource2.Body('members')
+    member_ids = resource.Body('members')
     #: The metadata associated with the server group
-    metadata = resource2.Body('metadata')
+    metadata = resource.Body('metadata')

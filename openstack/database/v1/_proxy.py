@@ -14,10 +14,10 @@ from openstack.database.v1 import database as _database
 from openstack.database.v1 import flavor as _flavor
 from openstack.database.v1 import instance as _instance
 from openstack.database.v1 import user as _user
-from openstack import proxy2
+from openstack import proxy
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def create_database(self, instance, **attrs):
         """Create a new database from attributes

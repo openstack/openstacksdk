@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.clustering import clustering_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class ClusterPolicy(resource.Resource):

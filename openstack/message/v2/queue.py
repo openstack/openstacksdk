@@ -13,14 +13,14 @@
 import uuid
 
 from openstack.message import message_service
-from openstack import resource2
+from openstack import resource
 
 
-class Queue(resource2.Resource):
+class Queue(resource.Resource):
     # FIXME(anyone): The name string of `location` field of Zaqar API response
     # is lower case. That is inconsistent with the guide from API-WG. This is
     # a workaround for this issue.
-    location = resource2.Header("location")
+    location = resource.Header("location")
 
     resources_key = "queues"
     base_path = "/queues"
@@ -35,22 +35,22 @@ class Queue(resource2.Resource):
     # Properties
     #: The default TTL of messages defined for a queue, which will effect for
     #: any messages posted to the queue.
-    default_message_ttl = resource2.Body("_default_message_ttl")
+    default_message_ttl = resource.Body("_default_message_ttl")
     #: Description of the queue.
-    description = resource2.Body("description")
+    description = resource.Body("description")
     #: The max post size of messages defined for a queue, which will effect
     #: for any messages posted to the queue.
-    max_messages_post_size = resource2.Body("_max_messages_post_size")
+    max_messages_post_size = resource.Body("_max_messages_post_size")
     #: Name of the queue. The name is the unique identity of a queue. It
     #: must not exceed 64 bytes in length, and it is limited to US-ASCII
     #: letters, digits, underscores, and hyphens.
-    name = resource2.Body("name", alternate_id=True)
+    name = resource.Body("name", alternate_id=True)
     #: The ID to identify the client accessing Zaqar API. Must be specified
     #: in header for each API request.
-    client_id = resource2.Header("Client-ID")
+    client_id = resource.Header("Client-ID")
     #: The ID to identify the project accessing Zaqar API. Must be specified
     #: in case keystone auth is not enabled in Zaqar service.
-    project_id = resource2.Header("X-PROJECT-ID")
+    project_id = resource.Header("X-PROJECT-ID")
 
     def create(self, session, prepend_key=True):
         request = self._prepare_request(requires_id=True,
@@ -70,7 +70,7 @@ class Queue(resource2.Resource):
     def list(cls, session, paginated=False, **params):
         """This method is a generator which yields queue objects.
 
-        This is almost the copy of list method of resource2.Resource class.
+        This is almost the copy of list method of resource.Resource class.
         The only difference is the request header now includes `Client-ID`
         and `X-PROJECT-ID` fields which are required by Zaqar v2 API.
         """

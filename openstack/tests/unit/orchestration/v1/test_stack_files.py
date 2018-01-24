@@ -14,7 +14,7 @@ import mock
 import testtools
 
 from openstack.orchestration.v1 import stack_files as sf
-from openstack import resource2 as resource
+from openstack import resource
 
 FAKE = {
     'stack_id': 'ID',

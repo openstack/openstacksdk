@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.image.v1 import image as _image
-from openstack import proxy2 as proxy
+from openstack import proxy
 
 
 class Proxy(proxy.BaseProxy):

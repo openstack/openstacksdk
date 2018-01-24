@@ -18,10 +18,10 @@ from openstack.baremetal.v1 import driver
 from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
 from openstack.baremetal.v1 import port_group
-from openstack.tests.unit import test_proxy_base2
+from openstack.tests.unit import test_proxy_base
 
 
-class TestBaremetalProxy(test_proxy_base2.TestProxyBase):
+class TestBaremetalProxy(test_proxy_base.TestProxyBase):
 
     def setUp(self):
         super(TestBaremetalProxy, self).setUp()

@@ -15,10 +15,10 @@ from openstack.block_storage.v2 import snapshot
 from openstack.block_storage.v2 import stats
 from openstack.block_storage.v2 import type
 from openstack.block_storage.v2 import volume
-from openstack.tests.unit import test_proxy_base2
+from openstack.tests.unit import test_proxy_base
 
 
-class TestVolumeProxy(test_proxy_base2.TestProxyBase):
+class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestVolumeProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)

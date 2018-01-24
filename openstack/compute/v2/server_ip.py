@@ -11,11 +11,11 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource2
+from openstack import resource
 from openstack import utils
 
 
-class ServerIP(resource2.Resource):
+class ServerIP(resource.Resource):
     resources_key = 'addresses'
     base_path = '/servers/%(server_id)s/ips'
     service = compute_service.ComputeService()
@@ -25,13 +25,13 @@ class ServerIP(resource2.Resource):
 
     # Properties
     #: The IP address. The format of the address depends on :attr:`version`
-    address = resource2.Body('addr')
+    address = resource.Body('addr')
     #: The network label, such as public or private.
-    network_label = resource2.URI('network_label')
+    network_label = resource.URI('network_label')
     #: The ID for the server.
-    server_id = resource2.URI('server_id')
+    server_id = resource.URI('server_id')
     # Version of the IP protocol. Currently either 4 or 6.
-    version = resource2.Body('version')
+    version = resource.Body('version')
 
     @classmethod
     def list(cls, session, paginated=False, server_id=None,

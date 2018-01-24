@@ -11,11 +11,11 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource2
+from openstack import resource
 from openstack import utils
 
 
-class Service(resource2.Resource):
+class Service(resource.Resource):
     resource_key = 'service'
     resources_key = 'services'
     base_path = '/os-services'
@@ -28,19 +28,19 @@ class Service(resource2.Resource):
 
     # Properties
     #: Status of service
-    status = resource2.Body('status')
+    status = resource.Body('status')
     #: State of service
-    state = resource2.Body('state')
+    state = resource.Body('state')
     #: Name of service
-    binary = resource2.Body('binary')
+    binary = resource.Body('binary')
     #: Id of service
-    id = resource2.Body('id')
+    id = resource.Body('id')
     #: Disabled reason of service
-    disables_reason = resource2.Body('disabled_reason')
+    disables_reason = resource.Body('disabled_reason')
     #: Host where service runs
-    host = resource2.Body('host')
+    host = resource.Body('host')
     #: The availability zone of service
-    zone = resource2.Body("zone")
+    zone = resource.Body("zone")
 
     def _action(self, session, action, body):
         url = utils.urljoin(Service.base_path, action)

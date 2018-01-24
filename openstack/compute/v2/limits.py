@@ -11,72 +11,72 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource2
+from openstack import resource
 
 
-class AbsoluteLimits(resource2.Resource):
+class AbsoluteLimits(resource.Resource):
 
     #: The number of key-value pairs that can be set as image metadata.
-    image_meta = resource2.Body("maxImageMeta")
+    image_meta = resource.Body("maxImageMeta")
     #: The maximum number of personality contents that can be supplied.
-    personality = resource2.Body("maxPersonality")
+    personality = resource.Body("maxPersonality")
     #: The maximum size, in bytes, of a personality.
-    personality_size = resource2.Body("maxPersonalitySize")
+    personality_size = resource.Body("maxPersonalitySize")
     #: The maximum amount of security group rules allowed.
-    security_group_rules = resource2.Body("maxSecurityGroupRules")
+    security_group_rules = resource.Body("maxSecurityGroupRules")
     #: The maximum amount of security groups allowed.
-    security_groups = resource2.Body("maxSecurityGroups")
+    security_groups = resource.Body("maxSecurityGroups")
     #: The amount of security groups currently in use.
-    security_groups_used = resource2.Body("totalSecurityGroupsUsed")
+    security_groups_used = resource.Body("totalSecurityGroupsUsed")
     #: The number of key-value pairs that can be set as sever metadata.
-    server_meta = resource2.Body("maxServerMeta")
+    server_meta = resource.Body("maxServerMeta")
     #: The maximum amount of cores.
-    total_cores = resource2.Body("maxTotalCores")
+    total_cores = resource.Body("maxTotalCores")
     #: The amount of cores currently in use.
-    total_cores_used = resource2.Body("totalCoresUsed")
+    total_cores_used = resource.Body("totalCoresUsed")
     #: The maximum amount of floating IPs.
-    floating_ips = resource2.Body("maxTotalFloatingIps")
+    floating_ips = resource.Body("maxTotalFloatingIps")
     #: The amount of floating IPs currently in use.
-    floating_ips_used = resource2.Body("totalFloatingIpsUsed")
+    floating_ips_used = resource.Body("totalFloatingIpsUsed")
     #: The maximum amount of instances.
-    instances = resource2.Body("maxTotalInstances")
+    instances = resource.Body("maxTotalInstances")
     #: The amount of instances currently in use.
-    instances_used = resource2.Body("totalInstancesUsed")
+    instances_used = resource.Body("totalInstancesUsed")
     #: The maximum amount of keypairs.
-    keypairs = resource2.Body("maxTotalKeypairs")
+    keypairs = resource.Body("maxTotalKeypairs")
     #: The maximum RAM size in megabytes.
-    total_ram = resource2.Body("maxTotalRAMSize")
+    total_ram = resource.Body("maxTotalRAMSize")
     #: The RAM size in megabytes currently in use.
-    total_ram_used = resource2.Body("totalRAMUsed")
+    total_ram_used = resource.Body("totalRAMUsed")
     #: The maximum amount of server groups.
-    server_groups = resource2.Body("maxServerGroups")
+    server_groups = resource.Body("maxServerGroups")
     #: The amount of server groups currently in use.
-    server_groups_used = resource2.Body("totalServerGroupsUsed")
+    server_groups_used = resource.Body("totalServerGroupsUsed")
     #: The maximum number of members in a server group.
-    server_group_members = resource2.Body("maxServerGroupMembers")
+    server_group_members = resource.Body("maxServerGroupMembers")
 
 
-class RateLimit(resource2.Resource):
+class RateLimit(resource.Resource):
 
     # TODO(mordred) Make a resource type for the contents of limit and add
     # it to list_type here.
     #: A list of the specific limits that apply to the ``regex`` and ``uri``.
-    limits = resource2.Body("limit", type=list)
+    limits = resource.Body("limit", type=list)
     #: A regex representing which routes this rate limit applies to.
-    regex = resource2.Body("regex")
+    regex = resource.Body("regex")
     #: A URI representing which routes this rate limit applies to.
-    uri = resource2.Body("uri")
+    uri = resource.Body("uri")
 
 
-class Limits(resource2.Resource):
+class Limits(resource.Resource):
     base_path = "/limits"
     resource_key = "limits"
     service = compute_service.ComputeService()
 
     allow_get = True
 
-    absolute = resource2.Body("absolute", type=AbsoluteLimits)
-    rate = resource2.Body("rate", type=list, list_type=RateLimit)
+    absolute = resource.Body("absolute", type=AbsoluteLimits)
+    rate = resource.Body("rate", type=list, list_type=RateLimit)
 
     def get(self, session, requires_id=False, error_message=None):
         """Get the Limits resource.

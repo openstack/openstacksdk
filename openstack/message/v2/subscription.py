@@ -13,14 +13,14 @@
 import uuid
 
 from openstack.message import message_service
-from openstack import resource2
+from openstack import resource
 
 
-class Subscription(resource2.Resource):
+class Subscription(resource.Resource):
     # FIXME(anyone): The name string of `location` field of Zaqar API response
     # is lower case. That is inconsistent with the guide from API-WG. This is
     # a workaround for this issue.
-    location = resource2.Header("location")
+    location = resource.Header("location")
 
     resources_key = 'subscriptions'
     base_path = '/queues/%(queue_name)s/subscriptions'
@@ -34,31 +34,31 @@ class Subscription(resource2.Resource):
 
     # Properties
     #: The value in seconds indicating how long the subscription has existed.
-    age = resource2.Body("age")
+    age = resource.Body("age")
     #: Alternate id of the subscription. This key is used in response of
     #: subscription create API to return id of subscription created.
-    subscription_id = resource2.Body("subscription_id", alternate_id=True)
+    subscription_id = resource.Body("subscription_id", alternate_id=True)
     #: The extra metadata for the subscription. The value must be a dict.
     #: If the subscriber is `mailto`. The options can contain `from` and
     #: `subject` to indicate the email's author and title.
-    options = resource2.Body("options", type=dict)
+    options = resource.Body("options", type=dict)
     #: The queue name which the subscription is registered on.
-    source = resource2.Body("source")
+    source = resource.Body("source")
     #: The destination of the message. Two kinds of subscribers are supported:
     #: http/https and email. The http/https subscriber should start with
     #: `http/https`. The email subscriber should start with `mailto`.
-    subscriber = resource2.Body("subscriber")
+    subscriber = resource.Body("subscriber")
     #: Number of seconds the subscription remains alive? The ttl value must
     #: be great than 60 seconds. The default value is 3600 seconds.
-    ttl = resource2.Body("ttl")
+    ttl = resource.Body("ttl")
     #: The queue name which the subscription is registered on.
-    queue_name = resource2.URI("queue_name")
+    queue_name = resource.URI("queue_name")
     #: The ID to identify the client accessing Zaqar API. Must be specified
     #: in header for each API request.
-    client_id = resource2.Header("Client-ID")
+    client_id = resource.Header("Client-ID")
     #: The ID to identify the project. Must be provided when keystone
     #: authentication is not enabled in Zaqar service.
-    project_id = resource2.Header("X-PROJECT-ID")
+    project_id = resource.Header("X-PROJECT-ID")
 
     def create(self, session, prepend_key=True):
         request = self._prepare_request(requires_id=False,
@@ -78,7 +78,7 @@ class Subscription(resource2.Resource):
     def list(cls, session, paginated=True, **params):
         """This method is a generator which yields subscription objects.
 
-        This is almost the copy of list method of resource2.Resource class.
+        This is almost the copy of list method of resource.Resource class.
         The only difference is the request header now includes `Client-ID`
         and `X-PROJECT-ID` fields which are required by Zaqar v2 API.
         """

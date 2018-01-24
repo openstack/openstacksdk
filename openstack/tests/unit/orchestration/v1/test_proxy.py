@@ -23,10 +23,10 @@ from openstack.orchestration.v1 import stack_environment
 from openstack.orchestration.v1 import stack_files
 from openstack.orchestration.v1 import stack_template
 from openstack.orchestration.v1 import template
-from openstack.tests.unit import test_proxy_base2
+from openstack.tests.unit import test_proxy_base
 
 
-class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
+class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestOrchestrationProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -84,7 +84,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         stk = stack.Stack(id=stack_id, name=stack_name)
         mock_find.return_value = stk
 
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_stack_environment,
                       method_args=['IDENTITY'],
                       expected_args=[stack_environment.StackEnvironment],
@@ -99,7 +99,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
 
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_stack_environment,
                       method_args=[stk],
                       expected_args=[stack_environment.StackEnvironment],
@@ -142,7 +142,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         stk = stack.Stack(id=stack_id, name=stack_name)
         mock_find.return_value = stk
 
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_stack_template,
                       method_args=['IDENTITY'],
                       expected_args=[stack_template.StackTemplate],
@@ -157,7 +157,7 @@ class TestOrchestrationProxy(test_proxy_base2.TestProxyBase):
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
 
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_stack_template,
                       method_args=[stk],
                       expected_args=[stack_template.StackTemplate],

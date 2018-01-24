@@ -17,10 +17,10 @@ from openstack.load_balancer.v2 import listener as _listener
 from openstack.load_balancer.v2 import load_balancer as _lb
 from openstack.load_balancer.v2 import member as _member
 from openstack.load_balancer.v2 import pool as _pool
-from openstack import proxy2
+from openstack import proxy
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def create_load_balancer(self, **attrs):
         """Create a new load balancer from attributes

@@ -12,7 +12,7 @@
 # under the License.
 
 from openstack.object_store.v1 import _base
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Container(_base.BaseResource):

@@ -31,7 +31,7 @@ from openstack.identity.v3 import role_project_user_assignment \
 from openstack.identity.v3 import service as _service
 from openstack.identity.v3 import trust as _trust
 from openstack.identity.v3 import user as _user
-from openstack import proxy2 as proxy
+from openstack import proxy
 
 
 class Proxy(proxy.BaseProxy):

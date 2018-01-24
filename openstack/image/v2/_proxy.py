@@ -13,11 +13,11 @@
 from openstack import exceptions
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
-from openstack import proxy2
-from openstack import resource2
+from openstack import proxy
+from openstack import resource
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def upload_image(self, container_format=None, disk_format=None,
                      data=None, **attrs):
@@ -221,7 +221,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: The results of member creation
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        image_id = resource2.Resource._get_id(image)
+        image_id = resource.Resource._get_id(image)
         return self._create(_member.Member, image_id=image_id, **attrs)
 
     def remove_member(self, member, image, ignore_missing=True):
@@ -237,8 +237,8 @@ class Proxy(proxy2.BaseProxy):
 
         :returns: ``None``
         """
-        image_id = resource2.Resource._get_id(image)
-        member_id = resource2.Resource._get_id(member)
+        image_id = resource.Resource._get_id(image)
+        member_id = resource.Resource._get_id(member)
         self._delete(_member.Member, member_id=member_id, image_id=image_id,
                      ignore_missing=ignore_missing)
 
@@ -256,7 +256,7 @@ class Proxy(proxy2.BaseProxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.member.Member` or None
         """
-        image_id = resource2.Resource._get_id(image)
+        image_id = resource.Resource._get_id(image)
         return self._find(_member.Member, name_or_id, image_id=image_id,
                           ignore_missing=ignore_missing)
 
@@ -272,8 +272,8 @@ class Proxy(proxy2.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        member_id = resource2.Resource._get_id(member)
-        image_id = resource2.Resource._get_id(image)
+        member_id = resource.Resource._get_id(member)
+        image_id = resource.Resource._get_id(image)
         return self._get(_member.Member, member_id=member_id,
                          image_id=image_id)
 
@@ -287,7 +287,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: A generator of member objects
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        image_id = resource2.Resource._get_id(image)
+        image_id = resource.Resource._get_id(image)
         return self._list(_member.Member, paginated=False,
                           image_id=image_id)
 
@@ -305,7 +305,7 @@ class Proxy(proxy2.BaseProxy):
         :returns: The updated member
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
-        member_id = resource2.Resource._get_id(member)
-        image_id = resource2.Resource._get_id(image)
+        member_id = resource.Resource._get_id(member)
+        image_id = resource.Resource._get_id(image)
         return self._update(_member.Member, member_id=member_id,
                             image_id=image_id, **attrs)

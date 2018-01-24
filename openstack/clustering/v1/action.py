@@ -12,7 +12,7 @@
 
 
 from openstack.clustering import clustering_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Action(resource.Resource):

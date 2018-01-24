@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource2
+from openstack import resource
 
 
-class Flavor(resource2.Resource):
+class Flavor(resource.Resource):
     resource_key = 'flavor'
     resources_key = 'flavors'
     base_path = '/flavors'
@@ -26,33 +26,34 @@ class Flavor(resource2.Resource):
     allow_delete = True
     allow_list = True
 
-    _query_mapping = resource2.QueryParameters("sort_key", "sort_dir",
-                                               min_disk="minDisk",
-                                               min_ram="minRam")
+    _query_mapping = resource.QueryParameters(
+        "sort_key", "sort_dir",
+        min_disk="minDisk",
+        min_ram="minRam")
 
     # Properties
     #: Links pertaining to this flavor. This is a list of dictionaries,
     #: each including keys ``href`` and ``rel``.
-    links = resource2.Body('links')
+    links = resource.Body('links')
     #: The name of this flavor.
-    name = resource2.Body('name')
+    name = resource.Body('name')
     #: Size of the disk this flavor offers. *Type: int*
-    disk = resource2.Body('disk', type=int)
+    disk = resource.Body('disk', type=int)
     #: ``True`` if this is a publicly visible flavor. ``False`` if this is
     #: a private image. *Type: bool*
-    is_public = resource2.Body('os-flavor-access:is_public', type=bool)
+    is_public = resource.Body('os-flavor-access:is_public', type=bool)
     #: The amount of RAM (in MB) this flavor offers. *Type: int*
-    ram = resource2.Body('ram', type=int)
+    ram = resource.Body('ram', type=int)
     #: The number of virtual CPUs this flavor offers. *Type: int*
-    vcpus = resource2.Body('vcpus', type=int)
+    vcpus = resource.Body('vcpus', type=int)
     #: Size of the swap partitions.
-    swap = resource2.Body('swap')
+    swap = resource.Body('swap')
     #: Size of the ephemeral data disk attached to this server. *Type: int*
-    ephemeral = resource2.Body('OS-FLV-EXT-DATA:ephemeral', type=int)
+    ephemeral = resource.Body('OS-FLV-EXT-DATA:ephemeral', type=int)
     #: ``True`` if this flavor is disabled, ``False`` if not. *Type: bool*
-    is_disabled = resource2.Body('OS-FLV-DISABLED:disabled', type=bool)
+    is_disabled = resource.Body('OS-FLV-DISABLED:disabled', type=bool)
     #: The bandwidth scaling factor this flavor receives on the network.
-    rxtx_factor = resource2.Body('rxtx_factor', type=float)
+    rxtx_factor = resource.Body('rxtx_factor', type=float)
 
 
 class FlavorDetail(Flavor):

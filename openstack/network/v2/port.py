@@ -12,7 +12,7 @@
 
 from openstack.network import network_service
 from openstack.network.v2 import tag
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Port(resource.Resource, tag.TagMixin):

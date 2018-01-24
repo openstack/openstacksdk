@@ -48,11 +48,11 @@ from openstack.network.v2 import service_provider as _service_provider
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import vpn_service as _vpn_service
-from openstack import proxy2
+from openstack import proxy
 from openstack import utils
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def create_address_scope(self, **attrs):
         """Create a new address scope from attributes
@@ -3036,12 +3036,12 @@ class Proxy(proxy2.BaseProxy):
         """Replace tags of a specified resource with specified tags
 
         :param resource:
-            :class:`~openstack.resource2.Resource` instance.
+            :class:`~openstack.resource.Resource` instance.
         :param tags: New tags to be set.
         :type tags: "list"
 
         :returns: The updated resource
-        :rtype: :class:`~openstack.resource2.Resource`
+        :rtype: :class:`~openstack.resource.Resource`
         """
         self._check_tag_support(resource)
         return resource.set_tags(self, tags)

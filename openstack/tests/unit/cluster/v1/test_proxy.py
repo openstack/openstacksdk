@@ -27,11 +27,11 @@ from openstack.clustering.v1 import profile
 from openstack.clustering.v1 import profile_type
 from openstack.clustering.v1 import receiver
 from openstack.clustering.v1 import service
-from openstack import proxy2 as proxy_base
-from openstack.tests.unit import test_proxy_base2
+from openstack import proxy as proxy_base
+from openstack.tests.unit import test_proxy_base
 
 
-class TestClusterProxy(test_proxy_base2.TestProxyBase):
+class TestClusterProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestClusterProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -366,7 +366,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
         self.verify_get(self.proxy.get_node, node.Node)
 
     def test_node_get_with_details(self):
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_node,
                       method_args=['NODE_ID'],
                       method_kwargs={'details': True},
@@ -472,7 +472,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
         fake_cluster = cluster.Cluster.new(id='FAKE_CLUSTER')
 
         # ClusterPolicy object as input
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_cluster_policy,
                       method_args=[fake_policy, "FAKE_CLUSTER"],
                       expected_args=[cluster_policy.ClusterPolicy,
@@ -481,7 +481,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                       expected_result=fake_policy)
 
         # Policy ID as input
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_cluster_policy,
                       method_args=["FAKE_POLICY", "FAKE_CLUSTER"],
                       expected_args=[cluster_policy.ClusterPolicy,
@@ -489,7 +489,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                       expected_kwargs={"cluster_id": "FAKE_CLUSTER"})
 
         # Cluster object as input
-        self._verify2('openstack.proxy2.BaseProxy._get',
+        self._verify2('openstack.proxy.BaseProxy._get',
                       self.proxy.get_cluster_policy,
                       method_args=["FAKE_POLICY", fake_cluster],
                       expected_args=[cluster_policy.ClusterPolicy,
@@ -539,7 +539,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 
-    @mock.patch("openstack.resource2.wait_for_status")
+    @mock.patch("openstack.resource.wait_for_status")
     def test_wait_for(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource
@@ -549,7 +549,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
         mock_wait.assert_called_once_with(self.proxy, mock_resource,
                                           'ACTIVE', [], 2, 120)
 
-    @mock.patch("openstack.resource2.wait_for_status")
+    @mock.patch("openstack.resource.wait_for_status")
     def test_wait_for_params(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource
@@ -559,7 +559,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
         mock_wait.assert_called_once_with(self.proxy, mock_resource,
                                           'ACTIVE', ['ERROR'], 1, 2)
 
-    @mock.patch("openstack.resource2.wait_for_delete")
+    @mock.patch("openstack.resource.wait_for_delete")
     def test_wait_for_delete(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource
@@ -568,7 +568,7 @@ class TestClusterProxy(test_proxy_base2.TestProxyBase):
 
         mock_wait.assert_called_once_with(self.proxy, mock_resource, 2, 120)
 
-    @mock.patch("openstack.resource2.wait_for_delete")
+    @mock.patch("openstack.resource.wait_for_delete")
     def test_wait_for_delete_params(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource

@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.network import network_service
-from openstack import resource2 as _resource
+from openstack import resource as _resource
 
 
 class AvailabilityZone(_resource.Resource):

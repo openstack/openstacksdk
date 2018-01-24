@@ -23,12 +23,12 @@ from openstack.clustering.v1 import profile as _profile
 from openstack.clustering.v1 import profile_type as _profile_type
 from openstack.clustering.v1 import receiver as _receiver
 from openstack.clustering.v1 import service as _service
-from openstack import proxy2
-from openstack import resource2
+from openstack import proxy
+from openstack import resource
 from openstack import utils
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def get_build_info(self):
         """Get build info for service engine and API
@@ -913,7 +913,7 @@ class Proxy(proxy2.BaseProxy):
                        enabled on the cluster.
         :returns: A generator of cluster-policy binding instances.
         """
-        cluster_id = resource2.Resource._get_id(cluster)
+        cluster_id = resource.Resource._get_id(cluster)
         return self._list(_cluster_policy.ClusterPolicy, paginated=False,
                           cluster_id=cluster_id, **query)
 
@@ -1102,13 +1102,13 @@ class Proxy(proxy2.BaseProxy):
         """
         return self._list(_event.Event, paginated=True, **query)
 
-    def wait_for_status(self, resource, status, failures=None, interval=2,
+    def wait_for_status(self, res, status, failures=None, interval=2,
                         wait=120):
         """Wait for a resource to be in a particular status.
 
-        :param resource: The resource to wait on to reach the specified status.
-                         The resource must have a ``status`` attribute.
-        :type resource: A :class:`~openstack.resource2.Resource` object.
+        :param res: The resource to wait on to reach the specified status.
+                    The resource must have a ``status`` attribute.
+        :type resource: A :class:`~openstack.resource.Resource` object.
         :param status: Desired status.
         :param failures: Statuses that would be interpreted as failures.
         :type failures: :py:class:`list`
@@ -1125,14 +1125,14 @@ class Proxy(proxy2.BaseProxy):
                 ``status`` attribute.
         """
         failures = [] if failures is None else failures
-        return resource2.wait_for_status(self, resource, status,
-                                         failures, interval, wait)
+        return resource.wait_for_status(
+            self, res, status, failures, interval, wait)
 
-    def wait_for_delete(self, resource, interval=2, wait=120):
+    def wait_for_delete(self, res, interval=2, wait=120):
         """Wait for a resource to be deleted.
 
-        :param resource: The resource to wait on to be deleted.
-        :type resource: A :class:`~openstack.resource2.Resource` object.
+        :param res: The resource to wait on to be deleted.
+        :type resource: A :class:`~openstack.resource.Resource` object.
         :param interval: Number of seconds to wait before to consecutive
                          checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
@@ -1141,8 +1141,7 @@ class Proxy(proxy2.BaseProxy):
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
                  to delete failed to occur in the specified seconds.
         """
-        return resource2.wait_for_delete(self, resource, interval,
-                                         wait)
+        return resource.wait_for_delete(self, res, interval, wait)
 
     def services(self, **query):
         """Get a generator of services.

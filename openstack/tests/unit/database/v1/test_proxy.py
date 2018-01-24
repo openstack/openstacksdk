@@ -15,10 +15,10 @@ from openstack.database.v1 import database
 from openstack.database.v1 import flavor
 from openstack.database.v1 import instance
 from openstack.database.v1 import user
-from openstack.tests.unit import test_proxy_base2
+from openstack.tests.unit import test_proxy_base
 
 
-class TestDatabaseProxy(test_proxy_base2.TestProxyBase):
+class TestDatabaseProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestDatabaseProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
@@ -41,7 +41,7 @@ class TestDatabaseProxy(test_proxy_base2.TestProxyBase):
                            expected_path_args={"instance_id": "test_id"})
 
     def test_database_find(self):
-        self._verify2('openstack.proxy2.BaseProxy._find',
+        self._verify2('openstack.proxy.BaseProxy._find',
                       self.proxy.find_database,
                       method_args=["db", "instance"],
                       expected_args=[database.Database, "db"],
@@ -106,7 +106,7 @@ class TestDatabaseProxy(test_proxy_base2.TestProxyBase):
                            expected_path_args={"instance_id": "id"})
 
     def test_user_find(self):
-        self._verify2('openstack.proxy2.BaseProxy._find',
+        self._verify2('openstack.proxy.BaseProxy._find',
                       self.proxy.find_user,
                       method_args=["user", "instance"],
                       expected_args=[user.User, "user"],

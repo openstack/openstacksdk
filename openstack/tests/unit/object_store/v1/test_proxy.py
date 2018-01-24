@@ -60,7 +60,7 @@ class TestObjectStoreProxy(test_proxy_base2.TestProxyBase):
             "container": "name",
         }
 
-        self._verify2("openstack.proxy2.BaseProxy._delete",
+        self._verify2("openstack.proxy.BaseProxy._delete",
                       self.proxy.delete_object,
                       method_args=["resource"],
                       method_kwargs=expected_kwargs,
@@ -76,7 +76,7 @@ class TestObjectStoreProxy(test_proxy_base2.TestProxyBase):
     def test_object_create_attrs(self):
         kwargs = {"name": "test", "data": "data", "container": "name"}
 
-        self._verify2("openstack.proxy2.BaseProxy._create",
+        self._verify2("openstack.proxy.BaseProxy._create",
                       self.proxy.upload_object,
                       method_kwargs=kwargs,
                       expected_args=[obj.Object],

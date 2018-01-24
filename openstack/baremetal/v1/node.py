@@ -11,7 +11,7 @@
 # under the License.
 
 from openstack.baremetal import baremetal_service
-from openstack import resource2 as resource
+from openstack import resource
 
 
 class Node(resource.Resource):

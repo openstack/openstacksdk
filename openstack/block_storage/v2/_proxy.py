@@ -14,10 +14,10 @@ from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import stats as _stats
 from openstack.block_storage.v2 import type as _type
 from openstack.block_storage.v2 import volume as _volume
-from openstack import proxy2
+from openstack import proxy
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def get_snapshot(self, snapshot):
         """Get a single snapshot

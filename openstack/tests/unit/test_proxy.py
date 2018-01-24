@@ -14,31 +14,31 @@ import mock
 import testtools
 
 from openstack import exceptions
-from openstack import proxy2
-from openstack import resource2
+from openstack import proxy
+from openstack import resource
 
 
-class DeleteableResource(resource2.Resource):
+class DeleteableResource(resource.Resource):
     allow_delete = True
 
 
-class UpdateableResource(resource2.Resource):
+class UpdateableResource(resource.Resource):
     allow_update = True
 
 
-class CreateableResource(resource2.Resource):
+class CreateableResource(resource.Resource):
     allow_create = True
 
 
-class RetrieveableResource(resource2.Resource):
+class RetrieveableResource(resource.Resource):
     allow_retrieve = True
 
 
-class ListableResource(resource2.Resource):
+class ListableResource(resource.Resource):
     allow_list = True
 
 
-class HeadableResource(resource2.Resource):
+class HeadableResource(resource.Resource):
     allow_head = True
 
 
@@ -53,43 +53,43 @@ class TestProxyPrivate(testtools.TestCase):
         self.sot = mock.Mock()
         self.sot.method = method
 
-        self.fake_proxy = proxy2.BaseProxy("session")
+        self.fake_proxy = proxy.BaseProxy("session")
 
     def _test_correct(self, value):
-        decorated = proxy2._check_resource(strict=False)(self.sot.method)
-        rv = decorated(self.sot, resource2.Resource, value)
+        decorated = proxy._check_resource(strict=False)(self.sot.method)
+        rv = decorated(self.sot, resource.Resource, value)
 
         self.assertEqual(value, rv)
 
     def test__check_resource_correct_resource(self):
-        res = resource2.Resource()
+        res = resource.Resource()
         self._test_correct(res)
 
     def test__check_resource_notstrict_id(self):
         self._test_correct("abc123-id")
 
     def test__check_resource_strict_id(self):
-        decorated = proxy2._check_resource(strict=True)(self.sot.method)
+        decorated = proxy._check_resource(strict=True)(self.sot.method)
         self.assertRaisesRegex(ValueError, "A Resource must be passed",
-                               decorated, self.sot, resource2.Resource,
+                               decorated, self.sot, resource.Resource,
                                "this-is-not-a-resource")
 
     def test__check_resource_incorrect_resource(self):
-        class OneType(resource2.Resource):
+        class OneType(resource.Resource):
             pass
 
-        class AnotherType(resource2.Resource):
+        class AnotherType(resource.Resource):
             pass
 
         value = AnotherType()
-        decorated = proxy2._check_resource(strict=False)(self.sot.method)
+        decorated = proxy._check_resource(strict=False)(self.sot.method)
         self.assertRaisesRegex(ValueError,
                                "Expected OneType but received AnotherType",
                                decorated, self.sot, OneType, value)
 
     def test__get_uri_attribute_no_parent(self):
-        class Child(resource2.Resource):
-            something = resource2.Body("something")
+        class Child(resource.Resource):
+            something = resource.Body("something")
 
         attr = "something"
         value = "nothing"
@@ -100,7 +100,7 @@ class TestProxyPrivate(testtools.TestCase):
         self.assertEqual(value, result)
 
     def test__get_uri_attribute_with_parent(self):
-        class Parent(resource2.Resource):
+        class Parent(resource.Resource):
             pass
 
         value = "nothing"
@@ -112,7 +112,7 @@ class TestProxyPrivate(testtools.TestCase):
 
     def test__get_resource_new(self):
         value = "hello"
-        fake_type = mock.Mock(spec=resource2.Resource)
+        fake_type = mock.Mock(spec=resource.Resource)
         fake_type.new = mock.Mock(return_value=value)
         attrs = {"first": "Brian", "last": "Curtin"}
 
@@ -146,12 +146,12 @@ class TestProxyPrivate(testtools.TestCase):
         self.assertEqual(value, result)
 
     def test__get_resource_from_resource(self):
-        res = mock.Mock(spec=resource2.Resource)
+        res = mock.Mock(spec=resource.Resource)
         res._update = mock.Mock()
 
         attrs = {"first": "Brian", "last": "Curtin"}
 
-        result = self.fake_proxy._get_resource(resource2.Resource,
+        result = self.fake_proxy._get_resource(resource.Resource,
                                                res, **attrs)
 
         res._update.assert_called_once_with(**attrs)
@@ -170,7 +170,7 @@ class TestProxyDelete(testtools.TestCase):
         self.res.id = self.fake_id
         self.res.delete = mock.Mock()
 
-        self.sot = proxy2.BaseProxy(self.session)
+        self.sot = proxy.BaseProxy(self.session)
         DeleteableResource.new = mock.Mock(return_value=self.res)
 
     def test_delete(self):
@@ -227,7 +227,7 @@ class TestProxyUpdate(testtools.TestCase):
         self.res = mock.Mock(spec=UpdateableResource)
         self.res.update = mock.Mock(return_value=self.fake_result)
 
-        self.sot = proxy2.BaseProxy(self.session)
+        self.sot = proxy.BaseProxy(self.session)
 
         self.attrs = {"x": 1, "y": 2, "z": 3}
 
@@ -258,7 +258,7 @@ class TestProxyCreate(testtools.TestCase):
         self.res = mock.Mock(spec=CreateableResource)
         self.res.create = mock.Mock(return_value=self.fake_result)
 
-        self.sot = proxy2.BaseProxy(self.session)
+        self.sot = proxy.BaseProxy(self.session)
 
     def test_create_attributes(self):
         CreateableResource.new = mock.Mock(return_value=self.res)
@@ -285,7 +285,7 @@ class TestProxyGet(testtools.TestCase):
         self.res.id = self.fake_id
         self.res.get = mock.Mock(return_value=self.fake_result)
 
-        self.sot = proxy2.BaseProxy(self.session)
+        self.sot = proxy.BaseProxy(self.session)
         RetrieveableResource.new = mock.Mock(return_value=self.res)
 
     def test_get_resource(self):
@@ -329,9 +329,9 @@ class TestProxyList(testtools.TestCase):
         self.session = mock.Mock()
 
         self.args = {"a": "A", "b": "B", "c": "C"}
-        self.fake_response = [resource2.Resource()]
+        self.fake_response = [resource.Resource()]
 
-        self.sot = proxy2.BaseProxy(self.session)
+        self.sot = proxy.BaseProxy(self.session)
         ListableResource.list = mock.Mock()
         ListableResource.list.return_value = self.fake_response
 
@@ -363,7 +363,7 @@ class TestProxyHead(testtools.TestCase):
         self.res.id = self.fake_id
         self.res.head = mock.Mock(return_value=self.fake_result)
 
-        self.sot = proxy2.BaseProxy(self.session)
+        self.sot = proxy.BaseProxy(self.session)
         HeadableResource.new = mock.Mock(return_value=self.res)
 
     def test_head_resource(self):
@@ -386,9 +386,9 @@ class TestProxyWaits(testtools.TestCase):
         super(TestProxyWaits, self).setUp()
 
         self.session = mock.Mock()
-        self.sot = proxy2.BaseProxy(self.session)
+        self.sot = proxy.BaseProxy(self.session)
 
-    @mock.patch("openstack.resource2.wait_for_status")
+    @mock.patch("openstack.resource.wait_for_status")
     def test_wait_for(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource
@@ -396,7 +396,7 @@ class TestProxyWaits(testtools.TestCase):
         mock_wait.assert_called_once_with(
             self.sot, mock_resource, 'ACTIVE', [], 2, 120)
 
-    @mock.patch("openstack.resource2.wait_for_status")
+    @mock.patch("openstack.resource.wait_for_status")
     def test_wait_for_params(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource
@@ -404,14 +404,14 @@ class TestProxyWaits(testtools.TestCase):
         mock_wait.assert_called_once_with(
             self.sot, mock_resource, 'ACTIVE', ['ERROR'], 1, 2)
 
-    @mock.patch("openstack.resource2.wait_for_delete")
+    @mock.patch("openstack.resource.wait_for_delete")
     def test_wait_for_delete(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource
         self.sot.wait_for_delete(mock_resource)
         mock_wait.assert_called_once_with(self.sot, mock_resource, 2, 120)
 
-    @mock.patch("openstack.resource2.wait_for_delete")
+    @mock.patch("openstack.resource.wait_for_delete")
     def test_wait_for_delete_params(self, mock_wait):
         mock_resource = mock.Mock()
         mock_wait.return_value = mock_resource

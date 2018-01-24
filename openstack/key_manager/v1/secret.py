@@ -12,11 +12,11 @@
 
 from openstack.key_manager import key_manager_service
 from openstack.key_manager.v1 import _format
-from openstack import resource2
+from openstack import resource
 from openstack import utils
 
 
-class Secret(resource2.Resource):
+class Secret(resource.Resource):
     resources_key = 'secrets'
     base_path = '/secrets'
     service = key_manager_service.KeyManagerService()
@@ -28,55 +28,56 @@ class Secret(resource2.Resource):
     allow_delete = True
     allow_list = True
 
-    _query_mapping = resource2.QueryParameters("name", "mode", "bits",
-                                               "secret_type", "acl_only",
-                                               "created", "updated",
-                                               "expiration", "sort",
-                                               algorithm="alg")
+    _query_mapping = resource.QueryParameters(
+        "name", "mode", "bits",
+        "secret_type", "acl_only",
+        "created", "updated",
+        "expiration", "sort",
+        algorithm="alg")
 
     # Properties
     #: Metadata provided by a user or system for informational purposes
-    algorithm = resource2.Body('algorithm')
+    algorithm = resource.Body('algorithm')
     #: Metadata provided by a user or system for informational purposes.
     #: Value must be greater than zero.
-    bit_length = resource2.Body('bit_length')
+    bit_length = resource.Body('bit_length')
     #: A list of content types
-    content_types = resource2.Body('content_types', type=dict)
+    content_types = resource.Body('content_types', type=dict)
     #: Once this timestamp has past, the secret will no longer be available.
-    expires_at = resource2.Body('expiration')
+    expires_at = resource.Body('expiration')
     #: Timestamp of when the secret was created.
-    created_at = resource2.Body('created')
+    created_at = resource.Body('created')
     #: Timestamp of when the secret was last updated.
-    updated_at = resource2.Body('updated')
+    updated_at = resource.Body('updated')
     #: The type/mode of the algorithm associated with the secret information.
-    mode = resource2.Body('mode')
+    mode = resource.Body('mode')
     #: The name of the secret set by the user
-    name = resource2.Body('name')
+    name = resource.Body('name')
     #: A URI to the sercret
-    secret_ref = resource2.Body('secret_ref')
+    secret_ref = resource.Body('secret_ref')
     #: The ID of the secret
     # NOTE: This is not really how alternate IDs are supposed to work and
     # ultimately means this has to work differently than all other services
     # in all of OpenStack because of the departure from using actual IDs
     # that even this service can't even use itself.
-    secret_id = resource2.Body('secret_ref', alternate_id=True,
-                               type=_format.HREFToUUID)
+    secret_id = resource.Body(
+        'secret_ref', alternate_id=True, type=_format.HREFToUUID)
     #: Used to indicate the type of secret being stored.
-    secret_type = resource2.Body('secret_type')
+    secret_type = resource.Body('secret_type')
     #: The status of this secret
-    status = resource2.Body('status')
+    status = resource.Body('status')
     #: A timestamp when this secret was updated.
-    updated_at = resource2.Body('updated')
+    updated_at = resource.Body('updated')
     #: The secret's data to be stored. payload_content_type must also
     #: be supplied if payload is included. (optional)
-    payload = resource2.Body('payload')
+    payload = resource.Body('payload')
     #: The media type for the content of the payload.
     #: (required if payload is included)
-    payload_content_type = resource2.Body('payload_content_type')
+    payload_content_type = resource.Body('payload_content_type')
     #: The encoding used for the payload to be able to include it in
     #: the JSON request. Currently only base64 is supported.
     #: (required if payload is encoded)
-    payload_content_encoding = resource2.Body('payload_content_encoding')
+    payload_content_encoding = resource.Body('payload_content_encoding')
 
     def get(self, session, requires_id=True):
         request = self._prepare_request(requires_id=requires_id)

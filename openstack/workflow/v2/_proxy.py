@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import proxy2
+from openstack import proxy
 from openstack.workflow.v2 import execution as _execution
 from openstack.workflow.v2 import workflow as _workflow
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def create_workflow(self, **attrs):
         """Create a new workflow from attributes

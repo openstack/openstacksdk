@@ -13,14 +13,14 @@
 import uuid
 
 from openstack.message import message_service
-from openstack import resource2
+from openstack import resource
 
 
-class Claim(resource2.Resource):
+class Claim(resource.Resource):
     # FIXME(anyone): The name string of `location` field of Zaqar API response
     # is lower case. That is inconsistent with the guide from API-WG. This is
     # a workaround for this issue.
-    location = resource2.Header("location")
+    location = resource.Header("location")
 
     resources_key = 'claims'
     base_path = '/queues/%(queue_name)s/claims'
@@ -35,27 +35,27 @@ class Claim(resource2.Resource):
 
     # Properties
     #: The value in seconds indicating how long the claim has existed.
-    age = resource2.Body("age")
+    age = resource.Body("age")
     #: In case worker stops responding for a long time, the server will
     #: extend the lifetime of claimed messages to be at least as long as
     #: the lifetime of the claim itself, plus the specified grace period.
     #: Must between 60 and 43200 seconds(12 hours).
-    grace = resource2.Body("grace")
+    grace = resource.Body("grace")
     #: The number of messages to claim. Default 10, up to 20.
-    limit = resource2.Body("limit")
+    limit = resource.Body("limit")
     #: Messages have been successfully claimed.
-    messages = resource2.Body("messages")
+    messages = resource.Body("messages")
     #: Number of seconds the server wait before releasing the claim. Must
     #: between 60 and 43200 seconds(12 hours).
-    ttl = resource2.Body("ttl")
+    ttl = resource.Body("ttl")
     #: The name of queue to claim message from.
-    queue_name = resource2.URI("queue_name")
+    queue_name = resource.URI("queue_name")
     #: The ID to identify the client accessing Zaqar API. Must be specified
     #: in header for each API request.
-    client_id = resource2.Header("Client-ID")
+    client_id = resource.Header("Client-ID")
     #: The ID to identify the project. Must be provided when keystone
     #: authentication is not enabled in Zaqar service.
-    project_id = resource2.Header("X-PROJECT-ID")
+    project_id = resource.Header("X-PROJECT-ID")
 
     def _translate_response(self, response, has_body=True):
         super(Claim, self)._translate_response(response, has_body=has_body)

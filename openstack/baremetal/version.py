@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.baremetal import baremetal_service
-from openstack import resource2
+from openstack import resource
 
 
-class Version(resource2.Resource):
+class Version(resource.Resource):
     resource_key = 'version'
     resources_key = 'versions'
     base_path = '/'
@@ -26,6 +26,6 @@ class Version(resource2.Resource):
     allow_list = True
 
     # Attributes
-    links = resource2.Body('links')
-    status = resource2.Body('status')
-    updated = resource2.Body('updated')
+    links = resource.Body('links')
+    status = resource.Body('status')
+    updated = resource.Body('updated')

@@ -11,10 +11,10 @@
 # under the License.
 
 from openstack.compute import compute_service
-from openstack import resource2
+from openstack import resource
 
 
-class ServerInterface(resource2.Resource):
+class ServerInterface(resource.Resource):
     resource_key = 'interfaceAttachment'
     resources_key = 'interfaceAttachments'
     base_path = '/servers/%(server_id)s/os-interface'
@@ -28,14 +28,14 @@ class ServerInterface(resource2.Resource):
     allow_list = True
 
     #: Fixed IP addresses with subnet IDs.
-    fixed_ips = resource2.Body('fixed_ips')
+    fixed_ips = resource.Body('fixed_ips')
     #: The MAC address.
-    mac_addr = resource2.Body('mac_addr')
+    mac_addr = resource.Body('mac_addr')
     #: The network ID.
-    net_id = resource2.Body('net_id')
+    net_id = resource.Body('net_id')
     #: The ID of the port for which you want to create an interface.
-    port_id = resource2.Body('port_id', alternate_id=True)
+    port_id = resource.Body('port_id', alternate_id=True)
     #: The port state.
-    port_state = resource2.Body('port_state')
+    port_state = resource.Body('port_state')
     #: The ID for the server.
-    server_id = resource2.URI('server_id')
+    server_id = resource.URI('server_id')

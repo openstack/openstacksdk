@@ -15,11 +15,11 @@ from openstack.baremetal.v1 import driver as _driver
 from openstack.baremetal.v1 import node as _node
 from openstack.baremetal.v1 import port as _port
 from openstack.baremetal.v1 import port_group as _portgroup
-from openstack import proxy2
+from openstack import proxy
 from openstack import utils
 
 
-class Proxy(proxy2.BaseProxy):
+class Proxy(proxy.BaseProxy):
 
     def chassis(self, details=False, **query):
         """Retrieve a generator of chassis.
