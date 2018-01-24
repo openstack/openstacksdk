@@ -74,8 +74,11 @@ try to find it and if that fails, you would create it::
         network = conn.network.create_network({"name": "zuul"})
 
 """
+import warnings
+
 import keystoneauth1.exceptions
 import os_service_types
+import requestsexceptions
 import six
 from six.moves import urllib
 
@@ -86,6 +89,10 @@ from openstack.config import defaults as config_defaults
 from openstack import exceptions
 from openstack import service_description
 from openstack import task_manager
+
+if requestsexceptions.SubjectAltNameWarning:
+    warnings.filterwarnings(
+        'ignore', category=requestsexceptions.SubjectAltNameWarning)
 
 _logger = _log.setup_logging('openstack')
 

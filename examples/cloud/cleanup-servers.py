@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import openstack
+from openstack import cloud as openstack
 
 # Initialize and turn on debug logging
 openstack.enable_logging(debug=True)

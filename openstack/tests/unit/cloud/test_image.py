@@ -588,8 +588,8 @@ class TestImage(BaseTestImage):
             is_public=False, **kwargs)
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_create_image_put_v1(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = False
@@ -626,8 +626,8 @@ class TestImage(BaseTestImage):
             self._munch_images(ret), self.cloud.list_images())
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_create_image_put_v1_bad_delete(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = False
@@ -665,8 +665,8 @@ class TestImage(BaseTestImage):
         mock_image_client.delete.assert_called_with('/images/42')
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_update_image_no_patch(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = True
@@ -697,8 +697,8 @@ class TestImage(BaseTestImage):
         mock_image_client.patch.assert_not_called()
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_create_image_put_v2_bad_delete(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = True
@@ -737,8 +737,8 @@ class TestImage(BaseTestImage):
         mock_image_client.delete.assert_called_with('/images/42')
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_create_image_put_bad_int(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = True
@@ -750,8 +750,8 @@ class TestImage(BaseTestImage):
         mock_image_client.post.assert_not_called()
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_create_image_put_user_int(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = True
@@ -786,8 +786,8 @@ class TestImage(BaseTestImage):
             self._munch_images(ret), self.cloud.list_images())
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_create_image_put_meta_int(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = True
@@ -816,8 +816,8 @@ class TestImage(BaseTestImage):
             self._munch_images(ret), self.cloud.list_images())
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_create_image_put_protected(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = True
@@ -855,8 +855,8 @@ class TestImage(BaseTestImage):
         self.assertEqual(self._munch_images(ret), self.cloud.list_images())
 
     # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_create_image_put_user_prop(
             self, mock_image_client, mock_is_client_version):
         mock_is_client_version.return_value = True

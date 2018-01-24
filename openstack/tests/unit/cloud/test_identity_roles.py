@@ -292,7 +292,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
     def test_list_role_assignments_exception_v2(self):
         self.use_keystone_v2()
         with testtools.ExpectedException(
-            openstack.OpenStackCloudException,
+            openstack.cloud.OpenStackCloudException,
             "Must provide project and user for keystone v2"
         ):
             self.op_cloud.list_role_assignments()
@@ -301,7 +301,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
     def test_list_role_assignments_exception_v2_no_project(self):
         self.use_keystone_v2()
         with testtools.ExpectedException(
-            openstack.OpenStackCloudException,
+            openstack.cloud.OpenStackCloudException,
             "Must provide project and user for keystone v2"
         ):
             self.op_cloud.list_role_assignments(filters={'user': '12345'})

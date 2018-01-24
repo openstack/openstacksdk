@@ -183,7 +183,7 @@ class TestNetwork(base.RequestsMockTestCase):
     def test_create_network_provider_wrong_type(self):
         provider_opts = "invalid"
         with testtools.ExpectedException(
-            openstack.OpenStackCloudException,
+            openstack.cloud.OpenStackCloudException,
             "Parameter 'provider' must be a dict"
         ):
             self.cloud.create_network("netname", provider=provider_opts)
@@ -231,7 +231,7 @@ class TestNetwork(base.RequestsMockTestCase):
                      append=['v2.0', 'networks', "%s.json" % network_id]),
                  status_code=503)
         ])
-        self.assertRaises(openstack.OpenStackCloudException,
+        self.assertRaises(openstack.cloud.OpenStackCloudException,
                           self.cloud.delete_network, network_name)
         self.assert_calls()
 

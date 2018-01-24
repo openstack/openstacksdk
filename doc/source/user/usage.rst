@@ -15,8 +15,8 @@ To use `openstack.cloud` in a project:
   objects can be accessed using either dictionary or object notation
   (e.g., ``server.id``, ``image.name`` and ``server['id']``, ``image['name']``)
 
-.. autoclass:: openstack.OpenStackCloud
+.. autoclass:: openstack.cloud.OpenStackCloud
    :members:
 
-.. autoclass:: openstack.OperatorCloud
+.. autoclass:: openstack.cloud.OperatorCloud
    :members:

@@ -62,7 +62,7 @@ Complete Example
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
 
   # Initialize and turn on debug logging
   openstack.enable_logging(debug=True)
@@ -314,7 +314,7 @@ Complete Example Again
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
 
   # Initialize and turn on debug logging
   openstack.enable_logging(debug=True)
@@ -346,7 +346,7 @@ Import the library
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
 
 Logging
 =======
@@ -373,7 +373,7 @@ Example with Debug Logging
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(
@@ -387,7 +387,7 @@ Example with HTTP Debug Logging
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(http_debug=True)
 
   cloud = openstack.openstack_cloud(
@@ -484,7 +484,7 @@ Image and Flavor by Name or ID
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
 
   # Initialize and turn on debug logging
   openstack.enable_logging(debug=True)
@@ -531,7 +531,7 @@ Image and Flavor by Dict
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
 
   # Initialize and turn on debug logging
   openstack.enable_logging(debug=True)
@@ -562,7 +562,7 @@ Munch Objects
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='zetta', region_name='no-osl1')
@@ -594,7 +594,7 @@ Cleanup Script
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
 
   # Initialize and turn on debug logging
   openstack.enable_logging(debug=True)
@@ -616,7 +616,7 @@ Normalization
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging()
 
   cloud = openstack.openstack_cloud(cloud='fuga', region_name='cystack')
@@ -632,7 +632,7 @@ Strict Normalized Results
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging()
 
   cloud = openstack.openstack_cloud(
@@ -649,7 +649,7 @@ How Did I Find the Image Name for the Last Example?
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging()
 
   cloud = openstack.openstack_cloud(cloud='fuga', region_name='cystack')
@@ -670,7 +670,7 @@ Added / Modified Information
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='my-citycloud', region_name='Buf1')
@@ -712,7 +712,7 @@ User Agent Info
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(http_debug=True)
 
   cloud = openstack.openstack_cloud(
@@ -730,7 +730,7 @@ Uploading Large Objects
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='ovh', region_name='SBG1')
@@ -751,7 +751,7 @@ Uploading Large Objects
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='ovh', region_name='SBG1')
@@ -767,7 +767,7 @@ Service Conditionals
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='kiss', region_name='region1')
@@ -781,7 +781,7 @@ Service Conditional Overrides
 
 .. code:: python
 
-  import openstack
+  from openstack import cloud as openstack
   openstack.enable_logging(debug=True)
 
   cloud = openstack.openstack_cloud(cloud='rax', region_name='DFW')

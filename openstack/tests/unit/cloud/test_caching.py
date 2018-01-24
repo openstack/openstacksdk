@@ -17,6 +17,7 @@ import munch
 import testtools
 
 import openstack
+import openstack.cloud
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.tests import fakes
@@ -104,7 +105,7 @@ class TestMemoryCache(base.RequestsMockTestCase):
         return self.cloud._normalize_images([fake_image])
 
     def test_openstack_cloud(self):
-        self.assertIsInstance(self.cloud, openstack.OpenStackCloud)
+        self.assertIsInstance(self.cloud, openstack.cloud.OpenStackCloud)
 
     def test_list_projects_v3(self):
         project_one = self._get_project_data()
@@ -480,7 +481,7 @@ class TestMemoryCache(base.RequestsMockTestCase):
 
         self.assert_calls()
 
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_list_images_ignores_unsteady_status(self, mock_image_client):
         steady_image = munch.Munch(id='68', name='Jagr', status='active')
         for status in ('queued', 'saving', 'pending_delete'):
@@ -500,7 +501,7 @@ class TestMemoryCache(base.RequestsMockTestCase):
                  self._image_dict(steady_image)],
                 self.cloud.list_images())
 
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_list_images_caches_steady_status(self, mock_image_client):
         steady_image = munch.Munch(id='91', name='Federov', status='active')
         first_image = None
@@ -523,7 +524,7 @@ class TestMemoryCache(base.RequestsMockTestCase):
                 self._munch_images(first_image),
                 self.cloud.list_images())
 
-    @mock.patch.object(openstack.OpenStackCloud, '_image_client')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
     def test_cache_no_cloud_name(self, mock_image_client):
 
         self.cloud.name = None
@@ -557,5 +558,5 @@ class TestBogusAuth(base.TestCase):
 
     def test_get_auth_bogus(self):
         with testtools.ExpectedException(exc.OpenStackCloudException):
-            openstack.openstack_cloud(
+            openstack.cloud.openstack_cloud(
                 cloud='_bogus_test_', config=self.config)

@@ -119,14 +119,14 @@ class BaseTestCase(base.TestCase):
             secure_files=['non-existant'])
         self.cloud_config = self.config.get_one(
             cloud=test_cloud, validate=False)
-        self.cloud = openstack.OpenStackCloud(
+        self.cloud = openstack.cloud.OpenStackCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
-        self.strict_cloud = openstack.OpenStackCloud(
+        self.strict_cloud = openstack.cloud.OpenStackCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True,
             strict=True)
-        self.op_cloud = openstack.OperatorCloud(
+        self.op_cloud = openstack.cloud.OperatorCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
 
@@ -465,10 +465,10 @@ class RequestsMockTestCase(BaseTestCase):
             cloud=test_cloud, validate=True, **kwargs)
         self.conn = openstack.connection.Connection(
             config=self.cloud_config)
-        self.cloud = openstack.OpenStackCloud(
+        self.cloud = openstack.cloud.OpenStackCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
-        self.op_cloud = openstack.OperatorCloud(
+        self.op_cloud = openstack.cloud.OperatorCloud(
             cloud_config=self.cloud_config,
             log_inner_exceptions=True)
 

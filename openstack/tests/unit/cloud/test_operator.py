@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-import openstack
+import openstack.cloud
 from openstack.cloud import exc
 from openstack.config import cloud_region
 from openstack.tests import fakes
@@ -23,7 +23,7 @@ from openstack.tests.unit import base
 class TestOperatorCloud(base.RequestsMockTestCase):
 
     def test_operator_cloud(self):
-        self.assertIsInstance(self.op_cloud, openstack.OperatorCloud)
+        self.assertIsInstance(self.op_cloud, openstack.cloud.OperatorCloud)
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_endpoint')
     def test_get_session_endpoint_provided(self, fake_get_endpoint):

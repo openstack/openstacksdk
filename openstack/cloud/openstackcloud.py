@@ -329,7 +329,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         .. code-block:: python
 
-          cloud = shade.openstack_cloud(cloud='example')
+          cloud = openstack.cloud.openstack_cloud(cloud='example')
           # Work normally
           servers = cloud.list_servers()
           cloud2 = cloud.connect_as(username='different-user', password='')
@@ -408,7 +408,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         .. code-block:: python
 
-          cloud = shade.openstack_cloud(cloud='example')
+          cloud = openstack.cloud.openstack_cloud(cloud='example')
           # Work normally
           servers = cloud.list_servers()
           cloud2 = cloud.connect_as_project('different-project')

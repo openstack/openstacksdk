@@ -124,7 +124,7 @@ class TestUsers(base.RequestsMockTestCase):
         user_data = self._get_user_data(domain_id=uuid.uuid4().hex,
                                         email='test@example.com')
         with testtools.ExpectedException(
-                openstack.OpenStackCloudException,
+                openstack.cloud.OpenStackCloudException,
                 "User or project creation requires an explicit"
                 " domain_id argument."
         ):

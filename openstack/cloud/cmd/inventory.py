@@ -60,7 +60,7 @@ def main():
         elif args.host:
             output = inventory.get_host(args.host)
         print(output_format_dict(output, args.yaml))
-    except openstack.OpenStackCloudException as e:
+    except openstack.cloud.OpenStackCloudException as e:
         sys.stderr.write(e.message + '\n')
         sys.exit(1)
     sys.exit(0)

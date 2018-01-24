@@ -78,7 +78,7 @@ class TestFlavors(base.RequestsMockTestCase):
                      endpoint=fakes.COMPUTE_ENDPOINT, id=fakes.FLAVOR_ID),
                  status_code=503)])
 
-        self.assertRaises(openstack.OpenStackCloudException,
+        self.assertRaises(openstack.cloud.OpenStackCloudException,
                           self.op_cloud.delete_flavor, 'vanilla')
 
     def test_list_flavors(self):
@@ -153,7 +153,7 @@ class TestFlavors(base.RequestsMockTestCase):
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'flavors': []})])
         self.assertRaises(
-            openstack.OpenStackCloudException,
+            openstack.cloud.OpenStackCloudException,
             self.cloud.get_flavor_by_ram,
             ram=100)
 

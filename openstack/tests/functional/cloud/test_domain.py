@@ -46,7 +46,7 @@ class TestDomain(base.BaseFunctionalTestCase):
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise openstack.OpenStackCloudException(
+            raise openstack.cloud.OpenStackCloudException(
                 '\n'.join(exception_list))
 
     def test_search_domains(self):

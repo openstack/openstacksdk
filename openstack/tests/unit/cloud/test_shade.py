@@ -52,9 +52,9 @@ class TestShade(base.RequestsMockTestCase):
         self.cloud.has_service = fake_has_service
 
     def test_openstack_cloud(self):
-        self.assertIsInstance(self.cloud, openstack.OpenStackCloud)
+        self.assertIsInstance(self.cloud, openstack.cloud.OpenStackCloud)
 
-    @mock.patch.object(openstack.OpenStackCloud, 'search_images')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, 'search_images')
     def test_get_images(self, mock_search):
         image1 = dict(id='123', name='mickey')
         mock_search.return_value = [image1]
@@ -62,7 +62,7 @@ class TestShade(base.RequestsMockTestCase):
         self.assertIsNotNone(r)
         self.assertDictEqual(image1, r)
 
-    @mock.patch.object(openstack.OpenStackCloud, 'search_images')
+    @mock.patch.object(openstack.cloud.OpenStackCloud, 'search_images')
     def test_get_image_not_found(self, mock_search):
         mock_search.return_value = []
         r = self.cloud.get_image('doesNotExist')

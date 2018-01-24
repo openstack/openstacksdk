@@ -94,7 +94,7 @@ class TestDomains(base.RequestsMockTestCase):
         domain_data = self._get_domain_data(domain_name='domain_name',
                                             enabled=True)
         with testtools.ExpectedException(
-            openstack.OpenStackCloudBadRequest,
+            openstack.cloud.OpenStackCloudBadRequest,
             "Failed to create domain domain_name"
         ):
             self.register_uris([
@@ -149,7 +149,7 @@ class TestDomains(base.RequestsMockTestCase):
                  validate=dict(json={'domain': {'enabled': False}})),
             dict(method='DELETE', uri=domain_resource_uri, status_code=404)])
         with testtools.ExpectedException(
-            openstack.OpenStackCloudURINotFound,
+            openstack.cloud.OpenStackCloudURINotFound,
             "Failed to delete domain %s" % domain_data.domain_id
         ):
             self.op_cloud.delete_domain(domain_data.domain_id)
@@ -203,7 +203,7 @@ class TestDomains(base.RequestsMockTestCase):
                  json=domain_data.json_response,
                  validate=dict(json={'domain': {'enabled': False}}))])
         with testtools.ExpectedException(
-            openstack.OpenStackCloudHTTPError,
+            openstack.cloud.OpenStackCloudHTTPError,
             "Error in updating domain %s" % domain_data.domain_id
         ):
             self.op_cloud.delete_domain(domain_data.domain_id)

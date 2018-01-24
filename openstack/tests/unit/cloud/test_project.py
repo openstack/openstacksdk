@@ -76,7 +76,7 @@ class TestProject(base.RequestsMockTestCase):
 
     def test_create_project_v3_no_domain(self):
         with testtools.ExpectedException(
-                openstack.OpenStackCloudException,
+                openstack.cloud.OpenStackCloudException,
                 "User or project creation requires an explicit"
                 " domain_id argument."
         ):
@@ -126,7 +126,7 @@ class TestProject(base.RequestsMockTestCase):
         # shade will raise an attribute error instead of the proper
         # project not found exception.
         with testtools.ExpectedException(
-                openstack.OpenStackCloudException,
+                openstack.cloud.OpenStackCloudException,
                 "Project %s not found." % project_data.project_id
         ):
             self.op_cloud.update_project(project_data.project_id)
