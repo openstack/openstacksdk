@@ -223,6 +223,8 @@
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-python3
+        - osc-functional-devstack-tips:
+            voting: false
     gate:
       jobs:
         - build-openstack-sphinx-docs:
