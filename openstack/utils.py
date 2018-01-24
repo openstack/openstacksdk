@@ -16,8 +16,6 @@ import time
 import deprecation
 
 from openstack import _log
-# SDK has had enable_logging in utils. Import the symbol here to not break them
-from openstack._log import enable_logging  # noqa
 from openstack import exceptions
 from openstack import version
 
@@ -46,6 +44,17 @@ def deprecated(deprecated_in=None, removed_in=None,
     removed_in = '2.0.0'
     return partial(deprecated_in=deprecated_in, removed_in=removed_in,
                    details=details)
+
+
+@deprecated(deprecated_in="0.10.0", removed_in="1.0",
+            details="Use openstack.enable_logging instead")
+def enable_logging(*args, **kwargs):
+    """Backwards compatibility wrapper function.
+
+    openstacksdk has had enable_logging in utils. It's in _log now and
+    exposed directly at openstack.enable_logging.
+    """
+    return _log.enable_logging(*args, **kwargs)
 
 
 def urljoin(*args):
