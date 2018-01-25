@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import copy
+import testtools
 
 from openstack.cloud import exc
 from openstack.tests.unit import base
@@ -51,6 +52,16 @@ class TestRouter(base.RequestsMockTestCase):
         'id': '57076620-dcfb-42ed-8ad6-79ccb4a79ed2',
         'request_ids': ['req-f1b0b1b4-ae51-4ef9-b371-0cc3c3402cf7']
     }
+
+    router_availability_zone_extension = {
+        "alias": "router_availability_zone",
+        "updated": "2015-01-01T10:00:00-00:00",
+        "description": "Availability zone support for router.",
+        "links": [],
+        "name": "Router Availability Zone"
+    }
+
+    enabled_neutron_extensions = [router_availability_zone_extension]
 
     def test_get_router(self):
         self.register_uris([
@@ -112,6 +123,27 @@ class TestRouter(base.RequestsMockTestCase):
                                  project_id=new_router_tenant_id)
         self.assert_calls()
 
+    def test_create_router_with_availability_zone_hints(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'router': self.mock_router_rep},
+                 validate=dict(
+                     json={'router': {
+                         'name': self.router_name,
+                         'admin_state_up': True,
+                         'availability_zone_hints': ['nova']}}))
+        ])
+        self.cloud.create_router(
+            name=self.router_name, admin_state_up=True,
+            availability_zone_hints=['nova'])
+        self.assert_calls()
+
     def test_create_router_with_enable_snat_True(self):
         """Do not send enable_snat when same as neutron default."""
         self.register_uris([
@@ -144,6 +176,16 @@ class TestRouter(base.RequestsMockTestCase):
         self.cloud.create_router(
             name=self.router_name, admin_state_up=True, enable_snat=False)
         self.assert_calls()
+
+    def test_create_router_wrong_availability_zone_hints_type(self):
+        azh_opts = "invalid"
+        with testtools.ExpectedException(
+            exc.OpenStackCloudException,
+            "Parameter 'availability_zone_hints' must be a list"
+        ):
+            self.cloud.create_router(
+                name=self.router_name, admin_state_up=True,
+                availability_zone_hints=azh_opts)
 
     def test_add_router_interface(self):
         self.register_uris([

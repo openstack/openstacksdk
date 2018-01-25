@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    ``availability_zone_hints`` now accepted for ``create_network()`` when
+    ``network_availability_zone`` extension is enabled on target cloud.
+  - |
+    ``availability_zone_hints`` now accepted for ``create_router()`` when
+    ``router_availability_zone`` extension is enabled on target cloud.

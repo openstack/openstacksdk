@@ -13,6 +13,7 @@
 import copy
 import testtools
 
+import openstack
 import openstack.cloud
 from openstack.tests.unit import base
 
@@ -46,6 +47,16 @@ class TestNetwork(base.RequestsMockTestCase):
         'created_at': '2017-04-22T19:22:53Z',
         'mtu': 0
     }
+
+    network_availability_zone_extension = {
+        "alias": "network_availability_zone",
+        "updated": "2015-01-01T10:00:00-00:00",
+        "description": "Availability zone support for router.",
+        "links": [],
+        "name": "Network Availability Zone"
+    }
+
+    enabled_neutron_extensions = [network_availability_zone_extension]
 
     def test_list_networks(self):
         net1 = {'id': '1', 'name': 'net1'}
@@ -151,6 +162,27 @@ class TestNetwork(base.RequestsMockTestCase):
         self.assertEqual(mock_new_network_rep, network)
         self.assert_calls()
 
+    def test_create_network_with_availability_zone_hints(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'network': self.mock_new_network_rep},
+                 validate=dict(
+                     json={'network': {
+                         'admin_state_up': True,
+                         'name': 'netname',
+                         'availability_zone_hints': ['nova']}}))
+        ])
+        network = self.cloud.create_network("netname",
+                                            availability_zone_hints=['nova'])
+        self.assertEqual(self.mock_new_network_rep, network)
+        self.assert_calls()
+
     def test_create_network_provider_ignored_value(self):
         provider_opts = {'physical_network': 'mynet',
                          'network_type': 'vlan',
@@ -179,6 +211,15 @@ class TestNetwork(base.RequestsMockTestCase):
         network = self.cloud.create_network("netname", provider=provider_opts)
         self.assertEqual(mock_new_network_rep, network)
         self.assert_calls()
+
+    def test_create_network_wrong_availability_zone_hints_type(self):
+        azh_opts = "invalid"
+        with testtools.ExpectedException(
+            openstack.cloud.OpenStackCloudException,
+            "Parameter 'availability_zone_hints' must be a list"
+        ):
+            self.cloud.create_network("netname",
+                                      availability_zone_hints=azh_opts)
 
     def test_create_network_provider_wrong_type(self):
         provider_opts = "invalid"
