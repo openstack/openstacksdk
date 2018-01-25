@@ -165,10 +165,11 @@ class Connection(object):
             User Agent.
         :param authenticator: DEPRECATED. Only exists for short-term backwards
                               compatibility for python-openstackclient while we
-                              transition.
+                              transition. See `Transition from Profile`_ for
+                              details.
         :param profile: DEPRECATED. Only exists for short-term backwards
                         compatibility for python-openstackclient while we
-                        transition.
+                        transition. See `Transition from Profile`_ for details.
         :param extra_services: List of
             :class:`~openstack.service_description.ServiceDescription`
             objects describing services that openstacksdk otherwise does not
