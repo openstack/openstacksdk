@@ -294,7 +294,12 @@ class Image(resource.Resource):
             'Accept': ''
         }
         original = self.to_dict()
-        patch_string = jsonpatch.make_patch(original, attrs).to_string()
+
+        # Update values from **attrs so they can be passed to jsonpatch
+        new = self.to_dict()
+        new.update(**attrs)
+
+        patch_string = jsonpatch.make_patch(original, new).to_string()
         resp = session.patch(url,
                              data=patch_string,
                              headers=headers)
