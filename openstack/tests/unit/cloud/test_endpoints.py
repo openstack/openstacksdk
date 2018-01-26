@@ -82,7 +82,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  validate=dict(json=other_endpoint_data.json_request))
         ])
 
-        endpoints = self.op_cloud.create_endpoint(
+        endpoints = self.cloud.create_endpoint(
             service_name_or_id=service_data.service_id,
             region=endpoint_data.region,
             public_url=endpoint_data.public_url,
@@ -103,12 +103,12 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
 
         # test v3 semantics on v2.0 endpoint
         self.assertRaises(OpenStackCloudException,
-                          self.op_cloud.create_endpoint,
+                          self.cloud.create_endpoint,
                           service_name_or_id='service1',
                           interface='mock_admin_url',
                           url='admin')
 
-        endpoints_3on2 = self.op_cloud.create_endpoint(
+        endpoints_3on2 = self.cloud.create_endpoint(
             service_name_or_id=service_data.service_id,
             region=endpoint_data.region,
             interface='public',
@@ -177,7 +177,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  validate=dict(json=admin_endpoint_data.json_request)),
         ])
 
-        endpoints = self.op_cloud.create_endpoint(
+        endpoints = self.cloud.create_endpoint(
             service_name_or_id=service_data.service_id,
             region=public_endpoint_data_disabled.region,
             url=public_endpoint_data_disabled.url,
@@ -202,7 +202,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
         self.assertThat(endpoints[0].enabled,
                         matchers.Equals(public_endpoint_data_disabled.enabled))
 
-        endpoints_2on3 = self.op_cloud.create_endpoint(
+        endpoints_2on3 = self.cloud.create_endpoint(
             service_name_or_id=service_data.service_id,
             region=public_endpoint_data.region,
             public_url=public_endpoint_data.url,
@@ -230,7 +230,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
     def test_update_endpoint_v2(self):
         self.use_keystone_v2()
         self.assertRaises(OpenStackCloudUnavailableFeature,
-                          self.op_cloud.update_endpoint, 'endpoint_id')
+                          self.cloud.update_endpoint, 'endpoint_id')
 
     def test_update_endpoint_v3(self):
         service_data = self._get_service_data()
@@ -247,7 +247,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                  json=endpoint_data.json_response,
                  validate=dict(json=reference_request))
         ])
-        endpoint = self.op_cloud.update_endpoint(
+        endpoint = self.cloud.update_endpoint(
             endpoint_data.endpoint_id,
             service_name_or_id=service_data.service_id,
             region=endpoint_data.region,
@@ -278,7 +278,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                                      for e in endpoints_data]})
         ])
 
-        endpoints = self.op_cloud.list_endpoints()
+        endpoints = self.cloud.list_endpoints()
         # test we are getting exactly len(self.mock_endpoints) elements
         self.assertThat(len(endpoints), matchers.Equals(len(endpoints_data)))
 
@@ -324,7 +324,7 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
         ])
 
         # Search by id
-        endpoints = self.op_cloud.search_endpoints(
+        endpoints = self.cloud.search_endpoints(
             id=endpoints_data[-1].endpoint_id)
         # # test we are getting exactly 1 element
         self.assertEqual(1, len(endpoints))
@@ -338,17 +338,17 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
                         matchers.Equals(endpoints_data[-1].interface))
 
         # Not found
-        endpoints = self.op_cloud.search_endpoints(id='!invalid!')
+        endpoints = self.cloud.search_endpoints(id='!invalid!')
         self.assertEqual(0, len(endpoints))
 
         # Multiple matches
-        endpoints = self.op_cloud.search_endpoints(
+        endpoints = self.cloud.search_endpoints(
             filters={'region_id': 'region1'})
         # # test we are getting exactly 2 elements
         self.assertEqual(2, len(endpoints))
 
         # test we are getting the correct response for region/region_id compat
-        endpoints = self.op_cloud.search_endpoints(
+        endpoints = self.cloud.search_endpoints(
             filters={'region': 'region1'})
         # # test we are getting exactly 2 elements, this is v3
         self.assertEqual(2, len(endpoints))
@@ -369,5 +369,5 @@ class TestCloudEndpoints(base.RequestsMockTestCase):
         ])
 
         # Delete by id
-        self.op_cloud.delete_endpoint(id=endpoint_data.endpoint_id)
+        self.cloud.delete_endpoint(id=endpoint_data.endpoint_id)
         self.assert_calls()

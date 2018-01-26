@@ -18,7 +18,7 @@ from openstack.tests.unit import base
 
 class TestOpenStackCloudOperatorNoAuth(base.RequestsMockTestCase):
     def setUp(self):
-        """Setup Noauth OperatorCloud tests
+        """Setup Noauth OpenStackCloud tests
 
         Setup the test to utilize no authentication and an endpoint
         URL in the auth data.  This is permits testing of the basic
@@ -41,7 +41,7 @@ class TestOpenStackCloudOperatorNoAuth(base.RequestsMockTestCase):
         ])
 
     def test_ironic_noauth_none_auth_type(self):
-        """Test noauth selection for Ironic in OperatorCloud
+        """Test noauth selection for Ironic in OpenStackCloud
 
         The new way of doing this is with the keystoneauth none plugin.
         """
@@ -50,7 +50,7 @@ class TestOpenStackCloudOperatorNoAuth(base.RequestsMockTestCase):
         # with 'v1'. As such, since we are overriding the endpoint,
         # we must explicitly do the same as we move away from the
         # client library.
-        self.cloud_noauth = openstack.cloud.operator_cloud(
+        self.cloud_noauth = openstack.cloud.openstack_cloud(
             auth_type='none',
             baremetal_endpoint_override="https://bare-metal.example.com/v1")
 
@@ -59,11 +59,11 @@ class TestOpenStackCloudOperatorNoAuth(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_ironic_noauth_admin_token_auth_type(self):
-        """Test noauth selection for Ironic in OperatorCloud
+        """Test noauth selection for Ironic in OpenStackCloud
 
         The old way of doing this was to abuse admin_token.
         """
-        self.cloud_noauth = openstack.cloud.operator_cloud(
+        self.cloud_noauth = openstack.cloud.openstack_cloud(
             auth_type='admin_token',
             auth=dict(
                 endpoint='https://bare-metal.example.com/v1',

@@ -37,7 +37,7 @@ class TestAggregate(base.RequestsMockTestCase):
                          'availability_zone': None,
                      }})),
         ])
-        self.op_cloud.create_aggregate(name=self.aggregate_name)
+        self.cloud.create_aggregate(name=self.aggregate_name)
 
         self.assert_calls()
 
@@ -62,7 +62,7 @@ class TestAggregate(base.RequestsMockTestCase):
                      }})),
         ])
 
-        self.op_cloud.create_aggregate(
+        self.cloud.create_aggregate(
             name=self.aggregate_name, availability_zone=availability_zone)
 
         self.assert_calls()
@@ -78,7 +78,7 @@ class TestAggregate(base.RequestsMockTestCase):
                      'compute', 'public', append=['os-aggregates', '1'])),
         ])
 
-        self.assertTrue(self.op_cloud.delete_aggregate('1'))
+        self.assertTrue(self.cloud.delete_aggregate('1'))
 
         self.assert_calls()
 
@@ -99,7 +99,7 @@ class TestAggregate(base.RequestsMockTestCase):
                          }})),
         ])
 
-        self.op_cloud.update_aggregate(1, availability_zone='az')
+        self.cloud.update_aggregate(1, availability_zone='az')
 
         self.assert_calls()
 
@@ -120,7 +120,7 @@ class TestAggregate(base.RequestsMockTestCase):
                          }})),
         ])
 
-        self.op_cloud.update_aggregate(1, availability_zone=None)
+        self.cloud.update_aggregate(1, availability_zone=None)
 
         self.assert_calls()
 
@@ -139,7 +139,7 @@ class TestAggregate(base.RequestsMockTestCase):
                  validate=dict(
                      json={'set_metadata': {'metadata': metadata}})),
         ])
-        self.op_cloud.set_aggregate_metadata('1', metadata)
+        self.cloud.set_aggregate_metadata('1', metadata)
 
         self.assert_calls()
 
@@ -158,7 +158,7 @@ class TestAggregate(base.RequestsMockTestCase):
                  validate=dict(
                      json={'add_host': {'host': hostname}})),
         ])
-        self.op_cloud.add_host_to_aggregate('1', hostname)
+        self.cloud.add_host_to_aggregate('1', hostname)
 
         self.assert_calls()
 
@@ -177,6 +177,6 @@ class TestAggregate(base.RequestsMockTestCase):
                  validate=dict(
                      json={'remove_host': {'host': hostname}})),
         ])
-        self.op_cloud.remove_host_from_aggregate('1', hostname)
+        self.cloud.remove_host_from_aggregate('1', hostname)
 
         self.assert_calls()

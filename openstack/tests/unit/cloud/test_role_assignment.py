@@ -160,12 +160,12 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  status_code=201)
         ])
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id))
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.user_id,
                 project=self.project_data.project_id))
@@ -305,22 +305,22 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  status_code=201)
         ])
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data_v2.project_id))
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.user_id,
                 project=self.project_data_v2.project_id))
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_id,
                 user=self.user_data.name,
                 project=self.project_data_v2.project_id))
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_id,
                 user=self.user_data.user_id,
                 project=self.project_data_v2.project_id))
@@ -354,7 +354,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
         ])
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data_v2.project_id))
@@ -424,12 +424,12 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  status_code=204),
         ])
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id))
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.user_id,
                 project=self.project_data.project_id))
@@ -496,11 +496,11 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                          entity_type='user',
                          entity_id=self.user_data.user_id)}),
         ])
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_id,
             user=self.user_data.user_id,
             project=self.project_data.project_id))
@@ -569,11 +569,11 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                              self.role_data.role_id]),
                  status_code=204),
         ])
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             project=self.project_data.project_id))
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             project=self.project_data.project_id))
@@ -640,11 +640,11 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                          entity_type='group',
                          entity_id=self.group_data.group_id)}),
         ])
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             project=self.project_data.project_id))
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             project=self.project_data.project_id))
@@ -777,19 +777,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                self.role_data.role_id]),
                  status_code=204),
         ])
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_id))
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_id))
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_name))
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_name))
@@ -914,19 +914,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                          entity_type='user',
                          entity_id=self.user_data.user_id)}),
         ])
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_id))
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_id))
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_name))
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_name))
@@ -1059,19 +1059,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                self.role_data.role_id]),
                  status_code=204),
         ])
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             domain=self.domain_data.domain_id))
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             domain=self.domain_data.domain_id))
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             domain=self.domain_data.domain_name))
-        self.assertTrue(self.op_cloud.grant_role(
+        self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             domain=self.domain_data.domain_name))
@@ -1196,19 +1196,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                          entity_type='group',
                          entity_id=self.group_data.group_id)}),
         ])
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             domain=self.domain_data.domain_id))
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             domain=self.domain_data.domain_id))
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             domain=self.domain_data.domain_name))
-        self.assertFalse(self.op_cloud.grant_role(
+        self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             domain=self.domain_data.domain_name))
@@ -1292,11 +1292,11 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                self.role_data.role_id]),
                  status_code=204),
         ])
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             project=self.project_data.project_id))
@@ -1406,19 +1406,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  status_code=200,
                  json={'roles': []})
         ])
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             project=self.project_data.project_id))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_id,
             user=self.user_data.name,
             project=self.project_data.project_id))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_id,
             user=self.user_data.user_id,
             project=self.project_data.project_id))
@@ -1462,7 +1462,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                self.role_data.role_id]),
                  status_code=204),
         ])
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
@@ -1517,11 +1517,11 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  complete_qs=True,
                  json={'role_assignments': []}),
         ])
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             project=self.project_data.project_id))
@@ -1602,11 +1602,11 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                'roles',
                                                self.role_data.role_id])),
         ])
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_id,
             user=self.user_data.user_id,
             project=self.project_data.project_id))
@@ -1661,11 +1661,11 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  complete_qs=True,
                  json={'role_assignments': []}),
         ])
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             project=self.project_data.project_id))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             project=self.project_data.project_id))
@@ -1746,11 +1746,11 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                'roles',
                                                self.role_data.role_id])),
         ])
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             project=self.project_data.project_id))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             project=self.project_data.project_id))
@@ -1851,19 +1851,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  complete_qs=True,
                  json={'role_assignments': []}),
         ])
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_id))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_id))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_name))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_name))
@@ -2016,19 +2016,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                'roles',
                                                self.role_data.role_id])),
         ])
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_name))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_name))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_id))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_id))
@@ -2129,19 +2129,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  complete_qs=True,
                  json={'role_assignments': []}),
         ])
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             domain=self.domain_data.domain_name))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             domain=self.domain_data.domain_name))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             domain=self.domain_data.domain_id))
-        self.assertFalse(self.op_cloud.revoke_role(
+        self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             domain=self.domain_data.domain_id))
@@ -2294,19 +2294,19 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                'roles',
                                                self.role_data.role_id])),
         ])
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             domain=self.domain_data.domain_name))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             domain=self.domain_data.domain_name))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_name,
             domain=self.domain_data.domain_id))
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             group=self.group_data.group_id,
             domain=self.domain_data.domain_id))
@@ -2324,7 +2324,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Role {0} not found'.format(self.role_data.role_name)
         ):
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 domain=self.domain_data.domain_name)
@@ -2342,7 +2342,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Role {0} not found'.format(self.role_data.role_name)
         ):
-            self.op_cloud.revoke_role(
+            self.cloud.revoke_role(
                 self.role_data.role_name,
                 group=self.group_data.group_name,
                 domain=self.domain_data.domain_name)
@@ -2359,7 +2359,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Must specify either a user or a group'
         ):
-            self.op_cloud.grant_role(self.role_data.role_name)
+            self.cloud.grant_role(self.role_data.role_name)
         self.assert_calls()
 
     def test_revoke_no_user_or_group_specified(self):
@@ -2373,7 +2373,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Must specify either a user or a group'
         ):
-            self.op_cloud.revoke_role(self.role_data.role_name)
+            self.cloud.revoke_role(self.role_data.role_name)
         self.assert_calls()
 
     def test_grant_no_user_or_group(self):
@@ -2391,7 +2391,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Must specify either a user or a group'
         ):
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name)
         self.assert_calls()
@@ -2411,7 +2411,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Must specify either a user or a group'
         ):
-            self.op_cloud.revoke_role(
+            self.cloud.revoke_role(
                 self.role_data.role_name,
                 user=self.user_data.name)
         self.assert_calls()
@@ -2435,7 +2435,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Specify either a group or a user, not both'
         ):
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 group=self.group_data.group_name)
@@ -2460,7 +2460,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Specify either a group or a user, not both'
         ):
-            self.op_cloud.revoke_role(
+            self.cloud.revoke_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 group=self.group_data.group_name)
@@ -2508,7 +2508,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  status_code=204)
         ])
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id,
@@ -2562,7 +2562,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                                                self.role_data.role_id]),
                  status_code=204)
         ])
-        self.assertTrue(self.op_cloud.revoke_role(
+        self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id,
@@ -2592,7 +2592,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Must specify either a domain or project'
         ):
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name)
         self.assert_calls()
@@ -2626,7 +2626,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudException,
             'Must specify either a domain or project'
         ):
-            self.op_cloud.revoke_role(
+            self.cloud.revoke_role(
                 self.role_data.role_name,
                 user=self.user_data.name)
         self.assert_calls()
@@ -2648,7 +2648,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudURINotFound,
             'Failed to get domain baddomain'
         ):
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 domain='baddomain')
@@ -2671,7 +2671,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudURINotFound,
             'Failed to get domain baddomain'
         ):
-            self.op_cloud.revoke_role(
+            self.cloud.revoke_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 domain='baddomain')
@@ -2723,7 +2723,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  json={'roles': [self.role_data.json_response['role']]}),
         ])
         self.assertTrue(
-            self.op_cloud.grant_role(
+            self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id,
@@ -2784,7 +2784,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                      json={'roles': []}),
             ])
             self.assertTrue(
-                self.op_cloud.grant_role(
+                self.cloud.grant_role(
                     self.role_data.role_name,
                     user=self.user_data.name,
                     project=self.project_data.project_id,
@@ -2839,7 +2839,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
                  json={'roles': []}),
         ])
         self.assertTrue(
-            self.op_cloud.revoke_role(
+            self.cloud.revoke_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id,
@@ -2897,7 +2897,7 @@ class TestRoleAssignment(base.RequestsMockTestCase):
             exc.OpenStackCloudTimeout,
             'Timeout waiting for role to be revoked'
         ):
-            self.assertTrue(self.op_cloud.revoke_role(
+            self.assertTrue(self.cloud.revoke_role(
                 self.role_data.role_name, user=self.user_data.name,
                 project=self.project_data.project_id, wait=True, timeout=0.01))
         self.assert_calls(do_count=False)

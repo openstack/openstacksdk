@@ -90,6 +90,6 @@ class TestLimits(base.RequestsMockTestCase):
                  }),
         ])
 
-        self.op_cloud.get_compute_limits(project.project_id)
+        self.cloud.get_compute_limits(project.project_id)
 
         self.assert_calls()

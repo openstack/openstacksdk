@@ -50,7 +50,7 @@ class TestBaremetalNode(base.IronicTestCase):
                                  fake_baremetal_two]}),
         ])
 
-        machines = self.op_cloud.list_machines()
+        machines = self.cloud.list_machines()
         self.assertEqual(2, len(machines))
         self.assertEqual(self.fake_baremetal_node, machines[0])
         self.assert_calls()
@@ -64,7 +64,7 @@ class TestBaremetalNode(base.IronicTestCase):
                  json=self.fake_baremetal_node),
         ])
 
-        machine = self.op_cloud.get_machine(self.fake_baremetal_node['uuid'])
+        machine = self.cloud.get_machine(self.fake_baremetal_node['uuid'])
         self.assertEqual(machine['uuid'],
                          self.fake_baremetal_node['uuid'])
         self.assert_calls()
@@ -87,7 +87,7 @@ class TestBaremetalNode(base.IronicTestCase):
                  json=self.fake_baremetal_node),
         ])
 
-        machine = self.op_cloud.get_machine_by_mac(mac_address)
+        machine = self.cloud.get_machine_by_mac(mac_address)
         self.assertEqual(machine['uuid'],
                          self.fake_baremetal_node['uuid'])
         self.assert_calls()
@@ -117,7 +117,7 @@ class TestBaremetalNode(base.IronicTestCase):
                              'validate']),
                  json=validate_return),
         ])
-        self.op_cloud.validate_node(self.fake_baremetal_node['uuid'])
+        self.cloud.validate_node(self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
 
@@ -147,7 +147,7 @@ class TestBaremetalNode(base.IronicTestCase):
     #    ])
     #    self.assertRaises(
     #        Exception,
-    #        self.op_cloud.validate_node,
+    #        self.cloud.validate_node,
     #        self.fake_baremetal_node['uuid'])
     #
     #    self.assert_calls()
@@ -165,8 +165,8 @@ class TestBaremetalNode(base.IronicTestCase):
                  json=self.fake_baremetal_node,
                  validate=dict(json=test_patch)),
         ])
-        self.op_cloud.patch_machine(self.fake_baremetal_node['uuid'],
-                                    test_patch)
+        self.cloud.patch_machine(
+            self.fake_baremetal_node['uuid'], test_patch)
 
         self.assert_calls()
 
@@ -183,7 +183,7 @@ class TestBaremetalNode(base.IronicTestCase):
                  json=self.fake_baremetal_node,
                  validate=dict(json=test_patch)),
         ])
-        self.op_cloud.set_node_instance_info(
+        self.cloud.set_node_instance_info(
             self.fake_baremetal_node['uuid'], test_patch)
 
         self.assert_calls()
@@ -201,7 +201,7 @@ class TestBaremetalNode(base.IronicTestCase):
                  json=self.fake_baremetal_node,
                  validate=dict(json=test_patch)),
         ])
-        self.op_cloud.purge_node_instance_info(
+        self.cloud.purge_node_instance_info(
             self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
@@ -217,7 +217,7 @@ class TestBaremetalNode(base.IronicTestCase):
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.inspect_machine,
+            self.cloud.inspect_machine,
             self.fake_baremetal_node['uuid'],
             wait=True,
             timeout=1)
@@ -251,7 +251,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 json=inspecting_node)
         ])
 
-        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'])
+        self.cloud.inspect_machine(self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
 
@@ -280,7 +280,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']]),
                 json=inspecting_node),
         ])
-        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'])
+        self.cloud.inspect_machine(self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
 
@@ -337,7 +337,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']]),
                 json=available_node),
         ])
-        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'])
+        self.cloud.inspect_machine(self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
 
@@ -408,8 +408,8 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']]),
                 json=available_node),
         ])
-        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'],
-                                      wait=True, timeout=1)
+        self.cloud.inspect_machine(
+            self.fake_baremetal_node['uuid'], wait=True, timeout=1)
 
         self.assert_calls()
 
@@ -450,8 +450,8 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']]),
                 json=self.fake_baremetal_node),
         ])
-        self.op_cloud.inspect_machine(self.fake_baremetal_node['uuid'],
-                                      wait=True, timeout=1)
+        self.cloud.inspect_machine(
+            self.fake_baremetal_node['uuid'], wait=True, timeout=1)
 
         self.assert_calls()
 
@@ -490,7 +490,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 json=inspect_fail_node),
         ])
         self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.inspect_machine,
+                          self.cloud.inspect_machine,
                           self.fake_baremetal_node['uuid'],
                           wait=True, timeout=1)
 
@@ -506,7 +506,7 @@ class TestBaremetalNode(base.IronicTestCase):
                             'maintenance']),
                 validate=dict(json={'reason': 'no reason'})),
         ])
-        self.op_cloud.set_machine_maintenance_state(
+        self.cloud.set_machine_maintenance_state(
             self.fake_baremetal_node['uuid'], True, reason='no reason')
 
         self.assert_calls()
@@ -520,7 +520,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid'],
                             'maintenance'])),
         ])
-        self.op_cloud.set_machine_maintenance_state(
+        self.cloud.set_machine_maintenance_state(
             self.fake_baremetal_node['uuid'], False)
 
         self.assert_calls
@@ -534,7 +534,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid'],
                             'maintenance'])),
         ])
-        self.op_cloud.remove_machine_from_maintenance(
+        self.cloud.remove_machine_from_maintenance(
             self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
@@ -549,7 +549,7 @@ class TestBaremetalNode(base.IronicTestCase):
                             'states', 'power']),
                 validate=dict(json={'target': 'power on'})),
         ])
-        return_value = self.op_cloud.set_machine_power_on(
+        return_value = self.cloud.set_machine_power_on(
             self.fake_baremetal_node['uuid'])
         self.assertIsNone(return_value)
 
@@ -565,7 +565,7 @@ class TestBaremetalNode(base.IronicTestCase):
                             'states', 'power']),
                 validate=dict(json={'target': 'power off'})),
         ])
-        return_value = self.op_cloud.set_machine_power_off(
+        return_value = self.cloud.set_machine_power_off(
             self.fake_baremetal_node['uuid'])
         self.assertIsNone(return_value)
 
@@ -581,7 +581,7 @@ class TestBaremetalNode(base.IronicTestCase):
                             'states', 'power']),
                 validate=dict(json={'target': 'rebooting'})),
         ])
-        return_value = self.op_cloud.set_machine_power_reboot(
+        return_value = self.cloud.set_machine_power_reboot(
             self.fake_baremetal_node['uuid'])
         self.assertIsNone(return_value)
 
@@ -600,7 +600,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 validate=dict(json={'target': 'rebooting'})),
         ])
         self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.set_machine_power_reboot,
+                          self.cloud.set_machine_power_reboot,
                           self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
@@ -625,7 +625,7 @@ class TestBaremetalNode(base.IronicTestCase):
                      append=[self.fake_baremetal_node['uuid']]),
                  json=self.fake_baremetal_node),
         ])
-        self.op_cloud.node_set_provision_state(
+        self.cloud.node_set_provision_state(
             self.fake_baremetal_node['uuid'],
             'active',
             configdrive='http://host/file')
@@ -662,7 +662,7 @@ class TestBaremetalNode(base.IronicTestCase):
                      append=[self.fake_baremetal_node['uuid']]),
                  json=active_node),
         ])
-        return_value = self.op_cloud.node_set_provision_state(
+        return_value = self.cloud.node_set_provision_state(
             self.fake_baremetal_node['uuid'],
             'active',
             wait=True)
@@ -690,7 +690,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.node_set_provision_state,
+            self.cloud.node_set_provision_state,
             self.fake_baremetal_node['uuid'],
             'active',
             wait=True,
@@ -715,7 +715,7 @@ class TestBaremetalNode(base.IronicTestCase):
                  json=self.fake_baremetal_node),
         ])
 
-        return_value = self.op_cloud.node_set_provision_state(
+        return_value = self.cloud.node_set_provision_state(
             self.fake_baremetal_node['uuid'],
             'active',
             wait=True)
@@ -742,7 +742,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.node_set_provision_state,
+            self.cloud.node_set_provision_state,
             self.fake_baremetal_node['uuid'],
             'active',
             wait=True,
@@ -773,7 +773,7 @@ class TestBaremetalNode(base.IronicTestCase):
                      append=[self.fake_baremetal_node['uuid']]),
                  json=available_node),
         ])
-        return_value = self.op_cloud.node_set_provision_state(
+        return_value = self.cloud.node_set_provision_state(
             self.fake_baremetal_node['uuid'],
             'provide',
             wait=True)
@@ -798,7 +798,7 @@ class TestBaremetalNode(base.IronicTestCase):
                  json=unlocked_node),
         ])
         self.assertIsNone(
-            self.op_cloud.wait_for_baremetal_node_lock(
+            self.cloud.wait_for_baremetal_node_lock(
                 self.fake_baremetal_node,
                 timeout=1))
 
@@ -807,7 +807,7 @@ class TestBaremetalNode(base.IronicTestCase):
     def test_wait_for_baremetal_node_lock_not_locked(self):
         self.fake_baremetal_node['reservation'] = None
         self.assertIsNone(
-            self.op_cloud.wait_for_baremetal_node_lock(
+            self.cloud.wait_for_baremetal_node_lock(
                 self.fake_baremetal_node,
                 timeout=1))
 
@@ -824,7 +824,7 @@ class TestBaremetalNode(base.IronicTestCase):
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.wait_for_baremetal_node_lock,
+            self.cloud.wait_for_baremetal_node_lock,
             self.fake_baremetal_node,
             timeout=0.001)
 
@@ -847,7 +847,7 @@ class TestBaremetalNode(base.IronicTestCase):
                      append=[self.fake_baremetal_node['uuid']]),
                  json=self.fake_baremetal_node),
         ])
-        return_value = self.op_cloud.activate_node(
+        return_value = self.cloud.activate_node(
             self.fake_baremetal_node['uuid'],
             configdrive='http://host/file',
             wait=True)
@@ -871,7 +871,7 @@ class TestBaremetalNode(base.IronicTestCase):
                      append=[self.fake_baremetal_node['uuid']]),
                  json=self.fake_baremetal_node),
         ])
-        return_value = self.op_cloud.deactivate_node(
+        return_value = self.cloud.deactivate_node(
             self.fake_baremetal_node['uuid'],
             wait=True)
 
@@ -910,7 +910,7 @@ class TestBaremetalNode(base.IronicTestCase):
                                     'node_uuid': node_uuid}),
                 json=self.fake_baremetal_port),
         ])
-        return_value = self.op_cloud.register_machine(nics, **node_to_post)
+        return_value = self.cloud.register_machine(nics, **node_to_post)
 
         self.assertDictEqual(self.fake_baremetal_node, return_value)
         self.assert_calls()
@@ -994,7 +994,7 @@ class TestBaremetalNode(base.IronicTestCase):
         # point during code being refactored soon after the
         # change landed. Presently, with the lock at 1.6,
         # this code is never used in the current code path.
-        return_value = self.op_cloud.register_machine(nics, **node_to_post)
+        return_value = self.cloud.register_machine(nics, **node_to_post)
 
         self.assertDictEqual(available_node, return_value)
         self.assert_calls()
@@ -1074,8 +1074,8 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']]),
                 json=available_node),
         ])
-        return_value = self.op_cloud.register_machine(nics, wait=True,
-                                                      **node_to_post)
+        return_value = self.cloud.register_machine(
+            nics, wait=True, **node_to_post)
 
         self.assertDictEqual(available_node, return_value)
         self.assert_calls()
@@ -1133,7 +1133,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.register_machine,
+            self.cloud.register_machine,
             nics,
             **node_to_post)
         self.assert_calls()
@@ -1193,7 +1193,7 @@ class TestBaremetalNode(base.IronicTestCase):
         # want to block on until it has cleared.
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.register_machine,
+            self.cloud.register_machine,
             nics,
             timeout=0.001,
             lock_timeout=0.001,
@@ -1248,7 +1248,7 @@ class TestBaremetalNode(base.IronicTestCase):
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.register_machine,
+            self.cloud.register_machine,
             nics,
             wait=True,
             timeout=0.001,
@@ -1289,7 +1289,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']])),
         ])
         self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.register_machine,
+                          self.cloud.register_machine,
                           nics, **node_to_post)
 
         self.assert_calls()
@@ -1329,8 +1329,8 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']])),
         ])
 
-        self.op_cloud.unregister_machine(nics,
-                                         self.fake_baremetal_node['uuid'])
+        self.cloud.unregister_machine(
+            nics, self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
 
@@ -1375,7 +1375,7 @@ class TestBaremetalNode(base.IronicTestCase):
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.unregister_machine,
+            self.cloud.unregister_machine,
             nics,
             self.fake_baremetal_node['uuid'],
             wait=True,
@@ -1404,7 +1404,7 @@ class TestBaremetalNode(base.IronicTestCase):
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
-            self.op_cloud.unregister_machine,
+            self.cloud.unregister_machine,
             nics,
             self.fake_baremetal_node['uuid'],
             timeout=0.001)
@@ -1432,7 +1432,7 @@ class TestBaremetalNode(base.IronicTestCase):
         for state in invalid_states:
             self.assertRaises(
                 exc.OpenStackCloudException,
-                self.op_cloud.unregister_machine,
+                self.cloud.unregister_machine,
                 nics,
                 self.fake_baremetal_node['uuid'])
 
@@ -1447,7 +1447,7 @@ class TestBaremetalNode(base.IronicTestCase):
             json=self.fake_baremetal_node),
         ])
         # NOTE(TheJulia): This is just testing mechanics.
-        update_dict = self.op_cloud.update_machine(
+        update_dict = self.cloud.update_machine(
             self.fake_baremetal_node['uuid'])
         self.assertIsNone(update_dict['changes'])
         self.assertDictEqual(self.fake_baremetal_node, update_dict['node'])
@@ -1501,7 +1501,7 @@ class TestUpdateMachinePatch(base.IronicTestCase):
         self.register_uris(uris)
 
         call_args = {self.field_name: value_to_send}
-        update_dict = self.op_cloud.update_machine(
+        update_dict = self.cloud.update_machine(
             self.fake_baremetal_node['uuid'], **call_args)
 
         if not self.changed:

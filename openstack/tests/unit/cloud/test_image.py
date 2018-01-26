@@ -181,11 +181,11 @@ class TestImage(BaseTestImage):
 
     def test_get_image_name_operator(self):
         # This should work the same as non-operator, just verifying it does.
-        self.test_get_image_name(cloud=self.op_cloud)
+        self.test_get_image_name(cloud=self.cloud)
 
     def test_get_image_id_operator(self):
         # This should work the same as the other test, just verifying it does.
-        self.test_get_image_id(cloud=self.op_cloud)
+        self.test_get_image_id(cloud=self.cloud)
 
     def test_empty_list_images(self):
         self.register_uris([

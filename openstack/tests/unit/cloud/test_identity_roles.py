@@ -51,7 +51,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  status_code=200,
                  json={'roles': [role_data.json_response['role']]})
         ])
-        self.op_cloud.list_roles()
+        self.cloud.list_roles()
         self.assert_calls()
 
     def test_get_role_by_name(self):
@@ -62,7 +62,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  status_code=200,
                  json={'roles': [role_data.json_response['role']]})
         ])
-        role = self.op_cloud.get_role(role_data.role_name)
+        role = self.cloud.get_role(role_data.role_name)
 
         self.assertIsNotNone(role)
         self.assertThat(role.id, matchers.Equals(role_data.role_id))
@@ -77,7 +77,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  status_code=200,
                  json={'roles': [role_data.json_response['role']]})
         ])
-        role = self.op_cloud.get_role(role_data.role_id)
+        role = self.cloud.get_role(role_data.role_id)
 
         self.assertIsNotNone(role)
         self.assertThat(role.id, matchers.Equals(role_data.role_id))
@@ -94,7 +94,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  validate=dict(json=role_data.json_request))
         ])
 
-        role = self.op_cloud.create_role(role_data.role_name)
+        role = self.cloud.create_role(role_data.role_name)
 
         self.assertIsNotNone(role)
         self.assertThat(role.name, matchers.Equals(role_data.role_name))
@@ -117,8 +117,8 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  validate=dict(json=req))
         ])
 
-        role = self.op_cloud.update_role(role_data.role_id,
-                                         role_data.role_name)
+        role = self.cloud.update_role(
+            role_data.role_id, role_data.role_name)
 
         self.assertIsNotNone(role)
         self.assertThat(role.name, matchers.Equals(role_data.role_name))
@@ -136,7 +136,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  uri=self.get_mock_url(append=[role_data.role_id]),
                  status_code=204)
         ])
-        role = self.op_cloud.delete_role(role_data.role_id)
+        role = self.cloud.delete_role(role_data.role_id)
         self.assertThat(role, matchers.Equals(True))
         self.assert_calls()
 
@@ -151,7 +151,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  uri=self.get_mock_url(append=[role_data.role_id]),
                  status_code=204)
         ])
-        role = self.op_cloud.delete_role(role_data.role_name)
+        role = self.cloud.delete_role(role_data.role_name)
         self.assertThat(role, matchers.Equals(True))
         self.assert_calls()
 
@@ -179,7 +179,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  json={'role_assignments': response},
                  complete_qs=True)
         ])
-        ret = self.op_cloud.list_role_assignments()
+        ret = self.cloud.list_role_assignments()
         self.assertThat(len(ret), matchers.Equals(2))
         self.assertThat(ret[0].user, matchers.Equals(user_data.user_id))
         self.assertThat(ret[0].id, matchers.Equals(role_data.role_id))
@@ -213,7 +213,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
         ])
         params = dict(user=user_data.user_id, domain=domain_data.domain_id,
                       effective=True)
-        ret = self.op_cloud.list_role_assignments(filters=params)
+        ret = self.cloud.list_role_assignments(filters=params)
         self.assertThat(len(ret), matchers.Equals(1))
         self.assertThat(ret[0].user, matchers.Equals(user_data.user_id))
         self.assertThat(ret[0].id, matchers.Equals(role_data.role_id))
@@ -229,7 +229,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
             openstack.cloud.exc.OpenStackCloudHTTPError,
             "Failed to list role assignments"
         ):
-            self.op_cloud.list_role_assignments()
+            self.cloud.list_role_assignments()
         self.assert_calls()
 
     def test_list_role_assignments_keystone_v2(self):
@@ -249,7 +249,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  status_code=200,
                  json={'roles': [role_data.json_response['role']]})
         ])
-        ret = self.op_cloud.list_role_assignments(
+        ret = self.cloud.list_role_assignments(
             filters={
                 'user': user_data.user_id,
                 'project': project_data.project_id})
@@ -277,7 +277,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
                  status_code=200,
                  json={'roles': [r.json_response['role'] for r in roles_data]})
         ])
-        ret = self.op_cloud.list_role_assignments(
+        ret = self.cloud.list_role_assignments(
             filters={
                 'role': roles_data[0].role_id,
                 'user': user_data.user_id,
@@ -295,7 +295,7 @@ class TestIdentityRoles(base.RequestsMockTestCase):
             openstack.cloud.OpenStackCloudException,
             "Must provide project and user for keystone v2"
         ):
-            self.op_cloud.list_role_assignments()
+            self.cloud.list_role_assignments()
             self.assert_calls()
 
     def test_list_role_assignments_exception_v2_no_project(self):
@@ -304,5 +304,5 @@ class TestIdentityRoles(base.RequestsMockTestCase):
             openstack.cloud.OpenStackCloudException,
             "Must provide project and user for keystone v2"
         ):
-            self.op_cloud.list_role_assignments(filters={'user': '12345'})
+            self.cloud.list_role_assignments(filters={'user': '12345'})
             self.assert_calls()

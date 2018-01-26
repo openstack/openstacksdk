@@ -41,7 +41,7 @@ class TestProject(base.RequestsMockTestCase):
                  status_code=200, json=project_data.json_response,
                  validate=dict(json=project_data.json_request))
         ])
-        project = self.op_cloud.create_project(
+        project = self.cloud.create_project(
             name=project_data.project_name,
             description=project_data.description)
         self.assertThat(project.id, matchers.Equals(project_data.project_id))
@@ -61,7 +61,7 @@ class TestProject(base.RequestsMockTestCase):
                  json=project_data.json_response,
                  validate=dict(json=reference_req))
         ])
-        project = self.op_cloud.create_project(
+        project = self.cloud.create_project(
             name=project_data.project_name,
             description=project_data.description,
             domain_id=project_data.domain_id)
@@ -80,7 +80,7 @@ class TestProject(base.RequestsMockTestCase):
                 "User or project creation requires an explicit"
                 " domain_id argument."
         ):
-            self.op_cloud.create_project(name='foo', description='bar')
+            self.cloud.create_project(name='foo', description='bar')
 
     def test_delete_project_v2(self):
         self.use_keystone_v2()
@@ -95,7 +95,7 @@ class TestProject(base.RequestsMockTestCase):
                      v3=False, append=[project_data.project_id]),
                  status_code=204)
         ])
-        self.op_cloud.delete_project(project_data.project_id)
+        self.cloud.delete_project(project_data.project_id)
         self.assert_calls()
 
     def test_delete_project_v3(self):
@@ -109,7 +109,7 @@ class TestProject(base.RequestsMockTestCase):
                  uri=self.get_mock_url(append=[project_data.project_id]),
                  status_code=204)
         ])
-        self.op_cloud.delete_project(project_data.project_id)
+        self.cloud.delete_project(project_data.project_id)
         self.assert_calls()
 
     def test_update_project_not_found(self):
@@ -129,7 +129,7 @@ class TestProject(base.RequestsMockTestCase):
                 openstack.cloud.OpenStackCloudException,
                 "Project %s not found." % project_data.project_id
         ):
-            self.op_cloud.update_project(project_data.project_id)
+            self.cloud.update_project(project_data.project_id)
         self.assert_calls()
 
     def test_update_project_v2(self):
@@ -152,7 +152,7 @@ class TestProject(base.RequestsMockTestCase):
                  json=project_data.json_response,
                  validate=dict(json=project_data.json_request))
         ])
-        project = self.op_cloud.update_project(
+        project = self.cloud.update_project(
             project_data.project_id,
             description=project_data.description)
         self.assertThat(project.id, matchers.Equals(project_data.project_id))
@@ -182,7 +182,7 @@ class TestProject(base.RequestsMockTestCase):
                  status_code=200, json=project_data.json_response,
                  validate=dict(json=reference_req))
         ])
-        project = self.op_cloud.update_project(
+        project = self.cloud.update_project(
             project_data.project_id,
             description=project_data.description,
             domain_id=project_data.domain_id)
@@ -204,7 +204,7 @@ class TestProject(base.RequestsMockTestCase):
                  status_code=200,
                  json={'projects': [project_data.json_response['project']]})
         ])
-        projects = self.op_cloud.list_projects(project_data.domain_id)
+        projects = self.cloud.list_projects(project_data.domain_id)
         self.assertThat(len(projects), matchers.Equals(1))
         self.assertThat(
             projects[0].id, matchers.Equals(project_data.project_id))
@@ -221,7 +221,7 @@ class TestProject(base.RequestsMockTestCase):
                  status_code=200,
                  json={'projects': [project_data.json_response['project']]})
         ])
-        projects = self.op_cloud.list_projects(
+        projects = self.cloud.list_projects(
             domain_id=project_data.domain_id)
         self.assertThat(len(projects), matchers.Equals(1))
         self.assertThat(
@@ -237,7 +237,7 @@ class TestProject(base.RequestsMockTestCase):
                  status_code=200,
                  json={'projects': [project_data.json_response['project']]})
         ])
-        projects = self.op_cloud.search_projects(project_data.project_id)
+        projects = self.cloud.search_projects(project_data.project_id)
         self.assertThat(len(projects), matchers.Equals(1))
         self.assertThat(
             projects[0].id, matchers.Equals(project_data.project_id))
@@ -254,7 +254,7 @@ class TestProject(base.RequestsMockTestCase):
                  status_code=200,
                  json={'projects': [project_data.json_response['project']]})
         ])
-        projects = self.op_cloud.search_projects(
+        projects = self.cloud.search_projects(
             domain_id=project_data.domain_id)
         self.assertThat(len(projects), matchers.Equals(1))
         self.assertThat(

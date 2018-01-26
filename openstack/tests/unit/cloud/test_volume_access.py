@@ -70,7 +70,7 @@ class TestVolumeAccess(base.RequestsMockTestCase):
                              'os-volume-type-access']),
                  json={'volume_type_access': volume_type_access})])
         self.assertEqual(
-            len(self.op_cloud.get_volume_type_access(volume_type['name'])), 2)
+            len(self.cloud.get_volume_type_access(volume_type['name'])), 2)
         self.assert_calls()
 
     def test_remove_volume_type_access(self):
@@ -122,12 +122,12 @@ class TestVolumeAccess(base.RequestsMockTestCase):
                              'os-volume-type-access']),
                  json={'volume_type_access': [project_001]})])
         self.assertEqual(
-            len(self.op_cloud.get_volume_type_access(
+            len(self.cloud.get_volume_type_access(
                 volume_type['name'])), 2)
-        self.op_cloud.remove_volume_type_access(
+        self.cloud.remove_volume_type_access(
             volume_type['name'], project_001['project_id'])
         self.assertEqual(
-            len(self.op_cloud.get_volume_type_access(volume_type['name'])), 1)
+            len(self.cloud.get_volume_type_access(volume_type['name'])), 1)
         self.assert_calls()
 
     def test_add_volume_type_access(self):
@@ -167,10 +167,10 @@ class TestVolumeAccess(base.RequestsMockTestCase):
                      append=['types', volume_type['id'],
                              'os-volume-type-access']),
                  json={'volume_type_access': volume_type_access})])
-        self.op_cloud.add_volume_type_access(
+        self.cloud.add_volume_type_access(
             volume_type['name'], project_002['project_id'])
         self.assertEqual(
-            len(self.op_cloud.get_volume_type_access(volume_type['name'])), 2)
+            len(self.cloud.get_volume_type_access(volume_type['name'])), 2)
         self.assert_calls()
 
     def test_add_volume_type_access_missing(self):
@@ -189,6 +189,6 @@ class TestVolumeAccess(base.RequestsMockTestCase):
         with testtools.ExpectedException(
                 openstack.cloud.OpenStackCloudException,
                 "VolumeType not found: MISSING"):
-            self.op_cloud.add_volume_type_access(
+            self.cloud.add_volume_type_access(
                 "MISSING", project_001['project_id'])
         self.assert_calls()

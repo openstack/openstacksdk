@@ -17,6 +17,3 @@ To use `openstack.cloud` in a project:
 
 .. autoclass:: openstack.cloud.OpenStackCloud
    :members:
-
-.. autoclass:: openstack.cloud.OperatorCloud
-   :members:

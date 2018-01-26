@@ -34,7 +34,7 @@ class TestGroups(base.RequestsMockTestCase):
                  status_code=200,
                  json={'groups': [group_data.json_response['group']]})
         ])
-        self.op_cloud.list_groups()
+        self.cloud.list_groups()
 
     def test_get_group(self):
         group_data = self._get_group_data()
@@ -44,7 +44,7 @@ class TestGroups(base.RequestsMockTestCase):
                  status_code=200,
                  json={'groups': [group_data.json_response['group']]}),
         ])
-        self.op_cloud.get_group(group_data.group_id)
+        self.cloud.get_group(group_data.group_id)
 
     def test_delete_group(self):
         group_data = self._get_group_data()
@@ -57,7 +57,7 @@ class TestGroups(base.RequestsMockTestCase):
                  uri=self.get_mock_url(append=[group_data.group_id]),
                  status_code=204),
         ])
-        self.assertTrue(self.op_cloud.delete_group(group_data.group_id))
+        self.assertTrue(self.cloud.delete_group(group_data.group_id))
 
     def test_create_group(self):
         domain_data = self._get_domain_data()
@@ -74,7 +74,7 @@ class TestGroups(base.RequestsMockTestCase):
                  json=group_data.json_response,
                  validate=dict(json=group_data.json_request))
         ])
-        self.op_cloud.create_group(
+        self.cloud.create_group(
             name=group_data.group_name, description=group_data.description,
             domain=group_data.domain_id)
 
@@ -93,5 +93,5 @@ class TestGroups(base.RequestsMockTestCase):
                  json=group_data.json_response,
                  validate=dict(json=group_data.json_request))
         ])
-        self.op_cloud.update_group(group_data.group_id, group_data.group_name,
-                                   group_data.description)
+        self.cloud.update_group(
+            group_data.group_id, group_data.group_name, group_data.description)

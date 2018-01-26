@@ -36,7 +36,7 @@ class TestDomains(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET', uri=self.get_mock_url(), status_code=200,
                  json={'domains': [domain_data.json_response['domain']]})])
-        domains = self.op_cloud.list_domains()
+        domains = self.cloud.list_domains()
         self.assertThat(len(domains), matchers.Equals(1))
         self.assertThat(domains[0].name,
                         matchers.Equals(domain_data.domain_name))
@@ -51,7 +51,7 @@ class TestDomains(base.RequestsMockTestCase):
                  uri=self.get_mock_url(append=[domain_data.domain_id]),
                  status_code=200,
                  json=domain_data.json_response)])
-        domain = self.op_cloud.get_domain(domain_id=domain_data.domain_id)
+        domain = self.cloud.get_domain(domain_id=domain_data.domain_id)
         self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
         self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
         self.assert_calls()
@@ -64,8 +64,8 @@ class TestDomains(base.RequestsMockTestCase):
                  json=response),
             dict(method='GET', uri=self.get_mock_url(), status_code=200,
                  json=response)])
-        domain = self.op_cloud.get_domain(name_or_id=domain_data.domain_id)
-        domain_by_name = self.op_cloud.get_domain(
+        domain = self.cloud.get_domain(name_or_id=domain_data.domain_id)
+        domain_by_name = self.cloud.get_domain(
             name_or_id=domain_data.domain_name)
         self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
         self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
@@ -82,7 +82,7 @@ class TestDomains(base.RequestsMockTestCase):
             dict(method='POST', uri=self.get_mock_url(), status_code=200,
                  json=domain_data.json_response,
                  validate=dict(json=domain_data.json_request))])
-        domain = self.op_cloud.create_domain(
+        domain = self.cloud.create_domain(
             domain_data.domain_name, domain_data.description)
         self.assertThat(domain.id, matchers.Equals(domain_data.domain_id))
         self.assertThat(domain.name, matchers.Equals(domain_data.domain_name))
@@ -101,7 +101,7 @@ class TestDomains(base.RequestsMockTestCase):
                 dict(method='POST', uri=self.get_mock_url(), status_code=400,
                      json=domain_data.json_response,
                      validate=dict(json=domain_data.json_request))])
-            self.op_cloud.create_domain('domain_name')
+            self.cloud.create_domain('domain_name')
         self.assert_calls()
 
     def test_delete_domain(self):
@@ -114,7 +114,7 @@ class TestDomains(base.RequestsMockTestCase):
                  json=new_resp,
                  validate=dict(json={'domain': {'enabled': False}})),
             dict(method='DELETE', uri=domain_resource_uri, status_code=204)])
-        self.op_cloud.delete_domain(domain_data.domain_id)
+        self.cloud.delete_domain(domain_data.domain_id)
         self.assert_calls()
 
     def test_delete_domain_name_or_id(self):
@@ -130,7 +130,7 @@ class TestDomains(base.RequestsMockTestCase):
                  json=new_resp,
                  validate=dict(json={'domain': {'enabled': False}})),
             dict(method='DELETE', uri=domain_resource_uri, status_code=204)])
-        self.op_cloud.delete_domain(name_or_id=domain_data.domain_id)
+        self.cloud.delete_domain(name_or_id=domain_data.domain_id)
         self.assert_calls()
 
     def test_delete_domain_exception(self):
@@ -152,7 +152,7 @@ class TestDomains(base.RequestsMockTestCase):
             openstack.cloud.OpenStackCloudURINotFound,
             "Failed to delete domain %s" % domain_data.domain_id
         ):
-            self.op_cloud.delete_domain(domain_data.domain_id)
+            self.cloud.delete_domain(domain_data.domain_id)
         self.assert_calls()
 
     def test_update_domain(self):
@@ -163,7 +163,7 @@ class TestDomains(base.RequestsMockTestCase):
             dict(method='PATCH', uri=domain_resource_uri, status_code=200,
                  json=domain_data.json_response,
                  validate=dict(json=domain_data.json_request))])
-        domain = self.op_cloud.update_domain(
+        domain = self.cloud.update_domain(
             domain_data.domain_id,
             name=domain_data.domain_name,
             description=domain_data.description)
@@ -183,7 +183,7 @@ class TestDomains(base.RequestsMockTestCase):
             dict(method='PATCH', uri=domain_resource_uri, status_code=200,
                  json=domain_data.json_response,
                  validate=dict(json=domain_data.json_request))])
-        domain = self.op_cloud.update_domain(
+        domain = self.cloud.update_domain(
             name_or_id=domain_data.domain_id,
             name=domain_data.domain_name,
             description=domain_data.description)
@@ -206,5 +206,5 @@ class TestDomains(base.RequestsMockTestCase):
             openstack.cloud.OpenStackCloudHTTPError,
             "Error in updating domain %s" % domain_data.domain_id
         ):
-            self.op_cloud.delete_domain(domain_data.domain_id)
+            self.cloud.delete_domain(domain_data.domain_id)
         self.assert_calls()

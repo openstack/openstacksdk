@@ -60,6 +60,6 @@ class TestUsage(base.RequestsMockTestCase):
                  }})
         ])
 
-        self.op_cloud.get_compute_usage(project.project_id, start, end)
+        self.cloud.get_compute_usage(project.project_id, start, end)
 
         self.assert_calls()
