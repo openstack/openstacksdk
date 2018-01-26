@@ -41,12 +41,9 @@
 
 - job:
     name: openstacksdk-functional-devstack-base
-    parent: devstack
+    parent: devstack-tox-functional-consumer
     description: |
       Base job for devstack-based functional tests
-    pre-run: playbooks/devstack/pre.yaml
-    run: playbooks/devstack/run.yaml
-    post-run: playbooks/devstack/post.yaml
     required-projects:
       # These jobs will DTRT when openstacksdk triggers them, but we want to
       # make sure stable branches of openstacksdk never get cloned by other
@@ -62,15 +59,12 @@
       - name: openstack/swift
     timeout: 9000
     vars:
-      devstack_localrc:
-        SWIFT_HASH: '1234123412341234'
       devstack_local_conf:
         post-config:
           $CINDER_CONF:
             DEFAULT:
               osapi_max_limit: 6
       devstack_services:
-        horizon: false
         s-account: true
         s-container: true
         s-object: true
