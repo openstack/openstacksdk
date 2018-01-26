@@ -120,15 +120,12 @@ class BaseTestCase(base.TestCase):
         self.cloud_config = self.config.get_one(
             cloud=test_cloud, validate=False)
         self.cloud = openstack.cloud.OpenStackCloud(
-            cloud_config=self.cloud_config,
-            log_inner_exceptions=True)
+            cloud_config=self.cloud_config)
         self.strict_cloud = openstack.cloud.OpenStackCloud(
             cloud_config=self.cloud_config,
-            log_inner_exceptions=True,
             strict=True)
         self.op_cloud = openstack.cloud.OperatorCloud(
-            cloud_config=self.cloud_config,
-            log_inner_exceptions=True)
+            cloud_config=self.cloud_config)
 
 
 # TODO(shade) Remove this and rename RequestsMockTestCase to TestCase.
@@ -466,11 +463,9 @@ class RequestsMockTestCase(BaseTestCase):
         self.conn = openstack.connection.Connection(
             config=self.cloud_config)
         self.cloud = openstack.cloud.OpenStackCloud(
-            cloud_config=self.cloud_config,
-            log_inner_exceptions=True)
+            cloud_config=self.cloud_config)
         self.op_cloud = openstack.cloud.OperatorCloud(
-            cloud_config=self.cloud_config,
-            log_inner_exceptions=True)
+            cloud_config=self.cloud_config)
 
     def get_glance_discovery_mock_dict(
             self,
