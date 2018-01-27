@@ -29,6 +29,7 @@ FAKE = {
             'type': 'ResourceType'
         }
     },
+    'conditions': {'cd1': True},
     'outputs': {
         'key1': 'value1'
     }
@@ -54,6 +55,7 @@ class TestStackTemplate(testtools.TestCase):
         self.assertEqual(FAKE['outputs'], sot.outputs)
         self.assertEqual(FAKE['parameters'], sot.parameters)
         self.assertEqual(FAKE['resources'], sot.resources)
+        self.assertEqual(FAKE['conditions'], sot.conditions)
 
     def test_to_dict(self):
         fake_sot = copy.deepcopy(FAKE)
@@ -61,6 +63,24 @@ class TestStackTemplate(testtools.TestCase):
             "description": "server parameters",
             "parameters": ["key_name", "image_id"],
             "label": "server_parameters"}]
-        fake_sot['conditions'] = {"cd1": True}
-        sot = stack_template.StackTemplate(**fake_sot)
-        self.assertEqual(fake_sot, sot.to_dict())
+
+        for temp_version in ['2016-10-14', '2017-02-24', '2017-02-24',
+                             '2017-09-01', '2018-03-02', 'newton',
+                             'ocata', 'pike', 'queens']:
+            fake_sot['heat_template_version'] = temp_version
+            sot = stack_template.StackTemplate(**fake_sot)
+            self.assertEqual(fake_sot, sot.to_dict())
+
+    def test_to_dict_without_conditions(self):
+        fake_sot = copy.deepcopy(FAKE)
+        fake_sot['parameter_groups'] = [{
+            "description": "server parameters",
+            "parameters": ["key_name", "image_id"],
+            "label": "server_parameters"}]
+        fake_sot.pop('conditions')
+
+        for temp_version in ['2013-05-23', '2014-10-16', '2015-04-30',
+                             '2015-10-15', '2016-04-08']:
+            fake_sot['heat_template_version'] = temp_version
+            sot = stack_template.StackTemplate(**fake_sot)
+            self.assertEqual(fake_sot, sot.to_dict())

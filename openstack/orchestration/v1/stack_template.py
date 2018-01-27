@@ -44,7 +44,7 @@ class StackTemplate(resource.Resource):
     resources = resource.Body('resources', type=dict)
     # List parameters grouped.
     parameter_groups = resource.Body('parameter_groups', type=list)
-    # Restrict conditions.
+    # Restrict conditions which supported since '2016-10-14'.
     conditions = resource.Body('conditions', type=dict)
 
     def to_dict(self):
@@ -52,4 +52,7 @@ class StackTemplate(resource.Resource):
         mapping.pop('location')
         mapping.pop('id')
         mapping.pop('name')
+        if self.heat_template_version < '2016-10-14':
+            mapping.pop('conditions')
+
         return mapping
