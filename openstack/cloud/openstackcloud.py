@@ -3117,7 +3117,8 @@ class OpenStackCloud(_normalize.Normalizer):
             return self._get_and_munchify('output', data)
 
     def get_server(
-            self, name_or_id=None, filters=None, detailed=False, bare=False):
+            self, name_or_id=None, filters=None, detailed=False, bare=False,
+            all_projects=False):
         """Get a server by name or ID.
 
         :param name_or_id: Name or ID of the server.
@@ -3141,13 +3142,16 @@ class OpenStackCloud(_normalize.Normalizer):
                      server record. Defaults to False, meaning the addresses
                      dict will be populated as needed from neutron. Setting
                      to True implies detailed = False.
+        :param all_projects: Whether to get server from all projects or just
+                             the current auth scoped project.
 
         :returns: A server ``munch.Munch`` or None if no matching server is
                   found.
 
         """
         searchfunc = functools.partial(self.search_servers,
-                                       detailed=detailed, bare=True)
+                                       detailed=detailed, bare=True,
+                                       all_projects=all_projects)
         server = _utils._get_entity(self, searchfunc, name_or_id, filters)
         return self._expand_server(server, detailed, bare)
 
