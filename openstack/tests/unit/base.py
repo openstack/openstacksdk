@@ -26,7 +26,7 @@ from requests_mock.contrib import fixture as rm_fixture
 from six.moves import urllib
 import tempfile
 
-import openstack
+import openstack.cloud
 import openstack.connection
 from openstack.tests import base
 

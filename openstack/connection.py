@@ -74,18 +74,20 @@ try to find it and if that fails, you would create it::
         network = conn.network.create_network({"name": "zuul"})
 
 """
+__all__ = [
+    'from_config',
+    'Connection',
+]
+
 import warnings
 
 import keystoneauth1.exceptions
 import os_service_types
 import requestsexceptions
 import six
-from six.moves import urllib
 
 from openstack import _log
-import openstack.config
-from openstack.config import cloud_region
-from openstack.config import defaults as config_defaults
+from openstack import config as _config
 from openstack import exceptions
 from openstack import service_description
 from openstack import task_manager
@@ -120,7 +122,7 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
     cloud = cloud or kwargs.get('cloud_name')
     config = config or kwargs.get('cloud_config')
     if config is None:
-        config = openstack.config.OpenStackConfig().get_one(
+        config = _config.OpenStackConfig().get_one(
             cloud=cloud, argparse=options)
 
     return Connection(config=config)
@@ -186,12 +188,13 @@ class Connection(object):
 
         if not self.config:
             if profile:
+                import openstack.profile
                 # TODO(shade) Remove this once we've shifted
                 # python-openstackclient to not use the profile interface.
-                self.config = self._get_config_from_profile(
+                self.config = openstack.profile._get_config_from_profile(
                     profile, authenticator, **kwargs)
             else:
-                openstack_config = openstack.config.OpenStackConfig(
+                openstack_config = _config.OpenStackConfig(
                     app_name=app_name, app_version=app_version,
                     load_yaml_config=profile is None)
                 self.config = openstack_config.get_one(
@@ -217,36 +220,6 @@ class Connection(object):
             self.add_service(
                 service_description.OpenStackServiceDescription(
                     service, self.config))
-
-    def _get_config_from_profile(self, profile, authenticator, **kwargs):
-        """Get openstack.config objects from legacy profile."""
-        # TODO(shade) Remove this once we've shifted python-openstackclient
-        # to not use the profile interface.
-
-        # We don't have a cloud name. Make one up from the auth_url hostname
-        # so that log messages work.
-        name = urllib.parse.urlparse(authenticator.auth_url).hostname
-        region_name = None
-        for service in profile.get_services():
-            if service.region:
-                region_name = service.region
-            service_type = service.service_type
-            if service.interface:
-                key = cloud_region._make_key('interface', service_type)
-                kwargs[key] = service.interface
-            if service.version:
-                version = service.version
-                if version.startswith('v'):
-                    version = version[1:]
-                key = cloud_region._make_key('api_version', service_type)
-                kwargs[key] = service.version
-
-        config_kwargs = config_defaults.get_defaults()
-        config_kwargs.update(kwargs)
-        config = cloud_region.CloudRegion(
-            name=name, region_name=region_name, config=config_kwargs)
-        config._auth = authenticator
-        return config
 
     def add_service(self, service):
         """Add a service to the Connection.

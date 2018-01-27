@@ -16,8 +16,11 @@
 """
 
 import copy
+from six.moves import urllib
 
 from openstack import _log
+from openstack.config import cloud_region
+from openstack.config import defaults as config_defaults
 from openstack.baremetal import baremetal_service
 from openstack.block_storage import block_storage_service
 from openstack.clustering import clustering_service
@@ -36,6 +39,36 @@ from openstack import utils
 from openstack.workflow import workflow_service
 
 _logger = _log.setup_logging('openstack')
+
+
+def _get_config_from_profile(profile, authenticator, **kwargs):
+    # TODO(shade) Remove this once we've shifted python-openstackclient
+    # to not use the profile interface.
+
+    # We don't have a cloud name. Make one up from the auth_url hostname
+    # so that log messages work.
+    name = urllib.parse.urlparse(authenticator.auth_url).hostname
+    region_name = None
+    for service in profile.get_services():
+        if service.region:
+            region_name = service.region
+        service_type = service.service_type
+        if service.interface:
+            key = cloud_region._make_key('interface', service_type)
+            kwargs[key] = service.interface
+        if service.version:
+            version = service.version
+            if version.startswith('v'):
+                version = version[1:]
+            key = cloud_region._make_key('api_version', service_type)
+            kwargs[key] = service.version
+
+    config_kwargs = config_defaults.get_defaults()
+    config_kwargs.update(kwargs)
+    config = cloud_region.CloudRegion(
+        name=name, region_name=region_name, config=config_kwargs)
+    config._auth = authenticator
+    return config
 
 
 class Profile(object):
