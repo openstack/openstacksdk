@@ -1,9 +1,28 @@
 ---
 prelude: >
-    This release marks the beginning of the path towards removing all
-    of the 'python-\*client' libraries as dependencies. Subsequent releases
-    should expect to have fewer and fewer library depdencies.
-upgrade:
-  - Removed glanceclient as a dependency. All glance operations
-    are now performed with direct REST calls using keystoneauth
-    Adapter.
+    The ``shade`` and ``os-client-config`` libraries have been merged
+    in to openstacksdk. As a result, their functionality is being
+    integrated into the sdk functionality, and in some cases is replacing
+    exisiting things.
+
+    The ``openstack.profile.Profile`` and
+    ``openstack.auth.base.BaseAuthPlugin`` classes are no more. Profile has
+    been replace by ``openstack.config.cloud_region.CloudRegion`` from
+    `os-client-config
+    <http://git.openstack.org/cgit/openstack/os-client-config>`_
+    ``openstack.auth.base.BaseAuthPlugin`` has been replaced with the Auth
+    plugins from keystoneauth.
+
+    Service proxy names on the ``openstack.connection.Connection`` are all
+    based on the official names from the OpenStack Service Types Authority.
+
+    ``openstack.proxy.Proxy`` is now a subclass of
+    ``keystoneauth1.adapter.Adapter``. Removed local logic that duplicates
+    keystoneauth logic. This means every proxy also has direct REST primitives
+    available.
+
+      .. code-block:: python
+
+        connection = connection.Connection()
+        servers = connection.compute.servers()
+        server_response = connection.compute.get('/servers')

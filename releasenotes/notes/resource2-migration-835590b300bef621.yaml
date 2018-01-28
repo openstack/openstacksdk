@@ -1,0 +1,11 @@
+---
+upgrade:
+  - |
+    The ``Resource2`` and ``Proxy2`` migration has been completed. The original
+    ``Resource`` and ``Proxy`` clases have been removed and replaced with
+    ``Resource2`` and ``Proxy2``.
+deprecations:
+  - |
+    The ``shade`` functionality that has been merged in to openstacksdk is
+    found in ``openstack.cloud`` currently. None of these interfaces should
+    be relied upon as the merge has not yet completed.

@@ -1,11 +1,4 @@
 ---
-prelude: >
-    Swiftclient instantiation now provides authentication
-    information so that long lived swiftclient objects can
-    reauthenticate if necessary. This should be a temporary
-    situation until swiftclient supports keystoneauth
-    sessions at which point os-client-config will instantiate
-    swiftclient with a keystoneauth session.
 features:
   - Swiftclient instantiation now provides authentication
     information so that long lived swiftclient objects can
