@@ -122,15 +122,6 @@ class OpenStackCloud(_normalize.Normalizer):
                                 OpenStack API tasks. Unless you're doing
                                 rate limiting client side, you almost
                                 certainly don't need this. (optional)
-    :param bool log_inner_exceptions: Send wrapped exceptions to the error log.
-                                      Defaults to false, because there are a
-                                      number of wrapped exceptions that are
-                                      noise for normal usage. It's possible
-                                      that for a user that has python logging
-                                      configured properly, it's desirable to
-                                      have all of the wrapped exceptions be
-                                      emitted to the error log. This flag
-                                      will enable that behavior.
     :param bool strict: Only return documented attributes for each resource
                         as per the Data Model contract. (Default False)
     :param app_name: Name of the application to be appended to the user-agent
@@ -146,15 +137,12 @@ class OpenStackCloud(_normalize.Normalizer):
     def __init__(
             self,
             cloud_config=None,
-            manager=None, log_inner_exceptions=False,
+            manager=None,
             strict=False,
             app_name=None,
             app_version=None,
             use_direct_get=False,
             **kwargs):
-
-        if log_inner_exceptions:
-            OpenStackCloudException.log_inner_exceptions = True
 
         self.log = _log.setup_logging('openstack')
 
