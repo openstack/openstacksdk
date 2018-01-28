@@ -13,7 +13,6 @@
 import mock
 import testtools
 
-import openstack.cloud
 from openstack.cloud import exc
 from openstack.config import cloud_region
 from openstack.tests import fakes
@@ -22,14 +21,11 @@ from openstack.tests.unit import base
 
 class TestOperatorCloud(base.RequestsMockTestCase):
 
-    def test_operator_cloud(self):
-        self.assertIsInstance(self.op_cloud, openstack.cloud.OperatorCloud)
-
     @mock.patch.object(cloud_region.CloudRegion, 'get_endpoint')
     def test_get_session_endpoint_provided(self, fake_get_endpoint):
         fake_get_endpoint.return_value = 'http://fake.url'
         self.assertEqual(
-            'http://fake.url', self.op_cloud.get_session_endpoint('image'))
+            'http://fake.url', self.cloud.get_session_endpoint('image'))
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_session(self, get_session_mock):
@@ -37,7 +33,7 @@ class TestOperatorCloud(base.RequestsMockTestCase):
         session_mock.get_endpoint.return_value = 'http://fake.url'
         get_session_mock.return_value = session_mock
         self.assertEqual(
-            'http://fake.url', self.op_cloud.get_session_endpoint('image'))
+            'http://fake.url', self.cloud.get_session_endpoint('image'))
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_exception(self, get_session_mock):
@@ -49,27 +45,27 @@ class TestOperatorCloud(base.RequestsMockTestCase):
         session_mock = mock.Mock()
         session_mock.get_endpoint.side_effect = side_effect
         get_session_mock.return_value = session_mock
-        self.op_cloud.name = 'testcloud'
-        self.op_cloud.region_name = 'testregion'
+        self.cloud.name = 'testcloud'
+        self.cloud.region_name = 'testregion'
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
                 "Error getting image endpoint on testcloud:testregion:"
                 " No service"):
-            self.op_cloud.get_session_endpoint("image")
+            self.cloud.get_session_endpoint("image")
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_unavailable(self, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = None
         get_session_mock.return_value = session_mock
-        image_endpoint = self.op_cloud.get_session_endpoint("image")
+        image_endpoint = self.cloud.get_session_endpoint("image")
         self.assertIsNone(image_endpoint)
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_identity(self, get_session_mock):
         session_mock = mock.Mock()
         get_session_mock.return_value = session_mock
-        self.op_cloud.get_session_endpoint('identity')
+        self.cloud.get_session_endpoint('identity')
         kwargs = dict(
             interface='public', region_name='RegionOne',
             service_name=None, service_type='identity')
@@ -81,14 +77,14 @@ class TestOperatorCloud(base.RequestsMockTestCase):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = None
         get_session_mock.return_value = session_mock
-        self.assertFalse(self.op_cloud.has_service("image"))
+        self.assertFalse(self.cloud.has_service("image"))
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_has_service_yes(self, get_session_mock):
         session_mock = mock.Mock()
         session_mock.get_endpoint.return_value = 'http://fake.url'
         get_session_mock.return_value = session_mock
-        self.assertTrue(self.op_cloud.has_service("image"))
+        self.assertTrue(self.cloud.has_service("image"))
 
     def test_list_hypervisors(self):
         '''This test verifies that calling list_hypervisors results in a call
@@ -103,7 +99,7 @@ class TestOperatorCloud(base.RequestsMockTestCase):
                  ]}),
         ])
 
-        r = self.op_cloud.list_hypervisors()
+        r = self.cloud.list_hypervisors()
 
         self.assertEqual(2, len(r))
         self.assertEqual('testserver1', r[0]['hypervisor_hostname'])

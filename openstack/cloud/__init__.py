@@ -17,7 +17,6 @@ import keystoneauth1.exceptions
 from openstack._log import enable_logging  # noqa
 from openstack.cloud.exc import *  # noqa
 from openstack.cloud.openstackcloud import OpenStackCloud
-from openstack.cloud.operatorcloud import OperatorCloud
 
 
 def _get_openstack_config(app_name=None, app_version=None):
@@ -65,15 +64,3 @@ def openstack_cloud(
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
     return OpenStackCloud(cloud_config=cloud_region, strict=strict)
-
-
-def operator_cloud(
-        config=None, strict=False, app_name=None, app_version=None, **kwargs):
-    if not config:
-        config = _get_openstack_config(app_name, app_version)
-    try:
-        cloud_region = config.get_one(**kwargs)
-    except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
-        raise OpenStackCloudException(
-            "Invalid cloud configuration: {exc}".format(exc=str(e)))
-    return OperatorCloud(cloud_config=cloud_region, strict=strict)

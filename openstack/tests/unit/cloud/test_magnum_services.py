@@ -33,7 +33,7 @@ class TestMagnumServices(base.RequestsMockTestCase):
             method='GET',
             uri='https://container-infra.example.com/v1/mservices',
             json=dict(mservices=[magnum_service_obj]))])
-        mservices_list = self.op_cloud.list_magnum_services()
+        mservices_list = self.cloud.list_magnum_services()
         self.assertEqual(
             mservices_list[0],
             self.cloud._normalize_magnum_service(magnum_service_obj))

@@ -40,7 +40,7 @@ Next steps
 shade integration
 -----------------
 
-* Merge OpenStackCloud and OperatorCloud into Connection. This should result
+* Merge OpenStackCloud into Connection. This should result
   in being able to use the connection interact with the cloud using all three
   interfaces. For instance:
 

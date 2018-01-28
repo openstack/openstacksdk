@@ -54,7 +54,7 @@ class TestQuotas(base.RequestsMockTestCase):
                          }})),
         ])
 
-        self.op_cloud.set_compute_quotas(project.project_id, cores=1)
+        self.cloud.set_compute_quotas(project.project_id, cores=1)
 
         self.assert_calls()
 
@@ -71,7 +71,7 @@ class TestQuotas(base.RequestsMockTestCase):
         ])
 
         self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.set_compute_quotas, project.project_id)
+                          self.cloud.set_compute_quotas, project.project_id)
 
         self.assert_calls()
 
@@ -86,7 +86,7 @@ class TestQuotas(base.RequestsMockTestCase):
                  json={'quota_set': fake_quota_set}),
         ])
 
-        self.op_cloud.get_compute_quotas(project.project_id)
+        self.cloud.get_compute_quotas(project.project_id)
 
         self.assert_calls()
 
@@ -101,7 +101,7 @@ class TestQuotas(base.RequestsMockTestCase):
                      append=['os-quota-sets', project.project_id])),
         ])
 
-        self.op_cloud.delete_compute_quotas(project.project_id)
+        self.cloud.delete_compute_quotas(project.project_id)
 
         self.assert_calls()
 
@@ -118,7 +118,7 @@ class TestQuotas(base.RequestsMockTestCase):
                      json={'quota_set': {
                          'volumes': 1,
                          'tenant_id': project.project_id}}))])
-        self.op_cloud.set_volume_quotas(project.project_id, volumes=1)
+        self.cloud.set_volume_quotas(project.project_id, volumes=1)
         self.assert_calls()
 
     def test_cinder_get_quotas(self):
@@ -130,7 +130,7 @@ class TestQuotas(base.RequestsMockTestCase):
                      'volumev2', 'public',
                      append=['os-quota-sets', project.project_id]),
                  json=dict(quota_set={'snapshots': 10, 'volumes': 20}))])
-        self.op_cloud.get_volume_quotas(project.project_id)
+        self.cloud.get_volume_quotas(project.project_id)
         self.assert_calls()
 
     def test_cinder_delete_quotas(self):
@@ -141,7 +141,7 @@ class TestQuotas(base.RequestsMockTestCase):
                  uri=self.get_mock_url(
                      'volumev2', 'public',
                      append=['os-quota-sets', project.project_id]))])
-        self.op_cloud.delete_volume_quotas(project.project_id)
+        self.cloud.delete_volume_quotas(project.project_id)
         self.assert_calls()
 
     def test_neutron_update_quotas(self):
@@ -157,7 +157,7 @@ class TestQuotas(base.RequestsMockTestCase):
                  validate=dict(
                      json={'quota': {'network': 1}}))
         ])
-        self.op_cloud.set_network_quotas(project.project_id, network=1)
+        self.cloud.set_network_quotas(project.project_id, network=1)
         self.assert_calls()
 
     def test_neutron_get_quotas(self):
@@ -182,7 +182,7 @@ class TestQuotas(base.RequestsMockTestCase):
                              '%s.json' % project.project_id]),
                  json={'quota': quota})
         ])
-        received_quota = self.op_cloud.get_network_quotas(project.project_id)
+        received_quota = self.cloud.get_network_quotas(project.project_id)
         self.assertDictEqual(quota, received_quota)
         self.assert_calls()
 
@@ -235,7 +235,7 @@ class TestQuotas(base.RequestsMockTestCase):
                              '%s/details.json' % project.project_id]),
                  json={'quota': quota_details})
         ])
-        received_quota_details = self.op_cloud.get_network_quotas(
+        received_quota_details = self.cloud.get_network_quotas(
             project.project_id, details=True)
         self.assertDictEqual(quota_details, received_quota_details)
         self.assert_calls()
@@ -251,5 +251,5 @@ class TestQuotas(base.RequestsMockTestCase):
                              '%s.json' % project.project_id]),
                  json={})
         ])
-        self.op_cloud.delete_network_quotas(project.project_id)
+        self.cloud.delete_network_quotas(project.project_id)
         self.assert_calls()

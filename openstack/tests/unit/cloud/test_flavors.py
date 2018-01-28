@@ -38,7 +38,7 @@ class TestFlavors(base.RequestsMockTestCase):
                              "disk": 1600,
                              "id": None}}))])
 
-        self.op_cloud.create_flavor(
+        self.cloud.create_flavor(
             'vanilla', ram=65536, disk=1600, vcpus=24,
         )
         self.assert_calls()
@@ -52,7 +52,7 @@ class TestFlavors(base.RequestsMockTestCase):
             dict(method='DELETE',
                  uri='{endpoint}/flavors/{id}'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT, id=fakes.FLAVOR_ID))])
-        self.assertTrue(self.op_cloud.delete_flavor('vanilla'))
+        self.assertTrue(self.cloud.delete_flavor('vanilla'))
 
         self.assert_calls()
 
@@ -63,7 +63,7 @@ class TestFlavors(base.RequestsMockTestCase):
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'flavors': fakes.FAKE_FLAVOR_LIST})])
 
-        self.assertFalse(self.op_cloud.delete_flavor('invalid'))
+        self.assertFalse(self.cloud.delete_flavor('invalid'))
 
         self.assert_calls()
 
@@ -79,7 +79,7 @@ class TestFlavors(base.RequestsMockTestCase):
                  status_code=503)])
 
         self.assertRaises(openstack.cloud.OpenStackCloudException,
-                          self.op_cloud.delete_flavor, 'vanilla')
+                          self.cloud.delete_flavor, 'vanilla')
 
     def test_list_flavors(self):
         uris_to_mock = [
@@ -185,7 +185,7 @@ class TestFlavors(base.RequestsMockTestCase):
                      endpoint=fakes.COMPUTE_ENDPOINT, id=1),
                  json=dict(extra_specs=extra_specs))])
 
-        self.op_cloud.set_flavor_specs(1, extra_specs)
+        self.cloud.set_flavor_specs(1, extra_specs)
         self.assert_calls()
 
     def test_unset_flavor_specs(self):
@@ -196,7 +196,7 @@ class TestFlavors(base.RequestsMockTestCase):
                      endpoint=fakes.COMPUTE_ENDPOINT, id=1, key=key))
             for key in keys])
 
-        self.op_cloud.unset_flavor_specs(1, keys)
+        self.cloud.unset_flavor_specs(1, keys)
         self.assert_calls()
 
     def test_add_flavor_access(self):
@@ -210,7 +210,7 @@ class TestFlavors(base.RequestsMockTestCase):
                  validate=dict(
                      json={'addTenantAccess': {'tenant': 'tenant_id'}}))])
 
-        self.op_cloud.add_flavor_access('flavor_id', 'tenant_id')
+        self.cloud.add_flavor_access('flavor_id', 'tenant_id')
         self.assert_calls()
 
     def test_remove_flavor_access(self):
@@ -222,7 +222,7 @@ class TestFlavors(base.RequestsMockTestCase):
                  validate=dict(
                      json={'removeTenantAccess': {'tenant': 'tenant_id'}}))])
 
-        self.op_cloud.remove_flavor_access('flavor_id', 'tenant_id')
+        self.cloud.remove_flavor_access('flavor_id', 'tenant_id')
         self.assert_calls()
 
     def test_list_flavor_access(self):
@@ -234,7 +234,7 @@ class TestFlavors(base.RequestsMockTestCase):
                      'flavor_access': [
                          {'flavor_id': 'vanilla', 'tenant_id': 'tenant_id'}]})
         ])
-        self.op_cloud.list_flavor_access('vanilla')
+        self.cloud.list_flavor_access('vanilla')
         self.assert_calls()
 
     def test_get_flavor_by_id(self):

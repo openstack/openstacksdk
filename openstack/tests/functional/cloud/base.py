@@ -44,7 +44,7 @@ class BaseFunctionalTestCase(base.TestCase):
     def _set_operator_cloud(self, **kwargs):
         operator_config = self.config.get_one(
             cloud=self._op_name, **kwargs)
-        self.operator_cloud = openstack.cloud.OperatorCloud(
+        self.operator_cloud = openstack.cloud.OpenStackCloud(
             cloud_config=operator_config)
 
     def pick_image(self):

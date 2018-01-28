@@ -48,7 +48,7 @@ class TestBaremetalPort(base.IronicTestCase):
                                  self.fake_baremetal_port2]}),
         ])
 
-        return_value = self.op_cloud.list_nics()
+        return_value = self.cloud.list_nics()
         self.assertEqual(2, len(return_value['ports']))
         self.assertEqual(self.fake_baremetal_port, return_value['ports'][0])
         self.assert_calls()
@@ -60,7 +60,7 @@ class TestBaremetalPort(base.IronicTestCase):
                  status_code=400)
         ])
         self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.list_nics)
+                          self.cloud.list_nics)
         self.assert_calls()
 
     def test_list_nics_for_machine(self):
@@ -73,7 +73,7 @@ class TestBaremetalPort(base.IronicTestCase):
                                  self.fake_baremetal_port2]}),
         ])
 
-        return_value = self.op_cloud.list_nics_for_machine(
+        return_value = self.cloud.list_nics_for_machine(
             self.fake_baremetal_node['uuid'])
         self.assertEqual(2, len(return_value['ports']))
         self.assertEqual(self.fake_baremetal_port, return_value['ports'][0])
@@ -89,7 +89,7 @@ class TestBaremetalPort(base.IronicTestCase):
         ])
 
         self.assertRaises(exc.OpenStackCloudException,
-                          self.op_cloud.list_nics_for_machine,
+                          self.cloud.list_nics_for_machine,
                           self.fake_baremetal_node['uuid'])
         self.assert_calls()
 
@@ -102,7 +102,7 @@ class TestBaremetalPort(base.IronicTestCase):
                  json={'ports': [self.fake_baremetal_port]}),
         ])
 
-        return_value = self.op_cloud.get_nic_by_mac(mac)
+        return_value = self.cloud.get_nic_by_mac(mac)
 
         self.assertEqual(self.fake_baremetal_port, return_value)
         self.assert_calls()
@@ -116,6 +116,6 @@ class TestBaremetalPort(base.IronicTestCase):
                  json={'ports': []}),
         ])
 
-        self.assertIsNone(self.op_cloud.get_nic_by_mac(mac))
+        self.assertIsNone(self.cloud.get_nic_by_mac(mac))
 
         self.assert_calls()

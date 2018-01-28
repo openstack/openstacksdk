@@ -54,7 +54,7 @@ class TestUsers(base.RequestsMockTestCase):
                  validate=dict(json=user_data.json_request)),
         ])
 
-        user = self.op_cloud.create_user(
+        user = self.cloud.create_user(
             name=user_data.name, email=user_data.email,
             password=user_data.password)
 
@@ -75,7 +75,7 @@ class TestUsers(base.RequestsMockTestCase):
                  validate=dict(json=user_data.json_request)),
         ])
 
-        user = self.op_cloud.create_user(
+        user = self.cloud.create_user(
             name=user_data.name, email=user_data.email,
             password=user_data.password,
             description=user_data.description,
@@ -114,7 +114,7 @@ class TestUsers(base.RequestsMockTestCase):
                  json=user_data.json_response,
                  validate=dict(json={'user': {}}))])
 
-        user = self.op_cloud.update_user(
+        user = self.cloud.update_user(
             user_data.user_id, password=user_data.password)
         self.assertEqual(user_data.name, user.name)
         self.assertEqual(user_data.email, user.email)
@@ -128,7 +128,7 @@ class TestUsers(base.RequestsMockTestCase):
                 "User or project creation requires an explicit"
                 " domain_id argument."
         ):
-            self.op_cloud.create_user(
+            self.cloud.create_user(
                 name=user_data.name, email=user_data.email,
                 password=user_data.password)
 
@@ -146,7 +146,7 @@ class TestUsers(base.RequestsMockTestCase):
                  json=user_data.json_response),
             dict(method='DELETE', uri=user_resource_uri, status_code=204)])
 
-        self.op_cloud.delete_user(user_data.name)
+        self.cloud.delete_user(user_data.name)
         self.assert_calls()
 
     def test_delete_user_not_found(self):
@@ -154,7 +154,7 @@ class TestUsers(base.RequestsMockTestCase):
             dict(method='GET',
                  uri=self._get_keystone_mock_url(resource='users'),
                  status_code=200, json={'users': []})])
-        self.assertFalse(self.op_cloud.delete_user(self.getUniqueString()))
+        self.assertFalse(self.cloud.delete_user(self.getUniqueString()))
 
     def test_add_user_to_group(self):
         user_data = self._get_user_data()
@@ -174,7 +174,7 @@ class TestUsers(base.RequestsMockTestCase):
                      resource='groups',
                      append=[group_data.group_id, 'users', user_data.user_id]),
                  status_code=200)])
-        self.op_cloud.add_user_to_group(user_data.user_id, group_data.group_id)
+        self.cloud.add_user_to_group(user_data.user_id, group_data.group_id)
         self.assert_calls()
 
     def test_is_user_in_group(self):
@@ -196,7 +196,7 @@ class TestUsers(base.RequestsMockTestCase):
                      append=[group_data.group_id, 'users', user_data.user_id]),
                  status_code=204)])
 
-        self.assertTrue(self.op_cloud.is_user_in_group(
+        self.assertTrue(self.cloud.is_user_in_group(
             user_data.user_id, group_data.group_id))
         self.assert_calls()
 
@@ -218,6 +218,6 @@ class TestUsers(base.RequestsMockTestCase):
                      append=[group_data.group_id, 'users', user_data.user_id]),
                  status_code=204)])
 
-        self.op_cloud.remove_user_from_group(user_data.user_id,
-                                             group_data.group_id)
+        self.cloud.remove_user_from_group(
+            user_data.user_id, group_data.group_id)
         self.assert_calls()

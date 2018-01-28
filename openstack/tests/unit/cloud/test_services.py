@@ -50,7 +50,7 @@ class CloudServices(base.RequestsMockTestCase):
                  validate=dict(json={'OS-KSADM:service': reference_req}))
         ])
 
-        service = self.op_cloud.create_service(
+        service = self.cloud.create_service(
             name=service_data.service_name,
             service_type=service_data.service_type,
             description=service_data.description)
@@ -74,7 +74,7 @@ class CloudServices(base.RequestsMockTestCase):
                  validate=dict(json={'service': service_data.json_request}))
         ])
 
-        service = self.op_cloud.create_service(
+        service = self.cloud.create_service(
             name=service_data.service_name,
             service_type=service_data.service_type,
             description=service_data.description)
@@ -91,7 +91,7 @@ class CloudServices(base.RequestsMockTestCase):
         self.use_keystone_v2()
         # NOTE(SamYaple): Update service only works with v3 api
         self.assertRaises(OpenStackCloudUnavailableFeature,
-                          self.op_cloud.update_service,
+                          self.cloud.update_service,
                           'service_id', name='new name')
 
     def test_update_service_v3(self):
@@ -116,8 +116,8 @@ class CloudServices(base.RequestsMockTestCase):
                  validate=dict(json={'service': request}))
         ])
 
-        service = self.op_cloud.update_service(service_data.service_id,
-                                               enabled=False)
+        service = self.cloud.update_service(
+            service_data.service_id, enabled=False)
         self.assertThat(service.name,
                         matchers.Equals(service_data.service_name))
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
@@ -135,7 +135,7 @@ class CloudServices(base.RequestsMockTestCase):
                  status_code=200,
                  json={'services': [service_data.json_response_v3['service']]})
         ])
-        services = self.op_cloud.list_services()
+        services = self.cloud.list_services()
         self.assertThat(len(services), matchers.Equals(1))
         self.assertThat(services[0].id,
                         matchers.Equals(service_data.service_id))
@@ -173,22 +173,22 @@ class CloudServices(base.RequestsMockTestCase):
         ])
 
         # Search by id
-        service = self.op_cloud.get_service(name_or_id=service_data.service_id)
+        service = self.cloud.get_service(name_or_id=service_data.service_id)
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
 
         # Search by name
-        service = self.op_cloud.get_service(
+        service = self.cloud.get_service(
             name_or_id=service_data.service_name)
         # test we are getting exactly 1 element
         self.assertThat(service.id, matchers.Equals(service_data.service_id))
 
         # Not found
-        service = self.op_cloud.get_service(name_or_id='INVALID SERVICE')
+        service = self.cloud.get_service(name_or_id='INVALID SERVICE')
         self.assertIs(None, service)
 
         # Multiple matches
         # test we are getting an Exception
-        self.assertRaises(OpenStackCloudException, self.op_cloud.get_service,
+        self.assertRaises(OpenStackCloudException, self.cloud.get_service,
                           name_or_id=None, filters={'type': 'type2'})
         self.assert_calls()
 
@@ -223,7 +223,7 @@ class CloudServices(base.RequestsMockTestCase):
         ])
 
         # Search by id
-        services = self.op_cloud.search_services(
+        services = self.cloud.search_services(
             name_or_id=service_data.service_id)
         # test we are getting exactly 1 element
         self.assertThat(len(services), matchers.Equals(1))
@@ -231,7 +231,7 @@ class CloudServices(base.RequestsMockTestCase):
                         matchers.Equals(service_data.service_id))
 
         # Search by name
-        services = self.op_cloud.search_services(
+        services = self.cloud.search_services(
             name_or_id=service_data.service_name)
         # test we are getting exactly 1 element
         self.assertThat(len(services), matchers.Equals(1))
@@ -239,11 +239,11 @@ class CloudServices(base.RequestsMockTestCase):
                         matchers.Equals(service_data.service_name))
 
         # Not found
-        services = self.op_cloud.search_services(name_or_id='!INVALID!')
+        services = self.cloud.search_services(name_or_id='!INVALID!')
         self.assertThat(len(services), matchers.Equals(0))
 
         # Multiple matches
-        services = self.op_cloud.search_services(
+        services = self.cloud.search_services(
             filters={'type': service_data.service_type})
         # test we are getting exactly 2 elements
         self.assertThat(len(services), matchers.Equals(2))
@@ -275,9 +275,9 @@ class CloudServices(base.RequestsMockTestCase):
         ])
 
         # Delete by name
-        self.op_cloud.delete_service(name_or_id=service_data.service_name)
+        self.cloud.delete_service(name_or_id=service_data.service_name)
 
         # Delete by id
-        self.op_cloud.delete_service(service_data.service_id)
+        self.cloud.delete_service(service_data.service_id)
 
         self.assert_calls()
