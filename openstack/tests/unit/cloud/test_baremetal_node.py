@@ -555,6 +555,40 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.assert_calls()
 
+    def test_set_machine_power_on_with_retires(self):
+        # NOTE(TheJulia): This logic ends up testing power on/off and reboot
+        # as they all utilize the same helper method.
+        self.register_uris([
+            dict(
+                method='PUT',
+                status_code=503,
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'power']),
+                validate=dict(json={'target': 'power on'})),
+            dict(
+                method='PUT',
+                status_code=409,
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'power']),
+                validate=dict(json={'target': 'power on'})),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'power']),
+                validate=dict(json={'target': 'power on'})),
+        ])
+        return_value = self.cloud.set_machine_power_on(
+            self.fake_baremetal_node['uuid'])
+        self.assertIsNone(return_value)
+
+        self.assert_calls()
+
     def test_set_machine_power_off(self):
         self.register_uris([
             dict(
@@ -611,6 +645,51 @@ class TestBaremetalNode(base.IronicTestCase):
         active_node = self.fake_baremetal_node.copy()
         active_node['provision_state'] = 'active'
         self.register_uris([
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'active',
+                                    'configdrive': 'http://host/file'})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node),
+        ])
+        self.cloud.node_set_provision_state(
+            self.fake_baremetal_node['uuid'],
+            'active',
+            configdrive='http://host/file')
+
+        self.assert_calls()
+
+    def test_node_set_provision_state_with_retries(self):
+        deploy_node = self.fake_baremetal_node.copy()
+        deploy_node['provision_state'] = 'deploying'
+        active_node = self.fake_baremetal_node.copy()
+        active_node['provision_state'] = 'active'
+        self.register_uris([
+            dict(
+                method='PUT',
+                status_code=409,
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'active',
+                                    'configdrive': 'http://host/file'})),
+            dict(
+                method='PUT',
+                status_code=503,
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'active',
+                                    'configdrive': 'http://host/file'})),
             dict(
                 method='PUT',
                 uri=self.get_mock_url(
@@ -1408,6 +1487,64 @@ class TestBaremetalNode(base.IronicTestCase):
             nics,
             self.fake_baremetal_node['uuid'],
             timeout=0.001)
+        self.assert_calls()
+
+    def test_unregister_machine_retries(self):
+        mac_address = self.fake_baremetal_port['address']
+        nics = [{'mac': mac_address}]
+        port_uuid = self.fake_baremetal_port['uuid']
+        # NOTE(TheJulia): The two values below should be the same.
+        port_node_uuid = self.fake_baremetal_port['node_uuid']
+        port_url_address = 'detail?address=%s' % mac_address
+        self.fake_baremetal_node['provision_state'] = 'available'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[port_url_address]),
+                json={'ports': [{'address': mac_address,
+                                 'node_uuid': port_node_uuid,
+                                 'uuid': port_uuid}]}),
+            dict(
+                method='DELETE',
+                status_code=503,
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[self.fake_baremetal_port['uuid']])),
+            dict(
+                method='DELETE',
+                status_code=409,
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[self.fake_baremetal_port['uuid']])),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[self.fake_baremetal_port['uuid']])),
+            dict(
+                method='DELETE',
+                status_code=409,
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']])),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']])),
+        ])
+
+        self.cloud.unregister_machine(
+            nics, self.fake_baremetal_node['uuid'])
+
         self.assert_calls()
 
     def test_unregister_machine_unavailable(self):
