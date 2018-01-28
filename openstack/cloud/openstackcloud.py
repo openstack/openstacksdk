@@ -8833,24 +8833,25 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def list_nics(self):
         msg = "Error fetching machine port list"
-        return self._baremetal_client.get("/ports",
+        data = self._baremetal_client.get("/ports",
                                           microversion="1.6",
                                           error_message=msg)
+        return data['ports']
 
     def list_nics_for_machine(self, uuid):
         """Returns a list of ports present on the machine node.
 
         :param uuid: String representing machine UUID value in
                      order to identify the machine.
-        :returns: A dictionary containing containing a list of ports,
-                  associated with the label "ports".
+        :returns: A list of ports.
         """
         msg = "Error fetching port list for node {node_id}".format(
             node_id=uuid)
         url = "/nodes/{node_id}/ports".format(node_id=uuid)
-        return self._baremetal_client.get(url,
+        data = self._baremetal_client.get(url,
                                           microversion="1.6",
                                           error_message=msg)
+        return data['ports']
 
     def get_nic_by_mac(self, mac):
         try:
