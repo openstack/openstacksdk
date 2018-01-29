@@ -12,6 +12,7 @@
 
 import copy
 
+from keystoneauth1 import adapter
 import mock
 import testtools
 
@@ -146,7 +147,7 @@ class TestLimits(testtools.TestCase):
         self.assertFalse(sot.allow_list)
 
     def test_get(self):
-        sess = mock.Mock()
+        sess = mock.Mock(spec=adapter.Adapter)
         resp = mock.Mock()
         sess.get.return_value = resp
         resp.json.return_value = copy.deepcopy(LIMITS_BODY)
