@@ -73,7 +73,12 @@ OpenStack services.
    connection
 
 Once you have a *Connection* instance, the following services may be exposed
-to you. The combination of your ``CloudRegion`` and the catalog of the cloud
+to you via the :class:`~openstack.proxy.BaseProxy` interface.
+
+.. autoclass:: openstack.proxy.BaseProxy
+   :members:
+
+The combination of your ``CloudRegion`` and the catalog of the cloud
 in question control which services are exposed, but listed below are the ones
 provided by the SDK.
 
