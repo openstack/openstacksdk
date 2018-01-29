@@ -82,11 +82,11 @@ __all__ = [
 import warnings
 
 import keystoneauth1.exceptions
-import os_service_types
 import requestsexceptions
 import six
 
 from openstack import _log
+from openstack import _meta
 from openstack import config as _config
 from openstack import exceptions
 from openstack import service_description
@@ -128,7 +128,7 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
     return Connection(config=config)
 
 
-class Connection(object):
+class Connection(six.with_metaclass(_meta.ConnectionMeta)):
 
     def __init__(self, cloud=None, config=None, session=None,
                  app_name=None, app_version=None,
@@ -219,11 +219,7 @@ class Connection(object):
         # to a Resource method's session argument.
         self.session._sdk_connection = self
 
-        service_type_manager = os_service_types.ServiceTypes()
-        for service in service_type_manager.services:
-            self.add_service(
-                service_description.OpenStackServiceDescription(
-                    service, self.config))
+        self._proxies = {}
 
     def add_service(self, service):
         """Add a service to the Connection.
@@ -245,29 +241,16 @@ class Connection(object):
         # If we don't have a proxy, just instantiate BaseProxy so that
         # we get an adapter.
         if isinstance(service, six.string_types):
-            service_type = service
-            service = service_description.ServiceDescription(service_type)
-        else:
-            service_type = service.service_type
-        proxy_object = service.proxy_class(
-            session=self.config.get_session(),
-            task_manager=self.task_manager,
-            allow_version_hack=True,
-            service_type=self.config.get_service_type(service_type),
-            service_name=self.config.get_service_name(service_type),
-            interface=self.config.get_interface(service_type),
-            region_name=self.config.region_name,
-            version=self.config.get_api_version(service_type),
-        )
+            service = service_description.ServiceDescription(service)
 
         # Register the proxy class with every known alias
         for attr_name in service.all_types:
-            setattr(self, attr_name.replace('-', '_'), proxy_object)
+            setattr(self, attr_name.replace('-', '_'), service)
 
     def authorize(self):
         """Authorize this Connection
 
-        **NOTE**: This method is optional. When an application makes a call
+        .. note:: This method is optional. When an application makes a call
                   to any OpenStack service, this method allows you to request
                   a token manually before attempting to do anything else.
 

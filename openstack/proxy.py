@@ -41,6 +41,7 @@ def _check_resource(strict=False):
 
 
 class BaseProxy(_adapter.OpenStackSDKAdapter):
+    """Represents a service."""
 
     def _get_resource(self, resource_type, value, **attrs):
         """Get a resource object to work on
