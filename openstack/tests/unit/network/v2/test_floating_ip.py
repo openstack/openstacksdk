@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from keystoneauth1 import adapter
 import mock
 import testtools
 
@@ -67,7 +68,7 @@ class TestFloatingIP(testtools.TestCase):
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
 
     def test_find_available(self):
-        mock_session = mock.Mock()
+        mock_session = mock.Mock(spec=adapter.Adapter)
         mock_session.get_filter = mock.Mock(return_value={})
         data = {'id': 'one', 'floating_ip_address': '10.0.0.1'}
         fake_response = mock.Mock()
@@ -85,7 +86,7 @@ class TestFloatingIP(testtools.TestCase):
             params={'port_id': ''})
 
     def test_find_available_nada(self):
-        mock_session = mock.Mock()
+        mock_session = mock.Mock(spec=adapter.Adapter)
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: []}
         fake_response.json = mock.Mock(return_value=body)
