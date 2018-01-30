@@ -16,23 +16,20 @@ import sys
 
 from openstack.config.loader import OpenStackConfig  # noqa
 
-_config = None
-
 
 def get_cloud_region(
         service_key=None, options=None,
         app_name=None, app_version=None,
+        load_yaml_config=True,
+        load_envvars=True,
         **kwargs):
-    load_yaml_config = kwargs.pop('load_yaml_config', True)
-    global _config
-    if not _config:
-        _config = OpenStackConfig(
-            load_yaml_config=load_yaml_config,
-            app_name=app_name, app_version=app_version)
+    config = OpenStackConfig(
+        load_yaml_config=load_yaml_config,
+        app_name=app_name, app_version=app_version)
     if options:
-        _config.register_argparse_arguments(options, sys.argv, service_key)
+        config.register_argparse_arguments(options, sys.argv, service_key)
         parsed_options = options.parse_known_args(sys.argv)
     else:
         parsed_options = None
 
-    return _config.get_one(options=parsed_options, **kwargs)
+    return config.get_one(options=parsed_options, **kwargs)

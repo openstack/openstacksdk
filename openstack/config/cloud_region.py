@@ -35,7 +35,9 @@ def _make_key(key, service_type):
         return "_".join([service_type, key])
 
 
-def from_session(session, name=None, config=None, **kwargs):
+def from_session(session, name=None, region_name=None,
+                 force_ipv4=False,
+                 app_name=None, app_version=None, **kwargs):
     """Construct a CloudRegion from an existing `keystoneauth1.session.Session`
 
     When a Session already exists, we don't actually even need to go through
@@ -43,20 +45,30 @@ def from_session(session, name=None, config=None, **kwargs):
     The only parameters that are really needed are adapter/catalog related.
 
     :param keystoneauth1.session.session session:
-        An existing Session to use.
+        An existing authenticated Session to use.
     :param str name:
         A name to use for this cloud region in logging. If left empty, the
         hostname of the auth_url found in the Session will be used.
-    :param dict config:
+    :param str region_name:
+        The region name to connect to.
+    :param bool force_ipv4:
+        Whether or not to disable IPv6 support. Defaults to False.
+    :param str app_name:
+        Name of the application to be added to User Agent.
+    :param str app_version:
+        Version of the application to be added to User Agent.
+    :param kwargs:
         Config settings for this cloud region.
     """
     # If someone is constructing one of these from a Session, then they are
     # not using a named config. Use the hostname of their auth_url instead.
     name = name or urllib.parse.urlparse(session.auth.auth_url).hostname
     config_dict = config_defaults.get_defaults()
-    config_dict.update(config or {})
+    config_dict.update(**kwargs)
     return CloudRegion(
-        name=name, session=session, config=config_dict, **kwargs)
+        name=name, session=session, config=config_dict,
+        region_name=region_name, force_ipv4=force_ipv4,
+        app_name=app_name, app_version=app_version)
 
 
 class CloudRegion(object):

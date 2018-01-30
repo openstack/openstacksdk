@@ -183,11 +183,12 @@ class OpenStackConfig(object):
                  envvar_prefix=None, secure_files=None,
                  pw_func=None, session_constructor=None,
                  app_name=None, app_version=None,
-                 load_yaml_config=True):
+                 load_yaml_config=True, load_envvars=True):
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
         self._app_name = app_name
         self._app_version = app_version
+        self._load_envvars = load_envvars
 
         if load_yaml_config:
             self._config_files = config_files or CONFIG_FILES
@@ -198,11 +199,11 @@ class OpenStackConfig(object):
             self._secure_files = []
             self._vendor_files = []
 
-        config_file_override = os.environ.get('OS_CLIENT_CONFIG_FILE')
+        config_file_override = self._get_envvar('OS_CLIENT_CONFIG_FILE')
         if config_file_override:
             self._config_files.insert(0, config_file_override)
 
-        secure_file_override = os.environ.get('OS_CLIENT_SECURE_FILE')
+        secure_file_override = self._get_envvar('OS_CLIENT_SECURE_FILE')
         if secure_file_override:
             self._secure_files.insert(0, secure_file_override)
 
@@ -231,12 +232,12 @@ class OpenStackConfig(object):
         else:
             # Get the backwards compat value
             prefer_ipv6 = get_boolean(
-                os.environ.get(
+                self._get_envvar(
                     'OS_PREFER_IPV6', client_config.get(
                         'prefer_ipv6', client_config.get(
                             'prefer-ipv6', True))))
             force_ipv4 = get_boolean(
-                os.environ.get(
+                self._get_envvar(
                     'OS_FORCE_IPV4', client_config.get(
                         'force_ipv4', client_config.get(
                             'broken-ipv6', False))))
@@ -248,7 +249,7 @@ class OpenStackConfig(object):
                 self.force_ipv4 = True
 
         # Next, process environment variables and add them to the mix
-        self.envvar_key = os.environ.get('OS_CLOUD_NAME', 'envvars')
+        self.envvar_key = self._get_envvar('OS_CLOUD_NAME', 'envvars')
         if self.envvar_key in self.cloud_config['clouds']:
             raise exceptions.OpenStackConfigException(
                 '"{0}" defines a cloud named "{1}", but'
@@ -257,13 +258,14 @@ class OpenStackConfig(object):
                 ' file-based clouds.'.format(self.config_filename,
                                              self.envvar_key))
 
-        self.default_cloud = os.environ.get('OS_CLOUD')
+        self.default_cloud = self._get_envvar('OS_CLOUD')
 
-        envvars = _get_os_environ(envvar_prefix=envvar_prefix)
-        if envvars:
-            self.cloud_config['clouds'][self.envvar_key] = envvars
-            if not self.default_cloud:
-                self.default_cloud = self.envvar_key
+        if load_envvars:
+            envvars = _get_os_environ(envvar_prefix=envvar_prefix)
+            if envvars:
+                self.cloud_config['clouds'][self.envvar_key] = envvars
+                if not self.default_cloud:
+                    self.default_cloud = self.envvar_key
 
         if not self.default_cloud and self.cloud_config['clouds']:
             if len(self.cloud_config['clouds'].keys()) == 1:
@@ -319,6 +321,11 @@ class OpenStackConfig(object):
         # Save the password callback
         # password = self._pw_callback(prompt="Password: ")
         self._pw_callback = pw_func
+
+    def _get_envvar(self, key, default=None):
+        if not self._load_envvars:
+            return default
+        return os.environ.get(key, default)
 
     def get_extra_config(self, key, defaults=None):
         """Fetch an arbitrary extra chunk of config, laying in defaults.
@@ -700,7 +707,7 @@ class OpenStackConfig(object):
             p.add_argument(
                 '--os-cloud',
                 metavar='<name>',
-                default=os.environ.get('OS_CLOUD', None),
+                default=self._get_envvar('OS_CLOUD', None),
                 help='Named cloud to connect to')
 
         # we need to peek to see if timeout was actually passed, since
