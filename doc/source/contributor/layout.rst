@@ -50,16 +50,30 @@ a dictionary keyed with the plural noun in the response.
 Proxy
 -----
 
-Each service implements a ``Proxy`` class, within the
+Each service implements a ``Proxy`` class based on
+:class:`~openstack.proxy.Proxy`, within the
 ``openstack/<program_name>/vX/_proxy.py`` module. For example, the v2 compute
 service's ``Proxy`` exists in ``openstack/compute/v2/_proxy.py``.
 
-This ``Proxy`` class contains a :class:`~keystoneauth1.adapter.Adapter` and
-provides a higher-level interface for users to work with via a
-:class:`~openstack.connection.Connection` instance. Rather than requiring
-users to maintain their own ``Adapter`` and work with lower-level
-:class:`~openstack.resource.Resource` objects, the ``Proxy`` interface
-offers a place to make things easier for the caller.
+The :class:`~openstack.proxy.Proxy` class is based on
+:class:`~openstack._adapter.OpenStackSDKAdapter` which is in turn based on
+:class:`~keystoneauth1.adapter.Adapter`.
+
+.. autoclass:: openstack.proxy.Proxy
+   :members:
+   :show-inheritance:
+
+.. autoclass:: openstack._adapter.OpenStackSDKAdapter
+   :members:
+   :inherited-members:
+   :show-inheritance:
+
+Each service's ``Proxy`` provides a higher-level interface for users to work
+with via a :class:`~openstack.connection.Connection` instance.
+
+Rather than requiring users to maintain their own ``Adapter`` and work with
+lower-level :class:`~openstack.resource.Resource` objects, the ``Proxy``
+interface offers a place to make things easier for the caller.
 
 Each ``Proxy`` class implements methods which act on the underlying
 ``Resource`` classes which represent the service. For example::
@@ -80,8 +94,9 @@ Connection
 ----------
 
 The :class:`openstack.connection.Connection` class builds atop a
-:class:`os_client_config.config.CloudRegion` object, and provides a higher
-level interface constructed of ``Proxy`` objects from each of the services.
+:class:`openstack.config.cloud_region.CloudRegion` object, and provides a
+higher level interface constructed of ``Proxy`` objects from each of the
+services.
 
 The ``Connection`` class' primary purpose is to act as a high-level interface
 to this SDK, managing the lower level connecton bits and exposing the

@@ -52,7 +52,7 @@ from openstack import proxy
 from openstack import utils
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def create_address_scope(self, **attrs):
         """Create a new address scope from attributes

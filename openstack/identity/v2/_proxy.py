@@ -17,7 +17,7 @@ from openstack.identity.v2 import user as _user
 from openstack import proxy
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def extensions(self):
         """Retrieve a generator of extensions

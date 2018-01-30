@@ -16,7 +16,7 @@ from openstack import resource
 from openstack import utils
 
 
-# The _check_resource decorator is used on BaseProxy methods to ensure that
+# The _check_resource decorator is used on Proxy methods to ensure that
 # the `actual` argument is in fact the type of the `expected` argument.
 # It does so under two cases:
 # 1. When strict=False, if and only if `actual` is a Resource instance,
@@ -40,7 +40,7 @@ def _check_resource(strict=False):
     return wrap
 
 
-class BaseProxy(_adapter.OpenStackSDKAdapter):
+class Proxy(_adapter.OpenStackSDKAdapter):
     """Represents a service."""
 
     def _get_resource(self, resource_type, value, **attrs):
@@ -313,3 +313,12 @@ class BaseProxy(_adapter.OpenStackSDKAdapter):
                  to delete failed to occur in wait seconds.
         """
         return resource.wait_for_delete(self, value, interval, wait)
+
+
+class BaseProxy(Proxy):
+    # Backwards compat wrapper
+
+    @utils.deprecated(deprecated_in="0.11.1", removed_in="1.0",
+                      details="Use openstack.proxy.Proxy instead")
+    def __init__(self, *args, **kwargs):
+        super(BaseProxy, self).__init__(*args, **kwargs)

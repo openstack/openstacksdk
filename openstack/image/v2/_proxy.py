@@ -17,7 +17,7 @@ from openstack import proxy
 from openstack import resource
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def upload_image(self, container_format=None, disk_format=None,
                      data=None, **attrs):

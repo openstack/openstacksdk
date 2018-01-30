@@ -16,7 +16,7 @@ from openstack.object_store.v1 import obj as _obj
 from openstack import proxy
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     Account = _account.Account
     Container = _container.Container

@@ -134,7 +134,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
                            expected_kwargs={'pool_id': self.POOL_ID})
 
     def test_member_find(self):
-        self._verify2('openstack.proxy.BaseProxy._find',
+        self._verify2('openstack.proxy.Proxy._find',
                       self.proxy.find_member,
                       method_args=["MEMBER", self.POOL_ID],
                       expected_args=[member.Member, "MEMBER"],
@@ -142,7 +142,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
                                        "ignore_missing": True})
 
     def test_member_update(self):
-        self._verify2('openstack.proxy.BaseProxy._update',
+        self._verify2('openstack.proxy.Proxy._update',
                       self.proxy.update_member,
                       method_args=["MEMBER", self.POOL_ID],
                       expected_args=[member.Member, "MEMBER"],
@@ -225,7 +225,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
                            expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
 
     def test_l7_rule_find(self):
-        self._verify2('openstack.proxy.BaseProxy._find',
+        self._verify2('openstack.proxy.Proxy._find',
                       self.proxy.find_l7_rule,
                       method_args=["RULE", self.L7_POLICY_ID],
                       expected_args=[l7_rule.L7Rule, "RULE"],
@@ -233,7 +233,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
                                        "ignore_missing": True})
 
     def test_l7_rule_update(self):
-        self._verify2('openstack.proxy.BaseProxy._update',
+        self._verify2('openstack.proxy.Proxy._update',
                       self.proxy.update_l7_rule,
                       method_args=["RULE", self.L7_POLICY_ID],
                       expected_args=[l7_rule.L7Rule, "RULE"],

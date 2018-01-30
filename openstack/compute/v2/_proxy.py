@@ -27,7 +27,7 @@ from openstack import proxy
 from openstack import resource
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def find_extension(self, name_or_id, ignore_missing=True):
         """Find a single extension

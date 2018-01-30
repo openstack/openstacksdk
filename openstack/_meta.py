@@ -62,9 +62,9 @@ class ConnectionMeta(type):
                     doc = _PROXY_TEMPLATE.format(
                         class_doc_strings=class_doc_strings, **service)
             else:
-                descriptor_args['proxy_class'] = proxy.BaseProxy
+                descriptor_args['proxy_class'] = proxy.Proxy
                 doc = _DOC_TEMPLATE.format(
-                    class_name='~openstack.proxy.BaseProxy', **service)
+                    class_name='~openstack.proxy.Proxy', **service)
             descriptor = desc_class(**descriptor_args)
             descriptor.__doc__ = doc
             dct[service_type.replace('-', '_')] = descriptor

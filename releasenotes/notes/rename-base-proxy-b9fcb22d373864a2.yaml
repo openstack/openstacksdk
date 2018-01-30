@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    `openstack.proxy.BaseProxy` has been renamed to `openstack.proxy.Proxy`.
+    A ``BaseProxy`` class remains for easing transition.

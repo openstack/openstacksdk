@@ -126,7 +126,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         test_interface.server_id = server_id
 
         # Case1: ServerInterface instance is provided as value
-        self._verify2("openstack.proxy.BaseProxy._delete",
+        self._verify2("openstack.proxy.Proxy._delete",
                       self.proxy.delete_server_interface,
                       method_args=[test_interface],
                       method_kwargs={"server": server_id},
@@ -136,7 +136,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                                        "ignore_missing": True})
 
         # Case2: ServerInterface ID is provided as value
-        self._verify2("openstack.proxy.BaseProxy._delete",
+        self._verify2("openstack.proxy.Proxy._delete",
                       self.proxy.delete_server_interface,
                       method_args=[interface_id],
                       method_kwargs={"server": server_id},
@@ -163,7 +163,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         test_interface.server_id = server_id
 
         # Case1: ServerInterface instance is provided as value
-        self._verify2('openstack.proxy.BaseProxy._get',
+        self._verify2('openstack.proxy.Proxy._get',
                       self.proxy.get_server_interface,
                       method_args=[test_interface],
                       method_kwargs={"server": server_id},
@@ -172,7 +172,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                                        "server_id": server_id})
 
         # Case2: ServerInterface ID is provided as value
-        self._verify2('openstack.proxy.BaseProxy._get',
+        self._verify2('openstack.proxy.Proxy._get',
                       self.proxy.get_server_interface,
                       method_args=[interface_id],
                       method_kwargs={"server": server_id},

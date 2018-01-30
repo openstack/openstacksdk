@@ -34,7 +34,7 @@ from openstack.identity.v3 import user as _user
 from openstack import proxy
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def create_credential(self, **attrs):
         """Create a new credential from attributes

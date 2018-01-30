@@ -14,7 +14,7 @@ from openstack.image.v1 import image as _image
 from openstack import proxy
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def upload_image(self, **attrs):
         """Upload a new image from attributes

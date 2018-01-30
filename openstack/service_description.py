@@ -30,7 +30,7 @@ _service_type_manager = os_service_types.ServiceTypes()
 class ServiceDescription(object):
 
     #: Proxy class for this service
-    proxy_class = proxy.BaseProxy
+    proxy_class = proxy.Proxy
     #: main service_type to use to find this service in the catalog
     service_type = None
     #: list of aliases this service might be registered as
@@ -55,10 +55,10 @@ class ServiceDescription(object):
 
         :param string service_type:
             service_type to look for in the keystone catalog
-        :param proxy.BaseProxy proxy_class:
-            subclass of :class:`~openstack.proxy.BaseProxy` implementing
+        :param proxy.Proxy proxy_class:
+            subclass of :class:`~openstack.proxy.Proxy` implementing
             an interface for this service. Defaults to
-            :class:`~openstack.proxy.BaseProxy` which provides REST operations
+            :class:`~openstack.proxy.Proxy` which provides REST operations
             but no additional features.
         :param list aliases:
             Optional list of aliases, if there is more than one name that might
@@ -73,9 +73,9 @@ class ServiceDescription(object):
         self._proxy = None
 
     def _validate_proxy_class(self):
-        if not issubclass(self.proxy_class, proxy.BaseProxy):
+        if not issubclass(self.proxy_class, proxy.Proxy):
             raise TypeError(
-                "{module}.{proxy_class} must inherit from BaseProxy".format(
+                "{module}.{proxy_class} must inherit from Proxy".format(
                     module=self.proxy_class.__module__,
                     proxy_class=self.proxy_class.__name__))
 

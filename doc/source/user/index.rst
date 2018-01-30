@@ -73,11 +73,8 @@ OpenStack services.
    connection
 
 Once you have a *Connection* instance, services are accessed through instances
-of :class:`~openstack.proxy.BaseProxy` or subclasses of it that exist as
+of :class:`~openstack.proxy.Proxy` or subclasses of it that exist as
 attributes on the :class:`~openstack.connection.Connection`.
-
-.. autoclass:: openstack.proxy.BaseProxy
-   :members:
 
 .. _service-proxies:
 

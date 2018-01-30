@@ -87,7 +87,7 @@ class TestProxyBase(base.TestCase):
                 mocked.assert_called_with(test_method.__self__)
 
     def verify_create(self, test_method, resource_type,
-                      mock_method="openstack.proxy.BaseProxy._create",
+                      mock_method="openstack.proxy.Proxy._create",
                       expected_result="result", **kwargs):
         the_kwargs = {"x": 1, "y": 2, "z": 3}
         method_kwargs = kwargs.pop("method_kwargs", the_kwargs)
@@ -105,7 +105,7 @@ class TestProxyBase(base.TestCase):
                       input_path_args=None, expected_path_args=None,
                       method_kwargs=None, expected_args=None,
                       expected_kwargs=None,
-                      mock_method="openstack.proxy.BaseProxy._delete"):
+                      mock_method="openstack.proxy.Proxy._delete"):
         method_args = ["resource_or_id"]
         method_kwargs = method_kwargs or {}
         method_kwargs["ignore_missing"] = ignore
@@ -126,7 +126,7 @@ class TestProxyBase(base.TestCase):
                       expected_kwargs=expected_kwargs)
 
     def verify_get(self, test_method, resource_type, value=None, args=None,
-                   mock_method="openstack.proxy.BaseProxy._get",
+                   mock_method="openstack.proxy.Proxy._get",
                    ignore_value=False, **kwargs):
         the_value = value
         if value is None:
@@ -147,7 +147,7 @@ class TestProxyBase(base.TestCase):
                       expected_kwargs=expected_kwargs)
 
     def verify_head(self, test_method, resource_type,
-                    mock_method="openstack.proxy.BaseProxy._head",
+                    mock_method="openstack.proxy.Proxy._head",
                     value=None, **kwargs):
         the_value = [value] if value is not None else []
         if self.kwargs_to_path_args:
@@ -161,7 +161,7 @@ class TestProxyBase(base.TestCase):
                       expected_kwargs=expected_kwargs)
 
     def verify_find(self, test_method, resource_type, value=None,
-                    mock_method="openstack.proxy.BaseProxy._find",
+                    mock_method="openstack.proxy.Proxy._find",
                     path_args=None, **kwargs):
         method_args = value or ["name_or_id"]
         expected_kwargs = {}
@@ -188,7 +188,7 @@ class TestProxyBase(base.TestCase):
                       **kwargs)
 
     def verify_list(self, test_method, resource_type, paginated=False,
-                    mock_method="openstack.proxy.BaseProxy._list",
+                    mock_method="openstack.proxy.Proxy._list",
                     **kwargs):
         expected_kwargs = kwargs.pop("expected_kwargs", {})
         expected_kwargs.update({"paginated": paginated})
@@ -202,7 +202,7 @@ class TestProxyBase(base.TestCase):
 
     def verify_list_no_kwargs(self, test_method, resource_type,
                               paginated=False,
-                              mock_method="openstack.proxy.BaseProxy._list"):
+                              mock_method="openstack.proxy.Proxy._list"):
         self._verify2(mock_method, test_method,
                       method_kwargs={},
                       expected_args=[resource_type],
@@ -210,7 +210,7 @@ class TestProxyBase(base.TestCase):
                       expected_result=["result"])
 
     def verify_update(self, test_method, resource_type, value=None,
-                      mock_method="openstack.proxy.BaseProxy._update",
+                      mock_method="openstack.proxy.Proxy._update",
                       expected_result="result", path_args=None, **kwargs):
         method_args = value or ["resource_or_id"]
         method_kwargs = {"x": 1, "y": 2, "z": 3}

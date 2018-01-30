@@ -329,10 +329,10 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
     def add_service(self, service):
         """Add a service to the Connection.
 
-        Attaches an instance of the :class:`~openstack.proxy.BaseProxy`
+        Attaches an instance of the :class:`~openstack.proxy.Proxy`
         class contained in
         :class:`~openstack.service_description.ServiceDescription`.
-        The :class:`~openstack.proxy.BaseProxy` will be attached to the
+        The :class:`~openstack.proxy.Proxy` will be attached to the
         `Connection` by its ``service_type`` and by any ``aliases`` that
         may be specified.
 
@@ -343,7 +343,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             :class:`~openstack.service_description.ServiceDescription`
             will be created.
         """
-        # If we don't have a proxy, just instantiate BaseProxy so that
+        # If we don't have a proxy, just instantiate Proxy so that
         # we get an adapter.
         if isinstance(service, six.string_types):
             service = service_description.ServiceDescription(service)

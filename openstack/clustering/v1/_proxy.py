@@ -28,7 +28,7 @@ from openstack import resource
 from openstack import utils
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def get_build_info(self):
         """Get build info for service engine and API

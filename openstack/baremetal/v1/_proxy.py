@@ -19,7 +19,7 @@ from openstack import proxy
 from openstack import utils
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def chassis(self, details=False, **query):
         """Retrieve a generator of chassis.

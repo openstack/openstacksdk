@@ -15,7 +15,7 @@ from openstack.workflow.v2 import execution as _execution
 from openstack.workflow.v2 import workflow as _workflow
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def create_workflow(self, **attrs):
         """Create a new workflow from attributes

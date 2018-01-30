@@ -16,7 +16,7 @@ from openstack.key_manager.v1 import secret as _secret
 from openstack import proxy
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def create_container(self, **attrs):
         """Create a new container from attributes

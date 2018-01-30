@@ -87,7 +87,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stk = stack.Stack(id=stack_id, name=stack_name)
         mock_find.return_value = stk
 
-        self._verify2('openstack.proxy.BaseProxy._get',
+        self._verify2('openstack.proxy.Proxy._get',
                       self.proxy.get_stack_environment,
                       method_args=['IDENTITY'],
                       expected_args=[stack_environment.StackEnvironment],
@@ -102,7 +102,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
 
-        self._verify2('openstack.proxy.BaseProxy._get',
+        self._verify2('openstack.proxy.Proxy._get',
                       self.proxy.get_stack_environment,
                       method_args=[stk],
                       expected_args=[stack_environment.StackEnvironment],
@@ -145,7 +145,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stk = stack.Stack(id=stack_id, name=stack_name)
         mock_find.return_value = stk
 
-        self._verify2('openstack.proxy.BaseProxy._get',
+        self._verify2('openstack.proxy.Proxy._get',
                       self.proxy.get_stack_template,
                       method_args=['IDENTITY'],
                       expected_args=[stack_template.StackTemplate],
@@ -160,7 +160,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
 
-        self._verify2('openstack.proxy.BaseProxy._get',
+        self._verify2('openstack.proxy.Proxy._get',
                       self.proxy.get_stack_template,
                       method_args=[stk],
                       expected_args=[stack_template.StackTemplate],

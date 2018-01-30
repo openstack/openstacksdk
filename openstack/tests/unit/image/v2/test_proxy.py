@@ -57,7 +57,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_image, image.Image, True)
 
     @mock.patch("openstack.resource.Resource._translate_response")
-    @mock.patch("openstack.proxy.BaseProxy._get")
+    @mock.patch("openstack.proxy.Proxy._get")
     @mock.patch("openstack.image.v2.image.Image.update")
     def test_image_update(self, mock_update_image, mock_get_image,
                           mock_transpose):
@@ -104,7 +104,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                            expected_kwargs={"image_id": "test_id"})
 
     def test_member_delete(self):
-        self._verify2("openstack.proxy.BaseProxy._delete",
+        self._verify2("openstack.proxy.Proxy._delete",
                       self.proxy.remove_member,
                       method_args=["member_id"],
                       method_kwargs={"image": "image_id",
@@ -115,7 +115,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                        "ignore_missing": False})
 
     def test_member_delete_ignore(self):
-        self._verify2("openstack.proxy.BaseProxy._delete",
+        self._verify2("openstack.proxy.Proxy._delete",
                       self.proxy.remove_member,
                       method_args=["member_id"],
                       method_kwargs={"image": "image_id"},
@@ -125,7 +125,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                        "ignore_missing": True})
 
     def test_member_update(self):
-        self._verify2("openstack.proxy.BaseProxy._update",
+        self._verify2("openstack.proxy.Proxy._update",
                       self.proxy.update_member,
                       method_args=['member_id', 'image_id'],
                       expected_args=[member.Member],
@@ -133,7 +133,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                        'image_id': 'image_id'})
 
     def test_member_get(self):
-        self._verify2("openstack.proxy.BaseProxy._get",
+        self._verify2("openstack.proxy.Proxy._get",
                       self.proxy.get_member,
                       method_args=['member_id'],
                       method_kwargs={"image": "image_id"},
@@ -142,7 +142,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                        'image_id': 'image_id'})
 
     def test_member_find(self):
-        self._verify2("openstack.proxy.BaseProxy._find",
+        self._verify2("openstack.proxy.Proxy._find",
                       self.proxy.find_member,
                       method_args=['member_id'],
                       method_kwargs={"image": "image_id"},

@@ -316,7 +316,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_network, network.Network)
 
     def test_network_find_with_filter(self):
-        self._verify2('openstack.proxy.BaseProxy._find',
+        self._verify2('openstack.proxy.Proxy._find',
                       self.proxy.find_network,
                       method_args=["net1"],
                       method_kwargs={"project_id": "1"},
@@ -406,7 +406,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            {"pool": "test_id"}, {"pool_id": "test_id"})
 
     def test_pool_member_find(self):
-        self._verify2('openstack.proxy.BaseProxy._find',
+        self._verify2('openstack.proxy.Proxy._find',
                       self.proxy.find_pool_member,
                       method_args=["MEMBER", "POOL"],
                       expected_args=[pool_member.PoolMember, "MEMBER"],
@@ -414,7 +414,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                        "ignore_missing": True})
 
     def test_pool_member_get(self):
-        self._verify2('openstack.proxy.BaseProxy._get',
+        self._verify2('openstack.proxy.Proxy._get',
                       self.proxy.get_pool_member,
                       method_args=["MEMBER", "POOL"],
                       expected_args=[pool_member.PoolMember, "MEMBER"],
@@ -426,7 +426,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          expected_kwargs={"pool_id": "test_id"})
 
     def test_pool_member_update(self):
-        self._verify2("openstack.proxy.BaseProxy._update",
+        self._verify2("openstack.proxy.Proxy._update",
                       self.proxy.update_pool_member,
                       method_args=["MEMBER", "POOL"],
                       expected_args=[pool_member.PoolMember, "MEMBER"],
@@ -497,7 +497,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_bandwidth_limit_rule_find(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.BaseProxy._find',
+        self._verify2('openstack.proxy.Proxy._find',
                       self.proxy.find_qos_bandwidth_limit_rule,
                       method_args=['rule_id', policy],
                       expected_args=[
@@ -523,7 +523,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_bandwidth_limit_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.BaseProxy._update',
+        self._verify2('openstack.proxy.Proxy._update',
                       self.proxy.update_qos_bandwidth_limit_rule,
                       method_args=['rule_id', policy],
                       method_kwargs={'foo': 'bar'},
@@ -556,7 +556,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_dscp_marking_rule_find(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.BaseProxy._find',
+        self._verify2('openstack.proxy.Proxy._find',
                       self.proxy.find_qos_dscp_marking_rule,
                       method_args=['rule_id', policy],
                       expected_args=[qos_dscp_marking_rule.QoSDSCPMarkingRule,
@@ -581,7 +581,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_dscp_marking_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.BaseProxy._update',
+        self._verify2('openstack.proxy.Proxy._update',
                       self.proxy.update_qos_dscp_marking_rule,
                       method_args=['rule_id', policy],
                       method_kwargs={'foo': 'bar'},
@@ -614,7 +614,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_minimum_bandwidth_rule_find(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.BaseProxy._find',
+        self._verify2('openstack.proxy.Proxy._find',
                       self.proxy.find_qos_minimum_bandwidth_rule,
                       method_args=['rule_id', policy],
                       expected_args=[
@@ -640,7 +640,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_minimum_bandwidth_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.BaseProxy._update',
+        self._verify2('openstack.proxy.Proxy._update',
                       self.proxy.update_qos_minimum_bandwidth_rule,
                       method_args=['rule_id', policy],
                       method_kwargs={'foo': 'bar'},
@@ -695,11 +695,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_quota_get(self):
         self.verify_get(self.proxy.get_quota, quota.Quota)
 
-    @mock.patch.object(proxy_base.BaseProxy, "_get_resource")
+    @mock.patch.object(proxy_base.Proxy, "_get_resource")
     def test_quota_get_details(self, mock_get):
         fake_quota = mock.Mock(project_id='PROJECT')
         mock_get.return_value = fake_quota
-        self._verify2("openstack.proxy.BaseProxy._get",
+        self._verify2("openstack.proxy.Proxy._get",
                       self.proxy.get_quota,
                       method_args=['QUOTA_ID'],
                       method_kwargs={'details': True},
@@ -708,11 +708,11 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                                        'requires_id': False})
         mock_get.assert_called_once_with(quota.Quota, 'QUOTA_ID')
 
-    @mock.patch.object(proxy_base.BaseProxy, "_get_resource")
+    @mock.patch.object(proxy_base.Proxy, "_get_resource")
     def test_quota_default_get(self, mock_get):
         fake_quota = mock.Mock(project_id='PROJECT')
         mock_get.return_value = fake_quota
-        self._verify2("openstack.proxy.BaseProxy._get",
+        self._verify2("openstack.proxy.Proxy._get",
                       self.proxy.get_quota_default,
                       method_args=['QUOTA_ID'],
                       expected_args=[quota.QuotaDefault],
@@ -773,7 +773,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_router_update(self):
         self.verify_update(self.proxy.update_router, router.Router)
 
-    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'add_interface')
     def test_add_interface_to_router_with_port(self, mock_add_interface,
                                                mock_get):
@@ -787,7 +787,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                      expected_kwargs={"port_id": "PORT"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
-    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'add_interface')
     def test_add_interface_to_router_with_subnet(self, mock_add_interface,
                                                  mock_get):
@@ -801,7 +801,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                      expected_kwargs={"subnet_id": "SUBNET"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
-    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'remove_interface')
     def test_remove_interface_from_router_with_port(self, mock_remove,
                                                     mock_get):
@@ -815,7 +815,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                      expected_kwargs={"port_id": "PORT"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
-    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'remove_interface')
     def test_remove_interface_from_router_with_subnet(self, mock_remove,
                                                       mock_get):
@@ -829,7 +829,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                      expected_kwargs={"subnet_id": "SUBNET"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
-    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'add_gateway')
     def test_add_gateway_to_router(self, mock_add, mock_get):
         x_router = router.Router.new(id="ROUTER_ID")
@@ -842,7 +842,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                      expected_kwargs={"foo": "bar"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
-    @mock.patch.object(proxy_base.BaseProxy, '_get_resource')
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'remove_gateway')
     def test_remove_gateway_from_router(self, mock_remove, mock_get):
         x_router = router.Router.new(id="ROUTER_ID")

@@ -20,7 +20,7 @@ from openstack.load_balancer.v2 import pool as _pool
 from openstack import proxy
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def create_load_balancer(self, **attrs):
         """Create a new load balancer from attributes

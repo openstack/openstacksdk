@@ -18,7 +18,7 @@ from openstack import proxy
 from openstack import resource
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def create_queue(self, **attrs):
         """Create a new queue from attributes

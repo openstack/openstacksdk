@@ -22,7 +22,7 @@ from openstack.orchestration.v1 import template as _template
 from openstack import proxy
 
 
-class Proxy(proxy.BaseProxy):
+class Proxy(proxy.Proxy):
 
     def create_stack(self, preview=False, **attrs):
         """Create a new stack from attributes
