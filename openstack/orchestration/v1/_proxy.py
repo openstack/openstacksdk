@@ -27,7 +27,7 @@ class Proxy(proxy.BaseProxy):
     def create_stack(self, preview=False, **attrs):
         """Create a new stack from attributes
 
-        :param bool perview: When ``True``, returns
+        :param bool preview: When ``True``, returns
             an :class:`~openstack.orchestration.v1.stack.StackPreview` object,
             otherwise an :class:`~openstack.orchestration.v1.stack.Stack`
             object.
