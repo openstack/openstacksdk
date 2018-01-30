@@ -61,7 +61,7 @@ The Cloud Abstraction layer has a data model.
    model
 
 Connection Interface
-********************
+~~~~~~~~~~~~~~~~~~~~
 
 A *Connection* instance maintains your cloud config, session and authentication
 information providing you with a set of higher-level interfaces to work with
@@ -72,15 +72,23 @@ OpenStack services.
 
    connection
 
-Once you have a *Connection* instance, the following services may be exposed
-to you via the :class:`~openstack.proxy.BaseProxy` interface.
+Once you have a *Connection* instance, services are accessed through instances
+of :class:`~openstack.proxy.BaseProxy` or subclasses of it that exist as
+attributes on the :class:`~openstack.connection.Connection`.
 
 .. autoclass:: openstack.proxy.BaseProxy
    :members:
 
-The combination of your ``CloudRegion`` and the catalog of the cloud
-in question control which services are exposed, but listed below are the ones
-provided by the SDK.
+.. _service-proxies:
+
+Service Proxies
+~~~~~~~~~~~~~~~
+
+The following service proxies exist on the
+:class:`~openstack.connection.Connection`. The service proxies are all always
+present on the :class:`~openstack.connection.Connection` object, but the
+combination of your ``CloudRegion`` and the catalog of the cloud in question
+control which services can be used.
 
 .. toctree::
    :maxdepth: 1
@@ -103,7 +111,7 @@ provided by the SDK.
    Workflow <proxies/workflow>
 
 Resource Interface
-******************
+~~~~~~~~~~~~~~~~~~
 
 The *Resource* layer is a lower-level interface to communicate with OpenStack
 services. While the classes exposed by the *Connection* build a convenience
@@ -132,7 +140,7 @@ The following services have exposed *Resource* classes.
    Workflow <resources/workflow/index>
 
 Low-Level Classes
-*****************
+~~~~~~~~~~~~~~~~~
 
 The following classes are not commonly used by application developers,
 but are used to construct applications to talk to OpenStack APIs. Typically

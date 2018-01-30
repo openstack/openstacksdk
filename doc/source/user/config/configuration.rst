@@ -1,17 +1,19 @@
-===========================================
- Configuring os-client-config Applications
-===========================================
+.. _openstack-config:
+
+========================================
+ Configuring OpenStack SDK Applications
+========================================
 
 .. _config-environment-variables:
 
 Environment Variables
 ---------------------
 
-`os-client-config` honors all of the normal `OS_*` variables. It does not
+`openstacksdk` honors all of the normal `OS_*` variables. It does not
 provide backwards compatibility to service-specific variables such as
 `NOVA_USERNAME`.
 
-If you have OpenStack environment variables set, `os-client-config` will
+If you have OpenStack environment variables set, `openstacksdk` will
 produce a cloud config object named `envvars` containing your values from the
 environment. If you don't like the name `envvars`, that's ok, you can override
 it by setting `OS_CLOUD_NAME`.
@@ -29,7 +31,7 @@ for trove set
 Config Files
 ------------
 
-`os-client-config` will look for a file called `clouds.yaml` in the following
+`openstacksdk` will look for a file called `clouds.yaml` in the following
 locations:
 
 * Current Directory
@@ -58,7 +60,7 @@ Site Specific File Locations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to `~/.config/openstack` and `/etc/openstack` - some platforms
-have other locations they like to put things. `os-client-config` will also
+have other locations they like to put things. `openstacksdk` will also
 look in an OS specific config dir
 
 * `USER_CONFIG_DIR`
@@ -111,7 +113,7 @@ You may note a few things. First, since `auth_url` settings are silly
 and embarrassingly ugly, known cloud vendor profile information is included and
 may be referenced by name. One of the benefits of that is that `auth_url`
 isn't the only thing the vendor defaults contain. For instance, since
-Rackspace lists `rax:database` as the service type for trove, `os-client-config`
+Rackspace lists `rax:database` as the service type for trove, `openstacksdk`
 knows that so that you don't have to. In case the cloud vendor profile is not
 available, you can provide one called `clouds-public.yaml`, following the same
 location rules previously mentioned for the config files.
@@ -129,7 +131,7 @@ Auth Settings
 -------------
 
 Keystone has auth plugins - which means it's not possible to know ahead of time
-which auth settings are needed. `os-client-config` sets the default plugin type
+which auth settings are needed. `openstacksdk` sets the default plugin type
 to `password`, which is what things all were before plugins came about. In
 order to facilitate validation of values, all of the parameters that exist
 as a result of a chosen plugin need to go into the auth dict. For password
@@ -167,7 +169,7 @@ file.
 SSL Settings
 ------------
 
-When the access to a cloud is done via a secure connection, `os-client-config`
+When the access to a cloud is done via a secure connection, `openstacksdk`
 will always verify the SSL cert by default. This can be disabled by setting
 `verify` to `False`. In case the cert is signed by an unknown CA, a specific
 cacert can be provided via `cacert`. **WARNING:** `verify` will always have
@@ -195,7 +197,7 @@ Cache Settings
 --------------
 
 Accessing a cloud is often expensive, so it's quite common to want to do some
-client-side caching of those operations. To facilitate that, `os-client-config`
+client-side caching of those operations. To facilitate that, `openstacksdk`
 understands passing through cache settings to dogpile.cache, with the following
 behaviors:
 
@@ -209,7 +211,7 @@ times on a per-resource basis by passing values, in seconds to an expiration
 mapping keyed on the singular name of the resource. A value of `-1` indicates
 that the resource should never expire.
 
-`os-client-config` does not actually cache anything itself, but it collects
+`openstacksdk` does not actually cache anything itself, but it collects
 and presents the cache information so that your various applications that
 are connecting to OpenStack can share a cache should you desire.
 
