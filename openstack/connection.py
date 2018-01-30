@@ -214,6 +214,10 @@ class Connection(object):
             self.config._keystone_session = session
 
         self.session = self.config.get_session()
+        # Hide a reference to the connection on the session to help with
+        # backwards compatibility for folks trying to just pass conn.session
+        # to a Resource method's session argument.
+        self.session._sdk_connection = self
 
         service_type_manager = os_service_types.ServiceTypes()
         for service in service_type_manager.services:
@@ -253,7 +257,7 @@ class Connection(object):
             service_name=self.config.get_service_name(service_type),
             interface=self.config.get_interface(service_type),
             region_name=self.config.region_name,
-            version=self.config.get_api_version(service_type)
+            version=self.config.get_api_version(service_type),
         )
 
         # Register the proxy class with every known alias
