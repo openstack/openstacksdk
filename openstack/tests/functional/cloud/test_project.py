@@ -73,7 +73,7 @@ class TestProject(base.KeystoneBaseFunctionalTestCase):
 
         new_cloud = self.operator_cloud.connect_as_project(project)
         self.add_info_on_exception(
-            'new_cloud_config', pprint.pformat(new_cloud.cloud_config.config))
+            'new_cloud_config', pprint.pformat(new_cloud.config.config))
         location = new_cloud.current_location
         self.assertEqual(project_name, location['project']['name'])
 

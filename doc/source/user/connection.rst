@@ -11,6 +11,7 @@ Connection Object
 
 .. autoclass:: openstack.connection.Connection
    :members:
+   :inherited-members:
 
 
 Transitioning from Profile

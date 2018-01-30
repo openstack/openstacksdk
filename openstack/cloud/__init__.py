@@ -56,6 +56,8 @@ def openstack_clouds(
 
 def openstack_cloud(
         config=None, strict=False, app_name=None, app_version=None, **kwargs):
+    # Late import while we unwind things
+    from openstack import connection
     if not config:
         config = _get_openstack_config(app_name, app_version)
     try:
@@ -63,4 +65,4 @@ def openstack_cloud(
     except keystoneauth1.exceptions.auth_plugins.NoMatchingPlugin as e:
         raise OpenStackCloudException(
             "Invalid cloud configuration: {exc}".format(exc=str(e)))
-    return OpenStackCloud(cloud_config=cloud_region, strict=strict)
+    return connection.Connection(config=cloud_region, strict=strict)

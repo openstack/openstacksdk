@@ -16,7 +16,7 @@ import os
 
 import openstack.config as occ
 
-import openstack.cloud
+from openstack import connection
 from openstack.tests import base
 
 
@@ -33,19 +33,17 @@ class BaseFunctionalTestCase(base.TestCase):
         self._set_operator_cloud()
 
         self.identity_version = \
-            self.operator_cloud.cloud_config.get_api_version('identity')
+            self.operator_cloud.config.get_api_version('identity')
 
     def _set_user_cloud(self, **kwargs):
         user_config = self.config.get_one(
             cloud=self._demo_name, **kwargs)
-        self.user_cloud = openstack.cloud.OpenStackCloud(
-            cloud_config=user_config)
+        self.user_cloud = connection.Connection(config=user_config)
 
     def _set_operator_cloud(self, **kwargs):
         operator_config = self.config.get_one(
             cloud=self._op_name, **kwargs)
-        self.operator_cloud = openstack.cloud.OpenStackCloud(
-            cloud_config=operator_config)
+        self.operator_cloud = connection.Connection(config=operator_config)
 
     def pick_image(self):
         images = self.user_cloud.list_images()

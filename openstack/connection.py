@@ -211,7 +211,8 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
     return Connection(config=config)
 
 
-class Connection(six.with_metaclass(_meta.ConnectionMeta)):
+class Connection(six.with_metaclass(_meta.ConnectionMeta,
+                                    _cloud.OpenStackCloud)):
 
     def __init__(self, cloud=None, config=None, session=None,
                  app_name=None, app_version=None,
@@ -219,6 +220,8 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta)):
                  # python-openstackclient to not use the profile interface.
                  authenticator=None, profile=None,
                  extra_services=None,
+                 strict=False,
+                 use_direct_get=False,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -305,17 +308,23 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta)):
             # TODO(mordred) Expose constructor option for this in OCC
             self.config._keystone_session = session
 
-        self.session = self.config.get_session()
-        # Hide a reference to the connection on the session to help with
-        # backwards compatibility for folks trying to just pass conn.session
-        # to a Resource method's session argument.
-        self.session._sdk_connection = self
-
+        self._session = None
         self._proxies = {}
-        self.cloud = _cloud.OpenStackCloud(
-            cloud_config=self.config,
-            manager=self.task_manager,
-            conn=self)
+        self.use_direct_get = use_direct_get
+        self.strict_mode = strict
+        # Call the OpenStackCloud constructor while we work on integrating
+        # things better.
+        _cloud.OpenStackCloud.__init__(self)
+
+    @property
+    def session(self):
+        if not self._session:
+            self._session = self.config.get_session()
+            # Hide a reference to the connection on the session to help with
+            # backwards compatibility for folks trying to just pass
+            # conn.session to a Resource method's session argument.
+            self.session._sdk_connection = self
+        return self._session
 
     def add_service(self, service):
         """Add a service to the Connection.

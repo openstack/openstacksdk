@@ -24,6 +24,17 @@ already. For reference, those are:
 * Plumbed Proxy use of Adapter through the Adapter subclass from shade that
   uses the TaskManager to run REST calls.
 * Finish migrating to Resource2 and Proxy2, rename them to Resource and Proxy.
+* Merge OpenStackCloud into Connection. This should result
+  in being able to use the connection interact with the cloud using all three
+  interfaces. For instance:
+
+  .. code-block:: python
+
+    conn = connection.Connection()
+    servers = conn.list_servers()  # High-level resource interface from shade
+    servers = conn.compute.servers()  # SDK Service/Object Interface
+    response = conn.compute.get('/servers')  # REST passthrough
+
 
 Next steps
 ==========
@@ -39,17 +50,6 @@ Next steps
 
 shade integration
 -----------------
-
-* Merge OpenStackCloud into Connection. This should result
-  in being able to use the connection interact with the cloud using all three
-  interfaces. For instance:
-
-  .. code-block:: python
-
-    conn = connection.Connection()
-    servers = conn.list_servers()  # High-level resource interface from shade
-    servers = conn.compute.servers()  # SDK Service/Object Interface
-    response = conn.compute.get('/servers')  # REST passthrough
 
 * Invent some terminology that is clear and makes sense to distinguish between
   the object interface that came originally from python-openstacksdk and the

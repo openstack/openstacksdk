@@ -518,8 +518,8 @@ class Normalizer(object):
             ret['config_drive'] = config_drive
             ret['project_id'] = project_id
             ret['tenant_id'] = project_id
-            ret['region'] = self.region_name
-            ret['cloud'] = self.name
+            ret['region'] = self.config.region_name
+            ret['cloud'] = self.config.name
             ret['az'] = az
             for key, val in ret['properties'].items():
                 ret.setdefault(key, val)

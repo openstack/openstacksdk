@@ -119,10 +119,11 @@ class BaseTestCase(base.TestCase):
             secure_files=['non-existant'])
         self.cloud_config = self.config.get_one(
             cloud=test_cloud, validate=False)
-        self.cloud = openstack.cloud.OpenStackCloud(
-            cloud_config=self.cloud_config)
-        self.strict_cloud = openstack.cloud.OpenStackCloud(
-            cloud_config=self.cloud_config,
+        self.cloud = openstack.connection.Connection(
+            config=self.cloud_config,
+            strict=False)
+        self.strict_cloud = openstack.connection.Connection(
+            config=self.cloud_config,
             strict=True)
 
 
@@ -460,8 +461,7 @@ class RequestsMockTestCase(BaseTestCase):
             cloud=test_cloud, validate=True, **kwargs)
         self.conn = openstack.connection.Connection(
             config=self.cloud_config)
-        self.cloud = openstack.cloud.OpenStackCloud(
-            cloud_config=self.cloud_config)
+        self.cloud = self.conn
 
     def get_glance_discovery_mock_dict(
             self,

@@ -58,7 +58,7 @@ class TestImage(BaseTestImage):
         self.use_glance()
 
     def test_config_v1(self):
-        self.cloud.cloud_config.config['image_api_version'] = '1'
+        self.cloud.config.config['image_api_version'] = '1'
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
@@ -68,7 +68,7 @@ class TestImage(BaseTestImage):
             '1', self.cloud_config.get_api_version('image'))
 
     def test_config_v2(self):
-        self.cloud.cloud_config.config['image_api_version'] = '2'
+        self.cloud.config.config['image_api_version'] = '2'
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
@@ -937,7 +937,7 @@ class TestImageV1Only(base.RequestsMockTestCase):
 
     def test_config_v1(self):
 
-        self.cloud.cloud_config.config['image_api_version'] = '1'
+        self.cloud.config.config['image_api_version'] = '1'
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
@@ -946,7 +946,7 @@ class TestImageV1Only(base.RequestsMockTestCase):
         self.assertTrue(self.cloud._is_client_version('image', 1))
 
     def test_config_v2(self):
-        self.cloud.cloud_config.config['image_api_version'] = '2'
+        self.cloud.config.config['image_api_version'] = '2'
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
@@ -962,7 +962,7 @@ class TestImageV2Only(base.RequestsMockTestCase):
         self.use_glance(image_version_json='image-version-v2.json')
 
     def test_config_v1(self):
-        self.cloud.cloud_config.config['image_api_version'] = '1'
+        self.cloud.config.config['image_api_version'] = '1'
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(
@@ -971,7 +971,7 @@ class TestImageV2Only(base.RequestsMockTestCase):
         self.assertTrue(self.cloud._is_client_version('image', 2))
 
     def test_config_v2(self):
-        self.cloud.cloud_config.config['image_api_version'] = '2'
+        self.cloud.config.config['image_api_version'] = '2'
         # We override the scheme of the endpoint with the scheme of the service
         # because glance has a bug where it doesn't return https properly.
         self.assertEqual(

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    All of the methods formerly part of the ``shade`` library have been added
+    to the `openstack.connection.Connection`` object.
