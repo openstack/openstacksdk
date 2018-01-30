@@ -88,6 +88,30 @@ class TestFlavors(base.RequestsMockTestCase):
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'flavors': fakes.FAKE_FLAVOR_LIST}),
         ]
+        self.register_uris(uris_to_mock)
+
+        flavors = self.cloud.list_flavors()
+
+        # test that new flavor is created correctly
+        found = False
+        for flavor in flavors:
+            if flavor['name'] == 'vanilla':
+                found = True
+                break
+        self.assertTrue(found)
+        needed_keys = {'name', 'ram', 'vcpus', 'id', 'is_public', 'disk'}
+        if found:
+            # check flavor content
+            self.assertTrue(needed_keys.issubset(flavor.keys()))
+        self.assert_calls()
+
+    def test_list_flavors_with_extra(self):
+        uris_to_mock = [
+            dict(method='GET',
+                 uri='{endpoint}/flavors/detail?is_public=None'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'flavors': fakes.FAKE_FLAVOR_LIST}),
+        ]
         uris_to_mock.extend([
             dict(method='GET',
                  uri='{endpoint}/flavors/{id}/os-extra_specs'.format(
@@ -96,7 +120,7 @@ class TestFlavors(base.RequestsMockTestCase):
             for flavor in fakes.FAKE_FLAVOR_LIST])
         self.register_uris(uris_to_mock)
 
-        flavors = self.cloud.list_flavors()
+        flavors = self.cloud.list_flavors(get_extra=True)
 
         # test that new flavor is created correctly
         found = False
@@ -240,6 +264,22 @@ class TestFlavors(base.RequestsMockTestCase):
     def test_get_flavor_by_id(self):
         flavor_uri = '{endpoint}/flavors/1'.format(
             endpoint=fakes.COMPUTE_ENDPOINT)
+        flavor_json = {'flavor': fakes.make_fake_flavor('1', 'vanilla')}
+
+        self.register_uris([
+            dict(method='GET', uri=flavor_uri, json=flavor_json),
+        ])
+
+        flavor1 = self.cloud.get_flavor_by_id('1')
+        self.assertEqual('1', flavor1['id'])
+        self.assertEqual({}, flavor1.extra_specs)
+        flavor2 = self.cloud.get_flavor_by_id('1')
+        self.assertEqual('1', flavor2['id'])
+        self.assertEqual({}, flavor2.extra_specs)
+
+    def test_get_flavor_with_extra_specs(self):
+        flavor_uri = '{endpoint}/flavors/1'.format(
+            endpoint=fakes.COMPUTE_ENDPOINT)
         flavor_extra_uri = '{endpoint}/flavors/1/os-extra_specs'.format(
             endpoint=fakes.COMPUTE_ENDPOINT)
         flavor_json = {'flavor': fakes.make_fake_flavor('1', 'vanilla')}
@@ -250,7 +290,7 @@ class TestFlavors(base.RequestsMockTestCase):
             dict(method='GET', uri=flavor_extra_uri, json=flavor_extra_json),
         ])
 
-        flavor1 = self.cloud.get_flavor_by_id('1')
+        flavor1 = self.cloud.get_flavor_by_id('1', get_extra=True)
         self.assertEqual('1', flavor1['id'])
         self.assertEqual({'name': 'test'}, flavor1.extra_specs)
         flavor2 = self.cloud.get_flavor_by_id('1', get_extra=False)

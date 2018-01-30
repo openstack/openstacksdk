@@ -437,12 +437,6 @@ class TestMemoryCache(base.RequestsMockTestCase):
             dict(method='GET', uri=mock_uri,
                  json={'flavors': fakes.FAKE_FLAVOR_LIST})
         ]
-        uris_to_mock.extend([
-            dict(method='GET',
-                 uri='{endpoint}/flavors/{id}/os-extra_specs'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT, id=flavor['id']),
-                 json={'extra_specs': {}})
-            for flavor in fakes.FAKE_FLAVOR_LIST])
 
         self.register_uris(uris_to_mock)
 

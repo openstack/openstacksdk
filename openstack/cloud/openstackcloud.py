@@ -50,7 +50,6 @@ from openstack.cloud import meta
 from openstack.cloud import _utils
 import openstack.config
 import openstack.config.defaults
-import openstack.connection
 from openstack import task_manager
 from openstack import utils
 
@@ -143,6 +142,7 @@ class OpenStackCloud(_normalize.Normalizer):
             app_name=None,
             app_version=None,
             use_direct_get=False,
+            conn=None,
             **kwargs):
 
         self.log = _log.setup_logging('openstack')
@@ -162,12 +162,6 @@ class OpenStackCloud(_normalize.Normalizer):
         self.secgroup_source = cloud_config.config['secgroup_source']
         self.force_ipv4 = cloud_config.force_ipv4
         self.strict_mode = strict
-        # TODO(shade) The openstack.cloud default for get_flavor_extra_specs
-        #             should be changed and this should be removed completely
-        self._extra_config = cloud_config._openstack_config.get_extra_config(
-            'shade', {
-                'get_flavor_extra_specs': True,
-            })
 
         if manager is not None:
             self.manager = manager
@@ -303,11 +297,14 @@ class OpenStackCloud(_normalize.Normalizer):
             _utils.localhost_supports_ipv6() if not self.force_ipv4 else False)
 
         self.cloud_config = cloud_config
-        self._conn_object = None
+        self._conn_object = conn
 
     @property
     def _conn(self):
         if not self._conn_object:
+            # Importing late to avoid import cycle. If the OpenStackCloud
+            # object comes via Connection, it'll have connection passed in.
+            import openstack.connection
             self._conn_object = openstack.connection.Connection(
                 config=self.cloud_config, session=self._keystone_session)
         return self._conn_object
@@ -1938,7 +1935,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return ret
 
     @_utils.cache_on_arguments()
-    def list_flavors(self, get_extra=None):
+    def list_flavors(self, get_extra=False):
         """List all available flavors.
 
         :param get_extra: Whether or not to fetch extra specs for each flavor.
@@ -1948,8 +1945,6 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: A list of flavor ``munch.Munch``.
 
         """
-        if get_extra is None:
-            get_extra = self._extra_config['get_flavor_extra_specs']
         data = _adapter._json_response(
             self._conn.compute.get(
                 '/flavors/detail', params=dict(is_public='None')),
@@ -2986,7 +2981,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self.search_flavors, get_extra=get_extra)
         return _utils._get_entity(self, search_func, name_or_id, filters)
 
-    def get_flavor_by_id(self, id, get_extra=True):
+    def get_flavor_by_id(self, id, get_extra=False):
         """ Get a flavor by ID
 
         :param id: ID of the flavor.
@@ -3001,9 +2996,6 @@ class OpenStackCloud(_normalize.Normalizer):
         )
         flavor = self._normalize_flavor(
             self._get_and_munchify('flavor', data))
-
-        if get_extra is None:
-            get_extra = self._extra_config['get_flavor_extra_specs']
 
         if not flavor.extra_specs and get_extra:
             endpoint = "/flavors/{id}/os-extra_specs".format(

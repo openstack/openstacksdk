@@ -168,6 +168,7 @@ import six
 
 from openstack import _log
 from openstack import _meta
+from openstack import cloud as _cloud
 from openstack import config as _config
 from openstack.config import cloud_region
 from openstack import exceptions
@@ -311,6 +312,10 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta)):
         self.session._sdk_connection = self
 
         self._proxies = {}
+        self.cloud = _cloud.OpenStackCloud(
+            cloud_config=self.config,
+            manager=self.task_manager,
+            conn=self)
 
     def add_service(self, service):
         """Add a service to the Connection.
