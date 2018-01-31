@@ -13,6 +13,6 @@
 import openstack
 openstack.enable_logging(debug=True)
 
-cloud = openstack.openstack_cloud(cloud='kiss', region_name='region1')
+cloud = openstack.connect(cloud='kiss', region_name='region1')
 print(cloud.has_service('network'))
 print(cloud.has_service('container-orchestration'))

@@ -23,7 +23,7 @@ for cloud_name, region_name, image, flavor_id in [
         ('my-internap', 'ams01', 'Ubuntu 16.04 LTS (Xenial Xerus)',
          'A1.4')]:
     # Initialize cloud
-    cloud = openstack.openstack_cloud(
+    cloud = openstack.connect(
         cloud=cloud_name, region_name=region_name)
 
     # Boot a server, wait for it to boot, and then do whatever is needed

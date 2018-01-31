@@ -65,13 +65,6 @@ and provides different argument defaults where needed for compatibility.
 Similarly future releases of os-client-config will provide a compatibility
 layer shim around ``openstack.config``.
 
-.. note::
-
-  The ``openstack.cloud.OpenStackCloud`` object and the
-  ``openstack.connection.Connection`` object are going to be merged. It is
-  recommended to not write any new code which consumes objects from the
-  ``openstack.cloud`` namespace until that merge is complete.
-
 .. _nodepool: https://docs.openstack.org/infra/nodepool/
 .. _Ansible OpenStack Modules: http://docs.ansible.com/ansible/latest/list_of_cloud_modules.html#openstack
 .. _Session: http://docs.python-requests.org/en/master/user/advanced/#session-objects
@@ -143,20 +136,20 @@ Create a server using objects configured with the ``clouds.yaml`` file:
     # Initialize and turn on debug logging
     openstack.enable_logging(debug=True)
 
-    # Initialize cloud
+    # Initialize connection
     # Cloud configs are read with openstack.config
-    cloud = openstack.cloud.openstack_cloud(cloud='mordred')
+    conn = openstack.connect(cloud='mordred')
 
     # Upload an image to the cloud
-    image = cloud.create_image(
+    image = conn.create_image(
         'ubuntu-trusty', filename='ubuntu-trusty.qcow2', wait=True)
 
     # Find a flavor with at least 512M of RAM
-    flavor = cloud.get_flavor_by_ram(512)
+    flavor = conn.get_flavor_by_ram(512)
 
     # Boot a server, wait for it to boot, and then do whatever is needed
     # to get a public ip for it.
-    cloud.create_server(
+    conn.create_server(
         'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
 
 Links

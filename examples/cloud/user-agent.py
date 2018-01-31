@@ -13,6 +13,6 @@
 import openstack
 openstack.enable_logging(http_debug=True)
 
-cloud = openstack.openstack_cloud(
+cloud = openstack.connect(
     cloud='datacentred', app_name='AmazingApp', app_version='1.0')
 cloud.list_networks()
