@@ -34,6 +34,7 @@ and then returned to the caller.
 import collections
 import itertools
 
+from keystoneauth1 import adapter
 from requests import structures
 
 from openstack import exceptions
@@ -649,6 +650,29 @@ class Resource(object):
         self._header.attributes.update(headers)
         self._header.clean()
 
+    @classmethod
+    def _get_session(cls, session):
+        """Attempt to get an Adapter from a raw session.
+
+        Some older code used conn.session has the session argument to Resource
+        methods. That does not work anymore, as Resource methods expect an
+        Adapter not a session. We've hidden an _sdk_connection on the Session
+        stored on the connection. If we get something that isn't an Adapter,
+        pull the connection from the Session and look up the adapter by
+        service_type.
+        """
+        # TODO(mordred) We'll need to do this for every method in every
+        # Resource class that is calling session.$something to be complete.
+        if isinstance(session, adapter.Adapter):
+            return session
+        if hasattr(session, '_sdk_connection'):
+            service_type = cls.service['service_type']
+            return getattr(session._sdk_connection, service_type)
+        raise ValueError(
+            "The session argument to Resource methods requires either an"
+            " instance of an openstack.proxy.Proxy object or at the very least"
+            " a raw keystoneauth1.adapter.Adapter.")
+
     def create(self, session, prepend_key=True):
         """Create a remote resource based on this instance.
 
@@ -665,6 +689,7 @@ class Resource(object):
         if not self.allow_create:
             raise exceptions.MethodNotSupported(self, "create")
 
+        session = self._get_session(session)
         if self.create_method == 'PUT':
             request = self._prepare_request(requires_id=True,
                                             prepend_key=prepend_key)
@@ -697,6 +722,7 @@ class Resource(object):
             raise exceptions.MethodNotSupported(self, "get")
 
         request = self._prepare_request(requires_id=requires_id)
+        session = self._get_session(session)
         response = session.get(request.url)
         kwargs = {}
         if error_message:
@@ -720,6 +746,7 @@ class Resource(object):
 
         request = self._prepare_request()
 
+        session = self._get_session(session)
         response = session.head(request.url,
                                 headers={"Accept": ""})
 
@@ -750,6 +777,7 @@ class Resource(object):
             raise exceptions.MethodNotSupported(self, "update")
 
         request = self._prepare_request(prepend_key=prepend_key)
+        session = self._get_session(session)
 
         if self.update_method == 'PATCH':
             response = session.patch(
@@ -781,6 +809,7 @@ class Resource(object):
             raise exceptions.MethodNotSupported(self, "delete")
 
         request = self._prepare_request()
+        session = self._get_session(session)
 
         response = session.delete(request.url,
                                   headers={"Accept": ""})
@@ -824,6 +853,7 @@ class Resource(object):
         """
         if not cls.allow_list:
             raise exceptions.MethodNotSupported(cls, "list")
+        session = cls._get_session(session)
 
         expected_params = utils.get_string_format_keys(cls.base_path)
         expected_params += cls._query_mapping._mapping.keys()

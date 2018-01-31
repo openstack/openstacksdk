@@ -12,7 +12,7 @@
 
 import itertools
 
-from keystoneauth1 import session
+from keystoneauth1 import adapter
 import mock
 import requests
 import six
@@ -944,7 +944,7 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request = mock.Mock(return_value=self.request)
         self.sot._translate_response = mock.Mock()
 
-        self.session = mock.Mock(spec=session.Session)
+        self.session = mock.Mock(spec=adapter.Adapter)
         self.session.create = mock.Mock(return_value=self.response)
         self.session.get = mock.Mock(return_value=self.response)
         self.session.put = mock.Mock(return_value=self.response)

@@ -13,6 +13,7 @@
 import json
 import operator
 
+from keystoneauth1 import adapter
 import mock
 import requests
 import testtools
@@ -100,7 +101,7 @@ class TestImage(testtools.TestCase):
         self.resp = mock.Mock()
         self.resp.body = None
         self.resp.json = mock.Mock(return_value=self.resp.body)
-        self.sess = mock.Mock()
+        self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.post = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
