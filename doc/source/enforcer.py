@@ -1,5 +1,4 @@
 import importlib
-import itertools
 import os
 
 from bs4 import BeautifulSoup
@@ -113,7 +112,7 @@ def build_finished(app, exception):
 
     # TEMPORARY: Ignore the wait_for names when determining what is missing.
     app.info("ENFORCER: Ignoring wait_for_* names...")
-    missing = set(itertools.filterfalse(is_ignored, missing))
+    missing = set(x for x in missing if not is_ignored(x))
 
     missing_count = len(missing)
     app.info("ENFORCER: Found %d missing proxy methods "
