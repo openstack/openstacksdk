@@ -17,7 +17,6 @@ __all__ = [
 ]
 
 import importlib
-import warnings
 
 import os_service_types
 
@@ -26,26 +25,6 @@ from openstack import proxy
 
 _logger = _log.setup_logging('openstack')
 _service_type_manager = os_service_types.ServiceTypes()
-
-
-def _get_all_types(service_type, aliases=None):
-    # We make connection attributes for all official real type names
-    # and aliases. Three services have names they were called by in
-    # openstacksdk that are not covered by Service Types Authority aliases.
-    # Include them here - but take heed, no additional values should ever
-    # be added to this list.
-    # that were only used in openstacksdk resource naming.
-    LOCAL_ALIASES = {
-        'baremetal': 'bare_metal',
-        'block_storage': 'block_store',
-        'clustering': 'cluster',
-    }
-    all_types = set(_service_type_manager.get_all_types(service_type))
-    if aliases:
-        all_types.update(aliases)
-    if service_type in LOCAL_ALIASES:
-        all_types.add(LOCAL_ALIASES[service_type])
-    return all_types
 
 
 class ServiceDescription(object):
@@ -85,11 +64,13 @@ class ServiceDescription(object):
             Optional list of aliases, if there is more than one name that might
             be used to register the service in the catalog.
         """
-        self.service_type = service_type
+        self.service_type = service_type or self.service_type
         self.proxy_class = proxy_class or self.proxy_class
-        self.all_types = _get_all_types(service_type, aliases)
-
-        self._validate_proxy_class()
+        if self.proxy_class:
+            self._validate_proxy_class()
+        self.aliases = aliases or self.aliases
+        self.all_types = [service_type] + self.aliases
+        self._proxy = None
 
     def _validate_proxy_class(self):
         if not issubclass(self.proxy_class, proxy.BaseProxy):
@@ -98,10 +79,36 @@ class ServiceDescription(object):
                     module=self.proxy_class.__module__,
                     proxy_class=self.proxy_class.__name__))
 
+    def get_proxy_class(self, config):
+        return self.proxy_class
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        if self.service_type not in instance._proxies:
+            config = instance.config
+            proxy_class = self.get_proxy_class(config)
+            instance._proxies[self.service_type] = proxy_class(
+                session=instance.config.get_session(),
+                task_manager=instance.task_manager,
+                allow_version_hack=True,
+                service_type=config.get_service_type(self.service_type),
+                service_name=config.get_service_name(self.service_type),
+                interface=config.get_interface(self.service_type),
+                region_name=config.region_name,
+                version=config.get_api_version(self.service_type)
+            )
+        return instance._proxies[self.service_type]
+
+    def __set__(self, instance, value):
+        raise AttributeError('Service Descriptors cannot be set')
+
+    def __delete__(self, instance):
+        raise AttributeError('Service Descriptors cannot be deleted')
+
 
 class OpenStackServiceDescription(ServiceDescription):
-
-    def __init__(self, service, config):
+    def __init__(self, service_filter_class, *args, **kwargs):
         """Official OpenStack ServiceDescription.
 
         The OpenStackServiceDescription class is a helper class for
@@ -111,57 +118,19 @@ class OpenStackServiceDescription(ServiceDescription):
         It finds the proxy_class by looking in the openstacksdk tree for
         appropriately named modules.
 
-        :param dict service:
-            A service dict as found in `os_service_types.ServiceTypes.services`
-        :param openstack.config.cloud_region.CloudRegion config:
-            ConfigRegion for the connection.
+        :param service_filter_class:
+            A subclass of :class:`~openstack.service_filter.ServiceFilter`
         """
-        super(OpenStackServiceDescription, self).__init__(
-            service['service_type'])
-        self.config = config
-        service_filter = self._get_service_filter()
-        if service_filter:
-            module_name = service_filter.get_module() + "._proxy"
-            module = importlib.import_module(module_name)
-            self.proxy_class = getattr(module, "Proxy")
+        super(OpenStackServiceDescription, self).__init__(*args, **kwargs)
+        self._service_filter_class = service_filter_class
 
-    def _get_service_filter(self):
-        service_filter_class = None
-        for service_type in self.all_types:
-            service_filter_class = self._find_service_filter_class()
-            if service_filter_class:
-                break
-        if not service_filter_class:
-            return None
+    def get_proxy_class(self, config):
         # TODO(mordred) Replace this with proper discovery
-        version_string = self.config.get_api_version(self.service_type)
+        version_string = config.get_api_version(self.service_type)
         version = None
         if version_string:
             version = 'v{version}'.format(version=version_string[0])
-        return service_filter_class(version=version)
-
-    def _find_service_filter_class(self):
-        package_name = 'openstack.{service_type}'.format(
-            service_type=self.service_type).replace('-', '_')
-        module_name = self.service_type.replace('-', '_') + '_service'
-        class_name = ''.join(
-            [part.capitalize() for part in module_name.split('_')])
-        try:
-            import_name = '.'.join([package_name, module_name])
-            service_filter_module = importlib.import_module(import_name)
-        except ImportError as e:
-            # ImportWarning is ignored by default. This warning is here
-            # as an opt-in for people trying to figure out why something
-            # didn't work.
-            warnings.warn(
-                "Could not import {service_type} service filter: {e}".format(
-                    service_type=self.service_type, e=str(e)),
-                ImportWarning)
-            return None
-        service_filter_class = getattr(service_filter_module, class_name, None)
-        if not service_filter_class:
-            _logger.warn(
-                'Unable to find class %s in module for service %s',
-                class_name, self.service_type)
-            return None
-        return service_filter_class
+        service_filter = self._service_filter_class(version=version)
+        module_name = service_filter.get_module() + "._proxy"
+        module = importlib.import_module(module_name)
+        return getattr(module, "Proxy")
