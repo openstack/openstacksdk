@@ -497,6 +497,22 @@ class Proxy(proxy.BaseProxy):
         # TODO(briancurtin): This is paginated but requires base list changes.
         return self._list(_project.Project, paginated=False, **query)
 
+    def user_projects(self, user, **query):
+        """Retrieve a generator of projects to which the user has authorization
+           to access.
+
+        :param user: Either the user id or an instance of
+                     :class:`~openstack.identity.v3.user.User`
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of project instances.
+        :rtype: :class:`~openstack.identity.v3.project.UserProject`
+        """
+        user = self._get_resource(_user.User, user)
+        return self._list(_project.UserProject, paginated=True,
+                          user_id=user.id, **query)
+
     def update_project(self, project, **attrs):
         """Update a project
 

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 from openstack.identity.v3 import _proxy
 from openstack.identity.v3 import credential
 from openstack.identity.v3 import domain
@@ -23,6 +25,8 @@ from openstack.identity.v3 import service
 from openstack.identity.v3 import trust
 from openstack.identity.v3 import user
 from openstack.tests.unit import test_proxy_base
+
+USER_ID = 'user-id-' + uuid.uuid4().hex
 
 
 class TestIdentityProxy(test_proxy_base.TestProxyBase):
@@ -159,6 +163,15 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
 
     def test_projects(self):
         self.verify_list(self.proxy.projects, project.Project, paginated=False)
+
+    def test_user_projects(self):
+        self.verify_list(
+            self.proxy.user_projects,
+            project.UserProject,
+            paginated=True,
+            method_kwargs={'user': USER_ID},
+            expected_kwargs={'user_id': USER_ID}
+        )
 
     def test_project_update(self):
         self.verify_update(self.proxy.update_project, project.Project)

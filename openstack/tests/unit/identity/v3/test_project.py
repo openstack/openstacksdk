@@ -62,3 +62,18 @@ class TestProject(testtools.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['parent_id'], sot.parent_id)
+
+
+class TestUserProject(testtools.TestCase):
+
+    def test_basic(self):
+        sot = project.UserProject()
+        self.assertEqual('project', sot.resource_key)
+        self.assertEqual('projects', sot.resources_key)
+        self.assertEqual('/users/%(user_id)s/projects', sot.base_path)
+        self.assertEqual('identity', sot.service.service_type)
+        self.assertFalse(sot.allow_create)
+        self.assertFalse(sot.allow_get)
+        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_list)

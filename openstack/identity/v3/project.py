@@ -113,3 +113,17 @@ class Project(resource.Resource):
         if resp.status_code == 204:
             return True
         return False
+
+
+class UserProject(Project):
+    resource_key = 'project'
+    resources_key = 'projects'
+    base_path = '/users/%(user_id)s/projects'
+    service = identity_service.IdentityService()
+
+    # capabilities
+    allow_create = False
+    allow_get = False
+    allow_update = False
+    allow_delete = False
+    allow_list = True
