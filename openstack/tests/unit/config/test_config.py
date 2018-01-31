@@ -743,6 +743,36 @@ class TestConfigArgparse(base.TestCase):
             },
             ansible_options)
 
+    def test_get_client_config(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+
+        cc = c.get_one(
+            cloud='_test_cloud_regions')
+
+        defaults = {
+            'use_hostnames': False,
+            'other-value': 'something',
+            'force_ipv4': False,
+        }
+        ansible_options = cc.get_client_config('ansible', defaults)
+
+        # This should show that the default for use_hostnames and force_ipv4
+        # above is overridden by the value in the config file defined in
+        # base.py
+        # It should also show that other-value key is normalized and passed
+        # through even though there is no corresponding value in the config
+        # file, and that expand-hostvars key is normalized and the value
+        # from the config comes through even though there is no default.
+        self.assertDictEqual(
+            {
+                'expand_hostvars': False,
+                'use_hostnames': True,
+                'other_value': 'something',
+                'force_ipv4': True,
+            },
+            ansible_options)
+
     def test_register_argparse_cloud(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])

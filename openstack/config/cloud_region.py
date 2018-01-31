@@ -441,3 +441,25 @@ class CloudRegion(object):
             if net.get('nat_source'):
                 return net['name']
         return None
+
+    def get_client_config(self, name=None, defaults=None):
+        """Get config settings for a named client.
+
+        Settings will also be looked for in a section called 'client'.
+        If settings are found in both, they will be merged with the settings
+        from the named section winning over the settings from client section,
+        and both winning over provided defaults.
+
+        :param string name:
+            Name of the config section to look for.
+        :param dict defaults:
+            Default settings to use.
+
+        :returns:
+            A dict containing merged settings from the named section, the
+            client section and the defaults.
+        """
+        if not self._openstack_config:
+            return defaults or {}
+        return self._openstack_config.get_extra_config(
+            name, self._openstack_config.get_extra_config('client', defaults))

@@ -327,10 +327,11 @@ class OpenStackConfig(object):
         :param dict defaults: (optional) default values to merge under the
                                          found config
         """
-        if not defaults:
-            defaults = {}
+        defaults = self._normalize_keys(defaults or {})
+        if not key:
+            return defaults
         return _merge_clouds(
-            self._normalize_keys(defaults),
+            defaults,
             self._normalize_keys(self.cloud_config.get(key, {})))
 
     def _load_config_file(self):
