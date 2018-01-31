@@ -24,8 +24,8 @@ import yaml
 from openstack import config
 from openstack.config import cloud_region
 from openstack.config import defaults
-from openstack.config import exceptions
 from openstack.config import loader
+from openstack import exceptions
 from openstack.tests.unit.config import base
 
 
@@ -194,7 +194,7 @@ class TestConfig(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         self.assertRaises(
-            exceptions.OpenStackConfigException, c.get_one, 'envvars')
+            exceptions.ConfigException, c.get_one, 'envvars')
 
     def test_fallthrough(self):
         c = config.OpenStackConfig(config_files=[self.no_yaml],
@@ -388,7 +388,7 @@ class TestConfig(base.TestCase):
                                    vendor_files=[self.vendor_yaml],
                                    secure_files=[self.no_yaml])
         self.assertRaises(
-            exceptions.OpenStackConfigException, c._get_region,
+            exceptions.ConfigException, c._get_region,
             cloud='_test_cloud_regions', region_name='invalid-region')
 
     def test_get_region_no_cloud(self):
@@ -481,7 +481,7 @@ class TestConfigArgparse(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
 
         self.assertRaises(
-            exceptions.OpenStackConfigException, c.get_one,
+            exceptions.ConfigException, c.get_one,
             cloud='_test-cloud_', argparse=self.options)
 
     def test_get_one_argparse(self):
@@ -640,7 +640,7 @@ class TestConfigArgparse(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
 
         self.assertRaises(
-            exceptions.OpenStackConfigException,
+            exceptions.ConfigException,
             c.get_one,
             cloud='_test_cloud_regions', region_name='bad')
 
@@ -648,7 +648,7 @@ class TestConfigArgparse(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         self.assertRaises(
-            exceptions.OpenStackConfigException,
+            exceptions.ConfigException,
             c.get_one,
             cloud='_test-cloud_', region_name='bad_region')
 
@@ -686,7 +686,7 @@ class TestConfigArgparse(base.TestCase):
         c = config.OpenStackConfig(load_yaml_config=False)
 
         self.assertRaises(
-            exceptions.OpenStackConfigException,
+            exceptions.ConfigException,
             c.get_one,
             cloud='_test_cloud_regions', region_name='region2', argparse=None)
 
@@ -828,7 +828,7 @@ class TestConfigArgparse(base.TestCase):
             '--os-username', 'user1', '--os-password', 'pass1',
             '--os-auth-url', 'auth-url', '--os-project-name', 'project']
         self.assertRaises(
-            exceptions.OpenStackConfigException,
+            exceptions.ConfigException,
             c.register_argparse_arguments,
             parser=parser, argv=argv)
 
@@ -837,7 +837,7 @@ class TestConfigArgparse(base.TestCase):
                                    vendor_files=[self.vendor_yaml])
         parser = argparse.ArgumentParser()
         self.assertRaises(
-            exceptions.OpenStackConfigException,
+            exceptions.ConfigException,
             c.register_argparse_arguments,
             parser, ['--os-auth-type', 'foo'])
 
@@ -1068,7 +1068,7 @@ class TestBackwardsCompatibility(base.TestCase):
             ]
         }
         self.assertRaises(
-            exceptions.OpenStackConfigException,
+            exceptions.ConfigException,
             c._fix_backwards_networks, cloud)
 
     def test_backwards_network(self):
@@ -1121,5 +1121,5 @@ class TestBackwardsCompatibility(base.TestCase):
             ]
         }
         self.assertRaises(
-            exceptions.OpenStackConfigException,
+            exceptions.ConfigException,
             c._fix_backwards_networks, cloud)

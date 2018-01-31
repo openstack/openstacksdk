@@ -15,7 +15,7 @@
 
 from openstack import config
 from openstack.config import cloud_region
-from openstack.config import exceptions
+from openstack import exceptions
 from openstack.tests.unit.config import base
 
 import fixtures
@@ -45,7 +45,7 @@ class TestEnviron(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         self.assertRaises(
-            exceptions.OpenStackConfigException, c.get_one, 'openstack')
+            exceptions.ConfigException, c.get_one, 'openstack')
 
     def test_envvar_name_override(self):
         self.useFixture(
@@ -127,7 +127,7 @@ class TestEnvvars(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         self.assertRaises(
-            exceptions.OpenStackConfigException, c.get_one, 'envvars')
+            exceptions.ConfigException, c.get_one, 'envvars')
 
     def test_test_envvars(self):
         self.useFixture(
@@ -137,7 +137,7 @@ class TestEnvvars(base.TestCase):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
         self.assertRaises(
-            exceptions.OpenStackConfigException, c.get_one, 'envvars')
+            exceptions.ConfigException, c.get_one, 'envvars')
 
     def test_incomplete_envvars(self):
         self.useFixture(

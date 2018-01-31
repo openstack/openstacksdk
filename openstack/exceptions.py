@@ -209,3 +209,7 @@ def raise_from_response(response, error_message=None):
 class ArgumentDeprecationWarning(Warning):
     """A deprecated argument has been provided."""
     pass
+
+
+class ConfigException(SDKException):
+    """Something went wrong with parsing your OpenStack Config."""

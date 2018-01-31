@@ -19,7 +19,7 @@ import mock
 from openstack import version as openstack_version
 from openstack.config import cloud_region
 from openstack.config import defaults
-from openstack.config import exceptions
+from openstack import exceptions
 from openstack.tests.unit.config import base
 
 
@@ -177,7 +177,7 @@ class TestCloudRegion(base.TestCase):
         config_dict.update(fake_services_dict)
         cc = cloud_region.CloudRegion("test1", "region-al", config_dict)
         self.assertRaises(
-            exceptions.OpenStackConfigException,
+            exceptions.ConfigException,
             cc.get_session)
 
     @mock.patch.object(ksa_session, 'Session')

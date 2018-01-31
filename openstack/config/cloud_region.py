@@ -24,7 +24,7 @@ from six.moves import urllib
 from openstack import version as openstack_version
 from openstack import _log
 from openstack.config import defaults as config_defaults
-from openstack.config import exceptions
+from openstack import exceptions
 
 
 def _make_key(key, service_type):
@@ -208,7 +208,7 @@ class CloudRegion(object):
         """Return a keystoneauth session based on the auth credentials."""
         if self._keystone_session is None:
             if not self._auth:
-                raise exceptions.OpenStackConfigException(
+                raise exceptions.ConfigException(
                     "Problem with auth parameters")
             (verify, cert) = self.get_requests_verify_args()
             # Turn off urllib3 warnings about insecure certs if we have

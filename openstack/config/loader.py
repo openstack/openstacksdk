@@ -31,8 +31,8 @@ import yaml
 from openstack import _log
 from openstack.config import cloud_region
 from openstack.config import defaults
-from openstack.config import exceptions
 from openstack.config import vendors
+from openstack import exceptions
 
 APPDIRS = appdirs.AppDirs('openstack', 'OpenStack', multipath='/etc')
 CONFIG_HOME = APPDIRS.user_config_dir
@@ -168,7 +168,7 @@ def _fix_argv(argv):
         if len(old) > 1:
             overlap.extend(old)
     if overlap:
-        raise exceptions.OpenStackConfigException(
+        raise exceptions.ConfigException(
             "The following options were given: '{options}' which contain"
             " duplicates except that one has _ and one has -. There is"
             " no sane way for us to know what you're doing. Remove the"
@@ -251,7 +251,7 @@ class OpenStackConfig(object):
         # Next, process environment variables and add them to the mix
         self.envvar_key = self._get_envvar('OS_CLOUD_NAME', 'envvars')
         if self.envvar_key in self.cloud_config['clouds']:
-            raise exceptions.OpenStackConfigException(
+            raise exceptions.ConfigException(
                 '"{0}" defines a cloud named "{1}", but'
                 ' OS_CLOUD_NAME is also set to "{1}". Please rename'
                 ' either your environment based cloud, or one of your'
@@ -459,7 +459,7 @@ class OpenStackConfig(object):
             if region['name'] == region_name:
                 return region
 
-        raise exceptions.OpenStackConfigException(
+        raise exceptions.ConfigException(
             'Region {region_name} is not a valid region name for cloud'
             ' {cloud}. Valid choices are {region_list}. Please note that'
             ' region names are case sensitive.'.format(
@@ -475,7 +475,7 @@ class OpenStackConfig(object):
 
         # Only validate cloud name if one was given
         if name and name not in self.cloud_config['clouds']:
-            raise exceptions.OpenStackConfigException(
+            raise exceptions.ConfigException(
                 "Cloud {name} was not found.".format(
                     name=name))
 
@@ -517,7 +517,7 @@ class OpenStackConfig(object):
                             "{profile_name} is deprecated: {message}".format(
                                 profile_name=profile_name, message=message))
                     elif status == 'shutdown':
-                        raise exceptions.OpenStackConfigException(
+                        raise exceptions.ConfigException(
                             "{profile_name} references a cloud that no longer"
                             " exists: {message}".format(
                                 profile_name=profile_name, message=message))
@@ -537,7 +537,7 @@ class OpenStackConfig(object):
         value = None
         for net in networks:
             if value and net[key]:
-                raise exceptions.OpenStackConfigException(
+                raise exceptions.ConfigException(
                     "Duplicate network entries for {key}: {net1} and {net2}."
                     " Only one network can be flagged with {key}".format(
                         key=key,
@@ -554,7 +554,7 @@ class OpenStackConfig(object):
         for net in cloud.get('networks', []):
             name = net.get('name')
             if not name:
-                raise exceptions.OpenStackConfigException(
+                raise exceptions.ConfigException(
                     'Entry in network list is missing required field "name".')
             network = dict(
                 name=name,
@@ -576,7 +576,7 @@ class OpenStackConfig(object):
         for key in ('external_network', 'internal_network'):
             external = key.startswith('external')
             if key in cloud and 'networks' in cloud:
-                raise exceptions.OpenStackConfigException(
+                raise exceptions.ConfigException(
                     "Both {key} and networks were specified in the config."
                     " Please remove {key} from the config and use the network"
                     " list to configure network behavior.".format(key=key))
@@ -691,8 +691,7 @@ class OpenStackConfig(object):
                                     as the default value for service_type
                                     (optional)
 
-        :raises exceptions.OpenStackConfigException if an invalid auth-type
-                                                    is requested
+        :raises exceptions.ConfigException if an invalid auth-type is requested
         """
 
         if service_keys is None:
@@ -750,7 +749,7 @@ class OpenStackConfig(object):
             # from it doesn't actually make sense to os-client-config users
             options, _args = parser.parse_known_args(argv)
             plugin_names = loading.get_available_plugin_names()
-            raise exceptions.OpenStackConfigException(
+            raise exceptions.ConfigException(
                 "An invalid auth-type was specified: {auth_type}."
                 " Valid choices are: {plugin_names}.".format(
                     auth_type=options.os_auth_type,
