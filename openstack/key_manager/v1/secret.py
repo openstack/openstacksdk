@@ -79,7 +79,7 @@ class Secret(resource.Resource):
     #: (required if payload is encoded)
     payload_content_encoding = resource.Body('payload_content_encoding')
 
-    def get(self, session, requires_id=True):
+    def get(self, session, requires_id=True, error_message=None):
         request = self._prepare_request(requires_id=requires_id)
 
         response = session.get(request.url).json()

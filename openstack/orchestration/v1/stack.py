@@ -96,8 +96,9 @@ class Stack(resource.Resource):
     def check(self, session):
         return self._action(session, {'check': ''})
 
-    def get(self, session, requires_id=True):
-        stk = super(Stack, self).get(session, requires_id=requires_id)
+    def get(self, session, requires_id=True, error_message=None):
+        stk = super(Stack, self).get(session, requires_id=requires_id,
+                                     error_message=error_message)
         if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
             raise exceptions.NotFoundException(
                 "No stack found for %s" % stk.id)
