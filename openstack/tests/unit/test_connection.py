@@ -78,8 +78,11 @@ class TestConnection(base.RequestsMockTestCase):
 
     def test_session_provided(self):
         mock_session = mock.Mock(spec=session.Session)
+        mock_session.auth = mock.Mock()
+        mock_session.auth.auth_url = 'https://auth.example.com'
         conn = connection.Connection(session=mock_session, cert='cert')
         self.assertEqual(mock_session, conn.session)
+        self.assertEqual('auth.example.com', conn.config.name)
 
     def test_create_session(self):
         conn = connection.Connection(cloud='sample')

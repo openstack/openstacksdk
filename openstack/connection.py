@@ -12,67 +12,148 @@
 
 """
 The :class:`~openstack.connection.Connection` class is the primary interface
-to the Python SDK it maintains a context for a connection to a cloud provider.
-The connection has an attribute to access each supported service.
-
-Examples
---------
+to the Python SDK. It maintains a context for a connection to a region of
+a cloud provider. The :class:`~openstack.connection.Connection` has an
+attribute to access each OpenStack service.
 
 At a minimum, the :class:`~openstack.connection.Connection` class needs to be
 created with a config or the parameters to build one.
 
-Create a connection
-~~~~~~~~~~~~~~~~~~~
+While the overall system is very flexible, there are four main use cases
+for different ways to create a :class:`~openstack.connection.Connection`.
 
-The preferred way to create a connection is to manage named configuration
-settings in your clouds.yaml file and refer to them by name.::
+* Using config settings and keyword arguments as described in
+  :ref:`openstack-config`
+* Using only keyword arguments passed to the constructor ignoring config files
+  and environment variables.
+* Using an existing authenticated `keystoneauth1.session.Session`, such as
+  might exist inside of an OpenStack service operational context.
+* Using an existing :class:`~openstack.config.cloud_region.CloudRegion`.
+
+Using config settings
+---------------------
+
+For users who want to create a :class:`~openstack.connection.Connection` making
+use of named clouds in ``clouds.yaml`` files, ``OS_`` environment variables
+and python keyword arguments, the :func:`openstack.connect` factory function
+is the recommended way to go:
+
+.. code-block:: python
+
+    import openstack
+
+    conn = openstack.connect(cloud='example', region_name='earth1')
+
+If the application in question is a command line application that should also
+accept command line arguments, an `argparse.Namespace` can be passed to
+:func:`openstack.connect` that will have relevant arguments added to it and
+then subsequently consumed by the construtor:
+
+.. code-block:: python
+
+    import argparse
+    import openstack
+
+    options = argparse.ArgumentParser(description='Awesome OpenStack App')
+    conn = openstack.connect(options=options)
+
+Using Only Keyword Arguments
+----------------------------
+
+If the application wants to avoid loading any settings from ``clouds.yaml`` or
+environment variables, use the :class:`~openstack.connection.Connection`
+constructor directly. As long as the ``cloud`` argument is omitted or ``None``,
+the :class:`~openstack.connection.Connection` constructor will not load
+settings from files or the environment.
+
+.. note::
+
+    This is a different default behavior than the :func:`~openstack.connect`
+    factory function. In :func:`~openstack.connect` if ``cloud`` is omitted
+    or ``None``, a default cloud will be loaded, defaulting to the ``envvars``
+    cloud if it exists.
+
+.. code-block:: python
 
     from openstack import connection
 
-    conn = connection.Connection(cloud='example', region_name='earth1')
+    conn = connection.Connection(
+        region_name='example-region',
+        auth=dict(
+            auth_url='https://auth.example.com',
+            username='amazing-user',
+            password='super-secret-password',
+            project_id='33aa1afc-03fe-43b8-8201-4e0d3b4b8ab5',
+            user_domain_id='054abd68-9ad9-418b-96d3-3437bb376703'),
+        compute_api_version='2',
+        identity_interface='internal')
+
+Per-service settings as needed by `keystoneauth1.adapter.Adapter` such as
+``api_version``, ``service_name``, and ``interface`` can be set, as seen
+above, by prefixing them with the official ``service-type`` name of the
+service. ``region_name`` is a setting for the entire
+:class:`~openstack.config.cloud_region.CloudRegion` and cannot be set per
+service.
+
+From existing authenticated Session
+-----------------------------------
+
+For applications that already have an authenticated Session, simply passing
+it to the :class:`~openstack.connection.Connection` constructor is all that
+is needed:
+
+.. code-block:: python
+
+    from openstack import connection
+
+    conn = connection.Connection(
+        session=session,
+        region_name='example-region',
+        compute_api_version='2',
+        identity_interface='internal')
+
+From existing CloudRegion
+-------------------------
 
 If you already have an :class:`~openstack.config.cloud_region.CloudRegion`
-you can pass it in instead.::
+you can pass it in instead:
+
+.. code-block:: python
 
     from openstack import connection
     import openstack.config
 
-    config = openstack.config.OpenStackConfig.get_one(
+    config = openstack.config.get_cloud_region(
         cloud='example', region_name='earth')
     conn = connection.Connection(config=config)
 
-It's also possible to pass in parameters directly if needed. The following
-example constructor uses the default identity password auth
-plugin and provides a username and password.::
+Using the Connection
+--------------------
 
-    from openstack import connection
-    auth_args = {
-        'auth_url': 'http://172.20.1.108:5000/v3',
-        'project_name': 'admin',
-        'user_domain_name': 'default',
-        'project_domain_name': 'default',
-        'username': 'admin',
-        'password': 'admin',
-    }
-    conn = connection.Connection(**auth_args)
+Services are accessed through an attribute named after the service's official
+service-type.
 
 List
 ~~~~
 
-Services are accessed through an attribute named after the service's official
-service-type. A list of all the projects is retrieved in this manner::
+An iterator containing a list of all the projects is retrieved in this manner:
 
-    projects = [project for project in conn.identity.projects()]
+.. code-block:: python
+
+    projects = conn.identity.projects()
 
 Find or create
 ~~~~~~~~~~~~~~
+
 If you wanted to make sure you had a network named 'zuul', you would first
 try to find it and if that fails, you would create it::
 
     network = conn.network.find_network("zuul")
     if network is None:
-        network = conn.network.create_network({"name": "zuul"})
+        network = conn.network.create_network(name="zuul")
 
+Additional information about the services can be found in the
+:ref:`service-proxies` documentation.
 """
 __all__ = [
     'from_config',
@@ -88,6 +169,7 @@ import six
 from openstack import _log
 from openstack import _meta
 from openstack import config as _config
+from openstack.config import cloud_region
 from openstack import exceptions
 from openstack import service_description
 from openstack import task_manager
@@ -119,11 +201,11 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
     :rtype: :class:`~openstack.connection.Connection`
     """
     # TODO(mordred) Backwards compat while we transition
-    cloud = cloud or kwargs.get('cloud_name')
-    config = config or kwargs.get('cloud_config')
+    cloud = kwargs.pop('cloud_name', cloud)
+    config = kwargs.pop('cloud_config', config)
     if config is None:
         config = _config.OpenStackConfig().get_one(
-            cloud=cloud, argparse=options)
+            cloud=cloud, argparse=options, **kwargs)
 
     return Connection(config=config)
 
@@ -167,11 +249,12 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta)):
             User Agent.
         :param authenticator: DEPRECATED. Only exists for short-term backwards
                               compatibility for python-openstackclient while we
-                              transition. See `Transition from Profile`_ for
-                              details.
+                              transition. See :doc:`transition_from_profile`
+                              for details.
         :param profile: DEPRECATED. Only exists for short-term backwards
                         compatibility for python-openstackclient while we
-                        transition. See `Transition from Profile`_ for details.
+                        transition. See :doc:`transition_from_profile`
+                        for details.
         :param extra_services: List of
             :class:`~openstack.service_description.ServiceDescription`
             objects describing services that openstacksdk otherwise does not
@@ -193,12 +276,20 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta)):
                 # python-openstackclient to not use the profile interface.
                 self.config = openstack.profile._get_config_from_profile(
                     profile, authenticator, **kwargs)
-            else:
-                openstack_config = _config.OpenStackConfig(
+            elif session:
+                self.config = cloud_region.from_session(
+                    session=session,
                     app_name=app_name, app_version=app_version,
-                    load_yaml_config=profile is None)
-                self.config = openstack_config.get_one(
-                    cloud=cloud, validate=session is None, **kwargs)
+                    load_yaml_config=False,
+                    load_envvars=False,
+                    **kwargs)
+            else:
+                self.config = _config.get_cloud_region(
+                    cloud=cloud,
+                    app_name=app_name, app_version=app_version,
+                    load_yaml_config=cloud is not None,
+                    load_envvars=cloud is not None,
+                    **kwargs)
 
         if self.config.name:
             tm_name = ':'.join([
