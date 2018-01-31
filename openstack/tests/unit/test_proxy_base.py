@@ -141,6 +141,13 @@ class TestProxyBase(base.TestCase):
                       expected_args=expected_args,
                       expected_kwargs=expected_kwargs)
 
+    def verify_get_overrided(self, proxy, resource_type, patch_target):
+        with mock.patch(patch_target, autospec=True) as res:
+            proxy._get_resource = mock.Mock(return_value=res)
+            proxy._get(resource_type)
+            res.get.assert_called_once_with(proxy, requires_id=True,
+                                            error_message=mock.ANY)
+
     def verify_head(self, test_method, resource_type,
                     mock_method="openstack.proxy.BaseProxy._head",
                     value=None, **kwargs):
