@@ -231,8 +231,31 @@ class QueryParameters(object):
         self._mapping = {"limit": "limit", "marker": "marker"}
         self._mapping.update(dict({name: name for name in names}, **mappings))
 
+    def _validate(self, query, base_path=None):
+        """Check that supplied query keys match known query mappings
+
+        :param dict query: Collection of key-value pairs where each key is the
+                           client-side parameter name or server side name.
+        :param base_path: Formatted python string of the base url path for
+                          the resource.
+        """
+        expected_params = list(self._mapping.keys())
+        expected_params += self._mapping.values()
+
+        if base_path:
+            expected_params += utils.get_string_format_keys(base_path)
+
+        invalid_keys = set(query.keys()) - set(expected_params)
+        if invalid_keys:
+            raise exceptions.InvalidResourceQuery(
+                message="Invalid query params: %s" % ",".join(invalid_keys),
+                extra_data=invalid_keys)
+
     def _transpose(self, query):
         """Transpose the keys in query based on the mapping
+
+        If a query is supplied with its server side name, we will still use
+        it, but take preference to the client-side name when both are supplied.
 
         :param dict query: Collection of key-value pairs where each key is the
                            client-side parameter name to be transposed to its
@@ -242,6 +265,8 @@ class QueryParameters(object):
         for key, value in self._mapping.items():
             if key in query:
                 result[value] = query[key]
+            elif value in query:
+                result[value] = query[value]
         return result
 
 
@@ -855,15 +880,7 @@ class Resource(object):
             raise exceptions.MethodNotSupported(cls, "list")
         session = cls._get_session(session)
 
-        expected_params = utils.get_string_format_keys(cls.base_path)
-        expected_params += cls._query_mapping._mapping.keys()
-
-        invalid_keys = set(params.keys()) - set(expected_params)
-        if invalid_keys:
-            raise exceptions.InvalidResourceQuery(
-                message="Invalid query params: %s" % ",".join(invalid_keys),
-                extra_data=invalid_keys)
-
+        cls._query_mapping._validate(params, base_path=cls.base_path)
         query_params = cls._query_mapping._transpose(params)
         uri = cls.base_path % params
 
