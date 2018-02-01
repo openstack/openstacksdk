@@ -20,7 +20,7 @@ for cloud_name, region_name in [
         ('my-citycloud', 'Buf1'),
         ('my-internap', 'ams01')]:
     # Initialize cloud
-    cloud = openstack.openstack_cloud(
+    cloud = openstack.connect(
         cloud=cloud_name, region_name=region_name)
     for server in cloud.search_servers('my-server'):
         cloud.delete_server(server, wait=True, delete_ips=True)

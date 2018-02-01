@@ -18,8 +18,8 @@ import testtools
 
 import openstack
 import openstack.cloud
-from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack.config import exceptions as occ_exc
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -551,6 +551,6 @@ class TestBogusAuth(base.TestCase):
             cloud_config_fixture='clouds_cache.yaml')
 
     def test_get_auth_bogus(self):
-        with testtools.ExpectedException(exc.OpenStackCloudException):
-            openstack.cloud.openstack_cloud(
+        with testtools.ExpectedException(occ_exc.OpenStackConfigException):
+            openstack.connect(
                 cloud='_bogus_test_', config=self.config)

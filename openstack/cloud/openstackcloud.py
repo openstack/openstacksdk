@@ -263,12 +263,12 @@ class OpenStackCloud(_normalize.Normalizer):
 
         .. code-block:: python
 
-          cloud = openstack.cloud.openstack_cloud(cloud='example')
+          conn = openstack.connect(cloud='example')
           # Work normally
-          servers = cloud.list_servers()
-          cloud2 = cloud.connect_as(username='different-user', password='')
+          servers = conn.list_servers()
+          conn2 = conn.connect_as(username='different-user', password='')
           # Work as different-user
-          servers = cloud2.list_servers()
+          servers = conn2.list_servers()
 
         :param kwargs: keyword arguments can contain anything that would
                        normally go in an auth dict. They will override the same
@@ -342,7 +342,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         .. code-block:: python
 
-          cloud = openstack.cloud.openstack_cloud(cloud='example')
+          cloud = openstack.connect(cloud='example')
           # Work normally
           servers = cloud.list_servers()
           cloud2 = cloud.connect_as_project('different-project')

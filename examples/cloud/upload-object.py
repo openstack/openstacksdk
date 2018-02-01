@@ -13,7 +13,7 @@
 import openstack
 openstack.enable_logging(debug=True)
 
-cloud = openstack.openstack_cloud(cloud='ovh', region_name='SBG1')
+cloud = openstack.connect(cloud='ovh', region_name='SBG1')
 cloud.create_object(
     container='my-container', name='my-object',
     filename='/home/mordred/briarcliff.sh3d',

@@ -13,7 +13,7 @@
 import openstack
 openstack.enable_logging(debug=True)
 
-cloud = openstack.openstack_cloud(cloud='my-citycloud', region_name='Buf1')
+cloud = openstack.connect(cloud='my-citycloud', region_name='Buf1')
 try:
     server = cloud.create_server(
         'my-server', image='Ubuntu 16.04 Xenial Xerus',

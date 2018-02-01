@@ -13,6 +13,6 @@
 from openstack import cloud as openstack
 openstack.enable_logging(http_debug=True)
 
-cloud = openstack.openstack_cloud(
+cloud = openstack.connect(
     cloud='my-vexxhost', region_name='ca-ymq-1')
 cloud.get_image('Ubuntu 16.04.1 LTS [2017-03-03]')
