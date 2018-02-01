@@ -882,10 +882,7 @@ class OpenStackConfig(object):
         # still dealing with a keystoneauth Session object, so all the
         # _other_ things (SSL arg handling, timeout) all work consistently
         if config['auth_type'] in (None, "None", ''):
-            config['auth_type'] = 'admin_token'
-            # Set to notused rather than None because validate_auth will
-            # strip the value if it's actually python None
-            config['auth']['token'] = 'notused'
+            config['auth_type'] = 'none'
         elif config['auth_type'] == 'token_endpoint':
             # Humans have been trained to use a thing called token_endpoint
             # That it does not exist in keystoneauth is irrelvant- it not
