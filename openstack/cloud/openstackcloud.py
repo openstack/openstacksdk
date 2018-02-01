@@ -39,7 +39,6 @@ from six.moves import urllib
 import keystoneauth1.exceptions
 import keystoneauth1.session
 
-from openstack import version as openstack_version
 from openstack import _adapter
 from openstack import _log
 from openstack.cloud.exc import *  # noqa
@@ -118,65 +117,30 @@ class OpenStackCloud(_normalize.Normalizer):
     and that Floating IP will be actualized either via neutron or via nova
     depending on how this particular cloud has decided to arrange itself.
 
-    :param TaskManager manager: Optional task manager to use for running
-                                OpenStack API tasks. Unless you're doing
-                                rate limiting client side, you almost
-                                certainly don't need this. (optional)
     :param bool strict: Only return documented attributes for each resource
                         as per the Data Model contract. (Default False)
-    :param app_name: Name of the application to be appended to the user-agent
-                     string. Optional, defaults to None.
-    :param app_version: Version of the application to be appended to the
-                        user-agent string. Optional, defaults to None.
-    :param CloudRegion cloud_config: Cloud config object from os-client-config
-                                     In the future, this will be the only way
-                                     to pass in cloud configuration, but is
-                                     being phased in currently.
     """
 
-    def __init__(
-            self,
-            cloud_config=None,
-            manager=None,
-            strict=False,
-            app_name=None,
-            app_version=None,
-            use_direct_get=False,
-            conn=None,
-            **kwargs):
+    def __init__(self):
 
         self.log = _log.setup_logging('openstack')
 
-        if not cloud_config:
-            config = openstack.config.OpenStackConfig(
-                app_name=app_name, app_version=app_version)
+        self.name = self.config.name
+        self.auth = self.config.get_auth_args()
+        self.default_interface = self.config.get_interface()
+        self.private = self.config.config.get('private', False)
+        self.image_api_use_tasks = self.config.config['image_api_use_tasks']
+        self.secgroup_source = self.config.config['secgroup_source']
+        self.force_ipv4 = self.config.force_ipv4
 
-            cloud_config = config.get_one(**kwargs)
+        self._external_ipv4_names = self.config.get_external_ipv4_networks()
+        self._internal_ipv4_names = self.config.get_internal_ipv4_networks()
+        self._external_ipv6_names = self.config.get_external_ipv6_networks()
+        self._internal_ipv6_names = self.config.get_internal_ipv6_networks()
+        self._nat_destination = self.config.get_nat_destination()
+        self._default_network = self.config.get_default_network()
 
-        self.name = cloud_config.name
-        self.auth = cloud_config.get_auth_args()
-        self.region_name = cloud_config.region_name
-        self.default_interface = cloud_config.get_interface()
-        self.private = cloud_config.config.get('private', False)
-        self.image_api_use_tasks = cloud_config.config['image_api_use_tasks']
-        self.secgroup_source = cloud_config.config['secgroup_source']
-        self.force_ipv4 = cloud_config.force_ipv4
-        self.strict_mode = strict
-
-        if manager is not None:
-            self.manager = manager
-        else:
-            self.manager = task_manager.TaskManager(
-                name=':'.join([self.name, self.region_name]))
-
-        self._external_ipv4_names = cloud_config.get_external_ipv4_networks()
-        self._internal_ipv4_names = cloud_config.get_internal_ipv4_networks()
-        self._external_ipv6_names = cloud_config.get_external_ipv6_networks()
-        self._internal_ipv6_names = cloud_config.get_internal_ipv6_networks()
-        self._nat_destination = cloud_config.get_nat_destination()
-        self._default_network = cloud_config.get_default_network()
-
-        self._floating_ip_source = cloud_config.config.get(
+        self._floating_ip_source = self.config.config.get(
             'floating_ip_source')
         if self._floating_ip_source:
             if self._floating_ip_source.lower() == 'none':
@@ -184,16 +148,12 @@ class OpenStackCloud(_normalize.Normalizer):
             else:
                 self._floating_ip_source = self._floating_ip_source.lower()
 
-        self._use_external_network = cloud_config.config.get(
+        self._use_external_network = self.config.config.get(
             'use_external_network', True)
-        self._use_internal_network = cloud_config.config.get(
+        self._use_internal_network = self.config.config.get(
             'use_internal_network', True)
 
-        # Work around older TaskManager objects that don't have submit_task
-        if not hasattr(self.manager, 'submit_task'):
-            self.manager.submit_task = self.manager.submitTask
-
-        (self.verify, self.cert) = cloud_config.get_requests_verify_args()
+        (self.verify, self.cert) = self.config.get_requests_verify_args()
         # Turn off urllib3 warnings about insecure certs if we have
         # explicitly configured requests to tell it we do not want
         # cert verification
@@ -206,7 +166,6 @@ class OpenStackCloud(_normalize.Normalizer):
                 warnings.filterwarnings('ignore', category=category)
 
         self._disable_warnings = {}
-        self.use_direct_get = use_direct_get
 
         self._servers = None
         self._servers_time = 0
@@ -227,9 +186,9 @@ class OpenStackCloud(_normalize.Normalizer):
         self._networks_lock = threading.Lock()
         self._reset_network_caches()
 
-        cache_expiration_time = int(cloud_config.get_cache_expiration_time())
-        cache_class = cloud_config.get_cache_class()
-        cache_arguments = cloud_config.get_cache_arguments()
+        cache_expiration_time = int(self.config.get_cache_expiration_time())
+        cache_class = self.config.get_cache_class()
+        cache_arguments = self.config.get_cache_arguments()
 
         self._resource_caches = {}
 
@@ -237,7 +196,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self.cache_enabled = True
             self._cache = self._make_cache(
                 cache_class, cache_expiration_time, cache_arguments)
-            expirations = cloud_config.get_cache_expiration()
+            expirations = self.config.get_cache_expiration()
             for expire_key in expirations.keys():
                 # Only build caches for things we have list operations for
                 if getattr(
@@ -279,35 +238,20 @@ class OpenStackCloud(_normalize.Normalizer):
 
         # If server expiration time is set explicitly, use that. Otherwise
         # fall back to whatever it was before
-        self._SERVER_AGE = cloud_config.get_cache_resource_expiration(
+        self._SERVER_AGE = self.config.get_cache_resource_expiration(
             'server', self._SERVER_AGE)
-        self._PORT_AGE = cloud_config.get_cache_resource_expiration(
+        self._PORT_AGE = self.config.get_cache_resource_expiration(
             'port', self._PORT_AGE)
-        self._FLOAT_AGE = cloud_config.get_cache_resource_expiration(
+        self._FLOAT_AGE = self.config.get_cache_resource_expiration(
             'floating_ip', self._FLOAT_AGE)
 
         self._container_cache = dict()
         self._file_hash_cache = dict()
 
-        self._keystone_session = None
-
         self._raw_clients = {}
 
         self._local_ipv6 = (
             _utils.localhost_supports_ipv6() if not self.force_ipv4 else False)
-
-        self.cloud_config = cloud_config
-        self._conn_object = conn
-
-    @property
-    def _conn(self):
-        if not self._conn_object:
-            # Importing late to avoid import cycle. If the OpenStackCloud
-            # object comes via Connection, it'll have connection passed in.
-            import openstack.connection
-            self._conn_object = openstack.connection.Connection(
-                config=self.cloud_config, session=self._keystone_session)
-        return self._conn_object
 
     def connect_as(self, **kwargs):
         """Make a new OpenStackCloud object with new auth context.
@@ -332,11 +276,12 @@ class OpenStackCloud(_normalize.Normalizer):
                        that do not want to be overridden can be ommitted.
         """
 
+        # TODO(mordred) Replace this with from_session
         config = openstack.config.OpenStackConfig(
-            app_name=self.cloud_config._app_name,
-            app_version=self.cloud_config._app_version,
+            app_name=self.config._app_name,
+            app_version=self.config._app_version,
             load_yaml_config=False)
-        params = copy.deepcopy(self.cloud_config.config)
+        params = copy.deepcopy(self.config.config)
         # Remove profile from current cloud so that overridding works
         params.pop('profile', None)
 
@@ -373,7 +318,7 @@ class OpenStackCloud(_normalize.Normalizer):
         def session_constructor(*args, **kwargs):
             # We need to pass our current keystone session to the Session
             # Constructor, otherwise the new auth plugin doesn't get used.
-            return keystoneauth1.session.Session(session=self.keystone_session)
+            return keystoneauth1.session.Session(session=self.session)
 
         # Use cloud='defaults' so that we overlay settings properly
         cloud_config = config.get_one(
@@ -385,7 +330,7 @@ class OpenStackCloud(_normalize.Normalizer):
         cloud_config.config['profile'] = self.name
         # Use self.__class__ so that we return whatever this if, like if it's
         # a subclass in the case of shade wrapping sdk.
-        return self.__class__(cloud_config=cloud_config)
+        return self.__class__(config=cloud_config)
 
     def connect_as_project(self, project):
         """Make a new OpenStackCloud object with a new project.
@@ -457,7 +402,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _get_versioned_client(
             self, service_type, min_version=None, max_version=None):
-        config_version = self.cloud_config.get_api_version(service_type)
+        config_version = self.config.get_api_version(service_type)
         config_major = self._get_major_version_id(config_version)
         max_major = self._get_major_version_id(max_version)
         min_major = self._get_major_version_id(min_version)
@@ -492,33 +437,33 @@ class OpenStackCloud(_normalize.Normalizer):
             request_max_version = '{version}.latest'.format(
                 version=config_major)
             adapter = _adapter.ShadeAdapter(
-                session=self.keystone_session,
-                task_manager=self.manager,
-                service_type=self.cloud_config.get_service_type(service_type),
-                service_name=self.cloud_config.get_service_name(service_type),
-                interface=self.cloud_config.get_interface(service_type),
-                endpoint_override=self.cloud_config.get_endpoint(service_type),
-                region_name=self.cloud_config.region_name,
+                session=self.session,
+                task_manager=self.task_manager,
+                service_type=self.config.get_service_type(service_type),
+                service_name=self.config.get_service_name(service_type),
+                interface=self.config.get_interface(service_type),
+                endpoint_override=self.config.get_endpoint(service_type),
+                region_name=self.config.region_name,
                 min_version=request_min_version,
                 max_version=request_max_version)
             if adapter.get_endpoint():
                 return adapter
 
         adapter = _adapter.ShadeAdapter(
-            session=self.keystone_session,
-            task_manager=self.manager,
-            service_type=self.cloud_config.get_service_type(service_type),
-            service_name=self.cloud_config.get_service_name(service_type),
-            interface=self.cloud_config.get_interface(service_type),
-            endpoint_override=self.cloud_config.get_endpoint(service_type),
-            region_name=self.cloud_config.region_name,
+            session=self.session,
+            task_manager=self.task_manager,
+            service_type=self.config.get_service_type(service_type),
+            service_name=self.config.get_service_name(service_type),
+            interface=self.config.get_interface(service_type),
+            endpoint_override=self.config.get_endpoint(service_type),
+            region_name=self.config.region_name,
             min_version=min_version,
             max_version=max_version)
 
         # data.api_version can be None if no version was detected, such
         # as with neutron
         api_version = adapter.get_api_major_version(
-            endpoint_override=self.cloud_config.get_endpoint(service_type))
+            endpoint_override=self.config.get_endpoint(service_type))
         api_major = self._get_major_version_id(api_version)
 
         # If we detect a different version that was configured, warn the user.
@@ -544,14 +489,14 @@ class OpenStackCloud(_normalize.Normalizer):
     def _get_raw_client(
             self, service_type, api_version=None, endpoint_override=None):
         return _adapter.ShadeAdapter(
-            session=self.keystone_session,
-            task_manager=self.manager,
-            service_type=self.cloud_config.get_service_type(service_type),
-            service_name=self.cloud_config.get_service_name(service_type),
-            interface=self.cloud_config.get_interface(service_type),
-            endpoint_override=self.cloud_config.get_endpoint(
+            session=self.session,
+            task_manager=self.task_manager,
+            service_type=self.config.get_service_type(service_type),
+            service_name=self.config.get_service_name(service_type),
+            interface=self.config.get_interface(service_type),
+            endpoint_override=self.config.get_endpoint(
                 service_type) or endpoint_override,
-            region_name=self.cloud_config.region_name)
+            region_name=self.config.region_name)
 
     def _is_client_version(self, client, version):
         client_name = '_{client}_client'.format(client=client)
@@ -674,22 +619,8 @@ class OpenStackCloud(_normalize.Normalizer):
         return pprint.pformat(new_resource)
 
     @property
-    def keystone_session(self):
-        if self._keystone_session is None:
-            try:
-                self._keystone_session = self.cloud_config.get_session()
-                if hasattr(self._keystone_session, 'additional_user_agent'):
-                    self._keystone_session.additional_user_agent.append(
-                        ('openstacksdk', openstack_version.__version__))
-            except Exception as e:
-                raise OpenStackCloudException(
-                    "Error authenticating to keystone: %s " % str(e))
-        return self._keystone_session
-
-    @property
     def _keystone_catalog(self):
-        return self.keystone_session.auth.get_access(
-            self.keystone_session).service_catalog
+        return self.session.auth.get_access(self.session).service_catalog
 
     @property
     def service_catalog(self):
@@ -703,13 +634,12 @@ class OpenStackCloud(_normalize.Normalizer):
     def auth_token(self):
         # Keystone's session will reuse a token if it is still valid.
         # We don't need to track validity here, just get_token() each time.
-        return self.keystone_session.get_token()
+        return self.session.get_token()
 
     @property
     def current_user_id(self):
         """Get the id of the currently logged-in user from the token."""
-        return self.keystone_session.auth.get_access(
-            self.keystone_session).user_id
+        return self.session.auth.get_access(self.session).user_id
 
     @property
     def current_project_id(self):
@@ -723,7 +653,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises keystoneauth1.exceptions.auth_plugins.MissingAuthPlugin:
             if a plugin is not available.
         """
-        return self.keystone_session.get_project_id()
+        return self.session.get_project_id()
 
     @property
     def current_project(self):
@@ -748,7 +678,7 @@ class OpenStackCloud(_normalize.Normalizer):
             # If they don't match, that means we're an admin who has pulled
             # an object from a different project, so adding info from the
             # current token would be wrong.
-            auth_args = self.cloud_config.config.get('auth', {})
+            auth_args = self.config.config.get('auth', {})
             project_info['id'] = self.current_project_id
             project_info['name'] = auth_args.get('project_name')
             project_info['domain_id'] = auth_args.get('project_domain_id')
@@ -763,7 +693,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _get_current_location(self, project_id=None, zone=None):
         return munch.Munch(
             cloud=self.name,
-            region_name=self.region_name,
+            region_name=self.config.region_name,
             zone=zone,
             project=self._get_project_info(project_id),
         )
@@ -1419,7 +1349,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return self.name
 
     def get_region(self):
-        return self.region_name
+        return self.config.region_name
 
     def get_flavor_name(self, flavor_id):
         flavor = self.get_flavor(flavor_id, get_extra=False)
@@ -1449,7 +1379,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def get_session_endpoint(self, service_key):
         try:
-            return self.cloud_config.get_session_endpoint(service_key)
+            return self.config.get_session_endpoint(service_key)
         except keystoneauth1.exceptions.catalog.EndpointNotFound as e:
             self.log.debug(
                 "Endpoint not found in %s cloud: %s", self.name, str(e))
@@ -1462,12 +1392,12 @@ class OpenStackCloud(_normalize.Normalizer):
                 " {error}".format(
                     service=service_key,
                     cloud=self.name,
-                    region=self.region_name,
+                    region=self.config.region_name,
                     error=str(e)))
         return endpoint
 
     def has_service(self, service_key):
-        if not self.cloud_config.config.get('has_%s' % service_key, True):
+        if not self.config.config.get('has_%s' % service_key, True):
             # TODO(mordred) add a stamp here so that we only report this once
             if not (service_key in self._disable_warnings
                     and self._disable_warnings[service_key]):
@@ -1489,7 +1419,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _nova_extensions(self):
         extensions = set()
         data = _adapter._json_response(
-            self._conn.compute.get('/extensions'),
+            self.compute.get('/extensions'),
             error_message="Error fetching extension list for nova")
 
         for extension in self._get_and_munchify('extensions', data):
@@ -1694,7 +1624,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         data = _adapter._json_response(
-            self._conn.compute.get('/os-keypairs'),
+            self.compute.get('/os-keypairs'),
             error_message="Error fetching keypair list")
         return self._normalize_keypairs([
             k['keypair'] for k in self._get_and_munchify('keypairs', data)])
@@ -1921,7 +1851,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         try:
             data = _adapter._json_response(
-                self._conn.compute.get('/os-availability-zone'))
+                self.compute.get('/os-availability-zone'))
         except OpenStackCloudHTTPError:
             self.log.debug(
                 "Availability zone list could not be fetched",
@@ -1946,7 +1876,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         data = _adapter._json_response(
-            self._conn.compute.get(
+            self.compute.get(
                 '/flavors/detail', params=dict(is_public='None')),
             error_message="Error fetching flavor list")
         flavors = self._normalize_flavors(
@@ -1958,7 +1888,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     id=flavor.id)
                 try:
                     data = _adapter._json_response(
-                        self._conn.compute.get(endpoint),
+                        self.compute.get(endpoint),
                         error_message="Error fetching flavor extra specs")
                     flavor.extra_specs = self._get_and_munchify(
                         'extra_specs', data)
@@ -1995,7 +1925,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return []
 
         data = _adapter._json_response(
-            self._conn.compute.get(
+            self.compute.get(
                 '/servers/{server_id}/os-security-groups'.format(
                     server_id=server['id'])))
         return self._normalize_secgroups(
@@ -2051,7 +1981,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         for sg in security_groups:
-            _adapter._json_response(self._conn.compute.post(
+            _adapter._json_response(self.compute.post(
                 '/servers/%s/action' % server['id'],
                 json={'addSecurityGroup': {'name': sg.name}}))
 
@@ -2079,7 +2009,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         for sg in security_groups:
             try:
-                _adapter._json_response(self._conn.compute.post(
+                _adapter._json_response(self.compute.post(
                     '/servers/%s/action' % server['id'],
                     json={'removeSecurityGroup': {'name': sg.name}}))
 
@@ -2121,7 +2051,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         # Handle nova security groups
         else:
-            data = _adapter._json_response(self._conn.compute.get(
+            data = _adapter._json_response(self.compute.get(
                 '/os-security-groups', params=filters))
         return self._normalize_secgroups(
             self._get_and_munchify('security_groups', data))
@@ -2169,13 +2099,13 @@ class OpenStackCloud(_normalize.Normalizer):
                       filters=None):
         error_msg = "Error fetching server list on {cloud}:{region}:".format(
             cloud=self.name,
-            region=self.region_name)
+            region=self.config.region_name)
 
         params = filters or {}
         if all_projects:
             params['all_tenants'] = True
         data = _adapter._json_response(
-            self._conn.compute.get(
+            self.compute.get(
                 '/servers/detail', params=params),
             error_message=error_msg)
         servers = self._normalize_servers(
@@ -2192,7 +2122,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         data = _adapter._json_response(
-            self._conn.compute.get('/os-server-groups'),
+            self.compute.get('/os-server-groups'),
             error_message="Error fetching server group list")
         return self._get_and_munchify('server_groups', data)
 
@@ -2219,7 +2149,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 msg=error_msg, project=name_or_id)
 
         data = _adapter._json_response(
-            self._conn.compute.get('/limits', params=params))
+            self.compute.get('/limits', params=params))
         limits = self._get_and_munchify('limits', data)
         return self._normalize_compute_limits(limits, project_id=project_id)
 
@@ -2254,7 +2184,7 @@ class OpenStackCloud(_normalize.Normalizer):
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
             response = _adapter._json_response(
-                self._conn.compute.get('/images/detail'))
+                self.compute.get('/images/detail'))
         while 'next' in response:
             image_list.extend(meta.obj_list_to_munch(response['images']))
             endpoint = response['next']
@@ -2295,7 +2225,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 'Floating IP pools extension is not available on target cloud')
 
         data = _adapter._json_response(
-            self._conn.compute.get('os-floating-ip-pools'),
+            self.compute.get('os-floating-ip-pools'),
             error_message="Error fetching floating IP pool list")
         pools = self._get_and_munchify('floating_ip_pools', data)
         return [{'name': p['name']} for p in pools]
@@ -2386,7 +2316,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _nova_list_floating_ips(self):
         try:
             data = _adapter._json_response(
-                self._conn.compute.get('/os-floating-ips'))
+                self.compute.get('/os-floating-ips'))
         except OpenStackCloudURINotFound:
             return []
         return self._get_and_munchify('floating_ips', data)
@@ -2991,7 +2921,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: A flavor ``munch.Munch``.
         """
         data = _adapter._json_response(
-            self._conn.compute.get('/flavors/{id}'.format(id=id)),
+            self.compute.get('/flavors/{id}'.format(id=id)),
             error_message="Error getting flavor with ID {id}".format(id=id)
         )
         flavor = self._normalize_flavor(
@@ -3002,7 +2932,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 id=flavor.id)
             try:
                 data = _adapter._json_response(
-                    self._conn.compute.get(endpoint),
+                    self.compute.get(endpoint),
                     error_message="Error fetching flavor extra specs")
                 flavor.extra_specs = self._get_and_munchify(
                     'extra_specs', data)
@@ -3058,7 +2988,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 error_message=error_message)
         else:
             data = _adapter._json_response(
-                self._conn.compute.get(
+                self.compute.get(
                     '/os-security-groups/{id}'.format(id=id)),
                 error_message=error_message)
         return self._normalize_secgroup(
@@ -3091,7 +3021,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return ""
 
     def _get_server_console_output(self, server_id, length=None):
-            data = _adapter._json_response(self._conn.compute.post(
+            data = _adapter._json_response(self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
                 json={'os-getConsoleOutput': {'length': length}}))
             return self._get_and_munchify('output', data)
@@ -3145,7 +3075,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def get_server_by_id(self, id):
         data = _adapter._json_response(
-            self._conn.compute.get('/servers/{id}'.format(id=id)))
+            self.compute.get('/servers/{id}'.format(id=id)))
         server = self._get_and_munchify('server', data)
         return meta.add_server_interfaces(self, self._normalize_server(server))
 
@@ -3304,7 +3234,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 self._get_and_munchify('floatingip', data))
         else:
             data = _adapter._json_response(
-                self._conn.compute.get('/os-floating-ips/{id}'.format(id=id)),
+                self.compute.get('/os-floating-ips/{id}'.format(id=id)),
                 error_message=error_message)
             return self._normalize_floating_ip(
                 self._get_and_munchify('floating_ip', data))
@@ -3355,7 +3285,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if public_key:
             keypair['public_key'] = public_key
         data = _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/os-keypairs',
                 json={'keypair': keypair}),
             error_message="Unable to create keypair {name}".format(name=name))
@@ -3372,7 +3302,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            _adapter._json_response(self._conn.compute.delete(
+            _adapter._json_response(self.compute.delete(
                 '/os-keypairs/{name}'.format(name=name)))
         except OpenStackCloudURINotFound:
             self.log.debug("Keypair %s not found for deleting", name)
@@ -4432,7 +4362,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     " could not be snapshotted.".format(server=server))
             server = server_obj
         response = _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server['id']),
                 json={
                     "createImage": {
@@ -4523,7 +4453,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         # Try appending the disk format
         name_with_ext = '.'.join((
-            name, self.cloud_config.config['image_format']))
+            name, self.config.config['image_format']))
         if os.path.exists(name_with_ext):
             return (os.path.basename(name), name_with_ext)
 
@@ -4615,7 +4545,7 @@ class OpenStackCloud(_normalize.Normalizer):
             meta = {}
 
         if not disk_format:
-            disk_format = self.cloud_config.config['image_format']
+            disk_format = self.config.config['image_format']
         if not container_format:
             # https://docs.openstack.org/image-guide/image-formats.html
             container_format = 'bare'
@@ -4661,7 +4591,7 @@ class OpenStackCloud(_normalize.Normalizer):
         kwargs[IMAGE_OBJECT_KEY] = '/'.join([container, name])
 
         if disable_vendor_agent:
-            kwargs.update(self.cloud_config.config['disable_vendor_agent'])
+            kwargs.update(self.config.config['disable_vendor_agent'])
 
         # We can never have nice things. Glance v1 took "is_public" as a
         # boolean. Glance v2 takes "visibility". If the user gives us
@@ -5169,7 +5099,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
 
-        _adapter._json_response(self._conn.compute.delete(
+        _adapter._json_response(self.compute.delete(
             '/servers/{server_id}/os-volume_attachments/{volume_id}'.format(
                 server_id=server['id'], volume_id=volume['id'])),
             error_message=(
@@ -5237,7 +5167,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if device:
             payload['device'] = device
         data = _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/servers/{server_id}/os-volume_attachments'.format(
                     server_id=server['id']),
                 json=dict(volumeAttachment=payload)),
@@ -5884,12 +5814,12 @@ class OpenStackCloud(_normalize.Normalizer):
                         "unable to find a floating ip pool")
                 pool = pools[0]['name']
 
-            data = _adapter._json_response(self._conn.compute.post(
+            data = _adapter._json_response(self.compute.post(
                 '/os-floating-ips', json=dict(pool=pool)))
             pool_ip = self._get_and_munchify('floating_ip', data)
             # TODO(mordred) Remove this - it's just for compat
             data = _adapter._json_response(
-                self._conn.compute.get('/os-floating-ips/{id}'.format(
+                self.compute.get('/os-floating-ips/{id}'.format(
                     id=pool_ip['id'])))
             return self._get_and_munchify('floating_ip', data)
 
@@ -5959,7 +5889,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _nova_delete_floating_ip(self, floating_ip_id):
         try:
             _adapter._json_response(
-                self._conn.compute.delete(
+                self.compute.delete(
                     '/os-floating-ips/{id}'.format(id=floating_ip_id)),
                 error_message='Unable to delete floating IP {fip_id}'.format(
                     fip_id=floating_ip_id))
@@ -6209,7 +6139,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if fixed_address:
             body['fixed_address'] = fixed_address
         return _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
                 json=dict(addFloatingIp=body)),
             error_message=error_message)
@@ -6261,7 +6191,7 @@ class OpenStackCloud(_normalize.Normalizer):
         error_message = "Error detaching IP {ip} from instance {id}".format(
             ip=floating_ip_id, id=server_id)
         return _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
                 json=dict(removeFloatingIp=dict(
                     address=f_ip['floating_ip_address']))),
@@ -6512,7 +6442,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     'Volume {boot_volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         boot_volume=boot_volume,
-                        cloud=self.name, region=self.region_name))
+                        cloud=self.name, region=self.config.region_name))
             block_mapping = {
                 'boot_index': '0',
                 'delete_on_termination': terminate_volume,
@@ -6533,7 +6463,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     'Image {image} is not a valid image in'
                     ' {cloud}:{region}'.format(
                         image=image,
-                        cloud=self.name, region=self.region_name))
+                        cloud=self.name, region=self.config.region_name))
 
             block_mapping = {
                 'boot_index': '0',
@@ -6563,7 +6493,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     'Volume {volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         volume=volume,
-                        cloud=self.name, region=self.region_name))
+                        cloud=self.name, region=self.config.region_name))
             block_mapping = {
                 'boot_index': '-1',
                 'delete_on_termination': False,
@@ -6757,7 +6687,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         'Network {network} is not a valid network in'
                         ' {cloud}:{region}'.format(
                             network=network,
-                            cloud=self.name, region=self.region_name))
+                            cloud=self.name, region=self.config.region_name))
                 nics.append({'net-id': network_obj['id']})
 
             kwargs['nics'] = nics
@@ -6827,7 +6757,7 @@ class OpenStackCloud(_normalize.Normalizer):
             endpoint = '/os-volumes_boot'
         with _utils.shade_exceptions("Error in creating instance"):
             data = _adapter._json_response(
-                self._conn.compute.post(endpoint, json={'server': kwargs}))
+                self.compute.post(endpoint, json={'server': kwargs}))
             server = self._get_and_munchify('server', data)
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
@@ -6947,7 +6877,7 @@ class OpenStackCloud(_normalize.Normalizer):
             kwargs['adminPass'] = admin_pass
 
         data = _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
                 json={'rebuild': kwargs}),
             error_message="Error in rebuilding instance")
@@ -6997,7 +6927,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 'Invalid Server {server}'.format(server=name_or_id))
 
         _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/servers/{server_id}/metadata'.format(server_id=server['id']),
                 json={'metadata': metadata}),
             error_message='Error updating server metadata')
@@ -7021,7 +6951,7 @@ class OpenStackCloud(_normalize.Normalizer):
             error_message = 'Error deleting metadata {key} on {server}'.format(
                 key=key, server=name_or_id)
             _adapter._json_response(
-                self._conn.compute.delete(
+                self.compute.delete(
                     '/servers/{server_id}/metadata/{key}'.format(
                         server_id=server['id'],
                         key=key)),
@@ -7095,7 +7025,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         try:
             _adapter._json_response(
-                self._conn.compute.delete(
+                self.compute.delete(
                     '/servers/{id}'.format(id=server['id'])),
                 error_message="Error in deleting server")
         except OpenStackCloudURINotFound:
@@ -7160,7 +7090,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 "failed to find server '{server}'".format(server=name_or_id))
 
         data = _adapter._json_response(
-            self._conn.compute.put(
+            self.compute.put(
                 '/servers/{server_id}'.format(server_id=server['id']),
                 json={'server': kwargs}),
             error_message="Error updating server {0}".format(name_or_id))
@@ -7179,7 +7109,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         data = _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/os-server-groups',
                 json={
                     'server_group': {
@@ -7205,7 +7135,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         _adapter._json_response(
-            self._conn.compute.delete(
+            self.compute.delete(
                 '/os-server-groups/{id}'.format(id=server_group['id'])),
             error_message="Error deleting server group {name}".format(
                 name=name_or_id))
@@ -8149,7 +8079,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 json=security_group_json,
                 error_message="Error creating security group {0}".format(name))
         else:
-            data = _adapter._json_response(self._conn.compute.post(
+            data = _adapter._json_response(self.compute.post(
                 '/os-security-groups', json=security_group_json))
         return self._normalize_secgroup(
             self._get_and_munchify('security_group', data))
@@ -8188,7 +8118,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return True
 
         else:
-            _adapter._json_response(self._conn.compute.delete(
+            _adapter._json_response(self.compute.delete(
                 '/os-security-groups/{id}'.format(id=secgroup['id'])))
             return True
 
@@ -8226,7 +8156,7 @@ class OpenStackCloud(_normalize.Normalizer):
             for key in ('name', 'description'):
                 kwargs.setdefault(key, group[key])
             data = _adapter._json_response(
-                self._conn.compute.put(
+                self.compute.put(
                     '/os-security-groups/{id}'.format(id=group['id']),
                     json={'security-group': kwargs}))
         return self._normalize_secgroup(
@@ -8361,7 +8291,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 security_group_rule_dict[
                     'security_group_rule']['tenant_id'] = project_id
             data = _adapter._json_response(
-                self._conn.compute.post(
+                self.compute.post(
                     '/os-security-group-rules',
                     json=security_group_rule_dict
                 ))
@@ -8396,7 +8326,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return True
 
         else:
-            _adapter._json_response(self._conn.compute.delete(
+            _adapter._json_response(self.compute.delete(
                 '/os-security-group-rules/{id}'.format(id=rule_id)))
             return True
 
@@ -10509,7 +10439,7 @@ class OpenStackCloud(_normalize.Normalizer):
             }
             if flavorid == 'auto':
                 payload['id'] = None
-            data = _adapter._json_response(self._conn.compute.post(
+            data = _adapter._json_response(self.compute.post(
                 '/flavors',
                 json=dict(flavor=payload)))
 
@@ -10532,7 +10462,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         _adapter._json_response(
-            self._conn.compute.delete(
+            self.compute.delete(
                 '/flavors/{id}'.format(id=flavor['id'])),
             error_message="Unable to delete flavor {name}".format(
                 name=name_or_id))
@@ -10549,7 +10479,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
         _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 "/flavors/{id}/os-extra_specs".format(id=flavor_id),
                 json=dict(extra_specs=extra_specs)),
             error_message="Unable to set flavor specs")
@@ -10565,7 +10495,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         for key in keys:
             _adapter._json_response(
-                self._conn.compute.delete(
+                self.compute.delete(
                     "/flavors/{id}/os-extra_specs/{key}".format(
                         id=flavor_id, key=key)),
                 error_message="Unable to delete flavor spec {0}".format(key))
@@ -10581,7 +10511,7 @@ class OpenStackCloud(_normalize.Normalizer):
             access_key = '{action}TenantAccess'.format(action=action)
 
             _adapter._json_response(
-                self._conn.compute.post(endpoint, json={access_key: access}))
+                self.compute.post(endpoint, json={access_key: access}))
 
     def add_flavor_access(self, flavor_id, project_id):
         """Grant access to a private flavor for a project/tenant.
@@ -10613,7 +10543,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         data = _adapter._json_response(
-            self._conn.compute.get(
+            self.compute.get(
                 '/flavors/{id}/os-flavor-access'.format(id=flavor_id)),
             error_message=(
                 "Error trying to list access from flavorID {flavor}".format(
@@ -10892,7 +10822,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
 
         data = _adapter._json_response(
-            self._conn.compute.get('/os-hypervisors/detail'),
+            self.compute.get('/os-hypervisors/detail'),
             error_message="Error fetching hypervisor list")
         return self._get_and_munchify('hypervisors', data)
 
@@ -10917,7 +10847,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         data = _adapter._json_response(
-            self._conn.compute.get('/os-aggregates'),
+            self.compute.get('/os-aggregates'),
             error_message="Error fetching aggregate list")
         return self._get_and_munchify('aggregates', data)
 
@@ -10953,7 +10883,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         data = _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/os-aggregates',
                 json={'aggregate': {
                     'name': name,
@@ -10981,7 +10911,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Host aggregate %s not found." % name_or_id)
 
         data = _adapter._json_response(
-            self._conn.compute.put(
+            self.compute.put(
                 '/os-aggregates/{id}'.format(id=aggregate['id']),
                 json={'aggregate': kwargs}),
             error_message="Error updating aggregate {name}".format(
@@ -11003,7 +10933,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         return _adapter._json_response(
-            self._conn.compute.delete(
+            self.compute.delete(
                 '/os-aggregates/{id}'.format(id=aggregate['id'])),
             error_message="Error deleting aggregate {name}".format(
                 name=name_or_id))
@@ -11030,7 +10960,7 @@ class OpenStackCloud(_normalize.Normalizer):
             name=name_or_id)
 
         data = _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/os-aggregates/{id}/action'.format(id=aggregate['id']),
                 json={'set_metadata': {'metadata': metadata}}),
             error_message=err_msg)
@@ -11053,7 +10983,7 @@ class OpenStackCloud(_normalize.Normalizer):
             host=host_name, name=name_or_id)
 
         return _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/os-aggregates/{id}/action'.format(id=aggregate['id']),
                 json={'add_host': {'host': host_name}}),
             error_message=err_msg)
@@ -11075,7 +11005,7 @@ class OpenStackCloud(_normalize.Normalizer):
             host=host_name, name=name_or_id)
 
         return _adapter._json_response(
-            self._conn.compute.post(
+            self.compute.post(
                 '/os-aggregates/{id}/action'.format(id=aggregate['id']),
                 json={'remove_host': {'host': host_name}}),
             error_message=err_msg)
@@ -11167,7 +11097,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         kwargs['force'] = True
         _adapter._json_response(
-            self._conn.compute.put(
+            self.compute.put(
                 '/os-quota-sets/{project}'.format(project=proj.id),
                 json={'quota_set': kwargs}),
             error_message="No valid quota or resource")
@@ -11184,7 +11114,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if not proj:
             raise OpenStackCloudException("project does not exist")
         data = _adapter._json_response(
-            self._conn.compute.get(
+            self.compute.get(
                 '/os-quota-sets/{project}'.format(project=proj.id)))
         return self._get_and_munchify('quota_set', data)
 
@@ -11201,7 +11131,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if not proj:
             raise OpenStackCloudException("project does not exist")
         return _adapter._json_response(
-            self._conn.compute.delete(
+            self.compute.delete(
                 '/os-quota-sets/{project}'.format(project=proj.id)))
 
     def get_compute_usage(self, name_or_id, start=None, end=None):
@@ -11260,7 +11190,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 name=proj.id))
 
         data = _adapter._json_response(
-            self._conn.compute.get(
+            self.compute.get(
                 '/os-simple-tenant-usage/{project}'.format(project=proj.id),
                 params=dict(start=start.isoformat(), end=end.isoformat())),
             error_message="Unable to get usage for project: {name}".format(

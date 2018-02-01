@@ -65,7 +65,7 @@ class TestServices(base.KeystoneBaseFunctionalTestCase):
         self.assertIsNotNone(service.get('id'))
 
     def test_update_service(self):
-        ver = self.operator_cloud.cloud_config.get_api_version('identity')
+        ver = self.operator_cloud.config.get_api_version('identity')
         if ver.startswith('2'):
             # NOTE(SamYaple): Update service only works with v3 api
             self.assertRaises(OpenStackCloudUnavailableFeature,

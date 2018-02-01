@@ -27,7 +27,7 @@ class TestGroup(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestGroup, self).setUp()
-        i_ver = self.operator_cloud.cloud_config.get_api_version('identity')
+        i_ver = self.operator_cloud.config.get_api_version('identity')
         if i_ver in ('2', '2.0'):
             self.skipTest('Identity service does not support groups')
         self.group_prefix = self.getUniqueString('group')

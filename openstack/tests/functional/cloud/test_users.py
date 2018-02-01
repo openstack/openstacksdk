@@ -42,7 +42,7 @@ class TestUsers(base.KeystoneBaseFunctionalTestCase):
 
     def _create_user(self, **kwargs):
         domain_id = None
-        i_ver = self.operator_cloud.cloud_config.get_api_version('identity')
+        i_ver = self.operator_cloud.config.get_api_version('identity')
         if i_ver not in ('2', '2.0'):
             domain = self.operator_cloud.get_domain('default')
             domain_id = domain['id']
@@ -143,7 +143,7 @@ class TestUsers(base.KeystoneBaseFunctionalTestCase):
         self.assertIsNotNone(new_cloud.service_catalog)
 
     def test_users_and_groups(self):
-        i_ver = self.operator_cloud.cloud_config.get_api_version('identity')
+        i_ver = self.operator_cloud.config.get_api_version('identity')
         if i_ver in ('2', '2.0'):
             self.skipTest('Identity service does not support groups')
 

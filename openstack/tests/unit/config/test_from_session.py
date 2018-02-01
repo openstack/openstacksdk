@@ -30,7 +30,7 @@ class TestFromSession(base.RequestsMockTestCase):
 
     def test_from_session(self):
         config = cloud_region.from_session(
-            self.cloud.keystone_session, region_name=self.test_region)
+            self.cloud.session, region_name=self.test_region)
         self.assertEqual(config.name, 'identity.example.com')
         if not self.test_region:
             self.assertIsNone(config.region_name)

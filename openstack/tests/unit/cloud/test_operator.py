@@ -46,7 +46,7 @@ class TestOperatorCloud(base.RequestsMockTestCase):
         session_mock.get_endpoint.side_effect = side_effect
         get_session_mock.return_value = session_mock
         self.cloud.name = 'testcloud'
-        self.cloud.region_name = 'testregion'
+        self.cloud.config.region_name = 'testregion'
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
                 "Error getting image endpoint on testcloud:testregion:"

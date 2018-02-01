@@ -317,7 +317,7 @@ def _get_interface_ip(cloud, server):
 def get_groups_from_server(cloud, server, server_vars):
     groups = []
 
-    region = cloud.region_name
+    region = cloud.config.region_name
     cloud_name = cloud.name
 
     # Create a group for the cloud

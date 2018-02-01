@@ -12,10 +12,8 @@
 
 import mock
 
-from openstack.cloud import exc
 from openstack.cloud import inventory
 import openstack.config
-from openstack.config import exceptions as occ_exc
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -26,7 +24,7 @@ class TestInventory(base.TestCase):
         super(TestInventory, self).setUp()
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
-    @mock.patch("openstack.cloud.OpenStackCloud")
+    @mock.patch("openstack.connection.Connection")
     def test__init(self, mock_cloud, mock_config):
         mock_config.return_value.get_all.return_value = [{}]
 
@@ -40,7 +38,7 @@ class TestInventory(base.TestCase):
         self.assertTrue(mock_config.return_value.get_all.called)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
-    @mock.patch("openstack.cloud.OpenStackCloud")
+    @mock.patch("openstack.connection.Connection")
     def test__init_one_cloud(self, mock_cloud, mock_config):
         mock_config.return_value.get_one.return_value = [{}]
 
@@ -56,23 +54,7 @@ class TestInventory(base.TestCase):
             'supercloud')
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
-    @mock.patch("openstack.cloud.OpenStackCloud")
-    def test__raise_exception_on_no_cloud(self, mock_cloud, mock_config):
-        """
-        Test that when os-client-config can't find a named cloud, a
-        shade exception is emitted.
-        """
-        mock_config.return_value.get_one.side_effect = (
-            occ_exc.OpenStackConfigException()
-        )
-        self.assertRaises(exc.OpenStackCloudException,
-                          inventory.OpenStackInventory,
-                          cloud='supercloud')
-        mock_config.return_value.get_one.assert_called_once_with(
-            'supercloud')
-
-    @mock.patch("openstack.config.loader.OpenStackConfig")
-    @mock.patch("openstack.cloud.OpenStackCloud")
+    @mock.patch("openstack.connection.Connection")
     def test_list_hosts(self, mock_cloud, mock_config):
         mock_config.return_value.get_all.return_value = [{}]
 
@@ -91,7 +73,7 @@ class TestInventory(base.TestCase):
         self.assertEqual([server], ret)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
-    @mock.patch("openstack.cloud.OpenStackCloud")
+    @mock.patch("openstack.connection.Connection")
     def test_list_hosts_no_detail(self, mock_cloud, mock_config):
         mock_config.return_value.get_all.return_value = [{}]
 
@@ -110,7 +92,7 @@ class TestInventory(base.TestCase):
         self.assertFalse(inv.clouds[0].get_openstack_vars.called)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
-    @mock.patch("openstack.cloud.OpenStackCloud")
+    @mock.patch("openstack.connection.Connection")
     def test_search_hosts(self, mock_cloud, mock_config):
         mock_config.return_value.get_all.return_value = [{}]
 
@@ -126,7 +108,7 @@ class TestInventory(base.TestCase):
         self.assertEqual([server], ret)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
-    @mock.patch("openstack.cloud.OpenStackCloud")
+    @mock.patch("openstack.connection.Connection")
     def test_get_host(self, mock_cloud, mock_config):
         mock_config.return_value.get_all.return_value = [{}]
 

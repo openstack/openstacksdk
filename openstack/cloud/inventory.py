@@ -14,8 +14,9 @@
 
 import functools
 
-import openstack.config
-import openstack.cloud
+from openstack.config import loader
+from openstack import connection
+from openstack import exceptions
 from openstack.cloud import _utils
 
 
@@ -30,24 +31,20 @@ class OpenStackInventory(object):
             use_direct_get=False):
         if config_files is None:
             config_files = []
-        config = openstack.config.loader.OpenStackConfig(
-            config_files=openstack.config.loader.CONFIG_FILES + config_files)
+        config = loader.OpenStackConfig(
+            config_files=loader.CONFIG_FILES + config_files)
         self.extra_config = config.get_extra_config(
             config_key, config_defaults)
 
         if cloud is None:
             self.clouds = [
-                openstack.cloud.OpenStackCloud(cloud_config=cloud_region)
+                connection.Connection(config=cloud_region)
                 for cloud_region in config.get_all()
             ]
         else:
-            try:
-                self.clouds = [
-                    openstack.cloud.OpenStackCloud(
-                        cloud_config=config.get_one(cloud))
-                ]
-            except openstack.config.exceptions.OpenStackConfigException as e:
-                raise openstack.cloud.OpenStackCloudException(e)
+            self.clouds = [
+                connection.Connection(config=config.get_one(cloud))
+            ]
 
         if private:
             for cloud in self.clouds:
@@ -66,7 +63,7 @@ class OpenStackInventory(object):
                 # Cycle on servers
                 for server in cloud.list_servers(detailed=expand):
                     hostvars.append(server)
-            except openstack.cloud.OpenStackCloudException:
+            except exceptions.OpenStackCloudException:
                 # Don't fail on one particular cloud as others may work
                 if fail_on_cloud_config:
                     raise

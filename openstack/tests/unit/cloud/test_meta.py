@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Hewlett-Packard Development Company, L.P.
+# Copyrigh
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,8 +24,12 @@ PUBLIC_V4 = '192.0.2.99'
 PUBLIC_V6 = '2001:0db8:face:0da0:face::0b00:1c'  # rfc3849
 
 
-class FakeCloud(object):
+class FakeConfig(object):
     region_name = 'test-region'
+
+
+class FakeCloud(object):
+    config = FakeConfig()
     name = 'test-name'
     private = False
     force_ipv4 = False
@@ -586,7 +590,7 @@ class TestMeta(base.RequestsMockTestCase):
     def test_get_server_cloud_rackspace_v6(
             self, mock_get_flavor_name, mock_get_image_name,
             mock_get_volumes):
-        self.cloud.cloud_config.config['has_network'] = False
+        self.cloud.config.config['has_network'] = False
         self.cloud._floating_ip_source = None
         self.cloud.force_ipv4 = False
         self.cloud._local_ipv6 = True
@@ -830,7 +834,7 @@ class TestMeta(base.RequestsMockTestCase):
 
     def test_get_server_external_ipv4_nova_public(self):
         # Testing Clouds w/o Neutron and a network named public
-        self.cloud.cloud_config.config['has_network'] = False
+        self.cloud.config.config['has_network'] = False
 
         srv = fakes.make_fake_server(
             server_id='test-id', name='test-name', status='ACTIVE',
@@ -841,7 +845,7 @@ class TestMeta(base.RequestsMockTestCase):
 
     def test_get_server_external_ipv4_nova_none(self):
         # Testing Clouds w/o Neutron or a globally routable IP
-        self.cloud.cloud_config.config['has_network'] = False
+        self.cloud.config.config['has_network'] = False
 
         srv = fakes.make_fake_server(
             server_id='test-id', name='test-name', status='ACTIVE',
