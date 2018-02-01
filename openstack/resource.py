@@ -910,9 +910,6 @@ class Resource(object):
             if not isinstance(resources, list):
                 resources = [resources]
 
-            # Keep track of how many items we've yielded. The server should
-            # handle this, but it's easy for us to as well.
-            yielded = 0
             marker = None
             for raw_resource in resources:
                 # Do not allow keys called "self" through. Glance chose
@@ -925,15 +922,7 @@ class Resource(object):
                 value = cls.existing(**raw_resource)
                 marker = value.id
                 yield value
-                yielded += 1
                 total_yielded += 1
-
-            # If a limit was given by the user and we have not returned
-            # as many records as the limit, then it stands to reason that
-            # there are no more records to return and we don't need to do
-            # anything else.
-            if limit and yielded < limit:
-                return
 
             if resources and paginated:
                 uri, next_params = cls._get_next_link(

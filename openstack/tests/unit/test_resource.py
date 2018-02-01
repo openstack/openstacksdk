@@ -1444,22 +1444,39 @@ class TestResourceActions(base.TestCase):
             headers={"Accept": "application/json"},
             params={})
 
-    def test_list_multi_page_early_termination(self):
-        # This tests our ability to be somewhat smart when evaluating
-        # the contents of the responses. When we request a limit and
-        # receive less than that limit and there are no next links,
-        # we can be pretty sure there are no more pages.
-        ids = [1, 2]
+    def test_list_multi_page_no_early_termination(self):
+        # This tests verifies that multipages are not early terminated.
+        # APIs can set max_limit to the number of items returned in each
+        # query. If that max_limit is smaller than the limit given by the
+        # user, the return value would contain less items than the limit,
+        # but that doesn't stand to reason that there are no more records,
+        # we should keep trying to get more results.
+        ids = [1, 2, 3, 4]
         resp1 = mock.Mock()
         resp1.status_code = 200
+        resp1.links = {}
         resp1.json.return_value = {
+            # API's max_limit is set to 2.
             "resources": [{"id": ids[0]}, {"id": ids[1]}],
         }
+        resp2 = mock.Mock()
+        resp2.status_code = 200
+        resp2.links = {}
+        resp2.json.return_value = {
+            # API's max_limit is set to 2.
+            "resources": [{"id": ids[2]}, {"id": ids[3]}],
+        }
+        resp3 = mock.Mock()
+        resp3.status_code = 200
+        resp3.json.return_value = {
+            "resources": [],
+        }
 
-        self.session.get.return_value = resp1
+        self.session.get.side_effect = [resp1, resp2, resp3]
 
         results = self.sot.list(self.session, limit=3, paginated=True)
 
+        # First page constains only two items, less than the limit given
         result0 = next(results)
         self.assertEqual(result0.id, ids[0])
         result1 = next(results)
@@ -1469,11 +1486,27 @@ class TestResourceActions(base.TestCase):
             headers={"Accept": "application/json"},
             params={"limit": 3})
 
-        # Ensure we're done after those two items
+        # Second page contains another two items
+        result2 = next(results)
+        self.assertEqual(result2.id, ids[2])
+        result3 = next(results)
+        self.assertEqual(result3.id, ids[3])
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={"limit": 3, "marker": 2})
+
+        # Ensure we're done after those four items
         self.assertRaises(StopIteration, next, results)
 
-        # Ensure we only made one calls to get this done
-        self.assertEqual(1, len(self.session.get.call_args_list))
+        # Ensure we've given the last try to get more results
+        self.session.get.assert_called_with(
+            self.base_path,
+            headers={"Accept": "application/json"},
+            params={"limit": 3, "marker": 4})
+
+        # Ensure we made three calls to get this done
+        self.assertEqual(3, len(self.session.get.call_args_list))
 
     def test_list_multi_page_inferred_additional(self):
         # If we explicitly request a limit and we receive EXACTLY that
@@ -1520,7 +1553,7 @@ class TestResourceActions(base.TestCase):
         self.assertRaises(StopIteration, next, results)
 
         # Ensure we only made two calls to get this done
-        self.assertEqual(2, len(self.session.get.call_args_list))
+        self.assertEqual(3, len(self.session.get.call_args_list))
 
     def test_list_multi_page_header_count(self):
         class Test(self.test_class):
