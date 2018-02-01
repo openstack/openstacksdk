@@ -10,7 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import six
+
 from openstack import _adapter
+from openstack._meta import proxy as _meta
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -40,7 +43,7 @@ def _check_resource(strict=False):
     return wrap
 
 
-class Proxy(_adapter.OpenStackSDKAdapter):
+class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
     """Represents a service."""
 
     def _get_resource(self, resource_type, value, **attrs):

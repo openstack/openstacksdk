@@ -64,3 +64,5 @@ class FlavorDetail(Flavor):
     allow_update = False
     allow_delete = False
     allow_list = True
+
+    detail_for = Flavor

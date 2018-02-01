@@ -317,6 +317,8 @@ class Resource(object):
     requires_id = True
     #: Do responses for this resource have bodies
     has_body = True
+    #: Is this a detailed version of another Resource
+    detail_for = None
 
     def __init__(self, _synchronized=False, **attrs):
         """The base resource

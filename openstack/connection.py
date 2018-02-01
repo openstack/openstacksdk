@@ -167,7 +167,7 @@ import requestsexceptions
 import six
 
 from openstack import _log
-from openstack import _meta
+from openstack._meta import connection as _meta
 from openstack import cloud as _cloud
 from openstack import config as _config
 from openstack.config import cloud_region

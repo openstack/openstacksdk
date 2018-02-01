@@ -36,7 +36,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_extensions(self):
         self.verify_list_no_kwargs(self.proxy.extensions, extension.Extension,
-                                   paginated=False)
+                                   paginated=True)
 
     def test_flavor_create(self):
         self.verify_create(self.proxy.create_flavor, flavor.Flavor)
