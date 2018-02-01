@@ -82,7 +82,7 @@ class Claim(resource.Resource):
 
         return self
 
-    def get(self, session, requires_id=True):
+    def get(self, session, requires_id=True, error_message=None):
         request = self._prepare_request(requires_id=requires_id)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),

@@ -33,6 +33,9 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
 
     def test_queue_get(self):
         self.verify_get(self.proxy.get_queue, queue.Queue)
+        self.verify_get_overrided(
+            self.proxy, queue.Queue,
+            'openstack.message.v2.queue.Queue')
 
     def test_queues(self):
         self.verify_list(self.proxy.queues, queue.Queue, paginated=True)
@@ -64,6 +67,9 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
         mock_get_resource.assert_called_once_with(message.Message,
                                                   "resource_or_id",
                                                   queue_name="test_queue")
+        self.verify_get_overrided(
+            self.proxy, message.Message,
+            'openstack.message.v2.message.Message')
 
     def test_messages(self):
         self.verify_list(self.proxy.messages, message.Message,
@@ -137,6 +143,9 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
         mock_get_resource.assert_called_once_with(
             subscription.Subscription, "resource_or_id",
             queue_name="test_queue")
+        self.verify_get_overrided(
+            self.proxy, subscription.Subscription,
+            'openstack.message.v2.subscription.Subscription')
 
     def test_subscriptions(self):
         self.verify_list(self.proxy.subscriptions, subscription.Subscription,
@@ -175,6 +184,9 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
                       expected_args=[claim.Claim,
                                      "resource_or_id"],
                       expected_kwargs={"queue_name": "test_queue"})
+        self.verify_get_overrided(
+            self.proxy, claim.Claim,
+            'openstack.message.v2.claim.Claim')
 
     def test_claim_update(self):
         self._verify2("openstack.proxy.BaseProxy._update",

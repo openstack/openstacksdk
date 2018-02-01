@@ -81,6 +81,9 @@ class TestKeyManagerProxy(test_proxy_base.TestProxyBase):
 
     def test_secret_get(self):
         self.verify_get(self.proxy.get_secret, secret.Secret)
+        self.verify_get_overrided(
+            self.proxy, secret.Secret,
+            'openstack.key_manager.v1.secret.Secret')
 
     def test_secrets(self):
         self.verify_list(self.proxy.secrets, secret.Secret, paginated=False)

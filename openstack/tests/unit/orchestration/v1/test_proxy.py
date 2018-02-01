@@ -47,6 +47,9 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
     def test_get_stack(self):
         self.verify_get(self.proxy.get_stack, stack.Stack)
+        self.verify_get_overrided(
+            self.proxy, stack.Stack,
+            'openstack.orchestration.v1.stack.Stack')
 
     def test_update_stack(self):
         self.verify_update(self.proxy.update_stack, stack.Stack)
