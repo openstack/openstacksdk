@@ -157,7 +157,8 @@ class TestFlavor(base.BaseFunctionalTestCase):
         # Now set them
         extra_specs = {'foo': 'aaa', 'bar': 'bbb'}
         self.operator_cloud.set_flavor_specs(new_flavor['id'], extra_specs)
-        mod_flavor = self.operator_cloud.get_flavor(new_flavor['id'])
+        mod_flavor = self.operator_cloud.get_flavor(
+            new_flavor['id'], get_extra=True)
 
         # Verify extra_specs were set
         self.assertIn('extra_specs', mod_flavor)
@@ -165,7 +166,8 @@ class TestFlavor(base.BaseFunctionalTestCase):
 
         # Unset the 'foo' value
         self.operator_cloud.unset_flavor_specs(mod_flavor['id'], ['foo'])
-        mod_flavor = self.operator_cloud.get_flavor_by_id(new_flavor['id'])
+        mod_flavor = self.operator_cloud.get_flavor_by_id(
+            new_flavor['id'], get_extra=True)
 
         # Verify 'foo' is unset and 'bar' is still set
         self.assertEqual({'bar': 'bbb'}, mod_flavor['extra_specs'])

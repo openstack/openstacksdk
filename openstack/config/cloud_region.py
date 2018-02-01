@@ -353,6 +353,7 @@ class CloudRegion(object):
     def get_cache_expiration_time(self):
         if self._openstack_config:
             return self._openstack_config.get_cache_expiration_time()
+        return 0
 
     def get_cache_path(self):
         if self._openstack_config:
@@ -361,6 +362,7 @@ class CloudRegion(object):
     def get_cache_class(self):
         if self._openstack_config:
             return self._openstack_config.get_cache_class()
+        return 'dogpile.cache.null'
 
     def get_cache_arguments(self):
         if self._openstack_config:
@@ -400,56 +402,56 @@ class CloudRegion(object):
     def get_external_networks(self):
         """Get list of network names for external networks."""
         return [
-            net['name'] for net in self.config['networks']
+            net['name'] for net in self.config.get('networks', [])
             if net['routes_externally']]
 
     def get_external_ipv4_networks(self):
         """Get list of network names for external IPv4 networks."""
         return [
-            net['name'] for net in self.config['networks']
+            net['name'] for net in self.config.get('networks', [])
             if net['routes_ipv4_externally']]
 
     def get_external_ipv6_networks(self):
         """Get list of network names for external IPv6 networks."""
         return [
-            net['name'] for net in self.config['networks']
+            net['name'] for net in self.config.get('networks', [])
             if net['routes_ipv6_externally']]
 
     def get_internal_networks(self):
         """Get list of network names for internal networks."""
         return [
-            net['name'] for net in self.config['networks']
+            net['name'] for net in self.config.get('networks', [])
             if not net['routes_externally']]
 
     def get_internal_ipv4_networks(self):
         """Get list of network names for internal IPv4 networks."""
         return [
-            net['name'] for net in self.config['networks']
+            net['name'] for net in self.config.get('networks', [])
             if not net['routes_ipv4_externally']]
 
     def get_internal_ipv6_networks(self):
         """Get list of network names for internal IPv6 networks."""
         return [
-            net['name'] for net in self.config['networks']
+            net['name'] for net in self.config.get('networks', [])
             if not net['routes_ipv6_externally']]
 
     def get_default_network(self):
         """Get network used for default interactions."""
-        for net in self.config['networks']:
+        for net in self.config.get('networks', []):
             if net['default_interface']:
                 return net['name']
         return None
 
     def get_nat_destination(self):
         """Get network used for NAT destination."""
-        for net in self.config['networks']:
+        for net in self.config.get('networks', []):
             if net['nat_destination']:
                 return net['name']
         return None
 
     def get_nat_source(self):
         """Get network used for NAT source."""
-        for net in self.config['networks']:
+        for net in self.config.get('networks', []):
             if net.get('nat_source'):
                 return net['name']
         return None
