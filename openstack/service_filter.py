@@ -92,6 +92,16 @@ class ServiceFilter(dict):
         self['api_version'] = api_version
         self['requires_project_id'] = requires_project_id
 
+    @classmethod
+    def _get_proxy_class_names(cls):
+        names = []
+        module_name = ".".join(cls.__module__.split('.')[:-1])
+        for version in cls.valid_versions:
+            names.append("{module}.{version}._proxy.Proxy".format(
+                module=module_name,
+                version=version.module))
+        return names
+
     @property
     def service_type(self):
         return self['service_type']
