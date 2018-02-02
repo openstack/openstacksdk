@@ -11,7 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.load_balancer.v2 import health_monitor
@@ -38,7 +38,7 @@ EXAMPLE = {
 }
 
 
-class TestPoolHealthMonitor(testtools.TestCase):
+class TestPoolHealthMonitor(base.TestCase):
 
     def test_basic(self):
         test_hm = health_monitor.HealthMonitor()

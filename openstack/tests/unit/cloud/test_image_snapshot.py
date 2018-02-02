@@ -19,7 +19,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestImageSnapshot(base.RequestsMockTestCase):
+class TestImageSnapshot(base.TestCase):
 
     def setUp(self):
         super(TestImageSnapshot, self).setUp()

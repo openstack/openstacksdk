@@ -20,7 +20,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestStack(base.RequestsMockTestCase):
+class TestStack(base.TestCase):
 
     def setUp(self):
         super(TestStack, self).setUp()

@@ -16,7 +16,7 @@ import openstack.cloud
 from openstack.tests.unit import base
 
 
-class TestOpenStackCloudOperatorNoAuth(base.RequestsMockTestCase):
+class TestOpenStackCloudOperatorNoAuth(base.TestCase):
     def setUp(self):
         """Setup Noauth OpenStackCloud tests
 
@@ -25,7 +25,7 @@ class TestOpenStackCloudOperatorNoAuth(base.RequestsMockTestCase):
         mechanism that enables Ironic noauth mode to be utilized with
         Shade.
 
-        Uses base.RequestsMockTestCase instead of IronicTestCase because
+        Uses base.TestCase instead of IronicTestCase because
         we need to do completely different things with discovery.
         """
         super(TestOpenStackCloudOperatorNoAuth, self).setUp()

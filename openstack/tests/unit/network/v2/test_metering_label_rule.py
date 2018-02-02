@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import metering_label_rule
 
@@ -25,7 +25,7 @@ EXAMPLE = {
 }
 
 
-class TestMeteringLabelRule(testtools.TestCase):
+class TestMeteringLabelRule(base.TestCase):
 
     def test_basic(self):
         sot = metering_label_rule.MeteringLabelRule()

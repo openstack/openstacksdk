@@ -24,7 +24,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestServerDeleteMetadata(base.RequestsMockTestCase):
+class TestServerDeleteMetadata(base.TestCase):
 
     def setUp(self):
         super(TestServerDeleteMetadata, self).setUp()

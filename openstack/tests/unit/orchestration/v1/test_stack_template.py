@@ -11,7 +11,7 @@
 # under the License.
 
 import copy
-import testtools
+from openstack.tests.unit import base
 
 from openstack.orchestration.v1 import stack_template
 
@@ -36,7 +36,7 @@ FAKE = {
 }
 
 
-class TestStackTemplate(testtools.TestCase):
+class TestStackTemplate(base.TestCase):
 
     def test_basic(self):
         sot = stack_template.StackTemplate()

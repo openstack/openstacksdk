@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import agent
 
@@ -34,7 +34,7 @@ EXAMPLE = {
 }
 
 
-class TestAgent(testtools.TestCase):
+class TestAgent(base.TestCase):
 
     def test_basic(self):
         sot = agent.Agent()
@@ -120,7 +120,7 @@ class TestAgent(testtools.TestCase):
                                        json=body)
 
 
-class TestNetworkHostingDHCPAgent(testtools.TestCase):
+class TestNetworkHostingDHCPAgent(base.TestCase):
 
     def test_basic(self):
         net = agent.NetworkHostingDHCPAgent()
@@ -136,7 +136,7 @@ class TestNetworkHostingDHCPAgent(testtools.TestCase):
         self.assertTrue(net.allow_list)
 
 
-class TestRouterL3Agent(testtools.TestCase):
+class TestRouterL3Agent(base.TestCase):
 
     def test_basic(self):
         sot = agent.RouterL3Agent()

@@ -36,7 +36,7 @@ _fake_zone_list = {
 }
 
 
-class TestAvailabilityZoneNames(base.RequestsMockTestCase):
+class TestAvailabilityZoneNames(base.TestCase):
 
     def test_list_availability_zone_names(self):
         self.register_uris([

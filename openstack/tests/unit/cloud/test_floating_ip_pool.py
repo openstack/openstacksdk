@@ -24,7 +24,7 @@ from openstack.tests.unit import base
 from openstack.tests import fakes
 
 
-class TestFloatingIPPool(base.RequestsMockTestCase):
+class TestFloatingIPPool(base.TestCase):
     pools = [{'name': u'public'}]
 
     def test_list_floating_ip_pools(self):

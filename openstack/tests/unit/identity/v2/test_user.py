@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity.v2 import user
 
@@ -23,7 +23,7 @@ EXAMPLE = {
 }
 
 
-class TestUser(testtools.TestCase):
+class TestUser(base.TestCase):
 
     def test_basic(self):
         sot = user.User()

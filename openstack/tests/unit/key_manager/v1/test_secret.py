@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.key_manager.v1 import secret
 
@@ -35,7 +35,7 @@ EXAMPLE = {
 }
 
 
-class TestSecret(testtools.TestCase):
+class TestSecret(base.TestCase):
 
     def test_basic(self):
         sot = secret.Secret()

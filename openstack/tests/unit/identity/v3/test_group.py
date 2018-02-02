@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity.v3 import group
 
@@ -23,7 +23,7 @@ EXAMPLE = {
 }
 
 
-class TestGroup(testtools.TestCase):
+class TestGroup(base.TestCase):
 
     def test_basic(self):
         sot = group.Group()

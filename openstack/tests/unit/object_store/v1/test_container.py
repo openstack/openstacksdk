@@ -14,7 +14,7 @@ from openstack.object_store.v1 import container
 from openstack.tests.unit import base
 
 
-class TestContainer(base.RequestsMockTestCase):
+class TestContainer(base.TestCase):
 
     def setUp(self):
         super(TestContainer, self).setUp()

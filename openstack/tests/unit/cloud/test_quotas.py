@@ -31,7 +31,7 @@ fake_quota_set = {
 }
 
 
-class TestQuotas(base.RequestsMockTestCase):
+class TestQuotas(base.TestCase):
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         super(TestQuotas, self).setUp(
             cloud_config_fixture=cloud_config_fixture)

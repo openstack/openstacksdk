@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.baremetal.v1 import node
 
@@ -91,7 +91,7 @@ FAKE = {
 }
 
 
-class TestNode(testtools.TestCase):
+class TestNode(base.TestCase):
 
     def test_basic(self):
         sot = node.Node()
@@ -145,7 +145,7 @@ class TestNode(testtools.TestCase):
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
 
-class TestNodeDetail(testtools.TestCase):
+class TestNodeDetail(base.TestCase):
 
     def test_basic(self):
         sot = node.NodeDetail()

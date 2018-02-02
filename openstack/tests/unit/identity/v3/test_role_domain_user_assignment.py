@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity.v3 import role_domain_user_assignment
 
@@ -24,7 +24,7 @@ EXAMPLE = {
 }
 
 
-class TestRoleDomainUserAssignment(testtools.TestCase):
+class TestRoleDomainUserAssignment(base.TestCase):
 
     def test_basic(self):
         sot = role_domain_user_assignment.RoleDomainUserAssignment()

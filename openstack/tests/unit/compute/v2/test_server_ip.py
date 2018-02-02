@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.compute.v2 import server_ip
 
@@ -23,7 +23,7 @@ EXAMPLE = {
 }
 
 
-class TestServerIP(testtools.TestCase):
+class TestServerIP(base.TestCase):
 
     def test_basic(self):
         sot = server_ip.ServerIP()

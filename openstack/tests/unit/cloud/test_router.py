@@ -20,7 +20,7 @@ from openstack.cloud import exc
 from openstack.tests.unit import base
 
 
-class TestRouter(base.RequestsMockTestCase):
+class TestRouter(base.TestCase):
 
     router_name = 'goofy'
     router_id = '57076620-dcfb-42ed-8ad6-79ccb4a79ed2'

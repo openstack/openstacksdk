@@ -12,7 +12,7 @@
 
 from keystoneauth1 import adapter
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import floating_ip
 
@@ -35,7 +35,7 @@ EXAMPLE = {
 }
 
 
-class TestFloatingIP(testtools.TestCase):
+class TestFloatingIP(base.TestCase):
 
     def test_basic(self):
         sot = floating_ip.FloatingIP()

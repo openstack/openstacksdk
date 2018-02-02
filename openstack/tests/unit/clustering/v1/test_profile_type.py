@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.clustering.v1 import profile_type
 
@@ -29,7 +29,7 @@ FAKE = {
 }
 
 
-class TestProfileType(testtools.TestCase):
+class TestProfileType(base.TestCase):
 
     def test_basic(self):
         sot = profile_type.ProfileType()

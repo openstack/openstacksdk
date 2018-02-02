@@ -17,7 +17,7 @@ import testtools
 from testtools import matchers
 
 
-class TestRoleAssignment(base.RequestsMockTestCase):
+class TestRoleAssignment(base.TestCase):
 
     def _build_role_assignment_response(self, role_id, scope_type, scope_id,
                                         entity_type, entity_id):

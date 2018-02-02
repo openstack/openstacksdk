@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.message import message_service
 
 
-class TestMessageService(testtools.TestCase):
+class TestMessageService(base.TestCase):
 
     def test_service(self):
         sot = message_service.MessageService()

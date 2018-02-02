@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack import exceptions
 from openstack import proxy
@@ -42,7 +42,7 @@ class HeadableResource(resource.Resource):
     allow_head = True
 
 
-class TestProxyPrivate(testtools.TestCase):
+class TestProxyPrivate(base.TestCase):
 
     def setUp(self):
         super(TestProxyPrivate, self).setUp()
@@ -158,7 +158,7 @@ class TestProxyPrivate(testtools.TestCase):
         self.assertEqual(result, res)
 
 
-class TestProxyDelete(testtools.TestCase):
+class TestProxyDelete(base.TestCase):
 
     def setUp(self):
         super(TestProxyDelete, self).setUp()
@@ -214,7 +214,7 @@ class TestProxyDelete(testtools.TestCase):
                           DeleteableResource, self.res, ignore_missing=False)
 
 
-class TestProxyUpdate(testtools.TestCase):
+class TestProxyUpdate(base.TestCase):
 
     def setUp(self):
         super(TestProxyUpdate, self).setUp()
@@ -247,7 +247,7 @@ class TestProxyUpdate(testtools.TestCase):
         self.res.update.assert_called_once_with(self.sot)
 
 
-class TestProxyCreate(testtools.TestCase):
+class TestProxyCreate(base.TestCase):
 
     def setUp(self):
         super(TestProxyCreate, self).setUp()
@@ -271,7 +271,7 @@ class TestProxyCreate(testtools.TestCase):
         self.res.create.assert_called_once_with(self.sot)
 
 
-class TestProxyGet(testtools.TestCase):
+class TestProxyGet(base.TestCase):
 
     def setUp(self):
         super(TestProxyGet, self).setUp()
@@ -321,7 +321,7 @@ class TestProxyGet(testtools.TestCase):
             "test", self.sot._get, RetrieveableResource, self.res)
 
 
-class TestProxyList(testtools.TestCase):
+class TestProxyList(base.TestCase):
 
     def setUp(self):
         super(TestProxyList, self).setUp()
@@ -349,7 +349,7 @@ class TestProxyList(testtools.TestCase):
         self._test_list(False)
 
 
-class TestProxyHead(testtools.TestCase):
+class TestProxyHead(base.TestCase):
 
     def setUp(self):
         super(TestProxyHead, self).setUp()
@@ -380,7 +380,7 @@ class TestProxyHead(testtools.TestCase):
         self.assertEqual(rv, self.fake_result)
 
 
-class TestProxyWaits(testtools.TestCase):
+class TestProxyWaits(base.TestCase):
 
     def setUp(self):
         super(TestProxyWaits, self).setUp()

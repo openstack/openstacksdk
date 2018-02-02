@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity.v3 import domain
 
@@ -24,7 +24,7 @@ EXAMPLE = {
 }
 
 
-class TestDomain(testtools.TestCase):
+class TestDomain(base.TestCase):
 
     def test_basic(self):
         sot = domain.Domain()

@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity import identity_service
 
 
-class TestIdentityService(testtools.TestCase):
+class TestIdentityService(base.TestCase):
 
     def test_regular_service(self):
         sot = identity_service.IdentityService()

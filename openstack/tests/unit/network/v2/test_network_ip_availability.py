@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import network_ip_availability
 
@@ -38,7 +38,7 @@ EXAMPLE_WITH_OPTIONAL = {
 }
 
 
-class TestNetworkIPAvailability(testtools.TestCase):
+class TestNetworkIPAvailability(base.TestCase):
 
     def test_basic(self):
         sot = network_ip_availability.NetworkIPAvailability()

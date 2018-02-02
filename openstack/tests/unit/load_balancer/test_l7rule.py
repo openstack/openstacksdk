@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.load_balancer.v2 import l7_rule
@@ -32,7 +32,7 @@ EXAMPLE = {
 }
 
 
-class TestL7Rule(testtools.TestCase):
+class TestL7Rule(base.TestCase):
 
     def test_basic(self):
         test_l7rule = l7_rule.L7Rule()

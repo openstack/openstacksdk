@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.key_manager.v1 import container
 
@@ -28,7 +28,7 @@ EXAMPLE = {
 }
 
 
-class TestContainer(testtools.TestCase):
+class TestContainer(base.TestCase):
 
     def test_basic(self):
         sot = container.Container()

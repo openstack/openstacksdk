@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity.v2 import extension
 
@@ -26,7 +26,7 @@ EXAMPLE = {
 }
 
 
-class TestExtension(testtools.TestCase):
+class TestExtension(base.TestCase):
 
     def test_basic(self):
         sot = extension.Extension()

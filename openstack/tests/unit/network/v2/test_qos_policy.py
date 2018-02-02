@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.network.v2 import qos_policy
@@ -26,7 +26,7 @@ EXAMPLE = {
 }
 
 
-class TestQoSPolicy(testtools.TestCase):
+class TestQoSPolicy(base.TestCase):
 
     def test_basic(self):
         sot = qos_policy.QoSPolicy()

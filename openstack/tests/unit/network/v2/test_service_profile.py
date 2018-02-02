@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import service_profile
 
@@ -28,7 +28,7 @@ EXAMPLE = {
 }
 
 
-class TestServiceProfile(testtools.TestCase):
+class TestServiceProfile(base.TestCase):
     def test_basic(self):
         service_profiles = service_profile.ServiceProfile()
         self.assertEqual('service_profile', service_profiles.resource_key)

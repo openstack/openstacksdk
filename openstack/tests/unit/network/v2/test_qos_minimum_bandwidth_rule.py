@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.network.v2 import qos_minimum_bandwidth_rule
@@ -23,7 +23,7 @@ EXAMPLE = {
 }
 
 
-class TestQoSMinimumBandwidthRule(testtools.TestCase):
+class TestQoSMinimumBandwidthRule(base.TestCase):
 
     def test_basic(self):
         sot = qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule()

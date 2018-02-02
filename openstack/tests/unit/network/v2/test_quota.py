@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import quota
 from openstack import resource
@@ -35,7 +35,7 @@ EXAMPLE = {
 }
 
 
-class TestQuota(testtools.TestCase):
+class TestQuota(base.TestCase):
 
     def test_basic(self):
         sot = quota.Quota()
@@ -82,7 +82,7 @@ class TestQuota(testtools.TestCase):
                          resource.Resource._get_id(quota_obj))
 
 
-class TestQuotaDefault(testtools.TestCase):
+class TestQuotaDefault(base.TestCase):
 
     def test_basic(self):
         sot = quota.QuotaDefault()

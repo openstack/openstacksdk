@@ -19,7 +19,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestOperatorCloud(base.RequestsMockTestCase):
+class TestOperatorCloud(base.TestCase):
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_endpoint')
     def test_get_session_endpoint_provided(self, fake_get_endpoint):

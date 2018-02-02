@@ -29,7 +29,7 @@ new_zone_dict = copy.copy(zone_dict)
 new_zone_dict['id'] = '1'
 
 
-class TestZone(base.RequestsMockTestCase):
+class TestZone(base.TestCase):
 
     def setUp(self):
         super(TestZone, self).setUp()

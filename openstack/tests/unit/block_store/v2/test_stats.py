@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.block_storage.v2 import stats
 
@@ -28,7 +28,7 @@ POOLS = {"name": "pool1",
          }
 
 
-class TestBackendPools(testtools.TestCase):
+class TestBackendPools(base.TestCase):
 
     def setUp(self):
         super(TestBackendPools, self).setUp()

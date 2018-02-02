@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import router
 
@@ -58,7 +58,7 @@ EXAMPLE_WITH_OPTIONAL = {
 }
 
 
-class TestRouter(testtools.TestCase):
+class TestRouter(base.TestCase):
 
     def test_basic(self):
         sot = router.Router()
@@ -205,7 +205,7 @@ class TestRouter(testtools.TestCase):
                                     json=body)
 
 
-class TestL3AgentRouters(testtools.TestCase):
+class TestL3AgentRouters(base.TestCase):
 
     def test_basic(self):
         sot = router.L3AgentRouter()

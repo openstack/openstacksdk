@@ -22,7 +22,7 @@ import openstack.cloud
 from openstack.tests.unit import base
 
 
-class TestDomains(base.RequestsMockTestCase):
+class TestDomains(base.TestCase):
 
     def get_mock_url(self, service_type='identity',
                      interface='admin', resource='domains',

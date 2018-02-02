@@ -23,7 +23,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestDeleteServer(base.RequestsMockTestCase):
+class TestDeleteServer(base.TestCase):
 
     def test_delete_server(self):
         """

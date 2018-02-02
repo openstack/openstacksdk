@@ -19,7 +19,7 @@ from openstack.cloud import exc
 from openstack.tests.unit import base
 
 
-class TestQosBandwidthLimitRule(base.RequestsMockTestCase):
+class TestQosBandwidthLimitRule(base.TestCase):
 
     policy_name = 'qos test policy'
     policy_id = '881d1bb7-a663-44c0-8f9f-ee2765b74486'

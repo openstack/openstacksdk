@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import flavor
 
@@ -32,7 +32,7 @@ EXAMPLE = {
 }
 
 
-class TestFlavor(testtools.TestCase):
+class TestFlavor(base.TestCase):
     def test_basic(self):
         flavors = flavor.Flavor()
         self.assertEqual('flavor', flavors.resource_key)

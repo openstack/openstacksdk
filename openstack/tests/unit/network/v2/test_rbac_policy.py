@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import rbac_policy
 
@@ -24,7 +24,7 @@ EXAMPLE = {
 }
 
 
-class TestRBACPolicy(testtools.TestCase):
+class TestRBACPolicy(base.TestCase):
 
     def test_basic(self):
         sot = rbac_policy.RBACPolicy()

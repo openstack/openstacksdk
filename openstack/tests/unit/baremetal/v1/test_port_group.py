@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.baremetal.v1 import port_group
 
@@ -47,7 +47,7 @@ FAKE = {
 }
 
 
-class TestPortGroup(testtools.TestCase):
+class TestPortGroup(base.TestCase):
 
     def test_basic(self):
         sot = port_group.PortGroup()
@@ -78,7 +78,7 @@ class TestPortGroup(testtools.TestCase):
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
 
-class TestPortGroupDetail(testtools.TestCase):
+class TestPortGroupDetail(base.TestCase):
 
     def test_basic(self):
         sot = port_group.PortGroupDetail()

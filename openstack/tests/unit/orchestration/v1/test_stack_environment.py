@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.orchestration.v1 import stack_environment as se
 
@@ -36,7 +36,7 @@ FAKE = {
 }
 
 
-class TestStackTemplate(testtools.TestCase):
+class TestStackTemplate(base.TestCase):
 
     def test_basic(self):
         sot = se.StackEnvironment()

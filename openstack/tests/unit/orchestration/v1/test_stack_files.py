@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.orchestration.v1 import stack_files as sf
 from openstack import resource
@@ -22,7 +22,7 @@ FAKE = {
 }
 
 
-class TestStackFiles(testtools.TestCase):
+class TestStackFiles(base.TestCase):
 
     def test_basic(self):
         sot = sf.StackFiles()

@@ -22,7 +22,7 @@ from openstack.cloud import exc
 from openstack.tests.unit import base
 
 
-class BaseTestObject(base.RequestsMockTestCase):
+class BaseTestObject(base.TestCase):
 
     def setUp(self):
         super(BaseTestObject, self).setUp()

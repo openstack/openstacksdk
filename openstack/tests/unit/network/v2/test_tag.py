@@ -12,7 +12,7 @@
 
 import inspect
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import network
 import openstack.network.v2 as network_resources
@@ -21,7 +21,7 @@ from openstack.network.v2.tag import TagMixin
 ID = 'IDENTIFIER'
 
 
-class TestTag(testtools.TestCase):
+class TestTag(base.TestCase):
 
     @staticmethod
     def _create_network_resource(tags=None):

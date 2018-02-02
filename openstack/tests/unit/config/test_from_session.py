@@ -21,7 +21,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestFromSession(base.RequestsMockTestCase):
+class TestFromSession(base.TestCase):
 
     scenarios = [
         ('no_region', dict(test_region=None)),

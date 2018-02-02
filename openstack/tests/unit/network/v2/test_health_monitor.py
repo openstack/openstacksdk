@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import health_monitor
 
@@ -32,7 +32,7 @@ EXAMPLE = {
 }
 
 
-class TestHealthMonitor(testtools.TestCase):
+class TestHealthMonitor(base.TestCase):
 
     def test_basic(self):
         sot = health_monitor.HealthMonitor()

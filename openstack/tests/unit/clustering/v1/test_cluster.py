@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.clustering.v1 import cluster
 
@@ -65,7 +65,7 @@ FAKE_CREATE_RESP = {
 }
 
 
-class TestCluster(testtools.TestCase):
+class TestCluster(base.TestCase):
 
     def setUp(self):
         super(TestCluster, self).setUp()

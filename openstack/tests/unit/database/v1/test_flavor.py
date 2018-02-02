@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.database.v1 import flavor
 
@@ -23,7 +23,7 @@ EXAMPLE = {
 }
 
 
-class TestFlavor(testtools.TestCase):
+class TestFlavor(base.TestCase):
 
     def test_basic(self):
         sot = flavor.Flavor()

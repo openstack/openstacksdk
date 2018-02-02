@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.baremetal import baremetal_service
 
 
-class TestBaremetalService(testtools.TestCase):
+class TestBaremetalService(base.TestCase):
 
     def test_service(self):
         sot = baremetal_service.BaremetalService()

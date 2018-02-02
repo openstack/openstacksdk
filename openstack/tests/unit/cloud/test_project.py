@@ -18,7 +18,7 @@ import openstack.cloud._utils
 from openstack.tests.unit import base
 
 
-class TestProject(base.RequestsMockTestCase):
+class TestProject(base.TestCase):
 
     def get_mock_url(self, service_type='identity', interface='admin',
                      resource=None, append=None, base_url_append=None,

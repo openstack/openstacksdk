@@ -13,14 +13,14 @@
 import logging
 import mock
 import sys
-import testtools
+from openstack.tests.unit import base
 
 import fixtures
 
 from openstack import utils
 
 
-class Test_enable_logging(testtools.TestCase):
+class Test_enable_logging(base.TestCase):
 
     def setUp(self):
         super(Test_enable_logging, self).setUp()
@@ -89,7 +89,7 @@ class Test_enable_logging(testtools.TestCase):
         self._file_tests(logging.INFO, False)
 
 
-class Test_urljoin(testtools.TestCase):
+class Test_urljoin(base.TestCase):
 
     def test_strings(self):
         root = "http://www.example.com"

@@ -12,7 +12,7 @@
 
 import mock
 import six
-import testtools
+from openstack.tests.unit import base
 
 from openstack import exceptions
 from openstack.orchestration.v1 import stack
@@ -51,7 +51,7 @@ FAKE_CREATE_RESPONSE = {
 }
 
 
-class TestStack(testtools.TestCase):
+class TestStack(base.TestCase):
 
     def test_basic(self):
         sot = stack.Stack()
@@ -138,7 +138,7 @@ class TestStack(testtools.TestCase):
                          six.text_type(ex))
 
 
-class TestStackPreview(testtools.TestCase):
+class TestStackPreview(base.TestCase):
 
     def test_basic(self):
         sot = stack.StackPreview()

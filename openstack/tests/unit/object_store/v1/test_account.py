@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.object_store.v1 import account
 
@@ -29,7 +29,7 @@ ACCOUNT_EXAMPLE = {
 }
 
 
-class TestAccount(testtools.TestCase):
+class TestAccount(base.TestCase):
 
     def test_basic(self):
         sot = account.Account(**ACCOUNT_EXAMPLE)

@@ -11,6 +11,7 @@
 # under the License.
 
 import mock
+import fixtures
 
 from openstack.tests.unit import base
 
@@ -178,8 +179,15 @@ RAW_FLAVOR_DICT = {
     'vcpus': 8}
 
 
-# TODO(shade) Convert this to RequestsMockTestCase
+# TODO(shade) Convert this to TestCase
 class TestUtils(base.TestCase):
+
+    def setUp(self):
+
+        super(TestUtils, self).setUp()
+        self.session_fixture = self.useFixture(fixtures.MonkeyPatch(
+            'openstack.config.cloud_region.CloudRegion.get_session',
+            mock.Mock()))
 
     def test_normalize_flavors(self):
         raw_flavor = RAW_FLAVOR_DICT.copy()

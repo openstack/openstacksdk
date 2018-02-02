@@ -27,7 +27,7 @@ from openstack.tests.unit import base
 from testtools import matchers
 
 
-class TestCloudEndpoints(base.RequestsMockTestCase):
+class TestCloudEndpoints(base.TestCase):
 
     def get_mock_url(self, service_type='identity', interface='admin',
                      resource='endpoints', append=None, base_url_append='v3'):

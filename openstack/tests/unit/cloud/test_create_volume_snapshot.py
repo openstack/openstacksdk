@@ -23,7 +23,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestCreateVolumeSnapshot(base.RequestsMockTestCase):
+class TestCreateVolumeSnapshot(base.TestCase):
 
     def test_create_volume_snapshot_wait(self):
         """

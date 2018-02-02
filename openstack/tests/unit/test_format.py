@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack import format
 
 
-class TestBoolStrFormatter(testtools.TestCase):
+class TestBoolStrFormatter(base.TestCase):
 
     def test_deserialize(self):
         self.assertTrue(format.BoolStr.deserialize(True))

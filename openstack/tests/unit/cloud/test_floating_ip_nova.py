@@ -31,7 +31,7 @@ def get_fake_has_service(has_service):
     return fake_has_service
 
 
-class TestFloatingIP(base.RequestsMockTestCase):
+class TestFloatingIP(base.TestCase):
     mock_floating_ip_list_rep = [
         {
             'fixed_ip': None,

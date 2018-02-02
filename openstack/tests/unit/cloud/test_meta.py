@@ -228,7 +228,7 @@ OSIC_SUBNETS = [
 ]
 
 
-class TestMeta(base.RequestsMockTestCase):
+class TestMeta(base.TestCase):
     def test_find_nova_addresses_key_name(self):
         # Note 198.51.100.0/24 is TEST-NET-2 from rfc5737
         addrs = {'public': [{'addr': '198.51.100.1', 'version': 4}],

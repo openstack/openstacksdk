@@ -17,7 +17,7 @@ import uuid
 from openstack.tests.unit import base
 
 
-class TestUsage(base.RequestsMockTestCase):
+class TestUsage(base.TestCase):
 
     def test_get_usage(self):
         project = self.mock_for_keystone_projects(project_count=1,

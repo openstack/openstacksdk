@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.compute.v2 import volume_attachment
 
@@ -21,7 +21,7 @@ EXAMPLE = {
 }
 
 
-class TestServerInterface(testtools.TestCase):
+class TestServerInterface(base.TestCase):
 
     def test_basic(self):
         sot = volume_attachment.VolumeAttachment()

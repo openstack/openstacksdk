@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.load_balancer.v2 import load_balancer
@@ -37,7 +37,7 @@ EXAMPLE = {
 }
 
 
-class TestLoadBalancer(testtools.TestCase):
+class TestLoadBalancer(base.TestCase):
 
     def test_basic(self):
         test_load_balancer = load_balancer.LoadBalancer()

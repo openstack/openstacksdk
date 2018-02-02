@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.clustering.v1 import profile
 
@@ -41,7 +41,7 @@ FAKE = {
 }
 
 
-class TestProfile(testtools.TestCase):
+class TestProfile(base.TestCase):
 
     def setUp(self):
         super(TestProfile, self).setUp()
@@ -73,7 +73,7 @@ class TestProfile(testtools.TestCase):
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
 
-class TestProfileValidate(testtools.TestCase):
+class TestProfileValidate(base.TestCase):
 
     def setUp(self):
         super(TestProfileValidate, self).setUp()

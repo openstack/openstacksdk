@@ -20,7 +20,7 @@ from openstack.cloud import exc
 from openstack.tests.unit import base
 
 
-class TestSubnet(base.RequestsMockTestCase):
+class TestSubnet(base.TestCase):
 
     network_name = 'network_name'
     subnet_name = 'subnet_name'

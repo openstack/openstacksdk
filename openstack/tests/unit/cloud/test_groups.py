@@ -14,7 +14,7 @@
 from openstack.tests.unit import base
 
 
-class TestGroups(base.RequestsMockTestCase):
+class TestGroups(base.TestCase):
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         super(TestGroups, self).setUp(
             cloud_config_fixture=cloud_config_fixture)

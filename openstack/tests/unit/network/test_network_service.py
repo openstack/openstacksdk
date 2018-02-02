@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network import network_service
 
 
-class TestNetworkService(testtools.TestCase):
+class TestNetworkService(base.TestCase):
 
     def test_service(self):
         sot = network_service.NetworkService()

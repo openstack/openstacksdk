@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.clustering.v1 import build_info
 
@@ -25,7 +25,7 @@ FAKE = {
 }
 
 
-class TestBuildInfo(testtools.TestCase):
+class TestBuildInfo(base.TestCase):
 
     def setUp(self):
         super(TestBuildInfo, self).setUp()

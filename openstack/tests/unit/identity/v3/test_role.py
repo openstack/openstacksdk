@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity.v3 import role
 
@@ -22,7 +22,7 @@ EXAMPLE = {
 }
 
 
-class TestRole(testtools.TestCase):
+class TestRole(base.TestCase):
 
     def test_basic(self):
         sot = role.Role()

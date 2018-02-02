@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.block_storage import block_storage_service
 
 
-class TestBlockStorageService(testtools.TestCase):
+class TestBlockStorageService(base.TestCase):
 
     def test_service(self):
         sot = block_storage_service.BlockStorageService()
