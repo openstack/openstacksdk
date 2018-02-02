@@ -484,9 +484,8 @@ class TestCreateServer(base.RequestsMockTestCase):
         self.assert_calls()
 
     @mock.patch.object(openstack.cloud.OpenStackCloud, 'add_ips_to_server')
-    @mock.patch('time.sleep')
     def test_create_server_no_addresses(
-            self, mock_sleep, mock_add_ips_to_server):
+            self, mock_add_ips_to_server):
         """
         Test that create_server with a wait throws an exception if the
         server doesn't have addresses.

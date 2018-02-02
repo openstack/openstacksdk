@@ -103,7 +103,8 @@ def _get_os_environ(envvar_prefix=None):
     environkeys = [k for k in os.environ.keys()
                    if (k.startswith('OS_') or k.startswith(envvar_prefix))
                    and not k.startswith('OS_TEST')  # infra CI var
-                   and not k.startswith('OS_STD')   # infra CI var
+                   and not k.startswith('OS_STD')   # oslotest var
+                   and not k.startswith('OS_LOG')   # oslotest var
                    ]
     for k in environkeys:
         newkey = k.split('_', 1)[-1].lower()

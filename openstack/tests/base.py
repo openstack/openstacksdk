@@ -14,19 +14,20 @@
 # under the License.
 
 import os
+import sys
 
 import fixtures
 import logging
 import munch
+from oslotest import base
 import pprint
 from six import StringIO
-import testtools
 import testtools.content
 
 _TRUE_VALUES = ('true', '1', 'yes')
 
 
-class TestCase(testtools.TestCase):
+class TestCase(base.BaseTestCase):
 
     """Test case base class for all tests."""
 
@@ -35,32 +36,25 @@ class TestCase(testtools.TestCase):
 
     def setUp(self):
         """Run before each test method to initialize test environment."""
+        # No openstacksdk unit tests should EVER run longer than a second.
+        # Set this to 3 by default just to give us some fudge.
+        # Do this before super setUp so that we intercept the default value
+        # in oslotest. TODO(mordred) Make the default timeout configurable
+        # in oslotest.
+        self.useFixture(
+            fixtures.EnvironmentVariable(
+                'OS_TEST_TIMEOUT', os.environ.get('OS_TEST_TIMEOUT', '3')))
 
         super(TestCase, self).setUp()
-        test_timeout = int(os.environ.get('OS_TEST_TIMEOUT', 0))
-        try:
-            test_timeout = int(test_timeout * self.TIMEOUT_SCALING_FACTOR)
-        except ValueError:
-            # If timeout value is invalid do not set a timeout.
-            test_timeout = 0
-        if test_timeout > 0:
-            self.useFixture(fixtures.Timeout(test_timeout, gentle=True))
 
-        self.useFixture(fixtures.NestedTempfile())
-        self.useFixture(fixtures.TempHomeDir())
-
-        if os.environ.get('OS_STDOUT_CAPTURE') in _TRUE_VALUES:
-            stdout = self.useFixture(fixtures.StringStream('stdout')).stream
-            self.useFixture(fixtures.MonkeyPatch('sys.stdout', stdout))
-        if os.environ.get('OS_STDERR_CAPTURE') in _TRUE_VALUES:
-            stderr = self.useFixture(fixtures.StringStream('stderr')).stream
-            self.useFixture(fixtures.MonkeyPatch('sys.stderr', stderr))
-
-        self._log_stream = StringIO()
-        if os.environ.get('OS_ALWAYS_LOG') in _TRUE_VALUES:
-            self.addCleanup(self.printLogs)
+        if os.environ.get('OS_LOG_CAPTURE') in _TRUE_VALUES:
+            self._log_stream = StringIO()
+            if os.environ.get('OS_ALWAYS_LOG') in _TRUE_VALUES:
+                self.addCleanup(self.printLogs)
+            else:
+                self.addOnException(self.attachLogs)
         else:
-            self.addOnException(self.attachLogs)
+            self._log_stream = sys.stdout
 
         handler = logging.StreamHandler(self._log_stream)
         formatter = logging.Formatter('%(asctime)s %(name)-32s %(message)s')
@@ -75,6 +69,11 @@ class TestCase(testtools.TestCase):
         logger.setLevel(logging.DEBUG)
         logger.addHandler(handler)
         logger.propagate = False
+
+    def _fake_logs(self):
+        # Override _fake_logs in oslotest until we can get our
+        # attach-on-exception logic added
+        pass
 
     def assertEqual(self, first, second, *args, **kwargs):
         '''Munch aware wrapper'''

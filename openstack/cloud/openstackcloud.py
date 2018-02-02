@@ -276,11 +276,14 @@ class OpenStackCloud(_normalize.Normalizer):
                        that do not want to be overridden can be ommitted.
         """
 
-        # TODO(mordred) Replace this with from_session
-        config = openstack.config.OpenStackConfig(
-            app_name=self.config._app_name,
-            app_version=self.config._app_version,
-            load_yaml_config=False)
+        if self.config._openstack_config:
+            config = self.config._openstack_config
+        else:
+            # TODO(mordred) Replace this with from_session
+            config = openstack.config.OpenStackConfig(
+                app_name=self.config._app_name,
+                app_version=self.config._app_version,
+                load_yaml_config=False)
         params = copy.deepcopy(self.config.config)
         # Remove profile from current cloud so that overridding works
         params.pop('profile', None)
@@ -322,9 +325,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 session=self.session,
                 discovery_cache=self.config._discovery_cache)
 
-        # Use cloud='defaults' so that we overlay settings properly
         cloud_config = config.get_one(
-            cloud='defaults',
             session_constructor=session_constructor,
             **params)
         # Override the cloud name so that logging/location work right

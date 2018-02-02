@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import time
 import unittest
 
 from openstack import exceptions
@@ -68,8 +67,6 @@ class TestStack(base.BaseFunctionalTest):
                 self.stack, 'DELETE_COMPLETE')
         except exceptions.NotFoundException:
             pass
-        # TODO(shade) sleeping in tests is bad mmkay?
-        time.sleep(40)
         test_network.delete_network(self.conn, self.network, self.subnet)
         super(TestStack, self).tearDown()
 

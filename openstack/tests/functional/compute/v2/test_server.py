@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import time
-
 from openstack.compute.v2 import server
 from openstack.tests.functional import base
 from openstack.tests.functional.network.v2 import test_network
@@ -50,8 +48,6 @@ class TestServer(base.BaseFunctionalTest):
         self.assertIsNone(sot)
         # Need to wait for the stack to go away before network delete
         self.conn.compute.wait_for_delete(self.server)
-        # TODO(shade) sleeping in tests is bad mmkay?
-        time.sleep(40)
         test_network.delete_network(self.conn, self.network, self.subnet)
         super(TestServer, self).tearDown()
 
