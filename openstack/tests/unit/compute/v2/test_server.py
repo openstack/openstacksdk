@@ -84,7 +84,7 @@ class TestServer(base.TestCase):
                               "name": "name",
                               "status": "status",
                               "host": "host",
-                              "all_tenants": "all_tenants",
+                              "all_projects": "all_tenants",
                               "changes_since": "changes-since",
                               "limit": "limit",
                               "marker": "marker",
