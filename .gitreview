@@ -1,4 +1,5 @@
 [gerrit]
 host=review.openstack.org
 port=29418
+defaultbranch=stable/pike
 project=openstack/python-openstacksdk.git
