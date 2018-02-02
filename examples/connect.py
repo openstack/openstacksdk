@@ -20,17 +20,19 @@ import argparse
 import os
 
 import openstack
-from openstack import config as occ
+from openstack.config import loader
 from openstack import utils
 import sys
 
 utils.enable_logging(True, stream=sys.stdout)
 
-#: Defines the OpenStack Client Config (OCC) cloud key in your OCC config
-#: file, typically in $HOME/.config/openstack/clouds.yaml. That configuration
+#: Defines the OpenStack Config loud key in your config file,
+#: typically in $HOME/.config/openstack/clouds.yaml. That configuration
 #: will determine where the examples will be run and what resource defaults
 #: will be used to run the examples.
 TEST_CLOUD = os.getenv('OS_TEST_CLOUD', 'devstack-admin')
+config = loader.OpenStackConfig()
+cloud = openstack.connect(cloud=TEST_CLOUD)
 
 
 class Opts(object):
@@ -42,13 +44,7 @@ class Opts(object):
 
 
 def _get_resource_value(resource_key, default):
-    try:
-        return cloud.config['example'][resource_key]
-    except KeyError:
-        return default
-
-config = occ.OpenStackConfig()
-cloud = openstack.connect(cloud=TEST_CLOUD)
+    return config.get_extra_config('example').get(resource_key, default)
 
 SERVER_NAME = 'openstacksdk-example'
 IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
@@ -70,7 +66,7 @@ def create_connection_from_config():
 
 def create_connection_from_args():
     parser = argparse.ArgumentParser()
-    config = occ.OpenStackConfig()
+    config = loader.OpenStackConfig()
     config.register_argparse_arguments(parser, sys.argv[1:])
     args = parser.parse_args()
     return openstack.connect(config=config.get_one(argparse=args))
