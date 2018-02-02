@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixed an issue where some valid query parameters were not listed causing
+    errors due to the new behavior of throwing errors when an invalid filter
+    condition is specified. Specifically, ``tenant_id`` as a filter for
+    Neutron networks and ``ip_version`` for Neutron netork IP availability.

@@ -100,7 +100,7 @@ class TestNetwork(testtools.TestCase):
              'marker': 'marker',
              'description': 'description',
              'name': 'name',
-             'project_id': 'project_id',
+             'project_id': 'tenant_id',
              'status': 'status',
              'ipv4_address_scope_id': 'ipv4_address_scope',
              'ipv6_address_scope_id': 'ipv6_address_scope',
