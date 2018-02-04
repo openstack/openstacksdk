@@ -192,7 +192,7 @@ class TestCloudRegion(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None)
+            verify=True, cert=None, timeout=None, discovery_cache=None)
         self.assertEqual(
             fake_session.additional_user_agent,
             [('openstacksdk', openstack_version.__version__)])
@@ -212,7 +212,7 @@ class TestCloudRegion(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None)
+            verify=True, cert=None, timeout=None, discovery_cache=None)
         self.assertEqual(fake_session.app_name, "test_app")
         self.assertEqual(fake_session.app_version, "test_version")
         self.assertEqual(
@@ -232,7 +232,7 @@ class TestCloudRegion(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=9)
+            verify=True, cert=None, timeout=9, discovery_cache=None)
         self.assertEqual(
             fake_session.additional_user_agent,
             [('openstacksdk', openstack_version.__version__)])

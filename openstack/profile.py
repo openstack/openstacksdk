@@ -16,7 +16,6 @@
 """
 
 import copy
-from six.moves import urllib
 
 from openstack import _log
 from openstack.config import cloud_region
@@ -45,9 +44,6 @@ def _get_config_from_profile(profile, authenticator, **kwargs):
     # TODO(shade) Remove this once we've shifted python-openstackclient
     # to not use the profile interface.
 
-    # We don't have a cloud name. Make one up from the auth_url hostname
-    # so that log messages work.
-    name = urllib.parse.urlparse(authenticator.auth_url).hostname
     region_name = None
     for service in profile.get_services():
         if service.region:
@@ -66,7 +62,7 @@ def _get_config_from_profile(profile, authenticator, **kwargs):
     config_kwargs = config_defaults.get_defaults()
     config_kwargs.update(kwargs)
     config = cloud_region.CloudRegion(
-        name=name, region_name=region_name, config=config_kwargs)
+        region_name=region_name, config=config_kwargs)
     config._auth = authenticator
     return config
 

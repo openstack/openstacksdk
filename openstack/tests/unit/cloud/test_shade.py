@@ -54,6 +54,14 @@ class TestShade(base.RequestsMockTestCase):
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, openstack.cloud.OpenStackCloud)
 
+    def test_connect_as(self):
+        # Do initial auth/catalog steps
+        # TODO(mordred) This only tests the constructor steps. Discovery
+        # cache sharing is broken. We need to get discovery_cache option
+        # plumbed through
+        # keystoneauth1.loading.base.BaseLoader.load_from_options
+        self.cloud.connect_as(project_name='test_project')
+
     @mock.patch.object(openstack.cloud.OpenStackCloud, 'search_images')
     def test_get_images(self, mock_search):
         image1 = dict(id='123', name='mickey')

@@ -295,18 +295,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                     load_envvars=cloud is not None,
                     **kwargs)
 
-        if self.config.name:
-            tm_name = ':'.join([
-                self.config.name,
-                self.config.region_name or 'unknown'])
-        else:
-            tm_name = self.config.region_name or 'unknown'
-
-        self.task_manager = task_manager.TaskManager(name=tm_name)
-
-        if session:
-            # TODO(mordred) Expose constructor option for this in OCC
-            self.config._keystone_session = session
+        self.task_manager = task_manager.TaskManager(self.config.full_name)
 
         self._session = None
         self._proxies = {}
