@@ -285,11 +285,15 @@ class CloudRegion(object):
             return None, None, 'latest'
         if not version:
             version = self.get_api_version(service_key)
-        if not version:
+        # Octavia doens't have a version discovery document. Hard-code an
+        # exception to this logic for now.
+        if not version and service_key not in ('load-balancer',):
             return None, None, 'latest'
         return version, None, None
 
-    def get_session_client(self, service_key, version=None):
+    def get_session_client(
+            self, service_key, version=None, constructor=adapter.Adapter,
+            **kwargs):
         """Return a prepped requests adapter for a given service.
 
         This is useful for making direct requests calls against a
@@ -306,7 +310,7 @@ class CloudRegion(object):
         (version, min_version, max_version) = self._get_version_args(
             service_key, version)
 
-        return adapter.Adapter(
+        return constructor(
             session=self.get_session(),
             service_type=self.get_service_type(service_key),
             service_name=self.get_service_name(service_key),
@@ -314,7 +318,8 @@ class CloudRegion(object):
             region_name=self.region_name,
             version=version,
             min_version=min_version,
-            max_version=max_version)
+            max_version=max_version,
+            **kwargs)
 
     def _get_highest_endpoint(self, service_types, kwargs):
         session = self.get_session()

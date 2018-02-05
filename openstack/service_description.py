@@ -88,15 +88,11 @@ class ServiceDescription(object):
         if self.service_type not in instance._proxies:
             config = instance.config
             proxy_class = self.get_proxy_class(config)
-            instance._proxies[self.service_type] = proxy_class(
-                session=instance.config.get_session(),
+            instance._proxies[self.service_type] = config.get_session_client(
+                self.service_type,
+                constructor=proxy_class,
                 task_manager=instance.task_manager,
                 allow_version_hack=True,
-                service_type=config.get_service_type(self.service_type),
-                service_name=config.get_service_name(self.service_type),
-                interface=config.get_interface(self.service_type),
-                region_name=config.region_name,
-                version=config.get_api_version(self.service_type)
             )
         return instance._proxies[self.service_type]
 
