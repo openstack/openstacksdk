@@ -836,7 +836,7 @@ class Normalizer(object):
         return ret
 
     def _normalize_volume_backup(self, backup):
-        """ Normalize a valume backup object"""
+        """ Normalize a volume backup object"""
 
         backup = backup.copy()
         # Discard noise
