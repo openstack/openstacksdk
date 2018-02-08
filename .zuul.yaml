@@ -208,6 +208,8 @@
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
       - osc-tox-unit-tips
+      - shade-functional-tips
+      - shade-tox-tips
     check:
       jobs:
         - build-openstack-sphinx-docs:
