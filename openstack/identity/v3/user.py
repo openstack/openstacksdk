@@ -68,7 +68,7 @@ class User(resource.Resource):
     #: The default form of credential used during authentication.
     #: *Type: string*
     password = resource.Body('password')
-    #: The date and time when the pasword expires. The time zone is UTC.
+    #: The date and time when the password expires. The time zone is UTC.
     #: A None value means the password never expires.
     #: This is a response object attribute, not valid for requests.
     #: *New in version 3.7*
