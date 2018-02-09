@@ -148,8 +148,21 @@
         "endpoints_links": [],
         "name": "designate",
         "type": "dns"
+      },
+      {
+        "endpoints": [
+          {
+            "id": "4deb4d0504a044a395d4480741ba624z",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://example.com/clustering"
+          }
+        ],
+        "endpoint_links": [],
+        "name": "senlin",
+        "type": "clustering"
       }
-    ],
+   ],
     "expires_at": "9999-12-31T23:59:59Z",
     "issued_at": "2016-12-17T14:25:05.000000Z",
     "methods": [

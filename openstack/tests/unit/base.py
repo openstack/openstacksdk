@@ -480,6 +480,12 @@ class TestCase(base.TestCase):
         return dict(method='GET', uri="https://bare-metal.example.com/",
                     text=open(discovery_fixture, 'r').read())
 
+    def get_senlin_discovery_mock_dict(self):
+        discovery_fixture = os.path.join(
+            self.fixtures_directory, "clustering.json")
+        return dict(method='GET', uri="https://clustering.example.com/",
+                    text=open(discovery_fixture, 'r').read())
+
     def use_compute_discovery(
             self, compute_version_json='compute-version.json',
             compute_discovery_url='https://compute.example.com/v2.1/'):
@@ -517,6 +523,15 @@ class TestCase(base.TestCase):
         # right location in the mock_uris when calling .register_uris
         self.__do_register_uris([
             self.get_ironic_discovery_mock_dict()])
+
+    def use_senlin(self):
+        # NOTE(elachance): This method is only meant to be used in "setUp"
+        # where the ordering of the url being registered is tightly controlled
+        # if the functionality of .use_senlin is meant to be used during an
+        # actual test case, use .get_senlin_discovery_mock and apply to the
+        # right location in the mock_uris when calling .register_uris
+        self.__do_register_uris([
+            self.get_senlin_discovery_mock_dict()])
 
     def register_uris(self, uri_mock_list=None):
         """Mock a list of URIs and responses via requests mock.

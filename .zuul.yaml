@@ -200,6 +200,25 @@
         OPENSTACKSDK_HAS_MAGNUM: 1
 
 - job:
+    name: openstacksdk-functional-devstack-senlin
+    parent: openstacksdk-functional-devstack
+    description: |
+      Run shade functional tests against a master devstack with senlin
+    required-projects:
+      - openstack/senlin
+    vars:
+      devstack_plugins:
+        senlin: https://git.openstack.org/openstack/senlin
+      devstack_services:
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+      tox_environment:
+        OPENSTACKSDK_HAS_SWIFT: 0
+        OPENSTACKSDK_HAS_SENLIN: 1
+
+- job:
     name: openstacksdk-ansible-functional-devstack
     parent: openstacksdk-functional-devstack
     description: |
@@ -289,6 +308,7 @@
         - openstacksdk-ansible-stable-2.6-functional-devstack:
             voting: false
         - openstacksdk-functional-devstack
+        - openstacksdk-functional-devstack-senlin
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-python3
@@ -304,6 +324,7 @@
               sphinx_python: python3
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-python3
+        - openstacksdk-functional-devstack-senlin
         - neutron-grenade
         - openstack-tox-lower-constraints
         - nodepool-functional-py35-src
