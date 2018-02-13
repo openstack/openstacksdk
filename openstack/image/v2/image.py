@@ -212,6 +212,12 @@ class Image(resource.Resource):
     has_auto_disk_config = resource.Body('auto_disk_config', type=bool)
     #: The operating system installed on the image.
     os_type = resource.Body('os_type')
+    #: The operating system admin username.
+    os_admin_user = resource.Body('os_admin_user')
+    #: If true, QEMU guest agent will be exposed to the instance.
+    hw_qemu_guest_agent = resource.Body('hw_qemu_guest_agent', type=bool)
+    #: If true, require quiesce on snapshot via QEMU guest agent.
+    os_require_quiesce = resource.Body('os_require_quiesce', type=bool)
 
     def _action(self, session, action):
         """Call an action on an image ID."""

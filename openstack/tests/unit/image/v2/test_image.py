@@ -79,6 +79,9 @@ EXAMPLE = {
     'vmware_ostype': '48',
     'auto_disk_config': True,
     'os_type': '49',
+    'os_admin_user': 'ubuntu',
+    'hw_qemu_guest_agent': True,
+    'os_require_quiesce': True,
 }
 
 
@@ -175,6 +178,10 @@ class TestImage(base.TestCase):
         self.assertEqual(EXAMPLE['vmware_ostype'], sot.vmware_ostype)
         self.assertEqual(EXAMPLE['auto_disk_config'], sot.has_auto_disk_config)
         self.assertEqual(EXAMPLE['os_type'], sot.os_type)
+        self.assertEqual(EXAMPLE['os_admin_user'], sot.os_admin_user)
+        self.assertEqual(EXAMPLE['hw_qemu_guest_agent'],
+                         sot.hw_qemu_guest_agent)
+        self.assertEqual(EXAMPLE['os_require_quiesce'], sot.os_require_quiesce)
 
     def test_deactivate(self):
         sot = image.Image(**EXAMPLE)
