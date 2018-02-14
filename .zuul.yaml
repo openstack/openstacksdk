@@ -45,16 +45,12 @@
     description: |
       Base job for devstack-based functional tests
     required-projects:
-      # These jobs will DTRT when openstacksdk triggers them, but we want to
-      # make sure stable branches of openstacksdk never get cloned by other
-      # people, since stable branches of openstacksdk are, well, not actually
-      # things.
       - name: openstack-infra/shade
         override-branch: master
       - name: openstack/openstacksdk
-        override-branch: master
+        override-branch: stable/queens
       - name: openstack/os-client-config
-        override-branch: master
+        override-branch: stable/queens
       - name: openstack/heat
       - name: openstack/swift
     timeout: 9000
@@ -105,7 +101,7 @@
     name: openstacksdk-functional-devstack
     parent: openstacksdk-functional-devstack-base
     description: |
-      Run openstacksdk functional tests against a master devstack
+      Run openstacksdk functional tests against a stable/queens devstack
     required-projects:
       - openstack/octavia
     vars:
@@ -217,8 +213,6 @@
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-python3
-        - osc-functional-devstack-tips:
-            voting: false
         - neutron-grenade
     gate:
       jobs:
