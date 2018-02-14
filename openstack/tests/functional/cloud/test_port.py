@@ -128,6 +128,15 @@ class TestPort(base.BaseFunctionalTestCase):
 
         updated_port = self.operator_cloud.get_port(name_or_id=port['id'])
         self.assertEqual(port.get('name'), new_port_name)
+        port.pop('revision_number', None)
+        port.pop(u'revision_number', None)
+        port.pop('updated_at', None)
+        port.pop(u'updated_at', None)
+        updated_port.pop('revision_number', None)
+        updated_port.pop(u'revision_number', None)
+        updated_port.pop('updated_at', None)
+        updated_port.pop(u'updated_at', None)
+
         self.assertEqual(port, updated_port)
 
     def test_delete_port(self):
