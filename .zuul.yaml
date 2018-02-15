@@ -44,6 +44,7 @@
     parent: devstack-tox-functional-consumer
     description: |
       Base job for devstack-based functional tests
+    post-run: playbooks/devstack/post.yaml
     required-projects:
       # These jobs will DTRT when openstacksdk triggers them, but we want to
       # make sure stable branches of openstacksdk never get cloned by other
