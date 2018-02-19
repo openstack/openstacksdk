@@ -318,7 +318,9 @@ class OpenStackCloud(_normalize.Normalizer):
         def session_constructor(*args, **kwargs):
             # We need to pass our current keystone session to the Session
             # Constructor, otherwise the new auth plugin doesn't get used.
-            return keystoneauth1.session.Session(session=self.session)
+            return keystoneauth1.session.Session(
+                session=self.session,
+                discovery_cache=self.config._discovery_cache)
 
         # Use cloud='defaults' so that we overlay settings properly
         cloud_config = config.get_one(
@@ -326,7 +328,7 @@ class OpenStackCloud(_normalize.Normalizer):
             session_constructor=session_constructor,
             **params)
         # Override the cloud name so that logging/location work right
-        cloud_config.name = self.name
+        cloud_config._name = self.name
         cloud_config.config['profile'] = self.name
         # Use self.__class__ so that we return whatever this if, like if it's
         # a subclass in the case of shade wrapping sdk.

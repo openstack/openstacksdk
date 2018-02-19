@@ -60,9 +60,6 @@ def from_session(session, name=None, region_name=None,
     :param kwargs:
         Config settings for this cloud region.
     """
-    # If someone is constructing one of these from a Session, then they are
-    # not using a named config. Use the hostname of their auth_url instead.
-    name = name or urllib.parse.urlparse(session.auth.auth_url).hostname
     config_dict = config_defaults.get_defaults()
     config_dict.update(**kwargs)
     return CloudRegion(
@@ -77,11 +74,13 @@ class CloudRegion(object):
     A CloudRegion encapsulates the config information needed for connections
     to all of the services in a Region of a Cloud.
     """
-    def __init__(self, name, region_name=None, config=None,
+    def __init__(self, name=None, region_name=None, config=None,
                  force_ipv4=False, auth_plugin=None,
                  openstack_config=None, session_constructor=None,
-                 app_name=None, app_version=None, session=None):
-        self.name = name
+                 app_name=None, app_version=None, session=None,
+                 discovery_cache=None):
+
+        self._name = name
         self.region_name = region_name
         self.config = config
         self.log = _log.setup_logging('openstack.config')
@@ -92,6 +91,7 @@ class CloudRegion(object):
         self._session_constructor = session_constructor or ks_session.Session
         self._app_name = app_name
         self._app_version = app_version
+        self._discovery_cache = discovery_cache or None
 
     def __getattr__(self, key):
         """Return arbitrary attributes."""
@@ -116,6 +116,32 @@ class CloudRegion(object):
     def __ne__(self, other):
         return not self == other
 
+    @property
+    def name(self):
+        if self._name is None:
+            try:
+                self._name = urllib.parse.urlparse(
+                    self.get_session().auth.auth_url).hostname
+            except Exception:
+                self._name = self._app_name or ''
+        return self._name
+
+    @property
+    def full_name(self):
+        """Return a string that can be used as an identifier.
+
+        Always returns a valid string. It will have name and region_name
+        or just one of the two if only one is set, or else 'unknown'.
+        """
+        if self.name and self.region_name:
+            return ":".join([self.name, self.region_name])
+        elif self.name and not self.region_name:
+            return self.name
+        elif not self.name and self.region_name:
+            return self.region_name
+        else:
+            return 'unknown'
+
     def set_session_constructor(self, session_constructor):
         """Sets the Session constructor."""
         self._session_constructor = session_constructor
@@ -128,9 +154,10 @@ class CloudRegion(object):
             verify = self.config['verify']
             if self.config['cacert']:
                 warnings.warn(
-                    "You are specifying a cacert for the cloud {0} but "
-                    "also to ignore the host verification. The host SSL cert "
-                    "will not be verified.".format(self.name))
+                    "You are specifying a cacert for the cloud {full_name}"
+                    " but also to ignore the host verification. The host SSL"
+                    " cert will not be verified.".format(
+                        full_name=self.full_name))
 
         cert = self.config.get('cert', None)
         if cert:
@@ -216,15 +243,15 @@ class CloudRegion(object):
             # cert verification
             if not verify:
                 self.log.debug(
-                    "Turning off SSL warnings for {cloud}:{region}"
-                    " since verify=False".format(
-                        cloud=self.name, region=self.region_name))
+                    "Turning off SSL warnings for {full_name}"
+                    " since verify=False".format(full_name=self.full_name))
             requestsexceptions.squelch_warnings(insecure_requests=not verify)
             self._keystone_session = self._session_constructor(
                 auth=self._auth,
                 verify=verify,
                 cert=cert,
-                timeout=self.config['api_timeout'])
+                timeout=self.config['api_timeout'],
+                discovery_cache=self._discovery_cache)
             if hasattr(self._keystone_session, 'additional_user_agent'):
                 self._keystone_session.additional_user_agent.append(
                     ('openstacksdk', openstack_version.__version__))
