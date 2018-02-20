@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity import version
 
@@ -24,7 +24,7 @@ EXAMPLE = {
 }
 
 
-class TestVersion(testtools.TestCase):
+class TestVersion(base.TestCase):
 
     def test_basic(self):
         sot = version.Version()

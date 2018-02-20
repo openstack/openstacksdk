@@ -15,18 +15,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# TODO(shade) Shift to using new combined base unit test class
 import copy
 import os
 import tempfile
 
-from openstack.config import cloud_region
-
 import extras
 import fixtures
-from oslotest import base
 import yaml
 
+from openstack.config import cloud_region
+from openstack.tests.unit import base
 
 VENDOR_CONF = {
     'public-clouds': {
@@ -199,13 +197,12 @@ def _write_yaml(obj):
         return obj_yaml.name
 
 
-class TestCase(base.BaseTestCase):
+class TestCase(base.TestCase):
     """Test case base class for all unit tests."""
 
     def setUp(self):
         super(TestCase, self).setUp()
 
-        self.useFixture(fixtures.NestedTempfile())
         conf = copy.deepcopy(USER_CONF)
         tdir = self.useFixture(fixtures.TempDir())
         conf['cache']['path'] = tdir.path

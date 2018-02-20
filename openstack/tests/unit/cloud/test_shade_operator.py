@@ -16,5 +16,5 @@
 from openstack.tests.unit import base
 
 
-class TestShadeOperator(base.RequestsMockTestCase):
+class TestShadeOperator(base.TestCase):
     pass

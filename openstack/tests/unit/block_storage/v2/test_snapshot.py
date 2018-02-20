@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.block_storage.v2 import snapshot
 
@@ -38,7 +38,7 @@ DETAILED_SNAPSHOT = SNAPSHOT.copy()
 DETAILED_SNAPSHOT.update(**DETAILS)
 
 
-class TestSnapshot(testtools.TestCase):
+class TestSnapshot(base.TestCase):
 
     def test_basic(self):
         sot = snapshot.Snapshot(SNAPSHOT)
@@ -72,7 +72,7 @@ class TestSnapshot(testtools.TestCase):
         self.assertTrue(sot.is_forced)
 
 
-class TestSnapshotDetail(testtools.TestCase):
+class TestSnapshotDetail(base.TestCase):
 
     def test_basic(self):
         sot = snapshot.SnapshotDetail(DETAILED_SNAPSHOT)

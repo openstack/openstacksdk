@@ -92,7 +92,7 @@ _TASK_SCHEMA = dict(
 )
 
 
-class TestMemoryCache(base.RequestsMockTestCase):
+class TestMemoryCache(base.TestCase):
 
     def setUp(self):
         super(TestMemoryCache, self).setUp(

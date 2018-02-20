@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.image.v2 import member
 
@@ -24,7 +24,7 @@ EXAMPLE = {
 }
 
 
-class TestMember(testtools.TestCase):
+class TestMember(base.TestCase):
     def test_basic(self):
         sot = member.Member()
         self.assertIsNone(sot.resource_key)

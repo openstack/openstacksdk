@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.clustering.v1 import action
 
@@ -43,7 +43,7 @@ FAKE = {
 }
 
 
-class TestAction(testtools.TestCase):
+class TestAction(base.TestCase):
 
     def setUp(self):
         super(TestAction, self).setUp()

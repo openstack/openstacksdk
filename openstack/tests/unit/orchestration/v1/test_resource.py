@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.orchestration.v1 import resource
 
@@ -36,7 +36,7 @@ FAKE = {
 }
 
 
-class TestResource(testtools.TestCase):
+class TestResource(base.TestCase):
 
     def test_basic(self):
         sot = resource.Resource()

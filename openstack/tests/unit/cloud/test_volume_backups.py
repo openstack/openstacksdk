@@ -13,7 +13,7 @@ from openstack.cloud import meta
 from openstack.tests.unit import base
 
 
-class TestVolumeBackups(base.RequestsMockTestCase):
+class TestVolumeBackups(base.TestCase):
     def test_search_volume_backups(self):
         name = 'Volume1'
         vol1 = {'name': name, 'availability_zone': 'az1'}

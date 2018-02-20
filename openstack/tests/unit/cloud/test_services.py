@@ -25,7 +25,7 @@ from openstack.tests.unit import base
 from testtools import matchers
 
 
-class CloudServices(base.RequestsMockTestCase):
+class CloudServices(base.TestCase):
 
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         super(CloudServices, self).setUp(cloud_config_fixture)

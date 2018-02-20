@@ -11,13 +11,13 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack import exceptions
 
 
-class Test_Exception(testtools.TestCase):
+class Test_Exception(base.TestCase):
     def test_method_not_supported(self):
         exc = exceptions.MethodNotSupported(self.__class__, 'list')
         expected = ('The list method is not supported for ' +
@@ -25,7 +25,7 @@ class Test_Exception(testtools.TestCase):
         self.assertEqual(expected, str(exc))
 
 
-class Test_HttpException(testtools.TestCase):
+class Test_HttpException(base.TestCase):
 
     def setUp(self):
         super(Test_HttpException, self).setUp()
@@ -59,7 +59,7 @@ class Test_HttpException(testtools.TestCase):
         self.assertEqual(http_status, exc.status_code)
 
 
-class TestRaiseFromResponse(testtools.TestCase):
+class TestRaiseFromResponse(base.TestCase):
 
     def setUp(self):
         super(TestRaiseFromResponse, self).setUp()

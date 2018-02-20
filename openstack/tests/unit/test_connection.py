@@ -57,7 +57,7 @@ clouds:
            cacert=CONFIG_CACERT)
 
 
-class TestConnection(base.RequestsMockTestCase):
+class TestConnection(base.TestCase):
 
     def setUp(self):
         super(TestConnection, self).setUp()
@@ -194,7 +194,7 @@ class TestConnection(base.RequestsMockTestCase):
             profile=prof)
 
 
-class TestAuthorize(base.RequestsMockTestCase):
+class TestAuthorize(base.TestCase):
 
     def test_authorize_works(self):
         res = self.conn.authorize()

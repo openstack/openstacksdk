@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from examples import connect
 from examples.image import create as image_create
@@ -18,7 +18,7 @@ from examples.image import delete as image_delete
 from examples.image import list as image_list
 
 
-class TestImage(testtools.TestCase):
+class TestImage(base.TestCase):
     """Test the image examples
 
     The purpose of these tests is to ensure the examples run without erring

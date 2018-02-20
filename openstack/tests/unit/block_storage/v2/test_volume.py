@@ -12,7 +12,7 @@
 
 import copy
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.block_storage.v2 import volume
 
@@ -61,7 +61,7 @@ VOLUME_DETAIL = copy.copy(VOLUME)
 VOLUME_DETAIL.update(DETAILS)
 
 
-class TestVolume(testtools.TestCase):
+class TestVolume(base.TestCase):
 
     def test_basic(self):
         sot = volume.Volume(VOLUME)
@@ -102,7 +102,7 @@ class TestVolume(testtools.TestCase):
         self.assertEqual(VOLUME["imageRef"], sot.image_id)
 
 
-class TestVolumeDetail(testtools.TestCase):
+class TestVolumeDetail(base.TestCase):
 
     def test_basic(self):
         sot = volume.VolumeDetail(VOLUME_DETAIL)

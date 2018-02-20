@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.orchestration import orchestration_service
 
 
-class TestOrchestrationService(testtools.TestCase):
+class TestOrchestrationService(base.TestCase):
 
     def test_service(self):
         sot = orchestration_service.OrchestrationService()

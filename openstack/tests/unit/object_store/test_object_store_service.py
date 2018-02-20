@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.object_store import object_store_service
 
 
-class TestObjectStoreService(testtools.TestCase):
+class TestObjectStoreService(base.TestCase):
 
     def test_service(self):
         sot = object_store_service.ObjectStoreService()

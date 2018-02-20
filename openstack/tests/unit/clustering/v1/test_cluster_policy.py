@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.clustering.v1 import cluster_policy
 
@@ -26,7 +26,7 @@ FAKE = {
 }
 
 
-class TestClusterPolicy(testtools.TestCase):
+class TestClusterPolicy(base.TestCase):
 
     def setUp(self):
         super(TestClusterPolicy, self).setUp()

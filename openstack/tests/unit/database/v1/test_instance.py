@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.database.v1 import instance
 
@@ -31,7 +31,7 @@ EXAMPLE = {
 }
 
 
-class TestInstance(testtools.TestCase):
+class TestInstance(base.TestCase):
 
     def test_basic(self):
         sot = instance.Instance()

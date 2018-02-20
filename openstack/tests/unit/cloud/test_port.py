@@ -23,7 +23,7 @@ from openstack.cloud.exc import OpenStackCloudException
 from openstack.tests.unit import base
 
 
-class TestPort(base.RequestsMockTestCase):
+class TestPort(base.TestCase):
     mock_neutron_port_create_rep = {
         'port': {
             'status': 'DOWN',

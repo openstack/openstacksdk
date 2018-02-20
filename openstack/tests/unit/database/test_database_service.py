@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.database import database_service
 
 
-class TestDatabaseService(testtools.TestCase):
+class TestDatabaseService(base.TestCase):
 
     def test_service(self):
         sot = database_service.DatabaseService()

@@ -18,7 +18,7 @@ import openstack.cloud
 from openstack.tests.unit import base
 
 
-class TestUsers(base.RequestsMockTestCase):
+class TestUsers(base.TestCase):
 
     def _get_keystone_mock_url(self, resource, append=None, v3=True):
         base_url_append = None

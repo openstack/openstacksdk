@@ -18,7 +18,7 @@ import openstack.cloud
 from openstack.tests.unit import base
 
 
-class TestNetwork(base.RequestsMockTestCase):
+class TestNetwork(base.TestCase):
 
     mock_new_network_rep = {
         'provider:physical_network': None,

@@ -10,15 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import unittest
-
 from openstack import exceptions
 from openstack.orchestration.v1 import stack
 from openstack.tests.functional import base
 from openstack.tests.functional.network.v2 import test_network
 
 
-@unittest.skip("bug/1525005")
 class TestStack(base.BaseFunctionalTest):
 
     NAME = 'test_stack'
@@ -29,6 +26,9 @@ class TestStack(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestStack, self).setUp()
+        self.skipTest(
+            'Orchestration functional tests disabled:'
+            ' https://bugs.launchpad.net/python-openstacksdk/+bug/1525005')
         self.require_service('orchestration')
 
         if self.conn.compute.find_keypair(self.NAME) is None:

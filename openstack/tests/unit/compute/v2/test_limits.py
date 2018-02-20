@@ -14,7 +14,7 @@ import copy
 
 from keystoneauth1 import adapter
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.compute.v2 import limits
 
@@ -62,7 +62,7 @@ LIMITS_BODY = {
 }
 
 
-class TestAbsoluteLimits(testtools.TestCase):
+class TestAbsoluteLimits(base.TestCase):
 
     def test_basic(self):
         sot = limits.AbsoluteLimits()
@@ -112,7 +112,7 @@ class TestAbsoluteLimits(testtools.TestCase):
                          sot.total_cores_used)
 
 
-class TestRateLimit(testtools.TestCase):
+class TestRateLimit(base.TestCase):
 
     def test_basic(self):
         sot = limits.RateLimit()
@@ -133,7 +133,7 @@ class TestRateLimit(testtools.TestCase):
         self.assertEqual(RATE_LIMIT["limit"], sot.limits)
 
 
-class TestLimits(testtools.TestCase):
+class TestLimits(base.TestCase):
 
     def test_basic(self):
         sot = limits.Limits()

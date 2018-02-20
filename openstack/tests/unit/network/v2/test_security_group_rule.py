@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import security_group_rule
 
@@ -33,7 +33,7 @@ EXAMPLE = {
 }
 
 
-class TestSecurityGroupRule(testtools.TestCase):
+class TestSecurityGroupRule(base.TestCase):
 
     def test_basic(self):
         sot = security_group_rule.SecurityGroupRule()

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import port
 
@@ -57,7 +57,7 @@ EXAMPLE = {
 }
 
 
-class TestPort(testtools.TestCase):
+class TestPort(base.TestCase):
 
     def test_basic(self):
         sot = port.Port()

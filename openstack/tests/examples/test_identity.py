@@ -10,13 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from examples import connect
 from examples.identity import list as identity_list
 
 
-class TestIdentity(testtools.TestCase):
+class TestIdentity(base.TestCase):
     """Test the identity examples
 
     The purpose of these tests is to ensure the examples run without erring

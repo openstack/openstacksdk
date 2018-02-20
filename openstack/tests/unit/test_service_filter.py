@@ -10,20 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity import identity_service
 from openstack import service_filter
 
 
-class TestValidVersion(testtools.TestCase):
+class TestValidVersion(base.TestCase):
     def test_constructor(self):
         sot = service_filter.ValidVersion('v1.0', 'v1')
         self.assertEqual('v1.0', sot.module)
         self.assertEqual('v1', sot.path)
 
 
-class TestServiceFilter(testtools.TestCase):
+class TestServiceFilter(base.TestCase):
     def test_init(self):
         sot = service_filter.ServiceFilter(
             'ServiceType', region='REGION1', service_name='ServiceName',

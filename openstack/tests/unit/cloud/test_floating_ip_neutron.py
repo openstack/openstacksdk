@@ -28,7 +28,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestFloatingIP(base.RequestsMockTestCase):
+class TestFloatingIP(base.TestCase):
     mock_floating_ip_list_rep = {
         'floatingips': [
             {

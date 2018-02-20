@@ -17,7 +17,7 @@ from openstack.cloud import exc
 from openstack.tests.unit import base
 
 
-class TestQosRuleType(base.RequestsMockTestCase):
+class TestQosRuleType(base.TestCase):
 
     rule_type_name = "bandwidth_limit"
 

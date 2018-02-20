@@ -28,7 +28,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestCreateServer(base.RequestsMockTestCase):
+class TestCreateServer(base.TestCase):
 
     def test_create_server_with_get_exception(self):
         """

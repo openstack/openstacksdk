@@ -16,7 +16,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestFlavors(base.RequestsMockTestCase):
+class TestFlavors(base.TestCase):
 
     def test_create_flavor(self):
 

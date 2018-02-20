@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import auto_allocated_topology
 
@@ -20,7 +20,7 @@ EXAMPLE = {
 }
 
 
-class TestAutoAllocatedTopology(testtools.TestCase):
+class TestAutoAllocatedTopology(base.TestCase):
 
     def test_basic(self):
         topo = auto_allocated_topology.AutoAllocatedTopology

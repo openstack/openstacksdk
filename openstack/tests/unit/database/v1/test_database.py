@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.database.v1 import database
 
@@ -25,7 +25,7 @@ EXAMPLE = {
 }
 
 
-class TestDatabase(testtools.TestCase):
+class TestDatabase(base.TestCase):
 
     def test_basic(self):
         sot = database.Database()

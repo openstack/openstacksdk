@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.orchestration.v1 import template
 from openstack import resource
@@ -31,7 +31,7 @@ FAKE = {
 }
 
 
-class TestTemplate(testtools.TestCase):
+class TestTemplate(base.TestCase):
 
     def test_basic(self):
         sot = template.Template()

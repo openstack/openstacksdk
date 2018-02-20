@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.message.v2 import queue
@@ -35,7 +35,7 @@ FAKE2 = {
 }
 
 
-class TestQueue(testtools.TestCase):
+class TestQueue(base.TestCase):
     def test_basic(self):
         sot = queue.Queue()
         self.assertEqual('queues', sot.resources_key)

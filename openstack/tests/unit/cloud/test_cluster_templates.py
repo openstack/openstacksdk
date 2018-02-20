@@ -49,7 +49,7 @@ cluster_template_obj = munch.Munch(
 )
 
 
-class TestClusterTemplates(base.RequestsMockTestCase):
+class TestClusterTemplates(base.TestCase):
 
     def test_list_cluster_templates_without_detail(self):
 

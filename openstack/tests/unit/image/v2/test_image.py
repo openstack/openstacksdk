@@ -16,7 +16,7 @@ import operator
 from keystoneauth1 import adapter
 import mock
 import requests
-import testtools
+from openstack.tests.unit import base
 
 from openstack import exceptions
 from openstack.image.v2 import image
@@ -94,7 +94,7 @@ class FakeResponse(object):
         return self.body
 
 
-class TestImage(testtools.TestCase):
+class TestImage(base.TestCase):
 
     def setUp(self):
         super(TestImage, self).setUp()

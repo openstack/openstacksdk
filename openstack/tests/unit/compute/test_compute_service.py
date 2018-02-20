@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.compute import compute_service
 
 
-class TestComputeService(testtools.TestCase):
+class TestComputeService(base.TestCase):
 
     def test_service(self):
         sot = compute_service.ComputeService()

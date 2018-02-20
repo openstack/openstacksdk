@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.network.v2 import qos_dscp_marking_rule
@@ -22,7 +22,7 @@ EXAMPLE = {
 }
 
 
-class TestQoSDSCPMarkingRule(testtools.TestCase):
+class TestQoSDSCPMarkingRule(base.TestCase):
 
     def test_basic(self):
         sot = qos_dscp_marking_rule.QoSDSCPMarkingRule()

@@ -18,7 +18,6 @@ import time
 import uuid
 
 import fixtures
-import mock
 import os
 import openstack.config as occ
 from requests import structures
@@ -81,12 +80,12 @@ _RoleData = collections.namedtuple(
     'role_id, role_name, json_response, json_request')
 
 
-class BaseTestCase(base.TestCase):
+class TestCase(base.TestCase):
 
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         """Run before each test method to initialize test environment."""
 
-        super(BaseTestCase, self).setUp()
+        super(TestCase, self).setUp()
 
         # Sleeps are for real testing, but unit tests shouldn't need them
         realsleep = time.sleep
@@ -99,7 +98,7 @@ class BaseTestCase(base.TestCase):
                                              _nosleep))
         self.fixtures_directory = 'openstack/tests/unit/fixtures'
 
-        # Isolate os-client-config from test environment
+        # Isolate openstack.config from test environment
         config = tempfile.NamedTemporaryFile(delete=False)
         cloud_path = '%s/clouds/%s' % (self.fixtures_directory,
                                        cloud_config_fixture)
@@ -125,28 +124,6 @@ class BaseTestCase(base.TestCase):
         self.strict_cloud = openstack.connection.Connection(
             config=self.cloud_config,
             strict=True)
-
-
-# TODO(shade) Remove this and rename RequestsMockTestCase to TestCase.
-#             There are still a few places, like test_normalize, that assume
-#             this mocking is in place rather than having the correct
-#             requests_mock entries set up that need to be converted.
-class TestCase(BaseTestCase):
-
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
-
-        super(TestCase, self).setUp(cloud_config_fixture=cloud_config_fixture)
-        self.session_fixture = self.useFixture(fixtures.MonkeyPatch(
-            'openstack.config.cloud_region.CloudRegion.get_session',
-            mock.Mock()))
-
-
-class RequestsMockTestCase(BaseTestCase):
-
-    def setUp(self, cloud_config_fixture='clouds.yaml'):
-
-        super(RequestsMockTestCase, self).setUp(
-            cloud_config_fixture=cloud_config_fixture)
 
         # FIXME(notmorgan): Convert the uri_registry, discovery.json, and
         # use of keystone_v3/v2 to a proper fixtures.Fixture. For now this
@@ -653,7 +630,7 @@ class RequestsMockTestCase(BaseTestCase):
                 len(self.calls), len(self.adapter.request_history))
 
 
-class IronicTestCase(RequestsMockTestCase):
+class IronicTestCase(TestCase):
 
     def setUp(self):
         super(IronicTestCase, self).setUp()

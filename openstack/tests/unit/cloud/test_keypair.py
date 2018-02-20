@@ -17,7 +17,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestKeypair(base.RequestsMockTestCase):
+class TestKeypair(base.TestCase):
 
     def setUp(self):
         super(TestKeypair, self).setUp()

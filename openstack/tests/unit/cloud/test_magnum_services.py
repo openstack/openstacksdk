@@ -26,7 +26,7 @@ magnum_service_obj = dict(
 )
 
 
-class TestMagnumServices(base.RequestsMockTestCase):
+class TestMagnumServices(base.TestCase):
 
     def test_list_magnum_services(self):
         self.register_uris([dict(

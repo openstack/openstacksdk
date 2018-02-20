@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.clustering.v1 import node
 
@@ -37,7 +37,7 @@ FAKE = {
 }
 
 
-class TestNode(testtools.TestCase):
+class TestNode(base.TestCase):
 
     def test_basic(self):
         sot = node.Node()
@@ -156,7 +156,7 @@ class TestNode(testtools.TestCase):
         sess.delete.assert_called_once_with(url, json=body)
 
 
-class TestNodeDetail(testtools.TestCase):
+class TestNodeDetail(base.TestCase):
 
     def test_basic(self):
         sot = node.NodeDetail()

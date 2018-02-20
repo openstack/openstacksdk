@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.identity.v2 import tenant
 
@@ -23,7 +23,7 @@ EXAMPLE = {
 }
 
 
-class TestTenant(testtools.TestCase):
+class TestTenant(base.TestCase):
 
     def test_basic(self):
         sot = tenant.Tenant()

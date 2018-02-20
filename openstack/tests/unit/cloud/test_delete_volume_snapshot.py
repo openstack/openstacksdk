@@ -23,7 +23,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestDeleteVolumeSnapshot(base.RequestsMockTestCase):
+class TestDeleteVolumeSnapshot(base.TestCase):
 
     def test_delete_volume_snapshot(self):
         """

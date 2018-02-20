@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import segment
 
@@ -26,7 +26,7 @@ EXAMPLE = {
 }
 
 
-class TestSegment(testtools.TestCase):
+class TestSegment(base.TestCase):
 
     def test_basic(self):
         sot = segment.Segment()

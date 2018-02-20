@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.image import image_service
 
 
-class TestImageService(testtools.TestCase):
+class TestImageService(base.TestCase):
 
     def test_service(self):
         sot = image_service.ImageService()

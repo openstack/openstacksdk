@@ -34,7 +34,7 @@ from openstack.tests.unit import base
 CINDER_URL = 'https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0'
 
 
-class BaseTestImage(base.RequestsMockTestCase):
+class BaseTestImage(base.TestCase):
 
     def setUp(self):
         super(BaseTestImage, self).setUp()
@@ -929,7 +929,7 @@ class TestImageSuburl(BaseTestImage):
         self.assert_calls()
 
 
-class TestImageV1Only(base.RequestsMockTestCase):
+class TestImageV1Only(base.TestCase):
 
     def setUp(self):
         super(TestImageV1Only, self).setUp()
@@ -955,7 +955,7 @@ class TestImageV1Only(base.RequestsMockTestCase):
         self.assertFalse(self.cloud._is_client_version('image', 2))
 
 
-class TestImageV2Only(base.RequestsMockTestCase):
+class TestImageV2Only(base.TestCase):
 
     def setUp(self):
         super(TestImageV2Only, self).setUp()
@@ -1049,7 +1049,7 @@ class TestImageVolume(BaseTestImage):
         self.assert_calls()
 
 
-class TestImageBrokenDiscovery(base.RequestsMockTestCase):
+class TestImageBrokenDiscovery(base.TestCase):
 
     def setUp(self):
         super(TestImageBrokenDiscovery, self).setUp()

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import vpn_service
 
@@ -29,7 +29,7 @@ EXAMPLE = {
 }
 
 
-class TestVPNService(testtools.TestCase):
+class TestVPNService(base.TestCase):
 
     def test_basic(self):
         sot = vpn_service.VPNService()

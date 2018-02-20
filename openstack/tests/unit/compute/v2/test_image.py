@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.compute.v2 import image
 
@@ -36,7 +36,7 @@ DETAIL_EXAMPLE = BASIC_EXAMPLE.copy()
 DETAIL_EXAMPLE.update(DETAILS)
 
 
-class TestImage(testtools.TestCase):
+class TestImage(base.TestCase):
 
     def test_basic(self):
         sot = image.Image()

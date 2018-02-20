@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.workflow.v2 import workflow
 
@@ -22,7 +22,7 @@ FAKE = {
 }
 
 
-class TestWorkflow(testtools.TestCase):
+class TestWorkflow(base.TestCase):
 
     def setUp(self):
         super(TestWorkflow, self).setUp()

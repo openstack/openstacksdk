@@ -12,7 +12,7 @@
 
 import copy
 import mock
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.message.v2 import claim
@@ -42,7 +42,7 @@ FAKE2 = {
 }
 
 
-class TestClaim(testtools.TestCase):
+class TestClaim(base.TestCase):
     def test_basic(self):
         sot = claim.Claim()
         self.assertEqual("claims", sot.resources_key)

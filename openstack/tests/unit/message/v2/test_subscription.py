@@ -12,7 +12,7 @@
 
 import copy
 import mock
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.message.v2 import subscription
@@ -48,7 +48,7 @@ FAKE2 = {
 }
 
 
-class TestSubscription(testtools.TestCase):
+class TestSubscription(base.TestCase):
     def test_basic(self):
         sot = subscription.Subscription()
         self.assertEqual("subscriptions", sot.resources_key)

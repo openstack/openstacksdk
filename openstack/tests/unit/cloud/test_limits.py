@@ -13,7 +13,7 @@
 from openstack.tests.unit import base
 
 
-class TestLimits(base.RequestsMockTestCase):
+class TestLimits(base.TestCase):
 
     def test_get_compute_limits(self):
         self.register_uris([

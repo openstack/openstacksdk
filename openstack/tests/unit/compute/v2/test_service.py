@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 
 from openstack.compute.v2 import service
 
@@ -26,7 +26,7 @@ EXAMPLE = {
 }
 
 
-class TestService(testtools.TestCase):
+class TestService(base.TestCase):
 
     def setUp(self):
         super(TestService, self).setUp()

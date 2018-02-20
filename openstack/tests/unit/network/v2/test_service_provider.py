@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import service_provider
 
@@ -22,7 +22,7 @@ EXAMPLE = {
 }
 
 
-class TestServiceProvider(testtools.TestCase):
+class TestServiceProvider(base.TestCase):
 
     def test_basic(self):
         sot = service_provider.ServiceProvider()

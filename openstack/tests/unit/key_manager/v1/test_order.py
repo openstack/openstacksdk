@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.key_manager.v1 import order
 
@@ -31,7 +31,7 @@ EXAMPLE = {
 }
 
 
-class TestOrder(testtools.TestCase):
+class TestOrder(base.TestCase):
 
     def test_basic(self):
         sot = order.Order()

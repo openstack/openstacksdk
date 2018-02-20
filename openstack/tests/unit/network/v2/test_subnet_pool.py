@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.network.v2 import subnet_pool
 
@@ -35,7 +35,7 @@ EXAMPLE = {
 }
 
 
-class TestSubnetpool(testtools.TestCase):
+class TestSubnetpool(base.TestCase):
 
     def test_basic(self):
         sot = subnet_pool.SubnetPool()

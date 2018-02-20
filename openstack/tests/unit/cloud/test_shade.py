@@ -32,7 +32,7 @@ RANGE_DATA = [
 ]
 
 
-class TestShade(base.RequestsMockTestCase):
+class TestShade(base.TestCase):
 
     def setUp(self):
         # This set of tests are not testing neutron, they're testing

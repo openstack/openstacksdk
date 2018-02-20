@@ -19,7 +19,7 @@ import openstack.cloud
 from openstack.tests.unit import base
 
 
-class TestVolumeAccess(base.RequestsMockTestCase):
+class TestVolumeAccess(base.TestCase):
     def test_list_volume_types(self):
         volume_type = dict(
             id='voltype01', description='volume type description',

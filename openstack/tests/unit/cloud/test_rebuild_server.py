@@ -26,7 +26,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestRebuildServer(base.RequestsMockTestCase):
+class TestRebuildServer(base.TestCase):
 
     def setUp(self):
         super(TestRebuildServer, self).setUp()

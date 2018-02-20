@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.compute.v2 import extension
 
@@ -25,7 +25,7 @@ EXAMPLE = {
 }
 
 
-class TestExtension(testtools.TestCase):
+class TestExtension(base.TestCase):
 
     def test_basic(self):
         sot = extension.Extension()

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.compute.v2 import availability_zone as az
 
@@ -23,7 +23,7 @@ BASIC_EXAMPLE = {
 }
 
 
-class TestAvailabilityZone(testtools.TestCase):
+class TestAvailabilityZone(base.TestCase):
 
     def test_basic(self):
         sot = az.AvailabilityZone()

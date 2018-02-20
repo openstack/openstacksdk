@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.workflow import workflow_service
 
 
-class TestWorkflowService(testtools.TestCase):
+class TestWorkflowService(base.TestCase):
 
     def test_service(self):
         sot = workflow_service.WorkflowService()

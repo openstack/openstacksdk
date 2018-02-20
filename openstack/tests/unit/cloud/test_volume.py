@@ -19,7 +19,7 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-class TestVolume(base.RequestsMockTestCase):
+class TestVolume(base.TestCase):
 
     def test_attach_volume(self):
         server = dict(id='server001')

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.clustering.v1 import cluster_attr as ca
 
@@ -23,7 +23,7 @@ FAKE = {
 }
 
 
-class TestClusterAttr(testtools.TestCase):
+class TestClusterAttr(base.TestCase):
 
     def setUp(self):
         super(TestClusterAttr, self).setUp()

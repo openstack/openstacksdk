@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import testtools
+from openstack.tests.unit import base
 import uuid
 
 from openstack.message.v2 import message
@@ -47,7 +47,7 @@ FAKE2 = {
 }
 
 
-class TestMessage(testtools.TestCase):
+class TestMessage(base.TestCase):
     def test_basic(self):
         sot = message.Message()
         self.assertEqual('messages', sot.resources_key)

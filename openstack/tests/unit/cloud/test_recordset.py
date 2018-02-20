@@ -41,7 +41,7 @@ new_recordset['id'] = '1'
 new_recordset['zone'] = recordset_zone
 
 
-class TestRecordset(base.RequestsMockTestCase):
+class TestRecordset(base.TestCase):
 
     def setUp(self):
         super(TestRecordset, self).setUp()

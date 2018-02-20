@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import testtools
+from openstack.tests.unit import base
 
 from openstack.baremetal.v1 import chassis
 
@@ -43,7 +43,7 @@ FAKE = {
 }
 
 
-class TestChassis(testtools.TestCase):
+class TestChassis(base.TestCase):
 
     def test_basic(self):
         sot = chassis.Chassis()
@@ -69,7 +69,7 @@ class TestChassis(testtools.TestCase):
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
 
-class TestChassisDetail(testtools.TestCase):
+class TestChassisDetail(base.TestCase):
 
     def test_basic(self):
         sot = chassis.ChassisDetail()
