@@ -1824,7 +1824,7 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertRaises(exceptions.ResourceTimeout,
                           resource.wait_for_status,
-                          "session", res, status, None, 1, 3)
+                          "session", res, status, None, 0.01, 0.1)
 
     def test_no_sleep(self):
         res = mock.Mock()
