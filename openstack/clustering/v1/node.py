@@ -161,7 +161,7 @@ class Node(resource.Resource):
         body = {'force': True}
         url = utils.urljoin(self.base_path, self.id)
         resp = session.delete(url, json=body)
-        self._translate_response(resp)
+        self._translate_response(resp, has_body=False)
         return self
 
 
