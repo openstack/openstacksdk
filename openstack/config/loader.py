@@ -29,6 +29,7 @@ from keystoneauth1 import loading
 import yaml
 
 from openstack import _log
+from openstack.config import _util
 from openstack.config import cloud_region
 from openstack.config import defaults
 from openstack.config import vendors
@@ -262,7 +263,7 @@ class OpenStackConfig(object):
         self._cache_arguments = {}
         self._cache_expiration = {}
         if 'cache' in self.cloud_config:
-            cache_settings = self._normalize_keys(self.cloud_config['cache'])
+            cache_settings = _util.normalize_keys(self.cloud_config['cache'])
 
             # expiration_time used to be 'max_age' but the dogpile setting
             # is expiration_time. Support max_age for backwards compat.
@@ -327,12 +328,12 @@ class OpenStackConfig(object):
         :param dict defaults: (optional) default values to merge under the
                                          found config
         """
-        defaults = self._normalize_keys(defaults or {})
+        defaults = _util.normalize_keys(defaults or {})
         if not key:
             return defaults
         return _merge_clouds(
             defaults,
-            self._normalize_keys(self.cloud_config.get(key, {})))
+            _util.normalize_keys(self.cloud_config.get(key, {})))
 
     def _load_config_file(self):
         return self._load_yaml_json_file(self._config_files)
@@ -352,22 +353,6 @@ class OpenStackConfig(object):
                     else:
                         return path, yaml.safe_load(f)
         return (None, {})
-
-    def _normalize_keys(self, config):
-        new_config = {}
-        for key, value in config.items():
-            key = key.replace('-', '_')
-            if isinstance(value, dict):
-                new_config[key] = self._normalize_keys(value)
-            elif isinstance(value, bool):
-                new_config[key] = value
-            elif isinstance(value, int) and key != 'verbose_level':
-                new_config[key] = str(value)
-            elif isinstance(value, float):
-                new_config[key] = str(value)
-            else:
-                new_config[key] = value
-        return new_config
 
     def get_cache_expiration_time(self):
         return int(self._cache_expiration_time)
@@ -412,7 +397,7 @@ class OpenStackConfig(object):
         return regions
 
     def _get_known_regions(self, cloud):
-        config = self._normalize_keys(self.cloud_config['clouds'][cloud])
+        config = _util.normalize_keys(self.cloud_config['clouds'][cloud])
         if 'regions' in config:
             return self._expand_regions(config['regions'])
         elif 'region_name' in config:
@@ -1075,7 +1060,7 @@ class OpenStackConfig(object):
                         config[key] = val
 
         config = self.magic_fixes(config)
-        config = self._normalize_keys(config)
+        config = _util.normalize_keys(config)
 
         # NOTE(dtroyer): OSC needs a hook into the auth args before the
         #                plugin is loaded in order to maintain backward-
@@ -1203,7 +1188,7 @@ class OpenStackConfig(object):
         return self._cloud_region_class(
             name=cloud_name,
             region_name=config['region_name'],
-            config=self._normalize_keys(config),
+            config=config,
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
             openstack_config=self,

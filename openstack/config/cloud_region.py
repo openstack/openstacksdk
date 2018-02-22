@@ -23,6 +23,7 @@ from six.moves import urllib
 
 from openstack import version as openstack_version
 from openstack import _log
+from openstack.config import _util
 from openstack.config import defaults as config_defaults
 from openstack import exceptions
 
@@ -79,10 +80,9 @@ class CloudRegion(object):
                  openstack_config=None, session_constructor=None,
                  app_name=None, app_version=None, session=None,
                  discovery_cache=None):
-
         self._name = name
         self.region_name = region_name
-        self.config = config
+        self.config = _util.normalize_keys(config)
         self.log = _log.setup_logging('openstack.config')
         self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
