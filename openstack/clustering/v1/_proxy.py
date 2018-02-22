@@ -46,10 +46,10 @@ class Proxy(proxy.Proxy):
         return self._list(_profile_type.ProfileType, paginated=False, **query)
 
     def get_profile_type(self, profile_type):
-        """Get the details about a profile_type.
+        """Get the details about a profile type.
 
-        :param name: The name of the profile_type to retrieve or an object of
-                    :class:`~openstack.clustering.v1.profile_type.ProfileType`.
+        :param profile_type: The name of the profile_type to retrieve or an
+         object of :class:`~openstack.clustering.v1.profile_type.ProfileType`.
 
         :returns: A :class:`~openstack.clustering.v1.profile_type.ProfileType`
                   object.
@@ -67,7 +67,7 @@ class Proxy(proxy.Proxy):
         return self._list(_policy_type.PolicyType, paginated=False, **query)
 
     def get_policy_type(self, policy_type):
-        """Get the details about a policy_type.
+        """Get the details about a policy type.
 
         :param policy_type: The name of a poicy_type or an object of
                 :class:`~openstack.clustering.v1.policy_type.PolicyType`.
@@ -646,6 +646,11 @@ class Proxy(proxy.Proxy):
         """Find a single node.
 
         :param str name_or_id: The name or ID of a node.
+        :param bool ignore_missing: When set to "False"
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the specified node does not exist.
+                    when set to "True", None will be returned when
+                    attempting to find a nonexistent policy
         :returns: One :class:`~openstack.clustering.v1.node.Node` object
                   or None.
         """
@@ -773,7 +778,7 @@ class Proxy(proxy.Proxy):
     def node_operation(self, node, operation, **params):
         """Perform an operation on the specified node.
 
-        :param cluster: The value can be either the ID of a node or a
+        :param node: The value can be either the ID of a node or a
             :class:`~openstack.clustering.v1.node.Node` instance.
         :param operation: A string specifying the operation to be performed.
         :param dict params: A dictionary providing the parameters for the
@@ -786,7 +791,7 @@ class Proxy(proxy.Proxy):
     def perform_operation_on_node(self, node, operation, **params):
         """Perform an operation on the specified node.
 
-        :param cluster: The value can be either the ID of a node or a
+        :param node: The value can be either the ID of a node or a
             :class:`~openstack.clustering.v1.node.Node` instance.
         :param operation: A string specifying the operation to be performed.
         :param dict params: A dictionary providing the parameters for the
