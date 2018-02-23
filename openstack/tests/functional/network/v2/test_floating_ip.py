@@ -148,3 +148,15 @@ class TestFloatingIP(base.BaseFunctionalTest):
         sot = self.conn.network.update_ip(self.FIP.id, port_id=self.PORT_ID)
         self.assertEqual(self.PORT_ID, sot.port_id)
         self.assertEqual(self.FIP.id, sot.id)
+
+    def test_set_tags(self):
+        sot = self.conn.network.get_ip(self.FIP.id)
+        self.assertEqual([], sot.tags)
+
+        self.conn.network.set_tags(sot, ['blue'])
+        sot = self.conn.network.get_ip(self.FIP.id)
+        self.assertEqual(['blue'], sot.tags)
+
+        self.conn.network.set_tags(sot, [])
+        sot = self.conn.network.get_ip(self.FIP.id)
+        self.assertEqual([], sot.tags)
