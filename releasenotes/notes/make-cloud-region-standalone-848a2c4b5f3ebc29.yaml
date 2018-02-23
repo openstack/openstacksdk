@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Updated the ``openstack.config.cloud_config.CloudRegion`` object to be
+    able to store and retreive cache settings and the password callback object
+    without needing an ``openstack.config.loader.OpenStackConfig`` object.

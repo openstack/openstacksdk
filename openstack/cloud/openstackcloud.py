@@ -196,7 +196,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self.cache_enabled = True
             self._cache = self._make_cache(
                 cache_class, cache_expiration_time, cache_arguments)
-            expirations = self.config.get_cache_expiration()
+            expirations = self.config.get_cache_expirations()
             for expire_key in expirations.keys():
                 # Only build caches for things we have list operations for
                 if getattr(
