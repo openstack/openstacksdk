@@ -89,6 +89,3 @@ class Subnet(resource.Resource, tag.TagMixin):
         'use_default_subnetpool',
         type=bool
     )
-    #: A list of assocaited tags
-    #: *Type: list of tag strings*
-    tags = resource.Body('tags', type=list, default=[])

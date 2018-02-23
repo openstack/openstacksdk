@@ -79,6 +79,3 @@ class SubnetPool(resource.Resource, tag.TagMixin):
     revision_number = resource.Body('revision_number', type=int)
     #: Timestamp when the subnet pool was last updated.
     updated_at = resource.Body('updated_at')
-    #: A list of assocaited tags
-    #: *Type: list of tag strings*
-    tags = resource.Body('tags', type=list, default=[])

@@ -129,6 +129,3 @@ class Port(resource.Resource, tag.TagMixin):
     trunk_details = resource.Body('trunk_details', type=dict)
     #: Timestamp when the port was last updated.
     updated_at = resource.Body('updated_at')
-    #: A list of assocaited tags
-    #: *Type: list of tag strings*
-    tags = resource.Body('tags', type=list, default=[])

@@ -114,9 +114,6 @@ class Network(resource.Resource, tag.TagMixin):
     updated_at = resource.Body('updated_at')
     #: Indicates the VLAN transparency mode of the network
     is_vlan_transparent = resource.Body('vlan_transparent', type=bool)
-    #: A list of assocaited tags
-    #: *Type: list of tag strings*
-    tags = resource.Body('tags', type=list, default=[])
 
 
 class DHCPAgentHostingNetwork(Network):
