@@ -29,6 +29,7 @@ EXAMPLE = {
     'device_id': '9',
     'device_owner': '10',
     'dns_assignment': [{'11': 11}],
+    'dns_domain': 'a11',
     'dns_name': '12',
     'extra_dhcp_opts': [{'13': 13}],
     'fixed_ips': [{'14': '14'}],
@@ -110,6 +111,7 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['device_id'], sot.device_id)
         self.assertEqual(EXAMPLE['device_owner'], sot.device_owner)
         self.assertEqual(EXAMPLE['dns_assignment'], sot.dns_assignment)
+        self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
         self.assertEqual(EXAMPLE['dns_name'], sot.dns_name)
         self.assertEqual(EXAMPLE['extra_dhcp_opts'], sot.extra_dhcp_opts)
         self.assertEqual(EXAMPLE['fixed_ips'], sot.fixed_ips)
