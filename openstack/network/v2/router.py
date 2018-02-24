@@ -76,9 +76,6 @@ class Router(resource.Resource, tag.TagMixin):
     status = resource.Body('status')
     #: Timestamp when the router was created.
     updated_at = resource.Body('updated_at')
-    #: A list of assocaited tags
-    #: *Type: list of tag strings*
-    tags = resource.Body('tags', type=list, default=[])
 
     def add_interface(self, session, **body):
         """Add an internal interface to a logical router.

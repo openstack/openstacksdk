@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import resource
 from openstack import utils
 
 
@@ -21,6 +22,10 @@ class TagMixin(object):
         'not_tags': 'not-tags',
         'not_any_tags': 'not-tags-any',
     }
+
+    #: A list of associated tags
+    #: *Type: list of tag strings*
+    tags = resource.Body('tags', type=list, default=[])
 
     def set_tags(self, session, tags):
         url = utils.urljoin(self.base_path, self.id, 'tags')
