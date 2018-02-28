@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed an issue where an optimization in the logic to find floating ips
+    first when looking for public ip addresses broke finding the correct
+    private address.

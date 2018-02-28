@@ -129,6 +129,16 @@ def get_server_private_ip(server, cloud=None):
         for int_net in int_nets:
             int_ip = get_server_ip(
                 server, key_name=int_net['name'],
+                ext_tag='fixed',
+                cloud_public=not cloud.private,
+                mac_addr=fip_mac)
+            if int_ip is not None:
+                return int_ip
+        # Try a second time without the fixed tag. This is for old nova-network
+        # results that do not have the fixed/floating tag.
+        for int_net in int_nets:
+            int_ip = get_server_ip(
+                server, key_name=int_net['name'],
                 cloud_public=not cloud.private,
                 mac_addr=fip_mac)
             if int_ip is not None:
