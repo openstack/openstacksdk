@@ -52,3 +52,15 @@ class TestRouter(base.BaseFunctionalTest):
     def test_update(self):
         sot = self.conn.network.update_router(self.ID, name=self.UPDATE_NAME)
         self.assertEqual(self.UPDATE_NAME, sot.name)
+
+    def test_set_tags(self):
+        sot = self.conn.network.get_router(self.ID)
+        self.assertEqual([], sot.tags)
+
+        self.conn.network.set_tags(sot, ['blue'])
+        sot = self.conn.network.get_router(self.ID)
+        self.assertEqual(['blue'], sot.tags)
+
+        self.conn.network.set_tags(sot, [])
+        sot = self.conn.network.get_router(self.ID)
+        self.assertEqual([], sot.tags)

@@ -80,3 +80,15 @@ class TestPort(base.BaseFunctionalTest):
         sot = self.conn.network.update_port(self.PORT_ID,
                                             name=self.UPDATE_NAME)
         self.assertEqual(self.UPDATE_NAME, sot.name)
+
+    def test_set_tags(self):
+        sot = self.conn.network.get_port(self.PORT_ID)
+        self.assertEqual([], sot.tags)
+
+        self.conn.network.set_tags(sot, ['blue'])
+        sot = self.conn.network.get_port(self.PORT_ID)
+        self.assertEqual(['blue'], sot.tags)
+
+        self.conn.network.set_tags(sot, [])
+        sot = self.conn.network.get_port(self.PORT_ID)
+        self.assertEqual([], sot.tags)

@@ -79,3 +79,15 @@ class TestSubnet(base.BaseFunctionalTest):
         sot = self.conn.network.update_subnet(self.SUB_ID,
                                               name=self.UPDATE_NAME)
         self.assertEqual(self.UPDATE_NAME, sot.name)
+
+    def test_set_tags(self):
+        sot = self.conn.network.get_subnet(self.SUB_ID)
+        self.assertEqual([], sot.tags)
+
+        self.conn.network.set_tags(sot, ['blue'])
+        sot = self.conn.network.get_subnet(self.SUB_ID)
+        self.assertEqual(['blue'], sot.tags)
+
+        self.conn.network.set_tags(sot, [])
+        sot = self.conn.network.get_subnet(self.SUB_ID)
+        self.assertEqual([], sot.tags)

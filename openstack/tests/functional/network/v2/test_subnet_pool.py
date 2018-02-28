@@ -74,3 +74,15 @@ class TestSubnetPool(base.BaseFunctionalTest):
             self.SUBNET_POOL_ID,
             name=self.SUBNET_POOL_NAME_UPDATED)
         self.assertEqual(self.SUBNET_POOL_NAME_UPDATED, sot.name)
+
+    def test_set_tags(self):
+        sot = self.conn.network.get_subnet_pool(self.SUBNET_POOL_ID)
+        self.assertEqual([], sot.tags)
+
+        self.conn.network.set_tags(sot, ['blue'])
+        sot = self.conn.network.get_subnet_pool(self.SUBNET_POOL_ID)
+        self.assertEqual(['blue'], sot.tags)
+
+        self.conn.network.set_tags(sot, [])
+        sot = self.conn.network.get_subnet_pool(self.SUBNET_POOL_ID)
+        self.assertEqual([], sot.tags)
