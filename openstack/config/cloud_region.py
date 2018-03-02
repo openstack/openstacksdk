@@ -231,6 +231,23 @@ class CloudRegion(object):
         """Return a keystoneauth plugin from the auth credentials."""
         return self._auth
 
+    def insert_user_agent(self):
+        """Set sdk information into the user agent of the Session.
+
+        .. warning::
+            This method is here to be used by os-client-config. It exists
+            as a hook point so that os-client-config can provice backwards
+            compatibility and still be in the User Agent for people using
+            os-client-config directly.
+
+        Normal consumers of SDK should use app_name and app_version. However,
+        if someone else writes a subclass of
+        :class:`~openstack.config.cloud_region.CloudRegion` it may be
+        desirable.
+        """
+        self._keystone_session.additional_user_agent.append(
+            ('openstacksdk', openstack_version.__version__))
+
     def get_session(self):
         """Return a keystoneauth session based on the auth credentials."""
         if self._keystone_session is None:
@@ -252,9 +269,7 @@ class CloudRegion(object):
                 cert=cert,
                 timeout=self.config['api_timeout'],
                 discovery_cache=self._discovery_cache)
-            if hasattr(self._keystone_session, 'additional_user_agent'):
-                self._keystone_session.additional_user_agent.append(
-                    ('openstacksdk', openstack_version.__version__))
+            self.insert_user_agent()
             # Using old keystoneauth with new os-client-config fails if
             # we pass in app_name and app_version. Those are not essential,
             # nor a reason to bump our minimum, so just test for the session
