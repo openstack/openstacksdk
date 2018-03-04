@@ -31,7 +31,8 @@ EXAMPLE = {
     'status': 'ACTIVE',
     'revision_number': 12,
     'updated_at': '13',
-    'subnet_id': '14'
+    'subnet_id': '14',
+    'tags': ['15', '16']
 }
 
 
@@ -66,6 +67,7 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
+        self.assertEqual(EXAMPLE['tags'], sot.tags)
 
     def test_find_available(self):
         mock_session = mock.Mock(spec=adapter.Adapter)
