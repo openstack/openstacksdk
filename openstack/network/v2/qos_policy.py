@@ -11,10 +11,12 @@
 # under the License.
 
 from openstack.network import network_service
+from openstack.network.v2 import tag
 from openstack import resource
+from openstack import utils
 
 
-class QoSPolicy(resource.Resource):
+class QoSPolicy(resource.Resource, tag.TagMixin):
     resource_key = 'policy'
     resources_key = 'policies'
     base_path = '/qos/policies'
@@ -31,6 +33,7 @@ class QoSPolicy(resource.Resource):
         'name', 'description', 'is_default',
         project_id='tenant_id',
         is_shared='shared',
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -50,3 +53,9 @@ class QoSPolicy(resource.Resource):
     is_shared = resource.Body('shared', type=bool)
     #: List of QoS rules applied to this QoS policy.
     rules = resource.Body('rules')
+
+    def set_tags(self, session, tags):
+        url = utils.urljoin('/policies', self.id, 'tags')
+        session.put(url, json={'tags': tags})
+        self._body.attributes.update({'tags': tags})
+        return self

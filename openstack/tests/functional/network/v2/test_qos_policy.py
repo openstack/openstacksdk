@@ -63,3 +63,15 @@ class TestQoSPolicy(base.BaseFunctionalTest):
             self.QOS_POLICY_ID,
             name=self.QOS_POLICY_NAME_UPDATED)
         self.assertEqual(self.QOS_POLICY_NAME_UPDATED, sot.name)
+
+    def test_set_tags(self):
+        sot = self.conn.network.get_qos_policy(self.QOS_POLICY_ID)
+        self.assertEqual([], sot.tags)
+
+        self.conn.network.set_tags(sot, ['blue'])
+        sot = self.conn.network.get_qos_policy(self.QOS_POLICY_ID)
+        self.assertEqual(['blue'], sot.tags)
+
+        self.conn.network.set_tags(sot, [])
+        sot = self.conn.network.get_qos_policy(self.QOS_POLICY_ID)
+        self.assertEqual([], sot.tags)
