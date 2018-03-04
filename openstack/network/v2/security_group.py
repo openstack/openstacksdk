@@ -11,10 +11,11 @@
 # under the License.
 
 from openstack.network import network_service
+from openstack.network.v2 import tag
 from openstack import resource
 
 
-class SecurityGroup(resource.Resource):
+class SecurityGroup(resource.Resource, tag.TagMixin):
     resource_key = 'security_group'
     resources_key = 'security_groups'
     base_path = '/security-groups'
@@ -30,6 +31,7 @@ class SecurityGroup(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'description', 'name',
         project_id='tenant_id',
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties

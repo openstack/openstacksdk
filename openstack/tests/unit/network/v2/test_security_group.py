@@ -58,6 +58,7 @@ EXAMPLE = {
     'security_group_rules': RULES,
     'tenant_id': '4',
     'updated_at': '2016-10-14T12:16:57.233772',
+    'tags': ['5']
 }
 
 
@@ -87,3 +88,4 @@ class TestSecurityGroup(base.TestCase):
         self.assertEqual(dict, type(sot.security_group_rules[0]))
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+        self.assertEqual(EXAMPLE['tags'], sot.tags)
