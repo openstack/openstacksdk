@@ -26,6 +26,8 @@ class TestSubnet(base.RequestsMockTestCase):
     subnet_name = 'subnet_name'
     subnet_id = '1f1696eb-7f47-47f6-835c-4889bff88604'
     subnet_cidr = '192.168.199.0/24'
+    subnetpool_cidr = '172.16.0.0/28'
+    prefix_length = 28
 
     mock_network_rep = {
         'id': '881d1bb7-a663-44c0-8f9f-ee2765b74486',
@@ -55,6 +57,13 @@ class TestSubnet(base.RequestsMockTestCase):
         'service_types': [],
         'subnetpool_id': None,
         'tags': []
+    }
+
+    mock_subnetpool_rep = {
+        'id': 'f49a1319-423a-4ee6-ba54-1d95a4f6cc68',
+        'prefixes': [
+            '172.16.0.0/16'
+        ]
     }
 
     def test_get_subnet(self):
@@ -261,6 +270,49 @@ class TestSubnet(base.RequestsMockTestCase):
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.create_subnet,
                           self.network_name, self.subnet_cidr)
+        self.assert_calls()
+
+    def test_create_subnet_from_subnetpool_with_prefixlen(self):
+        pool = [{'start': '172.16.0.2', 'end': '172.16.0.15'}]
+        id = '143296eb-7f47-4755-835c-488123475604'
+        gateway = '172.16.0.1'
+        dns = ['8.8.8.8']
+        routes = [{"destination": "0.0.0.0/0", "nexthop": "123.456.78.9"}]
+        mock_subnet_rep = copy.copy(self.mock_subnet_rep)
+        mock_subnet_rep['allocation_pools'] = pool
+        mock_subnet_rep['dns_nameservers'] = dns
+        mock_subnet_rep['host_routes'] = routes
+        mock_subnet_rep['gateway_ip'] = gateway
+        mock_subnet_rep['subnetpool_id'] = self.mock_subnetpool_rep['id']
+        mock_subnet_rep['cidr'] = self.subnetpool_cidr
+        mock_subnet_rep['id'] = id
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [self.mock_network_rep]}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnet': mock_subnet_rep},
+                 validate=dict(
+                     json={'subnet': {
+                         'enable_dhcp': False,
+                         'ip_version': 4,
+                         'network_id': self.mock_network_rep['id'],
+                         'allocation_pools': pool,
+                         'dns_nameservers': dns,
+                         'use_default_subnetpool': True,
+                         'prefixlen': self.prefix_length,
+                         'host_routes': routes}}))
+        ])
+        subnet = self.cloud.create_subnet(self.network_name,
+                                          allocation_pools=pool,
+                                          dns_nameservers=dns,
+                                          use_default_subnetpool=True,
+                                          prefixlen=self.prefix_length,
+                                          host_routes=routes)
+        self.assertDictEqual(mock_subnet_rep, subnet)
         self.assert_calls()
 
     def test_delete_subnet(self):
