@@ -72,6 +72,8 @@ class Subnet(resource.Resource, tag.TagMixin):
     name = resource.Body('name')
     #: The ID of the attached network.
     network_id = resource.Body('network_id')
+    #: The prefix length to use for subnet allocation from a subnet pool
+    prefix_length = resource.Body('prefixlen')
     #: The ID of the project this subnet is associated with.
     project_id = resource.Body('tenant_id')
     #: Revision number of the subnet. *Type: int*

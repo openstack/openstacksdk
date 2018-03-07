@@ -7837,7 +7837,7 @@ class OpenStackCloud(_normalize.Normalizer):
                       gateway_ip=None, disable_gateway_ip=False,
                       dns_nameservers=None, host_routes=None,
                       ipv6_ra_mode=None, ipv6_address_mode=None,
-                      use_default_subnetpool=False):
+                      prefixlen=None, use_default_subnetpool=False):
         """Create a subnet on a specified network.
 
         :param string network_name_or_id:
@@ -7899,6 +7899,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :param string ipv6_address_mode:
            IPv6 address mode. Valid values are: 'dhcpv6-stateful',
            'dhcpv6-stateless', or 'slaac'.
+        :param string prefixlen:
+           The prefix length to use for subnet allocation from a subnet pool.
         :param bool use_default_subnetpool:
            Use the default subnetpool for ``ip_version`` to obtain a CIDR. It
            is required to pass ``None`` to the ``cidr`` argument when enabling
@@ -7968,6 +7970,8 @@ class OpenStackCloud(_normalize.Normalizer):
             subnet['ipv6_ra_mode'] = ipv6_ra_mode
         if ipv6_address_mode:
             subnet['ipv6_address_mode'] = ipv6_address_mode
+        if prefixlen:
+            subnet['prefixlen'] = prefixlen
         if use_default_subnetpool:
             subnet['use_default_subnetpool'] = True
 
