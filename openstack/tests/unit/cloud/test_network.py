@@ -229,6 +229,28 @@ class TestNetwork(base.TestCase):
         ):
             self.cloud.create_network("netname", provider=provider_opts)
 
+    def test_create_network_port_security_disabled(self):
+        port_security_state = False
+        mock_new_network_rep = copy.copy(self.mock_new_network_rep)
+        mock_new_network_rep['port_security_enabled'] = port_security_state
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'network': mock_new_network_rep},
+                 validate=dict(
+                     json={'network': {
+                         'admin_state_up': True,
+                         'name': 'netname',
+                         'port_security_enabled': port_security_state}}))
+        ])
+        network = self.cloud.create_network(
+            "netname",
+            port_security_enabled=port_security_state
+        )
+        self.assertEqual(mock_new_network_rep, network)
+        self.assert_calls()
+
     def test_delete_network(self):
         network_id = "test-net-id"
         network_name = "network"
