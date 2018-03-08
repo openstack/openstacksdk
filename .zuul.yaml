@@ -208,6 +208,7 @@
     templates:
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
+      - os-client-config-tox-tips
       - osc-tox-unit-tips
       - shade-functional-tips
       - shade-tox-tips
