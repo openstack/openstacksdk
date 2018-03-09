@@ -73,7 +73,7 @@ DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
 DEFAULT_SERVER_AGE = 5
 DEFAULT_PORT_AGE = 5
 DEFAULT_FLOAT_AGE = 5
-_OCC_DOC_URL = "https://docs.openstack.org/developer/os-client-config"
+_OCC_DOC_URL = "https://docs.openstack.org/os-client-config/latest/"
 
 
 OBJECT_CONTAINER_ACLS = {

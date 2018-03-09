@@ -175,7 +175,7 @@ or system-wide: `/etc/openstack/clouds.yaml`.
 Information in your homedir, if it exists, takes precedence.
 
 Full docs on `clouds.yaml` are at
-https://docs.openstack.org/developer/os-client-config/
+https://docs.openstack.org/os-client-config/latest/
 
 What about Mac and Windows?
 ===========================
@@ -221,7 +221,7 @@ Simple example of a clouds.yaml
 * Config for a named `cloud` "my-citycloud"
 * Reference a well-known "named" profile: `citycloud`
 * `os-client-config` has a built-in list of profiles at
-  https://docs.openstack.org/developer/os-client-config/vendor-support.html
+  https://docs.openstack.org/os-client-config/latest/user/vendor-support.html
 * Vendor profiles contain various advanced config
 * `cloud` name can match `profile` name (using different names for clarity)
 
@@ -611,7 +611,7 @@ Cleanup Script
 Normalization
 =============
 
-* https://docs.openstack.org/developer/shade/model.html#image
+* https://docs.openstack.org/shade/latest/user/model.html#image
 * doc/source/examples/normalization.py
 
 .. code:: python
