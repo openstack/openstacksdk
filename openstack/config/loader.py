@@ -72,19 +72,6 @@ BOOL_KEYS = ('insecure', 'cache')
 FORMAT_EXCLUSIONS = frozenset(['password'])
 
 
-# NOTE(dtroyer): This turns out to be not the best idea so let's move
-#                overriding defaults to a kwarg to OpenStackConfig.__init__()
-#                Remove this sometime in June 2015 once OSC is comfortably
-#                changed-over and global-defaults is updated.
-def set_default(key, value):
-    warnings.warn(
-        "Use of set_default() is deprecated. Defaults should be set with the "
-        "`override_defaults` parameter of OpenStackConfig."
-    )
-    defaults.get_defaults()  # make sure the dict is initialized
-    defaults._defaults[key] = value
-
-
 def get_boolean(value):
     if value is None:
         return False
@@ -93,30 +80,6 @@ def get_boolean(value):
     if value.lower() == 'true':
         return True
     return False
-
-
-def _get_os_environ(envvar_prefix=None):
-    ret = defaults.get_defaults()
-    if not envvar_prefix:
-        # This makes the or below be OS_ or OS_ which is a no-op
-        envvar_prefix = 'OS_'
-    environkeys = [k for k in os.environ.keys()
-                   if (k.startswith('OS_') or k.startswith(envvar_prefix))
-                   and not k.startswith('OS_TEST')  # infra CI var
-                   and not k.startswith('OS_STD')   # oslotest var
-                   and not k.startswith('OS_LOG')   # oslotest var
-                   ]
-    for k in environkeys:
-        newkey = k.split('_', 1)[-1].lower()
-        ret[newkey] = os.environ[k]
-    # If the only environ keys are selectors or behavior modification, don't
-    # return anything
-    selectors = set([
-        'OS_CLOUD', 'OS_REGION_NAME',
-        'OS_CLIENT_CONFIG_FILE', 'OS_CLIENT_SECURE_FILE', 'OS_CLOUD_NAME'])
-    if set(environkeys) - selectors:
-        return ret
-    return None
 
 
 def _merge_clouds(old_dict, new_dict):
@@ -179,6 +142,12 @@ def _fix_argv(argv):
 
 class OpenStackConfig(object):
 
+    # These two attribute are to allow os-client-config to plumb in its
+    # local versions for backwards compat.
+    # They should not be used by anyone else.
+    _cloud_region_class = cloud_region.CloudRegion
+    _defaults_module = defaults
+
     def __init__(self, config_files=None, vendor_files=None,
                  override_defaults=None, force_ipv4=None,
                  envvar_prefix=None, secure_files=None,
@@ -208,7 +177,7 @@ class OpenStackConfig(object):
         if secure_file_override:
             self._secure_files.insert(0, secure_file_override)
 
-        self.defaults = defaults.get_defaults()
+        self.defaults = self._defaults_module.get_defaults()
         if override_defaults:
             self.defaults.update(override_defaults)
 
@@ -262,7 +231,7 @@ class OpenStackConfig(object):
         self.default_cloud = self._get_envvar('OS_CLOUD')
 
         if load_envvars:
-            envvars = _get_os_environ(envvar_prefix=envvar_prefix)
+            envvars = self._get_os_environ(envvar_prefix=envvar_prefix)
             if envvars:
                 self.cloud_config['clouds'][self.envvar_key] = envvars
                 if not self.default_cloud:
@@ -322,6 +291,29 @@ class OpenStackConfig(object):
         # Save the password callback
         # password = self._pw_callback(prompt="Password: ")
         self._pw_callback = pw_func
+
+    def _get_os_environ(self, envvar_prefix=None):
+        ret = self._defaults_module.get_defaults()
+        if not envvar_prefix:
+            # This makes the or below be OS_ or OS_ which is a no-op
+            envvar_prefix = 'OS_'
+        environkeys = [k for k in os.environ.keys()
+                       if (k.startswith('OS_') or k.startswith(envvar_prefix))
+                       and not k.startswith('OS_TEST')  # infra CI var
+                       and not k.startswith('OS_STD')   # oslotest var
+                       and not k.startswith('OS_LOG')   # oslotest var
+                       ]
+        for k in environkeys:
+            newkey = k.split('_', 1)[-1].lower()
+            ret[newkey] = os.environ[k]
+        # If the only environ keys are selectors or behavior modification,
+        # don't return anything
+        selectors = set([
+            'OS_CLOUD', 'OS_REGION_NAME',
+            'OS_CLIENT_CONFIG_FILE', 'OS_CLIENT_SECURE_FILE', 'OS_CLOUD_NAME'])
+        if set(environkeys) - selectors:
+            return ret
+        return None
 
     def _get_envvar(self, key, default=None):
         if not self._load_envvars:
@@ -1111,7 +1103,7 @@ class OpenStackConfig(object):
             cloud_name = ''
         else:
             cloud_name = str(cloud)
-        return cloud_region.CloudRegion(
+        return self._cloud_region_class(
             name=cloud_name,
             region_name=config['region_name'],
             config=config,
@@ -1208,7 +1200,7 @@ class OpenStackConfig(object):
             cloud_name = ''
         else:
             cloud_name = str(cloud)
-        return cloud_region.CloudRegion(
+        return self._cloud_region_class(
             name=cloud_name,
             region_name=config['region_name'],
             config=self._normalize_keys(config),

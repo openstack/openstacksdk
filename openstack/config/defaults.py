@@ -22,7 +22,8 @@ _defaults = None
 _defaults_lock = threading.Lock()
 
 
-def get_defaults():
+# json_path argument is there for os-client-config
+def get_defaults(json_path=_json_path):
     global _defaults
     if _defaults is not None:
         return _defaults.copy()
@@ -44,7 +45,7 @@ def get_defaults():
             cert=None,
             key=None,
         )
-        with open(_json_path, 'r') as json_file:
+        with open(json_path, 'r') as json_file:
             updates = json.load(json_file)
             if updates is not None:
                 tmp_defaults.update(updates)

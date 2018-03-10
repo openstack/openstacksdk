@@ -24,7 +24,6 @@ import yaml
 from openstack import config
 from openstack.config import cloud_region
 from openstack.config import defaults
-from openstack.config import loader
 from openstack import exceptions
 from openstack.tests.unit.config import base
 
@@ -1019,13 +1018,6 @@ class TestConfigDefault(base.TestCase):
         cc = c.get_one(cloud='_test-cloud_', argparse=None)
         self._assert_cloud_details(cc)
         self.assertEqual('password', cc.auth_type)
-
-    def test_set_default_before_init(self):
-        loader.set_default('identity_api_version', '4')
-        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   vendor_files=[self.vendor_yaml])
-        cc = c.get_one(cloud='_test-cloud_', argparse=None)
-        self.assertEqual('4', cc.identity_api_version)
 
 
 class TestBackwardsCompatibility(base.TestCase):
