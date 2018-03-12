@@ -21,16 +21,16 @@ Pull requests submitted through GitHub will be ignored.
 
 .. seealso::
 
-   * http://wiki.openstack.org/HowToContribute
-   * http://wiki.openstack.org/CLA
+   * https://wiki.openstack.org/wiki/HowToContribute
+   * https://wiki.openstack.org/wiki/CLA
 
-.. _DeveloperWorkflow: http://docs.openstack.org/infra/manual/developers.html#development-workflow
+.. _DeveloperWorkflow: https://docs.openstack.org/infra/manual/developers.html#development-workflow
 
 Project Hosting Details
 -------------------------
 
 Project Documentation
-    http://docs.openstack.org/sdks/python/openstacksdk/
+    https://docs.openstack.org/python-openstacksdk/latest/
 
 Bug tracker
     https://bugs.launchpad.net/python-openstacksdk
