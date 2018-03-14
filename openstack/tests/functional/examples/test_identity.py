@@ -10,28 +10,29 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
+from openstack.tests.functional import base
 
 from examples import connect
-from examples.image import create as image_create
-from examples.image import delete as image_delete
-from examples.image import list as image_list
+from examples.identity import list as identity_list
 
 
-class TestImage(base.TestCase):
-    """Test the image examples
+class TestIdentity(base.BaseFunctionalTest):
+    """Test the identity examples
 
     The purpose of these tests is to ensure the examples run without erring
     out.
     """
 
     def setUp(self):
-        super(TestImage, self).setUp()
+        super(TestIdentity, self).setUp()
         self.conn = connect.create_connection_from_config()
 
-    def test_image(self):
-        image_list.list_images(self.conn)
-
-        image_create.upload_image(self.conn)
-
-        image_delete.delete_image(self.conn)
+    def test_identity(self):
+        identity_list.list_users(self.conn)
+        identity_list.list_credentials(self.conn)
+        identity_list.list_projects(self.conn)
+        identity_list.list_domains(self.conn)
+        identity_list.list_groups(self.conn)
+        identity_list.list_services(self.conn)
+        identity_list.list_endpoints(self.conn)
+        identity_list.list_regions(self.conn)

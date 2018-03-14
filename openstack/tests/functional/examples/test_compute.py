@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
+from openstack.tests.functional import base
 
 from examples.compute import create
 from examples.compute import delete
@@ -21,7 +21,7 @@ from examples.network import find as network_find
 from examples.network import list as network_list
 
 
-class TestCompute(base.TestCase):
+class TestCompute(base.BaseFunctionalTest):
     """Test the compute examples
 
     The purpose of these tests is to ensure the examples run without erring

@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
+from openstack.tests.functional import base
 
 from examples import connect
 from examples.network import create as network_create
@@ -19,7 +19,7 @@ from examples.network import find as network_find
 from examples.network import list as network_list
 
 
-class TestNetwork(base.TestCase):
+class TestNetwork(base.BaseFunctionalTest):
     """Test the network examples
 
     The purpose of these tests is to ensure the examples run without erring
