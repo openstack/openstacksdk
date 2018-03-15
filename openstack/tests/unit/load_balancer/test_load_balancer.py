@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 from openstack.tests.unit import base
 import uuid
 
@@ -79,3 +80,51 @@ class TestLoadBalancer(base.TestCase):
                          test_load_balancer.vip_port_id)
         self.assertEqual(EXAMPLE['vip_subnet_id'],
                          test_load_balancer.vip_subnet_id)
+
+    def test_delete_non_cascade(self):
+        sess = mock.Mock()
+        resp = mock.Mock()
+        sess.delete.return_value = resp
+
+        sot = load_balancer.LoadBalancer(**EXAMPLE)
+        sot.cascade = False
+        sot._translate_response = mock.Mock()
+        sot.delete(sess)
+
+        url = 'v2.0/lbaas/loadbalancers/%(lb)s' % {
+            'lb': EXAMPLE['id']
+        }
+        headers = {'Accept': ''}
+        params = {}
+        sess.delete.assert_called_with(url,
+                                       headers=headers,
+                                       params=params)
+        sot._translate_response.assert_called_once_with(
+            resp,
+            error_message=None,
+            has_body=False,
+        )
+
+    def test_delete_cascade(self):
+        sess = mock.Mock()
+        resp = mock.Mock()
+        sess.delete.return_value = resp
+
+        sot = load_balancer.LoadBalancer(**EXAMPLE)
+        sot.cascade = True
+        sot._translate_response = mock.Mock()
+        sot.delete(sess)
+
+        url = 'v2.0/lbaas/loadbalancers/%(lb)s' % {
+            'lb': EXAMPLE['id']
+        }
+        headers = {'Accept': ''}
+        params = {'cascade': True}
+        sess.delete.assert_called_with(url,
+                                       headers=headers,
+                                       params=params)
+        sot._translate_response.assert_called_once_with(
+            resp,
+            error_message=None,
+            has_body=False,
+        )

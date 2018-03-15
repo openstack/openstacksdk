@@ -55,7 +55,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_lb.LoadBalancer, paginated=True, **query)
 
-    def delete_load_balancer(self, load_balancer, ignore_missing=True):
+    def delete_load_balancer(self, load_balancer, ignore_missing=True,
+                             cascade=False):
         """Delete a load balancer
 
         :param load_balancer: The load_balancer can be either the name or a
@@ -66,9 +67,13 @@ class Proxy(proxy.Proxy):
             the load balancer does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent load balancer.
+        :param bool cascade: If true will delete all child objects of
+            the load balancer.
 
         :returns: ``None``
         """
+        load_balancer = self._get_resource(_lb.LoadBalancer, load_balancer)
+        load_balancer.cascade = cascade
         return self._delete(_lb.LoadBalancer, load_balancer,
                             ignore_missing=ignore_missing)
 

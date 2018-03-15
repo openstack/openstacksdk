@@ -67,3 +67,22 @@ class LoadBalancer(resource.Resource):
     vip_port_id = resource.Body('vip_port_id')
     #: VIP subnet ID
     vip_subnet_id = resource.Body('vip_subnet_id')
+
+    def delete(self, session, error_message=None):
+        request = self._prepare_request()
+        headers = {
+            "Accept": ""
+        }
+
+        request.headers.update(headers)
+        params = {}
+        if (hasattr(self, 'cascade') and isinstance(self.cascade, bool)
+                and self.cascade):
+            params['cascade'] = True
+        response = session.delete(request.url,
+                                  headers=headers,
+                                  params=params)
+
+        self._translate_response(response, has_body=False,
+                                 error_message=error_message)
+        return self
