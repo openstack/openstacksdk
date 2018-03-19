@@ -57,7 +57,7 @@ def _get_config_from_profile(profile, authenticator, **kwargs):
             if version.startswith('v'):
                 version = version[1:]
             key = cloud_region._make_key('api_version', service_type)
-            kwargs[key] = service.version
+            kwargs[key] = version
 
     config_kwargs = config_defaults.get_defaults()
     config_kwargs.update(kwargs)
