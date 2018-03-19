@@ -111,7 +111,6 @@
       - openstack/octavia
     vars:
       devstack_localrc:
-        Q_SERVICE_PLUGIN_CLASSES: qos
         Q_ML2_PLUGIN_EXT_DRIVERS: qos,port_security
         DISABLE_AMP_IMAGE_BUILD: True
       devstack_local_conf:
@@ -126,6 +125,7 @@
             certificates:
               cert_manager: local_cert_manager
       devstack_plugins:
+        neutron: https://git.openstack.org/openstack/neutron
         octavia: https://git.openstack.org/openstack/octavia
       devstack_services:
         octavia: true
