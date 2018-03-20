@@ -67,14 +67,15 @@ class ConnectionMeta(type):
                     class_name='~openstack.proxy.Proxy', **service)
             descriptor = desc_class(**descriptor_args)
             descriptor.__doc__ = doc
-            dct[service_type.replace('-', '_')] = descriptor
+            st = service_type.replace('-', '_')
+            dct[st] = descriptor
 
             # Register the descriptor class with every known alias. Don't
             # add doc strings though - although they are supported, we don't
             # want to give anybody any bad ideas. Making a second descriptor
             # does not introduce runtime cost as the descriptors all use
             # the same _proxies dict on the instance.
-            for alias_name in _get_aliases(service_type):
+            for alias_name in _get_aliases(st):
                 if alias_name[-1].isdigit():
                     continue
                 alias_descriptor = desc_class(**descriptor_args)
