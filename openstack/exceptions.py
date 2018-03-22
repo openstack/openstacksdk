@@ -118,6 +118,11 @@ class BadRequestException(HttpException):
     pass
 
 
+class ConflictException(HttpException):
+    """HTTP 409 Conflict."""
+    pass
+
+
 class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
     def __init__(self, resource, method):
@@ -162,7 +167,9 @@ def raise_from_response(response, error_message=None):
     if response.status_code < 400:
         return
 
-    if response.status_code == 404:
+    if response.status_code == 409:
+        cls = ConflictException
+    elif response.status_code == 404:
         cls = NotFoundException
     elif response.status_code == 400:
         cls = BadRequestException
