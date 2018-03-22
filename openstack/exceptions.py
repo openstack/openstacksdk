@@ -60,7 +60,7 @@ class HttpException(SDKException, _rex.HTTPError):
         # TODO(shade) Remove http_status parameter and the ability for response
         # to be None once we're not mocking Session everywhere.
         if not message:
-            if response:
+            if response is not None:
                 message = "{name}: {code}".format(
                     name=self.__class__.__name__,
                     code=response.status_code)
@@ -72,7 +72,7 @@ class HttpException(SDKException, _rex.HTTPError):
         SDKException.__init__(self, message=message)
         _rex.HTTPError.__init__(self, message, response=response)
 
-        if response:
+        if response is not None:
             self.request_id = response.headers.get('x-openstack-request-id')
             self.status_code = response.status_code
         else:

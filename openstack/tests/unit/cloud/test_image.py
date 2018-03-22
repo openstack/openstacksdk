@@ -650,7 +650,7 @@ class TestImage(BaseTestImage):
         ]
         mock_image_client.post.return_value = ret
         mock_image_client.put.side_effect = exc.OpenStackCloudHTTPError(
-            "Some error", {})
+            "Some error")
         self.assertRaises(
             exc.OpenStackCloudHTTPError,
             self._call_create_image,
@@ -724,7 +724,7 @@ class TestImage(BaseTestImage):
         ]
         mock_image_client.post.return_value = ret
         mock_image_client.put.side_effect = exc.OpenStackCloudHTTPError(
-            "Some error", {})
+            "Some error")
         self.assertRaises(
             exc.OpenStackCloudHTTPError,
             self._call_create_image,
