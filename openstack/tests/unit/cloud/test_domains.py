@@ -203,7 +203,7 @@ class TestDomains(base.TestCase):
                  json=domain_data.json_response,
                  validate=dict(json={'domain': {'enabled': False}}))])
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudHTTPError,
+            openstack.exceptions.ConflictException,
             "Error in updating domain %s" % domain_data.domain_id
         ):
             self.cloud.delete_domain(domain_data.domain_id)
