@@ -212,7 +212,8 @@ class TestProxyBase(base.TestCase):
                       mock_method="openstack.proxy.Proxy._update",
                       expected_result="result", path_args=None, **kwargs):
         method_args = value or ["resource_or_id"]
-        method_kwargs = {"x": 1, "y": 2, "z": 3}
+        method_kwargs = kwargs.pop("method_kwargs", {})
+        method_kwargs.update({"x": 1, "y": 2, "z": 3})
         expected_args = kwargs.pop("expected_args", ["resource_or_id"])
         expected_kwargs = method_kwargs.copy()
 
