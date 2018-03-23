@@ -75,7 +75,7 @@ Delete an image.
 
 Full example: `image resource delete`_
 
-.. _image resource create: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/image/create.py
-.. _image resource delete: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/image/delete.py
-.. _image resource list: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/image/list.py
-.. _image resource download: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/image/download.py
+.. _image resource create: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/create.py
+.. _image resource delete: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/delete.py
+.. _image resource list: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/list.py
+.. _image resource download: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/download.py

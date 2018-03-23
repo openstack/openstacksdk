@@ -52,7 +52,7 @@ shade integration
     response = conn.compute.get('/servers')  # REST passthrough
 
 * Invent some terminology that is clear and makes sense to distinguish between
-  the object interface that came originally from python-openstacksdk and the
+  the object interface that came originally from openstacksdk and the
   interface that came from shade.
 * Shift the shade interface methods to use the Object Interface for their
   operations. It's possible there may be cases where the REST layer needs to

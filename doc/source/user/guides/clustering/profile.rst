@@ -102,4 +102,4 @@ still in use, you will get an error message.
    :pyobject: delete_profile
 
 
-.. _manage profile: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/clustering/profile.py
+.. _manage profile: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/clustering/profile.py

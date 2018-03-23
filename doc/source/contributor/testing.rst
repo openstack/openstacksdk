@@ -49,7 +49,7 @@ DevStack
 There are many ways to run and configure DevStack. The link above will show
 you how to run DevStack a number of ways. You'll need to choose a method
 you're familiar with and can run in your environment. Wherever DevStack is
-running, we need to make sure that python-openstacksdk contributors are
+running, we need to make sure that openstacksdk contributors are
 using the same configuration.
 
 This is the ``local.conf`` file we use to configure DevStack.

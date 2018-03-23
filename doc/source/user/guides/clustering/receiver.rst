@@ -97,4 +97,4 @@ use, you will get an error message.
    :pyobject: delete_receiver
 
 
-.. _manage receiver: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/clustering/receiver.py
+.. _manage receiver: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/clustering/receiver.py
