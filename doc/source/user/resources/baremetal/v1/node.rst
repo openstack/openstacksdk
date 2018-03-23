@@ -1,5 +1,5 @@
 openstack.baremetal.v1.Node
-============================
+===========================
 
 .. automodule:: openstack.baremetal.v1.node
 

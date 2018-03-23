@@ -83,7 +83,7 @@ L7 Policy Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_l7_policy
 
 L7 Rule Operations
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.load_balancer.v2._proxy.Proxy
 

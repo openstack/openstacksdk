@@ -1,5 +1,5 @@
 Database Resources
-======================
+==================
 
 .. toctree::
    :maxdepth: 1

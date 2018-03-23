@@ -1,5 +1,5 @@
 Tasks Needed for rationalizing shade and openstacksdk
-======================================================
+=====================================================
 
 A large portion of the important things have already been done and landed
 already. For reference, those are:

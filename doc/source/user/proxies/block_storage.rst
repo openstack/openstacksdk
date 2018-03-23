@@ -43,7 +43,7 @@ Snapshot Operations
    .. automethod:: openstack.block_storage.v2._proxy.Proxy.snapshots
 
 Stats Operations
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
 

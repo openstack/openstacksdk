@@ -170,7 +170,7 @@ Helper Operations
 
 
 Service Operations
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
 

@@ -1,5 +1,5 @@
 openstack.clustering.v1.Cluster
-=====================================
+===============================
 
 .. automodule:: openstack.clustering.v1.cluster
 

@@ -1,6 +1,6 @@
-========================
- Using os-client-config
-========================
+======================
+Using os-client-config
+======================
 
 .. toctree::
    :maxdepth: 2

@@ -27,7 +27,7 @@ Pull requests submitted through GitHub will be ignored.
 .. _DeveloperWorkflow: https://docs.openstack.org/infra/manual/developers.html#development-workflow
 
 Project Hosting Details
--------------------------
+-----------------------
 
 Project Documentation
     https://docs.openstack.org/python-openstacksdk/latest/

@@ -1,5 +1,5 @@
 openstack.compute.v2.flavor
-============================
+===========================
 
 .. automodule:: openstack.compute.v2.flavor
 

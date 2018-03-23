@@ -1,5 +1,5 @@
 Baremetal Resources
-=====================
+===================
 
 .. toctree::
    :maxdepth: 1

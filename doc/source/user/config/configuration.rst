@@ -1,8 +1,8 @@
 .. _openstack-config:
 
-========================================
- Configuring OpenStack SDK Applications
-========================================
+======================================
+Configuring OpenStack SDK Applications
+======================================
 
 .. _config-environment-variables:
 

@@ -1,5 +1,5 @@
 openstack.baremetal.v1.chassis
-===============================
+==============================
 
 .. automodule:: openstack.baremetal.v1.chassis
 
