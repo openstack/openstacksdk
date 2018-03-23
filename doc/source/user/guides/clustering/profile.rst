@@ -66,7 +66,7 @@ Full example: `manage profile`_
 
 
 Get Profile
-~~~~~~~~~~~~
+~~~~~~~~~~~
 
 To get a profile based on its name or ID:
 

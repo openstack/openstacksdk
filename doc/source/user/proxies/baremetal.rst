@@ -1,12 +1,12 @@
 Baremetal API
-==============
+=============
 
 For details on how to use baremetal, see :doc:`/user/guides/baremetal`
 
 .. automodule:: openstack.baremetal.v1._proxy
 
 The Baremetal Class
---------------------
+-------------------
 
 The baremetal high-level interface is available through the ``baremetal``
 member of a :class:`~openstack.connection.Connection` object.

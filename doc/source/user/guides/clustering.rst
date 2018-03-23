@@ -12,9 +12,9 @@
   under the License.
 
 
-================================
+==========================
 Using OpenStack Clustering
-================================
+==========================
 
 Before working with the Clustering service, you'll need to create a
 connection to your OpenStack cloud by following the :doc:`connect` user guide.

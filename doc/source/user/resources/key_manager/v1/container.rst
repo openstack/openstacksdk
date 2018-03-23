@@ -1,5 +1,5 @@
 openstack.key_manager.v1.container
-=====================================
+==================================
 
 .. automodule:: openstack.key_manager.v1.container
 

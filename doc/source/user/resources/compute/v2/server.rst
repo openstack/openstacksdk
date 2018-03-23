@@ -1,5 +1,5 @@
 openstack.compute.v2.server
-============================
+===========================
 
 .. automodule:: openstack.compute.v2.server
 

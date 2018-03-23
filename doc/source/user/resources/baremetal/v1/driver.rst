@@ -1,5 +1,5 @@
 openstack.baremetal.v1.driver
-==============================
+=============================
 
 .. automodule:: openstack.baremetal.v1.driver
 

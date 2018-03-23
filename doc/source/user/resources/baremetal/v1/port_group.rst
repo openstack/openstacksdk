@@ -1,5 +1,5 @@
 openstack.baremetal.v1.port_group
-==================================
+=================================
 
 .. automodule:: openstack.baremetal.v1.port_group
 

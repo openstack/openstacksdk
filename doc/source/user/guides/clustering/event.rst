@@ -22,7 +22,7 @@ policies.
 
 
 List Events
-~~~~~~~~~~~~
+~~~~~~~~~~~
 
 To examine the list of events:
 
