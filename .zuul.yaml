@@ -10,8 +10,8 @@
     required-projects:
       - openstack-infra/shade
       - openstack/keystoneauth
+      - openstack/openstacksdk
       - openstack/os-client-config
-      - openstack/python-openstacksdk
 
 - job:
     name: openstacksdk-tox-py35-tips
@@ -25,8 +25,8 @@
     required-projects:
       - openstack-infra/shade
       - openstack/keystoneauth
+      - openstack/openstacksdk
       - openstack/os-client-config
-      - openstack/python-openstacksdk
 
 - project-template:
     name: openstacksdk-tox-tips
@@ -51,7 +51,7 @@
       # things.
       - name: openstack-infra/shade
         override-branch: master
-      - name: openstack/python-openstacksdk
+      - name: openstack/openstacksdk
         override-branch: master
       - name: openstack/os-client-config
         override-branch: master
@@ -83,7 +83,7 @@
         OPENSTACKSDK_HAS_SWIFT: 1
       tox_install_siblings: false
       tox_envlist: functional
-      zuul_work_dir: src/git.openstack.org/openstack/python-openstacksdk
+      zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
 
 - job:
     name: openstacksdk-functional-devstack-legacy
@@ -155,7 +155,7 @@
       - openstack-infra/shade
       - openstack/keystoneauth
       - openstack/os-client-config
-      - openstack/python-openstacksdk
+      - openstack/openstacksdk
     vars:
       tox_install_siblings: true
 
