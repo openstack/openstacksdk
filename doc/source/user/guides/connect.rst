@@ -18,7 +18,7 @@ To create a :class:`~openstack.connection.Connection` instance, use the
 .. literalinclude:: ../examples/connect.py
    :pyobject: create_connection
 
-Full example at `connect.py <http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/connect.py>`_
+Full example at `connect.py <http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/connect.py>`_
 
 .. note:: To enable logging, see the :doc:`logging` user guide.
 

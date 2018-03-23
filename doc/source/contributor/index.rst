@@ -36,9 +36,9 @@ as occasional talk about SDKs created for languages outside of Python.
 Email
 *****
 
-The `openstack-dev <mailto:openstack-dev@openstack.org?subject=[python-openstacksdk]%20Question%20about%20the%20python-openstacksdk>`_
+The `openstack-dev <mailto:openstack-dev@openstack.org?subject=[sdk]%20Question%20about%20openstacksdk>`_
 mailing list fields questions of all types on OpenStack. Using the
-``[python-openstacksdk]`` filter to begin your email subject will ensure
+``[sdk]`` filter to begin your email subject will ensure
 that the message gets to SDK developers.
 
 Coding Standards

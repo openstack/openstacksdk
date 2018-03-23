@@ -43,7 +43,7 @@ extensions = [
 ]
 
 # openstackdocstheme options
-repository_name = 'openstack/python-openstacksdk'
+repository_name = 'openstack/openstacksdk'
 bug_project = '760'
 bug_tag = ''
 html_last_updated_fmt = '%Y-%m-%d %H:%M'

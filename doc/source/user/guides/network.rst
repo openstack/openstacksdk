@@ -136,7 +136,7 @@ Delete a project network and its subnets.
 
 Full example: `network resource delete`_
 
-.. _network resource create: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/create.py
-.. _network resource delete: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/delete.py
-.. _network resource list: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/list.py
-.. _network security group create: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/network/security_group_rules.py
+.. _network resource create: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/network/create.py
+.. _network resource delete: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/network/delete.py
+.. _network resource list: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/network/list.py
+.. _network security group create: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/network/security_group_rules.py

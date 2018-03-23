@@ -44,4 +44,4 @@ To get a action based on its name or ID:
 .. literalinclude:: ../../examples/clustering/action.py
    :pyobject: get_action
 
-.. _manage action: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/clustering/action.py
+.. _manage action: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/clustering/action.py

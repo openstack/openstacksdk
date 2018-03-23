@@ -1,10 +1,10 @@
 .. _contributing:
 
-===================================
-Contributing to python-openstacksdk
-===================================
+============================
+Contributing to openstacksdk
+============================
 
-If you're interested in contributing to the python-openstacksdk project,
+If you're interested in contributing to the openstacksdk project,
 the following will help get you started.
 
 Contributor License Agreement
@@ -13,7 +13,7 @@ Contributor License Agreement
 .. index::
    single: license; agreement
 
-In order to contribute to the python-openstacksdk project, you need to have
+In order to contribute to the openstacksdk project, you need to have
 signed OpenStack's contributor's agreement.
 
 Please read `DeveloperWorkflow`_ before sending your first patch for review.
@@ -30,7 +30,7 @@ Project Hosting Details
 -----------------------
 
 Project Documentation
-    https://docs.openstack.org/python-openstacksdk/latest/
+    https://docs.openstack.org/openstacksdk/latest/
 
 Bug tracker
     https://bugs.launchpad.net/python-openstacksdk
@@ -39,7 +39,7 @@ Mailing list (prefix subjects with ``[sdk]`` for faster responses)
     http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-dev
 
 Code Hosting
-    https://git.openstack.org/cgit/openstack/python-openstacksdk
+    https://git.openstack.org/cgit/openstack/openstacksdk
 
 Code Review
-    https://review.openstack.org/#/q/status:open+project:openstack/python-openstacksdk,n,z
+    https://review.openstack.org/#/q/status:open+project:openstack/openstacksdk,n,z

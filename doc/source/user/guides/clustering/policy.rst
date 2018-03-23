@@ -99,4 +99,4 @@ still in use, you will get an error message.
    :pyobject: delete_policy
 
 
-.. _manage policy: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/clustering/policy.py
+.. _manage policy: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/clustering/policy.py

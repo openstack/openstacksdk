@@ -14,7 +14,7 @@
 
 # TODO(shade) Rework for Zuul v3
 
-export OPENSTACKSDK_DIR="$BASE/new/python-openstacksdk"
+export OPENSTACKSDK_DIR="$BASE/new/openstacksdk"
 
 cd $OPENSTACKSDK_DIR
 sudo chown -R jenkins:stack $OPENSTACKSDK_DIR

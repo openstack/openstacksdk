@@ -189,5 +189,5 @@ To restore a specified cluster, members in the cluster will be checked.
    :pyobject: recover_cluster
 
 
-.. _manage cluster: http://git.openstack.org/cgit/openstack/python-openstacksdk/tree/examples/clustering/cluster.py
+.. _manage cluster: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/clustering/cluster.py
 

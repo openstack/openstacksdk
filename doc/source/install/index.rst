@@ -4,9 +4,9 @@ Installation
 
 At the command line::
 
-    $ pip install python-openstacksdk
+    $ pip install openstacksdk
 
 Or, if you have virtualenv wrapper installed::
 
-    $ mkvirtualenv python-openstacksdk
-    $ pip install python-openstacksdk
+    $ mkvirtualenv openstacksdk
+    $ pip install openstacksdk

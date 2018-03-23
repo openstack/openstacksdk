@@ -31,7 +31,7 @@ extensions = [
 ]
 
 # openstackdocstheme options
-repository_name = 'openstack/python-openstacksdk'
+repository_name = 'openstack/openstacksdk'
 bug_project = '760'
 bug_tag = ''
 html_last_updated_fmt = '%Y-%m-%d %H:%M'
@@ -56,7 +56,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'python-openstacksdk'
+project = u'openstacksdk'
 copyright = u'2017, Various members of the OpenStack Foundation'
 
 # A few variables have to be set for the log-a-bug feature.
