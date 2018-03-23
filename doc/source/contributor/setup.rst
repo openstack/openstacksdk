@@ -89,13 +89,13 @@ Getting the Source Code
           review systems that we use.
 
 The canonical Git repository is hosted on openstack.org at
-http://git.openstack.org/cgit/openstack/python-openstacksdk/, with a
-mirror on GitHub at https://github.com/openstack/python-openstacksdk.
+http://git.openstack.org/cgit/openstack/openstacksdk/, with a
+mirror on GitHub at https://github.com/openstack/openstacksdk.
 Because of how Git works, you can create a local clone from either of those,
 or your own personal fork.::
 
-   (sdk3)$ git clone https://git.openstack.org/openstack/python-openstacksdk.git
-   (sdk3)$ cd python-openstacksdk
+   (sdk3)$ git clone https://git.openstack.org/openstack/openstacksdk.git
+   (sdk3)$ cd openstacksdk
 
 Installing Dependencies
 -----------------------

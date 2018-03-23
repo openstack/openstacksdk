@@ -2,7 +2,7 @@ Transition from Profile
 =======================
 
 .. note:: This section describes migrating code from a previous interface of
-          python-openstacksdk and can be ignored by people writing new code.
+          openstacksdk and can be ignored by people writing new code.
 
 If you have code that currently uses the :class:`~openstack.profile.Profile`
 object and/or an ``authenticator`` instance from an object based on
@@ -41,7 +41,7 @@ Replacing authenticator
 -----------------------
 
 There is no direct replacement for ``openstack.auth.base.BaseAuthPlugin``.
-``python-openstacksdk`` uses the `keystoneauth`_ library for authentication
+``openstacksdk`` uses the `keystoneauth`_ library for authentication
 and HTTP interactions. `keystoneauth`_ has `auth plugins`_ that can be used
 to control how authentication is done. The ``auth_type`` config parameter
 can be set to choose the correct authentication method to be used.
