@@ -3,18 +3,18 @@
 # To enable openstacksdk in devstack add an entry to local.conf that looks like
 #
 # [[local|localrc]]
-# enable_plugin openstacksdk git://git.openstack.org/openstack/python-openstacksdk
+# enable_plugin openstacksdk https://git.openstack.org/openstack/openstacksdk
 
 function preinstall_openstacksdk {
     :
 }
 
 function install_openstacksdk {
-    if use_library_from_git "python-openstacksdk"; then
+    if use_library_from_git "openstacksdk"; then
         # don't clone, it'll be done by the plugin install
-        setup_dev_lib "python-openstacksdk"
+        setup_dev_lib "openstacksdk"
     else
-        pip_install "python-openstacksdk"
+        pip_install "openstacksdk"
     fi
 }
 
