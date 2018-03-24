@@ -47,6 +47,7 @@ from openstack.network.v2 import service_profile as _service_profile
 from openstack.network.v2 import service_provider as _service_provider
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
+from openstack.network.v2 import trunk as _trunk
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 from openstack import utils
@@ -3045,6 +3046,122 @@ class Proxy(proxy.Proxy):
         """
         self._check_tag_support(resource)
         return resource.set_tags(self, tags)
+
+    def create_trunk(self, **attrs):
+        """Create a new trunk from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.trunk.Trunk,
+            comprised of the properties on the Trunk class.
+
+        :returns: The results of trunk creation
+        :rtype: :class:`~openstack.network.v2.trunk.Trunk`
+        """
+        return self._create(_trunk.Trunk, **attrs)
+
+    def delete_trunk(self, trunk, ignore_missing=True):
+        """Delete a trunk
+
+        :param trunk: The value can be either the ID of trunk or a
+            :class:`openstack.network.v2.trunk.Trunk` instance
+
+        :returns: ``None``
+        """
+        self._delete(_trunk.Trunk, trunk, ignore_missing=ignore_missing)
+
+    def find_trunk(self, name_or_id, ignore_missing=True, **args):
+        """Find a single trunk
+
+        :param name_or_id: The name or ID of a trunk.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.trunk.Trunk`
+                  or None
+        """
+        return self._find(_trunk.Trunk, name_or_id,
+                          ignore_missing=ignore_missing, **args)
+
+    def get_trunk(self, trunk):
+        """Get a single trunk
+
+        :param trunk: The value can be the ID of a trunk or a
+               :class:`~openstack.network.v2.trunk.Trunk` instance.
+
+        :returns: One
+                  :class:`~openstack.network.v2.trunk.Trunk`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_trunk.Trunk, trunk)
+
+    def trunks(self, **query):
+        """Return a generator of trunks
+
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned.
+
+        :returns: A generator of trunk objects
+        :rtype: :class:`~openstack.network.v2.trunk.trunk`
+        """
+        return self._list(_trunk.Trunk, paginated=False, **query)
+
+    def update_trunk(self, trunk, **attrs):
+        """Update a trunk
+
+        :param trunk: Either the id of a trunk or a
+            :class:`~openstack.network.v2.trunk.Trunk` instance.
+        :param dict attrs: The attributes to update on the trunk
+                           represented by ``trunk``.
+
+        :returns: The updated trunk
+        :rtype: :class:`~openstack.network.v2.trunk.Trunk`
+        """
+        return self._update(_trunk.Trunk, trunk, **attrs)
+
+    def add_trunk_subports(self, trunk, subports):
+        """Set sub_ports on trunk
+
+        :param trunk: The value can be the ID of a trunk or a
+               :class:`~openstack.network.v2.trunk.Trunk` instance.
+        :param subports: New subports to be set.
+        :type subports: "list"
+
+        :returns: The updated trunk
+        :rtype: :class:`~openstack.network.v2.trunk.Trunk`
+        """
+        trunk = self._get_resource(_trunk.Trunk, trunk)
+        return trunk.add_subports(self, subports)
+
+    def delete_trunk_subports(self, trunk, subports):
+        """Remove sub_ports from trunk
+
+        :param trunk: The value can be the ID of a trunk or a
+               :class:`~openstack.network.v2.trunk.Trunk` instance.
+        :param subports: Subports to be removed.
+        :type subports: "list"
+
+        :returns: The updated trunk
+        :rtype: :class:`~openstack.network.v2.trunk.Trunk`
+        """
+        trunk = self._get_resource(_trunk.Trunk, trunk)
+        return trunk.delete_subports(self, subports)
+
+    def get_trunk_subports(self, trunk):
+        """Get sub_ports configured on trunk
+
+        :param trunk: The value can be the ID of a trunk or a
+               :class:`~openstack.network.v2.trunk.Trunk` instance.
+
+        :returns: Trunk sub_ports
+        :rtype: "list"
+        """
+        trunk = self._get_resource(_trunk.Trunk, trunk)
+        return trunk.get_subports(self)
 
     def create_vpn_service(self, **attrs):
         """Create a new vpn service from attributes

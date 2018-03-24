@@ -134,6 +134,7 @@
         o-hm: true
         o-hk: true
         neutron-qos: true
+        neutron-trunk: true
       tox_environment:
         OPENSTACKSDK_HAS_OCTAVIA: 1
 
