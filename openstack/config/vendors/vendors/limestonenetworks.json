@@ -1,0 +1,15 @@
+{
+    "name": "limestonenetworks",
+    "profile": {
+      "auth": {
+        "auth_url": "https://auth.cloud.lstn.net:5000/v3"
+      },
+      "regions": [
+        "us-dfw-1",
+        "us-slc"
+      ],
+      "identity_api_version": "3",
+      "image_format": "raw",
+      "volume_api_version": "3"
+    }
+  }
