@@ -457,6 +457,17 @@ class TestCase(base.TestCase):
                     status_code=300,
                     text=open(discovery_fixture, 'r').read())
 
+    def get_nova_discovery_mock_dict(
+            self,
+            compute_version_json='compute-version.json',
+            compute_discovery_url='https://compute.example.com/v2.1/'):
+        discovery_fixture = os.path.join(
+            self.fixtures_directory, compute_version_json)
+        return dict(
+            method='GET',
+            uri=compute_discovery_url,
+            text=open(discovery_fixture, 'r').read())
+
     def get_designate_discovery_mock_dict(self):
         discovery_fixture = os.path.join(
             self.fixtures_directory, "dns.json")
@@ -468,6 +479,14 @@ class TestCase(base.TestCase):
             self.fixtures_directory, "baremetal.json")
         return dict(method='GET', uri="https://bare-metal.example.com/",
                     text=open(discovery_fixture, 'r').read())
+
+    def use_compute_discovery(
+            self, compute_version_json='compute-version.json',
+            compute_discovery_url='https://compute.example.com/v2.1/'):
+        self.__do_register_uris([
+            self.get_nova_discovery_mock_dict(
+                compute_version_json, compute_discovery_url),
+        ])
 
     def use_glance(
             self, image_version_json='image-version.json',

@@ -16,6 +16,7 @@ import copy
 import warnings
 
 from keystoneauth1 import adapter
+from keystoneauth1 import discover
 import keystoneauth1.exceptions.catalog
 from keystoneauth1 import session as ks_session
 import os_service_types
@@ -225,6 +226,9 @@ class CloudRegion(object):
     def get_api_version(self, service_type):
         return self._get_config('api_version', service_type)
 
+    def get_default_microversion(self, service_type):
+        return self._get_config('default_microversion', service_type)
+
     def get_service_type(self, service_type):
         # People requesting 'volume' are doing so because os-client-config
         # let them. What they want is block-storage, not explicitly the
@@ -324,6 +328,9 @@ class CloudRegion(object):
 
         If version is not set and we don't have a configured version, default
         to latest.
+
+        If version is set, contains a '.', and default_microversion is not
+        set, also pass it as a default microversion.
         """
         version_request = _util.VersionRequest()
         if version == 'latest':
@@ -339,6 +346,22 @@ class CloudRegion(object):
             version_request.max_api_version = 'latest'
         else:
             version_request.version = version
+
+        default_microversion = self.get_default_microversion(service_key)
+        if not default_microversion and version and '.' in version:
+            # Some services historically had a .0 in their normal api version.
+            # Neutron springs to mind with version "2.0". If a user has "2.0"
+            # set in a variable or config file just because history, we don't
+            # need to send any microversion headers.
+            if version.split('.')[1] != "0":
+                default_microversion = version
+                # If we're inferring a microversion, don't pass the whole
+                # string in as api_version, since that tells keystoneauth
+                # we're looking for a major api version.
+                version_request.version = version[0]
+
+        version_request.default_microversion = default_microversion
+
         return version_request
 
     def get_session_client(
@@ -359,7 +382,7 @@ class CloudRegion(object):
         """
         version_request = self._get_version_request(service_key, version)
 
-        return constructor(
+        client = constructor(
             session=self.get_session(),
             service_type=self.get_service_type(service_key),
             service_name=self.get_service_name(service_key),
@@ -369,7 +392,50 @@ class CloudRegion(object):
             min_version=version_request.min_api_version,
             max_version=version_request.max_api_version,
             endpoint_override=self.get_endpoint(service_key),
+            default_microversion=version_request.default_microversion,
             **kwargs)
+        if version_request.default_microversion:
+            default_microversion = version_request.default_microversion
+            info = client.get_endpoint_data()
+            if not discover.version_between(
+                    info.min_microversion,
+                    info.max_microversion,
+                    default_microversion
+            ):
+                if self.get_default_microversion(service_key):
+                    raise exceptions.ConfigException(
+                        "A default microversion for service {service_type} of"
+                        " {default_microversion} was requested, but the cloud"
+                        " only supports a minimum of {min_microversion} and"
+                        " a maximum of {max_microversion}.".format(
+                            service_type=service_key,
+                            default_microversion=default_microversion,
+                            min_microversion=discover.version_to_string(
+                                info.min_microversion),
+                            max_microversion=discover.version_to_string(
+                                info.max_microversion)))
+                else:
+                    raise exceptions.ConfigException(
+                        "A default microversion for service {service_type} of"
+                        " {default_microversion} was requested, but the cloud"
+                        " only supports a maximum of"
+                        " only supports a minimum of {min_microversion} and"
+                        " a maximum of {max_microversion}. The default"
+                        " microversion was set because a microversion"
+                        " formatted version string, '{api_version}', was"
+                        " passed for the api_version of the service. If it"
+                        " was not intended to set a default microversion"
+                        " please remove anything other than an integer major"
+                        " version from the version setting for"
+                        " the service.".format(
+                            service_type=service_key,
+                            api_version=self.get_api_version(service_key),
+                            default_microversion=default_microversion,
+                            min_microversion=discover.version_to_string(
+                                info.min_microversion),
+                            max_microversion=discover.version_to_string(
+                                info.max_microversion)))
+        return client
 
     def get_session_endpoint(
             self, service_key, min_version=None, max_version=None):
