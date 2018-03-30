@@ -45,14 +45,14 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual("region-al", cc.region_name)
 
         # Look up straight value
-        self.assertEqual(1, cc.a)
+        self.assertEqual("1", cc.a)
 
         # Look up prefixed attribute, fail - returns None
         self.assertIsNone(cc.os_b)
 
         # Look up straight value, then prefixed value
-        self.assertEqual(3, cc.c)
-        self.assertEqual(3, cc.os_c)
+        self.assertEqual("3", cc.c)
+        self.assertEqual("3", cc.os_c)
 
         # Lookup mystery attribute
         self.assertIsNone(cc.x)

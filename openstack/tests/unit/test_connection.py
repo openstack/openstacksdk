@@ -109,6 +109,34 @@ class TestConnection(base.TestCase):
         self.assertEqual('openstack.workflow.v2._proxy',
                          conn.workflow.__class__.__module__)
 
+    def test_create_connection_version_param_default(self):
+        c1 = connection.Connection(cloud='sample')
+        conn = connection.Connection(session=c1.session)
+        self.assertEqual('openstack.identity.v2._proxy',
+                         conn.identity.__class__.__module__)
+
+    def test_create_connection_version_param_string(self):
+        c1 = connection.Connection(cloud='sample')
+        conn = connection.Connection(
+            session=c1.session, identity_api_version='3')
+        self.assertEqual('openstack.identity.v3._proxy',
+                         conn.identity.__class__.__module__)
+
+    def test_create_connection_version_param_int(self):
+        c1 = connection.Connection(cloud='sample')
+        conn = connection.Connection(
+            session=c1.session, identity_api_version=3)
+        self.assertEqual('openstack.identity.v3._proxy',
+                         conn.identity.__class__.__module__)
+
+    def test_create_connection_version_param_bogus(self):
+        c1 = connection.Connection(cloud='sample')
+        conn = connection.Connection(
+            session=c1.session, identity_api_version='red')
+        # TODO(mordred) This is obviously silly behavior
+        self.assertEqual('openstack.identity.v3._proxy',
+                         conn.identity.__class__.__module__)
+
     def test_from_config_given_config(self):
         cloud_region = openstack.config.OpenStackConfig().get_one("sample")
 
