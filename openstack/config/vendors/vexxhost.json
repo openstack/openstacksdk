@@ -9,6 +9,7 @@
     ],
     "dns_api_version": "1",
     "identity_api_version": "3",
+    "image_format": "raw",
     "floating_ip_source": "None",
     "requires_floating_ip": false
   }
