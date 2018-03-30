@@ -295,7 +295,7 @@ class CloudRegion(object):
         """Helper method to grab the service catalog."""
         return self._auth.get_access(self.get_session()).service_catalog
 
-    def _get_version_args(self, service_key, version):
+    def _get_version_request(self, service_key, version):
         """Translate OCC version args to those needed by ksa adapter.
 
         If no version is requested explicitly and we have a configured version,
@@ -307,15 +307,21 @@ class CloudRegion(object):
         If version is not set and we don't have a configured version, default
         to latest.
         """
+        version_request = _util.VersionRequest()
         if version == 'latest':
-            return None, None, 'latest'
+            version_request.max_api_version = 'latest'
+            return version_request
+
         if not version:
             version = self.get_api_version(service_key)
+
         # Octavia doens't have a version discovery document. Hard-code an
         # exception to this logic for now.
         if not version and service_key not in ('load-balancer',):
-            return None, None, 'latest'
-        return version, None, None
+            version_request.max_api_version = 'latest'
+        else:
+            version_request.version = version
+        return version_request
 
     def get_session_client(
             self, service_key, version=None, constructor=adapter.Adapter,
@@ -333,8 +339,7 @@ class CloudRegion(object):
 
         and it will work like you think.
         """
-        (version, min_version, max_version) = self._get_version_args(
-            service_key, version)
+        version_request = self._get_version_request(service_key, version)
 
         return constructor(
             session=self.get_session(),
@@ -342,9 +347,9 @@ class CloudRegion(object):
             service_name=self.get_service_name(service_key),
             interface=self.get_interface(service_key),
             region_name=self.region_name,
-            version=version,
-            min_version=min_version,
-            max_version=max_version,
+            version=version_request.version,
+            min_version=version_request.min_api_version,
+            max_version=version_request.max_api_version,
             **kwargs)
 
     def _get_highest_endpoint(self, service_types, kwargs):

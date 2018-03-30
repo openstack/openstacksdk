@@ -43,3 +43,15 @@ def merge_clouds(old_dict, new_dict):
         else:
             ret[k] = v
     return ret
+
+
+class VersionRequest(object):
+    def __init__(
+        self,
+        version=None,
+        min_api_version=None,
+        max_api_version=None,
+    ):
+        self.version = version
+        self.min_api_version = min_api_version
+        self.max_api_version = max_api_version
