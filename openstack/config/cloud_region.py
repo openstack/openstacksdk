@@ -317,7 +317,7 @@ class CloudRegion(object):
         """Helper method to grab the service catalog."""
         return self._auth.get_access(self.get_session()).service_catalog
 
-    def _get_version_request(self, service_key, version):
+    def _get_version_request(self, service_type, version):
         """Translate OCC version args to those needed by ksa adapter.
 
         If no version is requested explicitly and we have a configured version,
@@ -338,16 +338,16 @@ class CloudRegion(object):
             return version_request
 
         if not version:
-            version = self.get_api_version(service_key)
+            version = self.get_api_version(service_type)
 
         # Octavia doens't have a version discovery document. Hard-code an
         # exception to this logic for now.
-        if not version and service_key not in ('load-balancer',):
+        if not version and service_type not in ('load-balancer',):
             version_request.max_api_version = 'latest'
         else:
             version_request.version = version
 
-        default_microversion = self.get_default_microversion(service_key)
+        default_microversion = self.get_default_microversion(service_type)
         if not default_microversion and version and '.' in version:
             # Some services historically had a .0 in their normal api version.
             # Neutron springs to mind with version "2.0". If a user has "2.0"
@@ -365,7 +365,7 @@ class CloudRegion(object):
         return version_request
 
     def get_session_client(
-            self, service_key, version=None, constructor=adapter.Adapter,
+            self, service_type, version=None, constructor=adapter.Adapter,
             **kwargs):
         """Return a prepped keystoneauth Adapter for a given service.
 
@@ -380,18 +380,18 @@ class CloudRegion(object):
 
         and it will work like you think.
         """
-        version_request = self._get_version_request(service_key, version)
+        version_request = self._get_version_request(service_type, version)
 
         client = constructor(
             session=self.get_session(),
-            service_type=self.get_service_type(service_key),
-            service_name=self.get_service_name(service_key),
-            interface=self.get_interface(service_key),
+            service_type=self.get_service_type(service_type),
+            service_name=self.get_service_name(service_type),
+            interface=self.get_interface(service_type),
             region_name=self.region_name,
             version=version_request.version,
             min_version=version_request.min_api_version,
             max_version=version_request.max_api_version,
-            endpoint_override=self.get_endpoint(service_key),
+            endpoint_override=self.get_endpoint(service_type),
             default_microversion=version_request.default_microversion,
             **kwargs)
         if version_request.default_microversion:
@@ -402,13 +402,13 @@ class CloudRegion(object):
                     info.max_microversion,
                     default_microversion
             ):
-                if self.get_default_microversion(service_key):
+                if self.get_default_microversion(service_type):
                     raise exceptions.ConfigException(
                         "A default microversion for service {service_type} of"
                         " {default_microversion} was requested, but the cloud"
                         " only supports a minimum of {min_microversion} and"
                         " a maximum of {max_microversion}.".format(
-                            service_type=service_key,
+                            service_type=service_type,
                             default_microversion=default_microversion,
                             min_microversion=discover.version_to_string(
                                 info.min_microversion),
@@ -428,8 +428,8 @@ class CloudRegion(object):
                         " please remove anything other than an integer major"
                         " version from the version setting for"
                         " the service.".format(
-                            service_type=service_key,
-                            api_version=self.get_api_version(service_key),
+                            service_type=service_type,
+                            api_version=self.get_api_version(service_type),
                             default_microversion=default_microversion,
                             min_microversion=discover.version_to_string(
                                 info.min_microversion),
@@ -438,24 +438,22 @@ class CloudRegion(object):
         return client
 
     def get_session_endpoint(
-            self, service_key, min_version=None, max_version=None):
+            self, service_type, min_version=None, max_version=None):
         """Return the endpoint from config or the catalog.
 
         If a configuration lists an explicit endpoint for a service,
         return that. Otherwise, fetch the service catalog from the
         keystone session and return the appropriate endpoint.
 
-        :param service_key: Generic key for service, such as 'compute' or
-                            'network'
-
+        :param service_type: Official service type of service
         """
 
-        override_endpoint = self.get_endpoint(service_key)
+        override_endpoint = self.get_endpoint(service_type)
         if override_endpoint:
             return override_endpoint
 
-        service_name = self.get_service_name(service_key)
-        interface = self.get_interface(service_key)
+        service_name = self.get_service_name(service_type)
+        interface = self.get_interface(service_type)
         session = self.get_session()
         # Do this as kwargs because of os-client-config unittest mocking
         version_kwargs = {}
@@ -467,7 +465,7 @@ class CloudRegion(object):
             # Return the highest version we find that matches
             # the request
             endpoint = session.get_endpoint(
-                service_type=service_key,
+                service_type=service_type,
                 region_name=self.region_name,
                 interface=interface,
                 service_name=service_name,
@@ -480,7 +478,7 @@ class CloudRegion(object):
                 "Keystone catalog entry not found ("
                 "service_type=%s,service_name=%s"
                 "interface=%s,region_name=%s)",
-                service_key,
+                service_type,
                 service_name,
                 interface,
                 self.region_name,
