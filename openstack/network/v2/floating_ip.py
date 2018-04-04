@@ -42,6 +42,10 @@ class FloatingIP(resource.Resource, tag.TagMixin):
     created_at = resource.Body('created_at')
     #: The floating IP description.
     description = resource.Body('description')
+    #: The DNS domain.
+    dns_domain = resource.Body('dns_domain')
+    #: The DNS name.
+    dns_name = resource.Body('dns_name')
     #: The fixed IP address associated with the floating IP. If you
     #: intend to associate the floating IP with a fixed IP at creation
     #: time, then you must indicate the identifier of the internal port.

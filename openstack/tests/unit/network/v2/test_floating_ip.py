@@ -28,6 +28,8 @@ EXAMPLE = {
     'tenant_id': '6',
     'router_id': '7',
     'description': '8',
+    'dns_domain': '9',
+    'dns_name': '10',
     'status': 'ACTIVE',
     'revision_number': 12,
     'updated_at': '13',
@@ -63,6 +65,8 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
+        self.assertEqual(EXAMPLE['dns_name'], sot.dns_name)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
