@@ -1080,12 +1080,12 @@ def wait_for_status(session, resource, status, failures, interval, wait):
             message=msg,
             wait=interval):
         resource = resource.get(session)
-        new_status = resource.status
 
         if not resource:
             raise exceptions.ResourceFailure(
                 "{name} went away while waiting for {status}".format(
                     name=name, status=status))
+        new_status = resource.status
         if new_status.lower() == status.lower():
             return resource
         if resource.status.lower() in failures:
