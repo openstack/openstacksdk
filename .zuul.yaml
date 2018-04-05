@@ -136,6 +136,7 @@
         o-cw: true
         o-hm: true
         o-hk: true
+        neutron-dns: true
         neutron-qos: true
         neutron-trunk: true
       tox_environment:

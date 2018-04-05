@@ -31,6 +31,8 @@ class TestFloatingIP(base.BaseFunctionalTest):
     ROT_ID = None
     PORT_ID = None
     FIP = None
+    DNS_DOMAIN = "example.org."
+    DNS_NAME = "fip1"
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
@@ -68,7 +70,9 @@ class TestFloatingIP(base.BaseFunctionalTest):
         assert isinstance(prt, port.Port)
         self.PORT_ID = prt.id
         # Create Floating IP.
-        fip = self.conn.network.create_ip(floating_network_id=self.EXT_NET_ID)
+        fip = self.conn.network.create_ip(
+            floating_network_id=self.EXT_NET_ID,
+            dns_domain=self.DNS_DOMAIN, dns_name=self.DNS_NAME)
         assert isinstance(fip, floating_ip.FloatingIP)
         self.FIP = fip
 
@@ -139,6 +143,8 @@ class TestFloatingIP(base.BaseFunctionalTest):
         self.assertEqual(self.FIP.fixed_ip_address, sot.fixed_ip_address)
         self.assertEqual(self.FIP.port_id, sot.port_id)
         self.assertEqual(self.FIP.router_id, sot.router_id)
+        self.assertEqual(self.DNS_DOMAIN, sot.dns_domain)
+        self.assertEqual(self.DNS_NAME, sot.dns_name)
 
     def test_list(self):
         ids = [o.id for o in self.conn.network.ips()]
