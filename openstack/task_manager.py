@@ -199,5 +199,5 @@ def wait_for_futures(futures, raise_on_error=True, log=_log):
                 raise
             # If we get an exception, put the result into a list so we
             # can try again
-            retries.append(result)
+            retries.append(completed.result())
     return results, retries
