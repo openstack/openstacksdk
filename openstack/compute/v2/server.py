@@ -326,10 +326,12 @@ class Server(resource.Resource, metadata.MetadataMixin):
         body = {"unrescue": None}
         self._action(session, body)
 
-    def evacuate(self, session, host=None, admin_pass=None, force=None):
+    def evacuate(self, session, host=None, admin_pass=None, force=None,on_shared_storage=False):
         body = {"evacuate": {}}
         if host is not None:
             body["evacuate"]["host"] = host
+        if on_shared_storage is not None:
+            body["evacuate"]["onSharedStorage"] = on_shared_storage
         if admin_pass is not None:
             body["evacuate"]["adminPass"] = admin_pass
         if force is not None:

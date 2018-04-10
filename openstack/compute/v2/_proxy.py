@@ -612,7 +612,8 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unrescue(self)
 
-    def evacuate_server(self, server, host=None, admin_pass=None, force=None):
+    def evacuate_server(self, server, host=None, admin_pass=None, force=None,
+                        on_shared_storage=False):
         """Evacuates a server from a failed host to a new host.
 
         :param server: Either the ID of a server or a
@@ -628,7 +629,7 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         server.evacuate(self, host=host, admin_pass=admin_pass,
-                        force=force)
+                        force=force,on_shared_storage=on_shared_storage)
 
     def start_server(self, server):
         """Starts a stopped server and changes its state to ``ACTIVE``.
