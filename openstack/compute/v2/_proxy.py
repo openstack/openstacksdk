@@ -629,7 +629,7 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         server.evacuate(self, host=host, admin_pass=admin_pass,
-                        force=force,on_shared_storage=on_shared_storage)
+                        force=force, on_shared_storage=on_shared_storage)
 
     def start_server(self, server):
         """Starts a stopped server and changes its state to ``ACTIVE``.
