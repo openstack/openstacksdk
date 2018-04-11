@@ -954,6 +954,9 @@ class Resource(object):
                         break
             # Glance has a next field in the main body
             next_link = next_link or data.get('next')
+            if next_link and next_link.startswith('/v'):
+                next_link = next_link[next_link.find('/', 1) + 1:]
+
         if not next_link and 'next' in response.links:
             # RFC5988 specifies Link headers and requests parses them if they
             # are there. We prefer link dicts in resource body, but if those
