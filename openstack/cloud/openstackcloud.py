@@ -8469,8 +8469,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: A list of recordsets.
 
         """
+        zone_obj = self.get_zone(zone)
+        if zone_obj is None:
+            raise OpenStackCloudException(
+                "Zone %s not found." % zone)
         return self._dns_client.get(
-            "/zones/{zone_id}/recordsets".format(zone_id=zone),
+            "/zones/{zone_id}/recordsets".format(zone_id=zone_obj['id']),
             error_message="Error fetching recordsets list")
 
     def get_recordset(self, zone, name_or_id):
@@ -8483,10 +8487,14 @@ class OpenStackCloud(_normalize.Normalizer):
             found.
 
         """
+        zone_obj = self.get_zone(zone)
+        if zone_obj is None:
+            raise OpenStackCloudException(
+                "Zone %s not found." % zone)
         try:
             return self._dns_client.get(
                 "/zones/{zone_id}/recordsets/{recordset_id}".format(
-                    zone_id=zone, recordset_id=name_or_id),
+                    zone_id=zone_obj['id'], recordset_id=name_or_id),
                 error_message="Error fetching recordset")
         except Exception:
             return None
@@ -8511,7 +8519,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
 
         """
-        if self.get_zone(zone) is None:
+        zone_obj = self.get_zone(zone)
+        if zone_obj is None:
             raise OpenStackCloudException(
                 "Zone %s not found." % zone)
 
@@ -8531,7 +8540,7 @@ class OpenStackCloud(_normalize.Normalizer):
             body['ttl'] = ttl
 
         return self._dns_client.post(
-            "/zones/{zone_id}/recordsets".format(zone_id=zone),
+            "/zones/{zone_id}/recordsets".format(zone_id=zone_obj['id']),
             json=body,
             error_message="Error creating recordset {name}".format(name=name))
 
@@ -8577,19 +8586,19 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
 
-        zone = self.get_zone(zone)
-        if zone is None:
+        zone_obj = self.get_zone(zone)
+        if zone_obj is None:
             self.log.debug("Zone %s not found for deleting", zone)
             return False
 
-        recordset = self.get_recordset(zone['id'], name_or_id)
+        recordset = self.get_recordset(zone_obj['id'], name_or_id)
         if recordset is None:
             self.log.debug("Recordset %s not found for deleting", name_or_id)
             return False
 
         self._dns_client.delete(
             "/zones/{zone_id}/recordsets/{recordset_id}".format(
-                zone_id=zone['id'], recordset_id=name_or_id),
+                zone_id=zone_obj['id'], recordset_id=name_or_id),
             error_message="Error deleting recordset {0}".format(name_or_id))
 
         return True
