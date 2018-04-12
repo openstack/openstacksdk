@@ -106,19 +106,6 @@ sjc1           San Jose, CA
 
 * Image upload is not supported
 
-datacentred
------------
-
-https://compute.datacentred.io:5000
-
-============== ================
-Region Name    Location
-============== ================
-sal01          Manchester, UK
-============== ================
-
-* Image API Version is 1
-
 dreamcompute
 ------------
 
