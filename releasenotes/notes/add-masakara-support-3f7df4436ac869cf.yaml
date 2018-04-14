@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Ported in support for masakari/``instance_ha`` service from
+    `python-masakariclient`.
