@@ -83,20 +83,6 @@ def get_boolean(value):
     return False
 
 
-def _merge_clouds(old_dict, new_dict):
-    """Like dict.update, except handling nested dicts."""
-    ret = old_dict.copy()
-    for (k, v) in new_dict.items():
-        if isinstance(v, dict):
-            if k in ret:
-                ret[k] = _merge_clouds(ret[k], v)
-            else:
-                ret[k] = v.copy()
-        else:
-            ret[k] = v
-    return ret
-
-
 def _auth_update(old_dict, new_dict_source):
     """Like dict.update, except handling the nested dict called auth."""
     new_dict = copy.deepcopy(new_dict_source)
@@ -186,13 +172,17 @@ class OpenStackConfig(object):
         self.config_filename, self.cloud_config = self._load_config_file()
         _, secure_config = self._load_secure_file()
         if secure_config:
-            self.cloud_config = _merge_clouds(
+            self.cloud_config = _util.merge_clouds(
                 self.cloud_config, secure_config)
 
         if not self.cloud_config:
             self.cloud_config = {'clouds': {}}
         if 'clouds' not in self.cloud_config:
             self.cloud_config['clouds'] = {}
+
+        # Save the other config
+        self.extra_config = copy.deepcopy(self.cloud_config)
+        self.extra_config.pop('clouds', None)
 
         # Grab ipv6 preference settings from env
         client_config = self.cloud_config.get('client', {})
@@ -261,7 +251,7 @@ class OpenStackConfig(object):
         self._cache_path = CACHE_PATH
         self._cache_class = 'dogpile.cache.null'
         self._cache_arguments = {}
-        self._cache_expiration = {}
+        self._cache_expirations = {}
         if 'cache' in self.cloud_config:
             cache_settings = _util.normalize_keys(self.cloud_config['cache'])
 
@@ -283,8 +273,8 @@ class OpenStackConfig(object):
                 cache_settings.get('path', self._cache_path))
             self._cache_arguments = cache_settings.get(
                 'arguments', self._cache_arguments)
-            self._cache_expiration = cache_settings.get(
-                'expiration', self._cache_expiration)
+            self._cache_expirations = cache_settings.get(
+                'expiration', self._cache_expirations)
 
         # Flag location to hold the peeked value of an argparse timeout value
         self._argv_timeout = False
@@ -331,7 +321,7 @@ class OpenStackConfig(object):
         defaults = _util.normalize_keys(defaults or {})
         if not key:
             return defaults
-        return _merge_clouds(
+        return _util.merge_clouds(
             defaults,
             _util.normalize_keys(self.cloud_config.get(key, {})))
 
@@ -353,27 +343,6 @@ class OpenStackConfig(object):
                     else:
                         return path, yaml.safe_load(f)
         return (None, {})
-
-    def get_cache_expiration_time(self):
-        return int(self._cache_expiration_time)
-
-    def get_cache_interval(self):
-        return self.get_cache_expiration_time()
-
-    def get_cache_max_age(self):
-        return self.get_cache_expiration_time()
-
-    def get_cache_path(self):
-        return self._cache_path
-
-    def get_cache_class(self):
-        return self._cache_class
-
-    def get_cache_arguments(self):
-        return copy.deepcopy(self._cache_arguments)
-
-    def get_cache_expiration(self):
-        return copy.deepcopy(self._cache_expiration)
 
     def _expand_region_name(self, region_name):
         return {'name': region_name, 'values': {}}
@@ -1092,12 +1061,19 @@ class OpenStackConfig(object):
             name=cloud_name,
             region_name=config['region_name'],
             config=config,
+            extra_config=self.extra_config,
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
             openstack_config=self,
             session_constructor=self._session_constructor,
             app_name=self._app_name,
             app_version=self._app_version,
+            cache_expiration_time=self._cache_expiration_time,
+            cache_expirations=self._cache_expirations,
+            cache_path=self._cache_path,
+            cache_class=self._cache_class,
+            cache_arguments=self._cache_arguments,
+            password_callback=self._pw_callback,
         )
     # TODO(mordred) Backwards compat for OSC transition
     get_one_cloud = get_one
@@ -1189,9 +1165,16 @@ class OpenStackConfig(object):
             name=cloud_name,
             region_name=config['region_name'],
             config=config,
+            extra_config=self.extra_config,
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
             openstack_config=self,
+            cache_expiration_time=self._cache_expiration_time,
+            cache_expirations=self._cache_expirations,
+            cache_path=self._cache_path,
+            cache_class=self._cache_class,
+            cache_arguments=self._cache_arguments,
+            password_callback=self._pw_callback,
         )
 
     @staticmethod

@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import math
 import warnings
 
@@ -79,10 +80,14 @@ class CloudRegion(object):
                  force_ipv4=False, auth_plugin=None,
                  openstack_config=None, session_constructor=None,
                  app_name=None, app_version=None, session=None,
-                 discovery_cache=None):
+                 discovery_cache=None, extra_config=None,
+                 cache_expiration_time=0, cache_expirations=None,
+                 cache_path=None, cache_class='dogpile.cache.null',
+                 cache_arguments=None, password_callback=None):
         self._name = name
         self.region_name = region_name
         self.config = _util.normalize_keys(config)
+        self._extra_config = extra_config or {}
         self.log = _log.setup_logging('openstack.config')
         self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
@@ -92,6 +97,12 @@ class CloudRegion(object):
         self._app_name = app_name
         self._app_version = app_version
         self._discovery_cache = discovery_cache or None
+        self._cache_expiration_time = cache_expiration_time
+        self._cache_expirations = cache_expirations or {}
+        self._cache_path = cache_path
+        self._cache_class = cache_class
+        self._cache_arguments = cache_arguments
+        self._password_callback = password_callback
 
     def __getattr__(self, key):
         """Return arbitrary attributes."""
@@ -398,26 +409,20 @@ class CloudRegion(object):
         return endpoint
 
     def get_cache_expiration_time(self):
-        if self._openstack_config:
-            return self._openstack_config.get_cache_expiration_time()
-        return 0
+        # TODO(mordred) We should be validating/transforming this on input
+        return int(self._cache_expiration_time)
 
     def get_cache_path(self):
-        if self._openstack_config:
-            return self._openstack_config.get_cache_path()
+        return self._cache_path
 
     def get_cache_class(self):
-        if self._openstack_config:
-            return self._openstack_config.get_cache_class()
-        return 'dogpile.cache.null'
+        return self._cache_class
 
     def get_cache_arguments(self):
-        if self._openstack_config:
-            return self._openstack_config.get_cache_arguments()
+        return copy.deepcopy(self._cache_arguments)
 
-    def get_cache_expiration(self):
-        if self._openstack_config:
-            return self._openstack_config.get_cache_expiration()
+    def get_cache_expirations(self):
+        return copy.deepcopy(self._cache_expirations)
 
     def get_cache_resource_expiration(self, resource, default=None):
         """Get expiration time for a resource
@@ -428,11 +433,9 @@ class CloudRegion(object):
 
         :returns: Expiration time for the resource type as float or default
         """
-        if self._openstack_config:
-            expiration = self._openstack_config.get_cache_expiration()
-            if resource not in expiration:
-                return default
-            return float(expiration[resource])
+        if resource not in self._cache_expirations:
+            return default
+        return float(self._cache_expirations[resource])
 
     def requires_floating_ip(self):
         """Return whether or not this cloud requires floating ips.
@@ -503,6 +506,20 @@ class CloudRegion(object):
                 return net['name']
         return None
 
+    def _get_extra_config(self, key, defaults=None):
+        """Fetch an arbitrary extra chunk of config, laying in defaults.
+
+        :param string key: name of the config section to fetch
+        :param dict defaults: (optional) default values to merge under the
+                                         found config
+        """
+        defaults = _util.normalize_keys(defaults or {})
+        if not key:
+            return defaults
+        return _util.merge_clouds(
+            defaults,
+            _util.normalize_keys(self._extra_config.get(key, {})))
+
     def get_client_config(self, name=None, defaults=None):
         """Get config settings for a named client.
 
@@ -520,7 +537,8 @@ class CloudRegion(object):
             A dict containing merged settings from the named section, the
             client section and the defaults.
         """
-        if not self._openstack_config:
-            return defaults or {}
-        return self._openstack_config.get_extra_config(
-            name, self._openstack_config.get_extra_config('client', defaults))
+        return self._get_extra_config(
+            name, self._get_extra_config('client', defaults))
+
+    def get_password_callback(self):
+        return self._password_callback
