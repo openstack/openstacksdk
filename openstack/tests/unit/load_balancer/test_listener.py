@@ -36,6 +36,10 @@ EXAMPLE = {
     'updated_at': '2017-07-17T12:16:57.233772',
     'operating_status': 'ONLINE',
     'provisioning_status': 'ACTIVE',
+    'timeout_client_data': 50000,
+    'timeout_member_connect': 5000,
+    'timeout_member_data': 50000,
+    'timeout_tcp_inspect': 0,
 }
 
 
@@ -82,3 +86,11 @@ class TestListener(base.TestCase):
                          test_listener.provisioning_status)
         self.assertEqual(EXAMPLE['operating_status'],
                          test_listener.operating_status)
+        self.assertEqual(EXAMPLE['timeout_client_data'],
+                         test_listener.timeout_client_data)
+        self.assertEqual(EXAMPLE['timeout_member_connect'],
+                         test_listener.timeout_member_connect)
+        self.assertEqual(EXAMPLE['timeout_member_data'],
+                         test_listener.timeout_member_data)
+        self.assertEqual(EXAMPLE['timeout_tcp_inspect'],
+                         test_listener.timeout_tcp_inspect)
