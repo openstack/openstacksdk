@@ -28,6 +28,7 @@ EXAMPLE = {
     'protocol_port': 5,
     'subnet_id': uuid.uuid4(),
     'weight': 7,
+    'backup': False,
 }
 
 
@@ -60,3 +61,4 @@ class TestPoolMember(base.TestCase):
         self.assertEqual(EXAMPLE['protocol_port'], test_member.protocol_port)
         self.assertEqual(EXAMPLE['subnet_id'], test_member.subnet_id)
         self.assertEqual(EXAMPLE['weight'], test_member.weight)
+        self.assertFalse(test_member.backup)
