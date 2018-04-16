@@ -108,6 +108,7 @@
     description: |
       Run openstacksdk functional tests against a master devstack
     required-projects:
+      - openstack/designate
       - openstack/octavia
     vars:
       devstack_localrc:
@@ -125,9 +126,11 @@
             certificates:
               cert_manager: local_cert_manager
       devstack_plugins:
+        designate: https://git.openstack.org/openstack/designate
         neutron: https://git.openstack.org/openstack/neutron
         octavia: https://git.openstack.org/openstack/octavia
       devstack_services:
+        designate: true
         octavia: true
         o-api: true
         o-cw: true
@@ -136,6 +139,7 @@
         neutron-qos: true
         neutron-trunk: true
       tox_environment:
+        OPENSTACKSDK_HAS_DESIGNATE: 1
         OPENSTACKSDK_HAS_OCTAVIA: 1
 
 - job:

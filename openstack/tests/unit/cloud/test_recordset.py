@@ -120,6 +120,14 @@ class TestRecordset(base.TestCase):
                          'total_count': 1}}),
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [zone],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'dns', 'public',
                      append=['v2', 'zones', zone['id'],
                              'recordsets', new_recordset['id']]),
@@ -148,6 +156,14 @@ class TestRecordset(base.TestCase):
                          'total_count': 1}}),
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [zone],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'dns', 'public',
                      append=['v2', 'zones', zone['id'],
                              'recordsets', new_recordset['id']]),
@@ -166,6 +182,14 @@ class TestRecordset(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [zone],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'dns', 'public',
                      append=['v2', 'zones', '1', 'recordsets', '1']),
                  json=new_recordset),
@@ -178,10 +202,18 @@ class TestRecordset(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [zone],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'dns', 'public',
                      append=['v2', 'zones', '1', 'recordsets',
                              new_recordset['name']]),
-                 json=new_recordset),
+                 json=new_recordset)
         ])
         recordset = self.cloud.get_recordset('1', new_recordset['name'])
         self.assertEqual(new_recordset['name'], recordset['name'])
@@ -190,6 +222,14 @@ class TestRecordset(base.TestCase):
     def test_get_recordset_not_found_returns_false(self):
         recordset_name = "www.nonexistingrecord.net."
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'dns', 'public', append=['v2', 'zones']),
+                 json={
+                     "zones": [zone],
+                     "links": {},
+                     "metadata": {
+                         'total_count': 1}}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'dns', 'public',
