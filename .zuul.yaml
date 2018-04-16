@@ -224,7 +224,8 @@
         - openstacksdk-functional-devstack-python3
         - osc-functional-devstack-tips:
             voting: false
-        - neutron-grenade
+        - neutron-grenade:
+            voting: false
         - openstack-tox-lower-constraints
     gate:
       jobs:
@@ -233,5 +234,4 @@
               sphinx_python: python3
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-python3
-        - neutron-grenade
         - openstack-tox-lower-constraints
