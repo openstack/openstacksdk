@@ -32,6 +32,8 @@ class Listener(resource.Resource):
         'description', 'name', 'project_id', 'protocol', 'protocol_port',
         'created_at', 'updated_at', 'provisioning_status', 'operating_status',
         'sni_container_refs', 'insert_headers', 'load_balancer_id',
+        'timeout_client_data', 'timeout_member_connect',
+        'timeout_member_data', 'timeout_tcp_inspect',
         is_admin_state_up='admin_state_up',
     )
 
@@ -79,3 +81,12 @@ class Listener(resource.Resource):
     sni_container_refs = resource.Body('sni_container_refs')
     #: Timestamp when the listener was last updated.
     updated_at = resource.Body('updated_at')
+    #: Frontend client inactivity timeout in milliseconds.
+    timeout_client_data = resource.Body('timeout_client_data', type=int)
+    #: Backend member connection timeout in milliseconds.
+    timeout_member_connect = resource.Body('timeout_member_connect', type=int)
+    #: Backend member inactivity timeout in milliseconds.
+    timeout_member_data = resource.Body('timeout_member_data', type=int)
+    #: Time, in milliseconds, to wait for additional TCP packets for content
+    #: inspection.
+    timeout_tcp_inspect = resource.Body('timeout_tcp_inspect', type=int)
