@@ -828,7 +828,7 @@ class OpenStackConfig(object):
         return config
 
     def _get_auth_loader(self, config):
-        # Re-use the admin_token plugin for the "None" plugin
+        # Use the 'none' plugin for variants of None specified,
         # since it does not look up endpoints or tokens but rather
         # does a passthrough. This is useful for things like Ironic
         # that have a keystoneless operational mode, but means we're
@@ -1207,6 +1207,7 @@ class OpenStackConfig(object):
 
         with open(config_file, 'w') as fh:
             yaml.safe_dump(cur_config, fh, default_flow_style=False)
+
 
 if __name__ == '__main__':
     config = OpenStackConfig().get_all_clouds()
