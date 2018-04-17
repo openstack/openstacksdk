@@ -30,7 +30,7 @@ class Member(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'address', 'name', 'protocol_port', 'subnet_id', 'weight',
         'created_at', 'updated_at', 'provisioning_status', 'operating_status',
-        'project_id', 'monitor_address', 'monitor_port',
+        'project_id', 'monitor_address', 'monitor_port', 'backup',
         is_admin_state_up='admin_state_up',
     )
 
@@ -67,3 +67,7 @@ class Member(resource.Resource):
     #: with a weight of 10 receives five times as much traffic as a member
     #: with weight of 2.
     weight = resource.Body('weight', type=int)
+    #: A bool value that indicates whether the member is a backup or not.
+    #: Backup members only receive traffic when all non-backup members
+    #: are down.
+    backup = resource.Body('backup', type=bool)
