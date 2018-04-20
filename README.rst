@@ -158,6 +158,6 @@ Links
 * `Issue Tracker <https://storyboard.openstack.org/#!/project/760>`_
 * `Code Review <https://review.openstack.org/#/q/status:open+project:openstack/openstacksdk,n,z>`_
 * `Documentation <https://developer.openstack.org/sdks/python/openstacksdk/>`_
-* `PyPI <https://pypi.python.org/pypi/openstacksdk/>`_
+* `PyPI <https://pypi.org/project/openstacksdk/>`_
 * `Mailing list <http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-dev>`_
 * `Bugs <https://bugs.launchpad.net/python-openstacksdk>`_

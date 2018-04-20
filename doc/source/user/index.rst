@@ -8,7 +8,7 @@ Installation
 ------------
 
 The OpenStack SDK is available on
-`PyPI <https://pypi.python.org/pypi/openstacksdk>`_ under the name
+`PyPI <https://pypi.org/project/openstacksdk>`_ under the name
 **openstacksdk**. To install it, use ``pip``::
 
    $ pip install openstacksdk

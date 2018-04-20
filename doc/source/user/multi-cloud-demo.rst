@@ -12,7 +12,7 @@ walk through it like a presentation, install `presentty` and run:
 The content is hopefully helpful even if it's not being narrated, so it's being
 included in the `shade` docs.
 
-.. _presentty: https://pypi.python.org/pypi/presentty
+.. _presentty: https://pypi.org/project/presentty
 
 Using Multiple OpenStack Clouds Easily with Shade
 =================================================
@@ -52,7 +52,7 @@ shade is Free Software
 This talk is Free Software, too
 ===============================
 
-* Written for presentty (https://pypi.python.org/pypi/presentty)
+* Written for presentty (https://pypi.org/project/presentty)
 * doc/source/multi-cloud-demo.rst
 * examples in doc/source/examples
 * Paths subject to change- this is the first presentation in tree!
