@@ -1,7 +1,7 @@
 openstacksdk
 ============
 
-openstacksdk is a client library for for building applications to work
+openstacksdk is a client library for building applications to work
 with OpenStack clouds. The project aims to provide a consistent and
 complete set of interactions with OpenStack's many services, along with
 complete documentation, examples, and tools.
