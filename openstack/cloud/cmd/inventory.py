@@ -51,7 +51,7 @@ def parse_args():
 def main():
     args = parse_args()
     try:
-        openstack.cloud.simple_logging(debug=args.debug)
+        openstack.enable_logging(debug=args.debug)
         inventory = openstack.cloud.inventory.OpenStackInventory(
             refresh=args.refresh, private=args.private,
             cloud=args.cloud)
