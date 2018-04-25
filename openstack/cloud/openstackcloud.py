@@ -5070,6 +5070,32 @@ class OpenStackCloud(_normalize.Normalizer):
                     volumes.append(volume)
         return volumes
 
+    def get_volume_limits(self, name_or_id=None):
+        """ Get volume limits for a project
+
+        :param name_or_id: (optional) project name or ID to get limits for
+                           if different from the current project
+        :raises: OpenStackCloudException if it's not a valid project
+
+        :returns: Munch object with the limits
+        """
+        params = {}
+        project_id = None
+        error_msg = "Failed to get limits"
+        if name_or_id:
+
+            proj = self.get_project(name_or_id)
+            if not proj:
+                raise exc.OpenStackCloudException("project does not exist")
+            project_id = proj.id
+            params['tenant_id'] = project_id
+            error_msg = "{msg} for the project: {project} ".format(
+                msg=error_msg, project=name_or_id)
+
+        data = self._volume_client.get('/limits', params=params)
+        limits = self._get_and_munchify('limits', data)
+        return limits
+
     def get_volume_id(self, name_or_id):
         volume = self.get_volume(name_or_id)
         if volume:
