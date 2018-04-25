@@ -122,7 +122,7 @@ in the following locations:
 * ``~/.config/openstack``
 * ``/etc/openstack``
 
-More information at https://developer.openstack.org/sdks/python/openstacksdk/users/config
+More information at https://docs.openstack.org/openstacksdk/latest/user/config/configuration.html
 
 openstack.cloud
 ===============
@@ -155,9 +155,8 @@ Create a server using objects configured with the ``clouds.yaml`` file:
 Links
 =====
 
-* `Issue Tracker <https://storyboard.openstack.org/#!/project/760>`_
+* `Issue Tracker <https://storyboard.openstack.org/#!/project/972>`_
 * `Code Review <https://review.openstack.org/#/q/status:open+project:openstack/openstacksdk,n,z>`_
-* `Documentation <https://developer.openstack.org/sdks/python/openstacksdk/>`_
+* `Documentation <https://docs.openstack.org/openstacksdk/latest/>`_
 * `PyPI <https://pypi.org/project/openstacksdk/>`_
 * `Mailing list <http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-dev>`_
-* `Bugs <https://bugs.launchpad.net/python-openstacksdk>`_

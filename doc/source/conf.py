@@ -32,7 +32,7 @@ extensions = [
 
 # openstackdocstheme options
 repository_name = 'openstack/openstacksdk'
-bug_project = '760'
+bug_project = '972'
 bug_tag = ''
 html_last_updated_fmt = '%Y-%m-%d %H:%M'
 html_theme = 'openstackdocs'
@@ -77,7 +77,7 @@ pwd = os.getcwd()
 html_context = {"pwd": pwd,
                 "gitsha": gitsha,
                 "bug_tag": bug_tag,
-                "bug_project": "python-openstacksdk"}
+                "bug_project": bug_project}
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True

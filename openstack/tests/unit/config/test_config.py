@@ -399,7 +399,7 @@ class TestConfig(base.TestCase):
 
 
 class TestExcludedFormattedConfigValue(base.TestCase):
-    # verify LaunchPad bug #1635696
+    # verify https://storyboard.openstack.org/#!/story/1635696
     #
     # get_one_cloud() and get_one_cloud_osc() iterate over config
     # values and try to expand any variables in those values by

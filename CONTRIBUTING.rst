@@ -33,7 +33,7 @@ Project Documentation
     https://docs.openstack.org/openstacksdk/latest/
 
 Bug tracker
-    https://bugs.launchpad.net/python-openstacksdk
+    https://storyboard.openstack.org/#!/project/972
 
 Mailing list (prefix subjects with ``[sdk]`` for faster responses)
     http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-dev

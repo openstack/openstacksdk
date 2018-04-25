@@ -258,7 +258,7 @@ class Image(resource.Resource):
 
         # See the following bug report for details on why the checksum
         # code may sometimes depend on a second GET call.
-        # https://bugs.launchpad.net/python-openstacksdk/+bug/1619675
+        # https://storyboard.openstack.org/#!/story/1619675
         checksum = resp.headers.get("Content-MD5")
 
         if checksum is None:

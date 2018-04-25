@@ -28,7 +28,7 @@ class TestStack(base.BaseFunctionalTest):
         super(TestStack, self).setUp()
         self.skipTest(
             'Orchestration functional tests disabled:'
-            ' https://bugs.launchpad.net/python-openstacksdk/+bug/1525005')
+            ' https://storyboard.openstack.org/#!/story/1525005')
         self.require_service('orchestration')
 
         if self.conn.compute.find_keypair(self.NAME) is None:

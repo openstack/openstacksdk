@@ -63,7 +63,7 @@ of the cloud configuration to use, .
 .. Create Connection From Environment Variables
    --------------------------------------------
 
-   TODO(etoews): Document when https://bugs.launchpad.net/os-client-config/+bug/1489617
+   TODO(etoews): Document when https://storyboard.openstack.org/#!/story/1489617
    is fixed.
 
 Next
