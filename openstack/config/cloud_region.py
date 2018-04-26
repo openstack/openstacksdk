@@ -159,21 +159,21 @@ class CloudRegion(object):
 
     def get_requests_verify_args(self):
         """Return the verify and cert values for the requests library."""
-        if self.config['verify'] and self.config['cacert']:
-            verify = self.config['cacert']
+        if self.config.get('verify') and self.config.get('cacert'):
+            verify = self.config.get('cacert')
         else:
-            verify = self.config['verify']
-            if self.config['cacert']:
+            verify = self.config.get('verify')
+            if self.config.get('cacert'):
                 warnings.warn(
                     "You are specifying a cacert for the cloud {full_name}"
                     " but also to ignore the host verification. The host SSL"
                     " cert will not be verified.".format(
                         full_name=self.full_name))
 
-        cert = self.config.get('cert', None)
+        cert = self.config.get('cert')
         if cert:
-            if self.config['key']:
-                cert = (cert, self.config['key'])
+            if self.config.get('key'):
+                cert = (cert, self.config.get('key'))
         return (verify, cert)
 
     def get_services(self):
@@ -278,7 +278,7 @@ class CloudRegion(object):
                 auth=self._auth,
                 verify=verify,
                 cert=cert,
-                timeout=self.config['api_timeout'],
+                timeout=self.config.get('api_timeout'),
                 discovery_cache=self._discovery_cache)
             self.insert_user_agent()
             # Using old keystoneauth with new os-client-config fails if
