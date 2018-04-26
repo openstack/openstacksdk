@@ -19,7 +19,7 @@ class TestBlockStorageService(base.TestCase):
 
     def test_service(self):
         sot = block_storage_service.BlockStorageService()
-        self.assertEqual("volume", sot.service_type)
+        self.assertEqual("block-storage", sot.service_type)
         self.assertEqual("public", sot.interface)
         self.assertIsNone(sot.region)
         self.assertIsNone(sot.service_name)

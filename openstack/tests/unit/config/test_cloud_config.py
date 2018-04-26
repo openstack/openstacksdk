@@ -143,32 +143,17 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual('mage', cc.get_service_type('image'))
         self.assertEqual('compute', cc.get_service_type('compute'))
         self.assertEqual('1', cc.get_api_version('volume'))
-        self.assertEqual('volume', cc.get_service_type('volume'))
+        self.assertEqual('block-storage', cc.get_service_type('volume'))
         self.assertEqual('http://compute.example.com',
                          cc.get_endpoint('compute'))
         self.assertIsNone(cc.get_endpoint('image'))
         self.assertIsNone(cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
 
-    def test_volume_override(self):
-        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
-        cc.config['volume_api_version'] = '2'
-        self.assertEqual('volumev2', cc.get_service_type('volume'))
-
-    def test_volume_override_v3(self):
-        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
-        cc.config['volume_api_version'] = '3'
-        self.assertEqual('volumev3', cc.get_service_type('volume'))
-
-    def test_workflow_override_v2(self):
-        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
-        cc.config['workflow_api_version'] = '2'
-        self.assertEqual('workflowv2', cc.get_service_type('workflow'))
-
     def test_no_override(self):
         """Test no override happens when defaults are not configured"""
         cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
-        self.assertEqual('volume', cc.get_service_type('volume'))
+        self.assertEqual('block-storage', cc.get_service_type('volume'))
         self.assertEqual('workflow', cc.get_service_type('workflow'))
         self.assertEqual('not-exist', cc.get_service_type('not-exist'))
 

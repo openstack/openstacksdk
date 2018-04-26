@@ -45,7 +45,7 @@ class TestSnapshot(base.TestCase):
         self.assertEqual("snapshot", sot.resource_key)
         self.assertEqual("snapshots", sot.resources_key)
         self.assertEqual("/snapshots", sot.base_path)
-        self.assertEqual("volume", sot.service.service_type)
+        self.assertEqual("block-storage", sot.service.service_type)
         self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_update)
         self.assertTrue(sot.allow_create)

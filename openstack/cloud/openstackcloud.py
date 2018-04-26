@@ -603,9 +603,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @property
     def _volume_client(self):
-        if 'volume' not in self._raw_clients:
-            self._raw_clients['volume'] = self._get_raw_client('volume')
-        return self._raw_clients['volume']
+        if 'block-storage' not in self._raw_clients:
+            client = self._get_raw_client('block-storage')
+            self._raw_clients['block-storage'] = client
+        return self._raw_clients['block-storage']
 
     def pprint(self, resource):
         """Wrapper aroud pprint that groks munch objects"""

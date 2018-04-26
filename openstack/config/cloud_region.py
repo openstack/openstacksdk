@@ -13,7 +13,6 @@
 # under the License.
 
 import copy
-import math
 import warnings
 
 from keystoneauth1 import adapter
@@ -199,26 +198,13 @@ class CloudRegion(object):
         return self.config.get(key, None)
 
     def get_service_type(self, service_type):
+        # People requesting 'volume' are doing so because os-client-config
+        # let them. What they want is block-storage, not explicitly the
+        # v1 of cinder. If someone actually wants v1, they'll have api_version
+        # set to 1, in which case block-storage will still work properly.
+        if service_type == 'volume':
+            service_type = 'block-storage'
         key = _make_key('service_type', service_type)
-        # Cinder did an evil thing where they defined a second service
-        # type in the catalog. Of course, that's insane, so let's hide this
-        # atrocity from the as-yet-unsullied eyes of our users.
-        # Of course, if the user requests a volumev2, that structure should
-        # still work.
-        # What's even more amazing is that they did it AGAIN with cinder v3
-        # And then I learned that mistral copied it.
-        # TODO(shade) This should get removed when we have os-service-types
-        # alias support landed in keystoneauth.
-        if service_type in ('volume', 'block-storage'):
-            vol_ver = self.get_api_version('volume')
-            if vol_ver and vol_ver.startswith('2'):
-                service_type = 'volumev2'
-            elif vol_ver and vol_ver.startswith('3'):
-                service_type = 'volumev3'
-        elif service_type == 'workflow':
-            wk_ver = self.get_api_version(service_type)
-            if wk_ver and wk_ver.startswith('2'):
-                service_type = 'workflowv2'
         return self.config.get(key, service_type)
 
     def get_service_name(self, service_type):
@@ -326,7 +312,7 @@ class CloudRegion(object):
     def get_session_client(
             self, service_key, version=None, constructor=adapter.Adapter,
             **kwargs):
-        """Return a prepped requests adapter for a given service.
+        """Return a prepped keystoneauth Adapter for a given service.
 
         This is useful for making direct requests calls against a
         'mounted' endpoint. That is, if you do:
@@ -353,17 +339,6 @@ class CloudRegion(object):
             endpoint_override=self.get_endpoint(service_key),
             **kwargs)
 
-    def _get_highest_endpoint(self, service_types, kwargs):
-        session = self.get_session()
-        for service_type in service_types:
-            kwargs['service_type'] = service_type
-            try:
-                # Return the highest version we find that matches
-                # the request
-                return session.get_endpoint(**kwargs)
-            except keystoneauth1.exceptions.catalog.EndpointNotFound:
-                pass
-
     def get_session_endpoint(
             self, service_key, min_version=None, max_version=None):
         """Return the endpoint from config or the catalog.
@@ -380,38 +355,38 @@ class CloudRegion(object):
         override_endpoint = self.get_endpoint(service_key)
         if override_endpoint:
             return override_endpoint
-        endpoint = None
-        kwargs = {
-            'service_name': self.get_service_name(service_key),
-            'region_name': self.region_name
-        }
-        kwargs['interface'] = self.get_interface(service_key)
-        if service_key == 'volume' and not self.get_api_version('volume'):
-            # If we don't have a configured cinder version, we can't know
-            # to request a different service_type
-            min_version = float(min_version or 1)
-            max_version = float(max_version or 3)
-            min_major = math.trunc(float(min_version))
-            max_major = math.trunc(float(max_version))
-            versions = range(int(max_major) + 1, int(min_major), -1)
-            service_types = []
-            for version in versions:
-                if version == 1:
-                    service_types.append('volume')
-                else:
-                    service_types.append('volumev{v}'.format(v=version))
-        else:
-            service_types = [self.get_service_type(service_key)]
-        endpoint = self._get_highest_endpoint(service_types, kwargs)
+
+        service_name = self.get_service_name(service_key)
+        interface = self.get_interface(service_key)
+        session = self.get_session()
+        # Do this as kwargs because of os-client-config unittest mocking
+        version_kwargs = {}
+        if min_version:
+            version_kwargs['min_version'] = min_version
+        if max_version:
+            version_kwargs['max_version'] = max_version
+        try:
+            # Return the highest version we find that matches
+            # the request
+            endpoint = session.get_endpoint(
+                service_type=service_key,
+                region_name=self.region_name,
+                interface=interface,
+                service_name=service_name,
+                **version_kwargs
+            )
+        except keystoneauth1.exceptions.catalog.EndpointNotFound:
+            endpoint = None
         if not endpoint:
             self.log.warning(
                 "Keystone catalog entry not found ("
                 "service_type=%s,service_name=%s"
                 "interface=%s,region_name=%s)",
                 service_key,
-                kwargs['service_name'],
-                kwargs['interface'],
-                kwargs['region_name'])
+                service_name,
+                interface,
+                self.region_name,
+            )
         return endpoint
 
     def get_cache_expiration_time(self):
