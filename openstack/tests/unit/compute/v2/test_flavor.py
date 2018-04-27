@@ -19,6 +19,7 @@ BASIC_EXAMPLE = {
     'id': IDENTIFIER,
     'links': '2',
     'name': '3',
+    'description': 'Testing flavor',
     'disk': 4,
     'os-flavor-access:is_public': True,
     'ram': 6,
@@ -49,7 +50,8 @@ class TestFlavor(base.TestCase):
                               "min_disk": "minDisk",
                               "min_ram": "minRam",
                               "limit": "limit",
-                              "marker": "marker"},
+                              "marker": "marker",
+                              "is_public": "is_public"},
                              sot._query_mapping._mapping)
 
     def test_make_basic(self):
@@ -57,6 +59,7 @@ class TestFlavor(base.TestCase):
         self.assertEqual(BASIC_EXAMPLE['id'], sot.id)
         self.assertEqual(BASIC_EXAMPLE['links'], sot.links)
         self.assertEqual(BASIC_EXAMPLE['name'], sot.name)
+        self.assertEqual(BASIC_EXAMPLE['description'], sot.description)
         self.assertEqual(BASIC_EXAMPLE['disk'], sot.disk)
         self.assertEqual(BASIC_EXAMPLE['os-flavor-access:is_public'],
                          sot.is_public)

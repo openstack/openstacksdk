@@ -27,7 +27,7 @@ class Flavor(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        "sort_key", "sort_dir",
+        "sort_key", "sort_dir", "is_public",
         min_disk="minDisk",
         min_ram="minRam")
 
@@ -37,6 +37,8 @@ class Flavor(resource.Resource):
     links = resource.Body('links')
     #: The name of this flavor.
     name = resource.Body('name')
+    #: The description of the flavor.
+    description = resource.Body('description')
     #: Size of the disk this flavor offers. *Type: int*
     disk = resource.Body('disk', type=int)
     #: ``True`` if this is a publicly visible flavor. ``False`` if this is
