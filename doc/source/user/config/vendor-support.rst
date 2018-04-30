@@ -213,6 +213,22 @@ sjc01          San Jose, CA
 
 * Floating IPs are not supported
 
+limestonenetworks
+-----------------
+
+https://auth.cloud.lstn.net:5000/v3
+
+============== ==================
+Region Name    Location
+============== ==================
+us-dfw-1       Dallas, TX
+us-slc         Salt Lake City, UT
+============== ==================
+
+* Identity API Version is 3
+* Images must be in `raw` format
+* IPv6 is provided to every server connected to the `Public Internet` network
+
 ovh
 ---
 
