@@ -34,17 +34,13 @@ EXAMPLE = {
     'extra_dhcp_opts': [{'13': 13}],
     'fixed_ips': [{'14': '14'}],
     'id': IDENTIFIER,
-    'ip_address': '15',
     'mac_address': '16',
     'name': '17',
     'network_id': '18',
-    'opt_name': '19',
-    'opt_value': '20',
     'port_security_enabled': True,
     'qos_policy_id': '21',
     'revision_number': 22,
     'security_groups': ['23'],
-    'subnet_id': '24',
     'status': '25',
     'tenant_id': '26',
     'trunk_details': {
@@ -116,18 +112,14 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['extra_dhcp_opts'], sot.extra_dhcp_opts)
         self.assertEqual(EXAMPLE['fixed_ips'], sot.fixed_ips)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['ip_address'], sot.ip_address)
         self.assertEqual(EXAMPLE['mac_address'], sot.mac_address)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
-        self.assertEqual(EXAMPLE['opt_name'], sot.option_name)
-        self.assertEqual(EXAMPLE['opt_value'], sot.option_value)
         self.assertTrue(sot.is_port_security_enabled)
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
         self.assertEqual(EXAMPLE['trunk_details'], sot.trunk_details)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
