@@ -85,8 +85,6 @@ class Port(resource.Resource, tag.TagMixin):
     dns_name = resource.Body('dns_name')
     #: Extra DHCP options.
     extra_dhcp_opts = resource.Body('extra_dhcp_opts', type=list)
-    #: IP addresses of an allowed address pair.
-    ip_address = resource.Body('ip_address')
     #: IP addresses for the port. Includes the IP address and subnet ID.
     fixed_ips = resource.Body('fixed_ips', type=list)
     #: The administrative state of the port, which is up ``True`` or
@@ -105,10 +103,6 @@ class Port(resource.Resource, tag.TagMixin):
     #: The ID of the project who owns the network. Only administrative
     #: users can specify a project ID other than their own.
     project_id = resource.Body('tenant_id')
-    #: The extra DHCP option name.
-    option_name = resource.Body('opt_name')
-    #: The extra DHCP option value.
-    option_value = resource.Body('opt_value')
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.Body('qos_policy_id')
     #: Revision number of the port. *Type: int*
@@ -118,11 +112,6 @@ class Port(resource.Resource, tag.TagMixin):
     security_group_ids = resource.Body('security_groups', type=list)
     #: The port status. Value is ``ACTIVE`` or ``DOWN``.
     status = resource.Body('status')
-    #: The ID of the subnet. If you specify only a subnet UUID, OpenStack
-    #: networking allocates an available IP from that subnet to the port.
-    #: If you specify both a subnet ID and an IP address, OpenStack networking
-    #: tries to allocate the address to the port.
-    subnet_id = resource.Body('subnet_id')
     #: Read-only. The trunk referring to this parent port and its subports.
     #: Present for trunk parent ports if ``trunk-details`` extension is loaded.
     #: *Type: dict with keys: trunk_id, sub_ports.
