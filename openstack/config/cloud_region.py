@@ -350,6 +350,7 @@ class CloudRegion(object):
             version=version_request.version,
             min_version=version_request.min_api_version,
             max_version=version_request.max_api_version,
+            endpoint_override=self.get_endpoint(service_key),
             **kwargs)
 
     def _get_highest_endpoint(self, service_types, kwargs):

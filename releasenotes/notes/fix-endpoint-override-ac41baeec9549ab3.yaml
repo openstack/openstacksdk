@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed issue where ``endpoint_override`` settings were not getting passed
+    to the Adapter constructor in ``get_session_client``.
