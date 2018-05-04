@@ -402,17 +402,20 @@ class TestCase(base.TestCase):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
-        self.__do_register_uris([
-            dict(method='GET', uri='https://identity.example.com/',
-                 text=open(self.discovery_json, 'r').read()),
-            dict(method='POST',
-                 uri='https://identity.example.com/v3/auth/tokens',
-                 headers={
-                     'X-Subject-Token': self.getUniqueString('KeystoneToken')},
-                 text=open(os.path.join(
-                     self.fixtures_directory, catalog), 'r').read()
-                 ),
-        ])
+        with open(self.discovery_json, 'r') as discovery_file, \
+            open(os.path.join(
+                self.fixtures_directory, catalog), 'r') as tokens_file:
+            self.__do_register_uris([
+                dict(method='GET', uri='https://identity.example.com/',
+                     text=discovery_file.read()),
+                dict(method='POST',
+                     uri='https://identity.example.com/v3/auth/tokens',
+                     headers={
+                         'X-Subject-Token':
+                         self.getUniqueString('KeystoneToken')},
+                     text=tokens_file.read()
+                     ),
+            ])
         self._make_test_cloud(identity_api_version='3')
 
     def use_keystone_v2(self):
@@ -420,14 +423,18 @@ class TestCase(base.TestCase):
         self.calls = []
         self._uri_registry.clear()
 
-        self.__do_register_uris([
-            dict(method='GET', uri='https://identity.example.com/',
-                 text=open(self.discovery_json, 'r').read()),
-            dict(method='POST', uri='https://identity.example.com/v2.0/tokens',
-                 text=open(os.path.join(
-                     self.fixtures_directory, 'catalog-v2.json'), 'r').read()
-                 ),
-        ])
+        with open(self.discovery_json, 'r') as discovery_file, \
+            open(os.path.join(
+                self.fixtures_directory,
+                'catalog-v2.json'), 'r') as tokens_file:
+            self.__do_register_uris([
+                dict(method='GET', uri='https://identity.example.com/',
+                     text=discovery_file.read()),
+                dict(method='POST',
+                     uri='https://identity.example.com/v2.0/tokens',
+                     text=tokens_file.read()
+                     ),
+            ])
 
         self._make_test_cloud(cloud_name='_test_cloud_v2_',
                               identity_api_version='2.0')
