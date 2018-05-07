@@ -91,7 +91,7 @@ def cluster_add_nodes(conn):
 
     node_ids = [NODE_ID]
     res = conn.clustering.cluster_add_nodes(CLUSTER_ID, node_ids)
-    print(res.to_dict())
+    print(res)
 
 
 def cluster_del_nodes(conn):
@@ -99,7 +99,7 @@ def cluster_del_nodes(conn):
 
     node_ids = [NODE_ID]
     res = conn.clustering.cluster_del_nodes(CLUSTER_ID, node_ids)
-    print(res.to_dict())
+    print(res)
 
 
 def cluster_replace_nodes(conn):
@@ -111,21 +111,21 @@ def cluster_replace_nodes(conn):
         old_node: new_node
     }
     res = conn.clustering.cluster_replace_nodes(CLUSTER_ID, **spec)
-    print(res.to_dict())
+    print(res)
 
 
 def cluster_scale_out(conn):
     print("Inflate the size of a cluster:")
 
     res = conn.clustering.cluster_scale_out(CLUSTER_ID, 1)
-    print(res.to_dict())
+    print(res)
 
 
 def cluster_scale_in(conn):
     print("Shrink the size of a cluster:")
 
     res = conn.clustering.cluster_scale_in(CLUSTER_ID, 1)
-    print(res.to_dict())
+    print(res)
 
 
 def cluster_resize(conn):
@@ -138,7 +138,7 @@ def cluster_resize(conn):
         'number': 2
     }
     res = conn.clustering.cluster_resize(CLUSTER_ID, **spec)
-    print(res.to_dict())
+    print(res)
 
 
 def cluster_attach_policy(conn):
@@ -147,21 +147,21 @@ def cluster_attach_policy(conn):
     spec = {'enabled': True}
     res = conn.clustering.cluster_attach_policy(CLUSTER_ID, POLICY_ID,
                                                 **spec)
-    print(res.to_dict())
+    print(res)
 
 
 def cluster_detach_policy(conn):
     print("Detach a policy from a cluster:")
 
     res = conn.clustering.cluster_detach_policy(CLUSTER_ID, POLICY_ID)
-    print(res.to_dict())
+    print(res)
 
 
 def check_cluster(conn):
     print("Check cluster:")
 
     res = conn.clustering.check_cluster(CLUSTER_ID)
-    print(res.to_dict())
+    print(res)
 
 
 def recover_cluster(conn):
@@ -169,4 +169,4 @@ def recover_cluster(conn):
 
     spec = {'check': True}
     res = conn.clustering.recover_cluster(CLUSTER_ID, **spec)
-    print(res.to_dict())
+    print(res)
