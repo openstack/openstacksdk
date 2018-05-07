@@ -42,7 +42,7 @@ the following::
 To create an environment for a different version, such as Python 3, run
 the following::
 
-   $ virtualenv -p python3.4 $HOME/envs/sdk3
+   $ virtualenv -p python3.5 $HOME/envs/sdk3
 
 When you want to enable your environment so that you can develop inside of it,
 you *activate* it. To activate an environment, run the /bin/activate

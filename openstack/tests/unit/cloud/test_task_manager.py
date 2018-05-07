@@ -78,7 +78,7 @@ class TestTaskManager(base.TestCase):
 
         This test is aimed to six.reraise(), called in Task::wait().
         Specifically, we test if we get the same behaviour with all the
-        configured interpreters (e.g. py27, p34, pypy, ...)
+        configured interpreters (e.g. py27, p35, ...)
         """
         self.assertRaises(TestException, self.manager.submit_task, TaskTest())
 
