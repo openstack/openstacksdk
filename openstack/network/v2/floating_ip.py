@@ -79,8 +79,9 @@ class FloatingIP(resource.Resource, tag.TagMixin):
 
     @classmethod
     def find_available(cls, session):
-        info = cls.list(session, port_id='')
-        try:
-            return next(info)
-        except StopIteration:
-            return None
+        # server-side filtering on empty values is not always supported.
+        # TODO(mordred) Make this check for support for the server-side filter
+        for ip in cls.list(session):
+            if not ip.port_id:
+                return ip
+        return None

@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ['OpenStackInventory']
-
 import functools
 
 from openstack.config import loader
 from openstack import connection
 from openstack import exceptions
 from openstack.cloud import _utils
+
+__all__ = ['OpenStackInventory']
 
 
 class OpenStackInventory(object):

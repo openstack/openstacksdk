@@ -36,6 +36,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
+        self.TIMEOUT_SCALING_FACTOR = 1.5
         self.ROT_NAME = self.getUniqueString()
         self.EXT_NET_NAME = self.getUniqueString()
         self.EXT_SUB_NAME = self.getUniqueString()

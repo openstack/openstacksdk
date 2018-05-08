@@ -155,11 +155,6 @@ try to find it and if that fails, you would create it::
 Additional information about the services can be found in the
 :ref:`service-proxies` documentation.
 """
-__all__ = [
-    'from_config',
-    'Connection',
-]
-
 import warnings
 
 import keystoneauth1.exceptions
@@ -174,6 +169,11 @@ from openstack.config import cloud_region
 from openstack import exceptions
 from openstack import service_description
 from openstack import task_manager
+
+__all__ = [
+    'from_config',
+    'Connection',
+]
 
 if requestsexceptions.SubjectAltNameWarning:
     warnings.filterwarnings(

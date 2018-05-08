@@ -89,7 +89,7 @@ class TestFloatingIP(base.TestCase):
         mock_session.get.assert_called_with(
             floating_ip.FloatingIP.base_path,
             headers={'Accept': 'application/json'},
-            params={'port_id': ''})
+            params={})
 
     def test_find_available_nada(self):
         mock_session = mock.Mock(spec=adapter.Adapter)

@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from openstack._log import enable_logging  # noqa
+import openstack.config
+import openstack.connection
+
 __all__ = [
     'connect',
     'enable_logging',
 ]
-
-from openstack._log import enable_logging  # noqa
-import openstack.config
-import openstack.connection
 
 
 def connect(

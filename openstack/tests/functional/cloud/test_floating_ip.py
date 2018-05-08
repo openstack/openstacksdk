@@ -20,6 +20,8 @@ Functional tests for floating IP resource.
 """
 
 import pprint
+import six
+import sys
 
 from testtools import content
 
@@ -50,6 +52,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
 
     def _cleanup_network(self):
         exception_list = list()
+        tb_list = list()
 
         # Delete stale networks as well as networks created for this test
         if self.user_cloud.has_service('network'):
@@ -58,7 +61,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
                 try:
                     if r['name'].startswith(self.new_item_name):
                         self.user_cloud.update_router(
-                            r['id'], ext_gateway_net_id=None)
+                            r, ext_gateway_net_id=None)
                         for s in self.user_cloud.list_subnets():
                             if s['name'].startswith(self.new_item_name):
                                 try:
@@ -66,31 +69,41 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
                                         r, subnet_id=s['id'])
                                 except Exception:
                                     pass
-                        self.user_cloud.delete_router(name_or_id=r['id'])
+                        self.user_cloud.delete_router(r)
                 except Exception as e:
-                    exception_list.append(str(e))
+                    exception_list.append(e)
+                    tb_list.append(sys.exc_info()[2])
                     continue
             # Delete subnets
             for s in self.user_cloud.list_subnets():
                 if s['name'].startswith(self.new_item_name):
                     try:
-                        self.user_cloud.delete_subnet(name_or_id=s['id'])
+                        self.user_cloud.delete_subnet(s)
                     except Exception as e:
-                        exception_list.append(str(e))
+                        exception_list.append(e)
+                        tb_list.append(sys.exc_info()[2])
                         continue
             # Delete networks
             for n in self.user_cloud.list_networks():
                 if n['name'].startswith(self.new_item_name):
                     try:
-                        self.user_cloud.delete_network(name_or_id=n['id'])
+                        self.user_cloud.delete_network(n)
                     except Exception as e:
-                        exception_list.append(str(e))
+                        exception_list.append(e)
+                        tb_list.append(sys.exc_info()[2])
                         continue
 
         if exception_list:
             # Raise an error: we must make users aware that something went
             # wrong
-            raise OpenStackCloudException('\n'.join(exception_list))
+            if len(exception_list) > 1:
+                self.addDetail(
+                    'exceptions',
+                    content.text_content(
+                        '\n'.join([str(ex) for ex in exception_list])))
+            exc = exception_list[0]
+            tb = tb_list[0]
+            six.reraise(type(exc), exc, tb)
 
     def _cleanup_servers(self):
         exception_list = list()
@@ -119,7 +132,7 @@ class TestFloatingIP(base.BaseFunctionalTestCase):
             if (ip.get('fixed_ip', None) == fixed_ip
                     or ip.get('fixed_ip_address', None) == fixed_ip):
                 try:
-                    self.user_cloud.delete_floating_ip(ip['id'])
+                    self.user_cloud.delete_floating_ip(ip)
                 except Exception as e:
                     exception_list.append(str(e))
                     continue

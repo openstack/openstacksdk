@@ -44,11 +44,17 @@ def poll_for_events(
         cloud, stack_name, action=None, poll_period=5, marker=None):
     """Continuously poll events and logs for performed action on stack."""
 
-    if action:
+    def stop_check_action(a):
         stop_status = ('%s_FAILED' % action, '%s_COMPLETE' % action)
-        stop_check = lambda a: a in stop_status
+        return a in stop_status
+
+    def stop_check_no_action(a):
+        return a.endswith('_COMPLETE') or a.endswith('_FAILED')
+
+    if action:
+        stop_check = stop_check_action
     else:
-        stop_check = lambda a: a.endswith('_COMPLETE') or a.endswith('_FAILED')
+        stop_check = stop_check_no_action
 
     no_event_polls = 0
     msg_template = "\n Stack %(name)s %(status)s \n"

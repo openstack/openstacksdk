@@ -11,17 +11,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-__all__ = [
-    'OpenStackServiceDescription',
-    'ServiceDescription',
-]
-
 import importlib
 
 import os_service_types
 
 from openstack import _log
 from openstack import proxy
+
+__all__ = [
+    'OpenStackServiceDescription',
+    'ServiceDescription',
+]
 
 _logger = _log.setup_logging('openstack')
 _service_type_manager = os_service_types.ServiceTypes()
