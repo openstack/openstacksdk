@@ -8,7 +8,7 @@
       "LS",
       "ZH"
     ],
-    "volume_api_version": "1",
+    "block_storage_api_version": "1",
     "image_api_use_tasks": true,
     "image_format": "raw"
   }

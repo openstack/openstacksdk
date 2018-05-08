@@ -19,7 +19,7 @@
     "floating_ip_source": "None",
     "secgroup_source": "None",
     "requires_floating_ip": false,
-    "volume_api_version": "1",
+    "block_storage_api_version": "1",
     "disable_vendor_agent": {
       "vm_mode": "hvm",
       "xenapi_use_agent": false

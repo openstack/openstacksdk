@@ -51,6 +51,12 @@
       "default": "1",
       "type": "string"
     },
+    "block_storage_api_version": {
+      "name": "Block Storage API Version",
+      "description": "Block Storage API Version",
+      "default": "2",
+      "type": "string"
+    },
     "compute_api_version": {
       "name": "Compute API Version",
       "description": "Compute API Version",
@@ -103,6 +109,7 @@
   "required": [
     "auth_type",
     "baremetal_api_version",
+    "block_storage_api_version",
     "compute_api_version",
     "database_api_version",
     "disable_vendor_agent",
@@ -115,7 +122,6 @@
     "interface",
     "network_api_version",
     "object_store_api_version",
-    "secgroup_source",
-    "volume_api_version"
+    "secgroup_source"
   ]
 }

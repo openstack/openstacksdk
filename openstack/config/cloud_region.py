@@ -18,6 +18,7 @@ import warnings
 from keystoneauth1 import adapter
 import keystoneauth1.exceptions.catalog
 from keystoneauth1 import session as ks_session
+import os_service_types
 import requestsexceptions
 from six.moves import urllib
 
@@ -102,6 +103,8 @@ class CloudRegion(object):
         self._cache_class = cache_class
         self._cache_arguments = cache_arguments
         self._password_callback = password_callback
+
+        self._service_type_manager = os_service_types.ServiceTypes()
 
     def __getattr__(self, key):
         """Return arbitrary attributes."""
@@ -188,33 +191,62 @@ class CloudRegion(object):
     def get_auth_args(self):
         return self.config.get('auth', {})
 
+    def _get_config(
+            self, key, service_type,
+            default=None,
+            fallback_to_unprefixed=False):
+        '''Get a config value for a service_type.
+
+        Finds the config value for a key, looking first for it prefixed by
+        the given service_type, then by any known aliases of that service_type.
+        Finally, if fallback_to_unprefixed is True, a value will be looked
+        for without a prefix to support the config values where a global
+        default makes sense.
+
+        For instance, ``_get_config('example', 'block-storage', True)`` would
+        first look for ``block_storage_example``, then ``volumev3_example``,
+        ``volumev2_example`` and ``volume_example``. If no value was found, it
+        would look for ``example``.
+
+        If none of that works, it returns the value in ``default``.
+        '''
+        for st in self._service_type_manager.get_all_types(service_type):
+            value = self.config.get(_make_key(key, st))
+            if value is not None:
+                return value
+        if fallback_to_unprefixed:
+            return self.config.get(key)
+        return default
+
     def get_interface(self, service_type=None):
-        key = _make_key('interface', service_type)
-        interface = self.config.get('interface')
-        return self.config.get(key, interface)
+        return self._get_config(
+            'interface', service_type, fallback_to_unprefixed=True)
 
     def get_api_version(self, service_type):
-        key = _make_key('api_version', service_type)
-        return self.config.get(key, None)
+        return self._get_config('api_version', service_type)
 
     def get_service_type(self, service_type):
         # People requesting 'volume' are doing so because os-client-config
         # let them. What they want is block-storage, not explicitly the
         # v1 of cinder. If someone actually wants v1, they'll have api_version
         # set to 1, in which case block-storage will still work properly.
-        if service_type == 'volume':
-            service_type = 'block-storage'
-        key = _make_key('service_type', service_type)
-        return self.config.get(key, service_type)
+        # Use service-types-manager to grab the official type name. _get_config
+        # will still look for config by alias, but starting with the official
+        # type will get us things in the right order.
+        if self._service_type_manager.is_known(service_type):
+            service_type = self._service_type_manager.get_service_type(
+                service_type)
+        return self._get_config(
+            'service_type', service_type, default=service_type)
 
     def get_service_name(self, service_type):
-        key = _make_key('service_name', service_type)
-        return self.config.get(key, None)
+        return self._get_config('service_name', service_type)
 
     def get_endpoint(self, service_type):
-        key = _make_key('endpoint_override', service_type)
-        old_key = _make_key('endpoint', service_type)
-        return self.config.get(key, self.config.get(old_key, None))
+        value = self._get_config('endpoint_override', service_type)
+        if not value:
+            value = self._get_config('endpoint', service_type)
+        return value
 
     @property
     def prefer_ipv6(self):

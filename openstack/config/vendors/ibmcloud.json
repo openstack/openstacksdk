@@ -4,7 +4,7 @@
     "auth": {
       "auth_url": "https://identity.open.softlayer.com"
     },
-    "volume_api_version": "2",
+    "block_storage_api_version": "2",
     "identity_api_version": "3",
     "regions": [
       "london"

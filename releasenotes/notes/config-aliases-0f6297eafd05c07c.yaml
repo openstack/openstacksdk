@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Config values now support service-type aliases. The correct config names
+    are based on the official service type, such as
+    ``block_storage_api_version``, but with this change, legacy aliases such
+    as ``volume_api_version`` are also supported.

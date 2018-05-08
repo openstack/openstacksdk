@@ -8,7 +8,7 @@
       "bj1",
       "gd1"
     ],
-    "volume_api_version": "1",
+    "block_storage_api_version": "1",
     "identity_api_version": "3",
     "image_format": "raw",
     "floating_ip_source": "None"
