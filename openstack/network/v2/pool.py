@@ -39,6 +39,8 @@ class Pool(resource.Resource):
     #: Description for the pool.
     description = resource.Body('description')
     #: The ID of the associated health monitors.
+    health_monitor_id = resource.Body('healthmonitor_id')
+    #: The ID of the associated health monitors (LBaaS v1).
     health_monitor_ids = resource.Body('health_monitors', type=list)
     #: The statuses of the associated health monitors.
     health_monitor_status = resource.Body('health_monitor_status', type=list)

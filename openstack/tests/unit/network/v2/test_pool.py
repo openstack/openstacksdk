@@ -18,6 +18,7 @@ IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
     'description': '2',
+    'healthmonitor_id': '3-1',
     'health_monitors': ['3'],
     'health_monitor_status': ['4'],
     'id': IDENTIFIER,
@@ -57,6 +58,7 @@ class TestPool(base.TestCase):
         sot = pool.Pool(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertEqual(EXAMPLE['healthmonitor_id'], sot.health_monitor_id)
         self.assertEqual(EXAMPLE['health_monitors'], sot.health_monitor_ids)
         self.assertEqual(EXAMPLE['health_monitor_status'],
                          sot.health_monitor_status)
