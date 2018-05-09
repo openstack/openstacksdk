@@ -30,17 +30,19 @@ def list_policies(conn):
 
 def create_policy(conn):
     print("Create Policy:")
-
-    spec = {
-        'policy': 'senlin.policy.deletion',
-        'version': 1.0,
-        'properties': {
-            'criteria': 'oldest_first',
-            'destroy_after_deletion': True,
+    attrs = {
+        'name': 'dp01',
+        'spec': {
+            'policy': 'senlin.policy.deletion',
+            'version': 1.0,
+            'properties': {
+                'criteria': 'oldest_first',
+                'destroy_after_deletion': True,
+            }
         }
     }
 
-    policy = conn.clustering.create_policy('dp01', spec)
+    policy = conn.clustering.create_policy(attrs)
     print(policy.to_dict())
 
 

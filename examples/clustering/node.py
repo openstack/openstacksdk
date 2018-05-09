@@ -82,7 +82,7 @@ def check_node(conn):
     print("Check Node:")
 
     node = conn.clustering.check_node(NODE_ID)
-    print(node.to_dict())
+    print(node)
 
 
 def recover_node(conn):
@@ -90,4 +90,4 @@ def recover_node(conn):
 
     spec = {'check': True}
     node = conn.clustering.recover_node(NODE_ID, **spec)
-    print(node.to_dict())
+    print(node)

@@ -39,6 +39,7 @@ def create_profile(conn):
     spec = {
         'profile': 'os.nova.server',
         'version': 1.0,
+        'name': 'os_server',
         'properties': {
             'name': SERVER_NAME,
             'flavor': FLAVOR_NAME,
@@ -49,7 +50,7 @@ def create_profile(conn):
         }
     }
 
-    profile = conn.clustering.create_profile('os_server', spec)
+    profile = conn.clustering.create_profile(spec)
     print(profile.to_dict())
 
 
