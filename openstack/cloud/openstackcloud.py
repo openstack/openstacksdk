@@ -41,7 +41,7 @@ import keystoneauth1.session
 
 from openstack import _adapter
 from openstack import _log
-from openstack.cloud.exc import *  # noqa
+from openstack.cloud import exc
 from openstack.cloud._heat import event_utils
 from openstack.cloud._heat import template_utils
 from openstack.cloud import _normalize
@@ -422,14 +422,14 @@ class OpenStackCloud(_normalize.Normalizer):
         # openstack.cloud.
         if config_version:
             if min_major and config_major < min_major:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Version {config_version} requested for {service_type}"
                     " but shade understands a minimum of {min_version}".format(
                         config_version=config_version,
                         service_type=service_type,
                         min_version=min_version))
             elif max_major and config_major > max_major:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Version {config_version} requested for {service_type}"
                     " but openstack.cloud understands a maximum of"
                     " {max_version}".format(
@@ -734,7 +734,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # mention api versions
         if self._is_client_version('identity', 3):
             if not domain_id:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "User or project creation requires an explicit"
                     " domain_id argument.")
             else:
@@ -847,7 +847,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 self._get_and_munchify(key, data))
         except Exception as e:
             self.log.debug("Failed to list projects", exc_info=True)
-            raise OpenStackCloudException(str(e))
+            raise exc.OpenStackCloudException(str(e))
         return _utils._filter_list(projects, name_or_id, filters)
 
     def search_projects(self, name_or_id=None, filters=None, domain_id=None):
@@ -884,7 +884,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     project=name_or_id)):
             proj = self.get_project(name_or_id, domain_id=domain_id)
             if not proj:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Project %s not found." % name_or_id)
             if enabled is not None:
                 kwargs.update({'enabled': enabled})
@@ -1114,12 +1114,12 @@ class OpenStackCloud(_normalize.Normalizer):
     def _get_user_and_group(self, user_name_or_id, group_name_or_id):
         user = self.get_user(user_name_or_id)
         if not user:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'User {user} not found'.format(user=user_name_or_id))
 
         group = self.get_group(group_name_or_id)
         if not group:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Group {user} not found'.format(user=group_name_or_id))
 
         return (user, group)
@@ -1158,7 +1158,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self._identity_client.head(
                 '/groups/{g}/users/{u}'.format(g=group['id'], u=user['id']))
             return True
-        except OpenStackCloudURINotFound:
+        except exc.OpenStackCloudURINotFound:
             # NOTE(samueldmq): knowing this URI exists, let's interpret this as
             # user not found in group rather than URI not found.
             return False
@@ -1188,7 +1188,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 template_file=template_file, template_url=template_url,
                 template_object=template_object, files=files)
         except Exception as e:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Error in processing template files: %s" % str(e))
 
     def create_stack(
@@ -1338,11 +1338,11 @@ class OpenStackCloud(_normalize.Normalizer):
                                             stack_name=name_or_id,
                                             action='DELETE',
                                             marker=marker)
-            except OpenStackCloudHTTPError:
+            except exc.OpenStackCloudHTTPError:
                 pass
             stack = self.get_stack(name_or_id, resolve_outputs=False)
             if stack and stack['stack_status'] == 'DELETE_FAILED':
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Failed to delete stack {id}: {reason}".format(
                         id=name_or_id, reason=stack['stack_status_reason']))
 
@@ -1376,7 +1376,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if (flavor['ram'] >= ram and
                     (not include or include in flavor['name'])):
                 return flavor
-        raise OpenStackCloudException(
+        raise exc.OpenStackCloudException(
             "Could not find a flavor with {ram} and '{include}'".format(
                 ram=ram, include=include))
 
@@ -1387,10 +1387,10 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug(
                 "Endpoint not found in %s cloud: %s", self.name, str(e))
             endpoint = None
-        except OpenStackCloudException:
+        except exc.OpenStackCloudException:
             raise
         except Exception as e:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Error getting {service} endpoint on {cloud}:{region}:"
                 " {error}".format(
                     service=service_key,
@@ -1411,7 +1411,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
         try:
             endpoint = self.get_session_endpoint(service_key)
-        except OpenStackCloudException:
+        except exc.OpenStackCloudException:
             return False
         if endpoint:
             return True
@@ -1719,7 +1719,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         # Translate None from search interface to empty {} for kwargs below
@@ -1740,11 +1740,11 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         if not self._has_neutron_extension('qos-rule-type-details'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'qos-rule-type-details extension is not available '
                 'on target cloud')
 
@@ -1762,7 +1762,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
@@ -1789,7 +1789,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if endpoint:
                 try:
                     _list(self._volume_client.get(endpoint))
-                except OpenStackCloudURINotFound:
+                except exc.OpenStackCloudURINotFound:
                     # Catch and re-raise here because we are making recursive
                     # calls and we just have context for the log here
                     self.log.debug(
@@ -1816,7 +1816,7 @@ class OpenStackCloud(_normalize.Normalizer):
             try:
                 _list(data)
                 break
-            except OpenStackCloudURINotFound:
+            except exc.OpenStackCloudURINotFound:
                 pass
         else:
             self.log.debug(
@@ -1855,7 +1855,7 @@ class OpenStackCloud(_normalize.Normalizer):
         try:
             data = _adapter._json_response(
                 self.compute.get('/os-availability-zone'))
-        except OpenStackCloudHTTPError:
+        except exc.OpenStackCloudHTTPError:
             self.log.debug(
                 "Availability zone list could not be fetched",
                 exc_info=True)
@@ -1895,7 +1895,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         error_message="Error fetching flavor extra specs")
                     flavor.extra_specs = self._get_and_munchify(
                         'extra_specs', data)
-                except OpenStackCloudHTTPError as e:
+                except exc.OpenStackCloudHTTPError as e:
                     flavor.extra_specs = {}
                     self.log.debug(
                         'Fetching extra specs for flavor failed:'
@@ -1936,7 +1936,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _get_server_security_groups(self, server, security_groups):
         if not self._has_secgroups():
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
 
@@ -2016,7 +2016,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     '/servers/%s/action' % server['id'],
                     json={'removeSecurityGroup': {'name': sg.name}}))
 
-            except OpenStackCloudURINotFound:
+            except exc.OpenStackCloudURINotFound:
                 # NOTE(jamielennox): Is this ok? If we remove something that
                 # isn't present should we just conclude job done or is that an
                 # error? Nova returns ok if you try to add a group twice.
@@ -2036,7 +2036,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         # Security groups not supported
         if not self._has_secgroups():
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
 
@@ -2145,7 +2145,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
             proj = self.get_project(name_or_id)
             if not proj:
-                raise OpenStackCloudException("project does not exist")
+                raise exc.OpenStackCloudException("project does not exist")
             project_id = proj.id
             params['tenant_id'] = project_id
             error_msg = "{msg} for the project: {project} ".format(
@@ -2224,7 +2224,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         if not self._has_nova_extension('os-floating-ip-pools'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'Floating IP pools extension is not available on target cloud')
 
         data = _adapter._json_response(
@@ -2238,7 +2238,7 @@ class OpenStackCloud(_normalize.Normalizer):
             try:
                 return self._normalize_floating_ips(
                     self._neutron_list_floating_ips(filters))
-            except OpenStackCloudURINotFound as e:
+            except exc.OpenStackCloudURINotFound as e:
                 # Nova-network don't support server-side floating ips
                 # filtering, so it's safer to return and empty list than
                 # to fallback to Nova which may return more results that
@@ -2320,7 +2320,7 @@ class OpenStackCloud(_normalize.Normalizer):
         try:
             data = _adapter._json_response(
                 self.compute.get('/os-floating-ips'))
-        except OpenStackCloudURINotFound:
+        except exc.OpenStackCloudURINotFound:
             return []
         return self._get_and_munchify('floating_ips', data)
 
@@ -2365,7 +2365,7 @@ class OpenStackCloud(_normalize.Normalizer):
             # though, that's fine, clearly the neutron introspection is
             # not going to work.
             all_networks = self.list_networks()
-        except OpenStackCloudException:
+        except exc.OpenStackCloudException:
             self._network_list_stamp = True
             return
 
@@ -2418,7 +2418,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if self._nat_destination in (
                     network['name'], network['id']):
                 if nat_destination:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         'Multiple networks were found matching'
                         ' {nat_net} which is the network configured'
                         ' to be the NAT destination. Please check your'
@@ -2435,7 +2435,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 if all_subnets is None:
                     try:
                         all_subnets = self.list_subnets()
-                    except OpenStackCloudException:
+                    except exc.OpenStackCloudException:
                         # Thanks Rackspace broken neutron
                         all_subnets = []
 
@@ -2451,7 +2451,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if self._default_network in (
                     network['name'], network['id']):
                 if default_network:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         'Multiple networks were found matching'
                         ' {default_net} which is the network'
                         ' configured to be the default interface'
@@ -2465,41 +2465,41 @@ class OpenStackCloud(_normalize.Normalizer):
         # Validate config vs. reality
         for net_name in self._external_ipv4_names:
             if net_name not in [net['name'] for net in external_ipv4_networks]:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Networks: {network} was provided for external IPv4"
                     " access and those networks could not be found".format(
                         network=net_name))
 
         for net_name in self._internal_ipv4_names:
             if net_name not in [net['name'] for net in internal_ipv4_networks]:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Networks: {network} was provided for internal IPv4"
                     " access and those networks could not be found".format(
                         network=net_name))
 
         for net_name in self._external_ipv6_names:
             if net_name not in [net['name'] for net in external_ipv6_networks]:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Networks: {network} was provided for external IPv6"
                     " access and those networks could not be found".format(
                         network=net_name))
 
         for net_name in self._internal_ipv6_names:
             if net_name not in [net['name'] for net in internal_ipv6_networks]:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Networks: {network} was provided for internal IPv6"
                     " access and those networks could not be found".format(
                         network=net_name))
 
         if self._nat_destination and not nat_destination:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Network {network} was configured to be the'
                 ' destination for inbound NAT but it could not be'
                 ' found'.format(
                     network=self._nat_destination))
 
         if self._default_network and not default_network:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Network {network} was configured to be the'
                 ' default network interface but it could not be'
                 ' found'.format(
@@ -2939,7 +2939,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     error_message="Error fetching flavor extra specs")
                 flavor.extra_specs = self._get_and_munchify(
                     'extra_specs', data)
-            except OpenStackCloudHTTPError as e:
+            except exc.OpenStackCloudHTTPError as e:
                 flavor.extra_specs = {}
                 self.log.debug(
                     'Fetching extra specs for flavor failed:'
@@ -2980,7 +2980,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: A security group ``munch.Munch``.
         """
         if not self._has_secgroups():
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
         error_message = ("Error getting security group with"
@@ -3015,12 +3015,12 @@ class OpenStackCloud(_normalize.Normalizer):
             server = self.get_server(server, bare=True)
 
         if not server:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Console log requested for invalid server")
 
         try:
             return self._get_server_console_output(server['id'], length)
-        except OpenStackCloudBadRequest:
+        except exc.OpenStackCloudBadRequest:
             return ""
 
     def _get_server_console_output(self, server_id, length=None):
@@ -3166,17 +3166,17 @@ class OpenStackCloud(_normalize.Normalizer):
             the name or ID provided
         """
         if output_path is None and output_file is None:
-            raise OpenStackCloudException('No output specified, an output path'
-                                          ' or file object is necessary to '
-                                          'write the image data to')
+            raise exc.OpenStackCloudException(
+                'No output specified, an output path or file object'
+                ' is necessary to write the image data to')
         elif output_path is not None and output_file is not None:
-            raise OpenStackCloudException('Both an output path and file object'
-                                          ' were provided, however only one '
-                                          'can be used at once')
+            raise exc.OpenStackCloudException(
+                'Both an output path and file object were provided,'
+                ' however only one can be used at once')
 
         image = self.search_images(name_or_id)
         if len(image) == 0:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "No images with name or ID %s were found" % name_or_id, None)
         if self._is_client_version('image', 2):
             endpoint = '/images/{id}/file'.format(id=image[0]['id'])
@@ -3271,7 +3271,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 # Treat DELETE_COMPLETE stacks as a NotFound
                 if stack['stack_status'] == 'DELETE_COMPLETE':
                     return []
-            except OpenStackCloudURINotFound:
+            except exc.OpenStackCloudURINotFound:
                 return []
             stack = self._normalize_stack(stack)
             return _utils._filter_list([stack], name_or_id, filters)
@@ -3312,7 +3312,7 @@ class OpenStackCloud(_normalize.Normalizer):
         try:
             _adapter._json_response(self.compute.delete(
                 '/os-keypairs/{name}'.format(name=name)))
-        except OpenStackCloudURINotFound:
+        except exc.OpenStackCloudURINotFound:
             self.log.debug("Keypair %s not found for deleting", name)
             return False
         return True
@@ -3350,17 +3350,17 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if availability_zone_hints is not None:
             if not isinstance(availability_zone_hints, list):
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Parameter 'availability_zone_hints' must be a list")
             if not self._has_neutron_extension('network_availability_zone'):
-                raise OpenStackCloudUnavailableExtension(
+                raise exc.OpenStackCloudUnavailableExtension(
                     'network_availability_zone extension is not available on '
                     'target cloud')
             network['availability_zone_hints'] = availability_zone_hints
 
         if provider:
             if not isinstance(provider, dict):
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Parameter 'provider' must be a dict")
             # Only pass what we know
             for attr in ('physical_network', 'network_type',
@@ -3420,7 +3420,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         default = kwargs.pop("default", None)
@@ -3455,7 +3455,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         default = kwargs.pop("default", None)
@@ -3472,7 +3472,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         curr_policy = self.get_qos_policy(name_or_id)
         if not curr_policy:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "QoS policy %s not found." % name_or_id)
 
         data = self._network_client.put(
@@ -3491,7 +3491,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
         policy = self.get_qos_policy(name_or_id)
         if not policy:
@@ -3534,12 +3534,12 @@ class OpenStackCloud(_normalize.Normalizer):
             found.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3567,12 +3567,12 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3601,12 +3601,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3642,12 +3642,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3665,7 +3665,7 @@ class OpenStackCloud(_normalize.Normalizer):
         curr_rule = self.get_qos_bandwidth_limit_rule(
             policy_name_or_id, rule_id)
         if not curr_rule:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "QoS bandwidth_limit_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
@@ -3686,12 +3686,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3699,7 +3699,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self._network_client.delete(
                 "/qos/policies/{policy}/bandwidth_limit_rules/{rule}.json".
                 format(policy=policy['id'], rule=rule_id))
-        except OpenStackCloudURINotFound:
+        except exc.OpenStackCloudURINotFound:
             self.log.debug(
                 "QoS bandwidth limit rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(rule_id=rule_id,
@@ -3739,12 +3739,12 @@ class OpenStackCloud(_normalize.Normalizer):
             found.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3772,12 +3772,12 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3800,12 +3800,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3832,12 +3832,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3848,7 +3848,7 @@ class OpenStackCloud(_normalize.Normalizer):
         curr_rule = self.get_qos_dscp_marking_rule(
             policy_name_or_id, rule_id)
         if not curr_rule:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "QoS dscp_marking_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
@@ -3869,12 +3869,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3882,7 +3882,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self._network_client.delete(
                 "/qos/policies/{policy}/dscp_marking_rules/{rule}.json".
                 format(policy=policy['id'], rule=rule_id))
-        except OpenStackCloudURINotFound:
+        except exc.OpenStackCloudURINotFound:
             self.log.debug(
                 "QoS DSCP marking rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(rule_id=rule_id,
@@ -3924,12 +3924,12 @@ class OpenStackCloud(_normalize.Normalizer):
             found.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3957,12 +3957,12 @@ class OpenStackCloud(_normalize.Normalizer):
 
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -3989,12 +3989,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -4021,12 +4021,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -4037,7 +4037,7 @@ class OpenStackCloud(_normalize.Normalizer):
         curr_rule = self.get_qos_minimum_bandwidth_rule(
             policy_name_or_id, rule_id)
         if not curr_rule:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "QoS minimum_bandwidth_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
@@ -4058,12 +4058,12 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
-            raise OpenStackCloudUnavailableExtension(
+            raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
         policy = self.get_qos_policy(policy_name_or_id)
         if not policy:
-            raise OpenStackCloudResourceNotFound(
+            raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
@@ -4071,7 +4071,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self._network_client.delete(
                 "/qos/policies/{policy}/minimum_bandwidth_rules/{rule}.json".
                 format(policy=policy['id'], rule=rule_id))
-        except OpenStackCloudURINotFound:
+        except exc.OpenStackCloudURINotFound:
             self.log.debug(
                 "QoS minimum bandwidth rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(rule_id=rule_id,
@@ -4232,10 +4232,10 @@ class OpenStackCloud(_normalize.Normalizer):
             router['external_gateway_info'] = ext_gw_info
         if availability_zone_hints is not None:
             if not isinstance(availability_zone_hints, list):
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Parameter 'availability_zone_hints' must be a list")
             if not self._has_neutron_extension('router_availability_zone'):
-                raise OpenStackCloudUnavailableExtension(
+                raise exc.OpenStackCloudUnavailableExtension(
                     'router_availability_zone extension is not available on '
                     'target cloud')
             router['availability_zone_hints'] = availability_zone_hints
@@ -4287,7 +4287,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         curr_router = self.get_router(name_or_id)
         if not curr_router:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Router %s not found." % name_or_id)
 
         data = self._network_client.put(
@@ -4365,7 +4365,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if not isinstance(server, dict):
             server_obj = self.get_server(server, bare=True)
             if not server_obj:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Server {server} could not be found and therefore"
                     " could not be snapshotted.".format(server=server))
             server = server_obj
@@ -4415,7 +4415,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if image['status'] == 'active':
                 return image
             elif image['status'] == 'error':
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'Image {image} hit error state'.format(image=image_id))
 
     def delete_image(
@@ -4465,7 +4465,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if os.path.exists(name_with_ext):
             return (os.path.basename(name), name_with_ext)
 
-        raise OpenStackCloudException(
+        raise exc.OpenStackCloudException(
             'No filename parameter was given to create_image,'
             ' and {name} was not the path to an existing file.'
             ' Please provide either a path to an existing file'
@@ -4564,7 +4564,7 @@ class OpenStackCloud(_normalize.Normalizer):
             else:
                 volume_obj = self.get_volume(volume)
                 if not volume_obj:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Volume {volume} given to create_image could"
                         " not be foud".format(volume=volume))
                 volume_id = volume_obj['id']
@@ -4637,11 +4637,11 @@ class OpenStackCloud(_normalize.Normalizer):
                     name, filename, meta=meta,
                     wait=wait, timeout=timeout,
                     **image_kwargs)
-        except OpenStackCloudException:
+        except exc.OpenStackCloudException:
             self.log.debug("Image creation failed", exc_info=True)
             raise
         except Exception as e:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Image creation failed: {message}".format(message=str(e)))
 
     def _make_v2_image_params(self, meta, properties):
@@ -4681,7 +4681,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 image_obj = self.get_image(response['image_id'])
                 if image_obj and image_obj.status not in ('queued', 'saving'):
                     return image_obj
-        except OpenStackCloudTimeout:
+        except exc.OpenStackCloudTimeout:
             self.log.debug(
                 "Timeout waiting for image to become ready. Deleting.")
             self.delete_image(response['image_id'], wait=True)
@@ -4707,7 +4707,7 @@ class OpenStackCloud(_normalize.Normalizer):
             try:
                 self._image_client.delete(
                     '/images/{id}'.format(id=image.id))
-            except OpenStackCloudHTTPError:
+            except exc.OpenStackCloudHTTPError:
                 # We're just trying to clean up - if it doesn't work - shrug
                 self.log.debug(
                     "Failed deleting image after we failed uploading it.",
@@ -4738,11 +4738,11 @@ class OpenStackCloud(_normalize.Normalizer):
                 '/images/{id}'.format(id=image.id),
                 headers=headers, data=image_data)
 
-        except OpenStackCloudHTTPError:
+        except exc.OpenStackCloudHTTPError:
             self.log.debug("Deleting failed upload of image %s", name)
             try:
                 self._image_client.delete('/images/{id}'.format(id=image.id))
-            except OpenStackCloudHTTPError:
+            except exc.OpenStackCloudHTTPError:
                 # We're just trying to clean up - if it doesn't work - shrug
                 self.log.debug(
                     "Failed deleting image after we failed uploading it.",
@@ -4770,7 +4770,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 image_obj = self.get_image(image.id)
                 if image_obj and image_obj.status not in ('queued', 'saving'):
                     return image_obj
-        except OpenStackCloudTimeout:
+        except exc.OpenStackCloudTimeout:
             self.log.debug(
                 "Timeout waiting for image to become ready. Deleting.")
             self.delete_image(image.id, wait=True)
@@ -4811,7 +4811,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     if image_id is None:
                         status = self._image_client.get(
                             '/tasks/{id}'.format(id=glance_task.id))
-                except OpenStackCloudHTTPError as e:
+                except exc.OpenStackCloudHTTPError as e:
                     if e.response.status_code == 503:
                         # Clear the exception so that it doesn't linger
                         # and get reported as an Inner Exception later
@@ -4824,7 +4824,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     image_id = status['result']['image_id']
                     try:
                         image = self.get_image(image_id)
-                    except OpenStackCloudHTTPError as e:
+                    except exc.OpenStackCloudHTTPError as e:
                         if e.response.status_code == 503:
                             # Clear the exception so that it doesn't linger
                             # and get reported as an Inner Exception later
@@ -4854,7 +4854,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         # like the content. So we don't want to keep it for
                         # next time.
                         self.delete_object(container, name)
-                        raise OpenStackCloudException(
+                        raise exc.OpenStackCloudException(
                             "Image creation failed: {message}".format(
                                 message=status['message']),
                             extra_data=status)
@@ -4944,7 +4944,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if image:
             image_obj = self.get_image(image)
             if not image_obj:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Image {image} was requested as the basis for a new"
                     " volume, but was not found on the cloud".format(
                         image=image))
@@ -4963,7 +4963,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
-            raise OpenStackCloudException("Error in creating volume")
+            raise exc.OpenStackCloudException("Error in creating volume")
 
         if wait:
             vol_id = volume['id']
@@ -4983,7 +4983,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     return volume
 
                 if volume['status'] == 'error':
-                    raise OpenStackCloudException("Error in creating volume")
+                    raise exc.OpenStackCloudException("Error creating volume")
 
         return self._normalize_volume(volume)
 
@@ -5001,7 +5001,7 @@ class OpenStackCloud(_normalize.Normalizer):
         volume = self.get_volume(name_or_id)
 
         if not volume:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Volume {name_or_id} does not exist".format(
                     name_or_id=name_or_id))
 
@@ -5045,7 +5045,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 else:
                     self._volume_client.delete(
                         'volumes/{id}'.format(id=volume['id']))
-            except OpenStackCloudURINotFound:
+            except exc.OpenStackCloudURINotFound:
                 self.log.debug(
                     "Volume {id} not found when deleting. Ignoring.".format(
                         id=volume['id']))
@@ -5130,7 +5130,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     return
 
                 if vol['status'] == 'error':
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Error in detaching volume %s" % volume['id']
                     )
 
@@ -5160,13 +5160,13 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         dev = self.get_volume_attach_device(volume, server['id'])
         if dev:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Volume %s already attached to server %s on device %s"
                 % (volume['id'], server['id'], dev)
             )
 
         if volume['status'] != 'available':
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Volume %s is not available. Status is '%s'"
                 % (volume['id'], volume['status'])
             )
@@ -5203,7 +5203,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 #              and also attached. If so, we should move this
                 #              above the get_volume_attach_device call
                 if vol['status'] == 'error':
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Error in attaching volume %s" % volume['id']
                     )
         return self._normalize_volume_attachment(
@@ -5269,7 +5269,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     break
 
                 if snapshot['status'] == 'error':
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Error in creating volume snapshot")
 
         # TODO(mordred) need to normalize snapshots. We were normalizing them
@@ -5362,7 +5362,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     break
 
                 if backup['status'] == 'error':
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Error in creating volume backup {id}".format(
                             id=backup_id))
 
@@ -5548,7 +5548,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     self._neutron_available_floating_ips(
                         network=network, server=server))
                 return f_ips[0]
-            except OpenStackCloudURINotFound as e:
+            except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
@@ -5569,7 +5569,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if floating_network:
                 floating_network_id = floating_network
             else:
-                raise OpenStackCloudResourceNotFound(
+                raise exc.OpenStackCloudResourceNotFound(
                     "unable to find an external network")
         return floating_network_id
 
@@ -5608,7 +5608,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     break
 
             if floating_network_id is None:
-                raise OpenStackCloudResourceNotFound(
+                raise exc.OpenStackCloudResourceNotFound(
                     "unable to find external network {net}".format(
                         net=network)
                 )
@@ -5654,7 +5654,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if pool is None:
                 pools = self.list_floating_ip_pools()
                 if not pools:
-                    raise OpenStackCloudResourceNotFound(
+                    raise exc.OpenStackCloudResourceNotFound(
                         "unable to find a floating ip pool")
                 pool = pools[0]['name']
 
@@ -5712,14 +5712,14 @@ class OpenStackCloud(_normalize.Normalizer):
                     nat_destination=nat_destination,
                     port=port,
                     wait=wait, timeout=timeout)
-            except OpenStackCloudURINotFound as e:
+            except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
                 # Fall-through, trying with Nova
 
         if port:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "This cloud uses nova-network which does not support"
                 " arbitrary floating-ip/port mappings. Please nudge"
                 " your cloud provider to upgrade the networking stack"
@@ -5747,7 +5747,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if network_name_or_id:
                 network = self.get_network(network_name_or_id)
                 if not network:
-                    raise OpenStackCloudResourceNotFound(
+                    raise exc.OpenStackCloudResourceNotFound(
                         "unable to find network for floating ips with ID "
                         "{0}".format(network_name_or_id))
                 network_id = network['id']
@@ -5785,7 +5785,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         fip = self.get_floating_ip(fip_id)
                         if fip and fip['status'] == 'ACTIVE':
                             break
-                except OpenStackCloudTimeout:
+                except exc.OpenStackCloudTimeout:
                     self.log.error(
                         "Timed out on floating ip %(fip)s becoming active."
                         " Deleting", {'fip': fip_id})
@@ -5800,13 +5800,13 @@ class OpenStackCloud(_normalize.Normalizer):
                     raise
             if fip['port_id'] != port:
                 if server:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Attempted to create FIP on port {port} for server"
                         " {server} but FIP has port {port_id}".format(
                             port=port, port_id=fip['port_id'],
                             server=server['id']))
                 else:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Attempted to create FIP on port {port}"
                         " but something went wrong".format(port=port))
         return fip
@@ -5818,7 +5818,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if pool is None:
                 pools = self.list_floating_ip_pools()
                 if not pools:
-                    raise OpenStackCloudResourceNotFound(
+                    raise exc.OpenStackCloudResourceNotFound(
                         "unable to find a floating ip pool")
                 pool = pools[0]['name']
 
@@ -5863,7 +5863,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if not f_ip or f_ip['status'] == 'DOWN':
                 return True
 
-        raise OpenStackCloudException(
+        raise exc.OpenStackCloudException(
             "Attempted to delete Floating IP {ip} with ID {id} a total of"
             " {retry} times. Although the cloud did not indicate any errors"
             " the floating ip is still in existence. Aborting further"
@@ -5875,7 +5875,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if self._use_neutron_floating():
             try:
                 return self._neutron_delete_floating_ip(floating_ip_id)
-            except OpenStackCloudURINotFound as e:
+            except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
@@ -5886,10 +5886,10 @@ class OpenStackCloud(_normalize.Normalizer):
             self._network_client.delete(
                 "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
                 error_message="unable to delete floating IP")
-        except OpenStackCloudResourceNotFound:
+        except exc.OpenStackCloudResourceNotFound:
             return False
         except Exception as e:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Unable to delete floating IP ID {fip_id}: {msg}".format(
                     fip_id=floating_ip_id, msg=str(e)))
         return True
@@ -5901,7 +5901,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     '/os-floating-ips/{id}'.format(id=floating_ip_id)),
                 error_message='Unable to delete floating IP {fip_id}'.format(
                     fip_id=floating_ip_id))
-        except OpenStackCloudURINotFound:
+        except exc.OpenStackCloudURINotFound:
             return False
         return True
 
@@ -5971,7 +5971,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         server=server, floating_ip=floating_ip,
                         fixed_address=fixed_address,
                         nat_destination=nat_destination)
-                except OpenStackCloudURINotFound as e:
+                except exc.OpenStackCloudURINotFound as e:
                     self.log.debug(
                         "Something went wrong talking to neutron API: "
                         "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
@@ -6025,7 +6025,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 port_filter = {'device_id': server['id']}
                 ports = self.search_ports(filters=port_filter)
                 break
-            except OpenStackCloudTimeout:
+            except exc.OpenStackCloudTimeout:
                 ports = None
         if not ports:
             return (None, None)
@@ -6035,7 +6035,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 if nat_destination:
                     nat_network = self.get_network(nat_destination)
                     if not nat_network:
-                        raise OpenStackCloudException(
+                        raise exc.OpenStackCloudException(
                             'NAT Destination {nat_destination} was configured'
                             ' but not found on the cloud. Please check your'
                             ' config and your cloud and try again.'.format(
@@ -6044,7 +6044,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     nat_network = self.get_nat_destination()
 
                 if not nat_network:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         'Multiple ports were found for server {server}'
                         ' but none of the networks are a valid NAT'
                         ' destination, so it is impossible to add a'
@@ -6061,7 +6061,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     if maybe_port['network_id'] == nat_network['id']:
                         maybe_ports.append(maybe_port)
                 if not maybe_ports:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         'No port on server {server} was found matching'
                         ' your NAT destination network {dest}. Please '
                         ' check your config'.format(
@@ -6086,7 +6086,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     if ip.version == 4:
                         fixed_address = address['ip_address']
                         return port, fixed_address
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "unable to find a free fixed IPv4 address for server "
                 "{0}".format(server['id']))
         # unfortunately a port can have more than one fixed IP:
@@ -6116,7 +6116,7 @@ class OpenStackCloud(_normalize.Normalizer):
             server, fixed_address=fixed_address,
             nat_destination=nat_destination)
         if not port:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "unable to find a port for server {0}".format(
                     server['id']))
 
@@ -6137,7 +6137,7 @@ class OpenStackCloud(_normalize.Normalizer):
         f_ip = self.get_floating_ip(
             id=floating_ip_id)
         if f_ip is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "unable to find floating IP {0}".format(floating_ip_id))
         error_message = "Error attaching IP {ip} to instance {id}".format(
             ip=floating_ip_id, id=server_id)
@@ -6167,7 +6167,7 @@ class OpenStackCloud(_normalize.Normalizer):
             try:
                 return self._neutron_detach_ip_from_server(
                     server_id=server_id, floating_ip_id=floating_ip_id)
-            except OpenStackCloudURINotFound as e:
+            except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
                     "Something went wrong talking to neutron API: "
                     "'%(msg)s'. Trying with Nova.", {'msg': str(e)})
@@ -6194,7 +6194,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "unable to find floating IP {0}".format(floating_ip_id))
         error_message = "Error detaching IP {ip} from instance {id}".format(
             ip=floating_ip_id, id=server_id)
@@ -6332,7 +6332,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return self._attach_ip_to_server(
                 server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
                 skip_attach=skip_attach)
-        except OpenStackCloudTimeout:
+        except exc.OpenStackCloudTimeout:
             if self._use_neutron_floating() and created:
                 # We are here because we created an IP on the port
                 # It failed. Delete so as not to leak an unmanaged
@@ -6415,7 +6415,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # No floating ip network - no FIPs
         try:
             self._get_floating_network_id()
-        except OpenStackCloudException:
+        except exc.OpenStackCloudException:
             return False
 
         (port_obj, fixed_ip_address) = self._nat_destination_port(
@@ -6446,7 +6446,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if boot_volume:
             volume = self.get_volume(boot_volume)
             if not volume:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'Volume {boot_volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         boot_volume=boot_volume,
@@ -6467,7 +6467,7 @@ class OpenStackCloud(_normalize.Normalizer):
             else:
                 image_obj = self.get_image(image)
             if not image_obj:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'Image {image} is not a valid image in'
                     ' {cloud}:{region}'.format(
                         image=image,
@@ -6497,7 +6497,7 @@ class OpenStackCloud(_normalize.Normalizer):
         for volume in volumes:
             volume_obj = self.get_volume(volume)
             if not volume_obj:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'Volume {volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         volume=volume,
@@ -6521,7 +6521,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if not isinstance(userdata, six.binary_type):
             # If the userdata passed in is bytes, just send it unmodified
             if not isinstance(userdata, six.string_types):
-                raise TypeError("%s can't be encoded" % type(text))
+                raise TypeError("%s can't be encoded" % type(userdata))
             # If it's not bytes, make it bytes
             userdata = userdata.encode('utf-8', 'strict')
 
@@ -6663,7 +6663,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if group:
             group_obj = self.get_server_group(group)
             if not group_obj:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Server Group {group} was requested but was not found"
                     " on the cloud".format(group=group))
             hints['group'] = group_obj['id']
@@ -6677,7 +6677,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 # Be nice and help the user out
                 kwargs['nics'] = [kwargs['nics']]
             else:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'nics parameter to create_server takes a list of dicts.'
                     ' Got: {nics}'.format(nics=kwargs['nics']))
 
@@ -6691,7 +6691,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 else:
                     network_obj = self.get_network(name_or_id=net_name)
                 if not network_obj:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         'Network {network} is not a valid network in'
                         ' {cloud}:{region}'.format(
                             network=network,
@@ -6715,7 +6715,7 @@ class OpenStackCloud(_normalize.Normalizer):
             elif 'net-name' in nic:
                 nic_net = self.get_network(nic['net-name'])
                 if not nic_net:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Requested network {net} could not be found.".format(
                             net=nic['net-name']))
                 net['uuid'] = nic_net['id']
@@ -6727,7 +6727,7 @@ class OpenStackCloud(_normalize.Normalizer):
             if 'port-id' in nic:
                 net['port'] = nic.pop('port-id')
             if nic:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Additional unsupported keys given for server network"
                     " creation: {keys}".format(keys=nic.keys()))
             networks.append(net)
@@ -6779,7 +6779,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 # going to do the wait loop below, this is a waste of a call
                 server = self.get_server_by_id(server.id)
                 if server.status == 'ERROR':
-                    raise OpenStackCloudCreateException(
+                    raise exc.OpenStackCloudCreateException(
                         resource='server', resource_id=server.id)
 
         if wait:
@@ -6824,7 +6824,7 @@ class OpenStackCloud(_normalize.Normalizer):
             # and pass it down into the IP stack.
             remaining_timeout = timeout - int(time.time() - start_time)
             if remaining_timeout <= 0:
-                raise OpenStackCloudTimeout(timeout_message)
+                raise exc.OpenStackCloudTimeout(timeout_message)
 
             server = self.get_active_server(
                 server=server, reuse=reuse,
@@ -6841,12 +6841,12 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if server['status'] == 'ERROR':
             if 'fault' in server and 'message' in server['fault']:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Error in creating the server: {reason}".format(
                         reason=server['fault']['message']),
                     extra_data=dict(server=server))
 
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Error in creating the server", extra_data=dict(server=server))
 
         if server['status'] == 'ACTIVE':
@@ -6864,12 +6864,12 @@ class OpenStackCloud(_normalize.Normalizer):
                 self._delete_server(
                     server=server, wait=wait, timeout=timeout)
             except Exception as e:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'Server reached ACTIVE state without being'
                     ' allocated an IP address AND then could not'
                     ' be deleted: {0}'.format(e),
                     extra_data=dict(server=server))
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Server reached ACTIVE state without being'
                 ' allocated an IP address.',
                 extra_data=dict(server=server))
@@ -6908,7 +6908,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 continue
 
             if server['status'] == 'ERROR':
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Error in rebuilding the server",
                     extra_data=dict(server=server))
 
@@ -6931,7 +6931,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         server = self.get_server(name_or_id, bare=True)
         if not server:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Invalid Server {server}'.format(server=name_or_id))
 
         _adapter._json_response(
@@ -6952,7 +6952,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         server = self.get_server(name_or_id, bare=True)
         if not server:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Invalid Server {server}'.format(server=name_or_id))
 
         for key in metadata_keys:
@@ -7004,7 +7004,7 @@ class OpenStackCloud(_normalize.Normalizer):
             try:
                 ip = self.get_floating_ip(id=None, filters={
                     'floating_ip_address': fip['addr']})
-            except OpenStackCloudURINotFound:
+            except exc.OpenStackCloudURINotFound:
                 # We're deleting. If it doesn't exist - awesome
                 # NOTE(mordred) If the cloud is a nova FIP cloud but
                 #               floating_ip_source is set to neutron, this
@@ -7015,7 +7015,7 @@ class OpenStackCloud(_normalize.Normalizer):
             deleted = self.delete_floating_ip(
                 ip['id'], retry=delete_ip_retry)
             if not deleted:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Tried to delete floating ip {floating_ip}"
                     " associated with server {id} but there was"
                     " an error deleting it. Not deleting server.".format(
@@ -7036,7 +7036,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 self.compute.delete(
                     '/servers/{id}'.format(id=server['id'])),
                 error_message="Error in deleting server")
-        except OpenStackCloudURINotFound:
+        except exc.OpenStackCloudURINotFound:
             return False
         except Exception:
             raise
@@ -7094,7 +7094,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         server = self.get_server(name_or_id=name_or_id, bare=True)
         if server is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "failed to find server '{server}'".format(server=name_or_id))
 
         data = _adapter._json_response(
@@ -7166,7 +7166,7 @@ class OpenStackCloud(_normalize.Normalizer):
             try:
                 container = self._object_store_client.head(name)
                 self._container_cache[name] = container.headers
-            except OpenStackCloudHTTPError as e:
+            except exc.OpenStackCloudHTTPError as e:
                 if e.response.status_code == 404:
                     return None
                 raise
@@ -7185,11 +7185,11 @@ class OpenStackCloud(_normalize.Normalizer):
         try:
             self._object_store_client.delete(name)
             return True
-        except OpenStackCloudHTTPError as e:
+        except exc.OpenStackCloudHTTPError as e:
             if e.response.status_code == 404:
                 return False
             if e.response.status_code == 409:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'Attempt to delete container {container} failed. The'
                     ' container is not empty. Please delete the objects'
                     ' inside it before deleting the container'.format(
@@ -7201,7 +7201,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def set_container_access(self, name, access):
         if access not in OBJECT_CONTAINER_ACLS:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Invalid container access specified: %s.  Must be one of %s"
                 % (access, list(OBJECT_CONTAINER_ACLS.keys())))
         header = {'x-container-read': OBJECT_CONTAINER_ACLS[access]}
@@ -7210,7 +7210,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def get_container_access(self, name):
         container = self.get_container(name, skip_cache=True)
         if not container:
-            raise OpenStackCloudException("Container not found: %s" % name)
+            raise exc.OpenStackCloudException("Container not found: %s" % name)
         acl = container.get('x-container-read', '')
         for key, value in OBJECT_CONTAINER_ACLS.items():
             # Convert to string for the comparison because swiftclient
@@ -7218,7 +7218,7 @@ class OpenStackCloud(_normalize.Normalizer):
             # on bytes doesn't work like you'd think
             if str(acl) == str(value):
                 return key
-        raise OpenStackCloudException(
+        raise exc.OpenStackCloudException(
             "Could not determine container access for ACL: %s." % acl)
 
     def _get_file_hashes(self, filename):
@@ -7263,7 +7263,7 @@ class OpenStackCloud(_normalize.Normalizer):
         min_segment_size = 0
         try:
             caps = self.get_object_capabilities()
-        except OpenStackCloudHTTPError as e:
+        except exc.OpenStackCloudHTTPError as e:
             if e.response.status_code in (404, 412):
                 # Clear the exception so that it doesn't linger
                 # and get reported as an Inner Exception later
@@ -7569,7 +7569,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     container=container, object=name),
                 params=params)
             return True
-        except OpenStackCloudHTTPError:
+        except exc.OpenStackCloudHTTPError:
             return False
 
     def delete_autocreated_image_objects(
@@ -7599,7 +7599,7 @@ class OpenStackCloud(_normalize.Normalizer):
             return self._object_store_client.head(
                 '{container}/{object}'.format(
                     container=container, object=name)).headers
-        except OpenStackCloudException as e:
+        except exc.OpenStackCloudException as e:
             if e.response.status_code == 404:
                 return None
             raise
@@ -7651,7 +7651,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 return (response_headers, None)
             else:
                 return (response_headers, response.text)
-        except OpenStackCloudHTTPError as e:
+        except exc.OpenStackCloudHTTPError as e:
             if e.response.status_code == 404:
                 return None
             raise
@@ -7740,19 +7740,19 @@ class OpenStackCloud(_normalize.Normalizer):
 
         network = self.get_network(network_name_or_id, filters)
         if not network:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Network %s not found." % network_name_or_id)
 
         if disable_gateway_ip and gateway_ip:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'arg:disable_gateway_ip is not allowed with arg:gateway_ip')
 
         if not cidr and not use_default_subnetpool:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'arg:cidr is required when a subnetpool is not used')
 
         if cidr and use_default_subnetpool:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'arg:cidr must be set to None when use_default_subnetpool == '
                 'True')
 
@@ -7761,7 +7761,8 @@ class OpenStackCloud(_normalize.Normalizer):
             try:
                 ip_version = int(ip_version)
             except ValueError:
-                raise OpenStackCloudException('ip_version must be an integer')
+                raise exc.OpenStackCloudException(
+                    'ip_version must be an integer')
 
         # The body of the neutron message for the subnet we wish to create.
         # This includes attributes that are required or have defaults.
@@ -7896,12 +7897,12 @@ class OpenStackCloud(_normalize.Normalizer):
             return
 
         if disable_gateway_ip and gateway_ip:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'arg:disable_gateway_ip is not allowed with arg:gateway_ip')
 
         curr_subnet = self.get_subnet(name_or_id)
         if not curr_subnet:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
 
         data = self._network_client.put(
@@ -8029,7 +8030,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         port = self.get_port(name_or_id=name_or_id)
         if port is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "failed to find port '{port}'".format(port=name_or_id))
 
         data = self._network_client.put(
@@ -8075,7 +8076,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         # Security groups not supported
         if not self._has_secgroups():
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
 
@@ -8110,7 +8111,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         # Security groups not supported
         if not self._has_secgroups():
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
 
@@ -8149,14 +8150,14 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         # Security groups not supported
         if not self._has_secgroups():
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
 
         group = self.get_security_group(name_or_id)
 
         if group is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Security group %s not found." % name_or_id)
 
         if self._use_neutron_secgroups():
@@ -8232,13 +8233,13 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         # Security groups not supported
         if not self._has_secgroups():
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
 
         secgroup = self.get_security_group(secgroup_name_or_id)
         if not secgroup:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Security group %s not found." % secgroup_name_or_id)
 
         if self._use_neutron_secgroups():
@@ -8266,13 +8267,14 @@ class OpenStackCloud(_normalize.Normalizer):
         else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
             if protocol is None:
-                raise OpenStackCloudException('Protocol must be specified')
+                raise exc.OpenStackCloudException('Protocol must be specified')
 
             if direction == 'egress':
                 self.log.debug(
                     'Rule creation failed: Nova does not support egress rules'
                 )
-                raise OpenStackCloudException('No support for egress rules')
+                raise exc.OpenStackCloudException(
+                    'No support for egress rules')
 
             # NOTE: Neutron accepts None for ports, but Nova requires -1
             # as the equivalent value for ICMP.
@@ -8324,7 +8326,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         # Security groups not supported
         if not self._has_secgroups():
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 "Unavailable feature: security groups"
             )
 
@@ -8334,7 +8336,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     '/security-group-rules/{sg_id}.json'.format(sg_id=rule_id),
                     error_message="Error deleting security group rule "
                                   "{0}".format(rule_id))
-            except OpenStackCloudResourceNotFound:
+            except exc.OpenStackCloudResourceNotFound:
                 return False
             return True
 
@@ -8396,7 +8398,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if zone_type is not None:
             zone_type = zone_type.upper()
             if zone_type not in ('PRIMARY', 'SECONDARY'):
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Invalid type %s, valid choices are PRIMARY or SECONDARY" %
                     zone_type)
 
@@ -8437,7 +8439,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         zone = self.get_zone(name_or_id)
         if not zone:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Zone %s not found." % name_or_id)
 
         data = self._dns_client.patch(
@@ -8476,7 +8478,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         zone_obj = self.get_zone(zone)
         if zone_obj is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Zone %s not found." % zone)
         return self._dns_client.get(
             "/zones/{zone_id}/recordsets".format(zone_id=zone_obj['id']),
@@ -8494,7 +8496,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         zone_obj = self.get_zone(zone)
         if zone_obj is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Zone %s not found." % zone)
         try:
             return self._dns_client.get(
@@ -8526,7 +8528,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         zone_obj = self.get_zone(zone)
         if zone_obj is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Zone %s not found." % zone)
 
         # We capitalize the type in case the user sends in lowercase
@@ -8565,12 +8567,12 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         zone_obj = self.get_zone(zone)
         if zone_obj is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Zone %s not found." % zone)
 
         recordset_obj = self.get_recordset(zone, name_or_id)
         if recordset_obj is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Recordset %s not found." % name_or_id)
 
         new_recordset = self._dns_client.put(
@@ -8753,7 +8755,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self.list_cluster_templates.invalidate(self)
         cluster_template = self.get_cluster_template(name_or_id)
         if not cluster_template:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Cluster template %s not found." % name_or_id)
 
         if operation not in ['add', 'replace', 'remove']:
@@ -8880,7 +8882,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         machine = self.get_machine(name_or_id)
         if not machine:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Machine inspection failed to find: %s." % name_or_id)
 
         # NOTE(TheJulia): If in available state, we can do this, however
@@ -8894,7 +8896,7 @@ class OpenStackCloud(_normalize.Normalizer):
                                           wait=True, timeout=timeout)
         elif ("manage" not in machine['provision_state'] and
                 "inspect failed" not in machine['provision_state']):
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Machine must be in 'manage' or 'available' state to "
                 "engage inspection: Machine: %s State: %s"
                 % (machine['uuid'], machine['provision_state']))
@@ -8908,7 +8910,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     machine = self.get_machine(name_or_id)
 
                     if "inspect failed" in machine['provision_state']:
-                        raise OpenStackCloudException(
+                        raise exc.OpenStackCloudException(
                             "Inspection of node %s failed, last error: %s"
                             % (machine['uuid'], machine['last_error']))
 
@@ -9013,7 +9015,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 self._baremetal_client.delete(url,
                                               error_message=msg,
                                               microversion=version)
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Error registering NICs with the baremetal service: %s"
                 % str(e))
 
@@ -9037,7 +9039,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         self.node_set_provision_state(
                             machine['uuid'], 'provide')
                     elif machine['last_error'] is not None:
-                        raise OpenStackCloudException(
+                        raise exc.OpenStackCloudException(
                             "Machine encountered a failure: %s"
                             % machine['last_error'])
 
@@ -9078,7 +9080,7 @@ class OpenStackCloud(_normalize.Normalizer):
                             break
 
                         elif machine['last_error'] is not None:
-                            raise OpenStackCloudException(
+                            raise exc.OpenStackCloudException(
                                 "Machine encountered a failure: %s"
                                 % machine['last_error'])
         if not isinstance(machine, str):
@@ -9109,7 +9111,7 @@ class OpenStackCloud(_normalize.Normalizer):
         machine = self.get_machine(uuid)
         invalid_states = ['active', 'cleaning', 'clean wait', 'clean failed']
         if machine['provision_state'] in invalid_states:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Error unregistering node '%s' due to current provision "
                 "state '%s'" % (uuid, machine['provision_state']))
 
@@ -9119,11 +9121,10 @@ class OpenStackCloud(_normalize.Normalizer):
         # failure, and resubitted the request in python-ironicclient.
         try:
             self.wait_for_baremetal_node_lock(machine, timeout=timeout)
-        except OpenStackCloudException as e:
-            raise OpenStackCloudException("Error unregistering node '%s': "
-                                          "Exception occured while waiting "
-                                          "to be able to proceed: %s"
-                                          % (machine['uuid'], e))
+        except exc.OpenStackCloudException as e:
+            raise exc.OpenStackCloudException(
+                "Error unregistering node '%s': Exception occured while"
+                " waiting to be able to proceed: %s" % (machine['uuid'], e))
 
         for nic in nics:
             port_msg = ("Error removing NIC {nic} from baremetal API for "
@@ -9243,7 +9244,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         machine = self.get_machine(name_or_id)
         if not machine:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Machine update failed to find Machine: %s. " % name_or_id)
 
         machine_config = {}
@@ -9281,7 +9282,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug(
                 "Unexpected machine response missing key %s [%s]",
                 e.args[0], name_or_id)
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Machine update failed - machine [%s] missing key %s. "
                 "Potential API issue."
                 % (name_or_id, e.args[0]))
@@ -9289,7 +9290,7 @@ class OpenStackCloud(_normalize.Normalizer):
         try:
             patch = jsonpatch.JsonPatch.from_diff(machine_config, new_config)
         except Exception as e:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Machine update failed - Error generating JSON patch object "
                 "for submission to the API. Machine: %s Error: %s"
                 % (name_or_id, str(e)))
@@ -9324,7 +9325,7 @@ class OpenStackCloud(_normalize.Normalizer):
         ifaces = self._baremetal_client.get(url, error_message=msg)
 
         if not ifaces['deploy'] or not ifaces['power']:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "ironic node %s failed to validate. "
                 "(deploy: %s, power: %s)" % (ifaces['deploy'],
                                              ifaces['power']))
@@ -9389,7 +9390,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     "target state of '%s'" % state):
                 machine = self.get_machine(name_or_id)
                 if 'failed' in machine['provision_state']:
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Machine encountered a failure.")
                 # NOTE(TheJulia): This performs matching if the requested
                 # end state matches the state the node has reached.
@@ -9659,7 +9660,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def update_service(self, name_or_id, **kwargs):
         # NOTE(SamYaple): Service updates are only available on v3 api
         if self._is_client_version('identity', 2):
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 'Unavailable Feature: Service update requires Identity v3'
             )
 
@@ -9791,20 +9792,21 @@ class OpenStackCloud(_normalize.Normalizer):
         admin_url = kwargs.pop('admin_url', None)
 
         if (url or interface) and (public_url or internal_url or admin_url):
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "create_endpoint takes either url and interface OR"
                 " public_url, internal_url, admin_url")
 
         service = self.get_service(name_or_id=service_name_or_id)
         if service is None:
-            raise OpenStackCloudException("service {service} not found".format(
-                service=service_name_or_id))
+            raise exc.OpenStackCloudException(
+                "service {service} not found".format(
+                    service=service_name_or_id))
 
         if self._is_client_version('identity', 2):
             if url:
                 # v2.0 in use, v3-like arguments, one endpoint created
                 if interface != 'public':
-                    raise OpenStackCloudException(
+                    raise exc.OpenStackCloudException(
                         "Error adding endpoint for service {service}."
                         " On a v2 cloud the url/interface API may only be"
                         " used for public url. Try using the public_url,"
@@ -9873,7 +9875,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def update_endpoint(self, endpoint_id, **kwargs):
         # NOTE(SamYaple): Endpoint updates are only available on v3 api
         if self._is_client_version('identity', 2):
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 'Unavailable Feature: Endpoint update'
             )
 
@@ -9996,12 +9998,12 @@ class OpenStackCloud(_normalize.Normalizer):
             enabled=None, name_or_id=None):
         if domain_id is None:
             if name_or_id is None:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "You must pass either domain_id or name_or_id value"
                 )
             dom = self.get_domain(None, name_or_id)
             if dom is None:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Domain {0} not found for updating".format(name_or_id)
                 )
             domain_id = dom['id']
@@ -10031,7 +10033,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         if domain_id is None:
             if name_or_id is None:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "You must pass either domain_id or name_or_id value"
                 )
             dom = self.get_domain(name_or_id=name_or_id)
@@ -10185,7 +10187,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if domain:
             dom = self.get_domain(domain)
             if not dom:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Creating group {group} failed: Invalid domain "
                     "{domain}".format(group=name, domain=domain)
                 )
@@ -10215,7 +10217,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self.list_groups.invalidate(self)
         group = self.get_group(name_or_id, **kwargs)
         if group is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Group {0} not found for updating".format(name_or_id)
             )
 
@@ -10419,7 +10421,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if self._is_client_version('identity', 2):
             if filters.get('project') is None or filters.get('user') is None:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Must provide project and user for keystone v2"
                 )
             assignments = self._keystone_v2_role_assignments(**filters)
@@ -10606,7 +10608,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raise OpenStackCloudException: if the role cannot be created
         """
         if self._is_client_version('identity', 2):
-            raise OpenStackCloudUnavailableFeature(
+            raise exc.OpenStackCloudUnavailableFeature(
                 'Unavailable Feature: Role update requires Identity v3'
             )
         kwargs['name_or_id'] = name_or_id
@@ -10706,18 +10708,18 @@ class OpenStackCloud(_normalize.Normalizer):
                                              project, domain)
         filters = data.copy()
         if not data:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Role {0} not found.'.format(name_or_id))
 
         if data.get('user') is not None and data.get('group') is not None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Specify either a group or a user, not both')
         if data.get('user') is None and data.get('group') is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Must specify either a user or a group')
         if self._is_client_version('identity', 2) and \
                 data.get('project') is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Must specify project for keystone v2')
 
         if self.list_role_assignments(filters=filters):
@@ -10734,7 +10736,7 @@ class OpenStackCloud(_normalize.Normalizer):
                                       endpoint_filter={'interface': 'admin'})
         else:
             if data.get('project') is None and data.get('domain') is None:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'Must specify either a domain or project')
 
             # For v3, figure out the assignment type and build the URL
@@ -10784,18 +10786,18 @@ class OpenStackCloud(_normalize.Normalizer):
         filters = data.copy()
 
         if not data:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Role {0} not found.'.format(name_or_id))
 
         if data.get('user') is not None and data.get('group') is not None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Specify either a group or a user, not both')
         if data.get('user') is None and data.get('group') is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Must specify either a user or a group')
         if self._is_client_version('identity', 2) and \
                 data.get('project') is None:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 'Must specify project for keystone v2')
 
         if not self.list_role_assignments(filters=filters):
@@ -10813,7 +10815,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 endpoint_filter={'interface': 'admin'})
         else:
             if data.get('project') is None and data.get('domain') is None:
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     'Must specify either a domain or project')
 
             # For v3, figure out the assignment type and build the URL
@@ -10929,7 +10931,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
         data = _adapter._json_response(
@@ -10975,7 +10977,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
         err_msg = "Unable to set metadata for host aggregate {name}".format(
@@ -10998,7 +11000,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
         err_msg = "Unable to add host {host} to aggregate {name}".format(
@@ -11020,7 +11022,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         aggregate = self.get_aggregate(name_or_id)
         if not aggregate:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
         err_msg = "Unable to remove host {host} to aggregate {name}".format(
@@ -11041,7 +11043,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
 
         data = self._volume_client.get(
@@ -11063,7 +11065,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
         with _utils.shade_exceptions():
             payload = {'project': project_id}
@@ -11084,7 +11086,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         volume_type = self.get_volume_type(name_or_id)
         if not volume_type:
-            raise OpenStackCloudException(
+            raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
         with _utils.shade_exceptions():
             payload = {'project': project_id}
@@ -11107,7 +11109,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
 
         # compute_quotas = {key: val for key, val in kwargs.items()
         #                  if key in quota.COMPUTE_QUOTAS}
@@ -11134,7 +11136,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
         data = _adapter._json_response(
             self.compute.get(
                 '/os-quota-sets/{project}'.format(project=proj.id)))
@@ -11151,7 +11153,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
         return _adapter._json_response(
             self.compute.delete(
                 '/os-quota-sets/{project}'.format(project=proj.id)))
@@ -11176,7 +11178,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 # Yes. This is an exception mask. However,iso8601 is an
                 # implementation detail - and the error message is actually
                 # less informative.
-                raise OpenStackCloudException(
+                raise exc.OpenStackCloudException(
                     "Date given, {date}, is invalid. Please pass in a date"
                     " string in ISO 8601 format -"
                     " YYYY-MM-DDTHH:MM:SS".format(
@@ -11208,8 +11210,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist: {}".format(
-                name=proj.id))
+            raise exc.OpenStackCloudException(
+                "project does not exist: {}".format(name=proj.id))
 
         data = _adapter._json_response(
             self.compute.get(
@@ -11232,7 +11234,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
 
         kwargs['tenant_id'] = proj.id
         self._volume_client.put(
@@ -11250,7 +11252,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
 
         data = self._volume_client.get(
             '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id),
@@ -11268,7 +11270,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
 
         return self._volume_client.delete(
             '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id),
@@ -11286,7 +11288,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
 
         self._network_client.put(
             '/quotas/{project_id}.json'.format(project_id=proj.id),
@@ -11306,7 +11308,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
         url = '/quotas/{project_id}'.format(project_id=proj.id)
         if details:
             url = url + "/details"
@@ -11335,7 +11337,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         proj = self.get_project(name_or_id)
         if not proj:
-            raise OpenStackCloudException("project does not exist")
+            raise exc.OpenStackCloudException("project does not exist")
         self._network_client.delete(
             '/quotas/{project_id}.json'.format(project_id=proj.id),
             error_message=("Error deleting Neutron's quota for "
