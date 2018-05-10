@@ -355,6 +355,8 @@ class Resource(object):
 
     def __eq__(self, comparand):
         """Return True if another resource has the same contents"""
+        if not isinstance(comparand, Resource):
+            return False
         return all([self._body.attributes == comparand._body.attributes,
                     self._header.attributes == comparand._header.attributes,
                     self._uri.attributes == comparand._uri.attributes])

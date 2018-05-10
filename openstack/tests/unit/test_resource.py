@@ -468,6 +468,7 @@ class TestResource(base.TestCase):
 
         self.assertEqual(e1, e2)
         self.assertNotEqual(e1, e3)
+        self.assertNotEqual(e1, None)
 
     def test__update(self):
         sot = resource.Resource()
