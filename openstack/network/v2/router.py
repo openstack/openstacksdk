@@ -59,11 +59,11 @@ class Router(resource.Resource, tag.TagMixin):
     #: or down ``False``. *Type: bool*
     is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: The distributed state of the router, which is distributed ``True``
-    #: or not ``False``. *Type: bool* *Default: False*
-    is_distributed = resource.Body('distributed', type=bool, default=False)
+    #: or not ``False``. *Type: bool*
+    is_distributed = resource.Body('distributed', type=bool)
     #: The highly-available state of the router, which is highly available
-    #: ``True`` or not ``False``. *Type: bool* *Default: False*
-    is_ha = resource.Body('ha', type=bool, default=False)
+    #: ``True`` or not ``False``. *Type: bool*
+    is_ha = resource.Body('ha', type=bool)
     #: The router name.
     name = resource.Body('name')
     #: The ID of the project this router is associated with.
