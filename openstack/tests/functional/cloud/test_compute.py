@@ -30,7 +30,7 @@ from openstack import utils
 
 class TestCompute(base.BaseFunctionalTestCase):
     def setUp(self):
-        # OS_TEST_TIMEOUT is 60 sec by default
+        # OS_TEST_TIMEOUT is 90 sec by default
         # but on a bad day, test_attach_detach_volume can take more time.
         self.TIMEOUT_SCALING_FACTOR = 1.5
 
