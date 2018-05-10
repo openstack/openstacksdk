@@ -46,7 +46,7 @@ def read_url_content(url):
 
     if content:
         try:
-            content.decode('utf-8')
+            content = content.decode('utf-8')
         except ValueError:
             content = base64.encodestring(content)
     return content
