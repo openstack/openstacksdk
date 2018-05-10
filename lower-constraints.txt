@@ -6,6 +6,8 @@ dogpile.cache==0.6.2
 extras==1.0.0
 fixtures==3.0.0
 future==0.16.0
+futures==3.0.0
+ipaddress==1.0.17
 iso8601==0.1.11
 jmespath==0.9.0
 jsonpatch==1.16
