@@ -122,7 +122,10 @@ class OpenStackServiceDescription(ServiceDescription):
 
     def get_proxy_class(self, config):
         # TODO(mordred) Replace this with proper discovery
-        version_string = config.get_api_version(self.service_type)
+        if self.service_type == 'block-storage':
+            version_string = config.get_api_version('volume')
+        else:
+            version_string = config.get_api_version(self.service_type)
         version = None
         if version_string:
             version = 'v{version}'.format(version=version_string[0])
