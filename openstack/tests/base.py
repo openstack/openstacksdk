@@ -37,13 +37,13 @@ class TestCase(base.BaseTestCase):
     def setUp(self):
         """Run before each test method to initialize test environment."""
         # No openstacksdk unit tests should EVER run longer than a second.
-        # Set this to 3 by default just to give us some fudge.
+        # Set this to 5 by default just to give us some fudge.
         # Do this before super setUp so that we intercept the default value
         # in oslotest. TODO(mordred) Make the default timeout configurable
         # in oslotest.
         self.useFixture(
             fixtures.EnvironmentVariable(
-                'OS_TEST_TIMEOUT', os.environ.get('OS_TEST_TIMEOUT', '3')))
+                'OS_TEST_TIMEOUT', os.environ.get('OS_TEST_TIMEOUT', '5')))
 
         super(TestCase, self).setUp()
 
