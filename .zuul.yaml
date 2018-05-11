@@ -212,6 +212,7 @@
 
 - project:
     templates:
+      - openstack-python36-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
       - os-client-config-tox-tips
