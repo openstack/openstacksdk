@@ -232,6 +232,7 @@
         - neutron-grenade:
             voting: false
         - openstack-tox-lower-constraints
+        - nodepool-functional-py35-src
     gate:
       jobs:
         - build-openstack-sphinx-docs:
@@ -240,3 +241,4 @@
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-python3
         - openstack-tox-lower-constraints
+        - nodepool-functional-py35-src
