@@ -21,7 +21,7 @@ from openstack.tests.functional.cloud import base
 
 class TestUsage(base.BaseFunctionalTestCase):
 
-    def test_get_our_limits(self):
+    def test_get_our_compute_limits(self):
         '''Test quotas functionality'''
         limits = self.user_cloud.get_compute_limits()
         self.assertIsNotNone(limits)
@@ -30,7 +30,7 @@ class TestUsage(base.BaseFunctionalTestCase):
         # Test normalize limits
         self.assertFalse(hasattr(limits, 'maxImageMeta'))
 
-    def test_get_other_limits(self):
+    def test_get_other_compute_limits(self):
         '''Test quotas functionality'''
         limits = self.operator_cloud.get_compute_limits('demo')
         self.assertIsNotNone(limits)
@@ -38,3 +38,14 @@ class TestUsage(base.BaseFunctionalTestCase):
 
         # Test normalize limits
         self.assertFalse(hasattr(limits, 'maxImageMeta'))
+
+    def test_get_our_volume_limits(self):
+        '''Test quotas functionality'''
+        limits = self.user_cloud.get_volume_limits()
+        self.assertIsNotNone(limits)
+        self.assertFalse(hasattr(limits, 'maxTotalVolumes'))
+
+    def test_get_other_volume_limits(self):
+        '''Test quotas functionality'''
+        limits = self.operator_cloud.get_volume_limits('demo')
+        self.assertFalse(hasattr(limits, 'maxTotalVolumes'))
