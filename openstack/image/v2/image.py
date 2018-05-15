@@ -12,6 +12,7 @@
 
 import hashlib
 
+import copy
 import jsonpatch
 
 from openstack import _log
@@ -296,7 +297,7 @@ class Image(resource.Resource):
         original = self.to_dict()
 
         # Update values from **attrs so they can be passed to jsonpatch
-        new = self.to_dict()
+        new = copy.deepcopy(self.to_dict())
         new.update(**attrs)
 
         patch_string = jsonpatch.make_patch(original, new).to_string()
