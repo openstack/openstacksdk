@@ -371,7 +371,7 @@ class Server(resource.Resource, metadata.MetadataMixin):
             "os-migrateLive": {
                 "host": host,
                 "block_migration": block,
-                'disk_over_commit': over_commit
+                'disk_over_commit': over_commit,
                 "force": force
             }
         }
