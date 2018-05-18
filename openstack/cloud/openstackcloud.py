@@ -8912,9 +8912,17 @@ class OpenStackCloud(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Machine inspection failed to find: %s." % name_or_id)
 
-        # NOTE(TheJulia): If in available state, we can do this, however
-        # We need to to move the host back to m
+        # NOTE(TheJulia): If in available state, we can do this. However,
+        # we need to to move the machine back to manageable first.
         if "available" in machine['provision_state']:
+            if machine['instance_uuid']:
+                raise exc.OpenStackCloudException(
+                    "Refusing to inspect available machine %(node)s "
+                    "which is associated with an instance "
+                    "(instance_uuid %(inst)s)" %
+                    {'node': machine['uuid'],
+                     'inst': machine['instance_uuid']})
+
             return_to_available = True
             # NOTE(TheJulia): Changing available machine to managedable state
             # and due to state transitions we need to until that transition has

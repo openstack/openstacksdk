@@ -222,6 +222,26 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.assert_calls()
 
+    def test_inspect_machine_fail_associated(self):
+        self.fake_baremetal_node['provision_state'] = 'available'
+        self.fake_baremetal_node['instance_uuid'] = '1234'
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node),
+        ])
+        self.assertRaisesRegex(
+            exc.OpenStackCloudException,
+            'associated with an instance',
+            self.cloud.inspect_machine,
+            self.fake_baremetal_node['uuid'],
+            wait=True,
+            timeout=1)
+
+        self.assert_calls()
+
     def test_inspect_machine_failed(self):
         inspecting_node = self.fake_baremetal_node.copy()
         self.fake_baremetal_node['provision_state'] = 'inspect failed'

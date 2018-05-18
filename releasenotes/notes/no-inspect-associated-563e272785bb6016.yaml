@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Machine inspection is now blocked for machines associated with an instance.
+    This is to avoid "stealing" a machine from under a provisioner (e.g. Nova).
