@@ -30,8 +30,6 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def setUp(self):
         super(TestBaremetalNode, self).setUp()
-        # TODO(shade) Fix this when we get ironic update to REST
-        self.skipTest("Ironic operations not supported yet")
         self.fake_baremetal_node = fakes.make_fake_machine(
             self.name, self.uuid)
         # TODO(TheJulia): Some tests below have fake ports,
@@ -1601,8 +1599,6 @@ class TestUpdateMachinePatch(base.IronicTestCase):
 
     def setUp(self):
         super(TestUpdateMachinePatch, self).setUp()
-        # TODO(shade) Fix this when we get ironic update to REST
-        self.skipTest("Ironic operations not supported yet")
         self.fake_baremetal_node = fakes.make_fake_machine(
             self.name, self.uuid)
 
