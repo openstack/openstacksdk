@@ -144,8 +144,8 @@ class TestRouter(base.TestCase):
             availability_zone_hints=['nova'])
         self.assert_calls()
 
-    def test_create_router_with_enable_snat_True(self):
-        """Do not send enable_snat when same as neutron default."""
+    def test_create_router_without_enable_snat(self):
+        """Do not send enable_snat when not given."""
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -155,6 +155,23 @@ class TestRouter(base.TestCase):
                      json={'router': {
                          'name': self.router_name,
                          'admin_state_up': True}}))
+        ])
+        self.cloud.create_router(
+            name=self.router_name, admin_state_up=True)
+        self.assert_calls()
+
+    def test_create_router_with_enable_snat_True(self):
+        """Send enable_snat when it is True."""
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers.json']),
+                 json={'router': self.mock_router_rep},
+                 validate=dict(
+                     json={'router': {
+                         'name': self.router_name,
+                         'admin_state_up': True,
+                         'external_gateway_info': {'enable_snat': True}}}))
         ])
         self.cloud.create_router(
             name=self.router_name, admin_state_up=True, enable_snat=True)

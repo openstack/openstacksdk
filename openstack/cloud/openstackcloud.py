@@ -4086,11 +4086,9 @@ class OpenStackCloud(_normalize.Normalizer):
         info = {}
         if ext_gateway_net_id:
             info['network_id'] = ext_gateway_net_id
-        # Only send enable_snat if it is different from the Neutron
-        # default of True. Sending it can cause a policy violation error
-        # on some clouds.
-        if enable_snat is not None and not enable_snat:
-            info['enable_snat'] = False
+        # Only send enable_snat if it is explicitly set.
+        if enable_snat is not None:
+            info['enable_snat'] = enable_snat
         if ext_fixed_ips:
             info['external_fixed_ips'] = ext_fixed_ips
         if info:
