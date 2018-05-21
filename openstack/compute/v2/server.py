@@ -365,17 +365,20 @@ class Server(resource.Resource, metadata.MetadataMixin):
         resp = self._action(session, body)
         return resp.json()
 
-    def live_migrate(self, session, host, force, block="auto", over_commit=False ):
-
+    def live_migrate(self, session, host, force, block="auto", disk_over_commit=None ):
         body = {
-            "os-migrateLive": {
-                "host": host,
-                "block_migration": block,
-                'disk_over_commit': over_commit,
-                "force": force
+            'os-migrateLive': {
+                'block_migration': block,
+                'host': host,
             }
         }
-        self._action(session, body)
+        if disk_over_commit!=None: # not for all versions
+            body['os-migrateLive']['disk_over_commit'] = disk_over_commit
+
+        if force!=None:  # if you force you can get errors for VM .
+            body['os-migrateLive']['force'] = force
+            
+        self._action(session, body))
 
 
 class ServerDetail(Server):

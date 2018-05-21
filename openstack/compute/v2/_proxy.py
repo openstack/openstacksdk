@@ -1149,17 +1149,7 @@ class Proxy(proxy.Proxy):
         return self._list(_volume_attachment.VolumeAttachment, paginated=False,
                           server_id=server_id)
 
-    def migrate_server(self, server):
-        """Migrate a server from one host to another
-
-        :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
-        :returns: None
-        """
-        server = self._get_resource(_server.Server, server)
-        server.migrate(self)
-
-    def live_migrate_server(self, server, host=None, force=False, block="auto", over_commit=False):
+    def live_migrate_server(self, server, host=None, force=None, block='auto', disk_over_commit=False):
         """Migrate a server from one host to target host
 
         :param server: Either the ID of a server or a
@@ -1167,11 +1157,13 @@ class Proxy(proxy.Proxy):
         :param host: The host to which to migrate the server
         :param force: Force a live-migration by not verifying the provided
                       destination host by the scheduler.
-        :param block: block migration in live-migration.
-        :param over_commit overcomit in live-migration.
+        :param block: block migration in live-migration. "auto",True,False
+        :param disk_over_commit overcomit in live-migration.
 
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.live_migrate(self, host, force, block, over_commit)
+        server.live_migrate(self, host, force, block, disk_over_commit)
+
+    
 
