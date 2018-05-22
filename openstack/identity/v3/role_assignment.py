@@ -24,7 +24,8 @@ class RoleAssignment(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'effective', 'include_names', 'include_subtree',
+        'group_id', 'role_id', 'scope_domain_id', 'scope_project_id',
+        'user_id', 'effective', 'include_names', 'include_subtree',
         role_id='role.id', user_id='user.id', group_id='group.id',
         scope_project_id='scope.project.id', scope_domain_id='scope.domain.id',
         scope_system='scope.system',
