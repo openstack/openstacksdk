@@ -37,6 +37,7 @@ import itertools
 from keystoneauth1 import adapter
 from requests import structures
 
+from openstack import _log
 from openstack import exceptions
 from openstack import format
 from openstack import utils
@@ -1047,21 +1048,31 @@ class Resource(object):
             "No %s found for %s" % (cls.__name__, name_or_id))
 
 
-def wait_for_status(session, resource, status, failures, interval, wait):
+def _normalize_status(status):
+    if status is not None:
+        status = status.lower()
+    return status
+
+
+def wait_for_status(session, resource, status, failures, interval=None,
+                    wait=None, attribute='status'):
     """Wait for the resource to be in a particular status.
 
     :param session: The session to use for making this request.
     :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param resource: The resource to wait on to reach the status. The resource
-                     must have a status attribute.
+                     must have a status attribute specified via ``attribute``.
     :type resource: :class:`~openstack.resource.Resource`
     :param status: Desired status of the resource.
     :param list failures: Statuses that would indicate the transition
                           failed such as 'ERROR'. Defaults to ['ERROR'].
     :param interval: Number of seconds to wait between checks.
+                     Set to ``None`` to use the default interval.
     :param wait: Maximum number of seconds to wait for transition.
+                 Set to ``None`` to wait forever.
+    :param attribute: Name of the resource attribute that contains the status.
 
-    :return: Method returns self on success.
+    :return: The updated resource.
     :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
              to status failed to occur in wait seconds.
     :raises: :class:`~openstack.exceptions.ResourceFailure` resource
@@ -1069,7 +1080,10 @@ def wait_for_status(session, resource, status, failures, interval, wait):
     :raises: :class:`~AttributeError` if the resource does not have a status
              attribute
     """
-    if resource.status == status:
+    log = _log.setup_logging(__name__)
+
+    current_status = getattr(resource, attribute)
+    if _normalize_status(current_status) == status.lower():
         return resource
 
     if failures is None:
@@ -1090,13 +1104,18 @@ def wait_for_status(session, resource, status, failures, interval, wait):
             raise exceptions.ResourceFailure(
                 "{name} went away while waiting for {status}".format(
                     name=name, status=status))
-        new_status = resource.status
-        if new_status.lower() == status.lower():
+
+        new_status = getattr(resource, attribute)
+        normalized_status = _normalize_status(new_status)
+        if normalized_status == status.lower():
             return resource
-        if resource.status.lower() in failures:
+        elif normalized_status in failures:
             raise exceptions.ResourceFailure(
                 "{name} transitioned to failure state {status}".format(
-                    name=name, status=resource.status))
+                    name=name, status=new_status))
+
+        log.debug('Still waiting for resource %s to reach state %s, '
+                  'current state is %s', name, status, new_status)
 
 
 def wait_for_delete(session, resource, interval, wait):

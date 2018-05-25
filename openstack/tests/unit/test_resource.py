@@ -1771,7 +1771,7 @@ class TestWaitForStatus(base.TestCase):
 
     def test_immediate_status(self):
         status = "loling"
-        res = mock.Mock()
+        res = mock.Mock(spec=['id', 'status'])
         res.status = status
 
         result = resource.wait_for_status(
@@ -1779,11 +1779,34 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertTrue(result, res)
 
-    def _resources_from_statuses(self, *statuses):
+    def test_immediate_status_case(self):
+        status = "LOLing"
+        res = mock.Mock(spec=['id', 'status'])
+        res.status = status
+
+        result = resource.wait_for_status(
+            "session", res, 'lOling', "failures", "interval", "wait")
+
+        self.assertTrue(result, res)
+
+    def test_immediate_status_different_attribute(self):
+        status = "loling"
+        res = mock.Mock(spec=['id', 'mood'])
+        res.mood = status
+
+        result = resource.wait_for_status(
+            "session", res, status, "failures", "interval", "wait",
+            attribute='mood')
+
+        self.assertTrue(result, res)
+
+    def _resources_from_statuses(self, *statuses, **kwargs):
+        attribute = kwargs.pop('attribute', 'status')
+        assert not kwargs, 'Unexpected keyword arguments: %s' % kwargs
         resources = []
         for status in statuses:
-            res = mock.Mock()
-            res.status = status
+            res = mock.Mock(spec=['id', 'get', attribute])
+            setattr(res, attribute, status)
             resources.append(res)
         for index, res in enumerate(resources[:-1]):
             res.get.return_value = resources[index + 1]
@@ -1802,6 +1825,31 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertEqual(result, resources[-1])
 
+    def test_status_match_with_none(self):
+        status = "loling"
+
+        # apparently, None is a correct state in some cases
+        resources = self._resources_from_statuses(
+            None, "other", None, "another", status)
+
+        result = resource.wait_for_status(
+            mock.Mock(), resources[0], status, None, 1, 5)
+
+        self.assertEqual(result, resources[-1])
+
+    def test_status_match_different_attribute(self):
+        status = "loling"
+
+        resources = self._resources_from_statuses(
+            "first", "other", "another", "another", status,
+            attribute='mood')
+
+        result = resource.wait_for_status(
+            mock.Mock(), resources[0], status, None, 1, 5,
+            attribute='mood')
+
+        self.assertEqual(result, resources[-1])
+
     def test_status_fails(self):
         failure = "crying"
 
@@ -1811,6 +1859,18 @@ class TestWaitForStatus(base.TestCase):
             exceptions.ResourceFailure,
             resource.wait_for_status,
             mock.Mock(), resources[0], "loling", [failure], 1, 5)
+
+    def test_status_fails_different_attribute(self):
+        failure = "crying"
+
+        resources = self._resources_from_statuses("success", "other", failure,
+                                                  attribute='mood')
+
+        self.assertRaises(
+            exceptions.ResourceFailure,
+            resource.wait_for_status,
+            mock.Mock(), resources[0], "loling", [failure.upper()], 1, 5,
+            attribute='mood')
 
     def test_timeout(self):
         status = "loling"
