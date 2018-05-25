@@ -81,6 +81,15 @@ then
     tag_opt="--tags ${TAGS}"
 fi
 
+# Loop through all ANSIBLE_VAR_ environment variables to allow passing the further
+for var in $(env | grep -e '^ANSIBLE_VAR_'); do
+  VAR_NAME=${var%%=*} # split variable name from value
+  ANSIBLE_VAR_NAME=${VAR_NAME#ANSIBLE_VAR_} # cut ANSIBLE_VAR_ prefix from variable name
+  ANSIBLE_VAR_NAME=${ANSIBLE_VAR_NAME,,} # lowercase ansible variable
+  ANSIBLE_VAR_VALUE=${!VAR_NAME} # Get the variable value
+  ANSIBLE_VARS+="${ANSIBLE_VAR_NAME}=${ANSIBLE_VAR_VALUE} " # concat variables
+done
+
 # Until we have a module that lets us determine the image we want from
 # within a playbook, we have to find the image here and pass it in.
 # We use the openstack client instead of nova client since it can use clouds.yaml.
@@ -91,4 +100,4 @@ then
   exit 1
 fi
 
-ansible-playbook -vvv ./openstack/tests/ansible/run.yml -e "cloud=${CLOUD} image=${IMAGE}" ${tag_opt}
+ansible-playbook -vvv ./openstack/tests/ansible/run.yml -e "cloud=${CLOUD} image=${IMAGE} ${ANSIBLE_VARS}" ${tag_opt}
