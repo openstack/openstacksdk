@@ -6325,7 +6325,6 @@ class OpenStackCloud(_normalize.Normalizer):
                      to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
                         See the ``wait`` parameter.
-        :param reuse: Try to reuse existing ips. Defaults to True.
 
         :returns: Floating IP address attached to server.
 
