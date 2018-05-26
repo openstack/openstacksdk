@@ -18,23 +18,22 @@ if hasattr(yaml, 'CSafeLoader'):
 else:
     yaml_loader = yaml.SafeLoader
 
-if hasattr(yaml, 'CSafeDumper'):
-    yaml_dumper = yaml.CSafeDumper
-else:
-    yaml_dumper = yaml.SafeDumper
+
+class HeatYamlLoader(yaml_loader):
+    pass
 
 
 def _construct_yaml_str(self, node):
     # Override the default string handling function
     # to always return unicode objects
     return self.construct_scalar(node)
-yaml_loader.add_constructor(u'tag:yaml.org,2002:str', _construct_yaml_str)
+HeatYamlLoader.add_constructor(u'tag:yaml.org,2002:str', _construct_yaml_str)
 # Unquoted dates like 2013-05-23 in yaml files get loaded as objects of type
 # datetime.data which causes problems in API layer when being processed by
 # openstack.common.jsonutils. Therefore, make unicode string out of timestamps
 # until jsonutils can handle dates.
-yaml_loader.add_constructor(u'tag:yaml.org,2002:timestamp',
-                            _construct_yaml_str)
+HeatYamlLoader.add_constructor(
+    u'tag:yaml.org,2002:timestamp', _construct_yaml_str)
 
 
 def parse(tmpl_str):
@@ -49,7 +48,7 @@ def parse(tmpl_str):
         tpl = json.loads(tmpl_str)
     else:
         try:
-            tpl = yaml.load(tmpl_str, Loader=yaml_loader)
+            tpl = yaml.load(tmpl_str, Loader=HeatYamlLoader)
         except yaml.YAMLError:
             # NOTE(prazumovsky): we need to return more informative error for
             # user, so use SafeLoader, which return error message with template
