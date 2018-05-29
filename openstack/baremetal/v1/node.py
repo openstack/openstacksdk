@@ -10,8 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import _log
 from openstack.baremetal import baremetal_service
+from openstack.baremetal.v1 import _common
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
+
+
+_logger = _log.setup_logging('openstack')
 
 
 class Node(resource.Resource):
@@ -112,6 +119,160 @@ class Node(resource.Resource):
     target_raid_config = resource.Body("target_raid_config")
     #: Timestamp at which the node was last updated.
     updated_at = resource.Body("updated_at")
+
+    def set_provision_state(self, session, target, config_drive=None,
+                            clean_steps=None, rescue_password=None,
+                            wait=False, timeout=True):
+        """Run an action modifying this node's provision state.
+
+        This call is asynchronous, it will return success as soon as the Bare
+        Metal service acknowledges the request.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param target: Provisioning action, e.g. ``active``, ``provide``.
+            See the Bare Metal service documentation for available actions.
+        :param config_drive: Config drive to pass to the node, only valid
+            for ``active` and ``rebuild`` targets.
+        :param clean_steps: Clean steps to execute, only valid for ``clean``
+            target.
+        :param rescue_password: Password for the rescue operation, only valid
+            for ``rescue`` target.
+        :param wait: Whether to wait for the target state to be reached.
+        :param timeout: Timeout (in seconds) to wait for the target state to be
+            reached. If ``None``, wait without timeout.
+
+        :return: This :class:`Node` instance.
+        :raises: ValueError if ``config_drive``, ``clean_steps`` or
+            ``rescue_password`` are provided with an invalid ``target``.
+        """
+        session = self._get_session(session)
+
+        if target in _common.PROVISIONING_VERSIONS:
+            version = '1.%d' % _common.PROVISIONING_VERSIONS[target]
+        else:
+            if config_drive and target == 'rebuild':
+                version = '1.35'
+            else:
+                version = None
+        version = utils.pick_microversion(session, version)
+
+        body = {'target': target}
+        if config_drive:
+            if target not in ('active', 'rebuild'):
+                raise ValueError('Config drive can only be provided with '
+                                 '"active" and "rebuild" targets')
+            # Not a typo - ironic accepts "configdrive" (without underscore)
+            body['configdrive'] = config_drive
+
+        if clean_steps is not None:
+            if target != 'clean':
+                raise ValueError('Clean steps can only be provided with '
+                                 '"clean" target')
+            body['clean_steps'] = clean_steps
+
+        if rescue_password is not None:
+            if target != 'rescue':
+                raise ValueError('Rescue password can only be provided with '
+                                 '"rescue" target')
+            body['rescue_password'] = rescue_password
+
+        if wait:
+            try:
+                expected_state = _common.EXPECTED_STATES[target]
+            except KeyError:
+                raise ValueError('For target %s the expected state is not '
+                                 'known, cannot wait for it' % target)
+
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'states', 'provision')
+        response = session.put(
+            request.url, json=body,
+            headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to set provision state for bare metal node {node} "
+               "to {target}".format(node=self.id, target=target))
+        exceptions.raise_from_response(response, error_message=msg)
+
+        if wait:
+            return self.wait_for_provision_state(session,
+                                                 expected_state,
+                                                 timeout=timeout)
+        else:
+            return self.get(session)
+
+    def wait_for_provision_state(self, session, expected_state, timeout=None,
+                                 abort_on_failed_state=True):
+        """Wait for the node to reach the expected state.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param expected_state: The expected provisioning state to reach.
+        :param timeout: If ``wait`` is set to ``True``, specifies how much (in
+            seconds) to wait for the expected state to be reached. The value of
+            ``None`` (the default) means no client-side timeout.
+        :param abort_on_failed_state: If ``True`` (the default), abort waiting
+            if the node reaches a failure state which does not match the
+            expected one. Note that the failure state for ``enroll`` ->
+            ``manageable`` transition is ``enroll`` again.
+
+        :return: This :class:`Node` instance.
+        """
+        for count in utils.iterate_timeout(
+                timeout,
+                "Timeout waiting for node %(node)s to reach "
+                "target state '%(state)s'" % {'node': self.id,
+                                              'state': expected_state}):
+            self.get(session)
+            if self._check_state_reached(session, expected_state,
+                                         abort_on_failed_state):
+                return self
+
+            _logger.debug('Still waiting for node %(node)s to reach state '
+                          '"%(target)s", the current state is "%(state)s"',
+                          {'node': self.id, 'target': expected_state,
+                           'state': self.provision_state})
+
+    def _check_state_reached(self, session, expected_state,
+                             abort_on_failed_state=True):
+        """Wait for the node to reach the expected state.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param expected_state: The expected provisioning state to reach.
+        :param abort_on_failed_state: If ``True`` (the default), abort waiting
+            if the node reaches a failure state which does not match the
+            expected one. Note that the failure state for ``enroll`` ->
+            ``manageable`` transition is ``enroll`` again.
+
+        :return: ``True`` if the target state is reached
+        :raises: SDKException if ``abort_on_failed_state`` is ``True`` and
+            a failure state is reached.
+        """
+        # NOTE(dtantsur): microversion 1.2 changed None to available
+        if (self.provision_state == expected_state or
+                (expected_state == 'available' and
+                 self.provision_state is None)):
+            return True
+        elif not abort_on_failed_state:
+            return False
+
+        if self.provision_state.endswith(' failed'):
+            raise exceptions.SDKException(
+                "Node %(node)s reached failure state \"%(state)s\"; "
+                "the last error is %(error)s" %
+                {'node': self.id, 'state': self.provision_state,
+                 'error': self.last_error})
+        # Special case: a failure state for "manage" transition can be
+        # "enroll"
+        elif (expected_state == 'manageable' and
+              self.provision_state == 'enroll' and self.last_error):
+            raise exceptions.SDKException(
+                "Node %(node)s could not reach state manageable: "
+                "failed to verify management credentials; "
+                "the last error is %(error)s" %
+                {'node': self.id, 'error': self.last_error})
 
 
 class NodeDetail(Node):

@@ -9607,7 +9607,7 @@ class OpenStackCloud(_normalize.Normalizer):
         config drive to be utilized.
 
         :param string name_or_id: The Name or UUID value representing the
-                              baremetal node.
+                                  baremetal node.
         :param string state: The desired provision state for the
                              baremetal node.
         :param string configdrive: An optional URL or file or path
@@ -9629,46 +9629,10 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: ``munch.Munch`` representing the current state of the machine
                   upon exit of the method.
         """
-        # NOTE(TheJulia): Default microversion for this call is 1.6.
-        # Setting locally until we have determined our master plan regarding
-        # microversion handling.
-        version = "1.6"
-        msg = ("Baremetal machine node failed change provision state to "
-               "{state}".format(state=state))
-
-        url = '/nodes/{node_id}/states/provision'.format(
-            node_id=name_or_id)
-        payload = {'target': state}
-        if configdrive:
-            payload['configdrive'] = configdrive
-
-        machine = _utils._call_client_and_retry(self._baremetal_client.put,
-                                                url,
-                                                retry_on=[409, 503],
-                                                json=payload,
-                                                error_message=msg,
-                                                microversion=version)
-        if wait:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for node transition to "
-                    "target state of '%s'" % state):
-                machine = self.get_machine(name_or_id)
-                if 'failed' in machine['provision_state']:
-                    raise exc.OpenStackCloudException(
-                        "Machine encountered a failure.")
-                # NOTE(TheJulia): This performs matching if the requested
-                # end state matches the state the node has reached.
-                if state in machine['provision_state']:
-                    break
-                # NOTE(TheJulia): This performs matching for cases where
-                # the reqeusted state action ends in available state.
-                if ("available" in machine['provision_state'] and
-                        state in ["provide", "deleted"]):
-                    break
-        else:
-            machine = self.get_machine(name_or_id)
-        return machine
+        node = self.baremetal.set_node_provision_state(
+            name_or_id, target=state, config_drive=configdrive,
+            wait=wait, timeout=timeout)
+        return node._to_munch()
 
     def set_machine_maintenance_state(
             self,

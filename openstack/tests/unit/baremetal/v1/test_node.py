@@ -10,9 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
+from keystoneauth1 import adapter
+import mock
 
 from openstack.baremetal.v1 import node
+from openstack import exceptions
+from openstack.tests.unit import base
 
 # NOTE: Sample data from api-ref doc
 FAKE = {
@@ -196,3 +199,78 @@ class TestNodeDetail(base.TestCase):
         self.assertEqual(FAKE['target_power_state'], sot.target_power_state)
         self.assertEqual(FAKE['target_raid_config'], sot.target_raid_config)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
+
+
+@mock.patch('time.sleep', lambda _t: None)
+@mock.patch.object(node.Node, 'get', autospec=True)
+class TestNodeWaitForProvisionState(base.TestCase):
+    def setUp(self):
+        super(TestNodeWaitForProvisionState, self).setUp()
+        self.node = node.Node(**FAKE)
+        self.session = mock.Mock()
+
+    def test_success(self, mock_get):
+        def _get_side_effect(_self, session):
+            self.node.provision_state = 'manageable'
+            self.assertIs(session, self.session)
+
+        mock_get.side_effect = _get_side_effect
+
+        node = self.node.wait_for_provision_state(self.session, 'manageable')
+        self.assertIs(node, self.node)
+
+    def test_failure(self, mock_get):
+        def _get_side_effect(_self, session):
+            self.node.provision_state = 'deploy failed'
+            self.assertIs(session, self.session)
+
+        mock_get.side_effect = _get_side_effect
+
+        self.assertRaisesRegex(exceptions.SDKException,
+                               'failure state "deploy failed"',
+                               self.node.wait_for_provision_state,
+                               self.session, 'manageable')
+
+    def test_enroll_as_failure(self, mock_get):
+        def _get_side_effect(_self, session):
+            self.node.provision_state = 'enroll'
+            self.node.last_error = 'power failure'
+            self.assertIs(session, self.session)
+
+        mock_get.side_effect = _get_side_effect
+
+        self.assertRaisesRegex(exceptions.SDKException,
+                               'failed to verify management credentials',
+                               self.node.wait_for_provision_state,
+                               self.session, 'manageable')
+
+    def test_timeout(self, mock_get):
+        self.assertRaises(exceptions.ResourceTimeout,
+                          self.node.wait_for_provision_state,
+                          self.session, 'manageable', timeout=0.001)
+
+    def test_not_abort_on_failed_state(self, mock_get):
+        def _get_side_effect(_self, session):
+            self.node.provision_state = 'deploy failed'
+            self.assertIs(session, self.session)
+
+        mock_get.side_effect = _get_side_effect
+
+        self.assertRaises(exceptions.ResourceTimeout,
+                          self.node.wait_for_provision_state,
+                          self.session, 'manageable', timeout=0.001,
+                          abort_on_failed_state=False)
+
+
+@mock.patch.object(node.Node, 'get', lambda self, session: self)
+@mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+class TestNodeSetProvisionState(base.TestCase):
+
+    def setUp(self):
+        super(TestNodeSetProvisionState, self).setUp()
+        self.node = node.Node(**FAKE)
+        self.session = mock.Mock(spec=adapter.Adapter,
+                                 default_microversion=None)
+
+    def test_no_arguments(self):
+        self.node.set_provision_state(self.session, 'manage')

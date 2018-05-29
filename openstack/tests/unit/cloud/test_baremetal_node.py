@@ -764,7 +764,7 @@ class TestBaremetalNode(base.IronicTestCase):
             'active',
             wait=True)
 
-        self.assertEqual(active_node, return_value)
+        self.assertSubdict(active_node, return_value)
         self.assert_calls()
 
     def test_node_set_provision_state_wait_timeout_fails(self):
@@ -817,7 +817,7 @@ class TestBaremetalNode(base.IronicTestCase):
             'active',
             wait=True)
 
-        self.assertEqual(self.fake_baremetal_node, return_value)
+        self.assertSubdict(self.fake_baremetal_node, return_value)
         self.assert_calls()
 
     def test_node_set_provision_state_wait_failure_cases(self):
@@ -875,7 +875,7 @@ class TestBaremetalNode(base.IronicTestCase):
             'provide',
             wait=True)
 
-        self.assertEqual(available_node, return_value)
+        self.assertSubdict(available_node, return_value)
         self.assert_calls()
 
     def test_wait_for_baremetal_node_lock_locked(self):
