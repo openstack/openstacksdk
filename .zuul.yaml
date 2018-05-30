@@ -199,6 +199,36 @@
         OPENSTACKSDK_HAS_SWIFT: 0
         OPENSTACKSDK_HAS_MAGNUM: 1
 
+- job:
+    name: openstacksdk-ansible-functional-devstack
+    parent: openstacksdk-functional-devstack
+    description: |
+      Run openstacksdk ansible functional tests against a master devstack
+      using released version of ansible.
+    vars:
+      tox_envlist: ansible
+
+- job:
+    name: openstacksdk-ansible-devel-functional-devstack
+    parent: openstacksdk-ansible-functional-devstack
+    description: |
+      Run openstacksdk ansible functional tests against a master devstack
+      using git devel branch version of ansible.
+    branches: ^(devel|master)$
+    required-projects:
+      - name: github.com/ansible/ansible
+        override-checkout: devel
+      - name: openstack/openstacksdk
+        override-checkout: master
+      - name: openstack-dev/devstack
+        override-checkout: master
+    vars:
+      # test-matrix grabs branch from the zuul branch setting. If the job
+      # is triggered by ansible, that branch will be devel which doesn't
+      # make sense to devstack. Override so that we run the right thing.
+      test_matrix_branch: master
+      tox_install_siblings: true
+
 - project-template:
     name: openstacksdk-functional-tips
     check:
@@ -224,6 +254,8 @@
         - build-openstack-sphinx-docs:
             vars:
               sphinx_python: python3
+        - openstacksdk-ansible-devel-functional-devstack:
+            voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-magnum:
             voting: false

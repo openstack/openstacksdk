@@ -69,9 +69,6 @@ then
         git clone --recursive https://github.com/ansible/ansible.git ${ENVDIR}/ansible
     fi
     source $ENVDIR/ansible/hacking/env-setup
-else
-    echo "Installing Ansible from pip"
-    pip install ansible
 fi
 
 # Run the shade Ansible tests
