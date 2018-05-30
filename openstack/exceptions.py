@@ -90,7 +90,7 @@ class HttpException(SDKException, _rex.HTTPError):
         # 'Error', then someone has set a more informative error message
         # and we should use it. If it is 'Error', then we should construct a
         # better message from the information we do have.
-        if not self.url or self.message != 'Error':
+        if not self.url or self.message == 'Error':
             return super(HttpException, self).__str__()
         if self.url:
             remote_error = "{source} Error for url: {url}".format(
