@@ -70,6 +70,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         prt = self.conn.network.create_port(network_id=self.INT_NET_ID)
         assert isinstance(prt, port.Port)
         self.PORT_ID = prt.id
+        self.PORT = prt
         # Create Floating IP.
         fip = self.conn.network.create_ip(
             floating_network_id=self.EXT_NET_ID,
@@ -135,6 +136,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         sot = self.conn.network.find_available_ip()
         self.assertIsNotNone(sot.id)
         self.assertIsNone(sot.port_id)
+        self.assertIsNone(sot.port_details)
 
     def test_get(self):
         sot = self.conn.network.get_ip(self.FIP.id)
@@ -143,6 +145,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         self.assertEqual(self.FIP.floating_ip_address, sot.floating_ip_address)
         self.assertEqual(self.FIP.fixed_ip_address, sot.fixed_ip_address)
         self.assertEqual(self.FIP.port_id, sot.port_id)
+        self.assertEqual(self.FIP.port_details, sot.port_details)
         self.assertEqual(self.FIP.router_id, sot.router_id)
         self.assertEqual(self.DNS_DOMAIN, sot.dns_domain)
         self.assertEqual(self.DNS_NAME, sot.dns_name)
@@ -154,6 +157,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
     def test_update(self):
         sot = self.conn.network.update_ip(self.FIP.id, port_id=self.PORT_ID)
         self.assertEqual(self.PORT_ID, sot.port_id)
+        self._assert_port_details(self.PORT, sot.port_details)
         self.assertEqual(self.FIP.id, sot.id)
 
     def test_set_tags(self):
@@ -167,3 +171,13 @@ class TestFloatingIP(base.BaseFunctionalTest):
         self.conn.network.set_tags(sot, [])
         sot = self.conn.network.get_ip(self.FIP.id)
         self.assertEqual([], sot.tags)
+
+    def _assert_port_details(self, port, port_details):
+        self.assertEqual(port.name, port_details['name'])
+        self.assertEqual(port.network_id, port_details['network_id'])
+        self.assertEqual(port.mac_address, port_details['mac_address'])
+        self.assertEqual(port.is_admin_state_up,
+                         port_details['admin_state_up'])
+        self.assertEqual(port.status, port_details['status'])
+        self.assertEqual(port.device_id, port_details['device_id'])
+        self.assertEqual(port.device_owner, port_details['device_owner'])

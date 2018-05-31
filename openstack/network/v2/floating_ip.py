@@ -60,6 +60,11 @@ class FloatingIP(resource.Resource, tag.TagMixin):
     name = floating_ip_address
     #: The ID of the network associated with the floating IP.
     floating_network_id = resource.Body('floating_network_id')
+    #: Read-only. The details of the port that this floating IP associates
+    #: with. Present if ``fip-port-details`` extension is loaded.
+    #: *Type: dict with keys: name, network_id, mac_address, admin_state_up,
+    #: status, device_id, device_owner*
+    port_details = resource.Body('port_details', type=dict)
     #: The port ID.
     port_id = resource.Body('port_id')
     #: The ID of the QoS policy attached to the floating IP.
