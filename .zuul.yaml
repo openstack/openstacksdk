@@ -209,6 +209,15 @@
       tox_envlist: ansible
 
 - job:
+    name: openstacksdk-ansible-functional-devstack
+    parent: openstacksdk-functional-devstack
+    description: |
+      Run openstacksdk ansible functional tests against a master devstack
+      using released version of ansible.
+    vars:
+      tox_envlist: ansible
+
+- job:
     name: openstacksdk-ansible-devel-functional-devstack
     parent: openstacksdk-ansible-functional-devstack
     description: |
@@ -218,6 +227,27 @@
     required-projects:
       - name: github.com/ansible/ansible
         override-checkout: devel
+      - name: openstack/openstacksdk
+        override-checkout: master
+      - name: openstack-dev/devstack
+        override-checkout: master
+    vars:
+      # test-matrix grabs branch from the zuul branch setting. If the job
+      # is triggered by ansible, that branch will be devel which doesn't
+      # make sense to devstack. Override so that we run the right thing.
+      test_matrix_branch: master
+      tox_install_siblings: true
+
+- job:
+    name: openstacksdk-ansible-stable-2.6-functional-devstack
+    parent: openstacksdk-ansible-functional-devstack
+    description: |
+      Run openstacksdk ansible functional tests against a master devstack
+      using git stable-2.6 branch version of ansible.
+    branches: ^(stable-2.6|master)$
+    required-projects:
+      - name: github.com/ansible/ansible
+        override-checkout: stable-2.6
       - name: openstack/openstacksdk
         override-checkout: master
       - name: openstack-dev/devstack
@@ -255,6 +285,8 @@
             vars:
               sphinx_python: python3
         - openstacksdk-ansible-devel-functional-devstack:
+            voting: false
+        - openstacksdk-ansible-stable-2.6-functional-devstack:
             voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-magnum:
