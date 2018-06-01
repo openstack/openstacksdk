@@ -138,15 +138,7 @@ class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
-            rv = res.delete(
-                self,
-                error_message=(
-                    "Unable to delete {resource_type} for {value}".format(
-                        resource_type=resource_type.__name__,
-                        value=value,
-                    )
-                )
-            )
+            rv = res.delete(self)
         except exceptions.NotFoundException:
             if ignore_missing:
                 return None
