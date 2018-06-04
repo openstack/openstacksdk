@@ -378,7 +378,7 @@ class Server(resource.Resource, metadata.MetadataMixin):
         if force!=None:  # if you force you can get errors for VM .
             body['os-migrateLive']['force'] = force
             
-        self._action(session, body))
+        self._action(session, body)
 
 
 class ServerDetail(Server):
