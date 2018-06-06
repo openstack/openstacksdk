@@ -326,10 +326,12 @@ class Server(resource.Resource, metadata.MetadataMixin):
         body = {"unrescue": None}
         self._action(session, body)
 
-    def evacuate(self, session, host=None, admin_pass=None, force=None):
+    def evacuate(self, session, host=None, admin_pass=None, force=None, on_shared_storage=False):
         body = {"evacuate": {}}
         if host is not None:
             body["evacuate"]["host"] = host
+        if on_shared_storage is not None:
+            body["evacuate"]["onSharedStorage"] = on_shared_storage
         if admin_pass is not None:
             body["evacuate"]["adminPass"] = admin_pass
         if force is not None:
@@ -363,14 +365,19 @@ class Server(resource.Resource, metadata.MetadataMixin):
         resp = self._action(session, body)
         return resp.json()
 
-    def live_migrate(self, session, host, force):
+    def live_migrate(self, session, host, force, block="auto", disk_over_commit=None ):
         body = {
-            "os-migrateLive": {
-                "host": host,
-                "block_migration": "auto",
-                "force": force
+            'os-migrateLive': {
+                'block_migration': block,
+                'host': host,
             }
         }
+        if disk_over_commit!=None: # not for all versions
+            body['os-migrateLive']['disk_over_commit'] = disk_over_commit
+
+        if force!=None:  # if you force you can get errors for VM .
+            body['os-migrateLive']['force'] = force
+            
         self._action(session, body)
 
 

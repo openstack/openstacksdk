@@ -612,7 +612,8 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unrescue(self)
 
-    def evacuate_server(self, server, host=None, admin_pass=None, force=None):
+    def evacuate_server(self, server, host=None, admin_pass=None, force=None,
+                        on_shared_storage=False):
         """Evacuates a server from a failed host to a new host.
 
         :param server: Either the ID of a server or a
@@ -628,7 +629,7 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         server.evacuate(self, host=host, admin_pass=admin_pass,
-                        force=force)
+                        force=force, on_shared_storage=on_shared_storage)
 
     def start_server(self, server):
         """Starts a stopped server and changes its state to ``ACTIVE``.
@@ -1148,17 +1149,7 @@ class Proxy(proxy.Proxy):
         return self._list(_volume_attachment.VolumeAttachment, paginated=False,
                           server_id=server_id)
 
-    def migrate_server(self, server):
-        """Migrate a server from one host to another
-
-        :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
-        :returns: None
-        """
-        server = self._get_resource(_server.Server, server)
-        server.migrate(self)
-
-    def live_migrate_server(self, server, host=None, force=False):
+    def live_migrate_server(self, server, host=None, force=None, block='auto', disk_over_commit=False):
         """Migrate a server from one host to target host
 
         :param server: Either the ID of a server or a
@@ -1166,7 +1157,13 @@ class Proxy(proxy.Proxy):
         :param host: The host to which to migrate the server
         :param force: Force a live-migration by not verifying the provided
                       destination host by the scheduler.
+        :param block: block migration in live-migration. "auto",True,False
+        :param disk_over_commit overcomit in live-migration.
+
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.live_migrate(self, host, force)
+        server.live_migrate(self, host, force, block, disk_over_commit)
+
+    
+
