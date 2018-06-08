@@ -30,6 +30,8 @@ class Port(resource.Resource, tag.TagMixin):
 
     # NOTE: we skip query on list or datetime fields for now
     _query_mapping = resource.QueryParameters(
+        'binding:host_id', 'binding:profile', 'binding:vif_details',
+        'binding:vif_type', 'binding:vnic_type',
         'description', 'device_id', 'device_owner', 'fixed_ips', 'ip_address',
         'mac_address', 'name', 'network_id', 'status', 'subnet_id',
         is_admin_state_up='admin_state_up',

@@ -1,0 +1,5 @@
+---
+features:
+  - Add support for query of port binding extended attributes including
+    'binding:host_id', 'binding:vnic_type', 'binding:vif_type',
+    'binding:vif_details', and 'binding:profile'.
