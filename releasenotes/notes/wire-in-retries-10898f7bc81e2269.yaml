@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Allows configuring Session's ``connect_retries`` and
+    ``status_code_retries`` via the cloud configuration (options
+    ``<service type>_connect_retries``, ``connect_retries``,
+    ``<service type>_status_code_retries`` and ``status_code_retries``).

@@ -207,7 +207,8 @@ class CloudRegion(object):
     def _get_config(
             self, key, service_type,
             default=None,
-            fallback_to_unprefixed=False):
+            fallback_to_unprefixed=False,
+            converter=None):
         '''Get a config value for a service_type.
 
         Finds the config value for a key, looking first for it prefixed by
@@ -226,10 +227,17 @@ class CloudRegion(object):
         for st in self._service_type_manager.get_all_types(service_type):
             value = self.config.get(_make_key(key, st))
             if value is not None:
-                return value
-        if fallback_to_unprefixed:
-            return self.config.get(key)
-        return default
+                break
+        else:
+            if fallback_to_unprefixed:
+                value = self.config.get(key)
+
+        if value is None:
+            return default
+        else:
+            if converter is not None:
+                value = converter(value)
+            return value
 
     def get_interface(self, service_type=None):
         return self._get_config(
@@ -263,6 +271,16 @@ class CloudRegion(object):
         if not value:
             value = self._get_config('endpoint', service_type)
         return value
+
+    def get_connect_retries(self, service_type):
+        return self._get_config('connect_retries', service_type,
+                                fallback_to_unprefixed=True,
+                                converter=int)
+
+    def get_status_code_retries(self, service_type):
+        return self._get_config('status_code_retries', service_type,
+                                fallback_to_unprefixed=True,
+                                converter=int)
 
     @property
     def prefer_ipv6(self):
@@ -398,6 +416,11 @@ class CloudRegion(object):
         and it will work like you think.
         """
         version_request = self._get_version_request(service_type, version)
+
+        kwargs.setdefault('connect_retries',
+                          self.get_connect_retries(service_type))
+        kwargs.setdefault('status_code_retries',
+                          self.get_status_code_retries(service_type))
 
         client = constructor(
             session=self.get_session(),
