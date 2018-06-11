@@ -38,6 +38,18 @@ def _make_key(key, service_type):
         return "_".join([service_type, key])
 
 
+def _get_implied_microversion(version):
+    if not version:
+        return
+    if '.' in version:
+        # Some services historically had a .0 in their normal api version.
+        # Neutron springs to mind with version "2.0". If a user has "2.0"
+        # set in a variable or config file just because history, we don't
+        # need to send any microversion headers.
+        if version.split('.')[1] != "0":
+            return version
+
+
 def from_session(session, name=None, region_name=None,
                  force_ipv4=False,
                  app_name=None, app_version=None, **kwargs):
@@ -348,17 +360,22 @@ class CloudRegion(object):
             version_request.version = version
 
         default_microversion = self.get_default_microversion(service_type)
-        if not default_microversion and version and '.' in version:
-            # Some services historically had a .0 in their normal api version.
-            # Neutron springs to mind with version "2.0". If a user has "2.0"
-            # set in a variable or config file just because history, we don't
-            # need to send any microversion headers.
-            if version.split('.')[1] != "0":
-                default_microversion = version
-                # If we're inferring a microversion, don't pass the whole
-                # string in as api_version, since that tells keystoneauth
-                # we're looking for a major api version.
-                version_request.version = version[0]
+        implied_microversion = _get_implied_microversion(version)
+        if (implied_microversion and default_microversion
+                and implied_microversion != default_microversion):
+            raise exceptions.ConfigException(
+                "default_microversion of {default_microversion} was given"
+                " for {service_type}, but api_version looks like a"
+                " microversion as well. Please set api_version to just the"
+                " desired major version, or omit default_microversion".format(
+                    default_microversion=default_microversion,
+                    service_type=service_type))
+        if implied_microversion:
+            default_microversion = implied_microversion
+            # If we're inferring a microversion, don't pass the whole
+            # string in as api_version, since that tells keystoneauth
+            # we're looking for a major api version.
+            version_request.version = version[0]
 
         version_request.default_microversion = default_microversion
 
