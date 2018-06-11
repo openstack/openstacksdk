@@ -16,8 +16,9 @@
 import concurrent.futures
 import fixtures
 import mock
-import queue
 import threading
+
+from six.moves import queue
 
 from openstack import task_manager
 from openstack.tests.unit import base

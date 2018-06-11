@@ -20,6 +20,7 @@ import time
 
 import keystoneauth1.exceptions
 import six
+from six.moves import queue
 
 import openstack._log
 from openstack import exceptions
@@ -116,6 +117,10 @@ class TaskManager(object):
         """ This is a direct action passthrough TaskManager """
         pass
 
+    def join(self):
+        """ This is a direct action passthrough TaskManager """
+        pass
+
     def submit_task(self, task):
         """Submit and execute the given task.
 
@@ -183,6 +188,61 @@ class TaskManager(object):
         self._log.debug(
             "Manager %s ran task %s in %ss",
             self.name, task.name, elapsed_time)
+
+
+class RateLimitingTaskManager(TaskManager):
+
+    def __init__(self, name, rate, workers=5):
+        super(TaskManager, self).__init__(
+            name=name, workers=workers)
+        self.daemon = True
+        self.queue = queue.Queue()
+        self._running = True
+        self.rate = float(rate)
+        self._thread = threading.Thread(name=name, target=self.run)
+        self._thread.daemon = True
+
+    def start(self):
+        self._thread.start()
+
+    def stop(self):
+        self._running = False
+        self.queue.put(None)
+
+    def join(self):
+        self._thread.join()
+
+    def run(self):
+        last_ts = 0
+        try:
+            while True:
+                task = self.queue.get()
+                if not task:
+                    if not self._running:
+                        break
+                    continue
+                while True:
+                    delta = time.time() - last_ts
+                    if delta >= self.rate:
+                        break
+                    time.sleep(self.rate - delta)
+                self._log.debug(
+                    "TaskManager {name} queue size: {size})".format(
+                        name=self.name,
+                        size=self.queue.qsize()))
+                self.run_task(task)
+                self.queue.task_done()
+        except Exception:
+            self._log.exception("TaskManager died")
+            raise
+
+    def submit_task(self, task):
+        if not self._running:
+            raise exceptions.TaskManagerStopped(
+                "TaskManager {name} is no longer running".format(
+                    name=self.name))
+        self.queue.put(task)
+        return task.wait()
 
 
 def wait_for_futures(futures, raise_on_error=True, log=_log):
