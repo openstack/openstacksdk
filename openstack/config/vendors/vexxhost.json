@@ -1,6 +1,7 @@
 {
   "name": "vexxhost",
   "profile": {
+    "auth_type": "v3password",
     "auth": {
       "auth_url": "https://auth.vexxhost.net"
     },
