@@ -13,7 +13,7 @@
       "Kna1"
     ],
     "requires_floating_ip": true,
-    "volume_api_version": "1",
+    "block_storage_api_version": "1",
     "identity_api_version": "3"
   }
 }

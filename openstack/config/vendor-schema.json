@@ -168,6 +168,11 @@
           "description": "Baremetal API Service Type",
           "type": "string"
         },
+        "block_storage_api_version": {
+          "name": "Block Storage API Version",
+          "description": "Block Storage API Version",
+          "type": "string"
+        },
         "compute_api_version": {
           "name": "Compute API Version",
           "description": "Compute API Version",

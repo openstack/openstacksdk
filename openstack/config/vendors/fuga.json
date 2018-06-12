@@ -10,6 +10,6 @@
       "cystack"
     ],
     "identity_api_version": "3",
-    "volume_api_version": "3"
+    "block_storage_api_version": "3"
   }
 }

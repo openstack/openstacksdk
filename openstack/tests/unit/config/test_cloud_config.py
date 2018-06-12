@@ -150,6 +150,16 @@ class TestCloudRegion(base.TestCase):
         self.assertIsNone(cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
 
+    def test_aliases(self):
+        services_dict = fake_services_dict.copy()
+        services_dict['volume_api_version'] = 12
+        services_dict['alarming_service_name'] = 'aodh'
+        cc = cloud_region.CloudRegion("test1", "region-al", services_dict)
+        self.assertEqual('12', cc.get_api_version('volume'))
+        self.assertEqual('12', cc.get_api_version('block-storage'))
+        self.assertEqual('aodh', cc.get_service_name('alarm'))
+        self.assertEqual('aodh', cc.get_service_name('alarming'))
+
     def test_no_override(self):
         """Test no override happens when defaults are not configured"""
         cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)

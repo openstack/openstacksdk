@@ -6,7 +6,7 @@
     },
     "identity_api_version": "3",
     "image_api_version": "1",
-    "volume_api_version": "1",
+    "block_storage_api_version": "1",
     "regions": [
       "it-mil1",
       "nl-ams1",

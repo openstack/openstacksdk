@@ -9,7 +9,7 @@
       "nz_wlg_2"
     ],
     "image_api_version": "1",
-    "volume_api_version": "1",
+    "block_storage_api_version": "1",
     "image_format": "raw"
   }
 }

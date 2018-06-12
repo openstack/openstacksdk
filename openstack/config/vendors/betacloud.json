@@ -9,6 +9,6 @@
     ],
     "identity_api_version": "3",
     "image_format": "raw",
-    "volume_api_version": "3"
+    "block_storage_api_version": "3"
   }
 }
