@@ -292,7 +292,8 @@
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-python3
-        - osc-functional-devstack-tips
+        - osc-functional-devstack-tips:
+            voting: false
         - neutron-grenade
         - openstack-tox-lower-constraints
         - nodepool-functional-py35-src
@@ -303,7 +304,6 @@
               sphinx_python: python3
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-python3
-        - osc-functional-devstack-tips
         - neutron-grenade
         - openstack-tox-lower-constraints
         - nodepool-functional-py35-src
