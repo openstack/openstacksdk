@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Versions set in config via ``*_api_version`` or ``OS_*_API_VERSION``
+    that have a ``.`` in them will be also passed as the default microversion
+    to the Adapter constructor. An additional config option,
+    ``*_default_microversion`` has been added to support being more explicit.
