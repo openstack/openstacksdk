@@ -76,3 +76,12 @@ class TestHypervisor(base.TestCase):
         self.assertEqual(EXAMPLE['disk_available_least'], sot.disk_available)
         self.assertEqual(EXAMPLE['local_gb'], sot.local_disk_size)
         self.assertEqual(EXAMPLE['free_ram_mb'], sot.memory_free)
+
+    def test_detail(self):
+        sot = hypervisor.HypervisorDetail()
+        self.assertEqual('hypervisor', sot.resource_key)
+        self.assertEqual('hypervisors', sot.resources_key)
+        self.assertEqual('/os-hypervisors/detail', sot.base_path)
+        self.assertEqual('compute', sot.service.service_type)
+        self.assertFalse(sot.allow_get)
+        self.assertTrue(sot.allow_list)

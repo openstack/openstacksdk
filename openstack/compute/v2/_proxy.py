@@ -937,14 +937,23 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_server_group.ServerGroup, paginated=False, **query)
 
-    def hypervisors(self):
+    def hypervisors(self, details=False):
         """Return a generator of hypervisor
 
+        :param bool details: When set to the default, ``False``,
+                    :class:`~openstack.compute.v2.hypervisor.Hypervisor`
+                    instances will be returned. ``True`` will cause
+                    :class:`~openstack.compute.v2.hypervisor.HypervisorDetail`
+                    instances to be returned.
         :returns: A generator of hypervisor
         :rtype: class: `~openstack.compute.v2.hypervisor.Hypervisor`
         """
+        if details:
+            hypervisor = _hypervisor.HypervisorDetail
+        else:
+            hypervisor = _hypervisor.Hypervisor
 
-        return self._list(_hypervisor.Hypervisor, paginated=False)
+        return self._list(hypervisor, paginated=False)
 
     def find_hypervisor(self, name_or_id, ignore_missing=True):
         """Find a hypervisor from name or id to get the corresponding info
