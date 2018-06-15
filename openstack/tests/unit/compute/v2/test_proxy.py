@@ -418,10 +418,17 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                      method_args=["value", 1],
                      expected_kwargs={"length": 1})
 
-    def test_availability_zones(self):
-        self.verify_list_no_kwargs(self.proxy.availability_zones,
-                                   az.AvailabilityZone,
-                                   paginated=False)
+    def test_availability_zones_not_detailed(self):
+        self.verify_list(self.proxy.availability_zones,
+                         az.AvailabilityZone,
+                         paginated=False,
+                         method_kwargs={"details": False})
+
+    def test_availability_zones_detailed(self):
+        self.verify_list(self.proxy.availability_zones,
+                         az.AvailabilityZoneDetail,
+                         paginated=False,
+                         method_kwargs={"details": True})
 
     def test_get_all_server_metadata(self):
         self._verify2("openstack.compute.v2.server.Server.get_metadata",
