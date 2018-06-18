@@ -127,10 +127,10 @@ class TestUsers(base.KeystoneBaseFunctionalTestCase):
         self.assertEqual(user_email, new_user['email'])
         self.assertTrue(new_user['enabled'])
         self.assertTrue(self.operator_cloud.grant_role(
-            'Member', user=user['id'], project='demo', wait=True))
+            'member', user=user['id'], project='demo', wait=True))
         self.addCleanup(
             self.operator_cloud.revoke_role,
-            'Member', user=user['id'], project='demo', wait=True)
+            'member', user=user['id'], project='demo', wait=True)
 
         new_cloud = self.operator_cloud.connect_as(
             user_id=user['id'],

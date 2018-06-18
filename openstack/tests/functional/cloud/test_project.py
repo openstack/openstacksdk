@@ -64,10 +64,10 @@ class TestProject(base.KeystoneBaseFunctionalTestCase):
 
         # Grant the current user access to the project
         self.assertTrue(self.operator_cloud.grant_role(
-            'Member', user=user_id, project=project['id'], wait=True))
+            'member', user=user_id, project=project['id'], wait=True))
         self.addCleanup(
             self.operator_cloud.revoke_role,
-            'Member', user=user_id, project=project['id'], wait=True)
+            'member', user=user_id, project=project['id'], wait=True)
 
         new_cloud = self.operator_cloud.connect_as_project(project)
         self.add_info_on_exception(
