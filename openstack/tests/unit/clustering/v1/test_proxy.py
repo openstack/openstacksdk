@@ -576,3 +576,15 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.proxy.wait_for_delete(mock_resource, 1, 2)
 
         mock_wait.assert_called_once_with(self.proxy, mock_resource, 1, 2)
+
+    @deprecation.fail_if_not_removed
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    def test_profile_type_ops(self, mock_get):
+        mock_profile = profile_type.ProfileType.new(id='FAKE_PROFILE')
+        mock_get.return_value = mock_profile
+        self._verify(
+            "openstack.clustering.v1.profile_type.ProfileType.type_ops",
+            self.proxy.list_profile_type_operations,
+            method_args=["FAKE_PROFILE"])
+        mock_get.assert_called_once_with(profile_type.ProfileType,
+                                         "FAKE_PROFILE")

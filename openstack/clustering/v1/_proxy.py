@@ -1155,3 +1155,17 @@ class Proxy(proxy.Proxy):
                   :class:`~openstack.clustering.v1.service.Service`
         """
         return self._list(_service.Service, paginated=False, **query)
+
+    def list_profile_type_operations(self, profile_type):
+        """Get the operation about a profile type.
+
+        :param profile_type: The name of the profile_type to retrieve or an
+         object of :class:`~openstack.clustering.v1.profile_type.ProfileType`.
+
+        :returns: A :class:`~openstack.clustering.v1.profile_type.ProfileType`
+                  object.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            profile_type matching the name could be found.
+        """
+        obj = self._get_resource(_profile_type.ProfileType, profile_type)
+        return obj.type_ops(self)
