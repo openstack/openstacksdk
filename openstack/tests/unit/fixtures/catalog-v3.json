@@ -139,6 +139,19 @@
       {
         "endpoints": [
           {
+            "id": "10c76ffd2b744a67950ed1365190d353",
+            "interface": "public",
+            "region": "RegionOne",
+            "url": "https://placement.example.com"
+          }
+        ],
+        "endpoints_links": [],
+        "name": "placement",
+        "type": "placement"
+      },
+      {
+        "endpoints": [
+          {
             "id": "10c76ffd2b744a67950ed1365190d352",
             "interface": "public",
             "region": "RegionOne",

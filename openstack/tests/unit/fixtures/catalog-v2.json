@@ -117,6 +117,20 @@
         "endpoints_links": [],
         "endpoints": [
           {
+            "adminURL": "https://placement.example.com",
+            "region": "RegionOne",
+            "publicURL": "https://placement.example.com",
+            "internalURL": "https://placement.example.com",
+            "id": "652f0612744042bfbb8a8bb2c777a16e"
+          }
+        ],
+        "type": "placement",
+        "name": "placement"
+      },
+      {
+        "endpoints_links": [],
+        "endpoints": [
+          {
             "adminURL": "https://dns.example.com",
             "region": "RegionOne",
             "publicURL": "https://dns.example.com",
