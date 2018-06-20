@@ -34,6 +34,9 @@ fake_services_dict = {
     'identity_service_name': 'locks',
     'volume_api_version': '1',
     'auth': {'password': 'hunter2', 'username': 'AzureDiamond'},
+    'connect_retries': 1,
+    'baremetal_status_code_retries': 5,
+    'baremetal_connect_retries': 3,
 }
 
 
@@ -149,6 +152,10 @@ class TestCloudRegion(base.TestCase):
         self.assertIsNone(cc.get_endpoint('image'))
         self.assertIsNone(cc.get_service_name('compute'))
         self.assertEqual('locks', cc.get_service_name('identity'))
+        self.assertIsNone(cc.get_status_code_retries('compute'))
+        self.assertEqual(5, cc.get_status_code_retries('baremetal'))
+        self.assertEqual(1, cc.get_connect_retries('compute'))
+        self.assertEqual(3, cc.get_connect_retries('baremetal'))
 
     def test_aliases(self):
         services_dict = fake_services_dict.copy()
