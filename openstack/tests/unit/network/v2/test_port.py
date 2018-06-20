@@ -68,7 +68,12 @@ class TestPort(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"description": "description",
+        self.assertDictEqual({"binding:host_id": "binding:host_id",
+                              "binding:profile": "binding:profile",
+                              "binding:vif_details": "binding:vif_details",
+                              "binding:vif_type": "binding:vif_type",
+                              "binding:vnic_type": "binding:vnic_type",
+                              "description": "description",
                               "device_id": "device_id",
                               "device_owner": "device_owner",
                               "fixed_ips": "fixed_ips",
