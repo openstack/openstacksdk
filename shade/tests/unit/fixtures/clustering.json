@@ -1,0 +1,27 @@
+{
+    "versions": [
+        {
+            "id": "1.0",
+            "links": [
+                {
+                    "href": "/v1/",
+                    "rel": "self"
+                },
+                {
+                    "href": "https://clustering.example.com/api-ref/clustering",
+                    "rel": "help"
+                }
+            ],
+            "max_version": "1.7",
+            "media-types": [
+                {
+                    "base": "application/json",
+                    "type": "application/vnd.openstack.clustering-v1+json"
+                }
+            ],
+            "min_version": "1.0",
+            "status": "CURRENT",
+            "updated": "2016-01-18T00:00:00Z"
+        }
+    ]
+}
