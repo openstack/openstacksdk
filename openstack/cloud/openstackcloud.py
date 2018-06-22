@@ -8656,11 +8656,21 @@ class OpenStackCloud(_normalize.Normalizer):
             the OpenStack API call.
         """
         with _utils.shade_exceptions("Error fetching cluster template list"):
-            data = self._container_infra_client.get(
-                '/baymodels/detail')
-        return self._normalize_cluster_templates(
-            self._get_and_munchify('baymodels', data))
+            try:
+                data = self._container_infra_client.get('/clustertemplates')
+                # NOTE(flwang): Magnum adds /clustertemplates and /cluster
+                # to deprecate /baymodels and /bay since Newton release. So
+                # we're using a small tag to indicate if current
+                # cloud has those two new API endpoints.
+                self._container_infra_client._has_magnum_after_newton = True
+                return self._normalize_cluster_templates(
+                    self._get_and_munchify('clustertemplates', data))
+            except exc.OpenStackCloudURINotFound:
+                data = self._container_infra_client.get('/baymodels/detail')
+                return self._normalize_cluster_templates(
+                    self._get_and_munchify('baymodels', data))
     list_baymodels = list_cluster_templates
+    list_coe_cluster_templates = list_cluster_templates
 
     def search_cluster_templates(
             self, name_or_id=None, filters=None, detail=False):
@@ -8680,6 +8690,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._filter_list(
             cluster_templates, name_or_id, filters)
     search_baymodels = search_cluster_templates
+    search_coe_cluster_templates = search_cluster_templates
 
     def get_cluster_template(self, name_or_id, filters=None, detail=False):
         """Get a cluster template by name or ID.
@@ -8706,6 +8717,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return _utils._get_entity(self, 'cluster_template', name_or_id,
                                   filters=filters, detail=detail)
     get_baymodel = get_cluster_template
+    get_coe_cluster_template = get_cluster_template
 
     def create_cluster_template(
             self, name, image_id=None, keypair_id=None, coe=None, **kwargs):
@@ -8733,12 +8745,18 @@ class OpenStackCloud(_normalize.Normalizer):
             body['keypair_id'] = keypair_id
             body['coe'] = coe
 
-            cluster_template = self._container_infra_client.post(
-                '/baymodels', json=body)
+            try:
+                cluster_template = self._container_infra_client.post(
+                    '/clustertemplates', json=body)
+                self._container_infra_client._has_magnum_after_newton = True
+            except exc.OpenStackCloudURINotFound:
+                cluster_template = self._container_infra_client.post(
+                    '/baymodels', json=body)
 
         self.list_cluster_templates.invalidate(self)
         return cluster_template
     create_baymodel = create_cluster_template
+    create_coe_cluster_template = create_cluster_template
 
     def delete_cluster_template(self, name_or_id):
         """Delete a cluster template.
@@ -8760,12 +8778,18 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         with _utils.shade_exceptions("Error in deleting cluster template"):
-            self._container_infra_client.delete(
-                '/baymodels/{id}'.format(id=cluster_template['id']))
+            if getattr(self._container_infra_client,
+                       '_has_magnum_after_newton', False):
+                self._container_infra_client.delete(
+                    '/clustertemplates/{id}'.format(id=cluster_template['id']))
+            else:
+                self._container_infra_client.delete(
+                    '/baymodels/{id}'.format(id=cluster_template['id']))
             self.list_cluster_templates.invalidate(self)
 
         return True
     delete_baymodel = delete_cluster_template
+    delete_coe_cluster_template = delete_cluster_template
 
     @_utils.valid_kwargs('name', 'image_id', 'flavor_id', 'master_flavor_id',
                          'keypair_id', 'external_network_id', 'fixed_network',
@@ -8802,13 +8826,20 @@ class OpenStackCloud(_normalize.Normalizer):
 
         with _utils.shade_exceptions(
                 "Error updating cluster template {0}".format(name_or_id)):
-            self._container_infra_client.patch(
-                '/baymodels/{id}'.format(id=cluster_template['id']),
-                json=patches)
+            if getattr(self._container_infra_client,
+                       '_has_magnum_after_newton', False):
+                self._container_infra_client.patch(
+                    '/clustertemplates/{id}'.format(id=cluster_template['id']),
+                    json=patches)
+            else:
+                self._container_infra_client.patch(
+                    '/baymodels/{id}'.format(id=cluster_template['id']),
+                    json=patches)
 
         new_cluster_template = self.get_cluster_template(name_or_id)
         return new_cluster_template
     update_baymodel = update_cluster_template
+    update_coe_cluster_template = update_cluster_template
 
     def list_nics(self):
         msg = "Error fetching machine port list"
