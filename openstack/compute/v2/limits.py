@@ -28,7 +28,7 @@ class AbsoluteLimits(resource.Resource):
     security_groups = resource.Body("maxSecurityGroups")
     #: The amount of security groups currently in use.
     security_groups_used = resource.Body("totalSecurityGroupsUsed")
-    #: The number of key-value pairs that can be set as sever metadata.
+    #: The number of key-value pairs that can be set as server metadata.
     server_meta = resource.Body("maxServerMeta")
     #: The maximum amount of cores.
     total_cores = resource.Body("maxTotalCores")
