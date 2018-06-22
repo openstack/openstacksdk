@@ -8649,6 +8649,152 @@ class OpenStackCloud(_normalize.Normalizer):
         return True
 
     @_utils.cache_on_arguments()
+    def list_coe_clusters(self):
+        """List COE(Ccontainer Orchestration Engine) cluster.
+
+        :returns: a list of dicts containing the cluster.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the OpenStack API call.
+        """
+        with _utils.shade_exceptions("Error fetching cluster list"):
+            data = self._container_infra_client.get('/clusters')
+        return self._normalize_coe_clusters(
+            self._get_and_munchify('clusters', data))
+
+    def search_coe_clusters(
+            self, name_or_id=None, filters=None):
+        """Search COE cluster.
+
+        :param name_or_id: cluster name or ID.
+        :param filters: a dict containing additional filters to use.
+        :param detail: a boolean to control if we need summarized or
+            detailed output.
+
+        :returns: a list of dict containing the cluster
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the OpenStack API call.
+        """
+        coe_clusters = self.list_coe_clusters()
+        return _utils._filter_list(
+            coe_clusters, name_or_id, filters)
+
+    def get_coe_cluster(self, name_or_id, filters=None):
+        """Get a COE cluster by name or ID.
+
+        :param name_or_id: Name or ID of the cluster.
+        :param filters:
+            A dictionary of meta data to use for further filtering. Elements
+            of this dictionary may, themselves, be dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: A cluster dict or None if no matching cluster is found.
+        """
+        return _utils._get_entity(self, 'coe_cluster', name_or_id,
+                                  filters=filters)
+
+    def create_coe_cluster(
+            self, name, cluster_template_id, **kwargs):
+        """Create a COE cluster based on given cluster template.
+
+        :param string name: Name of the cluster.
+        :param string image_id: ID of the cluster template to use.
+
+        Other arguments will be passed in kwargs.
+
+        :returns: a dict containing the cluster description
+
+        :raises: ``OpenStackCloudException`` if something goes wrong during
+            the OpenStack API call
+        """
+        error_message = ("Error creating cluster of name"
+                         " {cluster_name}".format(cluster_name=name))
+        with _utils.shade_exceptions(error_message):
+            body = kwargs.copy()
+            body['name'] = name
+            body['cluster_template_id'] = cluster_template_id
+
+            cluster = self._container_infra_client.post(
+                '/clusters', json=body)
+
+        self.list_coe_clusters.invalidate(self)
+        return cluster
+
+    def delete_coe_cluster(self, name_or_id):
+        """Delete a COE cluster.
+
+        :param name_or_id: Name or unique ID of the cluster.
+        :returns: True if the delete succeeded, False if the
+            cluster was not found.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+
+        cluster = self.get_coe_cluster(name_or_id)
+
+        if not cluster:
+            self.log.debug(
+                "COE Cluster %(name_or_id)s does not exist",
+                {'name_or_id': name_or_id},
+                exc_info=True)
+            return False
+
+        with _utils.shade_exceptions("Error in deleting COE cluster"):
+            self._container_infra_client.delete(
+                '/clusters/{id}'.format(id=cluster['id']))
+            self.list_coe_clusters.invalidate(self)
+
+        return True
+
+    @_utils.valid_kwargs('name')
+    def update_coe_cluster(self, name_or_id, operation, **kwargs):
+        """Update a COE cluster.
+
+        :param name_or_id: Name or ID of the COE cluster being updated.
+        :param operation: Operation to perform - add, remove, replace.
+
+        Other arguments will be passed with kwargs.
+
+        :returns: a dict representing the updated cluster.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        self.list_coe_clusters.invalidate(self)
+        cluster = self.get_coe_cluster(name_or_id)
+        if not cluster:
+            raise exc.OpenStackCloudException(
+                "COE cluster %s not found." % name_or_id)
+
+        if operation not in ['add', 'replace', 'remove']:
+            raise TypeError(
+                "%s operation not in 'add', 'replace', 'remove'" % operation)
+
+        patches = _utils.generate_patches_from_kwargs(operation, **kwargs)
+        # No need to fire an API call if there is an empty patch
+        if not patches:
+            return cluster
+
+        with _utils.shade_exceptions(
+                "Error updating COE cluster {0}".format(name_or_id)):
+            self._container_infra_client.patch(
+                '/clusters/{id}'.format(id=cluster['id']),
+                json=patches)
+
+        new_cluster = self.get_coe_cluster(name_or_id)
+        return new_cluster
+
+    @_utils.cache_on_arguments()
     def list_cluster_templates(self, detail=False):
         """List cluster templates.
 

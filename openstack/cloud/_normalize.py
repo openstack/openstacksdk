@@ -919,6 +919,40 @@ class Normalizer(object):
             ret.append(self._normalize_server_usage(server_usage))
         return ret
 
+    def _normalize_coe_clusters(self, coe_clusters):
+        ret = []
+        for coe_cluster in coe_clusters:
+            ret.append(self._normalize_coe_cluster(coe_cluster))
+        return ret
+
+    def _normalize_coe_cluster(self, coe_cluster):
+        """Normalize Magnum COE cluster."""
+        coe_cluster = coe_cluster.copy()
+
+        # Discard noise
+        coe_cluster.pop('links', None)
+
+        c_id = coe_cluster.pop('uuid')
+
+        ret = munch.Munch(
+            id=c_id,
+            location=self._get_current_location(),
+        )
+
+        for key in (
+                'status',
+                'cluster_template_id',
+                'stack_id',
+                'keypair',
+                'master_count',
+                'create_timeout',
+                'node_count',
+                'name'):
+            ret[key] = coe_cluster.pop(key)
+
+        ret['properties'] = coe_cluster
+        return ret
+
     def _normalize_cluster_templates(self, cluster_templates):
         ret = []
         for cluster_template in cluster_templates:
