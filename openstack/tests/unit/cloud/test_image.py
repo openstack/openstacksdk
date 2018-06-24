@@ -12,18 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# TODO(mordred) There are mocks of the image_client in here that are not
-#               using requests_mock. Erradicate them.
-
 import operator
 import tempfile
 import uuid
 
-import mock
-import munch
 import six
 
-import openstack.cloud
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.cloud import openstackcloud
@@ -587,303 +581,302 @@ class TestImage(BaseTestImage):
             name, imagefile.name, wait=True, timeout=1,
             is_public=False, **kwargs)
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_create_image_put_v1(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = False
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
+    def test_create_image_put_v1(self):
+        self.cloud.config.config['image_api_version'] = '1'
 
-        args = {'name': '42 name',
+        args = {'name': self.image_name,
                 'container_format': 'bare', 'disk_format': 'qcow2',
                 'properties': {
-                    'owner_specified.openstack.md5': mock.ANY,
-                    'owner_specified.openstack.sha256': mock.ANY,
-                    'owner_specified.openstack.object': 'images/42 name',
+                    'owner_specified.openstack.md5': fakes.NO_MD5,
+                    'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                    'owner_specified.openstack.object': 'images/{name}'.format(
+                        name=self.image_name),
                     'is_public': False}}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
+
+        ret = args.copy()
+        ret['id'] = self.image_id
         ret['status'] = 'success'
-        mock_image_client.get.side_effect = [
-            [],
-            [ret],
-            [ret],
-        ]
-        mock_image_client.post.return_value = ret
-        mock_image_client.put.return_value = ret
-        self._call_create_image('42 name')
-        mock_image_client.post.assert_called_with('/images', json=args)
-        mock_image_client.put.assert_called_with(
-            '/images/42', data=mock.ANY,
-            headers={
-                'x-image-meta-checksum': mock.ANY,
-                'x-glance-registry-purge-props': 'false'
-            })
-        mock_image_client.get.assert_called_with('/images/detail', params={})
-        self.assertEqual(
-            self._munch_images(ret), self.cloud.list_images())
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_create_image_put_v1_bad_delete(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = False
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v1/images/detail',
+                 json={'images': []}),
+            dict(method='POST',
+                 uri='https://image.example.com/v1/images',
+                 json={'image': ret},
+                 validate=dict(json=args)),
+            dict(method='PUT',
+                 uri='https://image.example.com/v1/images/{id}'.format(
+                     id=self.image_id),
+                 json={'image': ret},
+                 validate=dict(headers={
+                     'x-image-meta-checksum': fakes.NO_MD5,
+                     'x-glance-registry-purge-props': 'false'
+                 })),
+            dict(method='GET',
+                 uri='https://image.example.com/v1/images/detail',
+                 json={'images': [ret]}),
+        ])
+        self._call_create_image(self.image_name)
+        self.assertEqual(self._munch_images(ret), self.cloud.list_images())
 
-        args = {'name': '42 name',
+    def test_create_image_put_v1_bad_delete(self):
+        self.cloud.config.config['image_api_version'] = '1'
+
+        args = {'name': self.image_name,
                 'container_format': 'bare', 'disk_format': 'qcow2',
                 'properties': {
-                    'owner_specified.openstack.md5': mock.ANY,
-                    'owner_specified.openstack.sha256': mock.ANY,
-                    'owner_specified.openstack.object': 'images/42 name',
+                    'owner_specified.openstack.md5': fakes.NO_MD5,
+                    'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                    'owner_specified.openstack.object': 'images/{name}'.format(
+                        name=self.image_name),
                     'is_public': False}}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
+
+        ret = args.copy()
+        ret['id'] = self.image_id
         ret['status'] = 'success'
-        mock_image_client.get.side_effect = [
-            [],
-            [ret],
-        ]
-        mock_image_client.post.return_value = ret
-        mock_image_client.put.side_effect = exc.OpenStackCloudHTTPError(
-            "Some error")
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v1/images/detail',
+                 json={'images': []}),
+            dict(method='POST',
+                 uri='https://image.example.com/v1/images',
+                 json={'image': ret},
+                 validate=dict(json=args)),
+            dict(method='PUT',
+                 uri='https://image.example.com/v1/images/{id}'.format(
+                     id=self.image_id),
+                 status_code=400,
+                 validate=dict(headers={
+                     'x-image-meta-checksum': fakes.NO_MD5,
+                     'x-glance-registry-purge-props': 'false'
+                 })),
+            dict(method='DELETE',
+                 uri='https://image.example.com/v1/images/{id}'.format(
+                     id=self.image_id),
+                 json={'images': [ret]}),
+        ])
+
         self.assertRaises(
             exc.OpenStackCloudHTTPError,
             self._call_create_image,
-            '42 name')
-        mock_image_client.post.assert_called_with('/images', json=args)
-        mock_image_client.put.assert_called_with(
-            '/images/42', data=mock.ANY,
-            headers={
-                'x-image-meta-checksum': mock.ANY,
-                'x-glance-registry-purge-props': 'false'
-            })
-        mock_image_client.delete.assert_called_with('/images/42')
+            self.image_name)
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_update_image_no_patch(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = True
+        self.assert_calls()
+
+    def test_update_image_no_patch(self):
         self.cloud.image_api_use_tasks = False
 
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
-
-        args = {'name': '42 name',
+        args = {'name': self.image_name,
                 'container_format': 'bare', 'disk_format': 'qcow2',
-                'owner_specified.openstack.md5': mock.ANY,
-                'owner_specified.openstack.sha256': mock.ANY,
-                'owner_specified.openstack.object': 'images/42 name',
-                'visibility': 'private',
-                'min_disk': 0, 'min_ram': 0}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
+                'owner_specified.openstack.md5': fakes.NO_MD5,
+                'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                'owner_specified.openstack.object': 'images/{name}'.format(
+                    name=self.image_name),
+                'visibility': 'private'}
+
+        ret = args.copy()
+        ret['id'] = self.image_id
         ret['status'] = 'success'
-        mock_image_client.get.side_effect = [
-            [],
-            [ret],
-            [ret],
-        ]
+
         self.cloud.update_image_properties(
             image=self._image_dict(ret),
-            **{'owner_specified.openstack.object': 'images/42 name'})
-        mock_image_client.get.assert_called_with('/images', params={})
-        mock_image_client.patch.assert_not_called()
+            **{'owner_specified.openstack.object': 'images/{name}'.format(
+                name=self.image_name)})
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_create_image_put_v2_bad_delete(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = True
+        self.assert_calls()
+
+    def test_create_image_put_v2_bad_delete(self):
         self.cloud.image_api_use_tasks = False
 
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
-
-        args = {'name': '42 name',
+        args = {'name': self.image_name,
                 'container_format': 'bare', 'disk_format': 'qcow2',
-                'owner_specified.openstack.md5': mock.ANY,
-                'owner_specified.openstack.sha256': mock.ANY,
-                'owner_specified.openstack.object': 'images/42 name',
-                'visibility': 'private',
-                'min_disk': 0, 'min_ram': 0}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
+                'owner_specified.openstack.md5': fakes.NO_MD5,
+                'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                'owner_specified.openstack.object': 'images/{name}'.format(
+                    name=self.image_name),
+                'visibility': 'private'}
+
+        ret = args.copy()
+        ret['id'] = self.image_id
         ret['status'] = 'success'
-        mock_image_client.get.side_effect = [
-            [],
-            [ret],
-            [ret],
-        ]
-        mock_image_client.post.return_value = ret
-        mock_image_client.put.side_effect = exc.OpenStackCloudHTTPError(
-            "Some error")
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+            dict(method='POST',
+                 uri='https://image.example.com/v2/images',
+                 json=ret,
+                 validate=dict(json=args)),
+            dict(method='PUT',
+                 uri='https://image.example.com/v2/images/{id}/file'.format(
+                     id=self.image_id),
+                 status_code=400,
+                 validate=dict(
+                     headers={
+                         'Content-Type': 'application/octet-stream',
+                     },
+                 )),
+            dict(method='DELETE',
+                 uri='https://image.example.com/v2/images/{id}'.format(
+                     id=self.image_id)),
+        ])
+
         self.assertRaises(
             exc.OpenStackCloudHTTPError,
             self._call_create_image,
-            '42 name', min_disk='0', min_ram=0)
-        mock_image_client.post.assert_called_with('/images', json=args)
-        mock_image_client.put.assert_called_with(
-            '/images/42/file',
-            headers={'Content-Type': 'application/octet-stream'},
-            data=mock.ANY)
-        mock_image_client.delete.assert_called_with('/images/42')
+            self.image_name)
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_create_image_put_bad_int(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = True
+        self.assert_calls()
+
+    def test_create_image_put_bad_int(self):
         self.cloud.image_api_use_tasks = False
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+        ])
 
         self.assertRaises(
             exc.OpenStackCloudException,
-            self._call_create_image, '42 name', min_disk='fish', min_ram=0)
-        mock_image_client.post.assert_not_called()
+            self._call_create_image, self.image_name,
+            min_disk='fish', min_ram=0)
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_create_image_put_user_int(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = True
+        self.assert_calls()
+
+    def test_create_image_put_user_int(self):
         self.cloud.image_api_use_tasks = False
 
-        args = {'name': '42 name',
+        args = {'name': self.image_name,
                 'container_format': 'bare', 'disk_format': u'qcow2',
-                'owner_specified.openstack.md5': mock.ANY,
-                'owner_specified.openstack.sha256': mock.ANY,
-                'owner_specified.openstack.object': 'images/42 name',
+                'owner_specified.openstack.md5': fakes.NO_MD5,
+                'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                'owner_specified.openstack.object': 'images/{name}'.format(
+                    name=self.image_name),
                 'int_v': '12345',
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
-        ret['status'] = 'success'
-        mock_image_client.get.side_effect = [
-            [],
-            [ret],
-            [ret]
-        ]
-        mock_image_client.post.return_value = ret
-        self._call_create_image(
-            '42 name', min_disk='0', min_ram=0, int_v=12345)
-        mock_image_client.post.assert_called_with('/images', json=args)
-        mock_image_client.put.assert_called_with(
-            '/images/42/file',
-            headers={'Content-Type': 'application/octet-stream'},
-            data=mock.ANY)
-        mock_image_client.get.assert_called_with('/images', params={})
-        self.assertEqual(
-            self._munch_images(ret), self.cloud.list_images())
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_create_image_put_meta_int(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = True
+        ret = args.copy()
+        ret['id'] = self.image_id
+        ret['status'] = 'success'
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+            dict(method='POST',
+                 uri='https://image.example.com/v2/images',
+                 json=ret,
+                 validate=dict(json=args)),
+            dict(method='PUT',
+                 uri='https://image.example.com/v2/images/{id}/file'.format(
+                     id=self.image_id),
+                 validate=dict(
+                     headers={
+                         'Content-Type': 'application/octet-stream',
+                     },
+                 )),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': [ret]}),
+        ])
+
+        self._call_create_image(
+            self.image_name, min_disk='0', min_ram=0, int_v=12345)
+
+        self.assert_calls()
+
+    def test_create_image_put_meta_int(self):
         self.cloud.image_api_use_tasks = False
 
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
-
-        self._call_create_image(
-            '42 name', min_disk='0', min_ram=0, meta={'int_v': 12345})
-        args = {'name': '42 name',
+        args = {'name': self.image_name,
                 'container_format': 'bare', 'disk_format': u'qcow2',
-                'owner_specified.openstack.md5': mock.ANY,
-                'owner_specified.openstack.sha256': mock.ANY,
-                'owner_specified.openstack.object': 'images/42 name',
+                'owner_specified.openstack.md5': fakes.NO_MD5,
+                'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                'owner_specified.openstack.object': 'images/{name}'.format(
+                    name=self.image_name),
                 'int_v': 12345,
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
-        ret['status'] = 'success'
-        mock_image_client.get.return_value = [ret]
-        mock_image_client.post.return_value = ret
-        mock_image_client.get.assert_called_with('/images', params={})
-        self.assertEqual(
-            self._munch_images(ret), self.cloud.list_images())
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_create_image_put_protected(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = True
+        ret = args.copy()
+        ret['id'] = self.image_id
+        ret['status'] = 'success'
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+            dict(method='POST',
+                 uri='https://image.example.com/v2/images',
+                 json=ret,
+                 validate=dict(json=args)),
+            dict(method='PUT',
+                 uri='https://image.example.com/v2/images/{id}/file'.format(
+                     id=self.image_id),
+                 validate=dict(
+                     headers={
+                         'Content-Type': 'application/octet-stream',
+                     },
+                 )),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': [ret]}),
+        ])
+
+        self._call_create_image(
+            self.image_name, min_disk='0', min_ram=0, meta={'int_v': 12345})
+
+        self.assert_calls()
+
+    def test_create_image_put_protected(self):
         self.cloud.image_api_use_tasks = False
 
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
-
-        args = {'name': '42 name',
+        args = {'name': self.image_name,
                 'container_format': 'bare', 'disk_format': u'qcow2',
-                'owner_specified.openstack.md5': mock.ANY,
-                'owner_specified.openstack.sha256': mock.ANY,
-                'owner_specified.openstack.object': 'images/42 name',
+                'owner_specified.openstack.md5': fakes.NO_MD5,
+                'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                'owner_specified.openstack.object': 'images/{name}'.format(
+                    name=self.image_name),
+                'int_v': '12345',
                 'protected': False,
-                'int_v': '12345',
                 'visibility': 'private',
                 'min_disk': 0, 'min_ram': 0}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
+
+        ret = args.copy()
+        ret['id'] = self.image_id
         ret['status'] = 'success'
-        mock_image_client.get.side_effect = [
-            [],
-            [ret],
-            [ret],
-        ]
-        mock_image_client.put.return_value = ret
-        mock_image_client.post.return_value = ret
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+            dict(method='POST',
+                 uri='https://image.example.com/v2/images',
+                 json=ret,
+                 validate=dict(json=args)),
+            dict(method='PUT',
+                 uri='https://image.example.com/v2/images/{id}/file'.format(
+                     id=self.image_id),
+                 validate=dict(
+                     headers={
+                         'Content-Type': 'application/octet-stream',
+                     },
+                 )),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': [ret]}),
+        ])
+
         self._call_create_image(
-            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345},
-            protected=False)
-        mock_image_client.post.assert_called_with('/images', json=args)
-        mock_image_client.put.assert_called_with(
-            '/images/42/file', data=mock.ANY,
-            headers={'Content-Type': 'application/octet-stream'})
-        self.assertEqual(self._munch_images(ret), self.cloud.list_images())
+            self.image_name, min_disk='0', min_ram=0,
+            properties={'int_v': 12345}, protected=False)
 
-    # TODO(shade) Migrate this to requests-mock
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_create_image_put_user_prop(
-            self, mock_image_client, mock_is_client_version):
-        mock_is_client_version.return_value = True
-        self.cloud.image_api_use_tasks = False
-
-        mock_image_client.get.return_value = []
-        self.assertEqual([], self.cloud.list_images())
-
-        args = {'name': '42 name',
-                'container_format': 'bare', 'disk_format': u'qcow2',
-                'owner_specified.openstack.md5': mock.ANY,
-                'owner_specified.openstack.sha256': mock.ANY,
-                'owner_specified.openstack.object': 'images/42 name',
-                'int_v': '12345',
-                'xenapi_use_agent': 'False',
-                'visibility': 'private',
-                'min_disk': 0, 'min_ram': 0}
-        ret = munch.Munch(args.copy())
-        ret['id'] = '42'
-        ret['status'] = 'success'
-        mock_image_client.get.return_value = [ret]
-        mock_image_client.post.return_value = ret
-        self._call_create_image(
-            '42 name', min_disk='0', min_ram=0, properties={'int_v': 12345})
-        mock_image_client.get.assert_called_with('/images', params={})
-        self.assertEqual(
-            self._munch_images(ret), self.cloud.list_images())
+        self.assert_calls()
 
 
 class TestImageSuburl(BaseTestImage):

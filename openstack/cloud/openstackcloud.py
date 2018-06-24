@@ -4729,7 +4729,9 @@ class OpenStackCloud(_normalize.Normalizer):
         image_kwargs['properties'].update(meta)
         image_kwargs['name'] = name
 
-        image = self._image_client.post('/images', json=image_kwargs)
+        image = self._get_and_munchify(
+            'image',
+            self._image_client.post('/images', json=image_kwargs))
         checksum = image_kwargs['properties'].get(IMAGE_MD5_KEY, '')
 
         try:
@@ -4741,21 +4743,24 @@ class OpenStackCloud(_normalize.Normalizer):
             if checksum:
                 headers['x-image-meta-checksum'] = checksum
 
-            image = self._image_client.put(
-                '/images/{id}'.format(id=image.id),
-                headers=headers, data=image_data)
+            image = self._get_and_munchify(
+                'image',
+                self._image_client.put(
+                    '/images/{id}'.format(id=image.id),
+                    headers=headers, data=image_data))
 
         except exc.OpenStackCloudHTTPError:
             self.log.debug("Deleting failed upload of image %s", name)
             try:
-                self._image_client.delete('/images/{id}'.format(id=image.id))
+                self._image_client.delete(
+                    '/images/{id}'.format(id=image.id))
             except exc.OpenStackCloudHTTPError:
                 # We're just trying to clean up - if it doesn't work - shrug
                 self.log.debug(
                     "Failed deleting image after we failed uploading it.",
                     exc_info=True)
             raise
-        return image
+        return self._normalize_image(image)
 
     def _upload_image_put(
             self, name, filename, meta, wait, timeout, **image_kwargs):
