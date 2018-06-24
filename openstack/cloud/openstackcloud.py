@@ -11585,7 +11585,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         value = []
 
-        for count in _utils._iterate_timeout(
+        for count in utils.iterate_timeout(
                 timeout, "Timeout waiting for cluster policy to detach"):
 
             # TODO(bjjohnson) This logic will wait until there are no policies.
@@ -11664,7 +11664,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._get_and_munchify('profile', data)
 
     def set_cluster_profile_metadata(self, name_or_id, metadata):
-        profile = self.get_profile(name_or_id)
+        profile = self.get_cluster_profile(name_or_id)
         if not profile:
             raise exc.OpenStackCloudException(
                 'Invalid Profile {profile}'.format(profile=name_or_id))
@@ -11723,7 +11723,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return True
 
     def update_cluster_profile(self, name_or_id, metadata=None, new_name=None):
-        old_profile = self.get_profile(name_or_id)
+        old_profile = self.get_cluster_profile(name_or_id)
         if not old_profile:
             raise exc.OpenStackCloudException(
                 'Invalid Profile {profile}'.format(profile=name_or_id))
@@ -11784,7 +11784,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def get_cluster_policy(self, name_or_id, filters=None):
         return _utils._get_entity(
-            self, 'cluster_policy', name_or_id, filters)
+            self, 'cluster_policie', name_or_id, filters)
 
     def delete_cluster_policy(self, name_or_id):
         policy = self.get_cluster_policy_by_id(name_or_id)
@@ -11807,7 +11807,7 @@ class OpenStackCloud(_normalize.Normalizer):
         return True
 
     def update_cluster_policy(self, name_or_id, new_name):
-        old_policy = self.get_policy(name_or_id)
+        old_policy = self.get_cluster_policy(name_or_id)
         if not old_policy:
             raise exc.OpenStackCloudException(
                 'Invalid Policy {policy}'.format(policy=name_or_id))
@@ -11895,7 +11895,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if not wait:
             return True
 
-        for count in _utils._iterate_timeout(
+        for count in utils.iterate_timeout(
                 timeout, "Timeout waiting for cluster receiver to delete"):
 
             receiver = self.get_cluster_receiver_by_id(receiver_id)

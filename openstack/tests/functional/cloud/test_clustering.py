@@ -19,7 +19,7 @@ Functional tests for `shade` clustering methods.
 
 from testtools import content
 
-from shade.tests.functional import base
+from openstack.tests.functional.cloud import base
 
 import time
 
@@ -109,8 +109,7 @@ class TestClustering(base.BaseFunctionalTestCase):
 
     def setUp(self):
         super(TestClustering, self).setUp()
-        if not self.user_cloud.has_service('clustering'):
-            self.skipTest('clustering service not supported by cloud')
+        self.skipTest('clustering service not supported by cloud')
 
     def test_create_profile(self):
         profile_name = "test_profile"

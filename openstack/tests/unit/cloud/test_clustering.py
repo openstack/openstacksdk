@@ -13,8 +13,8 @@
 import copy
 import testtools
 
-import shade
-from shade.tests.unit import base
+from openstack.cloud import exc
+from openstack.tests.unit import base
 
 
 CLUSTERING_DICT = {
@@ -57,7 +57,7 @@ NEW_RECEIVER_DICT = copy.copy(RECEIVER_DICT)
 NEW_RECEIVER_DICT['id'] = '1'
 
 
-class TestClustering(base.RequestsMockTestCase):
+class TestClustering(base.TestCase):
 
     def assertAreInstances(self, elements, elem_type):
         for e in elements:
@@ -117,7 +117,7 @@ class TestClustering(base.RequestsMockTestCase):
         ])
         profile = self.cloud.get_cluster_profile_by_id(NEW_PROFILE_DICT['id'])
         with testtools.ExpectedException(
-                shade.exc.OpenStackCloudHTTPError,
+                exc.OpenStackCloudHTTPError,
                 "Error creating cluster fake-name.*"):
             self.cloud.create_cluster(name='fake-name', profile=profile)
         self.assert_calls()
@@ -171,9 +171,9 @@ class TestClustering(base.RequestsMockTestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'clustering', 'public', append=['v1', 'clusters', '1']),
+                     'clustering', 'public', append=['v1', 'clusters']),
                  json={
-                     "cluster": NEW_CLUSTERING_DICT}),
+                     "clusters": [NEW_CLUSTERING_DICT]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'clustering', 'public', append=['v1', 'clusters', '1',
@@ -382,7 +382,7 @@ class TestClustering(base.RequestsMockTestCase):
                  status_code=500)
         ])
         with testtools.ExpectedException(
-                shade.exc.OpenStackCloudHTTPError,
+                exc.OpenStackCloudHTTPError,
                 "Error creating profile fake-profile-name.*"):
             self.cloud.create_cluster_profile('fake-profile-name', {})
         self.assert_calls()
@@ -431,6 +431,11 @@ class TestClustering(base.RequestsMockTestCase):
         updated_profile = copy.copy(NEW_PROFILE_DICT)
         updated_profile['name'] = new_name
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'clustering', 'public', append=['v1', 'profiles']),
+                 json={
+                     "profiles": [NEW_PROFILE_DICT]}),
             dict(method='PATCH',
                  uri=self.get_mock_url(
                      'clustering', 'public', append=['v1', 'profiles', '1']),
@@ -481,7 +486,7 @@ class TestClustering(base.RequestsMockTestCase):
                  status_code=500)
         ])
         with testtools.ExpectedException(
-                shade.exc.OpenStackCloudHTTPError,
+                exc.OpenStackCloudHTTPError,
                 "Error creating policy fake-policy-name.*"):
             self.cloud.create_cluster_policy('fake-policy-name', {})
         self.assert_calls()
@@ -530,6 +535,11 @@ class TestClustering(base.RequestsMockTestCase):
         updated_policy = copy.copy(NEW_POLICY_DICT)
         updated_policy['name'] = new_name
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'clustering', 'public', append=['v1', 'policies']),
+                 json={
+                     "policies": [NEW_POLICY_DICT]}),
             dict(method='PATCH',
                  uri=self.get_mock_url(
                      'clustering', 'public', append=['v1', 'policies', '1']),
@@ -560,7 +570,12 @@ class TestClustering(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_cluster_receiver(self):
+        clusters = {'clusters': [NEW_CLUSTERING_DICT]}
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'clustering', 'public', append=['v1', 'clusters']),
+                 json=clusters),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'clustering', 'public', append=['v1', 'receivers']),
@@ -572,14 +587,19 @@ class TestClustering(base.RequestsMockTestCase):
         self.assert_calls()
 
     def test_create_cluster_receiver_exception(self):
+        clusters = {'clusters': [NEW_CLUSTERING_DICT]}
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'clustering', 'public', append=['v1', 'clusters']),
+                 json=clusters),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'clustering', 'public', append=['v1', 'receivers']),
-                 status_code=500)
+                 status_code=500),
         ])
         with testtools.ExpectedException(
-                shade.exc.OpenStackCloudHTTPError,
+                exc.OpenStackCloudHTTPError,
                 "Error creating receiver fake-receiver-name.*"):
             self.cloud.create_cluster_receiver('fake-receiver-name', {})
         self.assert_calls()
@@ -628,6 +648,11 @@ class TestClustering(base.RequestsMockTestCase):
         updated_receiver = copy.copy(NEW_RECEIVER_DICT)
         updated_receiver['name'] = new_name
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'clustering', 'public', append=['v1', 'receivers']),
+                 json={
+                     "receivers": [NEW_RECEIVER_DICT]}),
             dict(method='PATCH',
                  uri=self.get_mock_url(
                      'clustering', 'public', append=['v1', 'receivers', '1']),
