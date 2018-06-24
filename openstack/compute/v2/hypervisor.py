@@ -65,3 +65,11 @@ class Hypervisor(resource.Resource):
     host_ip = resource.Body('host_ip')
     #: Disk space available to the scheduler
     disk_available = resource.Body("disk_available_least")
+
+
+class HypervisorDetail(Hypervisor):
+    base_path = '/os-hypervisors/detail'
+
+    # capabilities
+    allow_get = False
+    allow_list = True

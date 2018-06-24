@@ -482,10 +482,15 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.server_groups, server_group.ServerGroup,
                          paginated=False)
 
-    def test_hypervisors(self):
-        self.verify_list_no_kwargs(self.proxy.hypervisors,
-                                   hypervisor.Hypervisor,
-                                   paginated=False)
+    def test_hypervisors_not_detailed(self):
+        self.verify_list(self.proxy.hypervisors, hypervisor.Hypervisor,
+                         paginated=False,
+                         method_kwargs={"details": False})
+
+    def test_hypervisors_detailed(self):
+        self.verify_list(self.proxy.hypervisors, hypervisor.HypervisorDetail,
+                         paginated=False,
+                         method_kwargs={"details": True})
 
     def test_find_hypervisor(self):
         self.verify_find(self.proxy.find_hypervisor,
