@@ -10,64 +10,69 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-
-import munch
-
-import openstack.cloud
 from openstack.cloud import exc
 from openstack.tests.unit import base
 
 
 class TestDomainParams(base.TestCase):
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, 'get_project')
-    def test_identity_params_v3(self, mock_get_project,
-                                mock_is_client_version):
-        mock_get_project.return_value = munch.Munch(id=1234)
-        mock_is_client_version.return_value = True
+    def test_identity_params_v3(self):
+        project_data = self._get_project_data(v3=True)
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://identity.example.com/v3/projects',
+                 json=dict(projects=[project_data.json_response['project']]))
+        ])
 
-        ret = self.cloud._get_identity_params(domain_id='5678', project='bar')
+        ret = self.cloud._get_identity_params(
+            domain_id='5678', project=project_data.project_name)
         self.assertIn('default_project_id', ret)
-        self.assertEqual(ret['default_project_id'], 1234)
+        self.assertEqual(ret['default_project_id'], project_data.project_id)
         self.assertIn('domain_id', ret)
         self.assertEqual(ret['domain_id'], '5678')
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, 'get_project')
-    def test_identity_params_v3_no_domain(
-            self, mock_get_project, mock_is_client_version):
-        mock_get_project.return_value = munch.Munch(id=1234)
-        mock_is_client_version.return_value = True
+        self.assert_calls()
+
+    def test_identity_params_v3_no_domain(self):
+        project_data = self._get_project_data(v3=True)
 
         self.assertRaises(
             exc.OpenStackCloudException,
             self.cloud._get_identity_params,
-            domain_id=None, project='bar')
+            domain_id=None, project=project_data.project_name)
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, 'get_project')
-    def test_identity_params_v2(self, mock_get_project,
-                                mock_is_client_version):
-        mock_get_project.return_value = munch.Munch(id=1234)
-        mock_is_client_version.return_value = False
+        self.assert_calls()
 
-        ret = self.cloud._get_identity_params(domain_id='foo', project='bar')
+    def test_identity_params_v2(self):
+        self.use_keystone_v2()
+        project_data = self._get_project_data(v3=False)
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://identity.example.com/v2.0/tenants',
+                 json=dict(tenants=[project_data.json_response['tenant']]))
+        ])
+
+        ret = self.cloud._get_identity_params(
+            domain_id='foo', project=project_data.project_name)
         self.assertIn('tenant_id', ret)
-        self.assertEqual(ret['tenant_id'], 1234)
+        self.assertEqual(ret['tenant_id'], project_data.project_id)
         self.assertNotIn('domain', ret)
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_is_client_version')
-    @mock.patch.object(openstack.cloud.OpenStackCloud, 'get_project')
-    def test_identity_params_v2_no_domain(self, mock_get_project,
-                                          mock_is_client_version):
-        mock_get_project.return_value = munch.Munch(id=1234)
-        mock_is_client_version.return_value = False
+        self.assert_calls()
 
-        ret = self.cloud._get_identity_params(domain_id=None, project='bar')
-        api_calls = [mock.call('identity', 3), mock.call('identity', 3)]
-        mock_is_client_version.assert_has_calls(api_calls)
+    def test_identity_params_v2_no_domain(self):
+        self.use_keystone_v2()
+        project_data = self._get_project_data(v3=False)
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://identity.example.com/v2.0/tenants',
+                 json=dict(tenants=[project_data.json_response['tenant']]))
+        ])
+
+        ret = self.cloud._get_identity_params(
+            domain_id=None, project=project_data.project_name)
         self.assertIn('tenant_id', ret)
-        self.assertEqual(ret['tenant_id'], 1234)
+        self.assertEqual(ret['tenant_id'], project_data.project_id)
         self.assertNotIn('domain', ret)
+
+        self.assert_calls()
