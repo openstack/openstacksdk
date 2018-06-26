@@ -21,19 +21,47 @@ from openstack.tests.unit import base
 
 class TestOperatorCloud(base.TestCase):
 
-    @mock.patch.object(cloud_region.CloudRegion, 'get_endpoint')
-    def test_get_session_endpoint_provided(self, fake_get_endpoint):
-        fake_get_endpoint.return_value = 'http://fake.url'
-        self.assertEqual(
-            'http://fake.url', self.cloud.get_session_endpoint('image'))
+    def test_get_image_name(self):
+        self.use_glance()
 
-    @mock.patch.object(cloud_region.CloudRegion, 'get_session')
-    def test_get_session_endpoint_session(self, get_session_mock):
-        session_mock = mock.Mock()
-        session_mock.get_endpoint.return_value = 'http://fake.url'
-        get_session_mock.return_value = session_mock
-        self.assertEqual(
-            'http://fake.url', self.cloud.get_session_endpoint('image'))
+        image_id = self.getUniqueString()
+        fake_image = fakes.make_fake_image(image_id=image_id)
+        list_return = {'images': [fake_image]}
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=list_return),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=list_return),
+        ])
+
+        self.assertEqual('fake_image', self.cloud.get_image_name(image_id))
+        self.assertEqual('fake_image', self.cloud.get_image_name('fake_image'))
+
+        self.assert_calls()
+
+    def test_get_image_id(self):
+        self.use_glance()
+
+        image_id = self.getUniqueString()
+        fake_image = fakes.make_fake_image(image_id=image_id)
+        list_return = {'images': [fake_image]}
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=list_return),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=list_return),
+        ])
+
+        self.assertEqual(image_id, self.cloud.get_image_id(image_id))
+        self.assertEqual(image_id, self.cloud.get_image_id('fake_image'))
+
+        self.assert_calls()
 
     @mock.patch.object(cloud_region.CloudRegion, 'get_session')
     def test_get_session_endpoint_exception(self, get_session_mock):
