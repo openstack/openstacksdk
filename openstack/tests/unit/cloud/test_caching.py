@@ -12,9 +12,8 @@
 import concurrent
 import time
 
-import mock
-import munch
 import testtools
+from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 import openstack
 import openstack.cloud
@@ -475,73 +474,146 @@ class TestMemoryCache(base.TestCase):
 
         self.assert_calls()
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_list_images_ignores_unsteady_status(self, mock_image_client):
-        steady_image = munch.Munch(id='68', name='Jagr', status='active')
-        for status in ('queued', 'saving', 'pending_delete'):
-            active_image = munch.Munch(
-                id=self.getUniqueString(), name=self.getUniqueString(),
-                status=status)
-            mock_image_client.get.return_value = [active_image]
+    def test_list_images_caches_deleted_status(self):
+        self.use_glance()
 
-            self.assertEqual(
-                self._munch_images(active_image),
-                self.cloud.list_images())
-            mock_image_client.get.return_value = [
-                active_image, steady_image]
-            # Should expect steady_image to appear if active wasn't cached
-            self.assertEqual(
-                [self._image_dict(active_image),
-                 self._image_dict(steady_image)],
-                self.cloud.list_images())
+        deleted_image_id = self.getUniqueString()
+        deleted_image = fakes.make_fake_image(
+            image_id=deleted_image_id, status='deleted')
+        active_image_id = self.getUniqueString()
+        active_image = fakes.make_fake_image(image_id=active_image_id)
+        list_return = {'images': [active_image, deleted_image]}
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=list_return),
+        ])
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_list_images_caches_steady_status(self, mock_image_client):
-        steady_image = munch.Munch(id='91', name='Federov', status='active')
-        first_image = None
-        for status in ('active', 'deleted', 'killed'):
-            active_image = munch.Munch(
-                id=self.getUniqueString(), name=self.getUniqueString(),
-                status=status)
-            mock_image_client.get.return_value = [active_image]
-            if not first_image:
-                first_image = active_image
-            self.assertEqual(
-                self._munch_images(first_image),
-                self.cloud.list_images())
-            mock_image_client.get.return_value = [
-                active_image, steady_image]
-            # because we skipped the create_image code path, no invalidation
-            # was done, so we _SHOULD_ expect steady state images to cache and
-            # therefore we should _not_ expect to see the new one here
-            self.assertEqual(
-                self._munch_images(first_image),
-                self.cloud.list_images())
+        self.assertEqual(
+            [self.cloud._normalize_image(active_image)],
+            self.cloud.list_images())
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, '_image_client')
-    def test_cache_no_cloud_name(self, mock_image_client):
+        self.assertEqual(
+            [self.cloud._normalize_image(active_image)],
+            self.cloud.list_images())
+
+        # We should only have one call
+        self.assert_calls()
+
+    def test_cache_no_cloud_name(self):
+        self.use_glance()
 
         self.cloud.name = None
-        fi = munch.Munch(
-            id='1', name='None Test Image',
-            status='active', visibility='private')
-        mock_image_client.get.return_value = [fi]
+        fi = fakes.make_fake_image(image_id=self.getUniqueString())
+        fi2 = fakes.make_fake_image(image_id=self.getUniqueString())
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': [fi]}),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': [fi, fi2]}),
+        ])
+
         self.assertEqual(
             self._munch_images(fi),
             self.cloud.list_images())
+
         # Now test that the list was cached
-        fi2 = munch.Munch(
-            id='2', name='None Test Image',
-            status='active', visibility='private')
-        mock_image_client.get.return_value = [fi, fi2]
         self.assertEqual(
             self._munch_images(fi),
             self.cloud.list_images())
+
         # Invalidation too
         self.cloud.list_images.invalidate(self.cloud)
         self.assertEqual(
-            [self._image_dict(fi), self._image_dict(fi2)],
+            [
+                self.cloud._normalize_image(fi),
+                self.cloud._normalize_image(fi2)
+            ],
             self.cloud.list_images())
+
+
+class TestCacheIgnoresQueuedStatus(base.TestCase):
+
+    scenarios = [
+        ('queued', dict(status='queued')),
+        ('saving', dict(status='saving')),
+        ('pending_delete', dict(status='pending_delete')),
+    ]
+
+    def setUp(self):
+        super(TestCacheIgnoresQueuedStatus, self).setUp(
+            cloud_config_fixture='clouds_cache.yaml')
+        self.use_glance()
+        active_image_id = self.getUniqueString()
+        self.active_image = fakes.make_fake_image(
+            image_id=active_image_id, status=self.status)
+        self.active_list_return = {'images': [self.active_image]}
+        steady_image_id = self.getUniqueString()
+        self.steady_image = fakes.make_fake_image(image_id=steady_image_id)
+        self.steady_list_return = {
+            'images': [self.active_image, self.steady_image]}
+
+    def test_list_images_ignores_pending_status(self):
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=self.active_list_return),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=self.steady_list_return),
+        ])
+
+        self.assertEqual(
+            [self.cloud._normalize_image(self.active_image)],
+            self.cloud.list_images())
+
+        # Should expect steady_image to appear if active wasn't cached
+        self.assertEqual(
+            [
+                self.cloud._normalize_image(self.active_image),
+                self.cloud._normalize_image(self.steady_image)
+            ],
+            self.cloud.list_images())
+
+
+class TestCacheSteadyStatus(base.TestCase):
+
+    scenarios = [
+        ('active', dict(status='active')),
+        ('killed', dict(status='killed')),
+    ]
+
+    def setUp(self):
+        super(TestCacheSteadyStatus, self).setUp(
+            cloud_config_fixture='clouds_cache.yaml')
+        self.use_glance()
+        active_image_id = self.getUniqueString()
+        self.active_image = fakes.make_fake_image(
+            image_id=active_image_id, status=self.status)
+        self.active_list_return = {'images': [self.active_image]}
+
+    def test_list_images_caches_steady_status(self):
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json=self.active_list_return),
+        ])
+
+        self.assertEqual(
+            [self.cloud._normalize_image(self.active_image)],
+            self.cloud.list_images())
+
+        self.assertEqual(
+            [self.cloud._normalize_image(self.active_image)],
+            self.cloud.list_images())
+
+        # We should only have one call
+        self.assert_calls()
 
 
 class TestBogusAuth(base.TestCase):
