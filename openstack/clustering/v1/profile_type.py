@@ -12,6 +12,7 @@
 
 from openstack.clustering import clustering_service
 from openstack import resource
+from openstack import utils
 
 
 class ProfileType(resource.Resource):
@@ -31,3 +32,8 @@ class ProfileType(resource.Resource):
     schema = resource.Body('schema')
     #: The support status of the profile type
     support_status = resource.Body('support_status')
+
+    def type_ops(self, session):
+        url = utils.urljoin(self.base_path, self.id, 'ops')
+        resp = session.get(url)
+        return resp.json()

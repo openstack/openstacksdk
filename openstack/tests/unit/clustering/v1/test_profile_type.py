@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import mock
 from openstack.tests.unit import base
 
 from openstack.clustering.v1 import profile_type
@@ -46,3 +47,14 @@ class TestProfileType(base.TestCase):
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['schema'], sot.schema)
         self.assertEqual(FAKE['support_status'], sot.support_status)
+
+    def test_ops(self):
+        sot = profile_type.ProfileType(**FAKE)
+
+        resp = mock.Mock()
+        resp.json = mock.Mock(return_value='')
+        sess = mock.Mock()
+        sess.get = mock.Mock(return_value=resp)
+        self.assertEqual('', sot.type_ops(sess))
+        url = 'profile-types/%s/ops' % sot.id
+        sess.get.assert_called_once_with(url)
