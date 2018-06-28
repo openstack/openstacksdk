@@ -98,8 +98,6 @@ class TestConnection(base.TestCase):
                          conn.identity.__class__.__module__)
         self.assertEqual('openstack.image.v2._proxy',
                          conn.image.__class__.__module__)
-        self.assertEqual('openstack.network.v2._proxy',
-                         conn.network.__class__.__module__)
         self.assertEqual('openstack.object_store.v1._proxy',
                          conn.object_store.__class__.__module__)
         self.assertEqual('openstack.load_balancer.v2._proxy',
@@ -220,6 +218,20 @@ class TestConnection(base.TestCase):
             verify=instance.get_session().verify,
             cert=instance.get_session().cert,
             profile=prof)
+
+
+class TestNetworkConnection(base.TestCase):
+    # We need to do the neutron adapter test differently because it needs
+    # to actually get a catalog.
+
+    def test_network_proxy(self):
+        self.assertEqual(
+            'openstack.network.v2._proxy',
+            self.conn.network.__class__.__module__)
+        self.assert_calls()
+        self.assertEqual(
+            "https://network.example.com/v2.0",
+            self.conn.network.get_endpoint())
 
 
 class TestAuthorize(base.TestCase):

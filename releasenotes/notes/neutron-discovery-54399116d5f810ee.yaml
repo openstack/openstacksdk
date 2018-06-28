@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Added workaround for using neutron on older clouds where the version
+    discovery document requires auth.

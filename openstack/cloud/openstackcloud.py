@@ -581,8 +581,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _network_client(self):
         if 'network' not in self._raw_clients:
             client = self._get_raw_client('network')
-            # TODO(mordred) I don't care if this is what neutronclient does,
-            # fix this.
+            # TODO(mordred) Replace this with self.network
             # Don't bother with version discovery - there is only one version
             # of neutron. This is what neutronclient does, fwiw.
             endpoint = client.get_endpoint()

@@ -421,6 +421,31 @@ class CloudRegion(object):
                           self.get_connect_retries(service_type))
         kwargs.setdefault('status_code_retries',
                           self.get_status_code_retries(service_type))
+        endpoint_override = self.get_endpoint(service_type)
+        version = version_request.version
+        min_api_version = version_request.min_api_version
+        max_api_version = version_request.max_api_version
+        # Older neutron has inaccessible discovery document. Nobody noticed
+        # because neutronclient hard-codes an append of v2.0. YAY!
+        if service_type == 'network':
+            version = None
+            min_api_version = None
+            max_api_version = None
+            if endpoint_override is None:
+                network_adapter = constructor(
+                    session=self.get_session(),
+                    service_type=self.get_service_type(service_type),
+                    service_name=self.get_service_name(service_type),
+                    interface=self.get_interface(service_type),
+                    region_name=self.region_name,
+                )
+                network_endpoint = network_adapter.get_endpoint()
+                if not network_endpoint.rstrip().rsplit('/')[1] == 'v2.0':
+                    if not network_endpoint.endswith('/'):
+                        network_endpoint += '/'
+                    network_endpoint = urllib.parse.urljoin(
+                        network_endpoint, 'v2.0')
+                endpoint_override = network_endpoint
 
         client = constructor(
             session=self.get_session(),
@@ -428,10 +453,10 @@ class CloudRegion(object):
             service_name=self.get_service_name(service_type),
             interface=self.get_interface(service_type),
             region_name=self.region_name,
-            version=version_request.version,
-            min_version=version_request.min_api_version,
-            max_version=version_request.max_api_version,
-            endpoint_override=self.get_endpoint(service_type),
+            version=version,
+            min_version=min_api_version,
+            max_version=max_api_version,
+            endpoint_override=endpoint_override,
             default_microversion=version_request.default_microversion,
             **kwargs)
         if version_request.default_microversion:
