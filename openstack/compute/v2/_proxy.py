@@ -1167,15 +1167,31 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.migrate(self)
 
-    def live_migrate_server(self, server, host=None, force=False):
-        """Migrate a server from one host to target host
+    def live_migrate_server(
+            self, server, host=None, force=False, block_migration=None):
+        """Live migrate a server from one host to target host
 
-        :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
-        :param host: The host to which to migrate the server
-        :param force: Force a live-migration by not verifying the provided
-                      destination host by the scheduler.
+        :param server:
+            Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param str host:
+            The host to which to migrate the server. If the Nova service is
+            too old, the host parameter implies force=True which causes the
+            Nova scheduler to be bypassed. On such clouds, a ``ValueError``
+            will be thrown if ``host`` is given without ``force``.
+        :param bool force:
+            Force a live-migration by not verifying the provided destination
+            host by the scheduler. This is unsafe and not recommended.
+        :param block_migration:
+            Perform a block live migration to the destination host by the
+            scheduler.  Can be 'auto', True or False. Some clouds are too old
+            to support 'auto', in which case a ValueError will be thrown. If
+            omitted, the value will be 'auto' on clouds that support it, and
+            False on clouds that do not.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.live_migrate(self, host, force)
+        server.live_migrate(
+            self, host,
+            force=force,
+            block_migration=block_migration)

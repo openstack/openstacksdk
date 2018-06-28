@@ -526,5 +526,6 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
     def test_live_migrate_server(self):
         self._verify('openstack.compute.v2.server.Server.live_migrate',
                      self.proxy.live_migrate_server,
-                     method_args=["value", "host1", "force"],
-                     expected_args=["host1", "force"])
+                     method_args=["value", "host1", False],
+                     expected_args=["host1"],
+                     expected_kwargs={'force': False, 'block_migration': None})
