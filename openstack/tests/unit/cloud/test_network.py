@@ -251,6 +251,41 @@ class TestNetwork(base.TestCase):
         self.assertEqual(mock_new_network_rep, network)
         self.assert_calls()
 
+    def test_create_network_with_mtu(self):
+        mtu_size = 1500
+        mock_new_network_rep = copy.copy(self.mock_new_network_rep)
+        mock_new_network_rep['mtu'] = mtu_size
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'network': mock_new_network_rep},
+                 validate=dict(
+                     json={'network': {
+                         'admin_state_up': True,
+                         'name': 'netname',
+                         'mtu': mtu_size}}))
+        ])
+        network = self.cloud.create_network("netname",
+                                            mtu_size=mtu_size
+                                            )
+        self.assertEqual(mock_new_network_rep, network)
+        self.assert_calls()
+
+    def test_create_network_with_wrong_mtu_size(self):
+        with testtools.ExpectedException(
+                openstack.cloud.OpenStackCloudException,
+                "Parameter 'mtu_size' must be greater than 67."
+        ):
+            self.cloud.create_network("netname", mtu_size=42)
+
+    def test_create_network_with_wrong_mtu_type(self):
+        with testtools.ExpectedException(
+                openstack.cloud.OpenStackCloudException,
+                "Parameter 'mtu_size' must be an integer."
+        ):
+            self.cloud.create_network("netname", mtu_size="fourty_two")
+
     def test_delete_network(self):
         network_id = "test-net-id"
         network_name = "network"
