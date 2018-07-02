@@ -160,3 +160,4 @@ Links
 * `Documentation <https://docs.openstack.org/openstacksdk/latest/>`_
 * `PyPI <https://pypi.org/project/openstacksdk/>`_
 * `Mailing list <http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-dev>`_
+* `Release Notes <https://docs.openstack.org/releasenotes/openstacksdk>`_
