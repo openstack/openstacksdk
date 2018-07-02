@@ -662,7 +662,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -693,7 +697,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -724,7 +732,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -755,7 +767,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -807,7 +823,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -836,7 +856,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -865,7 +889,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -894,7 +922,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1768,7 +1800,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1791,7 +1827,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1814,7 +1854,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1837,7 +1881,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1881,7 +1929,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1917,7 +1969,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1953,7 +2009,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1989,7 +2049,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2478,7 +2542,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2527,7 +2595,11 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json=self.domain_data.json_response),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id]),
+                 complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
