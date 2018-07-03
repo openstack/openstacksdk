@@ -326,6 +326,11 @@ class TestUtils(base.TestCase):
         self.cloud.use_direct_get = True
         self.assertEqual(obj, _utils._get_entity(self.cloud, '', obj, {}))
 
+    def test_get_entity_pass_dict(self):
+        d = dict(id=uuid4().hex)
+        self.cloud.use_direct_get = True
+        self.assertEqual(d, _utils._get_entity(self.cloud, '', d, {}))
+
     def test_get_entity_no_use_direct_get(self):
         # test we are defaulting to the search_<resource> methods
         # if the use_direct_get flag is set to False(default).
