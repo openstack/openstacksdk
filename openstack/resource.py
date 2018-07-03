@@ -560,6 +560,19 @@ class Resource(object):
         """
         return cls(_synchronized=True, **kwargs)
 
+    @classmethod
+    def _from_munch(cls, obj, synchronized=True):
+        """Create an instance from a ``munch.Munch`` object.
+
+        This is intended as a temporary measure to convert between shade-style
+        Munch objects and original openstacksdk resources.
+
+        :param obj: a ``munch.Munch`` object to convert from.
+        :param bool synchronized: whether this object already exists on server
+            Must be set to ``False`` for newly created objects.
+        """
+        return cls(_synchronized=synchronized, **obj)
+
     def to_dict(self, body=True, headers=True, ignore_none=False):
         """Return a dictionary of this resource's contents
 

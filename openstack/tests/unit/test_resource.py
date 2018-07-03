@@ -14,6 +14,7 @@ import itertools
 
 from keystoneauth1 import adapter
 import mock
+import munch
 import requests
 import six
 
@@ -789,6 +790,28 @@ class TestResource(base.TestCase):
         sot = Test.existing(attr=value)
 
         self.assertNotIn("attr", sot._body.dirty)
+        self.assertEqual(value, sot.attr)
+
+    def test_from_munch_new(self):
+        class Test(resource.Resource):
+            attr = resource.Body("body_attr")
+
+        value = "value"
+        orig = munch.Munch(body_attr=value)
+        sot = Test._from_munch(orig, synchronized=False)
+
+        self.assertIn("body_attr", sot._body.dirty)
+        self.assertEqual(value, sot.attr)
+
+    def test_from_munch_existing(self):
+        class Test(resource.Resource):
+            attr = resource.Body("body_attr")
+
+        value = "value"
+        orig = munch.Munch(body_attr=value)
+        sot = Test._from_munch(orig)
+
+        self.assertNotIn("body_attr", sot._body.dirty)
         self.assertEqual(value, sot.attr)
 
     def test__prepare_request_with_id(self):
