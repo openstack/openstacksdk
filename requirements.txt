@@ -20,3 +20,4 @@ iso8601>=0.1.11 # MIT
 netifaces>=0.10.4 # MIT
 
 dogpile.cache>=0.6.2 # BSD
+cryptography>=2.1 # BSD/Apache-2.0
