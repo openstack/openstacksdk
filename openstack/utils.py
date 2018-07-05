@@ -15,6 +15,7 @@ import string
 import time
 
 import deprecation
+from keystoneauth1 import discover
 
 from openstack import _log
 from openstack import exceptions
@@ -128,3 +129,28 @@ def get_string_format_keys(fmt_string, old_style=True):
             if t[1] is not None:
                 keys.append(t[1])
         return keys
+
+
+def supports_microversion(adapter, microversion):
+    """Determine if the given adapter supports the given microversion.
+
+    Checks the min and max microversion asserted by the service and checks
+    to make sure that ``min <= microversion <= max``.
+
+    :param adapter:
+        :class:`~keystoneauth1.adapter.Adapter` instance.
+    :param str microversion:
+        String containing the desired microversion.
+    :returns: True if the service supports the microversion.
+    :rtype: bool
+    """
+
+    endpoint_data = adapter.get_endpoint_data()
+    if (endpoint_data.min_microversion
+            and endpoint_data.max_microversion
+            and discover.version_between(
+                endpoint_data.min_microversion,
+                endpoint_data.max_microversion,
+                microversion)):
+        return True
+    return False

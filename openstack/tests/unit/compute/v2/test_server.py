@@ -11,6 +11,7 @@
 # under the License.
 
 import mock
+import six
 from openstack.tests.unit import base
 
 from openstack.compute.v2 import server
@@ -193,7 +194,7 @@ class TestServer(base.TestCase):
         body = {"changePassword": {"adminPass": "a"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_reboot(self):
         sot = server.Server(**EXAMPLE)
@@ -204,7 +205,7 @@ class TestServer(base.TestCase):
         body = {"reboot": {"type": "HARD"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_force_delete(self):
         sot = server.Server(**EXAMPLE)
@@ -215,7 +216,7 @@ class TestServer(base.TestCase):
         body = {'forceDelete': None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_rebuild(self):
         sot = server.Server(**EXAMPLE)
@@ -246,7 +247,7 @@ class TestServer(base.TestCase):
         }
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_rebuild_minimal(self):
         sot = server.Server(**EXAMPLE)
@@ -270,7 +271,7 @@ class TestServer(base.TestCase):
         }
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_resize(self):
         sot = server.Server(**EXAMPLE)
@@ -281,7 +282,7 @@ class TestServer(base.TestCase):
         body = {"resize": {"flavorRef": "2"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_confirm_resize(self):
         sot = server.Server(**EXAMPLE)
@@ -292,7 +293,7 @@ class TestServer(base.TestCase):
         body = {"confirmResize": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_revert_resize(self):
         sot = server.Server(**EXAMPLE)
@@ -303,7 +304,7 @@ class TestServer(base.TestCase):
         body = {"revertResize": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_create_image(self):
         sot = server.Server(**EXAMPLE)
@@ -316,7 +317,7 @@ class TestServer(base.TestCase):
         body = {"createImage": {'name': name, 'metadata': metadata}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_create_image_minimal(self):
         sot = server.Server(**EXAMPLE)
@@ -328,7 +329,7 @@ class TestServer(base.TestCase):
         body = {"createImage": {'name': name}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_add_security_group(self):
         sot = server.Server(**EXAMPLE)
@@ -339,7 +340,7 @@ class TestServer(base.TestCase):
         body = {"addSecurityGroup": {"name": "group"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_remove_security_group(self):
         sot = server.Server(**EXAMPLE)
@@ -350,7 +351,7 @@ class TestServer(base.TestCase):
         body = {"removeSecurityGroup": {"name": "group"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_reset_state(self):
         sot = server.Server(**EXAMPLE)
@@ -361,7 +362,7 @@ class TestServer(base.TestCase):
         body = {"os-resetState": {"state": 'active'}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_add_fixed_ip(self):
         sot = server.Server(**EXAMPLE)
@@ -373,7 +374,7 @@ class TestServer(base.TestCase):
         body = {"addFixedIp": {"networkId": "NETWORK-ID"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_remove_fixed_ip(self):
         sot = server.Server(**EXAMPLE)
@@ -385,7 +386,7 @@ class TestServer(base.TestCase):
         body = {"removeFixedIp": {"address": "ADDRESS"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_add_floating_ip(self):
         sot = server.Server(**EXAMPLE)
@@ -397,7 +398,7 @@ class TestServer(base.TestCase):
         body = {"addFloatingIp": {"address": "FLOATING-IP"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_add_floating_ip_with_fixed_addr(self):
         sot = server.Server(**EXAMPLE)
@@ -410,7 +411,7 @@ class TestServer(base.TestCase):
                                   "fixed_address": "FIXED-ADDR"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_remove_floating_ip(self):
         sot = server.Server(**EXAMPLE)
@@ -422,7 +423,7 @@ class TestServer(base.TestCase):
         body = {"removeFloatingIp": {"address": "I-AM-FLOATING"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_backup(self):
         sot = server.Server(**EXAMPLE)
@@ -435,7 +436,7 @@ class TestServer(base.TestCase):
                                  "rotation": 1}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_pause(self):
         sot = server.Server(**EXAMPLE)
@@ -447,7 +448,7 @@ class TestServer(base.TestCase):
         body = {"pause": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_unpause(self):
         sot = server.Server(**EXAMPLE)
@@ -459,7 +460,7 @@ class TestServer(base.TestCase):
         body = {"unpause": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_suspend(self):
         sot = server.Server(**EXAMPLE)
@@ -471,7 +472,7 @@ class TestServer(base.TestCase):
         body = {"suspend": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_resume(self):
         sot = server.Server(**EXAMPLE)
@@ -483,7 +484,7 @@ class TestServer(base.TestCase):
         body = {"resume": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_lock(self):
         sot = server.Server(**EXAMPLE)
@@ -495,7 +496,7 @@ class TestServer(base.TestCase):
         body = {"lock": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_unlock(self):
         sot = server.Server(**EXAMPLE)
@@ -507,7 +508,7 @@ class TestServer(base.TestCase):
         body = {"unlock": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_rescue(self):
         sot = server.Server(**EXAMPLE)
@@ -519,7 +520,7 @@ class TestServer(base.TestCase):
         body = {"rescue": {}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_rescue_with_options(self):
         sot = server.Server(**EXAMPLE)
@@ -532,7 +533,7 @@ class TestServer(base.TestCase):
                            'rescue_image_ref': 'IMG-ID'}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_unrescue(self):
         sot = server.Server(**EXAMPLE)
@@ -544,7 +545,7 @@ class TestServer(base.TestCase):
         body = {"unrescue": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_evacuate(self):
         sot = server.Server(**EXAMPLE)
@@ -556,7 +557,7 @@ class TestServer(base.TestCase):
         body = {"evacuate": {}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_evacuate_with_options(self):
         sot = server.Server(**EXAMPLE)
@@ -570,7 +571,7 @@ class TestServer(base.TestCase):
                              'force': True}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_start(self):
         sot = server.Server(**EXAMPLE)
@@ -582,7 +583,7 @@ class TestServer(base.TestCase):
         body = {"os-start": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_stop(self):
         sot = server.Server(**EXAMPLE)
@@ -594,7 +595,7 @@ class TestServer(base.TestCase):
         body = {"os-stop": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_shelve(self):
         sot = server.Server(**EXAMPLE)
@@ -606,7 +607,7 @@ class TestServer(base.TestCase):
         body = {"shelve": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_unshelve(self):
         sot = server.Server(**EXAMPLE)
@@ -618,7 +619,7 @@ class TestServer(base.TestCase):
         body = {"unshelve": None}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_migrate(self):
         sot = server.Server(**EXAMPLE)
@@ -631,7 +632,7 @@ class TestServer(base.TestCase):
 
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
     def test_get_console_output(self):
         sot = server.Server(**EXAMPLE)
@@ -643,7 +644,7 @@ class TestServer(base.TestCase):
         body = {'os-getConsoleOutput': {}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
         res = sot.get_console_output(self.sess, length=1)
 
@@ -653,23 +654,142 @@ class TestServer(base.TestCase):
 
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
 
-    def test_live_migrate(self):
+    def test_live_migrate_no_force(self):
         sot = server.Server(**EXAMPLE)
 
-        res = sot.live_migrate(self.sess, host='HOST2', force=False)
+        class FakeEndpointData(object):
+            min_microversion = None
+            max_microversion = None
+        self.sess.get_endpoint_data.return_value = FakeEndpointData()
+
+        ex = self.assertRaises(
+            ValueError,
+            sot.live_migrate,
+            self.sess, host='HOST2', force=False, block_migration=False)
+        self.assertIn(
+            "Live migration on this cloud implies 'force'",
+            six.text_type(ex))
+
+    def test_live_migrate_no_microversion_force_true(self):
+        sot = server.Server(**EXAMPLE)
+
+        class FakeEndpointData(object):
+            min_microversion = None
+            max_microversion = None
+        self.sess.get_endpoint_data.return_value = FakeEndpointData()
+
+        res = sot.live_migrate(
+            self.sess, host='HOST2', force=True, block_migration=False)
 
         self.assertIsNone(res)
         url = 'servers/IDENTIFIER/action'
         body = {
-            "os-migrateLive": {
-                "host": 'HOST2',
-                "block_migration": "auto",
-                "force": False
+            'os-migrateLive': {
+                'host': 'HOST2',
+                'disk_over_commit': False,
+                'block_migration': False
             }
         }
 
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=None)
+
+    def test_live_migrate_25(self):
+        sot = server.Server(**EXAMPLE)
+
+        class FakeEndpointData(object):
+            min_microversion = '2.1'
+            max_microversion = '2.25'
+        self.sess.get_endpoint_data.return_value = FakeEndpointData()
+
+        res = sot.live_migrate(
+            self.sess, host='HOST2', force=True, block_migration=False)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            "os-migrateLive": {
+                'block_migration': False,
+                'host': 'HOST2',
+            }
+        }
+
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion='2.25')
+
+    def test_live_migrate_25_default_block(self):
+        sot = server.Server(**EXAMPLE)
+
+        class FakeEndpointData(object):
+            min_microversion = '2.1'
+            max_microversion = '2.25'
+        self.sess.get_endpoint_data.return_value = FakeEndpointData()
+
+        res = sot.live_migrate(
+            self.sess, host='HOST2', force=True, block_migration=None)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            "os-migrateLive": {
+                'block_migration': 'auto',
+                'host': 'HOST2',
+            }
+        }
+
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion='2.25')
+
+    def test_live_migrate_30(self):
+        sot = server.Server(**EXAMPLE)
+
+        class FakeEndpointData(object):
+            min_microversion = '2.1'
+            max_microversion = '2.30'
+        self.sess.get_endpoint_data.return_value = FakeEndpointData()
+
+        res = sot.live_migrate(
+            self.sess, host='HOST2', force=False, block_migration=False)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            'os-migrateLive': {
+                'block_migration': False,
+                'host': 'HOST2'
+            }
+        }
+
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion='2.30')
+
+    def test_live_migrate_30_force(self):
+        sot = server.Server(**EXAMPLE)
+
+        class FakeEndpointData(object):
+            min_microversion = '2.1'
+            max_microversion = '2.30'
+        self.sess.get_endpoint_data.return_value = FakeEndpointData()
+
+        res = sot.live_migrate(
+            self.sess, host='HOST2', force=True, block_migration=None)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {
+            'os-migrateLive': {
+                'block_migration': 'auto',
+                'host': 'HOST2',
+                'force': True,
+            }
+        }
+
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion='2.30')

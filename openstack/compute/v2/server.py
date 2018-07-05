@@ -171,7 +171,7 @@ class Server(resource.Resource, metadata.MetadataMixin):
 
         return request
 
-    def _action(self, session, body):
+    def _action(self, session, body, microversion=None):
         """Preform server actions given the message body."""
         # NOTE: This is using Server.base_path instead of self.base_path
         # as both Server and ServerDetail instances can be acted on, but
@@ -179,7 +179,7 @@ class Server(resource.Resource, metadata.MetadataMixin):
         url = utils.urljoin(Server.base_path, self.id, 'action')
         headers = {'Accept': ''}
         return session.post(
-            url, json=body, headers=headers)
+            url, json=body, headers=headers, microversion=microversion)
 
     def change_password(self, session, new_password):
         """Change the administrator password to the given password."""
@@ -363,15 +363,80 @@ class Server(resource.Resource, metadata.MetadataMixin):
         resp = self._action(session, body)
         return resp.json()
 
-    def live_migrate(self, session, host, force):
+    def live_migrate(self, session, host, force, block_migration):
+        if utils.supports_microversion(session, '2.30'):
+            return self._live_migrate_30(
+                session, host,
+                force=force,
+                block_migration=block_migration)
+        elif utils.supports_microversion(session, '2.25'):
+            return self._live_migrate_25(
+                session, host,
+                force=force,
+                block_migration=block_migration)
+        else:
+            return self._live_migrate(
+                session, host,
+                force=force,
+                block_migration=block_migration)
+
+    def _live_migrate_30(self, session, host, force, block_migration):
+        microversion = '2.30'
+        body = {'host': None}
+        if block_migration is None:
+            block_migration = 'auto'
+        body['block_migration'] = block_migration
+        if host:
+            body['host'] = host
+            if force:
+                body['force'] = force
+        self._action(
+            session, {'os-migrateLive': body}, microversion=microversion)
+
+    def _live_migrate_25(self, session, host, force, block_migration):
+        microversion = '2.25'
+        body = {'host': None}
+        if block_migration is None:
+            block_migration = 'auto'
+        body['block_migration'] = block_migration
+        if host:
+            body['host'] = host
+            if not force:
+                raise ValueError(
+                    "Live migration on this cloud implies 'force'"
+                    " if the 'host' option has been given and it is not"
+                    " possible to disable. It is recommended to not use 'host'"
+                    " at all on this cloud as it is inherently unsafe, but if"
+                    " it is unavoidable, please supply 'force=True' so that it"
+                    " is clear you understand the risks.")
+        self._action(
+            session, {'os-migrateLive': body}, microversion=microversion)
+
+    def _live_migrate(self, session, host, force, block_migration):
+        microversion = None
+        # disk_over_commit is not exposed because post 2.25 it has been
+        # removed and no SDK user is depending on it today.
         body = {
-            "os-migrateLive": {
-                "host": host,
-                "block_migration": "auto",
-                "force": force
-            }
+            'host': None,
+            'disk_over_commit': False,
         }
-        self._action(session, body)
+        if block_migration == 'auto':
+            raise ValueError(
+                "Live migration on this cloud does not support 'auto' as"
+                " a parameter to block_migration, but only True and False.")
+        body['block_migration'] = block_migration or False
+        if host:
+            body['host'] = host
+            if not force:
+                raise ValueError(
+                    "Live migration on this cloud implies 'force'"
+                    " if the 'host' option has been given and it is not"
+                    " possible to disable. It is recommended to not use 'host'"
+                    " at all on this cloud as it is inherently unsafe, but if"
+                    " it is unavoidable, please supply 'force=True' so that it"
+                    " is clear you understand the risks.")
+        self._action(
+            session, {'os-migrateLive': body}, microversion=microversion)
 
 
 class ServerDetail(Server):
