@@ -171,7 +171,9 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
         get_<>_by_id or search_<resource>s methods(Example: network)
         or a callable to invoke.
     :param string name_or_id:
-        The name or ID of the entity being filtered or a dict
+        The name or ID of the entity being filtered or an object or dict.
+        If this is an object/dict with an 'id' attr/key, we return it and
+        bypass resource lookup.
     :param filters:
         A dictionary of meta data to use for further filtering.
         OR
@@ -185,7 +187,8 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
     # an additional call, it's simple enough to test to see if we got an
     # object and just short-circuit return it.
 
-    if hasattr(name_or_id, 'id'):
+    if (hasattr(name_or_id, 'id') or
+            (isinstance(name_or_id, dict) and 'id' in name_or_id)):
         return name_or_id
 
     # If a uuid is passed short-circuit it calling the
