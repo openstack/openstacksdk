@@ -10888,7 +10888,12 @@ class OpenStackCloud(_normalize.Normalizer):
                 self.get_domain(domain)['id']
 
         if user:
-            data['user'] = self.get_user(user, filters=filters)
+            if domain:
+                data['user'] = self.get_user(user,
+                                             domain_id=filters['domain_id'],
+                                             filters=filters)
+            else:
+                data['user'] = self.get_user(user, filters=filters)
 
         if project:
             # drop domain in favor of project
