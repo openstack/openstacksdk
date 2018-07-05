@@ -94,6 +94,7 @@ class ServiceDescription(object):
                 task_manager=instance.task_manager,
                 allow_version_hack=True,
             )
+            instance._proxies[self.service_type]._connection = instance
         return instance._proxies[self.service_type]
 
     def __set__(self, instance, value):
