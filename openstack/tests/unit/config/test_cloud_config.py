@@ -99,6 +99,11 @@ class TestCloudRegion(base.TestCase):
         (verify, cert) = cc.get_requests_verify_args()
         self.assertTrue(verify)
 
+        config_dict['insecure'] = True
+        cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
+        (verify, cert) = cc.get_requests_verify_args()
+        self.assertFalse(verify)
+
     def test_verify_cacert(self):
         config_dict = copy.deepcopy(fake_config_dict)
         config_dict['cacert'] = "certfile"
@@ -112,6 +117,11 @@ class TestCloudRegion(base.TestCase):
         cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
         (verify, cert) = cc.get_requests_verify_args()
         self.assertEqual("certfile", verify)
+
+        config_dict['insecure'] = True
+        cc = cloud_region.CloudRegion("test1", "region-xx", config_dict)
+        (verify, cert) = cc.get_requests_verify_args()
+        self.assertEqual(False, verify)
 
     def test_cert_with_key(self):
         config_dict = copy.deepcopy(fake_config_dict)

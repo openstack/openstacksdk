@@ -174,11 +174,16 @@ class CloudRegion(object):
 
     def get_requests_verify_args(self):
         """Return the verify and cert values for the requests library."""
-        if self.config.get('verify') and self.config.get('cacert'):
-            verify = self.config.get('cacert')
+        insecure = self.config.get('insecure', False)
+        verify = self.config.get('verify', True)
+        cacert = self.config.get('cacert')
+        # Insecure is the most aggressive setting, so it wins
+        if insecure:
+            verify = False
+        if verify and cacert:
+            verify = cacert
         else:
-            verify = self.config.get('verify')
-            if self.config.get('cacert'):
+            if cacert:
                 warnings.warn(
                     "You are specifying a cacert for the cloud {full_name}"
                     " but also to ignore the host verification. The host SSL"
