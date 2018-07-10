@@ -18,6 +18,7 @@ from openstack.load_balancer.v2 import load_balancer as _lb
 from openstack.load_balancer.v2 import member as _member
 from openstack.load_balancer.v2 import pool as _pool
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.Proxy):
@@ -105,6 +106,13 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
         """
         return self._update(_lb.LoadBalancer, load_balancer, **attrs)
+
+    def wait_for_load_balancer(self, name_or_id, status='ACTIVE',
+                               failures=['ERROR'], interval=2, wait=300):
+        lb = self._find(_lb.LoadBalancer, name_or_id, ignore_missing=False)
+
+        return resource.wait_for_status(self, lb, status, failures, interval,
+                                        wait, attribute='provisioning_status')
 
     def create_listener(self, **attrs):
         """Create a new listener from attributes
