@@ -8793,6 +8793,46 @@ class OpenStackCloud(_normalize.Normalizer):
         new_cluster = self.get_coe_cluster(name_or_id)
         return new_cluster
 
+    def get_coe_cluster_certificate(self, cluster_id):
+        """Get details about the CA certificate for a cluster by name or ID.
+
+        :param cluster_id: ID of the cluster.
+
+        :returns: Details about the CA certificate for the given cluster.
+        """
+        msg = ("Error fetching CA cert for the cluster {cluster_id}".format(
+               cluster_id=cluster_id))
+        url = "/certificates/{cluster_id}".format(cluster_id=cluster_id)
+        data = self._container_infra_client.get(url,
+                                                error_message=msg)
+
+        return self._get_and_munchify(key=None, data=data)
+
+    def sign_coe_cluster_certificate(self, cluster_id, csr):
+        """Sign client key and generate the CA certificate for a cluster
+
+        :param cluster_id: UUID of the cluster.
+        :param csr: Certificate Signing Request (CSR) for authenticating
+                    client key.The CSR will be used by Magnum to generate
+                    a signed certificate that client will use to communicate
+                    with the cluster.
+
+        :returns: a dict representing the signed certs.
+
+        :raises: OpenStackCloudException on operation error.
+        """
+        error_message = ("Error signing certs for cluster"
+                         " {cluster_id}".format(cluster_id=cluster_id))
+        with _utils.shade_exceptions(error_message):
+            body = {}
+            body['cluster_uuid'] = cluster_id
+            body['csr'] = csr
+
+            certs = self._container_infra_client.post(
+                '/certificates', json=body)
+
+        return self._get_and_munchify(key=None, data=certs)
+
     @_utils.cache_on_arguments()
     def list_cluster_templates(self, detail=False):
         """List cluster templates.
