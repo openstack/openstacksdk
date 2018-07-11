@@ -146,8 +146,8 @@ class TestCOEClusters(base.TestCase):
                 validate=dict(
                     json=[{
                         u'op': u'replace',
-                        u'path': u'/name',
-                        u'value': u'new-coe-cluster'
+                        u'path': u'/node_count',
+                        u'value': 3
                     }]
                 )),
             dict(
@@ -157,7 +157,6 @@ class TestCOEClusters(base.TestCase):
                 # to be valid.
                 json=dict(clusters=[coe_cluster_obj.toDict()])),
         ])
-        new_name = 'new-coe-cluster'
         self.cloud.update_coe_cluster(
-            coe_cluster_obj.uuid, 'replace', name=new_name)
+            coe_cluster_obj.uuid, 'replace', node_count=3)
         self.assert_calls()

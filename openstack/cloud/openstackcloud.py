@@ -8756,7 +8756,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         return True
 
-    @_utils.valid_kwargs('name')
+    @_utils.valid_kwargs('node_count')
     def update_coe_cluster(self, name_or_id, operation, **kwargs):
         """Update a COE cluster.
 
