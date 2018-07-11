@@ -17,10 +17,10 @@ from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer
 from openstack.load_balancer.v2 import member
 from openstack.load_balancer.v2 import pool
-from openstack.tests.functional.load_balancer import base as lb_base
+from openstack.tests.functional import base
 
 
-class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
+class TestLoadBalancer(base.BaseFunctionalTest):
 
     HM_ID = None
     L7POLICY_ID = None
@@ -70,8 +70,8 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.assertEqual(self.LB_NAME, test_lb.name)
         # Wait for the LB to go ACTIVE.  On non-virtualization enabled hosts
         # it can take nova up to ten minutes to boot a VM.
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'], interval=1, wait=600)
+        self.conn.load_balancer.wait_for_load_balancer(test_lb.id, interval=1,
+                                                       wait=600)
         self.LB_ID = test_lb.id
 
         test_listener = self.conn.load_balancer.create_listener(
@@ -80,8 +80,7 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         assert isinstance(test_listener, listener.Listener)
         self.assertEqual(self.LISTENER_NAME, test_listener.name)
         self.LISTENER_ID = test_listener.id
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         test_pool = self.conn.load_balancer.create_pool(
             name=self.POOL_NAME, protocol=self.PROTOCOL,
@@ -89,8 +88,7 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         assert isinstance(test_pool, pool.Pool)
         self.assertEqual(self.POOL_NAME, test_pool.name)
         self.POOL_ID = test_pool.id
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         test_member = self.conn.load_balancer.create_member(
             pool=self.POOL_ID, name=self.MEMBER_NAME,
@@ -99,8 +97,7 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         assert isinstance(test_member, member.Member)
         self.assertEqual(self.MEMBER_NAME, test_member.name)
         self.MEMBER_ID = test_member.id
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         test_hm = self.conn.load_balancer.create_health_monitor(
             pool_id=self.POOL_ID, name=self.HM_NAME, delay=self.DELAY,
@@ -109,8 +106,7 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         assert isinstance(test_hm, health_monitor.HealthMonitor)
         self.assertEqual(self.HM_NAME, test_hm.name)
         self.HM_ID = test_hm.id
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         test_l7policy = self.conn.load_balancer.create_l7_policy(
             listener_id=self.LISTENER_ID, name=self.L7POLICY_NAME,
@@ -118,8 +114,7 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         assert isinstance(test_l7policy, l7_policy.L7Policy)
         self.assertEqual(self.L7POLICY_NAME, test_l7policy.name)
         self.L7POLICY_ID = test_l7policy.id
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         test_l7rule = self.conn.load_balancer.create_l7_rule(
             l7_policy=self.L7POLICY_ID, compare_type=self.COMPARE_TYPE,
@@ -127,35 +122,34 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         assert isinstance(test_l7rule, l7_rule.L7Rule)
         self.assertEqual(self.COMPARE_TYPE, test_l7rule.compare_type)
         self.L7RULE_ID = test_l7rule.id
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
     def tearDown(self):
-        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.delete_l7_rule(
             self.L7RULE_ID, l7_policy=self.L7POLICY_ID, ignore_missing=False)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.delete_l7_policy(
             self.L7POLICY_ID, ignore_missing=False)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.delete_health_monitor(
             self.HM_ID, ignore_missing=False)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.delete_member(
             self.MEMBER_ID, self.POOL_ID, ignore_missing=False)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.delete_pool(self.POOL_ID, ignore_missing=False)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.delete_listener(self.LISTENER_ID,
                                                 ignore_missing=False)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.delete_load_balancer(
             self.LB_ID, ignore_missing=False)
@@ -176,17 +170,15 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.assertIn(self.LB_NAME, names)
 
     def test_lb_update(self):
-        update_lb = self.conn.load_balancer.update_load_balancer(
+        self.conn.load_balancer.update_load_balancer(
             self.LB_ID, name=self.UPDATE_NAME)
-        self.lb_wait_for_status(update_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.assertEqual(self.UPDATE_NAME, test_lb.name)
 
-        update_lb = self.conn.load_balancer.update_load_balancer(
+        self.conn.load_balancer.update_load_balancer(
             self.LB_ID, name=self.LB_NAME)
-        self.lb_wait_for_status(update_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.assertEqual(self.LB_NAME, test_lb.name)
 
@@ -207,19 +199,17 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.assertIn(self.LISTENER_NAME, names)
 
     def test_listener_update(self):
-        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.update_listener(
             self.LISTENER_ID, name=self.UPDATE_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_listener = self.conn.load_balancer.get_listener(self.LISTENER_ID)
         self.assertEqual(self.UPDATE_NAME, test_listener.name)
 
         self.conn.load_balancer.update_listener(
             self.LISTENER_ID, name=self.LISTENER_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE',
-                                failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_listener = self.conn.load_balancer.get_listener(self.LISTENER_ID)
         self.assertEqual(self.LISTENER_NAME, test_listener.name)
 
@@ -238,17 +228,17 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.assertIn(self.POOL_NAME, names)
 
     def test_pool_update(self):
-        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.update_pool(self.POOL_ID,
                                             name=self.UPDATE_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
         self.assertEqual(self.UPDATE_NAME, test_pool.name)
 
         self.conn.load_balancer.update_pool(self.POOL_ID,
                                             name=self.POOL_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
         self.assertEqual(self.POOL_NAME, test_pool.name)
 
@@ -272,18 +262,18 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.assertIn(self.MEMBER_NAME, names)
 
     def test_member_update(self):
-        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.update_member(self.MEMBER_ID, self.POOL_ID,
                                               name=self.UPDATE_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
                                                          self.POOL_ID)
         self.assertEqual(self.UPDATE_NAME, test_member.name)
 
         self.conn.load_balancer.update_member(self.MEMBER_ID, self.POOL_ID,
                                               name=self.MEMBER_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
                                                          self.POOL_ID)
         self.assertEqual(self.MEMBER_NAME, test_member.name)
@@ -306,17 +296,17 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.assertIn(self.HM_NAME, names)
 
     def test_health_monitor_update(self):
-        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.update_health_monitor(self.HM_ID,
                                                       name=self.UPDATE_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_hm = self.conn.load_balancer.get_health_monitor(self.HM_ID)
         self.assertEqual(self.UPDATE_NAME, test_hm.name)
 
         self.conn.load_balancer.update_health_monitor(self.HM_ID,
                                                       name=self.HM_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_hm = self.conn.load_balancer.get_health_monitor(self.HM_ID)
         self.assertEqual(self.HM_NAME, test_hm.name)
 
@@ -337,18 +327,18 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.assertIn(self.L7POLICY_NAME, names)
 
     def test_l7_policy_update(self):
-        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.update_l7_policy(
             self.L7POLICY_ID, name=self.UPDATE_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_l7_policy = self.conn.load_balancer.get_l7_policy(
             self.L7POLICY_ID)
         self.assertEqual(self.UPDATE_NAME, test_l7_policy.name)
 
         self.conn.load_balancer.update_l7_policy(self.L7POLICY_ID,
                                                  name=self.L7POLICY_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_l7_policy = self.conn.load_balancer.get_l7_policy(
             self.L7POLICY_ID)
         self.assertEqual(self.L7POLICY_NAME, test_l7_policy.name)
@@ -373,12 +363,12 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.assertIn(self.L7RULE_ID, ids)
 
     def test_l7_rule_update(self):
-        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.conn.load_balancer.get_load_balancer(self.LB_ID)
 
         self.conn.load_balancer.update_l7_rule(self.L7RULE_ID,
                                                l7_policy=self.L7POLICY_ID,
                                                rule_value=self.UPDATE_NAME)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
             self.L7RULE_ID, l7_policy=self.L7POLICY_ID)
         self.assertEqual(self.UPDATE_NAME, test_l7_rule.rule_value)
@@ -386,7 +376,7 @@ class TestLoadBalancer(lb_base.BaseLBFunctionalTest):
         self.conn.load_balancer.update_l7_rule(self.L7RULE_ID,
                                                l7_policy=self.L7POLICY_ID,
                                                rule_value=self.L7RULE_VALUE)
-        self.lb_wait_for_status(test_lb, status='ACTIVE', failures=['ERROR'])
+        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
             self.L7RULE_ID, l7_policy=self.L7POLICY_ID,)
         self.assertEqual(self.L7RULE_VALUE, test_l7_rule.rule_value)
