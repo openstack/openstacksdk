@@ -3,7 +3,7 @@ Contributing to the OpenStack SDK
 
 This section of documentation pertains to those who wish to contribute to the
 development of this SDK. If you're looking for documentation on how to use
-the SDK to build applications, please see the `user <../users>`_ section.
+the SDK to build applications, please see the `user <../user>`_ section.
 
 About the Project
 -----------------
