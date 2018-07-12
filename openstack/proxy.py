@@ -54,14 +54,17 @@ class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
                               :class:`~openstack.resource.Resource` with a
                               ``from_id`` method.
         :param value: The ID of a resource or an object of ``resource_type``
-                      class if using an existing instance, or None to create a
-                      new instance.
+                      class if using an existing instance, or ``munch.Munch``,
+                      or None to create a new instance.
         :param path_args: A dict containing arguments for forming the request
                           URL, if needed.
         """
         if value is None:
             # Create a bare resource
             res = resource_type.new(**attrs)
+        elif isinstance(value, dict):
+            res = resource_type._from_munch(value)
+            res._update(**attrs)
         elif not isinstance(value, resource_type):
             # Create from an ID
             res = resource_type.new(id=value, **attrs)

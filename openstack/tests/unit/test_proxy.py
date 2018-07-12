@@ -11,6 +11,7 @@
 # under the License.
 
 import mock
+import munch
 from openstack.tests.unit import base
 
 from openstack import exceptions
@@ -154,6 +155,21 @@ class TestProxyPrivate(base.TestCase):
         result = self.fake_proxy._get_resource(resource.Resource,
                                                res, **attrs)
 
+        res._update.assert_called_once_with(**attrs)
+        self.assertEqual(result, res)
+
+    def test__get_resource_from_munch(self):
+        cls = mock.Mock()
+        res = mock.Mock(spec=resource.Resource)
+        res._update = mock.Mock()
+        cls._from_munch.return_value = res
+
+        m = munch.Munch(answer=42)
+        attrs = {"first": "Brian", "last": "Curtin"}
+
+        result = self.fake_proxy._get_resource(cls, m, **attrs)
+
+        cls._from_munch.assert_called_once_with(m)
         res._update.assert_called_once_with(**attrs)
         self.assertEqual(result, res)
 
