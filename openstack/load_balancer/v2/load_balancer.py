@@ -30,7 +30,7 @@ class LoadBalancer(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'description', 'flavor', 'name', 'project_id', 'provider',
         'vip_address', 'vip_network_id', 'vip_port_id', 'vip_subnet_id',
-        'provisioning_status', 'operating_status',
+        'vip_qos_policy_id', 'provisioning_status', 'operating_status',
         is_admin_state_up='admin_state_up'
     )
 
@@ -67,6 +67,8 @@ class LoadBalancer(resource.Resource):
     vip_port_id = resource.Body('vip_port_id')
     #: VIP subnet ID
     vip_subnet_id = resource.Body('vip_subnet_id')
+    # VIP qos policy id
+    vip_qos_policy_id = resource.Body('vip_qos_policy_id')
 
     def delete(self, session, error_message=None):
         request = self._prepare_request()

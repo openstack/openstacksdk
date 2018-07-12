@@ -35,6 +35,7 @@ EXAMPLE = {
     'vip_network_id': uuid.uuid4(),
     'vip_port_id': uuid.uuid4(),
     'vip_subnet_id': uuid.uuid4(),
+    'vip_qos_policy_id': uuid.uuid4(),
 }
 
 
@@ -80,6 +81,8 @@ class TestLoadBalancer(base.TestCase):
                          test_load_balancer.vip_port_id)
         self.assertEqual(EXAMPLE['vip_subnet_id'],
                          test_load_balancer.vip_subnet_id)
+        self.assertEqual(EXAMPLE['vip_qos_policy_id'],
+                         test_load_balancer.vip_qos_policy_id)
 
     def test_delete_non_cascade(self):
         sess = mock.Mock()
