@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    A new ``task_manager`` parameter to ``Connection`` has been added for
+    passing a TaskManager object. This was present in shade and is used by
+    nodepool, but was missing from the Connection constructor.

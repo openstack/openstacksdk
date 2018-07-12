@@ -168,7 +168,7 @@ from openstack import config as _config
 from openstack.config import cloud_region
 from openstack import exceptions
 from openstack import service_description
-from openstack import task_manager
+from openstack import task_manager as _task_manager
 
 __all__ = [
     'from_config',
@@ -222,6 +222,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                  extra_services=None,
                  strict=False,
                  use_direct_get=False,
+                 task_manager=None,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -263,6 +264,15 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             :class:`~openstack.service_description.ServiceDescription`
             objects describing services that openstacksdk otherwise does not
             know about.
+        :param bool use_direct_get:
+            For get methods, make specific REST calls for server-side
+            filtering instead of making list calls and filtering client-side.
+            Default false.
+        :param task_manager:
+            Task Manager to handle the execution of remote REST calls.
+            Defaults to None which causes a direct-action Task Manager to be
+            used.
+        :type manager: :class:`~openstack.task_manager.TaskManager`
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion contructor.
@@ -295,7 +305,8 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                     load_envvars=cloud is not None,
                     **kwargs)
 
-        self.task_manager = task_manager.TaskManager(self.config.full_name)
+        self.task_manager = task_manager or _task_manager.TaskManager(
+            self.config.full_name)
 
         self._session = None
         self._proxies = {}
