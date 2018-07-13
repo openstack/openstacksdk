@@ -1,11 +1,5 @@
 ---
-- name: Create external network
-  os_network:
-     cloud: "{{ cloud }}"
-     state: present
-     name: "{{ external_network_name }}"
-     external: true
-
+# Regular user operation
 - name: Create internal network
   os_network:
      cloud: "{{ cloud }}"
@@ -17,16 +11,8 @@
   os_subnet:
      cloud: "{{ cloud }}"
      state: present
-     network_name: "{{ external_network_name }}"
-     name: shade_subnet1
-     cidr: 10.6.6.0/24
-
-- name: Create subnet2
-  os_subnet:
-     cloud: "{{ cloud }}"
-     state: present
      network_name: "{{ network_name }}"
-     name: shade_subnet2
+     name: shade_subnet1
      cidr: 10.7.7.0/24
 
 - name: Create router
@@ -34,16 +20,45 @@
      cloud: "{{ cloud }}"
      state: present
      name: "{{ router_name }}"
-     network: "{{ external_network_name }}"
 
-- name: Update router
+- name: Update router (add interface)
+  os_router:
+     cloud: "{{ cloud }}"
+     state: present
+     name: "{{ router_name }}"
+     interfaces:
+         - shade_subnet1
+
+# Admin operation
+- name: Create external network
+  os_network:
+     cloud: "{{ cloud }}"
+     state: present
+     name: "{{ external_network_name }}"
+     external: "{{ network_external }}"
+  when:
+    - network_external
+
+- name: Create subnet2
+  os_subnet:
+     cloud: "{{ cloud }}"
+     state: present
+     network_name: "{{ external_network_name }}"
+     name: shade_subnet2
+     cidr: 10.6.6.0/24
+  when:
+    - network_external
+
+- name: Update router (add external gateway)
   os_router:
      cloud: "{{ cloud }}"
      state: present
      name: "{{ router_name }}"
      network: "{{ external_network_name }}"
      interfaces:
-         - shade_subnet2
+         - shade_subnet1
+  when:
+    - network_external
 
 - name: Delete router
   os_router:
@@ -62,6 +77,8 @@
      cloud: "{{ cloud }}"
      state: absent
      name: shade_subnet2
+  when:
+    - network_external
 
 - name: Delete internal network
   os_network:
@@ -74,3 +91,5 @@
      cloud: "{{ cloud }}"
      state: absent
      name: "{{ external_network_name }}"
+  when:
+    - network_external
