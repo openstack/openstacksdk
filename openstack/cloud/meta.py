@@ -395,11 +395,12 @@ def _get_supplemental_addresses(cloud, server):
                 server['status'] == 'ACTIVE'):
             for port in cloud.search_ports(
                     filters=dict(device_id=server['id'])):
+                # This SHOULD return one and only one FIP - but doing it as a
+                # search/list lets the logic work regardless
                 for fip in cloud.search_floating_ips(
                         filters=dict(port_id=port['id'])):
-                        # This SHOULD return one and only one FIP - but doing
-                        # it as a search/list lets the logic work regardless
-                    if fip['fixed_ip_address'] not in fixed_ip_mapping:
+                    fixed_net = fixed_ip_mapping.get(fip['fixed_ip_address'])
+                    if fixed_net is None:
                         log = _log.setup_logging('openstack')
                         log.debug(
                             "The cloud returned floating ip %(fip)s attached"
@@ -408,9 +409,9 @@ def _get_supplemental_addresses(cloud, server):
                             " does not exist in the nova listing. Something"
                             " is exceptionally broken.",
                             dict(fip=fip['id'], server=server['id']))
-                    fixed_net = fixed_ip_mapping[fip['fixed_ip_address']]
-                    server['addresses'][fixed_net].append(
-                        _make_address_dict(fip, port))
+                    else:
+                        server['addresses'][fixed_net].append(
+                            _make_address_dict(fip, port))
     except exc.OpenStackCloudException:
         # If something goes wrong with a cloud call, that's cool - this is
         # an attempt to provide additional data and should not block forward
