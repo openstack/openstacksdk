@@ -1,0 +1,4 @@
+---
+features:
+  - Add flag for disabling object checksum generation
+

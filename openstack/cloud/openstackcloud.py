@@ -7421,6 +7421,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self, container, name, filename=None,
             md5=None, sha256=None, segment_size=None,
             use_slo=True, metadata=None,
+            generate_checksums=True,
             **headers):
         """Create a file object.
 
@@ -7445,6 +7446,9 @@ class OpenStackCloud(_normalize.Normalizer):
             Object, use a static rather than dynamic object. Static Objects
             will delete segment objects when the manifest object is deleted.
             (optional, defaults to True)
+        :param generate_checksums: Whether to generate checksums on the client
+            side that get added to headers for later prevention of double
+            uploads of identical data. (optional, defaults to True)
         :param metadata: This dict will get changed into headers that set
             metadata of the object
 
@@ -7463,10 +7467,12 @@ class OpenStackCloud(_normalize.Normalizer):
         segment_size = self.get_object_segment_size(segment_size)
         file_size = os.path.getsize(filename)
 
-        if not (md5 or sha256):
+        if generate_checksums and (md5 is None or sha256 is None):
             (md5, sha256) = self._get_file_hashes(filename)
-        headers[OBJECT_MD5_KEY] = md5 or ''
-        headers[OBJECT_SHA256_KEY] = sha256 or ''
+        if md5:
+            headers[OBJECT_MD5_KEY] = md5 or ''
+        if sha256:
+            headers[OBJECT_SHA256_KEY] = sha256 or ''
         for (k, v) in metadata.items():
             headers['x-object-meta-' + k] = v
 
