@@ -3,7 +3,7 @@
   "profile": {
     "auth_type": "v3password",
     "auth": {
-      "auth_url": "https://auth.vexxhost.net"
+      "auth_url": "https://auth.vexxhost.net/v3"
     },
     "regions": [
       "ca-ymq-1"
