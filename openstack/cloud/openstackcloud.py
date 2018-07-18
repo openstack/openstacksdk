@@ -7202,6 +7202,14 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._object_store_client.get('/', params=dict(format='json'))
 
     def get_container(self, name, skip_cache=False):
+        """Get metadata about a container.
+
+        :param str name:
+            Name of the container to get metadata for.
+        :param bool skip_cache:
+            Ignore the cache of container metadata for this container.o
+            Defaults to ``False``.
+        """
         if skip_cache or name not in self._container_cache:
             try:
                 container = self._object_store_client.head(name)
@@ -7213,6 +7221,13 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._container_cache[name]
 
     def create_container(self, name, public=False):
+        """Create an object-store container.
+
+        :param str name:
+            Name of the container to create.
+        :param bool public:
+            Whether to set this container to be public. Defaults to ``False``.
+        """
         container = self.get_container(name)
         if container:
             return container
@@ -7222,6 +7237,10 @@ class OpenStackCloud(_normalize.Normalizer):
         return self.get_container(name, skip_cache=True)
 
     def delete_container(self, name):
+        """Delete an object-store container.
+
+        :param str name: Name of the container to delete.
+        """
         try:
             self._object_store_client.delete(name)
             return True
@@ -7237,9 +7256,32 @@ class OpenStackCloud(_normalize.Normalizer):
             raise
 
     def update_container(self, name, headers):
+        """Update the metadata in a container.
+
+        :param str name:
+            Name of the container to create.
+        :param dict headers:
+            Key/Value headers to set on the container.
+        """
+        """Update the metadata in a container.
+
+        :param str name:
+            Name of the container to update.
+        :param dict headers:
+            Key/Value headers to set on the container.
+        """
         self._object_store_client.post(name, headers=headers)
 
     def set_container_access(self, name, access):
+        """Set the access control list on a container.
+
+        :param str name:
+            Name of the container.
+        :param str access:
+            ACL string to set on the container. Can also be ``public``
+            or ``private`` which will be translated into appropriate ACL
+            strings.
+        """
         if access not in OBJECT_CONTAINER_ACLS:
             raise exc.OpenStackCloudException(
                 "Invalid container access specified: %s.  Must be one of %s"
@@ -7248,6 +7290,10 @@ class OpenStackCloud(_normalize.Normalizer):
         self.update_container(name, header)
 
     def get_container_access(self, name):
+        """Get the control list from a container.
+
+        :param str name: Name of the container.
+        """
         container = self.get_container(name, skip_cache=True)
         if not container:
             raise exc.OpenStackCloudException("Container not found: %s" % name)
@@ -7286,6 +7332,11 @@ class OpenStackCloud(_normalize.Normalizer):
 
     @_utils.cache_on_arguments()
     def get_object_capabilities(self):
+        """Get infomation about the object-storage service
+
+        The object-storage service publishes a set of capabilities that
+        include metadata about maximum values and thresholds.
+        """
         # The endpoint in the catalog has version and project-id in it
         # To get capabilities, we have to disassemble and reassemble the URL
         # This logic is taken from swiftclient
@@ -7327,7 +7378,18 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def is_object_stale(
             self, container, name, filename, file_md5=None, file_sha256=None):
+        """Check to see if an object matches the hashes of a file.
 
+        :param container: Name of the container.
+        :param name: Name of the object.
+        :param filename: Path to the file.
+        :param file_md5:
+            Pre-calculated md5 of the file contents. Defaults to None which
+            means calculate locally.
+        :param file_sha256:
+            Pre-calculated sha256 of the file contents. Defaults to None which
+            means calculate locally.
+        """
         metadata = self.get_object_metadata(container, name)
         if not metadata:
             self.log.debug(
@@ -7360,7 +7422,9 @@ class OpenStackCloud(_normalize.Normalizer):
             md5=None, sha256=None, segment_size=None,
             use_slo=True, metadata=None,
             **headers):
-        """Create a file object
+        """Create a file object.
+
+        Automatically uses large-object segments if needed.
 
         :param container: The name of the container to store the file in.
             This container will be created if it does not exist already.
