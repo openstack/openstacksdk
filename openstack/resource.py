@@ -322,6 +322,11 @@ class Resource(object):
     #: Is this a detailed version of another Resource
     detail_for = None
 
+    #: Maximum microversion to use for getting/creating/updating the Resource
+    _max_microversion = None
+    #: API microversion (string or None) this Resource was loaded with
+    microversion = None
+
     def __init__(self, _synchronized=False, **attrs):
         """The base resource
 
@@ -330,6 +335,7 @@ class Resource(object):
                     :meth:`~openstack.resource.Resource.existing`.
         """
 
+        self.microversion = attrs.pop('microversion', None)
         # NOTE: _collect_attrs modifies **attrs in place, removing
         # items as they match up with any of the body, header,
         # or uri mappings.
@@ -388,6 +394,7 @@ class Resource(object):
         layer when updating instances that may have already
         been created.
         """
+        self.microversion = attrs.pop('microversion', None)
         body, header, uri = self._collect_attrs(attrs)
 
         self._body.update(body)
@@ -729,6 +736,44 @@ class Resource(object):
             " instance of an openstack.proxy.Proxy object or at the very least"
             " a raw keystoneauth1.adapter.Adapter.")
 
+    @classmethod
+    def _get_microversion_for_list(cls, session):
+        """Get microversion to use when listing resources.
+
+        The base version uses the following logic:
+        1. If the session has a default microversion for the current service,
+           just use it.
+        2. If ``self._max_microversion`` is not ``None``, use minimum between
+           it and the maximum microversion supported by the server.
+        3. Otherwise use ``None``.
+
+        Subclasses can override this method if more complex logic is needed.
+
+        :param session: :class`keystoneauth1.adapter.Adapter`
+        :return: microversion as string or ``None``
+        """
+        if session.default_microversion:
+            return session.default_microversion
+
+        return utils.maximum_supported_microversion(session,
+                                                    cls._max_microversion)
+
+    def _get_microversion_for(self, session, action):
+        """Get microversion to use for the given action.
+
+        The base version uses :meth:`_get_microversion_for_list`.
+        Subclasses can override this method if more complex logic is needed.
+
+        :param session: :class`keystoneauth1.adapter.Adapter`
+        :param action: One of "get", "update", "create", "delete". Unused in
+            the base implementation.
+        :return: microversion as string or ``None``
+        """
+        if action not in ('get', 'update', 'create', 'delete'):
+            raise ValueError('Invalid action: %s' % action)
+
+        return self._get_microversion_for_list(session)
+
     def create(self, session, prepend_key=True):
         """Create a remote resource based on this instance.
 
@@ -746,20 +791,24 @@ class Resource(object):
             raise exceptions.MethodNotSupported(self, "create")
 
         session = self._get_session(session)
+        microversion = self._get_microversion_for(session, 'create')
         if self.create_method == 'PUT':
             request = self._prepare_request(requires_id=True,
                                             prepend_key=prepend_key)
             response = session.put(request.url,
-                                   json=request.body, headers=request.headers)
+                                   json=request.body, headers=request.headers,
+                                   microversion=microversion)
         elif self.create_method == 'POST':
             request = self._prepare_request(requires_id=False,
                                             prepend_key=prepend_key)
             response = session.post(request.url,
-                                    json=request.body, headers=request.headers)
+                                    json=request.body, headers=request.headers,
+                                    microversion=microversion)
         else:
             raise exceptions.ResourceFailure(
                 msg="Invalid create method: %s" % self.create_method)
 
+        self.microversion = microversion
         self._translate_response(response)
         return self
 
@@ -779,11 +828,13 @@ class Resource(object):
 
         request = self._prepare_request(requires_id=requires_id)
         session = self._get_session(session)
-        response = session.get(request.url)
+        microversion = self._get_microversion_for(session, 'get')
+        response = session.get(request.url, microversion=microversion)
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
 
+        self.microversion = microversion
         self._translate_response(response, **kwargs)
         return self
 
@@ -803,9 +854,12 @@ class Resource(object):
         request = self._prepare_request()
 
         session = self._get_session(session)
+        microversion = self._get_microversion_for(session, 'get')
         response = session.head(request.url,
-                                headers={"Accept": ""})
+                                headers={"Accept": ""},
+                                microversion=microversion)
 
+        self.microversion = microversion
         self._translate_response(response, has_body=False)
         return self
 
@@ -834,20 +888,25 @@ class Resource(object):
 
         request = self._prepare_request(prepend_key=prepend_key)
         session = self._get_session(session)
+        microversion = self._get_microversion_for(session, 'update')
 
         if self.update_method == 'PATCH':
             response = session.patch(
-                request.url, json=request.body, headers=request.headers)
+                request.url, json=request.body, headers=request.headers,
+                microversion=microversion)
         elif self.update_method == 'POST':
             response = session.post(
-                request.url, json=request.body, headers=request.headers)
+                request.url, json=request.body, headers=request.headers,
+                microversion=microversion)
         elif self.update_method == 'PUT':
             response = session.put(
-                request.url, json=request.body, headers=request.headers)
+                request.url, json=request.body, headers=request.headers,
+                microversion=microversion)
         else:
             raise exceptions.ResourceFailure(
                 msg="Invalid update method: %s" % self.update_method)
 
+        self.microversion = microversion
         self._translate_response(response, has_body=has_body)
         return self
 
@@ -866,9 +925,11 @@ class Resource(object):
 
         request = self._prepare_request()
         session = self._get_session(session)
+        microversion = self._get_microversion_for(session, 'delete')
 
         response = session.delete(request.url,
-                                  headers={"Accept": ""})
+                                  headers={"Accept": ""},
+                                  microversion=microversion)
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
@@ -910,6 +971,7 @@ class Resource(object):
         if not cls.allow_list:
             raise exceptions.MethodNotSupported(cls, "list")
         session = cls._get_session(session)
+        microversion = cls._get_microversion_for_list(session)
 
         cls._query_mapping._validate(params, base_path=cls.base_path)
         query_params = cls._query_mapping._transpose(params)
@@ -925,7 +987,8 @@ class Resource(object):
             response = session.get(
                 uri,
                 headers={"Accept": "application/json"},
-                params=query_params.copy())
+                params=query_params.copy(),
+                microversion=microversion)
             exceptions.raise_from_response(response)
             data = response.json()
 
@@ -950,7 +1013,7 @@ class Resource(object):
                 # argument and is practically a reserved word.
                 raw_resource.pop("self", None)
 
-                value = cls.existing(**raw_resource)
+                value = cls.existing(microversion=microversion, **raw_resource)
                 marker = value.id
                 yield value
                 total_yielded += 1
