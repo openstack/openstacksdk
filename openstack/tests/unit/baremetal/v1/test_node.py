@@ -274,3 +274,100 @@ class TestNodeSetProvisionState(base.TestCase):
 
     def test_no_arguments(self):
         self.node.set_provision_state(self.session, 'manage')
+
+
+@mock.patch.object(node.Node, '_translate_response', mock.Mock())
+@mock.patch.object(node.Node, '_get_session', lambda self, x: x)
+@mock.patch.object(node.Node, 'set_provision_state', autospec=True)
+class TestNodeCreate(base.TestCase):
+
+    def setUp(self):
+        super(TestNodeCreate, self).setUp()
+        self.new_state = None
+        self.session = mock.Mock(spec=adapter.Adapter)
+        self.session.default_microversion = '1.1'
+        self.node = node.Node(driver=FAKE['driver'])
+
+        def _change_state(*args, **kwargs):
+            self.node.provision_state = self.new_state
+
+        self.session.post.side_effect = _change_state
+
+    def test_available_old_version(self, mock_prov):
+        result = self.node.create(self.session)
+        self.assertIs(result, self.node)
+        self.session.post.assert_called_once_with(
+            mock.ANY, json={'driver': FAKE['driver']},
+            headers=mock.ANY, microversion=self.session.default_microversion)
+        self.assertFalse(mock_prov.called)
+
+    def test_available_new_version(self, mock_prov):
+        def _change_state(*args, **kwargs):
+            self.node.provision_state = 'manageable'
+
+        self.session.default_microversion = '1.11'
+        self.node.provision_state = 'available'
+        self.new_state = 'enroll'
+        mock_prov.side_effect = _change_state
+
+        result = self.node.create(self.session)
+        self.assertIs(result, self.node)
+        self.session.post.assert_called_once_with(
+            mock.ANY, json={'driver': FAKE['driver']},
+            headers=mock.ANY, microversion=self.session.default_microversion)
+        mock_prov.assert_has_calls([
+            mock.call(self.node, self.session, 'manage', wait=True),
+            mock.call(self.node, self.session, 'provide', wait=True)
+        ])
+
+    def test_no_enroll_in_old_version(self, mock_prov):
+        self.node.provision_state = 'enroll'
+        self.assertRaises(exceptions.NotSupported,
+                          self.node.create, self.session)
+        self.assertFalse(self.session.post.called)
+        self.assertFalse(mock_prov.called)
+
+    def test_enroll_new_version(self, mock_prov):
+        self.session.default_microversion = '1.11'
+        self.node.provision_state = 'enroll'
+        self.new_state = 'enroll'
+
+        result = self.node.create(self.session)
+        self.assertIs(result, self.node)
+        self.session.post.assert_called_once_with(
+            mock.ANY, json={'driver': FAKE['driver']},
+            headers=mock.ANY, microversion=self.session.default_microversion)
+        self.assertFalse(mock_prov.called)
+
+    def test_no_manageable_in_old_version(self, mock_prov):
+        self.node.provision_state = 'manageable'
+        self.assertRaises(exceptions.NotSupported,
+                          self.node.create, self.session)
+        self.assertFalse(self.session.post.called)
+        self.assertFalse(mock_prov.called)
+
+    def test_manageable_old_version(self, mock_prov):
+        self.session.default_microversion = '1.4'
+        self.node.provision_state = 'manageable'
+        self.new_state = 'available'
+
+        result = self.node.create(self.session)
+        self.assertIs(result, self.node)
+        self.session.post.assert_called_once_with(
+            mock.ANY, json={'driver': FAKE['driver']},
+            headers=mock.ANY, microversion=self.session.default_microversion)
+        mock_prov.assert_called_once_with(self.node, self.session, 'manage',
+                                          wait=True)
+
+    def test_manageable_new_version(self, mock_prov):
+        self.session.default_microversion = '1.11'
+        self.node.provision_state = 'manageable'
+        self.new_state = 'enroll'
+
+        result = self.node.create(self.session)
+        self.assertIs(result, self.node)
+        self.session.post.assert_called_once_with(
+            mock.ANY, json={'driver': FAKE['driver']},
+            headers=mock.ANY, microversion=self.session.default_microversion)
+        mock_prov.assert_called_once_with(self.node, self.session, 'manage',
+                                          wait=True)

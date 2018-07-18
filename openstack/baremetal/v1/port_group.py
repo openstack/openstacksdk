@@ -32,6 +32,9 @@ class PortGroup(resource.Resource):
         'node', 'address', 'fields',
     )
 
+    # Port groups introduced in 1.23
+    _max_microversion = '1.23'
+
     #: The physical hardware address of the portgroup, typically the hardware
     #: MAC address. Added in API microversion 1.23.
     address = resource.Body('address')

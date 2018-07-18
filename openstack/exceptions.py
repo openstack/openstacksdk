@@ -220,3 +220,7 @@ class ArgumentDeprecationWarning(Warning):
 
 class ConfigException(SDKException):
     """Something went wrong with parsing your OpenStack Config."""
+
+
+class NotSupported(SDKException):
+    """Request cannot be performed by any supported API version."""
