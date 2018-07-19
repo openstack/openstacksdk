@@ -470,6 +470,57 @@ class TestObjectUploads(BaseTestObject):
 
         self.assert_calls()
 
+    def test_create_directory_marker_object(self):
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': 1000},
+                     slo={'min_segment_size': 500})),
+            dict(method='HEAD',
+                 uri='{endpoint}/{container}'.format(
+                     endpoint=self.endpoint,
+                     container=self.container),
+                 status_code=404),
+            dict(method='PUT',
+                 uri='{endpoint}/{container}'.format(
+                     endpoint=self.endpoint, container=self.container),
+                 status_code=201,
+                 headers={
+                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
+                     'Content-Length': '0',
+                     'Content-Type': 'text/html; charset=UTF-8',
+                 }),
+            dict(method='HEAD',
+                 uri='{endpoint}/{container}'.format(
+                     endpoint=self.endpoint, container=self.container),
+                 headers={
+                     'Content-Length': '0',
+                     'X-Container-Object-Count': '0',
+                     'Accept-Ranges': 'bytes',
+                     'X-Storage-Policy': 'Policy-0',
+                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                     'X-Timestamp': '1481912480.41664',
+                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                     'X-Container-Bytes-Used': '0',
+                     'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='PUT',
+                 uri='{endpoint}/{container}/{object}'.format(
+                     endpoint=self.endpoint,
+                     container=self.container, object=self.object),
+                 status_code=201,
+                 validate=dict(
+                     headers={
+                         'content-type': 'application/directory',
+                     }))
+        ])
+
+        self.cloud.create_directory_marker_object(
+            container=self.container, name=self.object)
+
+        self.assert_calls()
+
     def test_create_dynamic_large_object(self):
 
         max_file_size = 2
