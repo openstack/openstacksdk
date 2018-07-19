@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add a data parameter to ``openstack.connection.Connection.create_object``
+    so that data can be passed in directly instead of through a file.
