@@ -11,6 +11,7 @@
 # under the License.
 
 import deprecation
+import mock
 
 from openstack.baremetal.v1 import _proxy
 from openstack.baremetal.v1 import chassis
@@ -18,6 +19,8 @@ from openstack.baremetal.v1 import driver
 from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
 from openstack.baremetal.v1 import port_group
+from openstack import exceptions
+from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
 
 
@@ -162,3 +165,41 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_delete_portgroup_ignore(self):
         self.verify_delete(self.proxy.delete_portgroup, port_group.PortGroup,
                            True)
+
+
+@mock.patch('time.sleep', lambda _sec: None)
+@mock.patch.object(_proxy.Proxy, 'get_node', autospec=True)
+class TestWaitForNodesProvisionState(base.TestCase):
+
+    def setUp(self):
+        super(TestWaitForNodesProvisionState, self).setUp()
+        self.session = mock.Mock()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_success(self, mock_get):
+        # two attempts, one node succeeds after the 1st
+        nodes = [mock.Mock(spec=node.Node, id=str(i))
+                 for i in range(3)]
+        for i, n in enumerate(nodes):
+            # 1st attempt on 1st node, 2nd attempt on 2nd node
+            n._check_state_reached.return_value = not (i % 2)
+        mock_get.side_effect = nodes
+
+        result = self.proxy.wait_for_nodes_provision_state(
+            ['abcd', node.Node(id='1234')], 'fake state')
+        self.assertEqual([nodes[0], nodes[2]], result)
+
+        for n in nodes:
+            n._check_state_reached.assert_called_once_with(
+                self.proxy, 'fake state', True)
+
+    def test_timeout(self, mock_get):
+        mock_get.return_value._check_state_reached.return_value = False
+        mock_get.return_value.id = '1234'
+
+        self.assertRaises(exceptions.ResourceTimeout,
+                          self.proxy.wait_for_nodes_provision_state,
+                          ['abcd', node.Node(id='1234')], 'fake state',
+                          timeout=0.001)
+        mock_get.return_value._check_state_reached.assert_called_with(
+            self.proxy, 'fake state', True)

@@ -154,3 +154,32 @@ def supports_microversion(adapter, microversion):
                 microversion)):
         return True
     return False
+
+
+def pick_microversion(session, required):
+    """Get a new microversion if it is higher than session's default.
+
+    :param session: The session to use for making this request.
+    :type session: :class:`~keystoneauth1.adapter.Adapter`
+    :param required: Version that is required for an action.
+    :type required: String or tuple or None.
+    :return: ``required`` as a string if the ``session``'s default is too low,
+        the ``session``'s default otherwise. Returns ``None`` of both
+        are ``None``.
+    :raises: TypeError if ``required`` is invalid.
+    """
+    if required is not None:
+        required = discover.normalize_version_number(required)
+
+    if session.default_microversion is not None:
+        default = discover.normalize_version_number(
+            session.default_microversion)
+
+        if required is None:
+            required = default
+        else:
+            required = (default if discover.version_match(required, default)
+                        else required)
+
+    if required is not None:
+        return discover.version_to_string(required)

@@ -35,6 +35,7 @@ import collections
 import itertools
 
 from keystoneauth1 import adapter
+import munch
 from requests import structures
 
 from openstack import _log
@@ -573,7 +574,8 @@ class Resource(object):
         """
         return cls(_synchronized=synchronized, **obj)
 
-    def to_dict(self, body=True, headers=True, ignore_none=False):
+    def to_dict(self, body=True, headers=True, ignore_none=False,
+                original_names=False):
         """Return a dictionary of this resource's contents
 
         :param bool body: Include the :class:`~openstack.resource.Body`
@@ -583,6 +585,8 @@ class Resource(object):
         :param bool ignore_none: When True, exclude key/value pairs where
                                  the value is None. This will exclude
                                  attributes that the server hasn't returned.
+        :param bool original_names: When True, use attribute names as they
+                                    were received from the server.
 
         :return: A dictionary of key/value pairs where keys are named
                  as they exist as attributes of this class.
@@ -608,12 +612,16 @@ class Resource(object):
         # Since we're looking at class definitions we need to include
         # subclasses, so check the whole MRO.
         for klass in self.__class__.__mro__:
-            for key, value in klass.__dict__.items():
-                if isinstance(value, components):
+            for attr, component in klass.__dict__.items():
+                if isinstance(component, components):
+                    if original_names:
+                        key = component.name
+                    else:
+                        key = attr
                     # Make sure base classes don't end up overwriting
                     # mappings we've found previously in subclasses.
                     if key not in mapping:
-                        value = getattr(self, key, None)
+                        value = getattr(self, attr, None)
                         if ignore_none and value is None:
                             continue
                         if isinstance(value, Resource):
@@ -628,6 +636,11 @@ class Resource(object):
                             mapping[key] = value
 
         return mapping
+
+    def _to_munch(self):
+        """Convert this resource into a Munch compatible with shade."""
+        return munch.Munch(self.to_dict(body=True, headers=False,
+                                        original_names=True))
 
     def _prepare_request(self, requires_id=None, prepend_key=False):
         """Prepare a request to be sent to the server

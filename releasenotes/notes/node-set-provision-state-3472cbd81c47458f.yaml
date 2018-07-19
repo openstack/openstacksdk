@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Adds ``set_provision_state`` and ``wait_for_provision_state`` to
+    ``openstack.baremetal.v1.Node``.
+  - |
+    Adds ``node_set_provision_state`` and ``wait_for_nodes_provision_state``
+    to the baremetal Proxy.
+  - |
+    The ``node_set_provision_state`` call now supports provision states
+    up to the Queens release.

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import _log
 from openstack.baremetal.v1 import chassis as _chassis
 from openstack.baremetal.v1 import driver as _driver
 from openstack.baremetal.v1 import node as _node
@@ -17,6 +18,9 @@ from openstack.baremetal.v1 import port as _port
 from openstack.baremetal.v1 import port_group as _portgroup
 from openstack import proxy
 from openstack import utils
+
+
+_logger = _log.setup_logging('openstack')
 
 
 class Proxy(proxy.Proxy):
@@ -239,6 +243,87 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.baremetal.v1.node.Node`
         """
         return self._update(_node.Node, node, **attrs)
+
+    def set_node_provision_state(self, node, target, config_drive=None,
+                                 clean_steps=None, rescue_password=None,
+                                 wait=False, timeout=None):
+        """Run an action modifying node's provision state.
+
+        This call is asynchronous, it will return success as soon as the Bare
+        Metal service acknowledges the request.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param target: Provisioning action, e.g. ``active``, ``provide``.
+            See the Bare Metal service documentation for available actions.
+        :param config_drive: Config drive to pass to the node, only valid
+            for ``active` and ``rebuild`` targets.
+        :param clean_steps: Clean steps to execute, only valid for ``clean``
+            target.
+        :param rescue_password: Password for the rescue operation, only valid
+            for ``rescue`` target.
+        :param wait: Whether to wait for the node to get into the expected
+            state. The expected state is determined from a combination of
+            the current provision state and ``target``.
+        :param timeout: If ``wait`` is set to ``True``, specifies how much (in
+            seconds) to wait for the expected state to be reached. The value of
+            ``None`` (the default) means no client-side timeout.
+
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        :raises: ValueError if ``config_drive``, ``clean_steps`` or
+            ``rescue_password`` are provided with an invalid ``target``.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_provision_state(self, target, config_drive=config_drive,
+                                       clean_steps=clean_steps,
+                                       rescue_password=rescue_password,
+                                       wait=wait, timeout=timeout)
+
+    def wait_for_nodes_provision_state(self, nodes, expected_state,
+                                       timeout=None,
+                                       abort_on_failed_state=True):
+        """Wait for the nodes to reach the expected state.
+
+        :param nodes: List of nodes - name, ID or
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param expected_state: The expected provisioning state to reach.
+        :param timeout: If ``wait`` is set to ``True``, specifies how much (in
+            seconds) to wait for the expected state to be reached. The value of
+            ``None`` (the default) means no client-side timeout.
+        :param abort_on_failed_state: If ``True`` (the default), abort waiting
+            if any node reaches a failure state which does not match the
+            expected one. Note that the failure state for ``enroll`` ->
+            ``manageable`` transition is ``enroll`` again.
+
+        :return: The list of :class:`~openstack.baremetal.v1.node.Node`
+            instances that reached the requested state.
+        """
+        log_nodes = ', '.join(n.id if isinstance(n, _node.Node) else n
+                              for n in nodes)
+
+        finished = []
+        remaining = nodes
+        for count in utils.iterate_timeout(
+                timeout,
+                "Timeout waiting for nodes %(nodes)s to reach "
+                "target state '%(state)s'" % {'nodes': log_nodes,
+                                              'state': expected_state}):
+            nodes = [self.get_node(n) for n in remaining]
+            remaining = []
+            for n in nodes:
+                if n._check_state_reached(self, expected_state,
+                                          abort_on_failed_state):
+                    finished.append(n)
+                else:
+                    remaining.append(n)
+
+            if not remaining:
+                return finished
+
+            _logger.debug('Still waiting for nodes %(nodes)s to reach state '
+                          '"%(target)s"',
+                          {'nodes': ', '.join(n.id for n in remaining),
+                           'target': expected_state})
 
     def delete_node(self, node, ignore_missing=True):
         """Delete a node.

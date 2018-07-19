@@ -107,3 +107,15 @@ class TestCase(base.BaseTestCase):
             self.addDetail(name, testtools.content.text_content(
                 pprint.pformat(text)))
         self.addOnException(add_content)
+
+    def assertSubdict(self, part, whole):
+        missing_keys = set(part) - set(whole)
+        if missing_keys:
+            self.fail("Keys %s are in %s but not in %s" %
+                      (missing_keys, part, whole))
+        wrong_values = [(key, part[key], whole[key])
+                        for key in part if part[key] != whole[key]]
+        if wrong_values:
+            self.fail("Mismatched values: %s" %
+                      ", ".join("for %s got %s and %s" % tpl
+                                for tpl in wrong_values))
