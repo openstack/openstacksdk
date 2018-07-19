@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    The ``v3password`` ``auth_type`` implies that the ``auth_url`` given
+    is a versioned endpoint and so discovery is skipped for auth. Previously
+    the ``auth_type`` for Vexxhost had been set to ``v3password`` due to v2
+    being no longer available to give better errors to users. The ``auth_url``
+    was unfortunately left unversioned, so authentication ceased working. The
+    ``auth_url`` has been changed to the versioned endpoint.
