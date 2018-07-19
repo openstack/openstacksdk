@@ -190,8 +190,7 @@ class TestFloatingIP(base.TestCase):
     def test_search_floating_ips(self):
         self.register_uris([
             dict(method='GET',
-                 uri=('https://network.example.com/v2.0/floatingips.json'
-                      '?attached=False'),
+                 uri=('https://network.example.com/v2.0/floatingips.json'),
                  json=self.mock_floating_ip_list_rep)])
 
         floating_ips = self.cloud.search_floating_ips(
