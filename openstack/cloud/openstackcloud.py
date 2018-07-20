@@ -7429,7 +7429,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self, container, name, filename=None,
             md5=None, sha256=None, segment_size=None,
             use_slo=True, metadata=None,
-            generate_checksums=True,
+            generate_checksums=None, data=None,
             **headers):
         """Create a file object.
 
@@ -7439,7 +7439,9 @@ class OpenStackCloud(_normalize.Normalizer):
             This container will be created if it does not exist already.
         :param name: Name for the object within the container.
         :param filename: The path to the local file whose contents will be
-            uploaded.
+            uploaded. Mutually exclusive with data.
+        :param data: The content to upload to the object. Mutually exclusive
+           with filename.
         :param md5: A hexadecimal md5 of the file. (Optional), if it is known
             and can be passed here, it will save repeating the expensive md5
             process. It is assumed to be accurate.
@@ -7462,10 +7464,25 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: ``OpenStackCloudException`` on operation error.
         """
+        if data is not None and filename:
+            raise ValueError(
+                "Both filename and data given. Please choose one.")
+        if data is not None and not name:
+            raise ValueError(
+                "name is a required parameter when data is given")
+        if data is not None and generate_checksums:
+            raise ValueError(
+                "checksums cannot be generated with data parameter")
+        if generate_checksums is None:
+            if data is not None:
+                generate_checksums = False
+            else:
+                generate_checksums = True
+
         if not metadata:
             metadata = {}
 
-        if not filename:
+        if not filename and data is None:
             filename = name
 
         # segment_size gets used as a step value in a range call, so needs
@@ -7473,7 +7490,10 @@ class OpenStackCloud(_normalize.Normalizer):
         if segment_size:
             segment_size = int(segment_size)
         segment_size = self.get_object_segment_size(segment_size)
-        file_size = os.path.getsize(filename)
+        if filename:
+            file_size = os.path.getsize(filename)
+        else:
+            file_size = len(data)
 
         if generate_checksums and (md5 is None or sha256 is None):
             (md5, sha256) = self._get_file_hashes(filename)
@@ -7487,10 +7507,17 @@ class OpenStackCloud(_normalize.Normalizer):
         # On some clouds this is not necessary. On others it is. I'm confused.
         self.create_container(container)
 
+        endpoint = '{container}/{name}'.format(container=container, name=name)
+
+        if data is not None:
+            self.log.debug(
+                "swift uploading data to %(endpoint)s",
+                {'endpoint': endpoint})
+
+            return self._upload_object_data(endpoint, data, headers)
+
         if self.is_object_stale(container, name, filename, md5, sha256):
 
-            endpoint = '{container}/{name}'.format(
-                container=container, name=name)
             self.log.debug(
                 "swift uploading %(filename)s to %(endpoint)s",
                 {'filename': filename, 'endpoint': endpoint})
@@ -7501,6 +7528,10 @@ class OpenStackCloud(_normalize.Normalizer):
                 self._upload_large_object(
                     endpoint, filename, headers,
                     file_size, segment_size, use_slo)
+
+    def _upload_object_data(self, endpoint, data, headers):
+        return self._object_store_client.put(
+            endpoint, headers=headers, data=data)
 
     def _upload_object(self, endpoint, filename, headers):
         return self._object_store_client.put(

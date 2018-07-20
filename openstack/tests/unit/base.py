@@ -594,7 +594,7 @@ class TestCase(base.TestCase):
             key = '{method}|{uri}|{params}'.format(
                 method=method, uri=uri, params=kw_params)
             validate = to_mock.pop('validate', {})
-            valid_keys = set(['json', 'headers', 'params'])
+            valid_keys = set(['json', 'headers', 'params', 'data'])
             invalid_keys = set(validate.keys()) - valid_keys
             if invalid_keys:
                 raise TypeError(
