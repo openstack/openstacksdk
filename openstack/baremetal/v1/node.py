@@ -122,7 +122,7 @@ class Node(resource.Resource):
 
     def set_provision_state(self, session, target, config_drive=None,
                             clean_steps=None, rescue_password=None,
-                            wait=False, timeout=True):
+                            wait=False, timeout=None):
         """Run an action modifying this node's provision state.
 
         This call is asynchronous, it will return success as soon as the Bare
