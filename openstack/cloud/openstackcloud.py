@@ -1607,7 +1607,15 @@ class OpenStackCloud(_normalize.Normalizer):
         # `filters` could be a jmespath expression which Neutron server doesn't
         # understand, obviously.
         if self._use_neutron_floating() and isinstance(filters, dict):
-            kwargs = {'filters': filters}
+            filter_keys = ['router_id', 'status', 'tenant_id', 'project_id',
+                           'revision_number', 'description',
+                           'floating_network_id', 'fixed_ip_address',
+                           'floating_ip_address', 'port_id', 'sort_dir',
+                           'sort_key', 'tags', 'tags-any', 'not-tags',
+                           'not-tags-any', 'fields']
+            neutron_filters = {k: v for k, v in filters.items()
+                               if k in filter_keys}
+            kwargs = {'filters': neutron_filters}
         else:
             kwargs = {}
         floating_ips = self.list_floating_ips(**kwargs)
