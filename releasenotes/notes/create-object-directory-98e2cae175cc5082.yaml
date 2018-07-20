@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added a ``create_directory_marker_object``' method to allow for easy
+    creation of zero-byte 'directory' marker objects. These are not needed
+    in most cases, but on some clouds they are used by Static
+    Web and Web Listings in swift to facilitate directory traversal.
