@@ -27,10 +27,6 @@ Next
 Now that you can create a connection, continue with the :ref:`user_guides`
 to work with an OpenStack service.
 
-As an alternative to creating a :class:`~openstack.connection.Connection`
-using :ref:config-clouds-yaml, you can connect using
-`config-environment-variables`.
-
 .. TODO(shade) Update the text here and consolidate with the old
    os-client-config docs so that we have a single and consistent explanation
    of the envvars cloud, etc.
