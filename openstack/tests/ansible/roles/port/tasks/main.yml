@@ -4,7 +4,7 @@
      cloud: "{{ cloud }}"
      state: present
      name: "{{ network_name }}"
-     external: True
+     external: "{{ network_external }}"
 
 - name: Create subnet
   os_subnet:
