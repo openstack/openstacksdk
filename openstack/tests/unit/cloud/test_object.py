@@ -415,11 +415,6 @@ class TestObjectUploads(BaseTestObject):
     def test_create_object(self):
 
         self.register_uris([
-            dict(method='GET',
-                 uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': 1000},
-                     slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=self.endpoint,
@@ -447,6 +442,11 @@ class TestObjectUploads(BaseTestObject):
                      'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
                      'X-Container-Bytes-Used': '0',
                      'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='GET',
+                 uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': 1000},
+                     slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=self.endpoint, container=self.container,
@@ -473,11 +473,6 @@ class TestObjectUploads(BaseTestObject):
     def test_create_directory_marker_object(self):
 
         self.register_uris([
-            dict(method='GET',
-                 uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': 1000},
-                     slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=self.endpoint,
@@ -527,12 +522,6 @@ class TestObjectUploads(BaseTestObject):
         min_file_size = 1
 
         uris_to_mock = [
-            dict(method='GET',
-                 uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': max_file_size},
-                     slo={'min_segment_size': min_file_size})),
-
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=self.endpoint,
@@ -562,6 +551,11 @@ class TestObjectUploads(BaseTestObject):
                      'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
                      'X-Container-Bytes-Used': '0',
                      'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='GET',
+                 uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': max_file_size},
+                     slo={'min_segment_size': min_file_size})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=self.endpoint, container=self.container,
@@ -613,10 +607,6 @@ class TestObjectUploads(BaseTestObject):
         min_file_size = 1
 
         uris_to_mock = [
-            dict(method='GET', uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': max_file_size},
-                     slo={'min_segment_size': min_file_size})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=self.endpoint,
@@ -646,6 +636,10 @@ class TestObjectUploads(BaseTestObject):
                      'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
                      'X-Container-Bytes-Used': '0',
                      'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='GET', uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': max_file_size},
+                     slo={'min_segment_size': min_file_size})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=self.endpoint,
@@ -732,10 +726,6 @@ class TestObjectUploads(BaseTestObject):
         min_file_size = 1
 
         self.register_uris([
-            dict(method='GET', uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': max_file_size},
-                     slo={'min_segment_size': min_file_size})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=self.endpoint,
@@ -765,6 +755,10 @@ class TestObjectUploads(BaseTestObject):
                      'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
                      'X-Container-Bytes-Used': '0',
                      'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='GET', uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': max_file_size},
+                     slo={'min_segment_size': min_file_size})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=self.endpoint,
@@ -816,10 +810,6 @@ class TestObjectUploads(BaseTestObject):
         min_file_size = 1
 
         self.register_uris([
-            dict(method='GET', uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': max_file_size},
-                     slo={'min_segment_size': min_file_size})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=self.endpoint,
@@ -849,6 +839,10 @@ class TestObjectUploads(BaseTestObject):
                      'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
                      'X-Container-Bytes-Used': '0',
                      'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='GET', uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': max_file_size},
+                     slo={'min_segment_size': min_file_size})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=self.endpoint,
@@ -950,11 +944,6 @@ class TestObjectUploads(BaseTestObject):
     def test_create_object_skip_checksum(self):
 
         self.register_uris([
-            dict(method='GET',
-                 uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': 1000},
-                     slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=self.endpoint,
@@ -982,6 +971,11 @@ class TestObjectUploads(BaseTestObject):
                      'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
                      'X-Container-Bytes-Used': '0',
                      'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='GET',
+                 uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': 1000},
+                     slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=self.endpoint, container=self.container,
@@ -1005,11 +999,6 @@ class TestObjectUploads(BaseTestObject):
     def test_create_object_data(self):
 
         self.register_uris([
-            dict(method='GET',
-                 uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': 1000},
-                     slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=self.endpoint,

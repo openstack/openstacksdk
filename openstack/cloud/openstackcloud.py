@@ -7514,16 +7514,6 @@ class OpenStackCloud(_normalize.Normalizer):
         if not filename and data is None:
             filename = name
 
-        # segment_size gets used as a step value in a range call, so needs
-        # to be an int
-        if segment_size:
-            segment_size = int(segment_size)
-        segment_size = self.get_object_segment_size(segment_size)
-        if filename:
-            file_size = os.path.getsize(filename)
-        else:
-            file_size = len(data)
-
         if generate_checksums and (md5 is None or sha256 is None):
             (md5, sha256) = self._get_file_hashes(filename)
         if md5:
@@ -7544,6 +7534,13 @@ class OpenStackCloud(_normalize.Normalizer):
                 {'endpoint': endpoint})
 
             return self._upload_object_data(endpoint, data, headers)
+
+        # segment_size gets used as a step value in a range call, so needs
+        # to be an int
+        if segment_size:
+            segment_size = int(segment_size)
+        segment_size = self.get_object_segment_size(segment_size)
+        file_size = os.path.getsize(filename)
 
         if self.is_object_stale(container, name, filename, md5, sha256):
 

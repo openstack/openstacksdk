@@ -364,13 +364,6 @@ class TestImage(BaseTestImage):
                  uri=self.get_mock_url(
                      'image', append=['images'], base_url_append='v2'),
                  json={'images': []}),
-            dict(method='GET',
-                 # This is explicitly not using get_mock_url because that
-                 # gets us a project-id oriented URL.
-                 uri='https://object-store.example.com/info',
-                 json=dict(
-                     swift={'max_file_size': 1000},
-                     slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
                      endpoint=endpoint, container=self.container_name),
@@ -395,6 +388,13 @@ class TestImage(BaseTestImage):
                      'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
                      'X-Container-Bytes-Used': '0',
                      'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='GET',
+                 # This is explicitly not using get_mock_url because that
+                 # gets us a project-id oriented URL.
+                 uri='https://object-store.example.com/info',
+                 json=dict(
+                     swift={'max_file_size': 1000},
+                     slo={'min_segment_size': 500})),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=endpoint, container=self.container_name,
