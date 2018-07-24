@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed an issue where passing an iterator to the ``data`` parameter of
+    ``create_object`` for chunked uploads failed due to attempting to
+    calculate the length of the data.
