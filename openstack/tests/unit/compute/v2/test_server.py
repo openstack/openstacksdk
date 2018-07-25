@@ -681,15 +681,16 @@ class TestServer(base.TestCase):
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
 
         res = sot.live_migrate(
-            self.sess, host='HOST2', force=True, block_migration=False)
+            self.sess, host='HOST2', force=True, block_migration=True,
+            disk_over_commit=True)
 
         self.assertIsNone(res)
         url = 'servers/IDENTIFIER/action'
         body = {
             'os-migrateLive': {
                 'host': 'HOST2',
-                'disk_over_commit': False,
-                'block_migration': False
+                'disk_over_commit': True,
+                'block_migration': True
             }
         }
 
