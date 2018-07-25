@@ -418,7 +418,7 @@ class OpenStackConfig(object):
     def get_cloud_names(self):
         return self.cloud_config['clouds'].keys()
 
-    def _get_base_cloud_config(self, name):
+    def _get_base_cloud_config(self, name, profile=None):
         cloud = dict()
 
         # Only validate cloud name if one was given
@@ -428,6 +428,8 @@ class OpenStackConfig(object):
                     name=name))
 
         our_cloud = self.cloud_config['clouds'].get(name, dict())
+        if profile:
+            our_cloud['profile'] = profile
 
         # Get the defaults
         cloud.update(self.defaults)
@@ -998,6 +1000,7 @@ class OpenStackConfig(object):
             on missing required auth parameters
         """
 
+        profile = kwargs.pop('profile', None)
         args = self._fix_args(kwargs, argparse=argparse)
 
         if cloud is None:
@@ -1006,7 +1009,7 @@ class OpenStackConfig(object):
             else:
                 cloud = self.default_cloud
 
-        config = self._get_base_cloud_config(cloud)
+        config = self._get_base_cloud_config(cloud, profile)
 
         # Get region specific settings
         if 'region_name' not in args:
