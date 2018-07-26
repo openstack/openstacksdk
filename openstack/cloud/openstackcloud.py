@@ -7793,12 +7793,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         endpoint = self._get_object_endpoint(container, obj, query_string)
-        try:
-            return self._object_store_client.get(endpoint, stream=stream)
-        except exc.OpenStackCloudHTTPError as e:
-            if e.response.status_code == 404:
-                return None
-            raise
+        return self._object_store_client.get(endpoint, stream=stream)
 
     def _get_object_endpoint(self, container, obj, query_string):
         endpoint = '{container}/{object}'.format(
@@ -7808,8 +7803,33 @@ class OpenStackCloud(_normalize.Normalizer):
                 endpoint=endpoint, query_string=query_string)
         return endpoint
 
+    def stream_object(
+            self, container, obj, query_string=None, resp_chunk_size=1024):
+        """Download the content via a streaming iterator.
+
+        :param string container: name of the container.
+        :param string obj: name of the object.
+        :param string query_string:
+            query args for uri. (delimiter, prefix, etc.)
+        :param int resp_chunk_size:
+            chunk size of data to read. Only used if the results are
+
+        :returns:
+            An iterator over the content or None if the object is not found.
+        :raises: OpenStackCloudException on operation error.
+        """
+        try:
+            with self.get_object_raw(
+                    container, obj, query_string=query_string) as response:
+                for ret in response.iter_content(chunk_size=resp_chunk_size):
+                    yield ret
+        except exc.OpenStackCloudHTTPError as e:
+            if e.response.status_code == 404:
+                return
+            raise
+
     def get_object(self, container, obj, query_string=None,
-                   resp_chunk_size=1024, outfile=None):
+                   resp_chunk_size=1024, outfile=None, stream=False):
         """Get the headers and body of an object
 
         :param string container: name of the container.
