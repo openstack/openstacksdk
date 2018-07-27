@@ -148,6 +148,7 @@ class TestLimits(base.TestCase):
 
     def test_get(self):
         sess = mock.Mock(spec=adapter.Adapter)
+        sess.default_microversion = None
         resp = mock.Mock()
         sess.get.return_value = resp
         resp.json.return_value = copy.deepcopy(LIMITS_BODY)

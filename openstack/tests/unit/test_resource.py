@@ -976,8 +976,14 @@ class TestResourceActions(base.TestCase):
         self.session.post = mock.Mock(return_value=self.response)
         self.session.delete = mock.Mock(return_value=self.response)
         self.session.head = mock.Mock(return_value=self.response)
+        self.session.default_microversion = None
 
-    def _test_create(self, cls, requires_id=False, prepend_key=False):
+        self.endpoint_data = mock.Mock(max_microversion='1.99',
+                                       min_microversion=None)
+        self.session.get_endpoint_data.return_value = self.endpoint_data
+
+    def _test_create(self, cls, requires_id=False, prepend_key=False,
+                     microversion=None):
         id = "id" if requires_id else None
         sot = cls(id=id)
         sot._prepare_request = mock.Mock(return_value=self.request)
@@ -990,12 +996,15 @@ class TestResourceActions(base.TestCase):
         if requires_id:
             self.session.put.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers)
+                json=self.request.body, headers=self.request.headers,
+                microversion=microversion)
         else:
             self.session.post.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers)
+                json=self.request.body, headers=self.request.headers,
+                microversion=microversion)
 
+        self.assertEqual(sot.microversion, microversion)
         sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, sot)
 
@@ -1007,6 +1016,17 @@ class TestResourceActions(base.TestCase):
             create_method = 'PUT'
 
         self._test_create(Test, requires_id=True, prepend_key=True)
+
+    def test_put_create_with_microversion(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'PUT'
+            _max_microversion = '1.42'
+
+        self._test_create(Test, requires_id=True, prepend_key=True,
+                          microversion='1.42')
 
     def test_post_create(self):
         class Test(resource.Resource):
@@ -1022,17 +1042,39 @@ class TestResourceActions(base.TestCase):
 
         self.sot._prepare_request.assert_called_once_with(requires_id=True)
         self.session.get.assert_called_once_with(
-            self.request.url,)
+            self.request.url, microversion=None)
 
+        self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
+
+    def test_get_with_microversion(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_get = True
+            _max_microversion = '1.42'
+
+        sot = Test(id='id')
+        sot._prepare_request = mock.Mock(return_value=self.request)
+        sot._translate_response = mock.Mock()
+
+        result = sot.get(self.session)
+
+        sot._prepare_request.assert_called_once_with(requires_id=True)
+        self.session.get.assert_called_once_with(
+            self.request.url, microversion='1.42')
+
+        self.assertEqual(sot.microversion, '1.42')
+        sot._translate_response.assert_called_once_with(self.response)
+        self.assertEqual(result, sot)
 
     def test_get_not_requires_id(self):
         result = self.sot.get(self.session, False)
 
         self.sot._prepare_request.assert_called_once_with(requires_id=False)
         self.session.get.assert_called_once_with(
-            self.request.url,)
+            self.request.url, microversion=None)
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1043,14 +1085,40 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with()
         self.session.head.assert_called_once_with(
             self.request.url,
-            headers={"Accept": ""})
+            headers={"Accept": ""},
+            microversion=None)
 
+        self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(
             self.response, has_body=False)
         self.assertEqual(result, self.sot)
 
+    def test_head_with_microversion(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_head = True
+            _max_microversion = '1.42'
+
+        sot = Test(id='id')
+        sot._prepare_request = mock.Mock(return_value=self.request)
+        sot._translate_response = mock.Mock()
+
+        result = sot.head(self.session)
+
+        sot._prepare_request.assert_called_once_with()
+        self.session.head.assert_called_once_with(
+            self.request.url,
+            headers={"Accept": ""},
+            microversion='1.42')
+
+        self.assertEqual(sot.microversion, '1.42')
+        sot._translate_response.assert_called_once_with(
+            self.response, has_body=False)
+        self.assertEqual(result, sot)
+
     def _test_update(self, update_method='PUT', prepend_key=True,
-                     has_body=True):
+                     has_body=True, microversion=None):
         self.sot.update_method = update_method
 
         # Need to make sot look dirty so we can attempt an update
@@ -1066,16 +1134,20 @@ class TestResourceActions(base.TestCase):
         if update_method == 'PATCH':
             self.session.patch.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers)
+                json=self.request.body, headers=self.request.headers,
+                microversion=microversion)
         elif update_method == 'POST':
             self.session.post.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers)
+                json=self.request.body, headers=self.request.headers,
+                microversion=microversion)
         elif update_method == 'PUT':
             self.session.put.assert_called_once_with(
                 self.request.url,
-                json=self.request.body, headers=self.request.headers)
+                json=self.request.body, headers=self.request.headers,
+                microversion=microversion)
 
+        self.assertEqual(self.sot.microversion, microversion)
         self.sot._translate_response.assert_called_once_with(
             self.response, has_body=has_body)
 
@@ -1102,11 +1174,35 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
             self.request.url,
-            headers={"Accept": ""})
+            headers={"Accept": ""},
+            microversion=None)
 
         self.sot._translate_response.assert_called_once_with(
             self.response, has_body=False)
         self.assertEqual(result, self.sot)
+
+    def test_delete_with_microversion(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_delete = True
+            _max_microversion = '1.42'
+
+        sot = Test(id='id')
+        sot._prepare_request = mock.Mock(return_value=self.request)
+        sot._translate_response = mock.Mock()
+
+        result = sot.delete(self.session)
+
+        sot._prepare_request.assert_called_once_with()
+        self.session.delete.assert_called_once_with(
+            self.request.url,
+            headers={"Accept": ""},
+            microversion='1.42')
+
+        sot._translate_response.assert_called_once_with(
+            self.response, has_body=False)
+        self.assertEqual(result, sot)
 
     # NOTE: As list returns a generator, testing it requires consuming
     # the generator. Wrap calls to self.sot.list in a `list`
@@ -1123,7 +1219,8 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_once_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
         self.assertEqual([], result)
 
@@ -1159,7 +1256,8 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_once_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
         self.assertEqual(1, len(results))
         self.assertEqual(id_value, results[0].id)
@@ -1185,7 +1283,8 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_once_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
         self.assertEqual(1, len(results))
         self.assertEqual(id_value, results[0].id)
@@ -1219,11 +1318,13 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(ids[1], results[1].id)
         self.assertEqual(
             mock.call('base_path',
-                      headers={'Accept': 'application/json'}, params={}),
+                      headers={'Accept': 'application/json'}, params={},
+                      microversion=None),
             self.session.get.mock_calls[0])
         self.assertEqual(
             mock.call('https://example.com/next-url',
-                      headers={'Accept': 'application/json'}, params={}),
+                      headers={'Accept': 'application/json'}, params={},
+                      microversion=None),
             self.session.get.mock_calls[1])
         self.assertEqual(2, len(self.session.get.call_args_list))
         self.assertIsInstance(results[0], self.test_class)
@@ -1253,14 +1354,63 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(ids[1], results[1].id)
         self.assertEqual(
             mock.call('base_path',
-                      headers={'Accept': 'application/json'}, params={}),
+                      headers={'Accept': 'application/json'}, params={},
+                      microversion=None),
             self.session.get.mock_calls[0])
         self.assertEqual(
             mock.call('https://example.com/next-url',
-                      headers={'Accept': 'application/json'}, params={}),
+                      headers={'Accept': 'application/json'}, params={},
+                      microversion=None),
             self.session.get.mock_calls[2])
         self.assertEqual(2, len(self.session.get.call_args_list))
         self.assertIsInstance(results[0], self.test_class)
+
+    def test_list_response_paginated_with_microversions(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            resources_key = 'resources'
+            allow_list = True
+            _max_microversion = '1.42'
+
+        ids = [1, 2]
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.return_value = {
+            "resources": [{"id": ids[0]}],
+            "resources_links": [{
+                "href": "https://example.com/next-url",
+                "rel": "next",
+            }]
+        }
+        mock_response2 = mock.Mock()
+        mock_response2.status_code = 200
+        mock_response2.links = {}
+        mock_response2.json.return_value = {
+            "resources": [{"id": ids[1]}],
+        }
+
+        self.session.get.side_effect = [mock_response, mock_response2]
+
+        results = list(Test.list(self.session, paginated=True))
+
+        self.assertEqual(2, len(results))
+        self.assertEqual(ids[0], results[0].id)
+        self.assertEqual(ids[1], results[1].id)
+        self.assertEqual(
+            mock.call('base_path',
+                      headers={'Accept': 'application/json'}, params={},
+                      microversion='1.42'),
+            self.session.get.mock_calls[0])
+        self.assertEqual(
+            mock.call('https://example.com/next-url',
+                      headers={'Accept': 'application/json'}, params={},
+                      microversion='1.42'),
+            self.session.get.mock_calls[1])
+        self.assertEqual(2, len(self.session.get.call_args_list))
+        self.assertIsInstance(results[0], Test)
+        self.assertEqual('1.42', results[0].microversion)
 
     def test_list_multi_page_response_not_paginated(self):
         ids = [1, 2]
@@ -1453,20 +1603,23 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
         result1 = next(results)
         self.assertEqual(result1.id, ids[1])
         self.session.get.assert_called_with(
             'https://example.com/next-url',
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
         self.assertRaises(StopIteration, next, results)
         self.session.get.assert_called_with(
             'https://example.com/next-url',
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
     def test_list_multi_page_no_early_termination(self):
         # This tests verifies that multipages are not early terminated.
@@ -1508,7 +1661,8 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={"limit": 3})
+            params={"limit": 3},
+            microversion=None)
 
         # Second page contains another two items
         result2 = next(results)
@@ -1518,7 +1672,8 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={"limit": 3, "marker": 2})
+            params={"limit": 3, "marker": 2},
+            microversion=None)
 
         # Ensure we're done after those four items
         self.assertRaises(StopIteration, next, results)
@@ -1527,7 +1682,8 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={"limit": 3, "marker": 4})
+            params={"limit": 3, "marker": 4},
+            microversion=None)
 
         # Ensure we made three calls to get this done
         self.assertEqual(3, len(self.session.get.call_args_list))
@@ -1564,14 +1720,16 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={"limit": 2})
+            params={"limit": 2},
+            microversion=None)
 
         result2 = next(results)
         self.assertEqual(result2.id, ids[2])
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={'limit': 2, 'marker': 2})
+            params={'limit': 2, 'marker': 2},
+            microversion=None)
 
         # Ensure we're done after those three items
         self.assertRaises(StopIteration, next, results)
@@ -1612,14 +1770,16 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
         result2 = next(results)
         self.assertEqual(result2.id, ids[2])
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={'marker': 2})
+            params={'marker': 2},
+            microversion=None)
 
         # Ensure we're done after those three items
         self.assertRaises(StopIteration, next, results)
@@ -1658,14 +1818,16 @@ class TestResourceActions(base.TestCase):
         self.session.get.assert_called_with(
             self.base_path,
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
         result2 = next(results)
         self.assertEqual(result2.id, ids[2])
         self.session.get.assert_called_with(
             'https://example.com/next-url',
             headers={"Accept": "application/json"},
-            params={})
+            params={},
+            microversion=None)
 
         # Ensure we're done after those three items
         self.assertRaises(StopIteration, next, results)

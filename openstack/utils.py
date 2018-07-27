@@ -183,3 +183,35 @@ def pick_microversion(session, required):
 
     if required is not None:
         return discover.version_to_string(required)
+
+
+def maximum_supported_microversion(adapter, client_maximum):
+    """Determinte the maximum microversion supported by both client and server.
+
+    :param adapter: :class:`~keystoneauth1.adapter.Adapter` instance.
+    :param client_maximum: Maximum microversion supported by the client.
+        If ``None``, ``None`` is returned.
+
+    :returns: the maximum supported microversion as string or ``None``.
+    """
+    if client_maximum is None:
+        return None
+
+    endpoint_data = adapter.get_endpoint_data()
+    if not endpoint_data.max_microversion:
+        return None
+
+    client_max = discover.normalize_version_number(client_maximum)
+    server_max = discover.normalize_version_number(
+        endpoint_data.max_microversion)
+
+    if endpoint_data.min_microversion:
+        server_min = discover.normalize_version_number(
+            endpoint_data.min_microversion)
+        if client_max < server_min:
+            # NOTE(dtantsur): we may want to raise in this case, but this keeps
+            # the current behavior intact.
+            return None
+
+    result = min(client_max, server_max)
+    return discover.version_to_string(result)

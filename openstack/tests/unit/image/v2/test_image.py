@@ -106,6 +106,7 @@ class TestImage(base.TestCase):
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess.default_microversion = None
 
     def test_basic(self):
         sot = image.Image()
@@ -266,7 +267,7 @@ class TestImage(base.TestCase):
         self.sess.get.assert_has_calls(
             [mock.call('images/IDENTIFIER/file',
                        stream=False),
-             mock.call('images/IDENTIFIER',)])
+             mock.call('images/IDENTIFIER', microversion=None)])
 
         self.assertEqual(rv, resp1.content)
 
@@ -292,7 +293,7 @@ class TestImage(base.TestCase):
         self.sess.get.assert_has_calls(
             [mock.call('images/IDENTIFIER/file',
                        stream=False),
-             mock.call('images/IDENTIFIER',)])
+             mock.call('images/IDENTIFIER', microversion=None)])
 
         self.assertEqual(rv, resp1.content)
 

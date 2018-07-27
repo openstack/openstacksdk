@@ -76,6 +76,7 @@ class TestFloatingIP(base.TestCase):
     def test_find_available(self):
         mock_session = mock.Mock(spec=adapter.Adapter)
         mock_session.get_filter = mock.Mock(return_value={})
+        mock_session.default_microversion = None
         data = {'id': 'one', 'floating_ip_address': '10.0.0.1'}
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: [data]}
@@ -89,10 +90,12 @@ class TestFloatingIP(base.TestCase):
         mock_session.get.assert_called_with(
             floating_ip.FloatingIP.base_path,
             headers={'Accept': 'application/json'},
-            params={})
+            params={},
+            microversion=None)
 
     def test_find_available_nada(self):
         mock_session = mock.Mock(spec=adapter.Adapter)
+        mock_session.default_microversion = None
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: []}
         fake_response.json = mock.Mock(return_value=body)
