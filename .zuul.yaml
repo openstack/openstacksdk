@@ -383,6 +383,7 @@
         - neutron-grenade
         - openstack-tox-lower-constraints
         - nodepool-functional-py35-src
+        - bifrost-integration-tinyipa-ubuntu-xenial
     gate:
       jobs:
         - build-openstack-sphinx-docs:
@@ -394,6 +395,7 @@
         - neutron-grenade
         - openstack-tox-lower-constraints
         - nodepool-functional-py35-src
+        - bifrost-integration-tinyipa-ubuntu-xenial
     post:
       jobs:
         - openstack-tox-cover
