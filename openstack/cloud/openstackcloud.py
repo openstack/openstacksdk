@@ -73,7 +73,9 @@ DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
 DEFAULT_SERVER_AGE = 5
 DEFAULT_PORT_AGE = 5
 DEFAULT_FLOAT_AGE = 5
-_OCC_DOC_URL = "https://docs.openstack.org/os-client-config/latest/"
+_CONFIG_DOC_URL = (
+    "https://docs.openstack.org/openstacksdk/latest/"
+    "user/config/configuration.html")
 
 
 OBJECT_CONTAINER_ACLS = {
@@ -2275,7 +2277,7 @@ class OpenStackCloud(_normalize.Normalizer):
                         " you will need a clouds.yaml file. For more"
                         " information, please see %(doc_url)s", {
                             'cloud': self.name,
-                            'doc_url': _OCC_DOC_URL,
+                            'doc_url': _CONFIG_DOC_URL,
                         }
                     )
                     # We can't fallback to nova because we push-down filters.
