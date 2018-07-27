@@ -20,7 +20,6 @@ import six
 
 from openstack.cloud import exc
 from openstack.cloud import meta
-from openstack.cloud import openstackcloud
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -553,7 +552,7 @@ class TestImage(BaseTestImage):
                      'Date': 'Thu, 16 Nov 2017 15:24:30 GMT',
                      'Accept-Ranges': 'bytes',
                      'Content-Type': 'application/octet-stream',
-                     openstackcloud.OBJECT_AUTOCREATE_KEY: 'true',
+                     self.cloud._OBJECT_AUTOCREATE_KEY: 'true',
                      'Etag': fakes.NO_MD5}),
             dict(method='DELETE',
                  uri='{endpoint}/{container}/{object}'.format(
