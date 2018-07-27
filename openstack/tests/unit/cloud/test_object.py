@@ -454,33 +454,6 @@ class TestObjectUploads(BaseTestObject):
     def test_create_object(self):
 
         self.register_uris([
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 status_code=404),
-            dict(method='PUT',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint, container=self.container),
-                 status_code=201,
-                 headers={
-                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                     'Content-Length': '0',
-                     'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint, container=self.container),
-                 headers={
-                     'Content-Length': '0',
-                     'X-Container-Object-Count': '0',
-                     'Accept-Ranges': 'bytes',
-                     'X-Storage-Policy': 'Policy-0',
-                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                     'X-Timestamp': '1481912480.41664',
-                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                     'X-Container-Bytes-Used': '0',
-                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='GET',
                  uri='https://object-store.example.com/info',
                  json=dict(
@@ -512,33 +485,6 @@ class TestObjectUploads(BaseTestObject):
     def test_create_directory_marker_object(self):
 
         self.register_uris([
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 status_code=404),
-            dict(method='PUT',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint, container=self.container),
-                 status_code=201,
-                 headers={
-                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                     'Content-Length': '0',
-                     'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint, container=self.container),
-                 headers={
-                     'Content-Length': '0',
-                     'X-Container-Object-Count': '0',
-                     'Accept-Ranges': 'bytes',
-                     'X-Storage-Policy': 'Policy-0',
-                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                     'X-Timestamp': '1481912480.41664',
-                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                     'X-Container-Bytes-Used': '0',
-                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='PUT',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=self.endpoint,
@@ -561,35 +507,6 @@ class TestObjectUploads(BaseTestObject):
         min_file_size = 1
 
         uris_to_mock = [
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 status_code=404),
-            dict(method='PUT',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container, ),
-                 status_code=201,
-                 headers={
-                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                     'Content-Length': '0',
-                     'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 headers={
-                     'Content-Length': '0',
-                     'X-Container-Object-Count': '0',
-                     'Accept-Ranges': 'bytes',
-                     'X-Storage-Policy': 'Policy-0',
-                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                     'X-Timestamp': '1481912480.41664',
-                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                     'X-Container-Bytes-Used': '0',
-                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='GET',
                  uri='https://object-store.example.com/info',
                  json=dict(
@@ -632,8 +549,8 @@ class TestObjectUploads(BaseTestObject):
             container=self.container, name=self.object,
             filename=self.object_file.name, use_slo=False)
 
-        # After call 6, order become indeterminate because of thread pool
-        self.assert_calls(stop_after=6)
+        # After call 3, order become indeterminate because of thread pool
+        self.assert_calls(stop_after=3)
 
         for key, value in self.calls[-1]['headers'].items():
             self.assertEqual(
@@ -646,35 +563,6 @@ class TestObjectUploads(BaseTestObject):
         min_file_size = 1
 
         uris_to_mock = [
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 status_code=404),
-            dict(method='PUT',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container, ),
-                 status_code=201,
-                 headers={
-                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                     'Content-Length': '0',
-                     'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 headers={
-                     'Content-Length': '0',
-                     'X-Container-Object-Count': '0',
-                     'Accept-Ranges': 'bytes',
-                     'X-Storage-Policy': 'Policy-0',
-                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                     'X-Timestamp': '1481912480.41664',
-                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                     'X-Container-Bytes-Used': '0',
-                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='GET', uri='https://object-store.example.com/info',
                  json=dict(
                      swift={'max_file_size': max_file_size},
@@ -719,8 +607,8 @@ class TestObjectUploads(BaseTestObject):
             container=self.container, name=self.object,
             filename=self.object_file.name, use_slo=True)
 
-        # After call 6, order become indeterminate because of thread pool
-        self.assert_calls(stop_after=6)
+        # After call 3, order become indeterminate because of thread pool
+        self.assert_calls(stop_after=3)
 
         for key, value in self.calls[-1]['headers'].items():
             self.assertEqual(
@@ -765,35 +653,6 @@ class TestObjectUploads(BaseTestObject):
         min_file_size = 1
 
         self.register_uris([
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 status_code=404),
-            dict(method='PUT',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container, ),
-                 status_code=201,
-                 headers={
-                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                     'Content-Length': '0',
-                     'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 headers={
-                     'Content-Length': '0',
-                     'X-Container-Object-Count': '0',
-                     'Accept-Ranges': 'bytes',
-                     'X-Storage-Policy': 'Policy-0',
-                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                     'X-Timestamp': '1481912480.41664',
-                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                     'X-Container-Bytes-Used': '0',
-                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='GET', uri='https://object-store.example.com/info',
                  json=dict(
                      swift={'max_file_size': max_file_size},
@@ -840,8 +699,8 @@ class TestObjectUploads(BaseTestObject):
             container=self.container, name=self.object,
             filename=self.object_file.name, use_slo=True)
 
-        # After call 6, order become indeterminate because of thread pool
-        self.assert_calls(stop_after=6)
+        # After call 3, order become indeterminate because of thread pool
+        self.assert_calls(stop_after=3)
 
     def test_object_segment_retries(self):
 
@@ -849,35 +708,6 @@ class TestObjectUploads(BaseTestObject):
         min_file_size = 1
 
         self.register_uris([
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 status_code=404),
-            dict(method='PUT',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container, ),
-                 status_code=201,
-                 headers={
-                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                     'Content-Length': '0',
-                     'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 headers={
-                     'Content-Length': '0',
-                     'X-Container-Object-Count': '0',
-                     'Accept-Ranges': 'bytes',
-                     'X-Storage-Policy': 'Policy-0',
-                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                     'X-Timestamp': '1481912480.41664',
-                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                     'X-Container-Bytes-Used': '0',
-                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='GET', uri='https://object-store.example.com/info',
                  json=dict(
                      swift={'max_file_size': max_file_size},
@@ -940,8 +770,8 @@ class TestObjectUploads(BaseTestObject):
             container=self.container, name=self.object,
             filename=self.object_file.name, use_slo=True)
 
-        # After call 6, order become indeterminate because of thread pool
-        self.assert_calls(stop_after=6)
+        # After call 3, order become indeterminate because of thread pool
+        self.assert_calls(stop_after=3)
 
         for key, value in self.calls[-1]['headers'].items():
             self.assertEqual(
@@ -983,33 +813,6 @@ class TestObjectUploads(BaseTestObject):
     def test_create_object_skip_checksum(self):
 
         self.register_uris([
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 status_code=404),
-            dict(method='PUT',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint, container=self.container),
-                 status_code=201,
-                 headers={
-                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                     'Content-Length': '0',
-                     'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint, container=self.container),
-                 headers={
-                     'Content-Length': '0',
-                     'X-Container-Object-Count': '0',
-                     'Accept-Ranges': 'bytes',
-                     'X-Storage-Policy': 'Policy-0',
-                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                     'X-Timestamp': '1481912480.41664',
-                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                     'X-Container-Bytes-Used': '0',
-                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='GET',
                  uri='https://object-store.example.com/info',
                  json=dict(
@@ -1038,33 +841,6 @@ class TestObjectUploads(BaseTestObject):
     def test_create_object_data(self):
 
         self.register_uris([
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint,
-                     container=self.container),
-                 status_code=404),
-            dict(method='PUT',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint, container=self.container),
-                 status_code=201,
-                 headers={
-                     'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
-                     'Content-Length': '0',
-                     'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='HEAD',
-                 uri='{endpoint}/{container}'.format(
-                     endpoint=self.endpoint, container=self.container),
-                 headers={
-                     'Content-Length': '0',
-                     'X-Container-Object-Count': '0',
-                     'Accept-Ranges': 'bytes',
-                     'X-Storage-Policy': 'Policy-0',
-                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
-                     'X-Timestamp': '1481912480.41664',
-                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
-                     'X-Container-Bytes-Used': '0',
-                     'Content-Type': 'text/plain; charset=utf-8'}),
             dict(method='PUT',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=self.endpoint,
