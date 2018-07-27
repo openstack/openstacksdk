@@ -40,10 +40,10 @@
         - openstacksdk-tox-py35-tips
 
 - job:
-    name: openstacksdk-functional-devstack-base
+    name: openstacksdk-functional-devstack-minimum
     parent: devstack-tox-functional-consumer
     description: |
-      Base job for devstack-based functional tests
+      Minimum job for devstack-based functional tests
     post-run: playbooks/devstack/post.yaml
     required-projects:
       # These jobs will DTRT when openstacksdk triggers them, but we want to
@@ -56,9 +56,32 @@
         override-branch: master
       - name: openstack/os-client-config
         override-branch: master
+    timeout: 9000
+    vars:
+      devstack_localrc:
+        Q_ML2_PLUGIN_EXT_DRIVERS: qos,port_security
+      tox_environment:
+        # Do we really need to set this? It's cargo culted
+        PYTHONUNBUFFERED: 'true'
+        # Is there a way we can query the localconf variable to get these
+        # rather than setting them explicitly?
+        OPENSTACKSDK_HAS_DESIGNATE: 0
+        OPENSTACKSDK_HAS_HEAT: 0
+        OPENSTACKSDK_HAS_MAGNUM: 0
+        OPENSTACKSDK_HAS_NEUTRON: 1
+        OPENSTACKSDK_HAS_SWIFT: 1
+      tox_install_siblings: false
+      tox_envlist: functional
+      zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
+
+- job:
+    name: openstacksdk-functional-devstack-base
+    parent: openstacksdk-functional-devstack-minimum
+    description: |
+      Base job for devstack-based functional tests
+    required-projects:
       - name: openstack/heat
       - name: openstack/swift
-    timeout: 9000
     vars:
       devstack_local_conf:
         post-config:
@@ -73,18 +96,7 @@
       devstack_plugins:
         heat: https://git.openstack.org/openstack/heat
       tox_environment:
-        # Do we really need to set this? It's cargo culted
-        PYTHONUNBUFFERED: 'true'
-        # Is there a way we can query the localconf variable to get these
-        # rather than setting them explicitly?
-        OPENSTACKSDK_HAS_DESIGNATE: 0
         OPENSTACKSDK_HAS_HEAT: 1
-        OPENSTACKSDK_HAS_MAGNUM: 0
-        OPENSTACKSDK_HAS_NEUTRON: 1
-        OPENSTACKSDK_HAS_SWIFT: 1
-      tox_install_siblings: false
-      tox_envlist: functional
-      zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
 
 - job:
     name: openstacksdk-functional-devstack-legacy
@@ -112,7 +124,6 @@
       - openstack/octavia
     vars:
       devstack_localrc:
-        Q_ML2_PLUGIN_EXT_DRIVERS: qos,port_security
         DISABLE_AMP_IMAGE_BUILD: True
       devstack_local_conf:
         post-config:
@@ -219,6 +230,54 @@
         OPENSTACKSDK_HAS_SENLIN: 1
 
 - job:
+    name: openstacksdk-functional-devstack-ironic
+    parent: openstacksdk-functional-devstack-minimum
+    description: |
+      Run openstacksdk functional tests against a master devstack with ironic
+    required-projects:
+      - openstack/ironic
+    vars:
+      devstack_localrc:
+        OVERRIDE_PUBLIC_BRIDGE_MTU: 1400
+        IRONIC_BAREMETAL_BASIC_OPS: True
+        IRONIC_BUILD_DEPLOY_RAMDISK: False
+        IRONIC_CALLBACK_TIMEOUT: 600
+        IRONIC_DEPLOY_DRIVER: ipmi
+        IRONIC_RAMDISK_TYPE: tinyipa
+        IRONIC_VM_COUNT: 6
+        IRONIC_VM_LOG_DIR: '{{ devstack_base_dir }}/ironic-bm-logs'
+        IRONIC_VM_SPECS_RAM: 384
+      devstack_plugins:
+        ironic: git://git.openstack.org/openstack/ironic
+      devstack_services:
+        c-api: False
+        c-bak: False
+        c-sch: False
+        c-vol: False
+        cinder: False
+        s-account: False
+        s-container: False
+        s-object: False
+        s-proxy: False
+        n-api: False
+        n-api-meta: False
+        n-cauth: False
+        n-cond: False
+        n-cpu: False
+        n-novnc: False
+        n-obj: False
+        n-sch: False
+        nova: False
+        placement-api: False
+      tox_environment:
+        OPENSTACKSDK_HAS_IRONIC: 1
+        # NOTE(dtantsur): this job cannot run many regular tests (e.g. compute
+        # tests will take too long), so limiting it to baremetal tests only.
+        OPENSTACKSDK_TESTS_SUBDIR: baremetal
+      zuul_copy_output:
+        '{{ devstack_base_dir }}/ironic-bm-logs': 'logs'
+
+- job:
     name: openstacksdk-ansible-functional-devstack
     parent: openstacksdk-functional-devstack
     description: |
@@ -310,6 +369,8 @@
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-senlin
         - openstacksdk-functional-devstack-magnum:
+            voting: false
+        - openstacksdk-functional-devstack-ironic:
             voting: false
         - openstacksdk-functional-devstack-python3
         - osc-functional-devstack-tips:
