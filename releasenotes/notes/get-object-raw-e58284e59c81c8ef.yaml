@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added ``get_object_raw`` method for downloading an object from swift
+    and returning a raw requests Response object.

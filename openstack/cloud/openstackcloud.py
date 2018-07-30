@@ -7795,53 +7795,80 @@ class OpenStackCloud(_normalize.Normalizer):
                 return None
             raise
 
+    def get_object_raw(self, container, obj, query_string=None, stream=False):
+        """Get a raw response object for an object.
+
+        :param string container: name of the container.
+        :param string obj: name of the object.
+        :param string query_string:
+            query args for uri. (delimiter, prefix, etc.)
+        :param bool stream:
+            Whether to stream the response or not.
+
+        :returns: A `requests.Response`
+        :raises: OpenStackCloudException on operation error.
+        """
+        endpoint = self._get_object_endpoint(container, obj, query_string)
+        try:
+            return self._object_store_client.get(endpoint, stream=stream)
+        except exc.OpenStackCloudHTTPError as e:
+            if e.response.status_code == 404:
+                return None
+            raise
+
+    def _get_object_endpoint(self, container, obj, query_string):
+        endpoint = '{container}/{object}'.format(
+            container=container, object=obj)
+        if query_string:
+            endpoint = '{endpoint}?{query_string}'.format(
+                endpoint=endpoint, query_string=query_string)
+        return endpoint
+
     def get_object(self, container, obj, query_string=None,
                    resp_chunk_size=1024, outfile=None):
         """Get the headers and body of an object
 
         :param string container: name of the container.
         :param string obj: name of the object.
-        :param string query_string: query args for uri.
-                                    (delimiter, prefix, etc.)
-        :param int resp_chunk_size: chunk size of data to read. Only used
-                                    if the results are being written to a
-                                    file. (optional, defaults to 1k)
-        :param outfile: Write the object to a file instead of
-                        returning the contents. If this option is
-                        given, body in the return tuple will be None. outfile
-                        can either be a file path given as a string, or a
-                        File like object.
+        :param string query_string:
+            query args for uri. (delimiter, prefix, etc.)
+        :param int resp_chunk_size:
+            chunk size of data to read. Only used if the results are
+            being written to a file or stream is True.
+            (optional, defaults to 1k)
+        :param outfile:
+            Write the object to a file instead of returning the contents.
+            If this option is given, body in the return tuple will be None.
+            outfile can either be a file path given as a string, or a
+            File like object.
 
         :returns: Tuple (headers, body) of the object, or None if the object
-                  is not found (404)
+                  is not found (404).
         :raises: OpenStackCloudException on operation error.
         """
         # TODO(mordred) implement resp_chunk_size
+        endpoint = self._get_object_endpoint(container, obj, query_string)
         try:
-            endpoint = '{container}/{object}'.format(
-                container=container, object=obj)
-            if query_string:
-                endpoint = '{endpoint}?{query_string}'.format(
-                    endpoint=endpoint, query_string=query_string)
-            response = self._object_store_client.get(
-                endpoint, stream=True)
-            response_headers = {
-                k.lower(): v for k, v in response.headers.items()}
-            if outfile:
-                if isinstance(outfile, six.string_types):
-                    outfile_handle = open(outfile, 'wb')
+            get_stream = (outfile is not None)
+            with self._object_store_client.get(
+                    endpoint, stream=get_stream) as response:
+                response_headers = {
+                    k.lower(): v for k, v in response.headers.items()}
+                if outfile:
+                    if isinstance(outfile, six.string_types):
+                        outfile_handle = open(outfile, 'wb')
+                    else:
+                        outfile_handle = outfile
+                    for chunk in response.iter_content(
+                            resp_chunk_size, decode_unicode=False):
+                        outfile_handle.write(chunk)
+                    if isinstance(outfile, six.string_types):
+                        outfile_handle.close()
+                    else:
+                        outfile_handle.flush()
+                    return (response_headers, None)
                 else:
-                    outfile_handle = outfile
-                for chunk in response.iter_content(
-                        resp_chunk_size, decode_unicode=False):
-                    outfile_handle.write(chunk)
-                if isinstance(outfile, six.string_types):
-                    outfile_handle.close()
-                else:
-                    outfile_handle.flush()
-                return (response_headers, None)
-            else:
-                return (response_headers, response.text)
+                    return (response_headers, response.text)
         except exc.OpenStackCloudHTTPError as e:
             if e.response.status_code == 404:
                 return None
