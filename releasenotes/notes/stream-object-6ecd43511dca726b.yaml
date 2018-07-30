@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Added ``stream_object`` method for getting object content in an iterator.
