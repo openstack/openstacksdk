@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    The networking API v2 specification, which is implemented by OpenStack
+    Neutron, features an optional routes parameter - when updating a router
+    (PUT requests). Static routes are crucial for routers to handle traffic
+    from subnets not directly connected to a router.  The routes parameter has
+    now been added to the OpenStackCloud.update_router method as a list of
+    dictionaries with destination and nexthop parameters.

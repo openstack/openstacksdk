@@ -4261,7 +4261,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def update_router(self, name_or_id, name=None, admin_state_up=None,
                       ext_gateway_net_id=None, enable_snat=None,
-                      ext_fixed_ips=None):
+                      ext_fixed_ips=None, routes=None):
         """Update an existing logical router.
 
         :param string name_or_id: The name or UUID of the router to update.
@@ -4280,7 +4280,16 @@ class OpenStackCloud(_normalize.Normalizer):
                   "ip_address": "192.168.10.2"
                 }
               ]
+        :param list routes:
+            A list of dictionaries with destination and nexthop parameters.
+            Example::
 
+              [
+                {
+                  "destination": "179.24.1.0/24",
+                  "nexthop": "172.24.3.99"
+                }
+              ]
         :returns: The router object.
         :raises: OpenStackCloudException on operation error.
         """
@@ -4294,6 +4303,13 @@ class OpenStackCloud(_normalize.Normalizer):
         )
         if ext_gw_info:
             router['external_gateway_info'] = ext_gw_info
+
+        if routes:
+            if self._has_neutron_extension('extraroute'):
+                router['routes'] = routes
+            else:
+                self.log.warn(
+                    'extra routes extension is not available on target cloud')
 
         if not router:
             self.log.debug("No router data to update")
