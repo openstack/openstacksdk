@@ -4818,6 +4818,7 @@ class OpenStackCloud(_normalize.Normalizer):
         parameters = image_kwargs.pop('parameters', {})
         image_kwargs.update(parameters)
 
+        self.create_container(container)
         self.create_object(
             container, name, filename,
             md5=md5, sha256=sha256,
@@ -7538,9 +7539,6 @@ class OpenStackCloud(_normalize.Normalizer):
             headers[OBJECT_SHA256_KEY] = sha256 or ''
         for (k, v) in metadata.items():
             headers['x-object-meta-' + k] = v
-
-        # On some clouds this is not necessary. On others it is. I'm confused.
-        self.create_container(container)
 
         endpoint = '{container}/{name}'.format(container=container, name=name)
 

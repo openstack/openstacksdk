@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    ``openstack.connection.Connection.create_object`` no longer creates
+    a container if one doesn't exist. It is the user's responsibility to
+    create a container before using it.
