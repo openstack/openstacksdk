@@ -41,6 +41,9 @@ class Node(resource.Resource):
         is_maintenance='maintenance',
     )
 
+    # Full port groups support introduced in 1.24
+    _max_microversion = '1.24'
+
     # Properties
     #: The UUID of the chassis associated wit this node. Can be empty or None.
     chassis_id = resource.Body("chassis_uuid")
@@ -119,6 +122,70 @@ class Node(resource.Resource):
     target_raid_config = resource.Body("target_raid_config")
     #: Timestamp at which the node was last updated.
     updated_at = resource.Body("updated_at")
+
+    def create(self, session, *args, **kwargs):
+        """Create a remote resource based on this instance.
+
+        The overridden version is capable of handling the populated
+        ``provision_state`` field of one of three values: ``enroll``,
+        ``manageable`` or ``available``. The default is currently
+        ``available``, since it's the only state supported by all API versions.
+
+        Note that Bare Metal API 1.4 is required for ``manageable`` and
+        1.11 is required for ``enroll``.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+
+        :return: This :class:`Resource` instance.
+        :raises: ValueError if the Node's ``provision_state`` is not one of
+            ``None``, ``enroll``, ``manageable`` or ``available``.
+        :raises: :exc:`~openstack.exceptions.NotSupported` if
+            the ``provision_state`` cannot be reached with any API version
+            supported by the server.
+        """
+        expected_provision_state = self.provision_state
+        if expected_provision_state is None:
+            expected_provision_state = 'available'
+
+        if expected_provision_state not in ('enroll',
+                                            'manageable',
+                                            'available'):
+            raise ValueError(
+                "Node's provision_state must be one of 'enroll', "
+                "'manageable' or 'available' for creation, got %s" %
+                expected_provision_state)
+
+        session = self._get_session(session)
+        # Verify that the requested provision state is reachable with the API
+        # version we are going to use.
+        try:
+            expected_version = _common.STATE_VERSIONS[expected_provision_state]
+        except KeyError:
+            pass
+        else:
+            self._assert_microversion_for(
+                session, 'create', expected_version,
+                error_message="Cannot create a node with initial provision "
+                "state %s" % expected_provision_state)
+
+        # Ironic cannot set provision_state itself, so marking it as unchanged
+        self._body.clean(only={'provision_state'})
+        super(Node, self).create(session, *args, **kwargs)
+
+        if (self.provision_state == 'enroll' and
+                expected_provision_state != 'enroll'):
+            self.set_provision_state(session, 'manage', wait=True)
+
+        if (self.provision_state == 'manageable' and
+                expected_provision_state == 'available'):
+            self.set_provision_state(session, 'provide', wait=True)
+
+        if (self.provision_state == 'available' and
+                expected_provision_state == 'manageable'):
+            self.set_provision_state(session, 'manage', wait=True)
+
+        return self
 
     def set_provision_state(self, session, target, config_drive=None,
                             clean_steps=None, rescue_password=None,

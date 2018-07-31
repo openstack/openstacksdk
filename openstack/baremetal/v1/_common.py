@@ -46,3 +46,9 @@ EXPECTED_STATES = {
     'rescue': 'rescue',
 }
 """Mapping of provisioning actions to expected stable states."""
+
+STATE_VERSIONS = {
+    'enroll': '1.11',
+    'manageable': '1.4',
+}
+"""API versions when certain states were introduced."""

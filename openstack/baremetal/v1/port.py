@@ -32,6 +32,9 @@ class Port(resource.Resource):
         'fields'
     )
 
+    # Port group ID introduced in 1.24
+    _max_microversion = '1.24'
+
     #: The physical hardware address of the network port, typically the
     #: hardware MAC address.
     address = resource.Body('address')
@@ -56,7 +59,7 @@ class Port(resource.Resource):
     #: The UUID of node this port belongs to
     node_id = resource.Body('node_uuid')
     #: The UUID of PortGroup this port belongs to. Added in API microversion
-    #: 1.23.
+    #: 1.24.
     port_group_id = resource.Body('portgroup_uuid')
     #: Timestamp at which the port was last updated.
     updated_at = resource.Body('updated_at')
