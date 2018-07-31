@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    create_network now exposes the mtu api option in accordance to network
+    v2 api. This allows the operator to adjust the given MTU value which
+    is needed in various complex network deployments.
