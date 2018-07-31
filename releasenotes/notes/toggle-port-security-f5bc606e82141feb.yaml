@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Added a new property, 'port_security_enabled' which is a boolean
+    to enable or disable port_secuirty during network creation. The
+    default behavior will enable port security, security group and
+    anti spoofing will act as before. When the attribute is set to
+    False, security group and anti spoofing are disabled on the ports
+    created on this network.
