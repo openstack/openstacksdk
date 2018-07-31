@@ -616,14 +616,14 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._raw_clients['block-storage']
 
     def pprint(self, resource):
-        """Wrapper aroud pprint that groks munch objects"""
+        """Wrapper around pprint that groks munch objects"""
         # import late since this is a utility function
         import pprint
         new_resource = _utils._dictify_resource(resource)
         pprint.pprint(new_resource)
 
     def pformat(self, resource):
-        """Wrapper aroud pformat that groks munch objects"""
+        """Wrapper around pformat that groks munch objects"""
         # import late since this is a utility function
         import pprint
         new_resource = _utils._dictify_resource(resource)
