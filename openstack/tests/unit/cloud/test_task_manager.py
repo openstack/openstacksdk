@@ -14,7 +14,10 @@
 
 
 import concurrent.futures
+import fixtures
 import mock
+import queue
+import threading
 
 from openstack import task_manager
 from openstack.tests.unit import base
@@ -106,3 +109,82 @@ class TestTaskManager(base.TestCase):
     def test_async(self, mock_submit):
         self.manager.submit_task(TaskTestAsync())
         self.assertTrue(mock_submit.called)
+
+
+class ThreadingTaskManager(task_manager.TaskManager):
+    """A subclass of TaskManager which exercises the thread-shifting
+       exception handling behavior."""
+
+    def __init__(self, *args, **kw):
+        super(ThreadingTaskManager, self).__init__(
+            *args, **kw)
+        self.queue = queue.Queue()
+        self._running = True
+        self._thread = threading.Thread(name=self.name, target=self.run)
+        self._thread.daemon = True
+        self.failed = False
+
+    def start(self):
+        self._thread.start()
+
+    def stop(self):
+        self._running = False
+        self.queue.put(None)
+
+    def join(self):
+        self._thread.join()
+
+    def run(self):
+        # No exception should ever cause this method to hit its
+        # exception handler.
+        try:
+            while True:
+                task = self.queue.get()
+                if not task:
+                    if not self._running:
+                        break
+                    continue
+                self.run_task(task)
+                self.queue.task_done()
+        except Exception:
+            self.failed = True
+            raise
+
+    def submit_task(self, task, raw=False):
+        # An important part of the exception-shifting feature is that
+        # this method should raise the exception.
+        self.queue.put(task)
+        return task.wait()
+
+
+class ThreadingTaskManagerFixture(fixtures.Fixture):
+    def _setUp(self):
+        self.manager = ThreadingTaskManager(name='threading test')
+        self.manager.start()
+        self.addCleanup(self._cleanup)
+
+    def _cleanup(self):
+        self.manager.stop()
+        self.manager.join()
+
+
+class TestThreadingTaskManager(base.TestCase):
+
+    def setUp(self):
+        super(TestThreadingTaskManager, self).setUp()
+        f = self.useFixture(ThreadingTaskManagerFixture())
+        self.manager = f.manager
+
+    def test_wait_re_raise(self):
+        """Test that Exceptions thrown in a Task is reraised correctly
+
+        This test is aimed to six.reraise(), called in Task::wait().
+        Specifically, we test if we get the same behaviour with all the
+        configured interpreters (e.g. py27, p35, ...)
+        """
+        self.assertRaises(TestException, self.manager.submit_task, TaskTest())
+        # Stop the manager and join the run thread to ensure the
+        # exception handler has run.
+        self.manager.stop()
+        self.manager.join()
+        self.assertFalse(self.manager.failed)

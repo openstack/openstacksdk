@@ -121,8 +121,21 @@ class TaskManager(object):
         :param task: The task to execute.
         :param bool raw: If True, return the raw result as received from the
             underlying client call.
+
+        This method calls task.wait() so that it only returns when the
+        task is complete.
         """
-        return self.run_task(task=task)
+        if task.run_async:
+            # Async tasks run the wait lower in the stack because the wait
+            # is just returning the concurrent Future object. That future
+            # object handles the exception shifting across threads.
+            return self.run_task(task=task)
+        else:
+            # It's important that we call task.wait() here, rather than in
+            # the run_task call stack below here, since subclasses may
+            # cause run_task to be called from a different thread.
+            self.run_task(task=task)
+            return task.wait()
 
     def submit_function(self, method, name=None, *args, **kwargs):
         """ Allows submitting an arbitrary method for work.
@@ -164,9 +177,14 @@ class TaskManager(object):
     def _run_task_async(self, task):
         self._log.debug(
             "Manager %s submitting task %s", self.name, task.name)
-        return self.executor.submit(self._run_task, task)
+        return self.executor.submit(self._run_task_wait, task)
 
     def _run_task(self, task):
+        # Never call task.wait() in the run_task call stack because we
+        # might be running in another thread.  The exception-shifting
+        # code is designed so that caller of submit_task (which may be
+        # in a different thread than this run_task) gets the
+        # exception.
         self.pre_run_task(task)
         start = time.time()
         task.run()
@@ -174,6 +192,12 @@ class TaskManager(object):
         dt = end - start
         self.post_run_task(dt, task)
 
+    def _run_task_wait(self, task):
+        # For async tasks, the action being performed is getting a
+        # future back from concurrent.futures.ThreadPoolExecutor.
+        # We do need to run the wait because the Future object is
+        # handling the exception shifting for us.
+        self._run_task(task)
         return task.wait()
 
 
