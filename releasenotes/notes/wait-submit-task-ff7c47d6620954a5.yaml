@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixed an issue with exceptions raised in TaskManager being raised at
+    the wrong part of the process causing queue oriented task managers to
+    abort their processing loop instead of reporting the exception to the
+    caller.
