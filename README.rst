@@ -155,7 +155,7 @@ Create a server using objects configured with the ``clouds.yaml`` file:
 Links
 =====
 
-* `Issue Tracker <https://storyboard.openstack.org/#!/project/972>`_
+* `Issue Tracker <https://storyboard.openstack.org/#!/project/openstack/openstacksdk>`_
 * `Code Review <https://review.openstack.org/#/q/status:open+project:openstack/openstacksdk,n,z>`_
 * `Documentation <https://docs.openstack.org/openstacksdk/latest/>`_
 * `PyPI <https://pypi.org/project/openstacksdk/>`_
