@@ -22,7 +22,7 @@ class Extension(resource.Resource):
     id_attribute = "alias"
 
     # capabilities
-    allow_get = True
+    allow_fetch = True
     allow_list = True
 
     # Properties

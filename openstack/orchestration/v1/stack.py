@@ -26,8 +26,8 @@ class Stack(resource.Resource):
     # capabilities
     allow_create = True
     allow_list = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
 
     # Properties
@@ -81,10 +81,10 @@ class Stack(resource.Resource):
         # heat doesn't accept resource_key in its request.
         return super(Stack, self).create(session, prepend_key=False)
 
-    def update(self, session):
+    def commit(self, session):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(Stack, self).update(session, prepend_key=False,
+        return super(Stack, self).commit(session, prepend_key=False,
                                          has_body=False)
 
     def _action(self, session, body):
@@ -96,9 +96,11 @@ class Stack(resource.Resource):
     def check(self, session):
         return self._action(session, {'check': ''})
 
-    def get(self, session, requires_id=True, error_message=None):
-        stk = super(Stack, self).get(session, requires_id=requires_id,
-                                     error_message=error_message)
+    def fetch(self, session, requires_id=True, error_message=None):
+        stk = super(Stack, self).fetch(
+            session,
+            requires_id=requires_id,
+            error_message=error_message)
         if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
             raise exceptions.NotFoundException(
                 "No stack found for %s" % stk.id)
@@ -110,6 +112,6 @@ class StackPreview(Stack):
 
     allow_create = True
     allow_list = False
-    allow_get = False
-    allow_update = False
+    allow_fetch = False
+    allow_commit = False
     allow_delete = False

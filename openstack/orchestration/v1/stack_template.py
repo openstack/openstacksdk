@@ -22,9 +22,9 @@ class StackTemplate(resource.Resource):
     # capabilities
     allow_create = False
     allow_list = False
-    allow_get = True
+    allow_fetch = True
     allow_delete = False
-    allow_update = False
+    allow_commit = False
 
     # Properties
     #: Name of the stack where the template is referenced.

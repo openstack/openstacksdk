@@ -23,8 +23,8 @@ class Secret(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
 
@@ -79,7 +79,7 @@ class Secret(resource.Resource):
     #: (required if payload is encoded)
     payload_content_encoding = resource.Body('payload_content_encoding')
 
-    def get(self, session, requires_id=True, error_message=None):
+    def fetch(self, session, requires_id=True, error_message=None):
         request = self._prepare_request(requires_id=requires_id)
 
         response = session.get(request.url).json()

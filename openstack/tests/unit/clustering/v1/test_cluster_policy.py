@@ -38,7 +38,7 @@ class TestClusterPolicy(base.TestCase):
         self.assertEqual('/clusters/%(cluster_id)s/policies',
                          sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 
         self.assertDictEqual({"policy_name": "policy_name",

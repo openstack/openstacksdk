@@ -23,8 +23,8 @@ class Port(resource.Resource, tag.TagMixin):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
 

@@ -23,9 +23,9 @@ class SoftwareDeployment(resource.Resource):
     # capabilities
     allow_create = True
     allow_list = True
-    allow_get = True
+    allow_fetch = True
     allow_delete = True
-    allow_update = True
+    allow_commit = True
 
     # Properties
     #: The stack action that triggers this deployment resource.
@@ -57,8 +57,8 @@ class SoftwareDeployment(resource.Resource):
         return super(SoftwareDeployment, self).create(
             session, prepend_key=False)
 
-    def update(self, session):
+    def commit(self, session):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(SoftwareDeployment, self).update(
+        return super(SoftwareDeployment, self).commit(
             session, prepend_key=False)

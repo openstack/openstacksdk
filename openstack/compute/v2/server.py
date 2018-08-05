@@ -24,8 +24,8 @@ class Server(resource.Resource, metadata.MetadataMixin):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
 
@@ -445,8 +445,8 @@ class ServerDetail(Server):
 
     # capabilities
     allow_create = False
-    allow_get = False
-    allow_update = False
+    allow_fetch = False
+    allow_commit = False
     allow_delete = False
     allow_list = True
 

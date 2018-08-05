@@ -22,7 +22,7 @@ class Extension(resource.Resource):
 
     # capabilities
     allow_list = True
-    allow_get = True
+    allow_fetch = True
 
     # Properties
     #: A unique identifier, which will be used for accessing the extension

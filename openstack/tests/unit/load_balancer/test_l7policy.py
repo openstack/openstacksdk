@@ -43,8 +43,8 @@ class TestL7Policy(base.TestCase):
         self.assertEqual('/v2.0/lbaas/l7policies', test_l7_policy.base_path)
         self.assertEqual('load-balancer', test_l7_policy.service.service_type)
         self.assertTrue(test_l7_policy.allow_create)
-        self.assertTrue(test_l7_policy.allow_get)
-        self.assertTrue(test_l7_policy.allow_update)
+        self.assertTrue(test_l7_policy.allow_fetch)
+        self.assertTrue(test_l7_policy.allow_commit)
         self.assertTrue(test_l7_policy.allow_delete)
         self.assertTrue(test_l7_policy.allow_list)
 

@@ -29,11 +29,11 @@ class Node(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
-    update_method = 'PATCH'
+    commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'associated', 'driver', 'fields', 'provision_state', 'resource_class',
@@ -267,7 +267,7 @@ class Node(resource.Resource):
                                                  expected_state,
                                                  timeout=timeout)
         else:
-            return self.get(session)
+            return self.fetch(session)
 
     def wait_for_provision_state(self, session, expected_state, timeout=None,
                                  abort_on_failed_state=True):
@@ -291,7 +291,7 @@ class Node(resource.Resource):
                 "Timeout waiting for node %(node)s to reach "
                 "target state '%(state)s'" % {'node': self.id,
                                               'state': expected_state}):
-            self.get(session)
+            self.fetch(session)
             if self._check_state_reached(session, expected_state,
                                          abort_on_failed_state):
                 return self
@@ -348,8 +348,8 @@ class NodeDetail(Node):
 
     # capabilities
     allow_create = False
-    allow_get = False
-    allow_update = False
+    allow_fetch = False
+    allow_commit = False
     allow_delete = False
     allow_list = True
 

@@ -22,12 +22,12 @@ class Profile(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
 
-    update_method = 'PATCH'
+    commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'sort', 'global_project', 'type', 'name')
@@ -56,9 +56,9 @@ class Profile(resource.Resource):
 class ProfileValidate(Profile):
     base_path = '/profiles/validate'
     allow_create = True
-    allow_get = False
-    allow_update = False
+    allow_fetch = False
+    allow_commit = False
     allow_delete = False
     allow_list = False
 
-    update_method = 'PUT'
+    commit_method = 'PUT'

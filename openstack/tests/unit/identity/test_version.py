@@ -33,8 +33,8 @@ class TestVersion(base.TestCase):
         self.assertEqual('/', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 

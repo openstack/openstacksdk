@@ -21,7 +21,7 @@ class Extension(resource.Resource):
     service = network_service.NetworkService()
 
     # capabilities
-    allow_get = True
+    allow_fetch = True
     allow_list = True
 
     # NOTE: No query parameters supported

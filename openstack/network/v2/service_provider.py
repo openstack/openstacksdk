@@ -21,8 +21,8 @@ class ServiceProvider(resource.Resource):
 
     # Capabilities
     allow_create = False
-    allow_get = False
-    allow_update = False
+    allow_fetch = False
+    allow_commit = False
     allow_delete = False
     allow_list = True
 

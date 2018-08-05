@@ -31,8 +31,8 @@ class Container(_base.BaseResource):
     pagination_key = 'X-Account-Container-Count'
 
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
     allow_head = True

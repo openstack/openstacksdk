@@ -184,7 +184,7 @@ class Proxy(proxy.Proxy):
             stk = self._find(_stack.Stack, stack, ignore_missing=False)
 
         obj = _stack_files.StackFiles(stack_name=stk.name, stack_id=stk.id)
-        return obj.get(self)
+        return obj.fetch(self)
 
     def resources(self, stack, **query):
         """Return a generator of resources

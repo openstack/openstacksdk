@@ -27,9 +27,9 @@ class Notification(resource.Resource):
     # 2] GET /v1/notifications/<notification_uuid>
     # 3] POST /v1/notifications
     allow_list = True
-    allow_get = True
+    allow_fetch = True
     allow_create = True
-    allow_update = False
+    allow_commit = False
     allow_delete = False
 
     # Properties

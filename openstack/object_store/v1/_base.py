@@ -19,7 +19,7 @@ from openstack import resource
 class BaseResource(resource.Resource):
     service = object_store_service.ObjectStoreService()
 
-    update_method = 'POST'
+    commit_method = 'POST'
     create_method = 'PUT'
 
     #: Metadata stored for this resource. *Type: dict*

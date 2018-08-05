@@ -23,7 +23,7 @@ class ProfileType(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_get = True
+    allow_fetch = True
 
     # Properties
     #: Name of the profile type.

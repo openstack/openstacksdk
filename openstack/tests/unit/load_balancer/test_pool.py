@@ -48,10 +48,10 @@ class TestPool(base.TestCase):
         self.assertEqual('load-balancer',
                          test_pool.service.service_type)
         self.assertTrue(test_pool.allow_create)
-        self.assertTrue(test_pool.allow_get)
+        self.assertTrue(test_pool.allow_fetch)
         self.assertTrue(test_pool.allow_delete)
         self.assertTrue(test_pool.allow_list)
-        self.assertTrue(test_pool.allow_update)
+        self.assertTrue(test_pool.allow_commit)
 
     def test_make_it(self):
         test_pool = pool.Pool(**EXAMPLE)

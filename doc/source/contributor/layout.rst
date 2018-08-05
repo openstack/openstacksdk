@@ -30,7 +30,7 @@ the server-side expects, as this ``prop`` becomes a mapping between the two.::
 
 There are six additional attributes which the ``Resource`` class checks
 before making requests to the REST API. ``allow_create``, ``allow_retreive``,
-``allow_update``, ``allow_delete``, ``allow_head``, and ``allow_list`` are set
+``allow_commit``, ``allow_delete``, ``allow_head``, and ``allow_list`` are set
 to ``True`` or ``False``, and are checked before making the corresponding
 method call.
 

@@ -111,10 +111,15 @@ class ProxyMeta(type):
             # We pass in a copy of the dct dict so that the exec step can
             # be done in the context of the class the methods will be attached
             # to. This allows name resolution to work properly.
-            for action in ('create', 'get', 'update', 'delete'):
+            for action in ('create', 'fetch', 'commit', 'delete'):
                 if getattr(res, 'allow_{action}'.format(action=action)):
                     func = compile_function(dct.copy(), action, **args)
-                    add_function(dct, func, action, args)
+                    kwargs = {}
+                    if action == 'fetch':
+                        kwargs['name_template'] = 'get_{name}'
+                    elif action == 'commit':
+                        kwargs['name_template'] = 'update_{name}'
+                    add_function(dct, func, action, args, **kwargs)
             if res.allow_list:
                 func = compile_function(dct.copy(), 'find', **args)
                 add_function(dct, func, 'find', args)

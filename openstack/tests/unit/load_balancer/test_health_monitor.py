@@ -47,8 +47,8 @@ class TestPoolHealthMonitor(base.TestCase):
         self.assertEqual('/v2.0/lbaas/healthmonitors', test_hm.base_path)
         self.assertEqual('load-balancer', test_hm.service.service_type)
         self.assertTrue(test_hm.allow_create)
-        self.assertTrue(test_hm.allow_get)
-        self.assertTrue(test_hm.allow_update)
+        self.assertTrue(test_hm.allow_fetch)
+        self.assertTrue(test_hm.allow_commit)
         self.assertTrue(test_hm.allow_delete)
         self.assertTrue(test_hm.allow_list)
 

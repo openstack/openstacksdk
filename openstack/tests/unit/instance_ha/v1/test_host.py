@@ -46,9 +46,9 @@ class TestHost(base.TestCase):
         self.assertEqual("/segments/%(segment_id)s/hosts", sot.base_path)
         self.assertEqual("ha", sot.service.service_type)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
 
         self.assertDictEqual({"failover_segment_id": "failover_segment_id",

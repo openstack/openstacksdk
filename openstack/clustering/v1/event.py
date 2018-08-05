@@ -23,7 +23,7 @@ class Event(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_get = True
+    allow_fetch = True
 
     _query_mapping = resource.QueryParameters(
         'cluster_id', 'action', 'level', 'sort', 'global_project',

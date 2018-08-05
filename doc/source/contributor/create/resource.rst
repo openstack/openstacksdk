@@ -130,14 +130,14 @@ value by setting it to ``True``:
 +----------------------------------------------+----------------+
 | :class:`~openstack.resource.Resource.list`   | allow_list     |
 +----------------------------------------------+----------------+
-| :class:`~openstack.resource.Resource.get`    | allow_get      |
+| :class:`~openstack.resource.Resource.fetch`  | allow_fetch    |
 +----------------------------------------------+----------------+
-| :class:`~openstack.resource.Resource.update` | allow_update   |
+| :class:`~openstack.resource.Resource.commit` | allow_commit   |
 +----------------------------------------------+----------------+
 
-An additional attribute to set is ``put_update`` if your service uses ``PUT``
-requests in order to update a resource. By default, ``PATCH`` requests are
-used for ``Resource.update``.
+An additional attribute to set is ``commit_method``. It defaults to ``PUT``,
+but some services use ``POST`` or ``PATCH`` to commit changes back to the
+remote resource.
 
 Properties
 ----------

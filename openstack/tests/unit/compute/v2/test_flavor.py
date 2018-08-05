@@ -40,10 +40,10 @@ class TestFlavor(base.TestCase):
         self.assertEqual('/flavors', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_commit)
 
         self.assertDictEqual({"sort_key": "sort_key",
                               "sort_dir": "sort_dir",
@@ -79,7 +79,7 @@ class TestFlavor(base.TestCase):
         self.assertEqual('/flavors/detail', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)

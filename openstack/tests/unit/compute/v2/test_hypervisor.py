@@ -50,7 +50,7 @@ class TestHypervisor(base.TestCase):
         self.assertEqual('hypervisors', sot.resources_key)
         self.assertEqual('/os-hypervisors', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
@@ -83,5 +83,5 @@ class TestHypervisor(base.TestCase):
         self.assertEqual('hypervisors', sot.resources_key)
         self.assertEqual('/os-hypervisors/detail', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
-        self.assertFalse(sot.allow_get)
+        self.assertFalse(sot.allow_fetch)
         self.assertTrue(sot.allow_list)

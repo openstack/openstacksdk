@@ -31,11 +31,11 @@ class Image(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
-    update_method = 'PATCH'
+    commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         "name", "visibility",
@@ -272,7 +272,7 @@ class Image(resource.Resource):
             # If we don't receive the Content-MD5 header with the download,
             # make an additional call to get the image details and look at
             # the checksum attribute.
-            details = self.get(session)
+            details = self.fetch(session)
             checksum = details.checksum
 
         # if we are returning the repsonse object, ensure that it
@@ -294,7 +294,7 @@ class Image(resource.Resource):
 
         return resp.content
 
-    def update(self, session, **attrs):
+    def commit(self, session, **attrs):
         url = utils.urljoin(self.base_path, self.id)
         headers = {
             'Content-Type': 'application/openstack-images-v2.1-json-patch',

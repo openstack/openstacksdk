@@ -145,8 +145,9 @@ class TestProxyBase(base.TestCase):
         with mock.patch(patch_target, autospec=True) as res:
             proxy._get_resource = mock.Mock(return_value=res)
             proxy._get(resource_type)
-            res.get.assert_called_once_with(proxy, requires_id=True,
-                                            error_message=mock.ANY)
+            res.fetch.assert_called_once_with(
+                proxy, requires_id=True,
+                error_message=mock.ANY)
 
     def verify_head(self, test_method, resource_type,
                     mock_method="openstack.proxy.Proxy._head",

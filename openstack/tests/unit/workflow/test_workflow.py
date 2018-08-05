@@ -33,7 +33,7 @@ class TestWorkflow(base.TestCase):
         self.assertEqual('workflows', sot.resources_key)
         self.assertEqual('/workflows', sot.base_path)
         self.assertEqual('workflowv2', sot.service.service_type)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_delete)

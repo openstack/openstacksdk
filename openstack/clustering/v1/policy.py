@@ -22,12 +22,12 @@ class Policy(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_get = True
+    allow_fetch = True
     allow_create = True
     allow_delete = True
-    allow_update = True
+    allow_commit = True
 
-    update_method = 'PATCH'
+    commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'name', 'type', 'sort', 'global_project')
@@ -58,9 +58,9 @@ class PolicyValidate(Policy):
 
     # Capabilities
     allow_list = False
-    allow_get = False
+    allow_fetch = False
     allow_create = True
     allow_delete = False
-    allow_update = False
+    allow_commit = False
 
-    update_method = 'PUT'
+    commit_method = 'PUT'

@@ -22,7 +22,7 @@ class Keypair(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
+    allow_fetch = True
     allow_delete = True
     allow_list = True
 

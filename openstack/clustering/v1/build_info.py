@@ -20,7 +20,7 @@ class BuildInfo(resource.Resource):
     service = clustering_service.ClusteringService()
 
     # Capabilities
-    allow_get = True
+    allow_fetch = True
 
     # Properties
     #: String representation of the API build version

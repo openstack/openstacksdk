@@ -57,7 +57,7 @@ _DELETE_TEMPLATE = """Delete a {resource_name}
 :returns: ``None``
 """
 
-_GET_TEMPLATE = """Get a single {resource_name}
+_FETCH_TEMPLATE = """Fetch a single {resource_name}
 
 :param {name}:
     The value can be the ID of a {name} or a
@@ -78,13 +78,13 @@ _CREATE_TEMPLATE = """Create a new {resource_name} from attributes
 :rtype: :class:`~{resource_class}`
 """
 
-_UPDATE_TEMPLATE = """Update a {resource_name}
+_COMMIT_TEMPLATE = """Commit the state of a {resource_name}
 
 :param {name}:
     Either the ID of a {resource_name} or a :class:`~{resource_class}`
     instance.
 :attrs kwargs:
-    The attributes to update on the {resource_name} represented by
+    The attributes to commit on the {resource_name} represented by
     ``{name}``.
 
 :returns: The updated server
@@ -96,8 +96,8 @@ _DOC_TEMPLATES = {
     'delete': _DELETE_TEMPLATE,
     'find': _FIND_TEMPLATE,
     'list': _LIST_TEMPLATE,
-    'get': _GET_TEMPLATE,
-    'update': _UPDATE_TEMPLATE,
+    'fetch': _FETCH_TEMPLATE,
+    'commit': _COMMIT_TEMPLATE,
 }
 
 _FIND_SOURCE = """
@@ -116,8 +116,8 @@ def delete(self, {name}, ignore_missing=True):
     self._delete(self.{resource_name}, {name}, ignore_missing=ignore_missing)
 """
 
-_GET_SOURCE = """
-def get(self, {name}):
+_FETCH_SOURCE = """
+def fetch(self, {name}):
     return self._get(self.{resource_name}, {name})
 """
 
@@ -127,8 +127,8 @@ def list(self, details=True, **query):
     return self._list(res_cls, paginated=True, **query)
 """
 
-_UPDATE_SOURCE = """
-def update(self, {name}, **attrs):
+_COMMIT_SOURCE = """
+def commit(self, {name}, **attrs):
     return self._update(self.{resource_name}, {name}, **attrs)
 """
 
@@ -137,8 +137,8 @@ _SOURCE_TEMPLATES = {
     'delete': _DELETE_SOURCE,
     'find': _FIND_SOURCE,
     'list': _LIST_SOURCE,
-    'get': _GET_SOURCE,
-    'update': _UPDATE_SOURCE,
+    'fetch': _FETCH_SOURCE,
+    'commit': _COMMIT_SOURCE,
 }
 
 

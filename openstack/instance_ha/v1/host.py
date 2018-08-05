@@ -29,9 +29,9 @@ class Host(resource.Resource):
     # 4] PUT /v1/segments/<segment_uuid>/hosts
     # 5] DELETE /v1/segments/<segment_uuid>/hosts
     allow_list = True
-    allow_get = True
+    allow_fetch = True
     allow_create = True
-    allow_update = True
+    allow_commit = True
     allow_delete = True
 
     # Properties

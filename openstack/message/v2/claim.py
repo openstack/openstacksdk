@@ -28,10 +28,10 @@ class Claim(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
-    update_method = 'PATCH'
+    commit_method = 'PATCH'
 
     # Properties
     #: The value in seconds indicating how long the claim has existed.
@@ -82,7 +82,7 @@ class Claim(resource.Resource):
 
         return self
 
-    def get(self, session, requires_id=True, error_message=None):
+    def fetch(self, session, requires_id=True, error_message=None):
         request = self._prepare_request(requires_id=requires_id)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
@@ -96,7 +96,7 @@ class Claim(resource.Resource):
 
         return self
 
-    def update(self, session, prepend_key=False, has_body=False):
+    def commit(self, session, prepend_key=False, has_body=False):
         request = self._prepare_request(prepend_key=prepend_key)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),

@@ -23,9 +23,9 @@ class SoftwareConfig(resource.Resource):
     # capabilities
     allow_create = True
     allow_list = True
-    allow_get = True
+    allow_fetch = True
     allow_delete = True
-    allow_update = False
+    allow_commit = False
 
     # Properties
     #: Configuration script or manifest that defines which configuration is

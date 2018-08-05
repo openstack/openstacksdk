@@ -44,8 +44,8 @@ class TestSecret(base.TestCase):
         self.assertEqual('/secrets', sot.base_path)
         self.assertEqual('key-manager', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
@@ -92,7 +92,7 @@ class TestSecret(base.TestCase):
         rv.json = mock.Mock(return_value=return_body)
         sess.get = mock.Mock(return_value=rv)
 
-        sot.get(sess)
+        sot.fetch(sess)
 
         sess.get.assert_called_once_with("secrets/id")
 
@@ -110,7 +110,7 @@ class TestSecret(base.TestCase):
         sess = mock.Mock()
         sess.get = mock.Mock(side_effect=[metadata_response, payload_response])
 
-        rv = sot.get(sess)
+        rv = sot.fetch(sess)
 
         sess.get.assert_has_calls(
             [mock.call("secrets/id",),

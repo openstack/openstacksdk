@@ -23,11 +23,11 @@ class Cluster(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
-    update_method = 'PATCH'
+    commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'name', 'status', 'sort', 'global_project')

@@ -21,7 +21,7 @@ class Pools(resource.Resource):
     service = block_storage_service.BlockStorageService()
 
     # capabilities
-    allow_get = False
+    allow_fetch = False
     allow_create = False
     allow_delete = False
     allow_list = True

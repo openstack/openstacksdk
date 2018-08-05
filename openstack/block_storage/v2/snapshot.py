@@ -25,10 +25,10 @@ class Snapshot(resource.Resource):
         'all_tenants', 'name', 'status', 'volume_id')
 
     # capabilities
-    allow_get = True
+    allow_fetch = True
     allow_create = True
     allow_delete = True
-    allow_update = True
+    allow_commit = True
     allow_list = True
 
     # Properties

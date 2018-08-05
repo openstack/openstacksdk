@@ -1538,11 +1538,11 @@ class Proxy(proxy.Proxy):
 
     def add_ip_to_port(self, port, ip):
         ip.port_id = port.id
-        return ip.update(self)
+        return ip.commit(self)
 
     def remove_ip_from_port(self, ip):
         ip.port_id = None
-        return ip.update(self)
+        return ip.commit(self)
 
     def get_subnet_ports(self, subnet_id):
         result = []

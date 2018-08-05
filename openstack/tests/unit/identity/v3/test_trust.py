@@ -41,7 +41,7 @@ class TestTrust(base.TestCase):
         self.assertEqual('/OS-TRUST/trusts', sot.base_path)
         self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 

@@ -22,7 +22,7 @@ class Flavor(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
+    allow_fetch = True
     allow_delete = True
     allow_list = True
 
@@ -62,8 +62,8 @@ class FlavorDetail(Flavor):
     base_path = '/flavors/detail'
 
     allow_create = False
-    allow_get = False
-    allow_update = False
+    allow_fetch = False
+    allow_commit = False
     allow_delete = False
     allow_list = True
 

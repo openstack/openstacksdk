@@ -22,8 +22,8 @@ class SecurityGroupRule(resource.Resource):
 
     # capabilities
     allow_create = True
-    allow_get = True
-    allow_update = False
+    allow_fetch = True
+    allow_commit = False
     allow_delete = True
     allow_list = True
 

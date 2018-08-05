@@ -32,12 +32,12 @@ class TestVersion(base.TestCase):
         self.assertEqual('/', sot.base_path)
         self.assertEqual('baremetal', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_head)
-        self.assertEqual('PUT', sot.update_method)
+        self.assertEqual('PUT', sot.commit_method)
         self.assertEqual('POST', sot.create_method)
 
     def test_make_it(self):

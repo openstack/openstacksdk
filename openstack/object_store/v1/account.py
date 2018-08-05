@@ -20,8 +20,8 @@ class Account(_base.BaseResource):
 
     base_path = "/"
 
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_head = True
 
     #: The total number of bytes that are stored in Object Storage for

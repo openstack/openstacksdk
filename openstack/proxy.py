@@ -169,7 +169,7 @@ class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
         :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
-        return res.update(self)
+        return res.commit(self)
 
     def _create(self, resource_type, **attrs):
         """Create a resource from attributes
@@ -193,7 +193,7 @@ class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
 
     @_check_resource(strict=False)
     def _get(self, resource_type, value=None, requires_id=True, **attrs):
-        """Get a resource
+        """Fetch a resource
 
         :param resource_type: The type of resource to get.
         :type resource_type: :class:`~openstack.resource.Resource`
@@ -207,12 +207,12 @@ class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
                            or :class:`~openstack.resource.Header`
                            values on this resource.
 
-        :returns: The result of the ``get``
+        :returns: The result of the ``fetch``
         :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
 
-        return res.get(
+        return res.fetch(
             self, requires_id=requires_id,
             error_message="No {resource_type} found for {value}".format(
                 resource_type=resource_type.__name__, value=value))

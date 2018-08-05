@@ -40,8 +40,8 @@ class TestFlavor(base.TestCase):
         self.assertEqual('/flavors', flavors.base_path)
         self.assertEqual('network', flavors.service.service_type)
         self.assertTrue(flavors.allow_create)
-        self.assertTrue(flavors.allow_get)
-        self.assertTrue(flavors.allow_update)
+        self.assertTrue(flavors.allow_fetch)
+        self.assertTrue(flavors.allow_commit)
         self.assertTrue(flavors.allow_delete)
         self.assertTrue(flavors.allow_list)
 

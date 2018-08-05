@@ -27,8 +27,8 @@ class TestAutoAllocatedTopology(base.TestCase):
         self.assertEqual('auto_allocated_topology', topo.resource_key)
         self.assertEqual('/auto-allocated-topology', topo.base_path)
         self.assertFalse(topo.allow_create)
-        self.assertTrue(topo.allow_get)
-        self.assertFalse(topo.allow_update)
+        self.assertTrue(topo.allow_fetch)
+        self.assertFalse(topo.allow_commit)
         self.assertTrue(topo.allow_delete)
         self.assertFalse(topo.allow_list)
 

@@ -42,8 +42,8 @@ class TestPoolMember(base.TestCase):
                          test_member.base_path)
         self.assertEqual('load-balancer', test_member.service.service_type)
         self.assertTrue(test_member.allow_create)
-        self.assertTrue(test_member.allow_get)
-        self.assertTrue(test_member.allow_update)
+        self.assertTrue(test_member.allow_fetch)
+        self.assertTrue(test_member.allow_commit)
         self.assertTrue(test_member.allow_delete)
         self.assertTrue(test_member.allow_list)
 

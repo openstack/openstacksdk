@@ -38,7 +38,7 @@ class TestProfileType(base.TestCase):
         self.assertEqual('profile_types', sot.resources_key)
         self.assertEqual('/profile-types', sot.base_path)
         self.assertEqual('clustering', sot.service.service_type)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 
     def test_instantiate(self):

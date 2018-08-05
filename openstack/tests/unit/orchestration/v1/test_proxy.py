@@ -110,33 +110,33 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                                        'stack_name': stack_name,
                                        'stack_id': stack_id})
 
-    @mock.patch.object(stack_files.StackFiles, 'get')
+    @mock.patch.object(stack_files.StackFiles, 'fetch')
     @mock.patch.object(stack.Stack, 'find')
-    def test_get_stack_files_with_stack_identity(self, mock_find, mock_get):
+    def test_get_stack_files_with_stack_identity(self, mock_find, mock_fetch):
         stack_id = '1234'
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
         mock_find.return_value = stk
-        mock_get.return_value = {'file': 'content'}
+        mock_fetch.return_value = {'file': 'content'}
 
         res = self.proxy.get_stack_files('IDENTITY')
 
         self.assertEqual({'file': 'content'}, res)
         mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
                                           ignore_missing=False)
-        mock_get.assert_called_once_with(self.proxy)
+        mock_fetch.assert_called_once_with(self.proxy)
 
-    @mock.patch.object(stack_files.StackFiles, 'get')
-    def test_get_stack_files_with_stack_object(self, mock_get):
+    @mock.patch.object(stack_files.StackFiles, 'fetch')
+    def test_get_stack_files_with_stack_object(self, mock_fetch):
         stack_id = '1234'
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
-        mock_get.return_value = {'file': 'content'}
+        mock_fetch.return_value = {'file': 'content'}
 
         res = self.proxy.get_stack_files(stk)
 
         self.assertEqual({'file': 'content'}, res)
-        mock_get.assert_called_once_with(self.proxy)
+        mock_fetch.assert_called_once_with(self.proxy)
 
     @mock.patch.object(stack.Stack, 'find')
     def test_get_stack_template_with_stack_identity(self, mock_find):

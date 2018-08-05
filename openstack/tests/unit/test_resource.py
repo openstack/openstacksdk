@@ -421,12 +421,12 @@ class TestResource(base.TestCase):
         self.assertEqual(uri, sot._uri.dirty)
 
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
         self.assertFalse(sot.allow_head)
-        self.assertEqual('PUT', sot.update_method)
+        self.assertEqual('PUT', sot.commit_method)
         self.assertEqual('POST', sot.create_method)
 
     def test_repr(self):
@@ -909,8 +909,8 @@ class TestResource(base.TestCase):
     def test_cant_do_anything(self):
         class Test(resource.Resource):
             allow_create = False
-            allow_get = False
-            allow_update = False
+            allow_fetch = False
+            allow_commit = False
             allow_delete = False
             allow_head = False
             allow_list = False
@@ -920,7 +920,7 @@ class TestResource(base.TestCase):
         # The first argument to all of these operations is the session,
         # but we raise before we get to it so just pass anything in.
         self.assertRaises(exceptions.MethodNotSupported, sot.create, "")
-        self.assertRaises(exceptions.MethodNotSupported, sot.get, "")
+        self.assertRaises(exceptions.MethodNotSupported, sot.fetch, "")
         self.assertRaises(exceptions.MethodNotSupported, sot.delete, "")
         self.assertRaises(exceptions.MethodNotSupported, sot.head, "")
 
@@ -933,7 +933,7 @@ class TestResource(base.TestCase):
         # if the call can be made, so fake a dirty list.
         sot._body = mock.Mock()
         sot._body.dirty = mock.Mock(return_value={"x": "y"})
-        self.assertRaises(exceptions.MethodNotSupported, sot.update, "")
+        self.assertRaises(exceptions.MethodNotSupported, sot.commit, "")
 
 
 class TestResourceActions(base.TestCase):
@@ -949,9 +949,9 @@ class TestResourceActions(base.TestCase):
             base_path = self.base_path
             resources_key = 'resources'
             allow_create = True
-            allow_get = True
+            allow_fetch = True
             allow_head = True
-            allow_update = True
+            allow_commit = True
             allow_delete = True
             allow_list = True
 
@@ -1037,8 +1037,8 @@ class TestResourceActions(base.TestCase):
 
         self._test_create(Test, requires_id=False, prepend_key=True)
 
-    def test_get(self):
-        result = self.sot.get(self.session)
+    def test_fetch(self):
+        result = self.sot.fetch(self.session)
 
         self.sot._prepare_request.assert_called_once_with(requires_id=True)
         self.session.get.assert_called_once_with(
@@ -1048,18 +1048,18 @@ class TestResourceActions(base.TestCase):
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
 
-    def test_get_with_microversion(self):
+    def test_fetch_with_microversion(self):
         class Test(resource.Resource):
             service = self.service_name
             base_path = self.base_path
-            allow_get = True
+            allow_fetch = True
             _max_microversion = '1.42'
 
         sot = Test(id='id')
         sot._prepare_request = mock.Mock(return_value=self.request)
         sot._translate_response = mock.Mock()
 
-        result = sot.get(self.session)
+        result = sot.fetch(self.session)
 
         sot._prepare_request.assert_called_once_with(requires_id=True)
         self.session.get.assert_called_once_with(
@@ -1069,8 +1069,8 @@ class TestResourceActions(base.TestCase):
         sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, sot)
 
-    def test_get_not_requires_id(self):
-        result = self.sot.get(self.session, False)
+    def test_fetch_not_requires_id(self):
+        result = self.sot.fetch(self.session, False)
 
         self.sot._prepare_request.assert_called_once_with(requires_id=False)
         self.session.get.assert_called_once_with(
@@ -1117,31 +1117,31 @@ class TestResourceActions(base.TestCase):
             self.response, has_body=False)
         self.assertEqual(result, sot)
 
-    def _test_update(self, update_method='PUT', prepend_key=True,
+    def _test_commit(self, commit_method='PUT', prepend_key=True,
                      has_body=True, microversion=None):
-        self.sot.update_method = update_method
+        self.sot.commit_method = commit_method
 
         # Need to make sot look dirty so we can attempt an update
         self.sot._body = mock.Mock()
         self.sot._body.dirty = mock.Mock(return_value={"x": "y"})
 
-        self.sot.update(self.session, prepend_key=prepend_key,
+        self.sot.commit(self.session, prepend_key=prepend_key,
                         has_body=has_body)
 
         self.sot._prepare_request.assert_called_once_with(
             prepend_key=prepend_key)
 
-        if update_method == 'PATCH':
+        if commit_method == 'PATCH':
             self.session.patch.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers,
                 microversion=microversion)
-        elif update_method == 'POST':
+        elif commit_method == 'POST':
             self.session.post.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers,
                 microversion=microversion)
-        elif update_method == 'PUT':
+        elif commit_method == 'PUT':
             self.session.put.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers,
@@ -1151,20 +1151,20 @@ class TestResourceActions(base.TestCase):
         self.sot._translate_response.assert_called_once_with(
             self.response, has_body=has_body)
 
-    def test_update_put(self):
-        self._test_update(update_method='PUT', prepend_key=True, has_body=True)
+    def test_commit_put(self):
+        self._test_commit(commit_method='PUT', prepend_key=True, has_body=True)
 
-    def test_update_patch(self):
-        self._test_update(
-            update_method='PATCH', prepend_key=False, has_body=False)
+    def test_commit_patch(self):
+        self._test_commit(
+            commit_method='PATCH', prepend_key=False, has_body=False)
 
-    def test_update_not_dirty(self):
+    def test_commit_not_dirty(self):
         self.sot._body = mock.Mock()
         self.sot._body.dirty = dict()
         self.sot._header = mock.Mock()
         self.sot._header.dirty = dict()
 
-        self.sot.update(self.session)
+        self.sot.commit(self.session)
 
         self.session.put.assert_not_called()
 
@@ -1879,7 +1879,7 @@ class TestResourceFind(base.TestCase):
             @classmethod
             def existing(cls, **kwargs):
                 mock_match = mock.Mock()
-                mock_match.get.return_value = value
+                mock_match.fetch.return_value = value
                 return mock_match
 
         result = Test.find("session", "name")
@@ -1990,11 +1990,11 @@ class TestWaitForStatus(base.TestCase):
         assert not kwargs, 'Unexpected keyword arguments: %s' % kwargs
         resources = []
         for status in statuses:
-            res = mock.Mock(spec=['id', 'get', attribute])
+            res = mock.Mock(spec=['id', 'fetch', attribute])
             setattr(res, attribute, status)
             resources.append(res)
         for index, res in enumerate(resources[:-1]):
-            res.get.return_value = resources[index + 1]
+            res.fetch.return_value = resources[index + 1]
         return resources
 
     def test_status_match(self):
@@ -2089,7 +2089,7 @@ class TestWaitForDelete(base.TestCase):
         response.headers = {}
         response.status_code = 404
         res = mock.Mock()
-        res.get.side_effect = [
+        res.fetch.side_effect = [
             None, None,
             exceptions.NotFoundException('Not Found', response)]
 
@@ -2100,7 +2100,7 @@ class TestWaitForDelete(base.TestCase):
     def test_timeout(self):
         res = mock.Mock()
         res.status = 'ACTIVE'
-        res.get.return_value = res
+        res.fetch.return_value = res
 
         self.assertRaises(
             exceptions.ResourceTimeout,
@@ -2118,8 +2118,8 @@ class TestAssertMicroversionFor(base.TestCase):
 
         self.assertEqual(
             '1.42',
-            self.res._assert_microversion_for(self.session, 'get', '1.6'))
-        mock_get_ver.assert_called_once_with(self.res, self.session, 'get')
+            self.res._assert_microversion_for(self.session, 'fetch', '1.6'))
+        mock_get_ver.assert_called_once_with(self.res, self.session, 'fetch')
 
     def test_incompatible(self, mock_get_ver):
         mock_get_ver.return_value = '1.1'
@@ -2127,8 +2127,8 @@ class TestAssertMicroversionFor(base.TestCase):
         self.assertRaisesRegex(exceptions.NotSupported,
                                '1.6 is required, but 1.1 will be used',
                                self.res._assert_microversion_for,
-                               self.session, 'get', '1.6')
-        mock_get_ver.assert_called_once_with(self.res, self.session, 'get')
+                               self.session, 'fetch', '1.6')
+        mock_get_ver.assert_called_once_with(self.res, self.session, 'fetch')
 
     def test_custom_message(self, mock_get_ver):
         mock_get_ver.return_value = '1.1'
@@ -2136,9 +2136,9 @@ class TestAssertMicroversionFor(base.TestCase):
         self.assertRaisesRegex(exceptions.NotSupported,
                                'boom.*1.6 is required, but 1.1 will be used',
                                self.res._assert_microversion_for,
-                               self.session, 'get', '1.6',
+                               self.session, 'fetch', '1.6',
                                error_message='boom')
-        mock_get_ver.assert_called_once_with(self.res, self.session, 'get')
+        mock_get_ver.assert_called_once_with(self.res, self.session, 'fetch')
 
     def test_none(self, mock_get_ver):
         mock_get_ver.return_value = None
@@ -2146,5 +2146,5 @@ class TestAssertMicroversionFor(base.TestCase):
         self.assertRaisesRegex(exceptions.NotSupported,
                                '1.6 is required, but the default version',
                                self.res._assert_microversion_for,
-                               self.session, 'get', '1.6')
-        mock_get_ver.assert_called_once_with(self.res, self.session, 'get')
+                               self.session, 'fetch', '1.6')
+        mock_get_ver.assert_called_once_with(self.res, self.session, 'fetch')
