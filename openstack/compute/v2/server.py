@@ -363,7 +363,8 @@ class Server(resource.Resource, metadata.MetadataMixin):
         resp = self._action(session, body)
         return resp.json()
 
-    def live_migrate(self, session, host, force, block_migration):
+    def live_migrate(self, session, host, force, block_migration,
+                     disk_over_commit=False):
         if utils.supports_microversion(session, '2.30'):
             return self._live_migrate_30(
                 session, host,
@@ -378,7 +379,8 @@ class Server(resource.Resource, metadata.MetadataMixin):
             return self._live_migrate(
                 session, host,
                 force=force,
-                block_migration=block_migration)
+                block_migration=block_migration,
+                disk_over_commit=disk_over_commit)
 
     def _live_migrate_30(self, session, host, force, block_migration):
         microversion = '2.30'
@@ -412,19 +414,18 @@ class Server(resource.Resource, metadata.MetadataMixin):
         self._action(
             session, {'os-migrateLive': body}, microversion=microversion)
 
-    def _live_migrate(self, session, host, force, block_migration):
+    def _live_migrate(self, session, host, force, block_migration,
+                      disk_over_commit):
         microversion = None
-        # disk_over_commit is not exposed because post 2.25 it has been
-        # removed and no SDK user is depending on it today.
         body = {
             'host': None,
-            'disk_over_commit': False,
         }
         if block_migration == 'auto':
             raise ValueError(
                 "Live migration on this cloud does not support 'auto' as"
                 " a parameter to block_migration, but only True and False.")
         body['block_migration'] = block_migration or False
+        body['disk_over_commit'] = disk_over_commit or False
         if host:
             body['host'] = host
             if not force:
