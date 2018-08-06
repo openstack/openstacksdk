@@ -62,7 +62,8 @@ class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
         if value is None:
             # Create a bare resource
             res = resource_type.new(**attrs)
-        elif isinstance(value, dict):
+        elif (isinstance(value, dict)
+              and not isinstance(value, resource.Resource)):
             res = resource_type._from_munch(value)
             res._update(**attrs)
         elif not isinstance(value, resource_type):

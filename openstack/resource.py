@@ -38,6 +38,7 @@ from keystoneauth1 import adapter
 from keystoneauth1 import discover
 import munch
 from requests import structures
+import six
 
 from openstack import _log
 from openstack import exceptions
@@ -124,7 +125,7 @@ class _BaseComponent(object):
 
     def __get__(self, instance, owner):
         if instance is None:
-            return None
+            return self
 
         attributes = getattr(instance, self.key)
 
@@ -318,7 +319,16 @@ class QueryParameters(object):
         return result
 
 
-class Resource(object):
+class Resource(dict):
+    # TODO(mordred) While this behaves mostly like a munch for the purposes
+    # we need, sub-resources, such as Server.security_groups, which is a list
+    # of dicts, will contain lists of real dicts, not lists of munch-like dict
+    # objects. We should probably figure out a Resource class, perhaps
+    # SubResource or something, that we can use to define the data-model of
+    # complex object attributes where those attributes are not already covered
+    # by a different resource such as Server.image which should ultimately
+    # be an Image. We subclass dict so that things like json.dumps and pprint
+    # will work properly.
 
     #: Singular form of key for resource.
     resource_key = None
@@ -419,6 +429,13 @@ class Resource(object):
             attributes=computed,
             synchronized=_synchronized)
 
+        # TODO(mordred) This is terrible, but is a hack at the moment to ensure
+        # json.dumps works. The json library does basically if not obj: and
+        # obj.items() ... but I think the if not obj: is short-circuiting down
+        # in the C code and thus since we don't store the data in self[] it's
+        # always False even if we override __len__ or __bool__.
+        dict.update(self, self.to_dict())
+
     def __repr__(self):
         pairs = [
             "%s=%s" % (k, v if v is not None else 'None')
@@ -462,6 +479,49 @@ class Resource(object):
         else:
             return object.__getattribute__(self, name)
 
+    def __getitem__(self, name):
+        """Provide dictionary access for elements of the data model."""
+        # Check the class, since BaseComponent is a descriptor and thus
+        # behaves like its wrapped content. If we get it on the class,
+        # it returns the BaseComponent itself, not the results of __get__.
+        real_item = getattr(self.__class__, name, None)
+        if isinstance(real_item, _BaseComponent):
+            return getattr(self, name)
+        raise KeyError(name)
+
+    def __delitem__(self, name):
+        delattr(self, name)
+
+    def __setitem__(self, name, value):
+        real_item = getattr(self.__class__, name, None)
+        if isinstance(real_item, _BaseComponent):
+            self.__setattr__(name, value)
+        else:
+            raise KeyError(
+                "{name} is not found. {module}.{cls} objects do not support"
+                " setting arbitrary keys through the"
+                " dict interface.".format(
+                    module=self.__module__,
+                    cls=self.__class__.__name__,
+                    name=name))
+
+    def keys(self):
+        # NOTE(mordred) In python2, dict.keys returns a list. In python3 it
+        # returns a dict_keys view. For 2, we can return a list from the
+        # itertools chain. In 3, return the chain so it's at least an iterator.
+        # It won't strictly speaking be an actual dict_keys, so it's possible
+        # we may want to get more clever, but for now let's see how far this
+        # will take us.
+        underlying_keys = itertools.chain(
+            self._body.attributes.keys(),
+            self._header.attributes.keys(),
+            self._uri.attributes.keys(),
+            self._computed.attributes.keys())
+        if six.PY2:
+            return list(underlying_keys)
+        else:
+            return underlying_keys
+
     def _update(self, **attrs):
         """Given attributes, update them on this instance
 
@@ -476,6 +536,13 @@ class Resource(object):
         self._header.update(header)
         self._uri.update(uri)
         self._computed.update(computed)
+
+        # TODO(mordred) This is terrible, but is a hack at the moment to ensure
+        # json.dumps works. The json library does basically if not obj: and
+        # obj.items() ... but I think the if not obj: is short-circuiting down
+        # in the C code and thus since we don't store the data in self[] it's
+        # always False even if we override __len__ or __bool__.
+        dict.update(self, self.to_dict())
 
     def _collect_attrs(self, attrs):
         """Given attributes, return a dict per type of attribute
@@ -740,16 +807,22 @@ class Resource(object):
                             continue
                         if isinstance(value, Resource):
                             mapping[key] = value.to_dict()
-                        elif (value and isinstance(value, list)
-                              and isinstance(value[0], Resource)):
+                        elif value and isinstance(value, list):
                             converted = []
                             for raw in value:
-                                converted.append(raw.to_dict())
+                                if isinstance(raw, Resource):
+                                    converted.append(raw.to_dict())
+                                else:
+                                    converted.append(raw)
                             mapping[key] = converted
                         else:
                             mapping[key] = value
 
         return mapping
+    # Compatibility with the munch.Munch.toDict method
+    toDict = to_dict
+    # Make the munch copy method use to_dict
+    copy = to_dict
 
     def _to_munch(self):
         """Convert this resource into a Munch compatible with shade."""

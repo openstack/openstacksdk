@@ -84,8 +84,11 @@ class Image(resource.Resource):
     name = resource.Body('name')
     #: The ID of the owner, or project, of the image.
     owner_id = resource.Body('owner')
+    # TODO(mordred) This is not how this works in v2. I mean, it's how it
+    # should work, but it's not. We need to fix properties. They work right
+    # in shade, so we can draw some logic from there.
     #: Properties, if any, that are associated with the image.
-    properties = resource.Body('properties', type=dict)
+    properties = resource.Body('properties')
     #: The size of the image data, in bytes.
     size = resource.Body('size', type=int)
     #: When present, Glance will attempt to store the disk image data in the

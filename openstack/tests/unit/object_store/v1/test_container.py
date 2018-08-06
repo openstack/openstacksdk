@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+
 from openstack.object_store.v1 import container
 from openstack.tests.unit import base
 
@@ -164,6 +166,29 @@ class TestContainer(base.TestCase):
         self.assertIsNone(sot_dict['object_count'])
         self.assertEqual(sot_dict['id'], self.container)
         self.assertEqual(sot_dict['name'], self.container)
+
+    def test_to_json(self):
+        sot = container.Container.new(name=self.container)
+        self.assertEqual(
+            {
+                'bytes': None,
+                'bytes_used': None,
+                'content_type': None,
+                'count': None,
+                'id': self.container,
+                'if_none_match': None,
+                'is_content_type_detected': None,
+                'is_newest': None,
+                'location': None,
+                'name': self.container,
+                'object_count': None,
+                'read_ACL': None,
+                'sync_key': None,
+                'sync_to': None,
+                'timestamp': None,
+                'versions_location': None,
+                'write_ACL': None,
+            }, json.loads(json.dumps(sot)))
 
     def _test_no_headers(self, sot, sot_call, sess_method):
         headers = {}
