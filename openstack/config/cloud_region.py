@@ -229,6 +229,9 @@ class CloudRegion(object):
 
         If none of that works, it returns the value in ``default``.
         '''
+        if service_type is None:
+            return self.config.get(key)
+
         for st in self._service_type_manager.get_all_types(service_type):
             value = self.config.get(_make_key(key, st))
             if value is not None:

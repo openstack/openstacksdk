@@ -85,6 +85,20 @@ class TestCloudRegion(base.TestCase):
         cc2 = cloud_region.CloudRegion("test1", "region-al", {})
         self.assertNotEqual(cc1, cc2)
 
+    def test_get_config(self):
+        cc = cloud_region.CloudRegion("test1", "region-al", fake_services_dict)
+        self.assertIsNone(cc._get_config('nothing', None))
+        # This is what is happening behind the scenes in get_default_interface.
+        self.assertEqual(
+            fake_services_dict['interface'],
+            cc._get_config('interface', None))
+        # The same call as above, but from one step up the stack
+        self.assertEqual(
+            fake_services_dict['interface'],
+            cc.get_interface())
+        # Which finally is what is called to populate the below
+        self.assertEqual('public', self.cloud.default_interface)
+
     def test_verify(self):
         config_dict = copy.deepcopy(fake_config_dict)
         config_dict['cacert'] = None
