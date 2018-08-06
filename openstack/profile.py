@@ -58,6 +58,10 @@ def _get_config_from_profile(profile, authenticator, **kwargs):
                 version = version[1:]
             key = cloud_region._make_key('api_version', service_type)
             kwargs[key] = version
+        if service.api_version:
+            version = service.api_version
+            key = cloud_region._make_key('default_microversion', service_type)
+            kwargs[key] = version
 
     config_kwargs = config_defaults.get_defaults()
     config_kwargs.update(kwargs)
