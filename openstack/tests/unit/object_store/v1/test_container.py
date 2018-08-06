@@ -154,6 +154,17 @@ class TestContainer(base.TestCase):
         sot = container.Container.new(name=self.container)
         self._test_create_update(sot, sot.update, 'POST')
 
+    def test_to_dict_recursion(self):
+        # This test is verifying that circular aliases in a Resource
+        # do not cause infinite recursion. count is aliased to object_count
+        # and object_count is aliased to count.
+        sot = container.Container.new(name=self.container)
+        sot_dict = sot.to_dict()
+        self.assertIsNone(sot_dict['count'])
+        self.assertIsNone(sot_dict['object_count'])
+        self.assertEqual(sot_dict['id'], self.container)
+        self.assertEqual(sot_dict['name'], self.container)
+
     def _test_no_headers(self, sot, sot_call, sess_method):
         headers = {}
         data = {}

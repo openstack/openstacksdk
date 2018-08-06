@@ -44,6 +44,8 @@ from openstack import exceptions
 from openstack import format
 from openstack import utils
 
+_SEEN_FORMAT = '{name}_seen'
+
 
 def _convert_type(value, data_type, list_type=None):
     # This should allow handling list of dicts that have their own
@@ -120,7 +122,25 @@ class _BaseComponent(object):
             value = attributes[self.name]
         except KeyError:
             if self.alias:
-                return getattr(instance, self.alias)
+                # Resource attributes can be aliased to each other. If neither
+                # of them exist, then simply doing a
+                # getattr(instance, self.alias) here sends things into
+                # infinite recursion (this _get method is what gets called
+                # when getattr(instance) is called.
+                # To combat that, we set a flag on the instance saying that
+                # we have seen the current name, and we check before trying
+                # to resolve the alias if there is already a flag set for that
+                # alias name. We then remove the seen flag for ourselves after
+                # we exit the alias getattr to clean up after ourselves for
+                # the next time.
+                alias_flag = _SEEN_FORMAT.format(name=self.alias)
+                if not getattr(instance, alias_flag, False):
+                    seen_flag = _SEEN_FORMAT.format(name=self.name)
+                    # Prevent infinite recursion
+                    setattr(instance, seen_flag, True)
+                    value = getattr(instance, self.alias)
+                    delattr(instance, seen_flag)
+                    return value
             return self.default
 
         # self.type() should not be called on None objects.
