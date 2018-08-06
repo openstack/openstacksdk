@@ -28,9 +28,13 @@ class StackEnvironment(resource.Resource):
 
     # Properties
     #: Name of the stack where the template is referenced.
-    stack_name = resource.URI('stack_name')
+    name = resource.URI('stack_name')
+    # Backwards compat
+    stack_name = name
     #: ID of the stack where the template is referenced.
-    stack_id = resource.URI('stack_id')
+    id = resource.URI('stack_id')
+    # Backwards compat
+    stack_id = id
     #: A list of parameter names whose values are encrypted
     encrypted_param_names = resource.Body('encrypted_param_names')
     #: A list of event sinks
