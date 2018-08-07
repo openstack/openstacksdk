@@ -41,7 +41,7 @@
 
 - job:
     name: openstacksdk-functional-devstack-minimum
-    parent: devstack-tox-functional-consumer
+    parent: devstack-tox-functional
     description: |
       Minimum job for devstack-based functional tests
     post-run: playbooks/devstack/post.yaml
