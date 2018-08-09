@@ -17,6 +17,7 @@ from openstack.load_balancer.v2 import listener as _listener
 from openstack.load_balancer.v2 import load_balancer as _lb
 from openstack.load_balancer.v2 import member as _member
 from openstack.load_balancer.v2 import pool as _pool
+from openstack.load_balancer.v2 import quota as _quota
 from openstack import proxy
 from openstack import resource
 
@@ -680,3 +681,68 @@ class Proxy(proxy.Proxy):
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
         return self._update(_l7rule.L7Rule, l7rule,
                             l7policy_id=l7policyobj.id, **attrs)
+
+    def quotas(self, **query):
+        """Return a generator of quotas
+
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned. Currently no query
+                           parameter is supported.
+
+        :returns: A generator of quota objects
+        :rtype: :class:`~openstack.load_balancer.v2.quota.Quota`
+        """
+        return self._list(_quota.Quota, paginated=False, **query)
+
+    def get_quota(self, quota):
+        """Get a quota
+
+        :param quota: The value can be the ID of a quota or a
+                      :class:`~openstack.load_balancer.v2.quota.Quota`
+                      instance. The ID of a quota is the same as the project
+                      ID for the quota.
+
+        :returns: One :class:`~openstack.load_balancer.v2.quota.Quota`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_quota.Quota, quota)
+
+    def update_quota(self, quota, **attrs):
+        """Update a quota
+
+        :param quota: Either the ID of a quota or a
+                      :class:`~openstack.load_balancer.v2.quota.Quota`
+                      instance. The ID of a quota is the same as the
+                      project ID for the quota.
+        :param dict attrs: The attributes to update on the quota represented
+                           by ``quota``.
+
+        :returns: The updated quota
+        :rtype: :class:`~openstack.load_balancer.v2.quota.Quota`
+        """
+        return self._update(_quota.Quota, quota, **attrs)
+
+    def get_quota_default(self):
+        """Get a default quota
+
+        :returns: One :class:`~openstack.load_balancer.v2.quota.QuotaDefault`
+        """
+        return self._get(_quota.QuotaDefault, requires_id=False)
+
+    def delete_quota(self, quota, ignore_missing=True):
+        """Delete a quota (i.e. reset to the default quota)
+
+        :param quota: The value can be either the ID of a quota or a
+                      :class:`~openstack.load_balancer.v2.quota.Quota`
+                      instance. The ID of a quota is the same as the
+                      project ID for the quota.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when quota does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent quota.
+
+        :returns: ``None``
+        """
+        self._delete(_quota.Quota, quota, ignore_missing=ignore_missing)

@@ -21,6 +21,7 @@ from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer as lb
 from openstack.load_balancer.v2 import member
 from openstack.load_balancer.v2 import pool
+from openstack.load_balancer.v2 import quota
 from openstack import proxy as proxy_base
 from openstack.tests.unit import test_proxy_base
 
@@ -268,3 +269,24 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
                       method_args=["RULE", self.L7_POLICY_ID],
                       expected_args=[l7_rule.L7Rule, "RULE"],
                       expected_kwargs={"l7policy_id": self.L7_POLICY_ID})
+
+    def test_quotas(self):
+        self.verify_list(self.proxy.quotas, quota.Quota, paginated=False)
+
+    def test_quota_get(self):
+        self.verify_get(self.proxy.get_quota, quota.Quota)
+
+    def test_quota_update(self):
+        self.verify_update(self.proxy.update_quota, quota.Quota)
+
+    def test_quota_default_get(self):
+        self._verify2("openstack.proxy.Proxy._get",
+                      self.proxy.get_quota_default,
+                      expected_args=[quota.QuotaDefault],
+                      expected_kwargs={'requires_id': False})
+
+    def test_quota_delete(self):
+        self.verify_delete(self.proxy.delete_quota, quota.Quota, False)
+
+    def test_quota_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_quota, quota.Quota, True)
