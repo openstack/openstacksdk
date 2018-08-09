@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    The base ``Resource`` field ``location`` is no longer drawn from the
+    ``Location`` HTTP header, but is instead a dict containing information
+    about cloud, domain and project. The location dict is a feature of shade
+    objects and is being added to all objects as part of the alignment of
+    shade and sdk.

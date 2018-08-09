@@ -86,31 +86,41 @@ class _BaseComponent(object):
     _map_cls = dict
 
     def __init__(self, name, type=None, default=None, alias=None,
-                 alternate_id=False, list_type=None, **kwargs):
+                 alternate_id=False, list_type=None, coerce_to_default=False,
+                 **kwargs):
         """A typed descriptor for a component that makes up a Resource
 
         :param name: The name this component exists as on the server
-        :param type: The type this component is expected to be by the server.
-                     By default this is None, meaning any value you specify
-                     will work. If you specify type=dict and then set a
-                     component to a string, __set__ will fail, for example.
+        :param type:
+            The type this component is expected to be by the server.
+            By default this is None, meaning any value you specify
+            will work. If you specify type=dict and then set a
+            component to a string, __set__ will fail, for example.
         :param default: Typically None, but any other default can be set.
         :param alias: If set, alternative attribute on object to return.
-        :param alternate_id: When `True`, this property is known
-                             internally as a value that can be sent
-                             with requests that require an ID but
-                             when `id` is not a name the Resource has.
-                             This is a relatively uncommon case, and this
-                             setting should only be used once per Resource.
-        :param list_type: If type is `list`, list_type designates what the
-                          type of the elements of the list should be.
+        :param alternate_id:
+            When `True`, this property is known internally as a value that
+            can be sent with requests that require an ID but when `id` is
+            not a name the Resource has. This is a relatively uncommon case,
+            and this setting should only be used once per Resource.
+        :param list_type:
+            If type is `list`, list_type designates what the type of the
+            elements of the list should be.
+        :param coerce_to_default:
+            If the Component is None or not present, force the given default
+            to be used. If a default is not given but a type is given,
+            construct an empty version of the type in question.
         """
         self.name = name
         self.type = type
-        self.default = default
+        if type is not None and coerce_to_default and not default:
+            self.default = type()
+        else:
+            self.default = default
         self.alias = alias
         self.alternate_id = alternate_id
         self.list_type = list_type
+        self.coerce_to_default = coerce_to_default
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -150,6 +160,8 @@ class _BaseComponent(object):
         return _convert_type(value, self.type, self.list_type)
 
     def __set__(self, instance, value):
+        if self.coerce_to_default and value is None:
+            value = self.default
         if value != self.default:
             value = _convert_type(value, self.type, self.list_type)
 
@@ -181,6 +193,12 @@ class URI(_BaseComponent):
     """URI attributes"""
 
     key = "_uri"
+
+
+class Computed(_BaseComponent):
+    """Computed attributes"""
+
+    key = "_computed"
 
 
 class _ComponentManager(collections.MutableMapping):
@@ -313,8 +331,8 @@ class Resource(object):
     id = Body("id")
     #: The name of this resource.
     name = Body("name")
-    #: The location of this resource.
-    location = Header("Location")
+    #: The OpenStack location of this resource.
+    location = Computed('location')
 
     #: Mapping of accepted query parameter names.
     _query_mapping = QueryParameters()
@@ -359,35 +377,57 @@ class Resource(object):
     #: API microversion (string or None) this Resource was loaded with
     microversion = None
 
-    def __init__(self, _synchronized=False, **attrs):
+    _connection = None
+    _body = None
+    _header = None
+    _uri = None
+    _computed = None
+
+    def __init__(self, _synchronized=False, connection=None, **attrs):
         """The base resource
 
-        :param bool _synchronized: This is not intended to be used directly.
-                    See :meth:`~openstack.resource.Resource.new` and
-                    :meth:`~openstack.resource.Resource.existing`.
+        :param bool _synchronized:
+            This is not intended to be used directly. See
+            :meth:`~openstack.resource.Resource.new` and
+            :meth:`~openstack.resource.Resource.existing`.
+        :param openstack.connection.Connection connection:
+            Reference to the Connection being used. Defaults to None to allow
+            Resource objects to be used without an active Connection, such as
+            in unit tests. Use of ``self._connection`` in Resource code should
+            protect itself with a check for None.
         """
-
+        self._connection = connection
         self.microversion = attrs.pop('microversion', None)
         # NOTE: _collect_attrs modifies **attrs in place, removing
         # items as they match up with any of the body, header,
         # or uri mappings.
-        body, header, uri = self._collect_attrs(attrs)
+        body, header, uri, computed = self._collect_attrs(attrs)
         # TODO(briancurtin): at this point if attrs has anything left
         # they're not being set anywhere. Log this? Raise exception?
         # How strict should we be here? Should strict be an option?
 
-        self._body = _ComponentManager(attributes=body,
-                                       synchronized=_synchronized)
-        self._header = _ComponentManager(attributes=header,
-                                         synchronized=_synchronized)
-        self._uri = _ComponentManager(attributes=uri,
-                                      synchronized=_synchronized)
+        self._body = _ComponentManager(
+            attributes=body,
+            synchronized=_synchronized)
+        self._header = _ComponentManager(
+            attributes=header,
+            synchronized=_synchronized)
+        self._uri = _ComponentManager(
+            attributes=uri,
+            synchronized=_synchronized)
+        self._computed = _ComponentManager(
+            attributes=computed,
+            synchronized=_synchronized)
 
     def __repr__(self):
-        pairs = ["%s=%s" % (k, v) for k, v in dict(itertools.chain(
-            self._body.attributes.items(),
-            self._header.attributes.items(),
-            self._uri.attributes.items())).items()]
+        pairs = [
+            "%s=%s" % (k, v if v is not None else 'None')
+            for k, v in dict(itertools.chain(
+                self._body.attributes.items(),
+                self._header.attributes.items(),
+                self._uri.attributes.items(),
+                self._computed.attributes.items())).items()
+        ]
         args = ", ".join(pairs)
 
         return "%s.%s(%s)" % (
@@ -397,9 +437,12 @@ class Resource(object):
         """Return True if another resource has the same contents"""
         if not isinstance(comparand, Resource):
             return False
-        return all([self._body.attributes == comparand._body.attributes,
-                    self._header.attributes == comparand._header.attributes,
-                    self._uri.attributes == comparand._uri.attributes])
+        return all([
+            self._body.attributes == comparand._body.attributes,
+            self._header.attributes == comparand._header.attributes,
+            self._uri.attributes == comparand._uri.attributes,
+            self._computed.attributes == comparand._computed.attributes,
+        ])
 
     def __getattribute__(self, name):
         """Return an attribute on this instance
@@ -427,11 +470,12 @@ class Resource(object):
         been created.
         """
         self.microversion = attrs.pop('microversion', None)
-        body, header, uri = self._collect_attrs(attrs)
+        body, header, uri, computed = self._collect_attrs(attrs)
 
         self._body.update(body)
         self._header.update(header)
         self._uri.update(uri)
+        self._computed.update(computed)
 
     def _collect_attrs(self, attrs):
         """Given attributes, return a dict per type of attribute
@@ -444,7 +488,25 @@ class Resource(object):
         header = self._consume_header_attrs(attrs)
         uri = self._consume_uri_attrs(attrs)
 
-        return body, header, uri
+        if any([body, header, uri]):
+            attrs = self._compute_attributes(body, header, uri)
+
+            body.update(self._consume_attrs(self._body_mapping(), attrs))
+
+            header.update(self._consume_attrs(self._header_mapping(), attrs))
+            uri.update(self._consume_attrs(self._uri_mapping(), attrs))
+        computed = self._consume_attrs(self._computed_mapping(), attrs)
+        # TODO(mordred) We should make a Location Resource and add it here
+        # instead of just the dict.
+        if self._connection:
+            computed['location'] = munch.unmunchify(
+                self._connection._openstackcloud.current_location)
+
+        return body, header, uri, computed
+
+    def _compute_attributes(self, body, header, uri):
+        """Compute additional attributes from the remote resource."""
+        return {}
 
     def _consume_body_attrs(self, attrs):
         return self._consume_mapped_attrs(Body, attrs)
@@ -540,6 +602,11 @@ class Resource(object):
         return cls._get_mapping(URI)
 
     @classmethod
+    def _computed_mapping(cls):
+        """Return all URI members of this class"""
+        return cls._get_mapping(Computed)
+
+    @classmethod
     def _alternate_id(cls):
         """Return the name of any value known as an alternate_id
 
@@ -585,7 +652,7 @@ class Resource(object):
         return cls(_synchronized=False, **kwargs)
 
     @classmethod
-    def existing(cls, **kwargs):
+    def existing(cls, connection=None, **kwargs):
         """Create an instance of an existing remote resource.
 
         When creating the instance set the ``_synchronized`` parameter
@@ -598,10 +665,14 @@ class Resource(object):
         :param dict kwargs: Each of the named arguments will be set as
                             attributes on the resulting Resource object.
         """
-        return cls(_synchronized=True, **kwargs)
+        res = cls(_synchronized=True, **kwargs)
+        # TODO(shade) Done as a second call rather than a constructor param
+        # because otherwise the mocking in the tests goes nuts.
+        res._connection = connection
+        return res
 
     @classmethod
-    def _from_munch(cls, obj, synchronized=True):
+    def _from_munch(cls, obj, synchronized=True, connection=None):
         """Create an instance from a ``munch.Munch`` object.
 
         This is intended as a temporary measure to convert between shade-style
@@ -611,16 +682,18 @@ class Resource(object):
         :param bool synchronized: whether this object already exists on server
             Must be set to ``False`` for newly created objects.
         """
-        return cls(_synchronized=synchronized, **obj)
+        return cls(_synchronized=synchronized, connection=connection, **obj)
 
-    def to_dict(self, body=True, headers=True, ignore_none=False,
-                original_names=False):
+    def to_dict(self, body=True, headers=True, computed=True,
+                ignore_none=False, original_names=False):
         """Return a dictionary of this resource's contents
 
         :param bool body: Include the :class:`~openstack.resource.Body`
                           attributes in the returned dictionary.
         :param bool headers: Include the :class:`~openstack.resource.Header`
                              attributes in the returned dictionary.
+        :param bool computed: Include the :class:`~openstack.resource.Computed`
+                              attributes in the returned dictionary.
         :param bool ignore_none: When True, exclude key/value pairs where
                                  the value is None. This will exclude
                                  attributes that the server hasn't returned.
@@ -637,9 +710,11 @@ class Resource(object):
             components.append(Body)
         if headers:
             components.append(Header)
+        if computed:
+            components.append(Computed)
         if not components:
             raise ValueError(
-                "At least one of `body` or `headers` must be True")
+                "At least one of `body`, `headers` or `computed` must be True")
 
         # isinstance stricly requires this to be a tuple
         components = tuple(components)
@@ -1082,6 +1157,10 @@ class Resource(object):
                 raw_resource.pop("self", None)
 
                 value = cls.existing(microversion=microversion, **raw_resource)
+                # TODO(shade) Done as a second call rather than a constructor
+                # param because otherwise the mocking in the tests goes nuts.
+                if hasattr(session, '_sdk_connection'):
+                    value._connection = session._sdk_connection
                 marker = value.id
                 yield value
                 total_yielded += 1
@@ -1189,6 +1268,10 @@ class Resource(object):
         # Try to short-circuit by looking directly for a matching ID.
         try:
             match = cls.existing(id=name_or_id, **params)
+            # TODO(shade) Done as a second call rather than a constructor
+            # param because otherwise the mocking in the tests goes nuts.
+            if hasattr(session, '_sdk_connection'):
+                match._connection = session._sdk_connection
             return match.fetch(session)
         except exceptions.NotFoundException:
             pass

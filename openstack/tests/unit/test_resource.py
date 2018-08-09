@@ -401,17 +401,22 @@ class TestResource(base.TestCase):
         body = {"body": 1}
         header = {"header": 2, "Location": "somewhere"}
         uri = {"uri": 3}
-        everything = dict(itertools.chain(body.items(), header.items(),
-                                          uri.items()))
+        computed = {"computed": 4}
+        everything = dict(itertools.chain(
+            body.items(),
+            header.items(),
+            uri.items(),
+            computed.items(),
+        ))
 
         mock_collect = mock.Mock()
-        mock_collect.return_value = body, header, uri
+        mock_collect.return_value = body, header, uri, computed
 
         with mock.patch.object(resource.Resource,
                                "_collect_attrs", mock_collect):
             sot = resource.Resource(_synchronized=False, **everything)
             mock_collect.assert_called_once_with(everything)
-        self.assertEqual("somewhere", sot.location)
+        self.assertIsNone(sot.location)
 
         self.assertIsInstance(sot._body, resource._ComponentManager)
         self.assertEqual(body, sot._body.dirty)
@@ -433,6 +438,7 @@ class TestResource(base.TestCase):
         a = {"a": 1}
         b = {"b": 2}
         c = {"c": 3}
+        d = {"d": 4}
 
         class Test(resource.Resource):
             def __init__(self):
@@ -448,6 +454,10 @@ class TestResource(base.TestCase):
                 self._uri.attributes.items = mock.Mock(
                     return_value=c.items())
 
+                self._computed = mock.Mock()
+                self._computed.attributes.items = mock.Mock(
+                    return_value=d.items())
+
         the_repr = repr(Test())
 
         # Don't test the arguments all together since the dictionary order
@@ -456,6 +466,7 @@ class TestResource(base.TestCase):
         self.assertIn("a=1", the_repr)
         self.assertIn("b=2", the_repr)
         self.assertIn("c=3", the_repr)
+        self.assertIn("d=4", the_repr)
 
     def test_equality(self):
         class Example(resource.Resource):
@@ -477,11 +488,14 @@ class TestResource(base.TestCase):
         body = "body"
         header = "header"
         uri = "uri"
+        computed = "computed"
 
-        sot._collect_attrs = mock.Mock(return_value=(body, header, uri))
+        sot._collect_attrs = mock.Mock(
+            return_value=(body, header, uri, computed))
         sot._body.update = mock.Mock()
         sot._header.update = mock.Mock()
         sot._uri.update = mock.Mock()
+        sot._computed.update = mock.Mock()
 
         args = {"arg": 1}
         sot._update(**args)
@@ -490,19 +504,7 @@ class TestResource(base.TestCase):
         sot._body.update.assert_called_once_with(body)
         sot._header.update.assert_called_once_with(header)
         sot._uri.update.assert_called_once_with(uri)
-
-    def test__collect_attrs(self):
-        sot = resource.Resource()
-
-        expected_attrs = ["body", "header", "uri"]
-
-        sot._consume_attrs = mock.Mock()
-        sot._consume_attrs.side_effect = expected_attrs
-
-        # It'll get passed an empty dict at the least.
-        actual_attrs = sot._collect_attrs(dict())
-
-        self.assertItemsEqual(expected_attrs, actual_attrs)
+        sot._computed.update.assert_called_with(computed)
 
     def test__consume_attrs(self):
         serverside_key1 = "someKey1"
@@ -538,7 +540,7 @@ class TestResource(base.TestCase):
         # Check that even on an empty class, we get the expected
         # built-in attributes.
 
-        self.assertIn("location", resource.Resource._header_mapping())
+        self.assertIn("location", resource.Resource._computed_mapping())
         self.assertIn("name", resource.Resource._body_mapping())
         self.assertIn("id", resource.Resource._body_mapping())
 
@@ -695,7 +697,8 @@ class TestResource(base.TestCase):
         expected = {
             'id': 'FAKE_ID',
             'name': None,
-            'bar': None
+            'bar': None,
+            'location': None,
         }
         self.assertEqual(expected, res.to_dict(headers=False))
 
@@ -744,10 +747,13 @@ class TestResource(base.TestCase):
 
         res = Test(id='FAKE_ID')
 
-        err = self.assertRaises(ValueError,
-                                res.to_dict, body=False, headers=False)
-        self.assertEqual('At least one of `body` or `headers` must be True',
-                         six.text_type(err))
+        err = self.assertRaises(
+            ValueError,
+            res.to_dict,
+            body=False, headers=False, computed=False)
+        self.assertEqual(
+            'At least one of `body`, `headers` or `computed` must be True',
+            six.text_type(err))
 
     def test_to_dict_with_mro_no_override(self):
 
