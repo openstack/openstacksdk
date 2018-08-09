@@ -52,19 +52,6 @@ import openstack.config.defaults
 from openstack import task_manager
 from openstack import utils
 
-# TODO(shade) shade keys were x-object-meta-x-sdk-md5 - we need to add those
-#             to freshness checks so that a shade->sdk transition doens't
-#             result in a re-upload
-OBJECT_MD5_KEY = 'x-object-meta-x-sdk-md5'
-OBJECT_SHA256_KEY = 'x-object-meta-x-sdk-sha256'
-OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-sdk-autocreated'
-OBJECT_AUTOCREATE_CONTAINER = 'images'
-# TODO(shade) shade keys were owner_specified.shade.md5 - we need to add those
-#             to freshness checks so that a shade->sdk transition doens't
-#             result in a re-upload
-IMAGE_MD5_KEY = 'owner_specified.openstack.md5'
-IMAGE_SHA256_KEY = 'owner_specified.openstack.sha256'
-IMAGE_OBJECT_KEY = 'owner_specified.openstack.object'
 # Rackspace returns this for intermittent import errors
 IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
@@ -122,6 +109,25 @@ class OpenStackCloud(_normalize.Normalizer):
     :param bool strict: Only return documented attributes for each resource
                         as per the Data Model contract. (Default False)
     """
+    _OBJECT_MD5_KEY = 'x-object-meta-x-sdk-md5'
+    _OBJECT_SHA256_KEY = 'x-object-meta-x-sdk-sha256'
+    _OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-sdk-autocreated'
+    _OBJECT_AUTOCREATE_CONTAINER = 'images'
+    _IMAGE_MD5_KEY = 'owner_specified.openstack.md5'
+    _IMAGE_SHA256_KEY = 'owner_specified.openstack.sha256'
+    _IMAGE_OBJECT_KEY = 'owner_specified.openstack.object'
+    # NOTE(shade) shade keys were x-object-meta-x-shade-md5 - we need to check
+    #             those in freshness checks so that a shade->sdk transition
+    #             doesn't result in a re-upload
+    _SHADE_OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
+    _SHADE_OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
+    _SHADE_OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-shade-autocreated'
+    # NOTE(shade) shade keys were owner_specified.shade.md5 - we need to add
+    #             those to freshness checks so that a shade->sdk transition
+    #             doesn't result in a re-upload
+    _SHADE_IMAGE_MD5_KEY = 'owner_specified.shade.md5'
+    _SHADE_IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
+    _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 
     def __init__(self):
 
@@ -4493,8 +4499,12 @@ class OpenStackCloud(_normalize.Normalizer):
         self.list_images.invalidate(self)
 
         # Task API means an image was uploaded to swift
-        if self.image_api_use_tasks and IMAGE_OBJECT_KEY in image:
-            (container, objname) = image[IMAGE_OBJECT_KEY].split('/', 1)
+        if self.image_api_use_tasks and (
+                self._IMAGE_OBJECT_KEY in image
+                or self._SHADE_IMAGE_OBJECT_KEY in image):
+            (container, objname) = image.get(
+                self._IMAGE_OBJECT_KEY, image.get(
+                    self._SHADE_IMAGE_OBJECT_KEY)).split('/', 1)
             self.delete_object(container=container, name=objname)
 
         if wait:
@@ -4542,7 +4552,8 @@ class OpenStackCloud(_normalize.Normalizer):
         return up_to_date
 
     def create_image(
-            self, name, filename=None, container=OBJECT_AUTOCREATE_CONTAINER,
+            self, name, filename=None,
+            container=None,
             md5=None, sha256=None,
             disk_format=None, container_format=None,
             disable_vendor_agent=True,
@@ -4602,6 +4613,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException if there are problems uploading
         """
+        if container is None:
+            container = self._OBJECT_AUTOCREATE_CONTAINER
         if not meta:
             meta = {}
 
@@ -4637,8 +4650,12 @@ class OpenStackCloud(_normalize.Normalizer):
         else:
             current_image = self.get_image(name)
             if current_image:
-                md5_key = current_image.get(IMAGE_MD5_KEY, '')
-                sha256_key = current_image.get(IMAGE_SHA256_KEY, '')
+                md5_key = current_image.get(
+                    self._IMAGE_MD5_KEY,
+                    current_image.get(self._SHADE_IMAGE_MD5_KEY, ''))
+                sha256_key = current_image.get(
+                    self._IMAGE_SHA256_KEY,
+                    current_image.get(self._SHADE_IMAGE_SHA256_KEY, ''))
                 up_to_date = self._hashes_up_to_date(
                     md5=md5, sha256=sha256,
                     md5_key=md5_key, sha256_key=sha256_key)
@@ -4647,9 +4664,9 @@ class OpenStackCloud(_normalize.Normalizer):
                         "image %(name)s exists and is up to date",
                         {'name': name})
                     return current_image
-        kwargs[IMAGE_MD5_KEY] = md5 or ''
-        kwargs[IMAGE_SHA256_KEY] = sha256 or ''
-        kwargs[IMAGE_OBJECT_KEY] = '/'.join([container, name])
+        kwargs[self._IMAGE_MD5_KEY] = md5 or ''
+        kwargs[self._IMAGE_SHA256_KEY] = sha256 or ''
+        kwargs[self._IMAGE_OBJECT_KEY] = '/'.join([container, name])
 
         if disable_vendor_agent:
             kwargs.update(self.config.config['disable_vendor_agent'])
@@ -4778,7 +4795,7 @@ class OpenStackCloud(_normalize.Normalizer):
         image = self._get_and_munchify(
             'image',
             self._image_client.post('/images', json=image_kwargs))
-        checksum = image_kwargs['properties'].get(IMAGE_MD5_KEY, '')
+        checksum = image_kwargs['properties'].get(self._IMAGE_MD5_KEY, '')
 
         try:
             # Let us all take a brief moment to be grateful that this
@@ -4845,7 +4862,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self.create_object(
             container, name, filename,
             md5=md5, sha256=sha256,
-            metadata={OBJECT_AUTOCREATE_KEY: 'true'},
+            metadata={self._OBJECT_AUTOCREATE_KEY: 'true'},
             **{'content-type': 'application/octet-stream'})
         if not current_image:
             current_image = self.get_image(name)
@@ -7447,8 +7464,11 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if not (file_md5 or file_sha256):
             (file_md5, file_sha256) = self._get_file_hashes(filename)
-        md5_key = metadata.get(OBJECT_MD5_KEY, '')
-        sha256_key = metadata.get(OBJECT_SHA256_KEY, '')
+        md5_key = metadata.get(
+            self._OBJECT_MD5_KEY, metadata.get(self._SHADE_OBJECT_MD5_KEY, ''))
+        sha256_key = metadata.get(
+            self._OBJECT_SHA256_KEY, metadata.get(
+                self._SHADE_OBJECT_SHA256_KEY, ''))
         up_to_date = self._hashes_up_to_date(
             md5=file_md5, sha256=file_sha256,
             md5_key=md5_key, sha256_key=sha256_key)
@@ -7557,9 +7577,9 @@ class OpenStackCloud(_normalize.Normalizer):
         if generate_checksums and (md5 is None or sha256 is None):
             (md5, sha256) = self._get_file_hashes(filename)
         if md5:
-            headers[OBJECT_MD5_KEY] = md5 or ''
+            headers[self._OBJECT_MD5_KEY] = md5 or ''
         if sha256:
-            headers[OBJECT_SHA256_KEY] = sha256 or ''
+            headers[self._OBJECT_SHA256_KEY] = sha256 or ''
         for (k, v) in metadata.items():
             headers['x-object-meta-' + k] = v
 
@@ -7784,8 +7804,7 @@ class OpenStackCloud(_normalize.Normalizer):
         except exc.OpenStackCloudHTTPError:
             return False
 
-    def delete_autocreated_image_objects(
-            self, container=OBJECT_AUTOCREATE_CONTAINER):
+    def delete_autocreated_image_objects(self, container=None):
         """Delete all objects autocreated for image uploads.
 
         This method should generally not be needed, as shade should clean up
@@ -7794,6 +7813,8 @@ class OpenStackCloud(_normalize.Normalizer):
         can be used to delete any objects that shade has created on the user's
         behalf in service of image uploads.
         """
+        if container is None:
+            container = self._OBJECT_AUTOCREATE_CONTAINER
         # This method only makes sense on clouds that use tasks
         if not self.image_api_use_tasks:
             return False
@@ -7801,7 +7822,9 @@ class OpenStackCloud(_normalize.Normalizer):
         deleted = False
         for obj in self.list_objects(container):
             meta = self.get_object_metadata(container, obj['name'])
-            if meta.get(OBJECT_AUTOCREATE_KEY) == 'true':
+            if meta.get(
+                    self._OBJECT_AUTOCREATE_KEY, meta.get(
+                        self._SHADE_OBJECT_AUTOCREATE_KEY)) == 'true':
                 if self.delete_object(container, obj['name'], meta):
                     deleted = True
         return deleted
