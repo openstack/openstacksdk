@@ -77,7 +77,7 @@
      network: "{{ server_network }}"
      auto_floating_ip: false
      boot_from_volume: true
-     volume_size: 5
+     volume_size: "{{ boot_volume_size }}"
      terminate_volume: true
      wait: true
   register: server

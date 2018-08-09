@@ -14,20 +14,20 @@
      network_name: "{{ network_name }}"
      cidr: 10.5.5.0/24
 
-- name: Create port (no security group)
+- name: Create port (no security group or default security group)
   os_port:
      cloud: "{{ cloud }}"
      state: present
      name: "{{ port_name }}"
      network: "{{ network_name }}"
-     no_security_groups: True
+     no_security_groups: "{{ no_security_groups }}"
      fixed_ips:
        - ip_address: 10.5.5.69
   register: port
 
 - debug: var=port
 
-- name: Delete port (no security group)
+- name: Delete port (no security group or default security group)
   os_port:
      cloud: "{{ cloud }}"
      state: absent
@@ -66,7 +66,7 @@
      state: present
      name: "{{ port_name }}"
      network: "{{ network_name }}"
-     no_security_groups: True
+     no_security_groups: "{{ no_security_groups }}"
      allowed_address_pairs:
        - ip_address: 10.6.7.0/24
      extra_dhcp_opts:
