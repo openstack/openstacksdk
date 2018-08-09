@@ -55,7 +55,7 @@ class TestSubscription(base.TestCase):
         self.assertEqual("/queues/%(queue_name)s/subscriptions", sot.base_path)
         self.assertEqual("messaging", sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
@@ -122,7 +122,7 @@ class TestSubscription(base.TestCase):
 
         sot = subscription.Subscription(**FAKE1)
         sot._translate_response = mock.Mock()
-        res = sot.get(sess)
+        res = sot.fetch(sess)
 
         url = "queues/%(queue)s/subscriptions/%(subscription)s" % {
             "queue": FAKE1["queue_name"], "subscription": FAKE1["id"]}
@@ -141,7 +141,7 @@ class TestSubscription(base.TestCase):
 
         sot = subscription.Subscription(**FAKE2)
         sot._translate_response = mock.Mock()
-        res = sot.get(sess)
+        res = sot.fetch(sess)
 
         url = "queues/%(queue)s/subscriptions/%(subscription)s" % {
             "queue": FAKE2["queue_name"], "subscription": FAKE2["id"]}

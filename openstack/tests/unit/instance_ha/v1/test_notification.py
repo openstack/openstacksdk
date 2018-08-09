@@ -46,9 +46,9 @@ class TestNotification(base.TestCase):
         self.assertEqual("/notifications", sot.base_path)
         self.assertEqual("ha", sot.service.service_type)
         self.assertTrue(sot.allow_list)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_create)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
 
         self.assertDictEqual({"generated_since": "generated-since",

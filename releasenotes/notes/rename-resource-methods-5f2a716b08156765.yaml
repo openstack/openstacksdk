@@ -1,0 +1,12 @@
+---
+upgrade:
+  - |
+    ``openstack.resource.Resource.get`` has been renamed to
+    ``openstack.resource.Resource.fetch`` to prevent conflicting with a
+    ``dict`` method of the same name. While most consumer code is unlikely
+    to call this method directly, this is a breaking change.
+  - |
+    ``openstack.resource.Resource.update`` has been renamed to
+    ``openstack.resource.Resource.commit`` to prevent conflicting with a
+    ``dict`` method of the same name. While most consumer code is unlikely
+    to call this method directly, this is a breaking change.

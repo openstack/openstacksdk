@@ -71,8 +71,8 @@ class TestAbsoluteLimits(base.TestCase):
         self.assertEqual("", sot.base_path)
         self.assertIsNone(sot.service)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
@@ -121,8 +121,8 @@ class TestRateLimit(base.TestCase):
         self.assertEqual("", sot.base_path)
         self.assertIsNone(sot.service)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
@@ -140,9 +140,9 @@ class TestLimits(base.TestCase):
         self.assertEqual("limits", sot.resource_key)
         self.assertEqual("/limits", sot.base_path)
         self.assertEqual("compute", sot.service.service_type)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
@@ -155,7 +155,7 @@ class TestLimits(base.TestCase):
         resp.headers = {}
         resp.status_code = 200
 
-        sot = limits.Limits().get(sess)
+        sot = limits.Limits().fetch(sess)
 
         self.assertEqual(ABSOLUTE_LIMITS["maxImageMeta"],
                          sot.absolute.image_meta)

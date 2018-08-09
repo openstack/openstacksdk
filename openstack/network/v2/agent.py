@@ -24,8 +24,8 @@ class Agent(resource.Resource):
 
     # capabilities
     allow_create = False
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
 
@@ -100,8 +100,8 @@ class NetworkHostingDHCPAgent(Agent):
 
     # capabilities
     allow_create = False
-    allow_get = True
-    allow_update = False
+    allow_fetch = True
+    allow_commit = False
     allow_delete = False
     allow_list = True
 
@@ -118,7 +118,7 @@ class RouterL3Agent(Agent):
     # capabilities
     allow_create = False
     allow_retrieve = True
-    allow_update = False
+    allow_commit = False
     allow_delete = False
     allow_list = True
 

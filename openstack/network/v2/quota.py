@@ -21,8 +21,8 @@ class Quota(resource.Resource):
     service = network_service.NetworkService()
 
     # capabilities
-    allow_get = True
-    allow_update = True
+    allow_fetch = True
+    allow_commit = True
     allow_delete = True
     allow_list = True
 
@@ -75,7 +75,7 @@ class QuotaDefault(Quota):
 
     # capabilities
     allow_retrieve = True
-    allow_update = False
+    allow_commit = False
     allow_delete = False
     allow_list = False
 
@@ -89,7 +89,7 @@ class QuotaDetails(Quota):
 
     # capabilities
     allow_retrieve = True
-    allow_update = False
+    allow_commit = False
     allow_delete = False
     allow_list = False
 

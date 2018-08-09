@@ -22,7 +22,7 @@ class Flavor(resource.Resource):
 
     # capabilities
     allow_list = True
-    allow_get = True
+    allow_fetch = True
 
     # Properties
     #: Links associated with the flavor

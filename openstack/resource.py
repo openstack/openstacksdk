@@ -328,9 +328,9 @@ class Resource(object):
     #: Allow create operation for this resource.
     allow_create = False
     #: Allow get operation for this resource.
-    allow_get = False
+    allow_fetch = False
     #: Allow update operation for this resource.
-    allow_update = False
+    allow_commit = False
     #: Allow delete operation for this resource.
     allow_delete = False
     #: Allow list operation for this resource.
@@ -338,8 +338,12 @@ class Resource(object):
     #: Allow head operation for this resource.
     allow_head = False
 
-    #: Method for udating a resource (PUT, PATCH, POST)
-    update_method = "PUT"
+    # TODO(mordred) Unused - here for transition with OSC. Remove once
+    # OSC no longer checks for allow_get
+    allow_get = True
+
+    #: Method for committing a resource (PUT, PATCH, POST)
+    commit_method = "PUT"
     #: Method for creating a resource (POST, PUT)
     create_method = "POST"
 
@@ -793,11 +797,11 @@ class Resource(object):
         Subclasses can override this method if more complex logic is needed.
 
         :param session: :class`keystoneauth1.adapter.Adapter`
-        :param action: One of "get", "update", "create", "delete". Unused in
+        :param action: One of "fetch", "commit", "create", "delete". Unused in
             the base implementation.
         :return: microversion as string or ``None``
         """
-        if action not in ('get', 'update', 'create', 'delete'):
+        if action not in ('fetch', 'commit', 'create', 'delete'):
             raise ValueError('Invalid action: %s' % action)
 
         return self._get_microversion_for_list(session)
@@ -807,7 +811,7 @@ class Resource(object):
         """Enforce that the microversion for action satisfies the requirement.
 
         :param session: :class`keystoneauth1.adapter.Adapter`
-        :param action: One of "get", "update", "create", "delete".
+        :param action: One of "fetch", "commit", "create", "delete".
         :param expected: Expected microversion.
         :param error_message: Optional error message with details. Will be
             prepended to the message generated here.
@@ -876,7 +880,7 @@ class Resource(object):
         self._translate_response(response)
         return self
 
-    def get(self, session, requires_id=True, error_message=None):
+    def fetch(self, session, requires_id=True, error_message=None):
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -885,14 +889,14 @@ class Resource(object):
                                     should be part of the requested URI.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_get` is not set to ``True``.
+                 :data:`Resource.allow_fetch` is not set to ``True``.
         """
-        if not self.allow_get:
-            raise exceptions.MethodNotSupported(self, "get")
+        if not self.allow_fetch:
+            raise exceptions.MethodNotSupported(self, "fetch")
 
         request = self._prepare_request(requires_id=requires_id)
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'get')
+        microversion = self._get_microversion_for(session, 'fetch')
         response = session.get(request.url, microversion=microversion)
         kwargs = {}
         if error_message:
@@ -918,7 +922,7 @@ class Resource(object):
         request = self._prepare_request()
 
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'get')
+        microversion = self._get_microversion_for(session, 'fetch')
         response = session.head(request.url,
                                 headers={"Accept": ""},
                                 microversion=microversion)
@@ -927,8 +931,8 @@ class Resource(object):
         self._translate_response(response, has_body=False)
         return self
 
-    def update(self, session, prepend_key=True, has_body=True):
-        """Update the remote resource based on this instance.
+    def commit(self, session, prepend_key=True, has_body=True):
+        """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
@@ -938,37 +942,37 @@ class Resource(object):
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_update` is not set to ``True``.
+                 :data:`Resource.allow_commit` is not set to ``True``.
         """
-        # The id cannot be dirty for an update
+        # The id cannot be dirty for an commit
         self._body._dirty.discard("id")
 
-        # Only try to update if we actually have anything to update.
+        # Only try to update if we actually have anything to commit.
         if not any([self._body.dirty, self._header.dirty]):
             return self
 
-        if not self.allow_update:
-            raise exceptions.MethodNotSupported(self, "update")
+        if not self.allow_commit:
+            raise exceptions.MethodNotSupported(self, "commit")
 
         request = self._prepare_request(prepend_key=prepend_key)
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'update')
+        microversion = self._get_microversion_for(session, 'commit')
 
-        if self.update_method == 'PATCH':
+        if self.commit_method == 'PATCH':
             response = session.patch(
                 request.url, json=request.body, headers=request.headers,
                 microversion=microversion)
-        elif self.update_method == 'POST':
+        elif self.commit_method == 'POST':
             response = session.post(
                 request.url, json=request.body, headers=request.headers,
                 microversion=microversion)
-        elif self.update_method == 'PUT':
+        elif self.commit_method == 'PUT':
             response = session.put(
                 request.url, json=request.body, headers=request.headers,
                 microversion=microversion)
         else:
             raise exceptions.ResourceFailure(
-                msg="Invalid update method: %s" % self.update_method)
+                msg="Invalid commit method: %s" % self.commit_method)
 
         self.microversion = microversion
         self._translate_response(response, has_body=has_body)
@@ -982,7 +986,7 @@ class Resource(object):
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_update` is not set to ``True``.
+                 :data:`Resource.allow_commit` is not set to ``True``.
         """
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, "delete")
@@ -1185,7 +1189,7 @@ class Resource(object):
         # Try to short-circuit by looking directly for a matching ID.
         try:
             match = cls.existing(id=name_or_id, **params)
-            return match.get(session)
+            return match.fetch(session)
         except exceptions.NotFoundException:
             pass
 
@@ -1251,7 +1255,7 @@ def wait_for_status(session, resource, status, failures, interval=None,
             timeout=wait,
             message=msg,
             wait=interval):
-        resource = resource.get(session)
+        resource = resource.fetch(session)
 
         if not resource:
             raise exceptions.ResourceFailure(
@@ -1293,7 +1297,7 @@ def wait_for_delete(session, resource, interval, wait):
                 id=resource.id),
             wait=interval):
         try:
-            resource = resource.get(session)
+            resource = resource.fetch(session)
             if not resource:
                 return orig_resource
             if resource.status.lower() == 'deleted':

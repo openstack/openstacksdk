@@ -21,7 +21,7 @@ class Type(resource.Resource):
     service = block_storage_service.BlockStorageService()
 
     # capabilities
-    allow_get = True
+    allow_fetch = True
     allow_create = True
     allow_delete = True
     allow_list = True

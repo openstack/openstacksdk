@@ -22,9 +22,9 @@ class Template(resource.Resource):
     # capabilities
     allow_create = False
     allow_list = False
-    allow_get = False
+    allow_fetch = False
     allow_delete = False
-    allow_update = False
+    allow_commit = False
 
     # Properties
     #: The description specified in the template

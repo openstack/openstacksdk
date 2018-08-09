@@ -115,8 +115,8 @@ class TestImage(base.TestCase):
         self.assertEqual('/images', sot.base_path)
         self.assertEqual('image', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
@@ -333,7 +333,7 @@ class TestImage(base.TestCase):
         fake_img['name'] = 'fake_name'
         fake_img['new_property'] = 'fake_value'
 
-        sot.update(self.sess, **fake_img)
+        sot.commit(self.sess, **fake_img)
         url = 'images/' + IDENTIFIER
         self.sess.patch.assert_called_once()
         call = self.sess.patch.call_args

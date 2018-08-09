@@ -28,8 +28,8 @@ class TestStackFiles(base.TestCase):
         sot = sf.StackFiles()
         self.assertEqual('orchestration', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
 
@@ -55,7 +55,7 @@ class TestStackFiles(base.TestCase):
                     'stack_id': FAKE['stack_id']})
         mock_prepare_request.return_value = req
 
-        files = sot.get(sess)
+        files = sot.fetch(sess)
 
         sess.get.assert_called_once_with(req.url)
         self.assertEqual({'file': 'file-content'}, files)

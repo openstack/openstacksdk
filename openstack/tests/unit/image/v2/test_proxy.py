@@ -58,14 +58,14 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
 
     @mock.patch("openstack.resource.Resource._translate_response")
     @mock.patch("openstack.proxy.Proxy._get")
-    @mock.patch("openstack.image.v2.image.Image.update")
-    def test_image_update(self, mock_update_image, mock_get_image,
+    @mock.patch("openstack.image.v2.image.Image.commit")
+    def test_image_update(self, mock_commit_image, mock_get_image,
                           mock_transpose):
         original_image = image.Image(**EXAMPLE)
         mock_get_image.return_value = original_image
         EXAMPLE['name'] = 'fake_name'
         updated_image = image.Image(**EXAMPLE)
-        mock_update_image.return_value = updated_image.to_dict()
+        mock_commit_image.return_value = updated_image.to_dict()
         result = self.proxy.update_image(original_image,
                                          **updated_image.to_dict())
         self.assertEqual('fake_name', result.get('name'))

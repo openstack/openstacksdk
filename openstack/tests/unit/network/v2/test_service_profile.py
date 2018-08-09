@@ -35,8 +35,8 @@ class TestServiceProfile(base.TestCase):
         self.assertEqual('service_profiles', service_profiles.resources_key)
         self.assertEqual('/service_profiles', service_profiles.base_path)
         self.assertTrue(service_profiles.allow_create)
-        self.assertTrue(service_profiles.allow_get)
-        self.assertTrue(service_profiles.allow_update)
+        self.assertTrue(service_profiles.allow_fetch)
+        self.assertTrue(service_profiles.allow_commit)
         self.assertTrue(service_profiles.allow_delete)
         self.assertTrue(service_profiles.allow_list)
 

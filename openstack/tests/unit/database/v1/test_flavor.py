@@ -33,8 +33,8 @@ class TestFlavor(base.TestCase):
         self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
 
     def test_make_it(self):

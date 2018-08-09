@@ -33,8 +33,8 @@ class TestMember(base.TestCase):
         self.assertEqual('image', sot.service.service_type)
         self.assertEqual('member', sot._alternate_id())
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 

@@ -52,11 +52,11 @@ class TestChassis(base.TestCase):
         self.assertEqual('/chassis', sot.base_path)
         self.assertEqual('baremetal', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertEqual('PATCH', sot.update_method)
+        self.assertEqual('PATCH', sot.commit_method)
 
     def test_instantiate(self):
         sot = chassis.Chassis(**FAKE)
@@ -78,8 +78,8 @@ class TestChassisDetail(base.TestCase):
         self.assertEqual('/chassis/detail', sot.base_path)
         self.assertEqual('baremetal', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 

@@ -49,9 +49,9 @@ class TestClaim(base.TestCase):
         self.assertEqual("/queues/%(queue_name)s/claims", sot.base_path)
         self.assertEqual("messaging", sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_commit)
 
     def test_make_it(self):
         sot = claim.Claim.new(**FAKE2)
@@ -137,7 +137,7 @@ class TestClaim(base.TestCase):
 
         sot = claim.Claim(**FAKE1)
         sot._translate_response = mock.Mock()
-        res = sot.get(sess)
+        res = sot.fetch(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
             "queue": FAKE1["queue_name"], "claim": FAKE1["id"]}
@@ -156,7 +156,7 @@ class TestClaim(base.TestCase):
 
         sot = claim.Claim(**FAKE2)
         sot._translate_response = mock.Mock()
-        res = sot.get(sess)
+        res = sot.fetch(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
             "queue": FAKE2["queue_name"], "claim": FAKE2["id"]}
@@ -177,7 +177,7 @@ class TestClaim(base.TestCase):
         FAKE = copy.deepcopy(FAKE1)
 
         sot = claim.Claim(**FAKE1)
-        res = sot.update(sess)
+        res = sot.commit(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
             "queue": FAKE.pop("queue_name"), "claim": FAKE["id"]}
@@ -195,7 +195,7 @@ class TestClaim(base.TestCase):
         FAKE = copy.deepcopy(FAKE2)
 
         sot = claim.Claim(**FAKE2)
-        res = sot.update(sess)
+        res = sot.commit(sess)
 
         url = "queues/%(queue)s/claims/%(claim)s" % {
             "queue": FAKE.pop("queue_name"), "claim": FAKE["id"]}

@@ -22,7 +22,7 @@ class Image(resource.Resource, metadata.MetadataMixin):
     service = compute_service.ComputeService()
 
     # capabilities
-    allow_get = True
+    allow_fetch = True
     allow_delete = True
     allow_list = True
 
@@ -60,6 +60,6 @@ class Image(resource.Resource, metadata.MetadataMixin):
 class ImageDetail(Image):
     base_path = '/images/detail'
 
-    allow_get = False
+    allow_fetch = False
     allow_delete = False
     allow_list = True

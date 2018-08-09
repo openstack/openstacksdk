@@ -67,8 +67,8 @@ class TestRouter(base.TestCase):
         self.assertEqual('/routers', sot.base_path)
         self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
@@ -216,6 +216,6 @@ class TestL3AgentRouters(base.TestCase):
         self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_retrieve)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)

@@ -54,7 +54,7 @@ class TestMessage(base.TestCase):
         self.assertEqual('/queues/%(queue_name)s/messages', sot.base_path)
         self.assertEqual('messaging', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
@@ -147,7 +147,7 @@ class TestMessage(base.TestCase):
 
         sot = message.Message(**FAKE1)
         sot._translate_response = mock.Mock()
-        res = sot.get(sess)
+        res = sot.fetch(sess)
 
         url = 'queues/%(queue)s/messages/%(message)s' % {
             'queue': FAKE1['queue_name'], 'message': FAKE1['id']}
@@ -166,13 +166,13 @@ class TestMessage(base.TestCase):
 
         sot = message.Message(**FAKE1)
         sot._translate_response = mock.Mock()
-        res = sot.get(sess)
+        res = sot.fetch(sess)
 
         url = 'queues/%(queue)s/messages/%(message)s' % {
             'queue': FAKE2['queue_name'], 'message': FAKE2['id']}
         sot = message.Message(**FAKE2)
         sot._translate_response = mock.Mock()
-        res = sot.get(sess)
+        res = sot.fetch(sess)
         headers = {'Client-ID': 'OLD_CLIENT_ID',
                    'X-PROJECT-ID': 'OLD_PROJECT_ID'}
         sess.get.assert_called_with(url,

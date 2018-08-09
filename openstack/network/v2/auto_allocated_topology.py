@@ -22,8 +22,8 @@ class AutoAllocatedTopology(resource.Resource):
 
     # Capabilities
     allow_create = False
-    allow_get = True
-    allow_update = False
+    allow_fetch = True
+    allow_commit = False
     allow_delete = True
     allow_list = False
 

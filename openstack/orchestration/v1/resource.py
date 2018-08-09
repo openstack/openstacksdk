@@ -26,7 +26,7 @@ class Resource(resource.Resource):
     allow_list = True
     allow_retrieve = False
     allow_delete = False
-    allow_update = False
+    allow_commit = False
 
     # Properties
     #: A list of dictionaries containing links relevant to the resource.

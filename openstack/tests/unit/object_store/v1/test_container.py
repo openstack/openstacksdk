@@ -48,9 +48,9 @@ class TestContainer(base.TestCase):
         self.assertEqual('name', sot._alternate_id())
         self.assertEqual('/', sot.base_path)
         self.assertEqual('object-store', sot.service.service_type)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_head)
@@ -150,9 +150,9 @@ class TestContainer(base.TestCase):
         sot = container.Container.new(name=self.container)
         self._test_create_update(sot, sot.create, 'PUT')
 
-    def test_update(self):
+    def test_commit(self):
         sot = container.Container.new(name=self.container)
-        self._test_create_update(sot, sot.update, 'POST')
+        self._test_create_update(sot, sot.commit, 'POST')
 
     def test_to_dict_recursion(self):
         # This test is verifying that circular aliases in a Resource
@@ -182,7 +182,7 @@ class TestContainer(base.TestCase):
         self._test_no_headers(sot, sot.create, 'PUT')
         self.assert_calls()
 
-    def test_update_no_headers(self):
+    def test_commit_no_headers(self):
         sot = container.Container.new(name=self.container)
-        self._test_no_headers(sot, sot.update, 'POST')
+        self._test_no_headers(sot, sot.commit, 'POST')
         self.assert_no_calls()

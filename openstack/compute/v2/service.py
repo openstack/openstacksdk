@@ -24,7 +24,7 @@ class Service(resource.Resource):
 
     # capabilities
     allow_list = True
-    allow_update = True
+    allow_commit = True
 
     # Properties
     #: Status of service

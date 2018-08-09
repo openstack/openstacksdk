@@ -50,10 +50,10 @@ class TestLoadBalancer(base.TestCase):
         self.assertEqual('load-balancer',
                          test_load_balancer.service.service_type)
         self.assertTrue(test_load_balancer.allow_create)
-        self.assertTrue(test_load_balancer.allow_get)
+        self.assertTrue(test_load_balancer.allow_fetch)
         self.assertTrue(test_load_balancer.allow_delete)
         self.assertTrue(test_load_balancer.allow_list)
-        self.assertTrue(test_load_balancer.allow_update)
+        self.assertTrue(test_load_balancer.allow_commit)
 
     def test_make_it(self):
         test_load_balancer = load_balancer.LoadBalancer(**EXAMPLE)

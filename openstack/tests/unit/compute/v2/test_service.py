@@ -42,9 +42,9 @@ class TestService(base.TestCase):
         self.assertEqual('services', sot.resources_key)
         self.assertEqual('/os-services', sot.base_path)
         self.assertEqual('compute', sot.service.service_type)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_list)
-        self.assertFalse(sot.allow_get)
+        self.assertFalse(sot.allow_fetch)
 
     def test_make_it(self):
         sot = service.Service(**EXAMPLE)

@@ -23,7 +23,7 @@ class Hypervisor(resource.Resource):
     service = compute_service.ComputeService()
 
     # capabilities
-    allow_get = True
+    allow_fetch = True
     allow_list = True
 
     # Properties
@@ -71,5 +71,5 @@ class HypervisorDetail(Hypervisor):
     base_path = '/os-hypervisors/detail'
 
     # capabilities
-    allow_get = False
+    allow_fetch = False
     allow_list = True

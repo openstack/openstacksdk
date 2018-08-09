@@ -22,12 +22,12 @@ class Receiver(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_get = True
+    allow_fetch = True
     allow_create = True
-    allow_update = True
+    allow_commit = True
     allow_delete = True
 
-    update_method = 'PATCH'
+    commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'name', 'type', 'cluster_id', 'action', 'sort', 'global_project',

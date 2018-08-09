@@ -29,7 +29,7 @@ class Queue(resource.Resource):
     # capabilities
     allow_create = True
     allow_list = True
-    allow_get = True
+    allow_fetch = True
     allow_delete = True
 
     # Properties
@@ -107,7 +107,7 @@ class Queue(resource.Resource):
             query_params["limit"] = yielded
             query_params["marker"] = new_marker
 
-    def get(self, session, requires_id=True, error_message=None):
+    def fetch(self, session, requires_id=True, error_message=None):
         request = self._prepare_request(requires_id=requires_id)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),

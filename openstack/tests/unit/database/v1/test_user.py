@@ -32,8 +32,8 @@ class TestUser(base.TestCase):
         self.assertEqual('/instances/%(instance_id)s/users', sot.base_path)
         self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 

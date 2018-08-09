@@ -29,9 +29,9 @@ class Segment(resource.Resource):
     # 4] PUT /v1/segments/<segment_uuid>
     # 5] DELETE /v1/segments/<segment_uuid>
     allow_list = True
-    allow_get = True
+    allow_fetch = True
     allow_create = True
-    allow_update = True
+    allow_commit = True
     allow_delete = True
 
     # Properties

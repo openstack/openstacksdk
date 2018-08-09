@@ -23,7 +23,7 @@ class Action(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_get = True
+    allow_fetch = True
 
     _query_mapping = resource.QueryParameters(
         'name', 'action', 'status', 'sort', 'global_project',

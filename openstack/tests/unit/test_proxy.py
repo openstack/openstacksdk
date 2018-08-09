@@ -24,7 +24,7 @@ class DeleteableResource(resource.Resource):
 
 
 class UpdateableResource(resource.Resource):
-    allow_update = True
+    allow_commit = True
 
 
 class CreateableResource(resource.Resource):
@@ -241,7 +241,7 @@ class TestProxyUpdate(base.TestCase):
         self.fake_result = "fake_result"
 
         self.res = mock.Mock(spec=UpdateableResource)
-        self.res.update = mock.Mock(return_value=self.fake_result)
+        self.res.commit = mock.Mock(return_value=self.fake_result)
 
         self.sot = proxy.Proxy(self.session)
 
@@ -254,13 +254,13 @@ class TestProxyUpdate(base.TestCase):
 
         self.assertEqual(rv, self.fake_result)
         self.res._update.assert_called_once_with(**self.attrs)
-        self.res.update.assert_called_once_with(self.sot)
+        self.res.commit.assert_called_once_with(self.sot)
 
     def test_update_id(self):
         rv = self.sot._update(UpdateableResource, self.fake_id, **self.attrs)
 
         self.assertEqual(rv, self.fake_result)
-        self.res.update.assert_called_once_with(self.sot)
+        self.res.commit.assert_called_once_with(self.sot)
 
 
 class TestProxyCreate(base.TestCase):
@@ -299,7 +299,7 @@ class TestProxyGet(base.TestCase):
         self.fake_result = "fake_result"
         self.res = mock.Mock(spec=RetrieveableResource)
         self.res.id = self.fake_id
-        self.res.get = mock.Mock(return_value=self.fake_result)
+        self.res.fetch = mock.Mock(return_value=self.fake_result)
 
         self.sot = proxy.Proxy(self.session)
         RetrieveableResource.new = mock.Mock(return_value=self.res)
@@ -307,8 +307,9 @@ class TestProxyGet(base.TestCase):
     def test_get_resource(self):
         rv = self.sot._get(RetrieveableResource, self.res)
 
-        self.res.get.assert_called_with(self.sot, requires_id=True,
-                                        error_message=mock.ANY)
+        self.res.fetch.assert_called_with(
+            self.sot, requires_id=True,
+            error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_resource_with_args(self):
@@ -316,20 +317,22 @@ class TestProxyGet(base.TestCase):
         rv = self.sot._get(RetrieveableResource, self.res, **args)
 
         self.res._update.assert_called_once_with(**args)
-        self.res.get.assert_called_with(self.sot, requires_id=True,
-                                        error_message=mock.ANY)
+        self.res.fetch.assert_called_with(
+            self.sot, requires_id=True,
+            error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_id(self):
         rv = self.sot._get(RetrieveableResource, self.fake_id)
 
         RetrieveableResource.new.assert_called_with(id=self.fake_id)
-        self.res.get.assert_called_with(self.sot, requires_id=True,
-                                        error_message=mock.ANY)
+        self.res.fetch.assert_called_with(
+            self.sot, requires_id=True,
+            error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
     def test_get_not_found(self):
-        self.res.get.side_effect = exceptions.NotFoundException(
+        self.res.fetch.side_effect = exceptions.NotFoundException(
             message="test", http_status=404)
 
         self.assertRaisesRegex(

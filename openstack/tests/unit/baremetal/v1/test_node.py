@@ -103,11 +103,11 @@ class TestNode(base.TestCase):
         self.assertEqual('/nodes', sot.base_path)
         self.assertEqual('baremetal', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertEqual('PATCH', sot.update_method)
+        self.assertEqual('PATCH', sot.commit_method)
 
     def test_instantiate(self):
         sot = node.Node(**FAKE)
@@ -157,8 +157,8 @@ class TestNodeDetail(base.TestCase):
         self.assertEqual('/nodes/detail', sot.base_path)
         self.assertEqual('baremetal', sot.service.service_type)
         self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
@@ -202,59 +202,59 @@ class TestNodeDetail(base.TestCase):
 
 
 @mock.patch('time.sleep', lambda _t: None)
-@mock.patch.object(node.Node, 'get', autospec=True)
+@mock.patch.object(node.Node, 'fetch', autospec=True)
 class TestNodeWaitForProvisionState(base.TestCase):
     def setUp(self):
         super(TestNodeWaitForProvisionState, self).setUp()
         self.node = node.Node(**FAKE)
         self.session = mock.Mock()
 
-    def test_success(self, mock_get):
+    def test_success(self, mock_fetch):
         def _get_side_effect(_self, session):
             self.node.provision_state = 'manageable'
             self.assertIs(session, self.session)
 
-        mock_get.side_effect = _get_side_effect
+        mock_fetch.side_effect = _get_side_effect
 
         node = self.node.wait_for_provision_state(self.session, 'manageable')
         self.assertIs(node, self.node)
 
-    def test_failure(self, mock_get):
+    def test_failure(self, mock_fetch):
         def _get_side_effect(_self, session):
             self.node.provision_state = 'deploy failed'
             self.assertIs(session, self.session)
 
-        mock_get.side_effect = _get_side_effect
+        mock_fetch.side_effect = _get_side_effect
 
         self.assertRaisesRegex(exceptions.SDKException,
                                'failure state "deploy failed"',
                                self.node.wait_for_provision_state,
                                self.session, 'manageable')
 
-    def test_enroll_as_failure(self, mock_get):
+    def test_enroll_as_failure(self, mock_fetch):
         def _get_side_effect(_self, session):
             self.node.provision_state = 'enroll'
             self.node.last_error = 'power failure'
             self.assertIs(session, self.session)
 
-        mock_get.side_effect = _get_side_effect
+        mock_fetch.side_effect = _get_side_effect
 
         self.assertRaisesRegex(exceptions.SDKException,
                                'failed to verify management credentials',
                                self.node.wait_for_provision_state,
                                self.session, 'manageable')
 
-    def test_timeout(self, mock_get):
+    def test_timeout(self, mock_fetch):
         self.assertRaises(exceptions.ResourceTimeout,
                           self.node.wait_for_provision_state,
                           self.session, 'manageable', timeout=0.001)
 
-    def test_not_abort_on_failed_state(self, mock_get):
+    def test_not_abort_on_failed_state(self, mock_fetch):
         def _get_side_effect(_self, session):
             self.node.provision_state = 'deploy failed'
             self.assertIs(session, self.session)
 
-        mock_get.side_effect = _get_side_effect
+        mock_fetch.side_effect = _get_side_effect
 
         self.assertRaises(exceptions.ResourceTimeout,
                           self.node.wait_for_provision_state,
@@ -262,7 +262,7 @@ class TestNodeWaitForProvisionState(base.TestCase):
                           abort_on_failed_state=False)
 
 
-@mock.patch.object(node.Node, 'get', lambda self, session: self)
+@mock.patch.object(node.Node, 'fetch', lambda self, session: self)
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeSetProvisionState(base.TestCase):
 

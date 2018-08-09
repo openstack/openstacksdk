@@ -22,7 +22,7 @@ class ClusterPolicy(resource.Resource):
 
     # Capabilities
     allow_list = True
-    allow_get = True
+    allow_fetch = True
 
     _query_mapping = resource.QueryParameters(
         'sort', 'policy_name', 'policy_type', is_enabled='enabled')

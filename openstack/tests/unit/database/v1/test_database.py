@@ -36,8 +36,8 @@ class TestDatabase(base.TestCase):
         self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_create)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
 
     def test_make_it(self):

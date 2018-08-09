@@ -42,8 +42,8 @@ class TestL7Rule(base.TestCase):
                          test_l7rule.base_path)
         self.assertEqual('load-balancer', test_l7rule.service.service_type)
         self.assertTrue(test_l7rule.allow_create)
-        self.assertTrue(test_l7rule.allow_get)
-        self.assertTrue(test_l7rule.allow_update)
+        self.assertTrue(test_l7rule.allow_fetch)
+        self.assertTrue(test_l7rule.allow_commit)
         self.assertTrue(test_l7rule.allow_delete)
         self.assertTrue(test_l7rule.allow_list)
 

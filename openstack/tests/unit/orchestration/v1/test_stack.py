@@ -60,8 +60,8 @@ class TestStack(base.TestCase):
         self.assertEqual('/stacks', sot.base_path)
         self.assertEqual('orchestration', sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
-        self.assertTrue(sot.allow_update)
+        self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
@@ -97,16 +97,16 @@ class TestStack(base.TestCase):
         mock_create.assert_called_once_with(sess, prepend_key=False)
         self.assertEqual(mock_create.return_value, res)
 
-    @mock.patch.object(resource.Resource, 'update')
-    def test_update(self, mock_update):
+    @mock.patch.object(resource.Resource, 'commit')
+    def test_commit(self, mock_commit):
         sess = mock.Mock()
         sot = stack.Stack(FAKE)
 
-        res = sot.update(sess)
+        res = sot.commit(sess)
 
-        mock_update.assert_called_once_with(sess, prepend_key=False,
+        mock_commit.assert_called_once_with(sess, prepend_key=False,
                                             has_body=False)
-        self.assertEqual(mock_update.return_value, res)
+        self.assertEqual(mock_commit.return_value, res)
 
     def test_check(self):
         sess = mock.Mock()
@@ -118,22 +118,22 @@ class TestStack(base.TestCase):
 
         sot._action.assert_called_with(sess, body)
 
-    @mock.patch.object(resource.Resource, 'get')
-    def test_get(self, mock_get):
+    @mock.patch.object(resource.Resource, 'fetch')
+    def test_fetch(self, mock_fetch):
         sess = mock.Mock()
         sot = stack.Stack(**FAKE)
         deleted_stack = mock.Mock(id=FAKE_ID, status='DELETE_COMPLETE')
         normal_stack = mock.Mock(status='CREATE_COMPLETE')
-        mock_get.side_effect = [
+        mock_fetch.side_effect = [
             normal_stack,
             exceptions.NotFoundException(message='oops'),
             deleted_stack,
         ]
 
-        self.assertEqual(normal_stack, sot.get(sess))
-        ex = self.assertRaises(exceptions.NotFoundException, sot.get, sess)
+        self.assertEqual(normal_stack, sot.fetch(sess))
+        ex = self.assertRaises(exceptions.NotFoundException, sot.fetch, sess)
         self.assertEqual('oops', six.text_type(ex))
-        ex = self.assertRaises(exceptions.NotFoundException, sot.get, sess)
+        ex = self.assertRaises(exceptions.NotFoundException, sot.fetch, sess)
         self.assertEqual('No stack found for %s' % FAKE_ID,
                          six.text_type(ex))
 
@@ -146,6 +146,6 @@ class TestStackPreview(base.TestCase):
         self.assertEqual('/stacks/preview', sot.base_path)
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_list)
-        self.assertFalse(sot.allow_get)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)

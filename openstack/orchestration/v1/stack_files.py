@@ -22,9 +22,9 @@ class StackFiles(resource.Resource):
     # capabilities
     allow_create = False
     allow_list = False
-    allow_get = True
+    allow_fetch = True
     allow_delete = False
-    allow_update = False
+    allow_commit = False
 
     # Properties
     #: Name of the stack where the template is referenced.
@@ -32,7 +32,7 @@ class StackFiles(resource.Resource):
     #: ID of the stack where the template is referenced.
     stack_id = resource.URI('stack_id')
 
-    def get(self, session):
+    def fetch(self, session):
         # The stack files response contains a map of filenames and file
         # contents.
         request = self._prepare_request(requires_id=False)

@@ -33,10 +33,10 @@ class TestType(base.TestCase):
         self.assertEqual("/types", sot.base_path)
         self.assertEqual("block-storage", sot.service.service_type)
         self.assertTrue(sot.allow_create)
-        self.assertTrue(sot.allow_get)
+        self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertFalse(sot.allow_update)
+        self.assertFalse(sot.allow_commit)
 
     def test_new(self):
         sot = type.Type.new(id=FAKE_ID)

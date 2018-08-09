@@ -52,8 +52,8 @@ class TestListener(base.TestCase):
         self.assertEqual('/v2.0/lbaas/listeners', test_listener.base_path)
         self.assertEqual('load-balancer', test_listener.service.service_type)
         self.assertTrue(test_listener.allow_create)
-        self.assertTrue(test_listener.allow_get)
-        self.assertTrue(test_listener.allow_update)
+        self.assertTrue(test_listener.allow_fetch)
+        self.assertTrue(test_listener.allow_commit)
         self.assertTrue(test_listener.allow_delete)
         self.assertTrue(test_listener.allow_list)
 
