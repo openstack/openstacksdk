@@ -66,7 +66,7 @@ class TestComponent(base.TestCase):
 
         # Test that we short-circuit everything when given no instance.
         result = sot.__get__(None, None)
-        self.assertIsNone(result)
+        self.assertIs(sot, result)
 
     # NOTE: Some tests will use a default=1 setting when testing result
     # values that should be None because the default-for-default is also None.

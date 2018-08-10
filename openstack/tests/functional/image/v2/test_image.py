@@ -32,6 +32,11 @@ class TestImage(base.BaseFunctionalTest):
             name=TEST_IMAGE_NAME,
             disk_format='raw',
             container_format='bare',
+            # TODO(mordred): This is not doing what people think it is doing.
+            # This is EPICLY broken. However, rather than fixing it as it is,
+            # we need to just replace the image upload code with the stuff
+            # from shade. Figuring out mapping the crap-tastic arbitrary
+            # extra key-value pairs into Resource is going to be fun.
             properties='{"description": "This is not an image"}',
             data=open('CONTRIBUTING.rst', 'r')
         )
