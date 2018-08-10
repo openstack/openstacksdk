@@ -34,6 +34,7 @@ and then returned to the caller.
 import collections
 import itertools
 
+import jsonpatch
 from keystoneauth1 import adapter
 import munch
 from requests import structures
@@ -314,6 +315,8 @@ class Resource(object):
     update_method = "PUT"
     #: Method for creating a resource (POST, PUT)
     create_method = "POST"
+    #: Whether commit uses JSON patch format.
+    commit_jsonpatch = False
 
     #: Do calls for this resource require an id
     requires_id = True
@@ -321,6 +324,8 @@ class Resource(object):
     has_body = True
     #: Is this a detailed version of another Resource
     detail_for = None
+
+    _original_body = None
 
     def __init__(self, _synchronized=False, **attrs):
         """The base resource
@@ -344,6 +349,9 @@ class Resource(object):
                                          synchronized=_synchronized)
         self._uri = _ComponentManager(attributes=uri,
                                       synchronized=_synchronized)
+        if self.commit_jsonpatch:
+            # We need the original body to compare against
+            self._original_body = self._body.attributes.copy()
 
     def __repr__(self):
         pairs = ["%s=%s" % (k, v) for k, v in dict(itertools.chain(
@@ -642,7 +650,8 @@ class Resource(object):
         return munch.Munch(self.to_dict(body=True, headers=False,
                                         original_names=True))
 
-    def _prepare_request(self, requires_id=None, prepend_key=False):
+    def _prepare_request(self, requires_id=None, prepend_key=False,
+                         patch=False):
         """Prepare a request to be sent to the server
 
         Create operations don't require an ID, but all others do,
@@ -651,6 +660,7 @@ class Resource(object):
         their bodies to be contained within an dict -- if the
         instance contains a resource_key and prepend_key=True,
         the body will be wrapped in a dict with that key.
+        If patch=True, a JSON patch is prepared instead of the full body.
 
         Return a _Request object that contains the constructed URI
         as well a body and headers that are ready to send.
@@ -659,9 +669,13 @@ class Resource(object):
         if requires_id is None:
             requires_id = self.requires_id
 
-        body = self._body.dirty
-        if prepend_key and self.resource_key is not None:
-            body = {self.resource_key: body}
+        if patch:
+            new = self._body.attributes
+            body = jsonpatch.make_patch(self._original_body, new).patch
+        else:
+            body = self._body.dirty
+            if prepend_key and self.resource_key is not None:
+                body = {self.resource_key: body}
 
         # TODO(mordred) Ensure headers have string values better than this
         headers = {}
@@ -701,6 +715,9 @@ class Resource(object):
             body = self._consume_body_attrs(body)
             self._body.attributes.update(body)
             self._body.clean()
+            if self.commit_jsonpatch:
+                # We need the original body to compare against
+                self._original_body = body.copy()
 
         headers = self._consume_header_attrs(response.headers)
         self._header.attributes.update(headers)
@@ -832,7 +849,13 @@ class Resource(object):
         if not self.allow_update:
             raise exceptions.MethodNotSupported(self, "update")
 
-        request = self._prepare_request(prepend_key=prepend_key)
+        # Avoid providing patch unconditionally to avoid breaking subclasses
+        # without it.
+        kwargs = {}
+        if self.commit_jsonpatch:
+            kwargs['patch'] = True
+
+        request = self._prepare_request(prepend_key=prepend_key, **kwargs)
         session = self._get_session(session)
 
         if self.update_method == 'PATCH':

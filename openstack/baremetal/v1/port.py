@@ -27,6 +27,7 @@ class Port(resource.Resource):
     allow_delete = True
     allow_list = True
     update_method = 'PATCH'
+    commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
         'fields'
