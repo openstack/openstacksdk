@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    When using the Image API, it is no longer possible to set arbitrary
+    properties, not known to the SDK, via ``image.update_image`` API.

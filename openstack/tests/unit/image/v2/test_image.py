@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
 import operator
 
 from keystoneauth1 import adapter
@@ -45,8 +44,6 @@ EXAMPLE = {
     'file': '15',
     'locations': ['15', '16'],
     'direct_url': '17',
-    'path': '18',
-    'value': '19',
     'url': '20',
     'metadata': {'21': '22'},
     'architecture': '23',
@@ -142,8 +139,6 @@ class TestImage(base.TestCase):
         self.assertEqual(EXAMPLE['file'], sot.file)
         self.assertEqual(EXAMPLE['locations'], sot.locations)
         self.assertEqual(EXAMPLE['direct_url'], sot.direct_url)
-        self.assertEqual(EXAMPLE['path'], sot.path)
-        self.assertEqual(EXAMPLE['value'], sot.value)
         self.assertEqual(EXAMPLE['url'], sot.url)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['architecture'], sot.architecture)
@@ -312,7 +307,9 @@ class TestImage(base.TestCase):
         self.assertEqual(rv, resp)
 
     def test_image_update(self):
-        sot = image.Image(**EXAMPLE)
+        values = EXAMPLE.copy()
+        del values['instance_uuid']
+        sot = image.Image(**values)
         # Let the translate pass through, that portion is tested elsewhere
         sot._translate_response = mock.Mock()
 
@@ -326,21 +323,18 @@ class TestImage(base.TestCase):
         resp.status_code = 200
         self.sess.patch.return_value = resp
 
-        value = ('[{"value": "fake_name", "op": "replace", "path": "/name"}, '
-                 '{"value": "fake_value", "op": "add", '
-                 '"path": "/new_property"}]')
-        fake_img = sot.to_dict()
-        fake_img['name'] = 'fake_name'
-        fake_img['new_property'] = 'fake_value'
+        value = [{"value": "fake_name", "op": "replace", "path": "/name"},
+                 {"value": "fake_value", "op": "add",
+                  "path": "/instance_uuid"}]
 
-        sot.commit(self.sess, **fake_img)
+        sot.name = 'fake_name'
+        sot.instance_uuid = 'fake_value'
+        sot.commit(self.sess)
         url = 'images/' + IDENTIFIER
         self.sess.patch.assert_called_once()
         call = self.sess.patch.call_args
         call_args, call_kwargs = call
         self.assertEqual(url, call_args[0])
         self.assertEqual(
-            sorted(json.loads(value), key=operator.itemgetter('value')),
-            sorted(
-                json.loads(call_kwargs['data']),
-                key=operator.itemgetter('value')))
+            sorted(value, key=operator.itemgetter('value')),
+            sorted(call_kwargs['json'], key=operator.itemgetter('value')))
