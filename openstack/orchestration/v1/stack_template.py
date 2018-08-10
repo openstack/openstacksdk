@@ -29,11 +29,11 @@ class StackTemplate(resource.Resource):
     # Properties
     #: Name of the stack where the template is referenced.
     name = resource.URI('stack_name')
-    # Backwards compat
-    stack_name = name
+    # Backwards compat. _stack_name will never match, but the alias will
+    # point it to the value pulled for name.
+    stack_name = resource.URI('_stack_name', alias='name')
     #: ID of the stack where the template is referenced.
-    id = resource.URI('stack_id', alternate_id=True)
-    stack_id = id
+    stack_id = resource.URI('stack_id', alternate_id=True)
     #: The description specified in the template
     description = resource.Body('Description')
     #: The version of the orchestration HOT template.
