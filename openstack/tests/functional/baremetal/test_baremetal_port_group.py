@@ -34,6 +34,16 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         self.assertRaises(exceptions.NotFoundException,
                           self.conn.baremetal.get_port_group, port_group.id)
 
+    def test_port_group_update(self):
+        port_group = self.create_port_group()
+        port_group.extra = {'answer': 42}
+
+        port_group = self.conn.baremetal.update_port_group(port_group)
+        self.assertEqual({'answer': 42}, port_group.extra)
+
+        port_group = self.conn.baremetal.get_port_group(port_group.id)
+        self.assertEqual({'answer': 42}, port_group.extra)
+
     def test_port_group_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(exceptions.NotFoundException,
