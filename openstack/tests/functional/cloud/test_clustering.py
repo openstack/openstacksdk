@@ -19,7 +19,7 @@ Functional tests for `shade` clustering methods.
 
 from testtools import content
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 import time
 
@@ -105,7 +105,7 @@ def wait_for_delete(client, client_args, check_interval=1, timeout=60):
     return True
 
 
-class TestClustering(base.BaseFunctionalTestCase):
+class TestClustering(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestClustering, self).setUp()

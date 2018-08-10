@@ -23,10 +23,10 @@ import string
 import random
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestPort(base.BaseFunctionalTestCase):
+class TestPort(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestPort, self).setUp()

@@ -24,10 +24,10 @@ import random
 
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.cloud.exc import OpenStackCloudUnavailableFeature
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestServices(base.KeystoneBaseFunctionalTestCase):
+class TestServices(base.KeystoneBaseFunctionalTest):
 
     service_attributes = ['id', 'name', 'type', 'description']
 

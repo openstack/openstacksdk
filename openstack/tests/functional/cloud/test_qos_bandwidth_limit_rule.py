@@ -19,10 +19,10 @@ Functional tests for `shade`QoS bandwidth limit methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestQosBandwidthLimitRule(base.BaseFunctionalTestCase):
+class TestQosBandwidthLimitRule(base.BaseFunctionalTest):
     def setUp(self):
         super(TestQosBandwidthLimitRule, self).setUp()
         if not self.operator_cloud.has_service('network'):

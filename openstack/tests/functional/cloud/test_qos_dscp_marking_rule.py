@@ -19,10 +19,10 @@ Functional tests for `shade`QoS DSCP marking rule methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestQosDscpMarkingRule(base.BaseFunctionalTestCase):
+class TestQosDscpMarkingRule(base.BaseFunctionalTest):
     def setUp(self):
         super(TestQosDscpMarkingRule, self).setUp()
         if not self.operator_cloud.has_service('network'):

@@ -17,10 +17,10 @@ test_coe_clusters
 Functional tests for `shade` COE clusters methods.
 """
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestCompute(base.BaseFunctionalTestCase):
+class TestCompute(base.BaseFunctionalTest):
     # NOTE(flwang): Currently, running Magnum on a cloud which doesn't support
     # nested virtualization will lead to timeout. So this test file is mostly
     # like a note to document why we can't have function testing for Magnum

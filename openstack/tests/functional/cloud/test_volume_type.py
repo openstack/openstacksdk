@@ -20,10 +20,10 @@ Functional tests for `shade` block storage methods.
 """
 import testtools
 from openstack.cloud import exc
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestVolumeType(base.BaseFunctionalTestCase):
+class TestVolumeType(base.BaseFunctionalTest):
 
     def _assert_project(self, volume_name_or_id, project_id, allowed=True):
         acls = self.operator_cloud.get_volume_type_access(volume_name_or_id)

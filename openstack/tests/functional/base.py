@@ -44,6 +44,54 @@ class BaseFunctionalTest(base.TestCase):
         super(BaseFunctionalTest, self).setUp()
         self.conn = connection.Connection(config=TEST_CLOUD_REGION)
 
+        self._demo_name = os.environ.get('OPENSTACKSDK_DEMO_CLOUD', 'devstack')
+        self._op_name = os.environ.get(
+            'OPENSTACKSDK_OPERATOR_CLOUD', 'devstack-admin')
+
+        self.config = openstack.config.OpenStackConfig()
+        self._set_user_cloud()
+        self._set_operator_cloud()
+
+        self.identity_version = \
+            self.operator_cloud.config.get_api_version('identity')
+
+    def _set_user_cloud(self, **kwargs):
+        user_config = self.config.get_one(
+            cloud=self._demo_name, **kwargs)
+        self.user_cloud = connection.Connection(config=user_config)
+
+    def _set_operator_cloud(self, **kwargs):
+        operator_config = self.config.get_one(
+            cloud=self._op_name, **kwargs)
+        self.operator_cloud = connection.Connection(config=operator_config)
+
+    def pick_image(self):
+        images = self.user_cloud.list_images()
+        self.add_info_on_exception('images', images)
+
+        image_name = os.environ.get('OPENSTACKSDK_IMAGE')
+        if image_name:
+            for image in images:
+                if image.name == image_name:
+                    return image
+            self.assertFalse(
+                "Cloud does not have {image}".format(image=image_name))
+
+        for image in images:
+            if image.name.startswith('cirros') and image.name.endswith('-uec'):
+                return image
+        for image in images:
+            if (image.name.startswith('cirros')
+                    and image.disk_format == 'qcow2'):
+                return image
+        for image in images:
+            if image.name.lower().startswith('ubuntu'):
+                return image
+        for image in images:
+            if image.name.lower().startswith('centos'):
+                return image
+        self.assertFalse('no sensible image available')
+
     def addEmptyCleanup(self, func, *args, **kwargs):
         def cleanup():
             result = func(*args, **kwargs)
@@ -82,3 +130,19 @@ class BaseFunctionalTest(base.TestCase):
                           'microversion {ver}'.format(
                               service_type=service_type,
                               ver=min_microversion))
+
+
+class KeystoneBaseFunctionalTest(BaseFunctionalTest):
+
+    def setUp(self):
+        super(KeystoneBaseFunctionalTest, self).setUp()
+
+        use_keystone_v2 = os.environ.get('OPENSTACKSDK_USE_KEYSTONE_V2', False)
+        if use_keystone_v2:
+            # keystone v2 has special behavior for the admin
+            # interface and some of the operations, so make a new cloud
+            # object with interface set to admin.
+            # We only do it for keystone tests on v2 because otherwise
+            # the admin interface is not a thing that wants to actually
+            # be used
+            self._set_operator_cloud(interface='admin')

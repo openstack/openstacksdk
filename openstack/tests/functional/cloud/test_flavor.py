@@ -20,10 +20,10 @@ Functional tests for `shade` flavor resource.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestFlavor(base.BaseFunctionalTestCase):
+class TestFlavor(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestFlavor, self).setUp()

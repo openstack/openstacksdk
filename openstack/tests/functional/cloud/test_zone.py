@@ -19,10 +19,10 @@ Functional tests for `shade` zone methods.
 
 from testtools import content
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestZone(base.BaseFunctionalTestCase):
+class TestZone(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestZone, self).setUp()

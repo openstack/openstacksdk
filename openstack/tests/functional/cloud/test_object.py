@@ -24,10 +24,10 @@ import tempfile
 from testtools import content
 
 from openstack.cloud import exc
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestObject(base.BaseFunctionalTestCase):
+class TestObject(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestObject, self).setUp()

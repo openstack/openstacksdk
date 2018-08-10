@@ -17,10 +17,10 @@ test_security_groups
 Functional tests for `shade` security_groups resource.
 """
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestSecurityGroups(base.BaseFunctionalTestCase):
+class TestSecurityGroups(base.BaseFunctionalTest):
     def test_create_list_security_groups(self):
         sg1 = self.user_cloud.create_security_group(
             name="sg1", description="sg1")

@@ -20,12 +20,12 @@ Functional tests for `openstack.cloud` cluster_template methods.
 import fixtures
 from testtools import content
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 import subprocess
 
 
-class TestClusterTemplate(base.BaseFunctionalTestCase):
+class TestClusterTemplate(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestClusterTemplate, self).setUp()

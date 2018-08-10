@@ -21,7 +21,7 @@ import tempfile
 
 from openstack.cloud import exc
 from openstack.tests import fakes
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 simple_template = '''heat_template_version: 2014-10-16
 parameters:
@@ -72,7 +72,7 @@ resource_registry:
 validate_template = '''heat_template_version: asdf-no-such-version '''
 
 
-class TestStack(base.BaseFunctionalTestCase):
+class TestStack(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestStack, self).setUp()

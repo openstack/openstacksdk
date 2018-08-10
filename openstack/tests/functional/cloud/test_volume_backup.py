@@ -9,10 +9,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestVolume(base.BaseFunctionalTestCase):
+class TestVolume(base.BaseFunctionalTest):
     # Creating a volume backup is incredibly slow.
     TIMEOUT_SCALING_FACTOR = 1.5
 

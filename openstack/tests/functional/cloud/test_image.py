@@ -21,10 +21,10 @@ import filecmp
 import os
 import tempfile
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestImage(base.BaseFunctionalTestCase):
+class TestImage(base.BaseFunctionalTest):
     def setUp(self):
         super(TestImage, self).setUp()
         self.image = self.pick_image()

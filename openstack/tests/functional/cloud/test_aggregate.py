@@ -17,10 +17,10 @@ test_aggregate
 Functional tests for `shade` aggregate resource.
 """
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestAggregate(base.BaseFunctionalTestCase):
+class TestAggregate(base.BaseFunctionalTest):
 
     def test_aggregates(self):
         aggregate_name = self.getUniqueString()

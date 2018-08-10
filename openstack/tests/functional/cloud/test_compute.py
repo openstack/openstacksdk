@@ -23,12 +23,12 @@ from fixtures import TimeoutException
 import six
 
 from openstack.cloud import exc
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 from openstack.tests.functional.cloud.util import pick_flavor
 from openstack import utils
 
 
-class TestCompute(base.BaseFunctionalTestCase):
+class TestCompute(base.BaseFunctionalTest):
     def setUp(self):
         # OS_TEST_TIMEOUT is 90 sec by default
         # but on a bad day, test_attach_detach_volume can take more time.
