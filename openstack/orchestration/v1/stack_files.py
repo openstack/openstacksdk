@@ -28,9 +28,13 @@ class StackFiles(resource.Resource):
 
     # Properties
     #: Name of the stack where the template is referenced.
-    stack_name = resource.URI('stack_name')
+    name = resource.URI('stack_name')
+    # Backwards compat
+    stack_name = name
     #: ID of the stack where the template is referenced.
-    stack_id = resource.URI('stack_id')
+    id = resource.URI('stack_id')
+    # Backwards compat
+    stack_id = id
 
     def fetch(self, session):
         # The stack files response contains a map of filenames and file

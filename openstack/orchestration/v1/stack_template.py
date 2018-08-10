@@ -28,9 +28,12 @@ class StackTemplate(resource.Resource):
 
     # Properties
     #: Name of the stack where the template is referenced.
-    stack_name = resource.URI('stack_name')
+    name = resource.URI('stack_name')
+    # Backwards compat
+    stack_name = name
     #: ID of the stack where the template is referenced.
-    stack_id = resource.URI('stack_id')
+    id = resource.URI('stack_id', alternate_id=True)
+    stack_id = id
     #: The description specified in the template
     description = resource.Body('Description')
     #: The version of the orchestration HOT template.
@@ -46,13 +49,3 @@ class StackTemplate(resource.Resource):
     parameter_groups = resource.Body('parameter_groups', type=list)
     # Restrict conditions which supported since '2016-10-14'.
     conditions = resource.Body('conditions', type=dict)
-
-    def to_dict(self):
-        mapping = super(StackTemplate, self).to_dict()
-        mapping.pop('location')
-        mapping.pop('id')
-        mapping.pop('name')
-        if self.heat_template_version < '2016-10-14':
-            mapping.pop('conditions')
-
-        return mapping
