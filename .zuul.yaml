@@ -114,6 +114,7 @@
       networking services enabled.
     required-projects:
       - openstack/designate
+      - openstack/neutron-fwaas
       - openstack/octavia
     vars:
       devstack_local_conf:
@@ -127,9 +128,18 @@
               network_driver: network_noop_driver
             certificates:
               cert_manager: local_cert_manager
+          $NEUTRON_CONF:
+            fwaas:
+              agent_version: v2
+              driver: iptables_v2
+              enabled: true
+              firewall_l2_driver: ovs
+      devstack_localrc:
+        Q_SERVICE_PLUGIN_CLASSES: qos,trunk,firewall_v2
       devstack_plugins:
         designate: https://git.openstack.org/openstack/designate
         octavia: https://git.openstack.org/openstack/octavia
+        neutron-fwaas: https://git.openstack.org/openstack/neutron-fwaas
       devstack_services:
         designate: true
         octavia: true
@@ -138,6 +148,7 @@
         o-hm: true
         o-hk: true
         neutron-dns: true
+        neutron-fwaas-v2: true
         s-account: false
         s-container: false
         s-object: false

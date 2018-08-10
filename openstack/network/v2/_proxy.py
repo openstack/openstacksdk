@@ -17,6 +17,9 @@ from openstack.network.v2 import auto_allocated_topology as \
     _auto_allocated_topology
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
+from openstack.network.v2 import firewall_group as _firewall_group
+from openstack.network.v2 import firewall_policy as _firewall_policy
+from openstack.network.v2 import firewall_rule as _firewall_rule
 from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import floating_ip as _floating_ip
 from openstack.network.v2 import health_monitor as _health_monitor
@@ -2433,6 +2436,346 @@ class Proxy(proxy.Proxy):
         agent = self._get_resource(_agent.Agent, agent)
         router = self._get_resource(_router.Router, router)
         return agent.remove_router_from_agent(self, router.id)
+
+    def create_firewall_group(self, **attrs):
+        """Create a new firewall group from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.firewall_group.FirewallGroup`,
+            comprised of the properties on the FirewallGroup class.
+
+        :returns: The results of firewall group creation
+        :rtype: :class:`~openstack.network.v2.firewall_group.FirewallGroup`
+        """
+        return self._create(_firewall_group.FirewallGroup, **attrs)
+
+    def delete_firewall_group(self, firewall_group, ignore_missing=True):
+        """Delete a firewall group
+
+        :param firewall_group:
+            The value can be either the ID of a firewall group or a
+            :class:`~openstack.network.v2.firewall_group.FirewallGroup`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the firewall group does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent firewall group.
+
+        :returns: ``None``
+        """
+        self._delete(_firewall_group.FirewallGroup, firewall_group,
+                     ignore_missing=ignore_missing)
+
+    def find_firewall_group(self, name_or_id, ignore_missing=True, **args):
+        """Find a single firewall group
+
+        :param name_or_id: The name or ID of a firewall group.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.firewall_group.
+                  FirewallGroup` or None
+        """
+        return self._find(_firewall_group.FirewallGroup,
+                          name_or_id, ignore_missing=ignore_missing, **args)
+
+    def get_firewall_group(self, firewall_group):
+        """Get a single firewall group
+
+        :param firewall_group: The value can be the ID of a firewall group or a
+               :class:`~openstack.network.v2.firewall_group.FirewallGroup`
+               instance.
+
+        :returns: One
+                  :class:`~openstack.network.v2.firewall_group.FirewallGroup`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_firewall_group.FirewallGroup, firewall_group)
+
+    def firewall_groups(self, **query):
+        """Return a generator of firewall_groups
+
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned. Valid parameters are:
+
+            * ``description``: Firewall group description
+            * ``egress_policy_id``: The ID of egress firewall policy
+            * ``ingress_policy_id``: The ID of ingress firewall policy
+            * ``name``: The name of a firewall group
+            * ``shared``: Indicates whether this firewall group is shared
+                          across all projects.
+            * ``status``: The status of the firewall group. Valid values are
+                          ACTIVE, INACTIVE, ERROR, PENDING_UPDATE, or
+                          PENDING_DELETE.
+            * ``ports``: A list of the IDs of the ports associated with the
+                         firewall group.
+            * ``project_id``: The ID of the project this firewall group is
+                              associated with.
+
+        :returns: A generator of firewall group objects
+        """
+        return self._list(_firewall_group.FirewallGroup,
+                          paginated=False, **query)
+
+    def update_firewall_group(self, firewall_group, **attrs):
+        """Update a firewall group
+
+        :param firewall_group: Either the id of a firewall group or a
+            :class:`~openstack.network.v2.firewall_group.FirewallGroup`
+            instance.
+        :param dict attrs: The attributes to update on the firewall group
+                           represented by ``firewall_group``.
+
+        :returns: The updated firewall group
+        :rtype: :class:`~openstack.network.v2.firewall_group.FirewallGroup`
+        """
+        return self._update(_firewall_group.FirewallGroup, firewall_group,
+                            **attrs)
+
+    def create_firewall_policy(self, **attrs):
+        """Create a new firewall policy from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`,
+            comprised of the properties on the FirewallPolicy class.
+
+        :returns: The results of firewall policy creation
+        :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+        """
+        return self._create(_firewall_policy.FirewallPolicy, **attrs)
+
+    def delete_firewall_policy(self, firewall_policy, ignore_missing=True):
+        """Delete a firewall policy
+
+        :param firewall_policy:
+            The value can be either the ID of a firewall policy or a
+            :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the firewall policy does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent firewall policy.
+
+        :returns: ``None``
+        """
+        self._delete(_firewall_policy.FirewallPolicy, firewall_policy,
+                     ignore_missing=ignore_missing)
+
+    def find_firewall_policy(self, name_or_id, ignore_missing=True, **args):
+        """Find a single firewall policy
+
+        :param name_or_id: The name or ID of a firewall policy.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.firewall_policy.
+                  FirewallPolicy` or None
+        """
+        return self._find(_firewall_policy.FirewallPolicy,
+                          name_or_id, ignore_missing=ignore_missing, **args)
+
+    def get_firewall_policy(self, firewall_policy):
+        """Get a single firewall policy
+
+        :param firewall_policy: The value can be the ID of a firewall policy
+               or a
+               :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+               instance.
+
+        :returns: One
+                  :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_firewall_policy.FirewallPolicy, firewall_policy)
+
+    def firewall_policies(self, **query):
+        """Return a generator of firewall_policies
+
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned. Valid parameters are:
+
+            * ``description``: Firewall policy description
+            * ``firewall_rule``: A list of the IDs of the firewall rules
+                                 associated with the firewall policy.
+            * ``name``: The name of a firewall policy
+            * ``shared``: Indicates whether this firewall policy is shared
+                          across all projects.
+            * ``project_id``: The ID of the project that owns the resource.
+
+        :returns: A generator of firewall policy objects
+        """
+        return self._list(_firewall_policy.FirewallPolicy,
+                          paginated=False, **query)
+
+    def update_firewall_policy(self, firewall_policy, **attrs):
+        """Update a firewall policy
+
+        :param firewall_policy: Either the id of a firewall policy or a
+            :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+            instance.
+        :param dict attrs: The attributes to update on the firewall policy
+                           represented by ``firewall_policy``.
+
+        :returns: The updated firewall policy
+        :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+        """
+        return self._update(_firewall_policy.FirewallPolicy, firewall_policy,
+                            **attrs)
+
+    def insert_rule_into_policy(self, firewall_policy_id, firewall_rule_id,
+                                insert_after=None, insert_before=None):
+        """Insert a firewall_rule into a firewall_policy in order
+
+        :param firewall_policy_id: The ID of the firewall policy.
+        :param firewall_rule_id: The ID of the firewall rule.
+        :param insert_after: The ID of the firewall rule to insert the new
+                             rule after. It will be worked only when
+                             insert_before is none.
+        :param insert_before: The ID of the firewall rule to insert the new
+                              rule before.
+
+        :returns: The updated firewall policy
+        :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+        """
+        body = {'firewall_rule_id': firewall_rule_id,
+                'insert_after': insert_after,
+                'insert_before': insert_before}
+        policy = self._get_resource(_firewall_policy.FirewallPolicy,
+                                    firewall_policy_id)
+        return policy.insert_rule(self, **body)
+
+    def remove_rule_from_policy(self, firewall_policy_id, firewall_rule_id):
+        """Remove a firewall_rule from a firewall_policy.
+
+        :param firewall_policy_id: The ID of the firewall policy.
+        :param firewall_rule_id: The ID of the firewall rule.
+
+        :returns: The updated firewall policy
+        :rtype: :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
+        """
+        body = {'firewall_rule_id': firewall_rule_id}
+        policy = self._get_resource(_firewall_policy.FirewallPolicy,
+                                    firewall_policy_id)
+        return policy.remove_rule(self, **body)
+
+    def create_firewall_rule(self, **attrs):
+        """Create a new firewall rule from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.firewall_rule.FirewallRule`,
+            comprised of the properties on the FirewallRule class.
+
+        :returns: The results of firewall rule creation
+        :rtype: :class:`~openstack.network.v2.firewall_rule.FirewallRule`
+        """
+        return self._create(_firewall_rule.FirewallRule, **attrs)
+
+    def delete_firewall_rule(self, firewall_rule, ignore_missing=True):
+        """Delete a firewall rule
+
+        :param firewall_rule:
+            The value can be either the ID of a firewall rule or a
+            :class:`~openstack.network.v2.firewall_rule.FirewallRule`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the firewall rule does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent firewall rule.
+
+        :returns: ``None``
+        """
+        self._delete(_firewall_rule.FirewallRule, firewall_rule,
+                     ignore_missing=ignore_missing)
+
+    def find_firewall_rule(self, name_or_id, ignore_missing=True, **args):
+        """Find a single firewall rule
+
+        :param name_or_id: The name or ID of a firewall rule.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.firewall_rule.
+                  FirewallRule` or None
+        """
+        return self._find(_firewall_rule.FirewallRule,
+                          name_or_id, ignore_missing=ignore_missing, **args)
+
+    def get_firewall_rule(self, firewall_rule):
+        """Get a single firewall rule
+
+        :param firewall_rule: The value can be the ID of a firewall rule or a
+               :class:`~openstack.network.v2.firewall_rule.FirewallRule`
+               instance.
+
+        :returns: One
+                  :class:`~openstack.network.v2.firewall_rule.FirewallRule`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_firewall_rule.FirewallRule, firewall_rule)
+
+    def firewall_rules(self, **query):
+        """Return a generator of firewall_rules
+
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned. Valid parameters are:
+
+            * ``action``: The action that the API performs on traffic that
+                          matches the firewall rule.
+            * ``description``: Firewall rule description
+            * ``name``: The name of a firewall group
+            * ``destination_ip_address``: The destination IPv4 or IPv6 address
+                                          or CIDR for the firewall rule.
+            * ``destination_port``: The destination port or port range for
+                                    the firewall rule.
+            * ``enabled``: Facilitates selectively turning off rules.
+            * ``shared``: Indicates whether this firewall group is shared
+                          across all projects.
+            * ``ip_version``: The IP protocol version for the firewall rule.
+            * ``protocol``: The IP protocol for the firewall rule.
+            * ``source_ip_address``: The source IPv4 or IPv6 address or CIDR
+                                     for the firewall rule.
+            * ``source_port``: The source port or port range for the firewall
+                               rule.
+            * ``project_id``: The ID of the project this firewall group is
+                              associated with.
+
+        :returns: A generator of firewall rule objects
+        """
+        return self._list(_firewall_rule.FirewallRule,
+                          paginated=False, **query)
+
+    def update_firewall_rule(self, firewall_rule, **attrs):
+        """Update a firewall rule
+
+        :param firewall_rule: Either the id of a firewall rule or a
+            :class:`~openstack.network.v2.firewall_rule.FirewallRule`
+            instance.
+        :param dict attrs: The attributes to update on the firewall rule
+                           represented by ``firewall_rule``.
+
+        :returns: The updated firewall rule
+        :rtype: :class:`~openstack.network.v2.firewall_rule.FirewallRule`
+        """
+        return self._update(_firewall_rule.FirewallRule, firewall_rule,
+                            **attrs)
 
     def create_security_group(self, **attrs):
         """Create a new security group from attributes

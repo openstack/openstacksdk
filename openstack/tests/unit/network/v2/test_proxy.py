@@ -21,6 +21,9 @@ from openstack.network.v2 import agent
 from openstack.network.v2 import auto_allocated_topology
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import extension
+from openstack.network.v2 import firewall_group
+from openstack.network.v2 import firewall_policy
+from openstack.network.v2 import firewall_rule
 from openstack.network.v2 import flavor
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import health_monitor
@@ -872,6 +875,93 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             method_kwargs={'agent': AGENT_ID},
             expected_kwargs={'agent_id': AGENT_ID},
         )
+
+    def test_firewall_group_create_attrs(self):
+        self.verify_create(self.proxy.create_firewall_group,
+                           firewall_group.FirewallGroup)
+
+    def test_firewall_group_delete(self):
+        self.verify_delete(self.proxy.delete_firewall_group,
+                           firewall_group.FirewallGroup, False)
+
+    def test_firewall_group_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_firewall_group,
+                           firewall_group.FirewallGroup, True)
+
+    def test_firewall_group_find(self):
+        self.verify_find(self.proxy.find_firewall_group,
+                         firewall_group.FirewallGroup)
+
+    def test_firewall_group_get(self):
+        self.verify_get(self.proxy.get_firewall_group,
+                        firewall_group.FirewallGroup)
+
+    def test_firewall_groups(self):
+        self.verify_list(self.proxy.firewall_groups,
+                         firewall_group.FirewallGroup,
+                         paginated=False)
+
+    def test_firewall_group_update(self):
+        self.verify_update(self.proxy.update_firewall_group,
+                           firewall_group.FirewallGroup)
+
+    def test_firewall_policy_create_attrs(self):
+        self.verify_create(self.proxy.create_firewall_policy,
+                           firewall_policy.FirewallPolicy)
+
+    def test_firewall_policy_delete(self):
+        self.verify_delete(self.proxy.delete_firewall_policy,
+                           firewall_policy.FirewallPolicy, False)
+
+    def test_firewall_policy_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_firewall_policy,
+                           firewall_policy.FirewallPolicy, True)
+
+    def test_firewall_policy_find(self):
+        self.verify_find(self.proxy.find_firewall_policy,
+                         firewall_policy.FirewallPolicy)
+
+    def test_firewall_policy_get(self):
+        self.verify_get(self.proxy.get_firewall_policy,
+                        firewall_policy.FirewallPolicy)
+
+    def test_firewall_policies(self):
+        self.verify_list(self.proxy.firewall_policies,
+                         firewall_policy.FirewallPolicy,
+                         paginated=False)
+
+    def test_firewall_policy_update(self):
+        self.verify_update(self.proxy.update_firewall_policy,
+                           firewall_policy.FirewallPolicy)
+
+    def test_firewall_rule_create_attrs(self):
+        self.verify_create(self.proxy.create_firewall_rule,
+                           firewall_rule.FirewallRule)
+
+    def test_firewall_rule_delete(self):
+        self.verify_delete(self.proxy.delete_firewall_rule,
+                           firewall_rule.FirewallRule, False)
+
+    def test_firewall_rule_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_firewall_rule,
+                           firewall_rule.FirewallRule, True)
+
+    def test_firewall_rule_find(self):
+        self.verify_find(self.proxy.find_firewall_rule,
+                         firewall_rule.FirewallRule)
+
+    def test_firewall_rule_get(self):
+        self.verify_get(self.proxy.get_firewall_rule,
+                        firewall_rule.FirewallRule)
+
+    def test_firewall_rules(self):
+        self.verify_list(self.proxy.firewall_rules,
+                         firewall_rule.FirewallRule,
+                         paginated=False)
+
+    def test_firewall_rule_update(self):
+        self.verify_update(self.proxy.update_firewall_rule,
+                           firewall_rule.FirewallRule)
 
     def test_security_group_create_attrs(self):
         self.verify_create(self.proxy.create_security_group,
