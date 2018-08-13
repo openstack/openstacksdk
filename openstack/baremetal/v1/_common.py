@@ -52,3 +52,6 @@ STATE_VERSIONS = {
     'manageable': '1.4',
 }
 """API versions when certain states were introduced."""
+
+VIF_VERSION = '1.28'
+"""API version in which the VIF operations were introduced."""

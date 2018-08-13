@@ -702,3 +702,58 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_portgroup.PortGroup, port_group,
                             ignore_missing=ignore_missing)
+
+    def attach_vif_to_node(self, node, vif_id):
+        """Attach a VIF to the node.
+
+        The exact form of the VIF ID depends on the network interface used by
+        the node. In the most common case it is a Network service port
+        (NOT a Bare Metal port) ID. A VIF can only be attached to one node
+        at a time.
+
+        :param node: The value can be either the name or ID of a node or
+            a :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param string vif_id: Backend-specific VIF ID.
+        :return: ``None``
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VIF API.
+        """
+        res = self._get_resource(_node.Node, node)
+        res.attach_vif(self, vif_id)
+
+    def detach_vif_from_node(self, node, vif_id, ignore_missing=True):
+        """Detach a VIF from the node.
+
+        The exact form of the VIF ID depends on the network interface used by
+        the node. In the most common case it is a Network service port
+        (NOT a Bare Metal port) ID.
+
+        :param node: The value can be either the name or ID of a node or
+            a :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param string vif_id: Backend-specific VIF ID.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the VIF does not exist. Otherwise, ``False``
+                    is returned.
+        :return: ``True`` if the VIF was detached, otherwise ``False``.
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VIF API.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.detach_vif(self, vif_id, ignore_missing=ignore_missing)
+
+    def list_node_vifs(self, node):
+        """List IDs of VIFs attached to the node.
+
+        The exact form of the VIF ID depends on the network interface used by
+        the node. In the most common case it is a Network service port
+        (NOT a Bare Metal port) ID.
+
+        :param node: The value can be either the name or ID of a node or
+            a :class:`~openstack.baremetal.v1.node.Node` instance.
+        :return: List of VIF IDs as strings.
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VIF API.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.list_vifs(self)

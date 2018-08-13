@@ -41,8 +41,8 @@ class Node(resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # Full port groups support introduced in 1.24
-    _max_microversion = '1.24'
+    # VIF attach/detach support introduced in 1.28.
+    _max_microversion = '1.28'
 
     # Properties
     #: The UUID of the chassis associated wit this node. Can be empty or None.
@@ -340,6 +340,107 @@ class Node(resource.Resource):
                 "failed to verify management credentials; "
                 "the last error is %(error)s" %
                 {'node': self.id, 'error': self.last_error})
+
+    def attach_vif(self, session, vif_id):
+        """Attach a VIF to the node.
+
+        The exact form of the VIF ID depends on the network interface used by
+        the node. In the most common case it is a Network service port
+        (NOT a Bare Metal port) ID. A VIF can only be attached to one node
+        at a time.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param string vif_id: Backend-specific VIF ID.
+        :return: ``None``
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VIF API.
+        """
+        session = self._get_session(session)
+        version = self._assert_microversion_for(
+            session, 'commit', _common.VIF_VERSION,
+            error_message=("Cannot use VIF attachment API"))
+
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'vifs')
+        body = {'id': vif_id}
+        response = session.post(
+            request.url, json=body,
+            headers=request.headers, microversion=version,
+            # NOTE(dtantsur): do not retry CONFLICT, it's a valid status code
+            # in this API when the VIF is already attached to another node.
+            retriable_status_codes=[503])
+
+        msg = ("Failed to attach VIF {vif} to bare metal node {node}"
+               .format(node=self.id, vif=vif_id))
+        exceptions.raise_from_response(response, error_message=msg)
+
+    def detach_vif(self, session, vif_id, ignore_missing=True):
+        """Detach a VIF from the node.
+
+        The exact form of the VIF ID depends on the network interface used by
+        the node. In the most common case it is a Network service port
+        (NOT a Bare Metal port) ID.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param string vif_id: Backend-specific VIF ID.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the VIF does not exist. Otherwise, ``False``
+                    is returned.
+        :return: ``True`` if the VIF was detached, otherwise ``False``.
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VIF API.
+        """
+        session = self._get_session(session)
+        version = self._assert_microversion_for(
+            session, 'commit', _common.VIF_VERSION,
+            error_message=("Cannot use VIF attachment API"))
+
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'vifs', vif_id)
+        response = session.delete(
+            request.url, headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        if ignore_missing and response.status_code == 400:
+            _logger.debug('VIF %(vif)s was already removed from node %(node)s',
+                          {'vif': vif_id, 'node': self.id})
+            return False
+
+        msg = ("Failed to detach VIF {vif} from bare metal node {node}"
+               .format(node=self.id, vif=vif_id))
+        exceptions.raise_from_response(response, error_message=msg)
+        return True
+
+    def list_vifs(self, session):
+        """List IDs of VIFs attached to the node.
+
+        The exact form of the VIF ID depends on the network interface used by
+        the node. In the most common case it is a Network service port
+        (NOT a Bare Metal port) ID.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :return: List of VIF IDs as strings.
+        :raises: :exc:`~openstack.exceptions.NotSupported` if the server
+            does not support the VIF API.
+        """
+        session = self._get_session(session)
+        version = self._assert_microversion_for(
+            session, 'fetch', _common.VIF_VERSION,
+            error_message=("Cannot use VIF attachment API"))
+
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'vifs')
+        response = session.get(
+            request.url, headers=request.headers, microversion=version)
+
+        msg = ("Failed to list VIFs attached to bare metal node {node}"
+               .format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+        return [vif['id'] for vif in response.json()['vifs']]
 
 
 class NodeDetail(Node):
