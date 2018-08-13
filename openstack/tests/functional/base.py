@@ -13,6 +13,7 @@
 import os
 import openstack.config
 
+from keystoneauth1 import discover
 from keystoneauth1 import exceptions as _exceptions
 from openstack import connection
 from openstack.tests import base
@@ -51,7 +52,7 @@ class BaseFunctionalTest(base.TestCase):
 
     # TODO(shade) Replace this with call to conn.has_service when we've merged
     #             the shade methods into Connection.
-    def require_service(self, service_type, **kwargs):
+    def require_service(self, service_type, min_microversion=None, **kwargs):
         """Method to check whether a service exists
 
         Usage:
@@ -64,7 +65,20 @@ class BaseFunctionalTest(base.TestCase):
         :returns: True if the service exists, otherwise False.
         """
         try:
-            self.conn.session.get_endpoint(service_type=service_type, **kwargs)
+            data = self.conn.session.get_endpoint_data(
+                service_type=service_type, **kwargs)
         except _exceptions.EndpointNotFound:
             self.skipTest('Service {service_type} not found in cloud'.format(
                 service_type=service_type))
+
+        if not min_microversion:
+            return
+
+        if not (data.min_microversion and data.max_microversion and
+                discover.version_between(data.min_microversion,
+                                         data.max_microversion,
+                                         min_microversion)):
+            self.skipTest('Service {service_type} does not provide '
+                          'microversion {ver}'.format(
+                              service_type=service_type,
+                              ver=min_microversion))

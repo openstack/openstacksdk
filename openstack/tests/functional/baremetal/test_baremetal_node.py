@@ -11,28 +11,12 @@
 # under the License.
 
 from openstack import exceptions
-from openstack.tests.functional import base
+from openstack.tests.functional.baremetal import base
 
 
-class TestBareMetalNode(base.BaseFunctionalTest):
-
-    node_id = None
-
-    def setUp(self):
-        super(TestBareMetalNode, self).setUp()
-        self.require_service('baremetal')
-
-    def tearDown(self):
-        if self.node_id:
-            self.conn.baremetal.delete_node(self.node_id, ignore_missing=True)
-        super(TestBareMetalNode, self).tearDown()
-
+class TestBareMetalNode(base.BaseBaremetalTest):
     def test_node_create_get_delete(self):
-        node = self.conn.baremetal.create_node(driver='fake-hardware',
-                                               name='node-name')
-        self.node_id = node.id
-        self.assertIsNotNone(self.node_id)
-
+        node = self.create_node(name='node-name')
         self.assertEqual(node.name, 'node-name')
         self.assertEqual(node.driver, 'fake-hardware')
         self.assertEqual(node.provision_state, 'available')
@@ -56,8 +40,7 @@ class TestBareMetalNode(base.BaseFunctionalTest):
                           self.conn.baremetal.get_node, self.node_id)
 
     def test_node_create_in_enroll_provide(self):
-        node = self.conn.baremetal.create_node(driver='fake-hardware',
-                                               provision_state='enroll')
+        node = self.create_node(provision_state='enroll')
         self.node_id = node.id
 
         self.assertEqual(node.driver, 'fake-hardware')
