@@ -1,0 +1,8 @@
+---
+deprecations:
+  - |
+    **REMINDER** ``openstack.profile.Profile`` is deprecated and will be
+    removed in the next release.
+fixes:
+  - |
+    Fixed an issue where the Profile compat code wasn't setting microversion.
