@@ -195,7 +195,7 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
     :param argparse.Namespace options:
         Allows direct passing in of options to be added to the cloud config.
         This does not have to be an actual instance of argparse.Namespace,
-        despite the naming of the the
+        despite the naming of the
         `openstack.config.loader.OpenStackConfig.get_one` argument to which
         it is passed.
 
