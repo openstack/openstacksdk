@@ -12,9 +12,6 @@
 
 import hashlib
 
-import copy
-import jsonpatch
-
 from openstack import _log
 from openstack import exceptions
 from openstack.image import image_service
@@ -36,6 +33,7 @@ class Image(resource.Resource):
     allow_delete = True
     allow_list = True
     commit_method = 'PATCH'
+    commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
         "name", "visibility",
@@ -117,12 +115,6 @@ class Image(resource.Resource):
     #: when you set the show_image_direct_url option to true in the
     #: Image service's configuration file.
     direct_url = resource.Body('direct_url')
-    #: An image property.
-    path = resource.Body('path')
-    #: Value of image property used in add or replace operations expressed
-    #: in JSON notation. For example, you must enclose strings in quotation
-    #: marks, and you do not enclose numeric values in quotation marks.
-    value = resource.Body('value')
     #: The URL to access the image file kept in external store.
     url = resource.Body('url')
     #: The location metadata.
@@ -297,21 +289,16 @@ class Image(resource.Resource):
 
         return resp.content
 
-    def commit(self, session, **attrs):
-        url = utils.urljoin(self.base_path, self.id)
-        headers = {
-            'Content-Type': 'application/openstack-images-v2.1-json-patch',
-            'Accept': ''
-        }
-        original = self.to_dict()
+    def _prepare_request(self, requires_id=None, prepend_key=False,
+                         patch=False):
+        request = super(Image, self)._prepare_request(requires_id=requires_id,
+                                                      prepend_key=prepend_key,
+                                                      patch=patch)
+        if patch:
+            headers = {
+                'Content-Type': 'application/openstack-images-v2.1-json-patch',
+                'Accept': ''
+            }
+            request.headers.update(headers)
 
-        # Update values from **attrs so they can be passed to jsonpatch
-        new = copy.deepcopy(self.to_dict())
-        new.update(**attrs)
-
-        patch_string = jsonpatch.make_patch(original, new).to_string()
-        resp = session.patch(url,
-                             data=patch_string,
-                             headers=headers)
-        self._translate_response(resp, has_body=True)
-        return self
+        return request
