@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Correct updating bare metal resources. Previously an incorrect body used
+    to be sent.

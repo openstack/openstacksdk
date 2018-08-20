@@ -27,6 +27,16 @@ class TestBareMetalChassis(base.BaseBaremetalTest):
         self.assertRaises(exceptions.NotFoundException,
                           self.conn.baremetal.get_chassis, chassis.id)
 
+    def test_chassis_update(self):
+        chassis = self.create_chassis()
+        chassis.extra = {'answer': 42}
+
+        chassis = self.conn.baremetal.update_chassis(chassis)
+        self.assertEqual({'answer': 42}, chassis.extra)
+
+        chassis = self.conn.baremetal.get_chassis(chassis.id)
+        self.assertEqual({'answer': 42}, chassis.extra)
+
     def test_chassis_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(exceptions.NotFoundException,

@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 from openstack import exceptions
 from openstack.tests.functional.baremetal import base
 
@@ -39,6 +41,30 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertRaises(exceptions.NotFoundException,
                           self.conn.baremetal.get_node, self.node_id)
 
+    def test_node_update(self):
+        node = self.create_node(name='node-name', extra={'foo': 'bar'})
+        node.name = 'new-name'
+        node.extra = {'answer': 42}
+        instance_uuid = str(uuid.uuid4())
+
+        node = self.conn.baremetal.update_node(node,
+                                               instance_uuid=instance_uuid)
+        self.assertEqual('new-name', node.name)
+        self.assertEqual({'answer': 42}, node.extra)
+        self.assertEqual(instance_uuid, node.instance_id)
+
+        node = self.conn.baremetal.get_node('new-name')
+        self.assertEqual('new-name', node.name)
+        self.assertEqual({'answer': 42}, node.extra)
+        self.assertEqual(instance_uuid, node.instance_id)
+
+        node = self.conn.baremetal.update_node(node,
+                                               instance_uuid=None)
+        self.assertIsNone(node.instance_id)
+
+        node = self.conn.baremetal.get_node('new-name')
+        self.assertIsNone(node.instance_id)
+
     def test_node_create_in_enroll_provide(self):
         node = self.create_node(provision_state='enroll')
         self.node_id = node.id
@@ -66,6 +92,9 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertRaises(exceptions.NotFoundException,
                           self.conn.baremetal.delete_node, uuid,
                           ignore_missing=False)
+        self.assertRaises(exceptions.NotFoundException,
+                          self.conn.baremetal.update_node, uuid,
+                          name='new-name')
         self.assertIsNone(self.conn.baremetal.find_node(uuid))
         self.assertIsNone(self.conn.baremetal.delete_node(uuid))
 

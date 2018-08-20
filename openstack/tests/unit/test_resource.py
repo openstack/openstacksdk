@@ -864,6 +864,23 @@ class TestResource(base.TestCase):
         self.assertEqual({key: {"x": body_value}}, result.body)
         self.assertEqual({"y": header_value}, result.headers)
 
+    def test__prepare_request_with_patch(self):
+        class Test(resource.Resource):
+            commit_jsonpatch = True
+            base_path = "/something"
+            x = resource.Body("x")
+            y = resource.Body("y")
+
+        the_id = "id"
+        sot = Test(id=the_id, x=1, y=2)
+        sot.x = 3
+
+        result = sot._prepare_request(requires_id=True, patch=True)
+
+        self.assertEqual("something/id", result.url)
+        self.assertEqual([{'op': 'replace', 'path': '/x', 'value': 3}],
+                         result.body)
+
     def test__translate_response_no_body(self):
         class Test(resource.Resource):
             attr = resource.Header("attr")
