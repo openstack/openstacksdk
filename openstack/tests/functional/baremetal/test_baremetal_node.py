@@ -68,3 +68,34 @@ class TestBareMetalNode(base.BaseBaremetalTest):
                           ignore_missing=False)
         self.assertIsNone(self.conn.baremetal.find_node(uuid))
         self.assertIsNone(self.conn.baremetal.delete_node(uuid))
+
+
+class TestBareMetalVif(base.BaseBaremetalTest):
+
+    min_microversion = '1.28'
+
+    def setUp(self):
+        super(TestBareMetalVif, self).setUp()
+        self.node = self.create_node(network_interface='noop')
+        self.vif_id = "200712fc-fdfb-47da-89a6-2d19f76c7618"
+
+    def test_node_vif_attach_detach(self):
+        self.conn.baremetal.attach_vif_to_node(self.node, self.vif_id)
+        # NOTE(dtantsur): The noop networking driver is completely noop - the
+        # VIF list does not return anything of value.
+        self.conn.baremetal.list_node_vifs(self.node)
+        res = self.conn.baremetal.detach_vif_from_node(self.node, self.vif_id,
+                                                       ignore_missing=False)
+        self.assertTrue(res)
+
+    def test_node_vif_negative(self):
+        uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
+        self.assertRaises(exceptions.NotFoundException,
+                          self.conn.baremetal.attach_vif_to_node,
+                          uuid, self.vif_id)
+        self.assertRaises(exceptions.NotFoundException,
+                          self.conn.baremetal.list_node_vifs,
+                          uuid)
+        self.assertRaises(exceptions.NotFoundException,
+                          self.conn.baremetal.detach_vif_from_node,
+                          uuid, self.vif_id, ignore_missing=False)

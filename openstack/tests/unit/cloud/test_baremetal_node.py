@@ -1609,6 +1609,88 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.assert_calls()
 
+    def test_attach_port_to_machine(self):
+        vif_id = '953ccbee-e854-450f-95fe-fe5e40d611ec'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    service_type='network',
+                    resource='ports.json',
+                    base_url_append='v2.0'),
+                json={'ports': [{'id': vif_id}]}),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'], 'vifs'])),
+        ])
+        self.cloud.attach_port_to_machine(self.fake_baremetal_node['uuid'],
+                                          vif_id)
+        self.assert_calls()
+
+    def test_detach_port_from_machine(self):
+        vif_id = '953ccbee-e854-450f-95fe-fe5e40d611ec'
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    service_type='network',
+                    resource='ports.json',
+                    base_url_append='v2.0'),
+                json={'ports': [{'id': vif_id}]}),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'], 'vifs',
+                            vif_id])),
+        ])
+        self.cloud.detach_port_from_machine(self.fake_baremetal_node['uuid'],
+                                            vif_id)
+        self.assert_calls()
+
+    def test_list_ports_attached_to_machine(self):
+        vif_id = '953ccbee-e854-450f-95fe-fe5e40d611ec'
+        fake_port = {'id': vif_id, 'name': 'test'}
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'], 'vifs']),
+                json={'vifs': [{'id': vif_id}]}),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    service_type='network',
+                    resource='ports.json',
+                    base_url_append='v2.0'),
+                json={'ports': [fake_port]}),
+        ])
+        res = self.cloud.list_ports_attached_to_machine(
+            self.fake_baremetal_node['uuid'])
+        self.assert_calls()
+        self.assertEqual([fake_port], res)
+
 
 class TestUpdateMachinePatch(base.IronicTestCase):
     # NOTE(TheJulia): As appears, and mordred describes,

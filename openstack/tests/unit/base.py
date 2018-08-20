@@ -689,7 +689,8 @@ class IronicTestCase(TestCase):
         self.uuid = str(uuid.uuid4())
         self.name = self.getUniqueString('name')
 
-    def get_mock_url(self, resource=None, append=None, qs_elements=None):
-        return super(IronicTestCase, self).get_mock_url(
-            service_type='baremetal', interface='public', resource=resource,
-            append=append, base_url_append='v1', qs_elements=qs_elements)
+    def get_mock_url(self, **kwargs):
+        kwargs.setdefault('service_type', 'baremetal')
+        kwargs.setdefault('interface', 'public')
+        kwargs.setdefault('base_url_append', 'v1')
+        return super(IronicTestCase, self).get_mock_url(**kwargs)
