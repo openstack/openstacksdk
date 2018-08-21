@@ -33,7 +33,7 @@ class TestBareMetalPort(base.BaseBaremetalTest):
         self.assertEqual(loaded.id, port.id)
 
         self.conn.baremetal.delete_port(port, ignore_missing=False)
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.get_port, port.id)
 
     def test_port_update(self):
@@ -51,15 +51,15 @@ class TestBareMetalPort(base.BaseBaremetalTest):
 
     def test_port_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.get_port, uuid)
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.find_port, uuid,
                           ignore_missing=False)
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.delete_port, uuid,
                           ignore_missing=False)
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.update_port, uuid,
                           pxe_enabled=True)
         self.assertIsNone(self.conn.baremetal.find_port(uuid))

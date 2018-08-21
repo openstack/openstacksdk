@@ -102,7 +102,7 @@ class Stack(resource.Resource):
             requires_id=requires_id,
             error_message=error_message)
         if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
-            raise exceptions.NotFoundException(
+            raise exceptions.ResourceNotFound(
                 "No stack found for %s" % stk.id)
         return stk
 

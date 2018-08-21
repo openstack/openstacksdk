@@ -143,7 +143,7 @@ class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
 
         try:
             rv = res.delete(self)
-        except exceptions.NotFoundException:
+        except exceptions.ResourceNotFound:
             if ignore_missing:
                 return None
             raise
