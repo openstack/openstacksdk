@@ -148,6 +148,11 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['target_raid_config'], sot.target_raid_config)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
 
+    def test_normalize_provision_state(self):
+        attrs = dict(FAKE, provision_state=None)
+        sot = node.Node(**attrs)
+        self.assertEqual('available', sot.provision_state)
+
 
 class TestNodeDetail(base.TestCase):
 

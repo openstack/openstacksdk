@@ -35,6 +35,12 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
+                     service_type='baremetal', base_url_append='v1'),
+                 json={'id': 'v1',
+                       'links': [{"href": "https://bare-metal.example.com/v1/",
+                                  "rel": "self"}]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      service_type='baremetal', base_url_append='v1',
                      resource='nodes'),
                  json={'nodes': []}),
