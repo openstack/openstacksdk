@@ -124,7 +124,7 @@
       - openstack/octavia
     vars:
       devstack_localrc:
-        DISABLE_AMP_IMAGE_BUILD: True
+        DISABLE_AMP_IMAGE_BUILD: true
       devstack_local_conf:
         post-config:
           $OCTAVIA_CONF:
@@ -239,8 +239,8 @@
     vars:
       devstack_localrc:
         OVERRIDE_PUBLIC_BRIDGE_MTU: 1400
-        IRONIC_BAREMETAL_BASIC_OPS: True
-        IRONIC_BUILD_DEPLOY_RAMDISK: False
+        IRONIC_BAREMETAL_BASIC_OPS: true
+        IRONIC_BUILD_DEPLOY_RAMDISK: false
         IRONIC_CALLBACK_TIMEOUT: 600
         IRONIC_DEPLOY_DRIVER: ipmi
         IRONIC_RAMDISK_TYPE: tinyipa
@@ -250,32 +250,32 @@
       devstack_plugins:
         ironic: git://git.openstack.org/openstack/ironic
       devstack_services:
-        c-api: False
-        c-bak: False
-        c-sch: False
-        c-vol: False
-        cinder: False
-        s-account: False
-        s-container: False
-        s-object: False
-        s-proxy: False
-        n-api: False
-        n-api-meta: False
-        n-cauth: False
-        n-cond: False
-        n-cpu: False
-        n-novnc: False
-        n-obj: False
-        n-sch: False
-        nova: False
-        placement-api: False
+        c-api: false
+        c-bak: false
+        c-sch: false
+        c-vol: false
+        cinder: false
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        n-api: false
+        n-api-meta: false
+        n-cauth: false
+        n-cond: false
+        n-cpu: false
+        n-novnc: false
+        n-obj: false
+        n-sch: false
+        nova: false
+        placement-api: false
       tox_environment:
         OPENSTACKSDK_HAS_IRONIC: 1
         # NOTE(dtantsur): this job cannot run many regular tests (e.g. compute
         # tests will take too long), so limiting it to baremetal tests only.
         OPENSTACKSDK_TESTS_SUBDIR: baremetal
       zuul_copy_output:
-        '{{ devstack_base_dir }}/ironic-bm-logs': 'logs'
+        '{{ devstack_base_dir }}/ironic-bm-logs': logs
 
 - job:
     name: openstacksdk-ansible-functional-devstack
@@ -357,6 +357,11 @@
       - osc-tox-unit-tips
       - shade-functional-tips
       - shade-tox-tips
+      - openstack-python-jobs
+      - openstack-python35-jobs
+      - check-requirements
+      - publish-openstack-sphinx-docs
+      - release-notes-jobs
     check:
       jobs:
         - build-openstack-sphinx-docs:
@@ -389,3 +394,6 @@
         - neutron-grenade
         - openstack-tox-lower-constraints
         - nodepool-functional-py35-src
+    post:
+      jobs:
+        - openstack-tox-cover
