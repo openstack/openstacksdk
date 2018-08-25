@@ -205,18 +205,18 @@ class TestProxyDelete(base.TestCase):
         self.assertEqual(rv, self.fake_id)
 
     def test_delete_ignore_missing(self):
-        self.res.delete.side_effect = exceptions.NotFoundException(
+        self.res.delete.side_effect = exceptions.ResourceNotFound(
             message="test", http_status=404)
 
         rv = self.sot._delete(DeleteableResource, self.fake_id)
         self.assertIsNone(rv)
 
     def test_delete_NotFound(self):
-        self.res.delete.side_effect = exceptions.NotFoundException(
+        self.res.delete.side_effect = exceptions.ResourceNotFound(
             message="test", http_status=404)
 
         self.assertRaisesRegex(
-            exceptions.NotFoundException,
+            exceptions.ResourceNotFound,
             # TODO(shade) The mocks here are hiding the thing we want to test.
             "test",
             self.sot._delete, DeleteableResource, self.res,
@@ -332,11 +332,11 @@ class TestProxyGet(base.TestCase):
         self.assertEqual(rv, self.fake_result)
 
     def test_get_not_found(self):
-        self.res.fetch.side_effect = exceptions.NotFoundException(
+        self.res.fetch.side_effect = exceptions.ResourceNotFound(
             message="test", http_status=404)
 
         self.assertRaisesRegex(
-            exceptions.NotFoundException,
+            exceptions.ResourceNotFound,
             "test", self.sot._get, RetrieveableResource, self.res)
 
 

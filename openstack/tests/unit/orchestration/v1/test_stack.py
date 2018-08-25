@@ -126,14 +126,14 @@ class TestStack(base.TestCase):
         normal_stack = mock.Mock(status='CREATE_COMPLETE')
         mock_fetch.side_effect = [
             normal_stack,
-            exceptions.NotFoundException(message='oops'),
+            exceptions.ResourceNotFound(message='oops'),
             deleted_stack,
         ]
 
         self.assertEqual(normal_stack, sot.fetch(sess))
-        ex = self.assertRaises(exceptions.NotFoundException, sot.fetch, sess)
+        ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
         self.assertEqual('oops', six.text_type(ex))
-        ex = self.assertRaises(exceptions.NotFoundException, sot.fetch, sess)
+        ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
         self.assertEqual('No stack found for %s' % FAKE_ID,
                          six.text_type(ex))
 

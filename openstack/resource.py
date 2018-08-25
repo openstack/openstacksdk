@@ -1054,6 +1054,8 @@ class Resource(dict):
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_fetch` is not set to ``True``.
+        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+                 the resource was not found.
         """
         if not self.allow_fetch:
             raise exceptions.MethodNotSupported(self, "fetch")
@@ -1079,6 +1081,8 @@ class Resource(dict):
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_head` is not set to ``True``.
+        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+                 the resource was not found.
         """
         if not self.allow_head:
             raise exceptions.MethodNotSupported(self, "head")
@@ -1157,6 +1161,8 @@ class Resource(dict):
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_commit` is not set to ``True``.
+        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
+                 the resource was not found.
         """
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, "delete")

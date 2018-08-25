@@ -108,11 +108,6 @@ class HttpException(SDKException, _rex.HTTPError):
         return self.__unicode__()
 
 
-class NotFoundException(HttpException):
-    """HTTP 404 Not Found."""
-    pass
-
-
 class BadRequestException(HttpException):
     """HTTP 400 Bad Request."""
     pass
@@ -142,9 +137,12 @@ class DuplicateResource(SDKException):
     pass
 
 
-class ResourceNotFound(NotFoundException):
+class ResourceNotFound(HttpException):
     """No resource exists with that name or id."""
     pass
+
+
+NotFoundException = ResourceNotFound
 
 
 class ResourceTimeout(SDKException):

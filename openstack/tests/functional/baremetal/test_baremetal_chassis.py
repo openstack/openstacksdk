@@ -24,7 +24,7 @@ class TestBareMetalChassis(base.BaseBaremetalTest):
         self.assertEqual(loaded.id, chassis.id)
 
         self.conn.baremetal.delete_chassis(chassis, ignore_missing=False)
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.get_chassis, chassis.id)
 
     def test_chassis_update(self):
@@ -39,12 +39,12 @@ class TestBareMetalChassis(base.BaseBaremetalTest):
 
     def test_chassis_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.get_chassis, uuid)
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.find_chassis, uuid,
                           ignore_missing=False)
-        self.assertRaises(exceptions.NotFoundException,
+        self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.delete_chassis, uuid,
                           ignore_missing=False)
         self.assertIsNone(self.conn.baremetal.find_chassis(uuid))
