@@ -49,7 +49,6 @@ class TestContainer(base.TestCase):
         self.assertIsNone(sot.resources_key)
         self.assertEqual('name', sot._alternate_id())
         self.assertEqual('/', sot.base_path)
-        self.assertEqual('object-store', sot.service.service_type)
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)

@@ -13,7 +13,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -21,7 +20,6 @@ class FirewallRule(resource.Resource):
     resource_key = 'firewall_rule'
     resources_key = 'firewall_rules'
     base_path = '/fwaas/firewall_rules'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

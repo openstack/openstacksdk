@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.load_balancer import load_balancer_service as lb_service
 from openstack import resource
 
 
 class Pool(resource.Resource):
     resource_key = 'pool'
     resources_key = 'pools'
-    base_path = '/v2.0/lbaas/pools'
-    service = lb_service.LoadBalancerService()
+    base_path = '/lbaas/pools'
 
     # capabilities
     allow_create = True

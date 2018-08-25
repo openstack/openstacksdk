@@ -38,7 +38,6 @@ class TestFlavor(base.TestCase):
         self.assertEqual('flavor', flavors.resource_key)
         self.assertEqual('flavors', flavors.resources_key)
         self.assertEqual('/flavors', flavors.base_path)
-        self.assertEqual('network', flavors.service.service_type)
         self.assertTrue(flavors.allow_create)
         self.assertTrue(flavors.allow_fetch)
         self.assertTrue(flavors.allow_commit)

@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.network.v2 import _proxy
+from openstack import service_description
 
 
-class NetworkService(service_filter.ServiceFilter):
+class NetworkService(service_description.ServiceDescription):
     """The network service."""
 
-    valid_versions = [service_filter.ValidVersion('v2', 'v2.0')]
-
-    def __init__(self, version=None):
-        """Create a network service."""
-        super(NetworkService, self).__init__(service_type='network',
-                                             version=version)
+    supported_versions = {
+        '2': _proxy.Proxy,
+    }

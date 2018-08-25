@@ -36,7 +36,6 @@ class TestAccount(base.TestCase):
         self.assertIsNone(sot.resources_key)
         self.assertIsNone(sot.id)
         self.assertEqual('/', sot.base_path)
-        self.assertEqual('object-store', sot.service.service_type)
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_head)
         self.assertTrue(sot.allow_fetch)

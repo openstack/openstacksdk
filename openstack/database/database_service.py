@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.database.v1 import _proxy
+from openstack import service_description
 
 
-class DatabaseService(service_filter.ServiceFilter):
+class DatabaseService(service_description.ServiceDescription):
     """The database service."""
 
-    valid_versions = [service_filter.ValidVersion('v1')]
-
-    def __init__(self, version=None):
-        """Create a database service."""
-        super(DatabaseService, self).__init__(service_type='database',
-                                              version=version)
+    supported_versions = {
+        '1': _proxy.Proxy,
+    }

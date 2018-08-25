@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.block_storage import block_storage_service
 from openstack import format
 from openstack import resource
 
@@ -19,7 +18,6 @@ class Volume(resource.Resource):
     resource_key = "volume"
     resources_key = "volumes"
     base_path = "/volumes"
-    service = block_storage_service.BlockStorageService()
 
     _query_mapping = resource.QueryParameters(
         'all_tenants', 'name', 'status', 'project_id')

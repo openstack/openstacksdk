@@ -42,7 +42,6 @@ class TestSubnetpool(base.TestCase):
         self.assertEqual('subnetpool', sot.resource_key)
         self.assertEqual('subnetpools', sot.resources_key)
         self.assertEqual('/subnetpools', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

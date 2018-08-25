@@ -44,9 +44,7 @@ class TestPool(base.TestCase):
         test_pool = pool.Pool()
         self.assertEqual('pool', test_pool.resource_key)
         self.assertEqual('pools', test_pool.resources_key)
-        self.assertEqual('/v2.0/lbaas/pools', test_pool.base_path)
-        self.assertEqual('load-balancer',
-                         test_pool.service.service_type)
+        self.assertEqual('/lbaas/pools', test_pool.base_path)
         self.assertTrue(test_pool.allow_create)
         self.assertTrue(test_pool.allow_fetch)
         self.assertTrue(test_pool.allow_delete)

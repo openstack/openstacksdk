@@ -12,12 +12,10 @@
 
 from six.moves.urllib import parse
 
-from openstack.orchestration import orchestration_service
 from openstack import resource
 
 
 class Template(resource.Resource):
-    service = orchestration_service.OrchestrationService()
 
     # capabilities
     allow_create = False

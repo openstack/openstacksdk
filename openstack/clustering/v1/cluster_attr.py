@@ -10,14 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.clustering import clustering_service
 from openstack import resource
 
 
 class ClusterAttr(resource.Resource):
     resources_key = 'cluster_attributes'
     base_path = '/clusters/%(cluster_id)s/attrs/%(path)s'
-    service = clustering_service.ClusteringService()
 
     # capabilities
     allow_list = True

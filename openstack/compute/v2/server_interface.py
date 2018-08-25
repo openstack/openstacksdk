@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class ServerInterface(resource.Resource):
     resource_key = 'interfaceAttachment'
     resources_key = 'interfaceAttachments'
     base_path = '/servers/%(server_id)s/os-interface'
-    service = compute_service.ComputeService()
 
     # capabilities
     allow_create = True

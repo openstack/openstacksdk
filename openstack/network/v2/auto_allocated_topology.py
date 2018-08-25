@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class AutoAllocatedTopology(resource.Resource):
     resource_name = 'auto_allocated_topology'
     resource_key = 'auto_allocated_topology'
     base_path = '/auto-allocated-topology'
-    service = network_service.NetworkService()
 
     # Capabilities
     allow_create = False

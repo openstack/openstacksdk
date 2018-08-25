@@ -38,9 +38,8 @@ class TestPoolMember(base.TestCase):
         test_member = member.Member()
         self.assertEqual('member', test_member.resource_key)
         self.assertEqual('members', test_member.resources_key)
-        self.assertEqual('/v2.0/lbaas/pools/%(pool_id)s/members',
+        self.assertEqual('/lbaas/pools/%(pool_id)s/members',
                          test_member.base_path)
-        self.assertEqual('load-balancer', test_member.service.service_type)
         self.assertTrue(test_member.allow_create)
         self.assertTrue(test_member.allow_fetch)
         self.assertTrue(test_member.allow_commit)

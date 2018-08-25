@@ -12,16 +12,12 @@
 
 
 from openstack import resource
-from openstack.workflow import workflow_service
 
 
 class Version(resource.Resource):
     resource_key = 'version'
     resources_key = 'versions'
     base_path = '/'
-    service = workflow_service.WorkflowService(
-        version=workflow_service.WorkflowService.UNVERSIONED
-    )
 
     # capabilities
     allow_list = True

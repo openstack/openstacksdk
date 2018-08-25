@@ -14,7 +14,6 @@ import hashlib
 
 from openstack import _log
 from openstack import exceptions
-from openstack.image import image_service
 from openstack import resource
 from openstack import utils
 
@@ -24,7 +23,6 @@ _logger = _log.setup_logging('openstack')
 class Image(resource.Resource):
     resources_key = 'images'
     base_path = '/images'
-    service = image_service.ImageService()
 
     # capabilities
     allow_create = True

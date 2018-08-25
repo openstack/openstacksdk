@@ -10,16 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.block_storage.v2 import _proxy
+from openstack import service_description
 
 
-class BlockStorageService(service_filter.ServiceFilter):
+class BlockStorageService(service_description.ServiceDescription):
     """The block storage service."""
 
-    valid_versions = [service_filter.ValidVersion('v2')]
-
-    def __init__(self, version=None):
-        """Create a block storage service."""
-        super(BlockStorageService, self).__init__(
-            service_type='block-storage',
-            version=version, requires_project_id=True)
+    supported_versions = {
+        '2': _proxy.Proxy,
+    }

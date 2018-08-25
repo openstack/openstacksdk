@@ -10,17 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.load_balancer.v2 import _proxy
+from openstack import service_description
 
 
-class LoadBalancerService(service_filter.ServiceFilter):
+class LoadBalancerService(service_description.ServiceDescription):
     """The load balancer service."""
 
-    valid_versions = [service_filter.ValidVersion('v2', 'v2.0')]
-
-    def __init__(self, version=None):
-        """Create a load balancer service."""
-        super(LoadBalancerService, self).__init__(
-            service_type='load-balancer',
-            version=version
-        )
+    supported_versions = {
+        '2': _proxy.Proxy,
+    }

@@ -44,7 +44,6 @@ class TestResource(base.TestCase):
         self.assertEqual('resources', sot.resources_key)
         self.assertEqual('/stacks/%(stack_name)s/%(stack_id)s/resources',
                          sot.base_path)
-        self.assertEqual('orchestration', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_retrieve)
         self.assertFalse(sot.allow_commit)

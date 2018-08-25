@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
 from openstack import resource
 from openstack import utils
 
@@ -19,8 +18,6 @@ class Service(resource.Resource):
     resource_key = 'service'
     resources_key = 'services'
     base_path = '/os-services'
-
-    service = compute_service.ComputeService()
 
     # capabilities
     allow_list = True

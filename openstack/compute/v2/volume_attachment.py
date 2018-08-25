@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class VolumeAttachment(resource.Resource):
     resource_key = 'volumeAttachment'
     resources_key = 'volumeAttachments'
     base_path = '/servers/%(server_id)s/os-volume_attachments'
-    service = compute_service.ComputeService()
 
     # capabilities
     allow_create = True

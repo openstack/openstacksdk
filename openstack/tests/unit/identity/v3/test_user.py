@@ -36,7 +36,6 @@ class TestUser(base.TestCase):
         self.assertEqual('user', sot.resource_key)
         self.assertEqual('users', sot.resources_key)
         self.assertEqual('/users', sot.base_path)
-        self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

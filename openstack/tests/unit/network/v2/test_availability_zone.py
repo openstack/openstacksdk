@@ -30,7 +30,6 @@ class TestAvailabilityZone(base.TestCase):
         self.assertEqual('availability_zone', sot.resource_key)
         self.assertEqual('availability_zones', sot.resources_key)
         self.assertEqual('/availability_zones', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

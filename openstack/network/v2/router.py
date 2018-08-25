@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack.network.v2 import tag
 from openstack import resource
 from openstack import utils
@@ -20,7 +19,6 @@ class Router(resource.Resource, tag.TagMixin):
     resource_key = 'router'
     resources_key = 'routers'
     base_path = '/routers'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True
@@ -137,7 +135,6 @@ class L3AgentRouter(Router):
     resources_key = 'routers'
     base_path = '/agents/%(agent_id)s/l3-routers'
     resource_name = 'l3-router'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = False

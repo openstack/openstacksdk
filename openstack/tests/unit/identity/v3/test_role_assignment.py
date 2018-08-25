@@ -32,7 +32,6 @@ class TestRoleAssignment(base.TestCase):
         self.assertEqual('role_assignments', sot.resources_key)
         self.assertEqual('/role_assignments',
                          sot.base_path)
-        self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):

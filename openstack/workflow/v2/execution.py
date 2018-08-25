@@ -11,14 +11,12 @@
 # under the License.
 
 from openstack import resource
-from openstack.workflow import workflow_service
 
 
 class Execution(resource.Resource):
     resource_key = 'execution'
     resources_key = 'executions'
     base_path = '/executions'
-    service = workflow_service.WorkflowService()
 
     # capabilities
     allow_create = True

@@ -36,7 +36,6 @@ class TestSegment(base.TestCase):
         self.assertEqual("segment", sot.resource_key)
         self.assertEqual("segments", sot.resources_key)
         self.assertEqual("/segments", sot.base_path)
-        self.assertEqual("ha", sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_create)

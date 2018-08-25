@@ -75,7 +75,6 @@ class TestCluster(base.TestCase):
         self.assertEqual('cluster', sot.resource_key)
         self.assertEqual('clusters', sot.resources_key)
         self.assertEqual('/clusters', sot.base_path)
-        self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

@@ -44,7 +44,6 @@ class TestHost(base.TestCase):
         self.assertEqual("host", sot.resource_key)
         self.assertEqual("hosts", sot.resources_key)
         self.assertEqual("/segments/%(segment_id)s/hosts", sot.base_path)
-        self.assertEqual("ha", sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_create)

@@ -40,7 +40,6 @@ class TestQueue(base.TestCase):
         sot = queue.Queue()
         self.assertEqual('queues', sot.resources_key)
         self.assertEqual('/queues', sot.base_path)
-        self.assertEqual('messaging', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)

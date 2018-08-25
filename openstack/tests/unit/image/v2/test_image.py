@@ -110,7 +110,6 @@ class TestImage(base.TestCase):
         self.assertIsNone(sot.resource_key)
         self.assertEqual('images', sot.resources_key)
         self.assertEqual('/images', sot.base_path)
-        self.assertEqual('image', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

@@ -11,7 +11,6 @@
 # under the License.
 
 
-from openstack.clustering import clustering_service
 from openstack import resource
 
 
@@ -19,7 +18,6 @@ class Action(resource.Resource):
     resource_key = 'action'
     resources_key = 'actions'
     base_path = '/actions'
-    service = clustering_service.ClusteringService()
 
     # Capabilities
     allow_list = True

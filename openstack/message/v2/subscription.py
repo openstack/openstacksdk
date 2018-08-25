@@ -12,7 +12,6 @@
 
 import uuid
 
-from openstack.message import message_service
 from openstack import resource
 
 
@@ -24,7 +23,6 @@ class Subscription(resource.Resource):
 
     resources_key = 'subscriptions'
     base_path = '/queues/%(queue_name)s/subscriptions'
-    service = message_service.MessageService()
 
     # capabilities
     allow_create = True

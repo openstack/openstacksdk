@@ -10,25 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.identity.v2 import _proxy as _proxy_v2
+from openstack.identity.v3 import _proxy as _proxy_v3
+from openstack import service_description
 
 
-class IdentityService(service_filter.ServiceFilter):
+class IdentityService(service_description.ServiceDescription):
     """The identity service."""
 
-    valid_versions = [
-        service_filter.ValidVersion('v3'),
-        service_filter.ValidVersion('v2'),
-    ]
-
-    def __init__(self, **kwargs):
-        """Create an identity service."""
-        kwargs['service_type'] = 'identity'
-        super(IdentityService, self).__init__(**kwargs)
-
-
-class AdminService(IdentityService):
-
-    def __init__(self, **kwargs):
-        kwargs['interface'] = service_filter.ServiceFilter.ADMIN
-        super(AdminService, self).__init__(**kwargs)
+    supported_versions = {
+        '2': _proxy_v2.Proxy,
+        '3': _proxy_v3.Proxy,
+    }

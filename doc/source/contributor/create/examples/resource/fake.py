@@ -1,6 +1,5 @@
 # Apache 2 header omitted for brevity
 
-from openstack.fake import fake_service
 from openstack import resource
 
 
@@ -8,7 +7,6 @@ class Fake(resource.Resource):
     resource_key = "resource"
     resources_key = "resources"
     base_path = "/fake"
-    service = fake_service.FakeService()
 
     allow_create = True
     allow_fetch = True

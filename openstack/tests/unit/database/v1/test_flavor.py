@@ -30,7 +30,6 @@ class TestFlavor(base.TestCase):
         self.assertEqual('flavor', sot.resource_key)
         self.assertEqual('flavors', sot.resources_key)
         self.assertEqual('/flavors', sot.base_path)
-        self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_fetch)

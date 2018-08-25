@@ -12,12 +12,10 @@
 # under the License.
 
 from openstack import exceptions
-from openstack.object_store import object_store_service
 from openstack import resource
 
 
 class BaseResource(resource.Resource):
-    service = object_store_service.ObjectStoreService()
 
     commit_method = 'POST'
     create_method = 'PUT'

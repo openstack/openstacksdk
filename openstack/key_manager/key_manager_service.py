@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.key_manager.v1 import _proxy
+from openstack import service_description
 
 
-class KeyManagerService(service_filter.ServiceFilter):
+class KeyManagerService(service_description.ServiceDescription):
     """The key manager service."""
 
-    valid_versions = [service_filter.ValidVersion('v1')]
-
-    def __init__(self, version=None):
-        """Create a key manager service."""
-        super(KeyManagerService, self).__init__(service_type='key-manager',
-                                                version=version)
+    supported_versions = {
+        '1': _proxy.Proxy,
+    }

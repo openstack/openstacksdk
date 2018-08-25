@@ -29,7 +29,6 @@ class TestVersion(base.TestCase):
         self.assertEqual('version', sot.resource_key)
         self.assertEqual('versions', sot.resources_key)
         self.assertEqual('/', sot.base_path)
-        self.assertEqual('messaging', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

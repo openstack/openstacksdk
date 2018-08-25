@@ -53,7 +53,6 @@ class TestAction(base.TestCase):
         self.assertEqual('action', sot.resource_key)
         self.assertEqual('actions', sot.resources_key)
         self.assertEqual('/actions', sot.base_path)
-        self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 

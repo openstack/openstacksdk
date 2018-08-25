@@ -45,10 +45,8 @@ class TestLoadBalancer(base.TestCase):
         test_load_balancer = load_balancer.LoadBalancer()
         self.assertEqual('loadbalancer', test_load_balancer.resource_key)
         self.assertEqual('loadbalancers', test_load_balancer.resources_key)
-        self.assertEqual('/v2.0/lbaas/loadbalancers',
+        self.assertEqual('/lbaas/loadbalancers',
                          test_load_balancer.base_path)
-        self.assertEqual('load-balancer',
-                         test_load_balancer.service.service_type)
         self.assertTrue(test_load_balancer.allow_create)
         self.assertTrue(test_load_balancer.allow_fetch)
         self.assertTrue(test_load_balancer.allow_delete)
@@ -94,7 +92,7 @@ class TestLoadBalancer(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = 'v2.0/lbaas/loadbalancers/%(lb)s' % {
+        url = 'lbaas/loadbalancers/%(lb)s' % {
             'lb': EXAMPLE['id']
         }
         headers = {'Accept': ''}
@@ -118,7 +116,7 @@ class TestLoadBalancer(base.TestCase):
         sot._translate_response = mock.Mock()
         sot.delete(sess)
 
-        url = 'v2.0/lbaas/loadbalancers/%(lb)s' % {
+        url = 'lbaas/loadbalancers/%(lb)s' % {
             'lb': EXAMPLE['id']
         }
         headers = {'Accept': ''}

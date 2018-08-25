@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class QoSMinimumBandwidthRule(resource.Resource):
     resource_key = 'minimum_bandwidth_rule'
     resources_key = 'minimum_bandwidth_rules'
     base_path = '/qos/policies/%(qos_policy_id)s/minimum_bandwidth_rules'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

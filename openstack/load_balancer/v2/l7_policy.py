@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.load_balancer import load_balancer_service as lb_service
 from openstack import resource
 
 
 class L7Policy(resource.Resource):
     resource_key = 'l7policy'
     resources_key = 'l7policies'
-    base_path = '/v2.0/lbaas/l7policies'
-    service = lb_service.LoadBalancerService()
+    base_path = '/lbaas/l7policies'
 
     # capabilities
     allow_create = True

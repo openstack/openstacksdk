@@ -30,7 +30,6 @@ class TestServerGroup(base.TestCase):
         self.assertEqual('server_group', sot.resource_key)
         self.assertEqual('server_groups', sot.resources_key)
         self.assertEqual('/os-server-groups', sot.base_path)
-        self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

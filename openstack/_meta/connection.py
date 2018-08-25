@@ -18,7 +18,6 @@ import warnings
 import os_service_types
 
 from openstack import _log
-from openstack import proxy
 from openstack import service_description
 
 _logger = _log.setup_logging('openstack')
@@ -43,28 +42,28 @@ class ConnectionMeta(type):
                 # from openstacksdk. The credentials API calls are all calls
                 # on identity endpoints.
                 continue
-            desc_class = service_description.ServiceDescription
-            service_filter_class = _find_service_filter_class(service_type)
+            desc_class = _find_service_description_class(service_type)
             descriptor_args = {'service_type': service_type}
-            if service_filter_class:
-                desc_class = service_description.OpenStackServiceDescription
-                descriptor_args['service_filter_class'] = service_filter_class
-                class_names = service_filter_class._get_proxy_class_names()
-                if len(class_names) == 1:
-                    doc = _DOC_TEMPLATE.format(
-                        class_name="{service_type} Proxy <{name}>".format(
-                            service_type=service_type, name=class_names[0]),
-                        **service)
-                else:
-                    class_doc_strings = "\n".join([
-                        ":class:`{class_name}`".format(class_name=class_name)
-                        for class_name in class_names])
-                    doc = _PROXY_TEMPLATE.format(
-                        class_doc_strings=class_doc_strings, **service)
-            else:
-                descriptor_args['proxy_class'] = proxy.Proxy
+
+            if not desc_class.supported_versions:
                 doc = _DOC_TEMPLATE.format(
-                    class_name='~openstack.proxy.Proxy', **service)
+                    class_name="{service_type} Proxy".format(
+                        service_type=service_type),
+                    **service)
+            elif len(desc_class.supported_versions) == 1:
+                supported_version = list(
+                    desc_class.supported_versions.keys())[0]
+                doc = _DOC_TEMPLATE.format(
+                    class_name="{service_type} Proxy <{name}>".format(
+                        service_type=service_type, name=supported_version),
+                    **service)
+            else:
+                class_doc_strings = "\n".join([
+                    ":class:`{class_name}`".format(
+                        class_name=proxy_class.__name__)
+                    for proxy_class in desc_class.supported_versions.values()])
+                doc = _PROXY_TEMPLATE.format(
+                    class_doc_strings=class_doc_strings, **service)
             descriptor = desc_class(**descriptor_args)
             descriptor.__doc__ = doc
             st = service_type.replace('-', '_')
@@ -103,7 +102,7 @@ def _get_aliases(service_type, aliases=None):
     return all_types
 
 
-def _find_service_filter_class(service_type):
+def _find_service_description_class(service_type):
     package_name = 'openstack.{service_type}'.format(
         service_type=service_type).replace('-', '_')
     module_name = service_type.replace('-', '_') + '_service'
@@ -111,17 +110,17 @@ def _find_service_filter_class(service_type):
         [part.capitalize() for part in module_name.split('_')])
     try:
         import_name = '.'.join([package_name, module_name])
-        service_filter_module = importlib.import_module(import_name)
+        service_description_module = importlib.import_module(import_name)
     except ImportError as e:
         # ImportWarning is ignored by default. This warning is here
         # as an opt-in for people trying to figure out why something
         # didn't work.
         warnings.warn(
-            "Could not import {service_type} service filter: {e}".format(
+            "Could not import {service_type} service description: {e}".format(
                 service_type=service_type, e=str(e)),
             ImportWarning)
-        return None
+        return service_description.ServiceDescription
     # There are no cases in which we should have a module but not the class
     # inside it.
-    service_filter_class = getattr(service_filter_module, class_name)
-    return service_filter_class
+    service_description_class = getattr(service_description_module, class_name)
+    return service_description_class

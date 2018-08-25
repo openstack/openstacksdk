@@ -35,7 +35,6 @@ class TestPoolMember(base.TestCase):
         self.assertEqual('member', sot.resource_key)
         self.assertEqual('members', sot.resources_key)
         self.assertEqual('/lbaas/pools/%(pool_id)s/members', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

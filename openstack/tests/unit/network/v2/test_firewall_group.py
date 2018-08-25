@@ -38,7 +38,6 @@ class TestFirewallGroup(testtools.TestCase):
         self.assertEqual('firewall_group', sot.resource_key)
         self.assertEqual('firewall_groups', sot.resources_key)
         self.assertEqual('/fwaas/firewall_groups', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

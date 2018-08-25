@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.clustering import clustering_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Receiver(resource.Resource):
     resource_key = 'receiver'
     resources_key = 'receivers'
     base_path = '/receivers'
-    service = clustering_service.ClusteringService()
 
     # Capabilities
     allow_list = True

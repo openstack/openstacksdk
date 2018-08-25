@@ -44,7 +44,6 @@ class TestNotification(base.TestCase):
         self.assertEqual("notification", sot.resource_key)
         self.assertEqual("notifications", sot.resources_key)
         self.assertEqual("/notifications", sot.base_path)
-        self.assertEqual("ha", sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_create)

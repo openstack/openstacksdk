@@ -11,7 +11,6 @@
 # under the License.
 
 
-from openstack.compute import compute_service
 from openstack import resource
 
 
@@ -19,8 +18,6 @@ class Hypervisor(resource.Resource):
     resource_key = 'hypervisor'
     resources_key = 'hypervisors'
     base_path = '/os-hypervisors'
-
-    service = compute_service.ComputeService()
 
     # capabilities
     allow_fetch = True

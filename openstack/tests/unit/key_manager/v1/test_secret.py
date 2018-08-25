@@ -42,7 +42,6 @@ class TestSecret(base.TestCase):
         self.assertIsNone(sot.resource_key)
         self.assertEqual('secrets', sot.resources_key)
         self.assertEqual('/secrets', sot.base_path)
-        self.assertEqual('key-manager', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

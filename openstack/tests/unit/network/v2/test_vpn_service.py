@@ -14,6 +14,7 @@ from openstack.tests.unit import base
 
 from openstack.network.v2 import vpn_service
 
+
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     "admin_state_up": True,
@@ -36,7 +37,6 @@ class TestVPNService(base.TestCase):
         self.assertEqual('vpnservice', sot.resource_key)
         self.assertEqual('vpnservices', sot.resources_key)
         self.assertEqual('/vpn/vpnservices', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

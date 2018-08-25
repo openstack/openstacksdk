@@ -30,7 +30,6 @@ class TestMember(base.TestCase):
         self.assertIsNone(sot.resource_key)
         self.assertEqual('members', sot.resources_key)
         self.assertEqual('/images/%(image_id)s/members', sot.base_path)
-        self.assertEqual('image', sot.service.service_type)
         self.assertEqual('member', sot._alternate_id())
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)

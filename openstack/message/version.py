@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.message import message_service
 from openstack import resource
 
 
@@ -18,9 +17,6 @@ class Version(resource.Resource):
     resource_key = 'version'
     resources_key = 'versions'
     base_path = '/'
-    service = message_service.MessageService(
-        version=message_service.MessageService.UNVERSIONED
-    )
 
     # capabilities
     allow_list = True

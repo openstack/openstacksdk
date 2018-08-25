@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.object_store.v1 import _proxy
+from openstack import service_description
 
 
-class ObjectStoreService(service_filter.ServiceFilter):
+class ObjectStoreService(service_description.ServiceDescription):
     """The object store service."""
 
-    valid_versions = [service_filter.ValidVersion('v1')]
-
-    def __init__(self, version=None):
-        """Create an object store service."""
-        super(ObjectStoreService, self).__init__(service_type='object-store',
-                                                 version=version)
+    supported_versions = {
+        '1': _proxy.Proxy,
+    }

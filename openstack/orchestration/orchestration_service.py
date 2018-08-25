@@ -10,18 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.orchestration.v1 import _proxy
+from openstack import service_description
 
 
-class OrchestrationService(service_filter.ServiceFilter):
+class OrchestrationService(service_description.ServiceDescription):
     """The orchestration service."""
 
-    valid_versions = [service_filter.ValidVersion('v1')]
-
-    def __init__(self, version=None):
-        """Create an orchestration service."""
-        super(OrchestrationService, self).__init__(
-            service_type='orchestration',
-            version=version,
-            requires_project_id=True,
-        )
+    supported_versions = {
+        '1': _proxy.Proxy,
+    }
