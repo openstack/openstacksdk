@@ -7308,6 +7308,7 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         try:
             self._object_store_client.delete(name)
+            self._container_cache.pop(name, None)
             return True
         except exc.OpenStackCloudHTTPError as e:
             if e.response.status_code == 404:
