@@ -8454,7 +8454,7 @@ class OpenStackCloud(_normalize.Normalizer):
             data = _adapter._json_response(
                 self.compute.put(
                     '/os-security-groups/{id}'.format(id=group['id']),
-                    json={'security-group': kwargs}))
+                    json={'security_group': kwargs}))
         return self._normalize_secgroup(
             self._get_and_munchify('security_group', data))
 
