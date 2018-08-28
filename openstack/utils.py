@@ -15,6 +15,7 @@ import string
 import time
 
 import deprecation
+import keystoneauth1
 from keystoneauth1 import discover
 
 from openstack import _log
@@ -197,7 +198,19 @@ def maximum_supported_microversion(adapter, client_maximum):
     if client_maximum is None:
         return None
 
-    endpoint_data = adapter.get_endpoint_data()
+    # NOTE(dtantsur): if we cannot determine supported microversions, fall back
+    # to the default one.
+    try:
+        endpoint_data = adapter.get_endpoint_data()
+    except keystoneauth1.exceptions.discovery.DiscoveryFailure:
+        endpoint_data = None
+
+    if endpoint_data is None:
+        log = _log.setup_logging('openstack')
+        log.warning('Cannot determine endpoint data for service %s',
+                    adapter.service_type or adapter.service_name)
+        return None
+
     if not endpoint_data.max_microversion:
         return None
 
