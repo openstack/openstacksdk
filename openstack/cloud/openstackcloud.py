@@ -1477,7 +1477,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        networks = self.list_networks(filters)
+        networks = self.list_networks(
+            filters if isinstance(filters, dict) else None)
         return _utils._filter_list(networks, name_or_id, filters)
 
     def search_routers(self, name_or_id=None, filters=None):
@@ -1492,7 +1493,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        routers = self.list_routers(filters)
+        routers = self.list_routers(
+            filters if isinstance(filters, dict) else None)
         return _utils._filter_list(routers, name_or_id, filters)
 
     def search_subnets(self, name_or_id=None, filters=None):
@@ -1507,7 +1509,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        subnets = self.list_subnets(filters)
+        subnets = self.list_subnets(
+            filters if isinstance(filters, dict) else None)
         return _utils._filter_list(subnets, name_or_id, filters)
 
     def search_ports(self, name_or_id=None, filters=None):
@@ -1525,7 +1528,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # If port caching is enabled, do not push the filter down to
         # neutron; get all the ports (potentially from the cache) and
         # filter locally.
-        if self._PORT_AGE:
+        if self._PORT_AGE or isinstance(filters, str):
             pushdown_filters = None
         else:
             pushdown_filters = filters
