@@ -16,6 +16,7 @@
 Exception definitions.
 """
 
+import json
 import re
 
 from requests import exceptions as _rex
@@ -162,6 +163,24 @@ class InvalidResourceQuery(SDKException):
     pass
 
 
+def _extract_message(obj):
+    if isinstance(obj, dict):
+        # Most of services: compute, network
+        if obj.get('message'):
+            return obj['message']
+        # Ironic starting with Stein
+        elif obj.get('faultstring'):
+            return obj['faultstring']
+    elif isinstance(obj, six.string_types):
+        # Ironic before Stein has double JSON encoding, nobody remembers why.
+        try:
+            obj = json.loads(obj)
+        except Exception:
+            pass
+        else:
+            return _extract_message(obj)
+
+
 def raise_from_response(response, error_message=None):
     """Raise an instance of an HTTPException based on keystoneauth response."""
     if response.status_code < 400:
@@ -185,8 +204,7 @@ def raise_from_response(response, error_message=None):
 
         try:
             content = response.json()
-            messages = [obj.get('message') for obj in content.values()
-                        if isinstance(obj, dict)]
+            messages = [_extract_message(obj) for obj in content.values()]
             # Join all of the messages together nicely and filter out any
             # objects that don't have a "message" attr.
             details = '\n'.join(msg for msg in messages if msg)
@@ -199,10 +217,9 @@ def raise_from_response(response, error_message=None):
         details = list(set([msg for msg in details if msg]))
         # Return joined string separated by colons.
         details = ': '.join(details)
-    if not details and response.reason:
-        details = response.reason
-    else:
-        details = response.text
+
+    if not details:
+        details = response.reason if response.reason else response.text
 
     http_status = response.status_code
     request_id = response.headers.get('x-openstack-request-id')

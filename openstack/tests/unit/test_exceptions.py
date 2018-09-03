@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import json
+
 import mock
 from openstack.tests.unit import base
 import uuid
@@ -123,3 +125,82 @@ class TestRaiseFromResponse(base.TestCase):
             response.headers.get('x-openstack-request-id'),
             exc.request_id
         )
+
+    def test_raise_compute_format(self):
+        response = mock.Mock()
+        response.status_code = 404
+        response.headers = {
+            'content-type': 'application/json',
+        }
+        response.json.return_value = {
+            'itemNotFound': {
+                'message': self.message,
+                'code': 404,
+            }
+        }
+        exc = self.assertRaises(exceptions.NotFoundException,
+                                self._do_raise, response,
+                                error_message=self.message)
+        self.assertEqual(response.status_code, exc.status_code)
+        self.assertEqual(self.message, exc.details)
+        self.assertIn(self.message, str(exc))
+
+    def test_raise_network_format(self):
+        response = mock.Mock()
+        response.status_code = 404
+        response.headers = {
+            'content-type': 'application/json',
+        }
+        response.json.return_value = {
+            'NeutronError': {
+                'message': self.message,
+                'type': 'FooNotFound',
+                'detail': '',
+            }
+        }
+        exc = self.assertRaises(exceptions.NotFoundException,
+                                self._do_raise, response,
+                                error_message=self.message)
+        self.assertEqual(response.status_code, exc.status_code)
+        self.assertEqual(self.message, exc.details)
+        self.assertIn(self.message, str(exc))
+
+    def test_raise_baremetal_old_format(self):
+        response = mock.Mock()
+        response.status_code = 404
+        response.headers = {
+            'content-type': 'application/json',
+        }
+        response.json.return_value = {
+            'error_message': json.dumps({
+                'faultstring': self.message,
+                'faultcode': 'Client',
+                'debuginfo': None,
+            })
+        }
+        exc = self.assertRaises(exceptions.NotFoundException,
+                                self._do_raise, response,
+                                error_message=self.message)
+        self.assertEqual(response.status_code, exc.status_code)
+        self.assertEqual(self.message, exc.details)
+        self.assertIn(self.message, str(exc))
+
+    def test_raise_baremetal_corrected_format(self):
+        response = mock.Mock()
+        response.status_code = 404
+        response.headers = {
+            'content-type': 'application/json',
+        }
+        response.json.return_value = {
+            'error_message': {
+                'faultstring': self.message,
+                'faultcode': 'Client',
+                'debuginfo': None,
+            }
+        }
+        exc = self.assertRaises(exceptions.NotFoundException,
+                                self._do_raise, response,
+                                error_message=self.message)
+        self.assertEqual(response.status_code, exc.status_code)
+        self.assertEqual(self.message, exc.details)
+        self.assertIn(self.message, str(exc))

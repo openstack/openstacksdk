@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Adds support for error messages from the bare metal service.
