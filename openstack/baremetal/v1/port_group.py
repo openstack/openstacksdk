@@ -33,8 +33,8 @@ class PortGroup(resource.Resource):
         'node', 'address', 'fields',
     )
 
-    # Port groups introduced in 1.23
-    _max_microversion = '1.23'
+    # The mode and properties field introduced in 1.26.
+    _max_microversion = '1.26'
 
     #: The physical hardware address of the portgroup, typically the hardware
     #: MAC address. Added in API microversion 1.23.
@@ -55,11 +55,15 @@ class PortGroup(resource.Resource):
                                                   type=bool)
     #: A list of relative links, including the self and bookmark links.
     links = resource.Body('links', type=list)
+    #: Port bonding mode. Added in API microversion 1.26.
+    mode = resource.Body('mode')
     #: UUID of the node this portgroup belongs to.
     node_id = resource.Body('node_uuid')
     #: A list of links to the collection of ports belonging to this portgroup.
     #: Added in API microversion 1.24.
     ports = resource.Body('ports')
+    #: Port group properties. Added in API microversion 1.26.
+    properties = resource.Body('properties', type=dict)
     #: Timestamp at which the portgroup was last updated.
     updated_at = resource.Body('updated_at')
 
