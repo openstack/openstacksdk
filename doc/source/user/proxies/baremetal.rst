@@ -24,6 +24,7 @@ Node Operations
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.nodes
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.set_node_provision_state
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.wait_for_nodes_provision_state
+   .. automethod:: openstack.baremetal.v1._proxy.Proxy.validate_node
 
 Port Operations
 ^^^^^^^^^^^^^^^

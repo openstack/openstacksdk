@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Adds support for bare metal node validation to the bare metal proxy.

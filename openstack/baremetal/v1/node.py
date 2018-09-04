@@ -21,6 +21,20 @@ from openstack import utils
 _logger = _log.setup_logging('openstack')
 
 
+class ValidationResult(object):
+    """Result of a single interface validation.
+
+    :ivar result: Result of a validation, ``True`` for success, ``False`` for
+        failure, ``None`` for unsupported interface.
+    :ivar reason: If ``result`` is ``False`` or ``None``, explanation of
+        the result.
+    """
+
+    def __init__(self, result, reason):
+        self.result = result
+        self.reason = reason
+
+
 class Node(resource.Resource):
 
     resources_key = 'nodes'
@@ -442,6 +456,48 @@ class Node(resource.Resource):
                .format(node=self.id))
         exceptions.raise_from_response(response, error_message=msg)
         return [vif['id'] for vif in response.json()['vifs']]
+
+    def validate(self, session, required=('boot', 'deploy', 'power')):
+        """Validate required information on a node.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param required: List of interfaces that are required to pass
+            validation. The default value is the list of minimum required
+            interfaces for provisioning.
+
+        :return: dict mapping interface names to :class:`ValidationResult`
+            objects.
+        :raises: :exc:`~openstack.exceptions.ValidationException` if validation
+            fails for a required interface.
+        """
+        session = self._get_session(session)
+        version = self._get_microversion_for(session, 'fetch')
+
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'validate')
+        response = session.get(request.url, headers=request.headers,
+                               microversion=version)
+
+        msg = ("Failed to validate node {node}".format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+        result = response.json()
+
+        if required:
+            failed = [
+                '%s (%s)' % (key, value.get('reason', 'no reason'))
+                for key, value in result.items()
+                if key in required and not value.get('result')
+            ]
+
+            if failed:
+                raise exceptions.ValidationException(
+                    'Validation failed for required interfaces of node {node}:'
+                    ' {failures}'.format(node=self.id,
+                                         failures=', '.join(failed)))
+
+        return {key: ValidationResult(value.get('result'), value.get('reason'))
+                for key, value in result.items()}
 
 
 class NodeDetail(Node):

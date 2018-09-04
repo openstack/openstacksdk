@@ -9856,20 +9856,9 @@ class OpenStackCloud(_normalize.Normalizer):
         return [self.get_port(vif) for vif in vif_ids]
 
     def validate_node(self, uuid):
-        # TODO(TheJulia): There are soooooo many other interfaces
-        # that we can support validating, while these are essential,
-        # we should support more.
-        # TODO(TheJulia): Add a doc string :(
-        msg = ("Failed to query the API for validation status of "
-               "node {node_id}").format(node_id=uuid)
-        url = '/nodes/{node_id}/validate'.format(node_id=uuid)
-        ifaces = self._baremetal_client.get(url, error_message=msg)
-
-        if not ifaces['deploy'] or not ifaces['power']:
-            raise exc.OpenStackCloudException(
-                "ironic node %s failed to validate. "
-                "(deploy: %s, power: %s)" % (ifaces['deploy'],
-                                             ifaces['power']))
+        # TODO(dtantsur): deprecate this short method in favor of a fully
+        # written validate_machine call.
+        self.baremetal.validate_node(uuid)
 
     def node_set_provision_state(self,
                                  name_or_id,

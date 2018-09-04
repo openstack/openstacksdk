@@ -82,6 +82,14 @@ class TestBareMetalNode(base.BaseBaremetalTest):
                                                      wait=True)
         self.assertEqual(node.provision_state, 'available')
 
+    def test_node_validate(self):
+        node = self.create_node()
+        # Fake hardware passes validation for all interfaces
+        result = self.conn.baremetal.validate_node(node)
+        for iface in ('boot', 'deploy', 'management', 'power'):
+            self.assertTrue(result[iface].result)
+            self.assertFalse(result[iface].reason)
+
     def test_node_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(exceptions.ResourceNotFound,
