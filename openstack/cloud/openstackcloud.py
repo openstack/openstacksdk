@@ -5063,6 +5063,23 @@ class OpenStackCloud(_normalize.Normalizer):
 
         return self._normalize_volume(volume)
 
+    def update_volume(self, name_or_id, **kwargs):
+        kwargs = self._get_volume_kwargs(kwargs)
+
+        volume = self.get_volume(name_or_id)
+        if not volume:
+            raise exc.OpenStackCloudException(
+                "Volume %s not found." % name_or_id)
+
+        data = self._volume_client.put(
+            '/volumes/{volume_id}'.format(volume_id=volume.id),
+            json=dict({'volume': kwargs}),
+            error_message='Error updating volume')
+
+        self.list_volumes.invalidate(self)
+
+        return self._normalize_volume(self._get_and_munchify('volume', data))
+
     def set_volume_bootable(self, name_or_id, bootable=True):
         """Set a volume's bootable flag.
 
