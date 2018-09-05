@@ -7264,7 +7264,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        return self._object_store_client.get('/', params=dict(format='json'))
+        data = self._object_store_client.get('/', params=dict(format='json'))
+        return self._get_and_munchify(None, data)
 
     def get_container(self, name, skip_cache=False):
         """Get metadata about a container.
