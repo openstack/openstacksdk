@@ -3427,6 +3427,69 @@ class OpenStackCloud(_normalize.Normalizer):
         self._reset_network_caches()
         return self._get_and_munchify('network', data)
 
+    @_utils.valid_kwargs("name", "shared", "admin_state_up", "external",
+                         "provider", "mtu_size", "port_security_enabled")
+    def update_network(self, name_or_id, **kwargs):
+        """Update a network.
+
+        :param string name_or_id: Name or ID of the network being updated.
+        :param string name: New name of the network.
+        :param bool shared: Set the network as shared.
+        :param bool admin_state_up: Set the network administrative state to up.
+        :param bool external: Whether this network is externally accessible.
+        :param dict provider: A dict of network provider options. Example::
+
+           { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
+        :param int mtu_size: New maximum transmission unit value to address
+            fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
+        :param bool port_security_enabled: Enable or disable port security.
+
+        :returns: The updated network object.
+        :raises: OpenStackCloudException on operation error.
+        """
+        if 'provider' in kwargs:
+            if not isinstance(kwargs['provider'], dict):
+                raise exc.OpenStackCloudException(
+                    "Parameter 'provider' must be a dict")
+            # Only pass what we know
+            provider = {}
+            for key in kwargs['provider']:
+                if key in ('physical_network', 'network_type',
+                           'segmentation_id'):
+                    provider['provider:' + key] = kwargs['provider'][key]
+            kwargs['provider'] = provider
+
+        if 'external' in kwargs:
+            kwargs['router:external'] = kwargs.pop('external')
+
+        if 'port_security_enabled' in kwargs:
+            if not isinstance(kwargs['port_security_enabled'], bool):
+                raise exc.OpenStackCloudException(
+                    "Parameter 'port_security_enabled' must be a bool")
+
+        if 'mtu_size' in kwargs:
+            if not isinstance(kwargs['mtu_size'], int):
+                raise exc.OpenStackCloudException(
+                    "Parameter 'mtu_size' must be an integer.")
+            if kwargs['mtu_size'] < 68:
+                raise exc.OpenStackCloudException(
+                    "Parameter 'mtu_size' must be greater than 67.")
+            kwargs['mtu'] = kwargs.pop('mtu_size')
+
+        network = self.get_network(name_or_id)
+        if not network:
+            raise exc.OpenStackCloudException(
+                "Network %s not found." % name_or_id)
+
+        data = self._network_client.put(
+            "/networks/{net_id}.json".format(net_id=network.id),
+            json={"network": kwargs},
+            error_message="Error updating network {0}".format(name_or_id))
+
+        self._reset_network_caches()
+
+        return self._get_and_munchify('network', data)
+
     def delete_network(self, name_or_id):
         """Delete a network.
 
