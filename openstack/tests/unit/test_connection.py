@@ -113,14 +113,14 @@ class TestConnection(base.TestCase):
     def test_create_connection_version_param_default(self):
         c1 = connection.Connection(cloud='sample')
         conn = connection.Connection(session=c1.session)
-        self.assertEqual('openstack.identity.v2._proxy',
+        self.assertEqual('openstack.identity.v3._proxy',
                          conn.identity.__class__.__module__)
 
     def test_create_connection_version_param_string(self):
         c1 = connection.Connection(cloud='sample')
         conn = connection.Connection(
-            session=c1.session, identity_api_version='3')
-        self.assertEqual('openstack.identity.v3._proxy',
+            session=c1.session, identity_api_version='2')
+        self.assertEqual('openstack.identity.v2._proxy',
                          conn.identity.__class__.__module__)
 
     def test_create_connection_version_param_int(self):

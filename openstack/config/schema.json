@@ -108,20 +108,11 @@
   },
   "required": [
     "auth_type",
-    "baremetal_api_version",
-    "block_storage_api_version",
-    "compute_api_version",
-    "database_api_version",
     "disable_vendor_agent",
-    "dns_api_version",
     "floating_ip_source",
-    "identity_api_version",
     "image_api_use_tasks",
-    "image_api_version",
     "image_format",
     "interface",
-    "network_api_version",
-    "object_store_api_version",
     "secgroup_source"
   ]
 }

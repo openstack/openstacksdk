@@ -104,22 +104,6 @@ class TestConfig(base.TestCase):
             defaults._defaults['auth_type'],
             cc.auth_type,
         )
-        self.assertEqual(
-            defaults._defaults['identity_api_version'],
-            cc.identity_api_version,
-        )
-
-    def test_get_one_auth_override_defaults(self):
-        default_options = {'compute_api_version': '4'}
-        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
-                                   override_defaults=default_options)
-        cc = c.get_one(cloud='_test-cloud_', auth={'username': 'user'})
-        self.assertEqual('user', cc.auth['username'])
-        self.assertEqual('4', cc.compute_api_version)
-        self.assertEqual(
-            defaults._defaults['identity_api_version'],
-            cc.identity_api_version,
-        )
 
     def test_get_one_with_config_files(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
