@@ -7771,6 +7771,23 @@ class OpenStackCloud(_normalize.Normalizer):
             container, params=dict(format='json'))
         return self._get_and_munchify(None, data)
 
+    def search_objects(self, container, name=None, filters=None):
+        """Search objects.
+
+        :param string name: object name.
+        :param filters: a dict containing additional filters to use.
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: a list of ``munch.Munch`` containing the objects.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the OpenStack API call.
+        """
+        objects = self.list_objects(container)
+        return _utils._filter_list(objects, name, filters)
+
     def delete_object(self, container, name, meta=None):
         """Delete an object from a container.
 
