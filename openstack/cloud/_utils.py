@@ -495,7 +495,7 @@ def _call_client_and_retry(client, url, retry_on=None,
                            **kwargs):
     """Method to provide retry operations.
 
-    Some APIs utilize HTTP errors on certian operations to indicate that
+    Some APIs utilize HTTP errors on certain operations to indicate that
     the resource is presently locked, and as such this mechanism provides
     the ability to retry upon known error codes.
 
