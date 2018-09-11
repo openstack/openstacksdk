@@ -40,11 +40,11 @@ class TestConfig(base.TestCase):
                                    vendor_files=[self.vendor_yaml],
                                    secure_files=[self.no_yaml])
         clouds = c.get_all()
-        # We add one by hand because the regions cloud is going to exist
-        # twice since it has two regions in it
+        # We add two by hand because the regions cloud is going to exist
+        # thrice since it has three regions in it
         user_clouds = [
             cloud for cloud in base.USER_CONF['clouds'].keys()
-        ] + ['_test_cloud_regions']
+        ] + ['_test_cloud_regions', '_test_cloud_regions']
         configured_clouds = [cloud.name for cloud in clouds]
         self.assertItemsEqual(user_clouds, configured_clouds)
 
@@ -54,11 +54,11 @@ class TestConfig(base.TestCase):
                                    vendor_files=[self.vendor_yaml],
                                    secure_files=[self.no_yaml])
         clouds = c.get_all_clouds()
-        # We add one by hand because the regions cloud is going to exist
-        # twice since it has two regions in it
+        # We add two by hand because the regions cloud is going to exist
+        # thrice since it has three regions in it
         user_clouds = [
             cloud for cloud in base.USER_CONF['clouds'].keys()
-        ] + ['_test_cloud_regions']
+        ] + ['_test_cloud_regions', '_test_cloud_regions']
         configured_clouds = [cloud.name for cloud in clouds]
         self.assertItemsEqual(user_clouds, configured_clouds)
 
@@ -382,6 +382,13 @@ class TestConfig(base.TestCase):
         self.assertEqual(region, {'name': 'region2', 'values':
                          {'external_network': 'my-network'}})
 
+    def test_get_region_by_name_no_value(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml])
+        region = c._get_region(cloud='_test_cloud_regions',
+                               region_name='region-no-value')
+        self.assertEqual(region, {'name': 'region-no-value', 'values': {}})
+
     def test_get_region_invalid_region(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml],
@@ -396,6 +403,31 @@ class TestConfig(base.TestCase):
                                    secure_files=[self.no_yaml])
         region = c._get_region(region_name='no-cloud-region')
         self.assertEqual(region, {'name': 'no-cloud-region', 'values': {}})
+
+    def test_get_region_invalid_keys(self):
+        invalid_conf = base._write_yaml({
+            'clouds': {
+                '_test_cloud': {
+                    'profile': '_test_cloud_in_our_cloud',
+                    'auth': {
+                        'auth_url': 'http://example.com/v2',
+                        'username': 'testuser',
+                        'password': 'testpass',
+                    },
+                    'regions': [
+                        {
+                            'name': 'region1',
+                            'foo': 'bar'
+                        },
+                    ]
+                }
+            }
+        })
+        c = config.OpenStackConfig(config_files=[invalid_conf],
+                                   vendor_files=[self.vendor_yaml])
+        self.assertRaises(
+            exceptions.ConfigException, c._get_region,
+            cloud='_test_cloud', region_name='region1')
 
 
 class TestExcludedFormattedConfigValue(base.TestCase):

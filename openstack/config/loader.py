@@ -351,6 +351,13 @@ class OpenStackConfig(object):
         ret = []
         for region in regions:
             if isinstance(region, dict):
+                # i.e. must have name key, and only name,values keys
+                if 'name' not in region or \
+                   not {'name', 'values'} >= set(region):
+                    raise exceptions.ConfigException(
+                        'Invalid region entry at: %s' % region)
+                if 'values' not in region:
+                    region['values'] = {}
                 ret.append(copy.deepcopy(region))
             else:
                 ret.append(self._expand_region_name(region))
