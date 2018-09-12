@@ -26,15 +26,24 @@ class Test_enable_logging(base.TestCase):
         super(Test_enable_logging, self).setUp()
         self.openstack_logger = mock.Mock()
         self.openstack_logger.handlers = []
+        self.ksa_logger_root = mock.Mock()
+        self.ksa_logger_root.handlers = []
         self.ksa_logger_1 = mock.Mock()
         self.ksa_logger_1.handlers = []
         self.ksa_logger_2 = mock.Mock()
         self.ksa_logger_2.handlers = []
         self.ksa_logger_3 = mock.Mock()
         self.ksa_logger_3.handlers = []
+        self.urllib3_logger = mock.Mock()
+        self.urllib3_logger.handlers = []
+        self.stevedore_logger = mock.Mock()
+        self.stevedore_logger.handlers = []
         self.fake_get_logger = mock.Mock()
         self.fake_get_logger.side_effect = [
             self.openstack_logger,
+            self.ksa_logger_root,
+            self.urllib3_logger,
+            self.stevedore_logger,
             self.ksa_logger_1,
             self.ksa_logger_2,
             self.ksa_logger_3
