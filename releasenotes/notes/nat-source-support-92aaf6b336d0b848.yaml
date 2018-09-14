@@ -1,0 +1,4 @@
+---
+features:
+  - Add support for networks being configured as the
+    primary nat_source in clouds.yaml.
