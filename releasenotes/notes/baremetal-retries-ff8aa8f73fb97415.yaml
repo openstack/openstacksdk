@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The bare metal operations now retry HTTP 409 and 503 by default. The number
+    of retries can be changes via the ``baremetal_status_code_retries``
+    configuration option (defaulting to 5).
