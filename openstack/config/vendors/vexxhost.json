@@ -6,7 +6,8 @@
       "auth_url": "https://auth.vexxhost.net/v3"
     },
     "regions": [
-      "ca-ymq-1"
+      "ca-ymq-1",
+      "sjc1"
     ],
     "dns_api_version": "1",
     "identity_api_version": "3",
