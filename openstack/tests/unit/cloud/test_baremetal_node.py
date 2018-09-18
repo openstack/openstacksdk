@@ -50,7 +50,8 @@ class TestBaremetalNode(base.IronicTestCase):
 
         machines = self.cloud.list_machines()
         self.assertEqual(2, len(machines))
-        self.assertEqual(self.fake_baremetal_node, machines[0])
+        self.assertSubdict(self.fake_baremetal_node, machines[0])
+        self.assertSubdict(fake_baremetal_two, machines[1])
         self.assert_calls()
 
     def test_get_machine(self):
@@ -156,6 +157,11 @@ class TestBaremetalNode(base.IronicTestCase):
             'path': '/instance_info'}]
         self.fake_baremetal_node['instance_info'] = {}
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid']]),
+                 json=self.fake_baremetal_node),
             dict(method='PATCH',
                  uri=self.get_mock_url(
                      resource='nodes',
@@ -1093,7 +1099,7 @@ class TestBaremetalNode(base.IronicTestCase):
         # this code is never used in the current code path.
         return_value = self.cloud.register_machine(nics, **node_to_post)
 
-        self.assertDictEqual(available_node, return_value)
+        self.assertSubdict(available_node, return_value)
         self.assert_calls()
 
     def test_register_machine_enroll_wait(self):
@@ -1174,7 +1180,7 @@ class TestBaremetalNode(base.IronicTestCase):
         return_value = self.cloud.register_machine(
             nics, wait=True, **node_to_post)
 
-        self.assertDictEqual(available_node, return_value)
+        self.assertSubdict(available_node, return_value)
         self.assert_calls()
 
     def test_register_machine_enroll_failure(self):
@@ -1605,7 +1611,7 @@ class TestBaremetalNode(base.IronicTestCase):
         update_dict = self.cloud.update_machine(
             self.fake_baremetal_node['uuid'])
         self.assertIsNone(update_dict['changes'])
-        self.assertDictEqual(self.fake_baremetal_node, update_dict['node'])
+        self.assertSubdict(self.fake_baremetal_node, update_dict['node'])
 
         self.assert_calls()
 
@@ -1711,7 +1717,7 @@ class TestUpdateMachinePatch(base.IronicTestCase):
             self.fake_baremetal_node[self.field_name] = None
         value_to_send = self.fake_baremetal_node[self.field_name]
         if self.changed:
-            value_to_send = 'meow'
+            value_to_send = self.new_value
         uris = [dict(
             method='GET',
             uri=self.get_mock_url(
@@ -1723,7 +1729,7 @@ class TestUpdateMachinePatch(base.IronicTestCase):
             test_patch = [{
                 'op': 'replace',
                 'path': '/' + self.field_name,
-                'value': 'meow'}]
+                'value': value_to_send}]
             uris.append(
                 dict(
                     method='PATCH',
@@ -1739,28 +1745,37 @@ class TestUpdateMachinePatch(base.IronicTestCase):
         update_dict = self.cloud.update_machine(
             self.fake_baremetal_node['uuid'], **call_args)
 
-        if not self.changed:
+        if self.changed:
+            self.assertEqual(['/' + self.field_name], update_dict['changes'])
+        else:
             self.assertIsNone(update_dict['changes'])
-        self.assertDictEqual(self.fake_baremetal_node, update_dict['node'])
+        self.assertSubdict(self.fake_baremetal_node, update_dict['node'])
 
         self.assert_calls()
 
     scenarios = [
         ('chassis_uuid', dict(field_name='chassis_uuid', changed=False)),
         ('chassis_uuid_changed',
-         dict(field_name='chassis_uuid', changed=True)),
+         dict(field_name='chassis_uuid', changed=True,
+              new_value='meow')),
         ('driver', dict(field_name='driver', changed=False)),
-        ('driver_changed', dict(field_name='driver', changed=True)),
+        ('driver_changed', dict(field_name='driver', changed=True,
+                                new_value='meow')),
         ('driver_info', dict(field_name='driver_info', changed=False)),
-        ('driver_info_changed', dict(field_name='driver_info', changed=True)),
+        ('driver_info_changed', dict(field_name='driver_info', changed=True,
+                                     new_value={'cat': 'meow'})),
         ('instance_info', dict(field_name='instance_info', changed=False)),
         ('instance_info_changed',
-         dict(field_name='instance_info', changed=True)),
+         dict(field_name='instance_info', changed=True,
+              new_value={'cat': 'meow'})),
         ('instance_uuid', dict(field_name='instance_uuid', changed=False)),
         ('instance_uuid_changed',
-         dict(field_name='instance_uuid', changed=True)),
+         dict(field_name='instance_uuid', changed=True,
+              new_value='meow')),
         ('name', dict(field_name='name', changed=False)),
-        ('name_changed', dict(field_name='name', changed=True)),
+        ('name_changed', dict(field_name='name', changed=True,
+                              new_value='meow')),
         ('properties', dict(field_name='properties', changed=False)),
-        ('properties_changed', dict(field_name='properties', changed=True))
+        ('properties_changed', dict(field_name='properties', changed=True,
+                                    new_value={'cat': 'meow'}))
     ]

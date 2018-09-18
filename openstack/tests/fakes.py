@@ -359,7 +359,7 @@ class FakeMachine(object):
     def __init__(self, id, name=None, driver=None, driver_info=None,
                  chassis_uuid=None, instance_info=None, instance_uuid=None,
                  properties=None, reservation=None, last_error=None,
-                 provision_state=None):
+                 provision_state='available'):
         self.uuid = id
         self.name = name
         self.driver = driver

@@ -124,6 +124,13 @@ class Node(resource.Resource):
     #: Timestamp at which the node was last updated.
     updated_at = resource.Body("updated_at")
 
+    def _consume_body_attrs(self, attrs):
+        if 'provision_state' in attrs and attrs['provision_state'] is None:
+            # API version 1.1 uses None instead of "available". Make it
+            # consistent.
+            attrs['provision_state'] = 'available'
+        return super(Node, self)._consume_body_attrs(attrs)
+
     def create(self, session, *args, **kwargs):
         """Create a remote resource based on this instance.
 

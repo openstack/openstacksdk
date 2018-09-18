@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    The ``get_machine``, ``update_machine`` and ``patch_machine`` calls now
+    support all Bare Metal API microversions supported by the SDK. Previously
+    they used 1.6 unconditionally.
+upgrade:
+  - |
+    The baremetal API now returns ``available`` as provision state for nodes
+    available for deployment. Previously, ``None`` could be returned for API
+    version 1.1 (early Kilo) and older.

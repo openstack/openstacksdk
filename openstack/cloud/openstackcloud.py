@@ -9311,11 +9311,12 @@ class OpenStackCloud(_normalize.Normalizer):
         return None
 
     def list_machines(self):
-        msg = "Error fetching machine node list"
-        data = self._baremetal_client.get("/nodes",
-                                          microversion="1.6",
-                                          error_message=msg)
-        return self._get_and_munchify('nodes', data)
+        """List Machines.
+
+        :returns: list of ``munch.Munch`` representing machines.
+        """
+        return [self._normalize_machine(node._to_munch())
+                for node in self.baremetal.nodes()]
 
     def get_machine(self, name_or_id):
         """Get Machine by name or uuid
@@ -9328,19 +9329,10 @@ class OpenStackCloud(_normalize.Normalizer):
         :returns: ``munch.Munch`` representing the node found or None if no
                   nodes are found.
         """
-        # NOTE(TheJulia): This is the initial microversion shade support for
-        # ironic was created around. Ironic's default behavior for newer
-        # versions is to expose the field, but with a value of None for
-        # calls by a supported, yet older microversion.
-        # Consensus for moving forward with microversion handling in shade
-        # seems to be to take the same approach, although ironic's API
-        # does it for the user.
-        version = "1.6"
         try:
-            url = '/nodes/{node_id}'.format(node_id=name_or_id)
             return self._normalize_machine(
-                self._baremetal_client.get(url, microversion=version))
-        except Exception:
+                self.baremetal.get_node(name_or_id)._to_munch())
+        except exc.OpenStackCloudResourceNotFound:
             return None
 
     def get_machine_by_mac(self, mac):
@@ -9677,7 +9669,7 @@ class OpenStackCloud(_normalize.Normalizer):
         This method allows for an interface to manipulate node entries
         within Ironic.
 
-        :param node_id: The server object to attach to.
+        :param string name_or_id: A machine name or UUID to be updated.
         :param patch:
            The JSON Patch document is a list of dictonary objects
            that comply with RFC 6902 which can be found at
@@ -9705,44 +9697,26 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :returns: ``munch.Munch`` representing the newly updated node.
         """
-
+        node = self.baremetal.get_node(name_or_id)
+        microversion = node._get_microversion_for(self._baremetal_client,
+                                                  'commit')
         msg = ("Error updating machine via patch operation on node "
                "{node}".format(node=name_or_id))
-        url = '/nodes/{node_id}'.format(node_id=name_or_id)
+        url = '/nodes/{node_id}'.format(node_id=node.id)
         return self._normalize_machine(
             self._baremetal_client.patch(url,
                                          json=patch,
+                                         microversion=microversion,
                                          error_message=msg))
 
-    def update_machine(self, name_or_id, chassis_uuid=None, driver=None,
-                       driver_info=None, name=None, instance_info=None,
-                       instance_uuid=None, properties=None):
+    def update_machine(self, name_or_id, **attrs):
         """Update a machine with new configuration information
 
         A user-friendly method to perform updates of a machine, in whole or
         part.
 
         :param string name_or_id: A machine name or UUID to be updated.
-        :param string chassis_uuid: Assign a chassis UUID to the machine.
-                                    NOTE: As of the Kilo release, this value
-                                    cannot be changed once set. If a user
-                                    attempts to change this value, then the
-                                    Ironic API, as of Kilo, will reject the
-                                    request.
-        :param string driver: The driver name for controlling the machine.
-        :param dict driver_info: The dictonary defining the configuration
-                                 that the driver will utilize to control
-                                 the machine.  Permutations of this are
-                                 dependent upon the specific driver utilized.
-        :param string name: A human relatable name to represent the machine.
-        :param dict instance_info: A dictonary of configuration information
-                                   that conveys to the driver how the host
-                                   is to be configured when deployed.
-                                   be deployed to the machine.
-        :param string instance_uuid: A UUID value representing the instance
-                                     that the deployed machine represents.
-        :param dict properties: A dictonary defining the properties of a
-                                machine.
+        :param attrs: Attributes to updated on the machine.
 
         :raises: OpenStackCloudException on operation error.
 
@@ -9756,72 +9730,28 @@ class OpenStackCloud(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Machine update failed to find Machine: %s. " % name_or_id)
 
-        machine_config = {}
-        new_config = {}
+        new_config = dict(machine, **attrs)
 
         try:
-            if chassis_uuid:
-                machine_config['chassis_uuid'] = machine['chassis_uuid']
-                new_config['chassis_uuid'] = chassis_uuid
-
-            if driver:
-                machine_config['driver'] = machine['driver']
-                new_config['driver'] = driver
-
-            if driver_info:
-                machine_config['driver_info'] = machine['driver_info']
-                new_config['driver_info'] = driver_info
-
-            if name:
-                machine_config['name'] = machine['name']
-                new_config['name'] = name
-
-            if instance_info:
-                machine_config['instance_info'] = machine['instance_info']
-                new_config['instance_info'] = instance_info
-
-            if instance_uuid:
-                machine_config['instance_uuid'] = machine['instance_uuid']
-                new_config['instance_uuid'] = instance_uuid
-
-            if properties:
-                machine_config['properties'] = machine['properties']
-                new_config['properties'] = properties
-        except KeyError as e:
-            self.log.debug(
-                "Unexpected machine response missing key %s [%s]",
-                e.args[0], name_or_id)
-            raise exc.OpenStackCloudException(
-                "Machine update failed - machine [%s] missing key %s. "
-                "Potential API issue."
-                % (name_or_id, e.args[0]))
-
-        try:
-            patch = jsonpatch.JsonPatch.from_diff(machine_config, new_config)
+            patch = jsonpatch.JsonPatch.from_diff(machine, new_config)
         except Exception as e:
             raise exc.OpenStackCloudException(
                 "Machine update failed - Error generating JSON patch object "
                 "for submission to the API. Machine: %s Error: %s"
-                % (name_or_id, str(e)))
+                % (name_or_id, e))
 
-        with _utils.shade_exceptions(
-            "Machine update failed - patch operation failed on Machine "
-            "{node}".format(node=name_or_id)
-        ):
-            if not patch:
-                return dict(
-                    node=machine,
-                    changes=None
-                )
-            else:
-                machine = self.patch_machine(machine['uuid'], list(patch))
-                change_list = []
-                for change in list(patch):
-                    change_list.append(change['path'])
-                return dict(
-                    node=machine,
-                    changes=change_list
-                )
+        if not patch:
+            return dict(
+                node=machine,
+                changes=None
+            )
+
+        change_list = [change['path'] for change in patch]
+        node = self.baremetal.update_node(machine, **attrs)
+        return dict(
+            node=self._normalize_machine(node._to_munch()),
+            changes=change_list
+        )
 
     def attach_port_to_machine(self, name_or_id, port_name_or_id):
         """Attach a virtual port to the bare metal machine.
