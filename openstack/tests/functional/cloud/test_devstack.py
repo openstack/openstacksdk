@@ -22,10 +22,10 @@ import os
 
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestDevstack(base.BaseFunctionalTestCase):
+class TestDevstack(base.BaseFunctionalTest):
 
     scenarios = [
         ('designate', dict(env='DESIGNATE', service='dns')),
@@ -42,7 +42,7 @@ class TestDevstack(base.BaseFunctionalTestCase):
             self.assertTrue(self.user_cloud.has_service(self.service))
 
 
-class TestKeystoneVersion(base.BaseFunctionalTestCase):
+class TestKeystoneVersion(base.BaseFunctionalTest):
 
     def test_keystone_version(self):
         use_keystone_v2 = os.environ.get('OPENSTACKSDK_USE_KEYSTONE_V2', False)

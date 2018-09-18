@@ -18,10 +18,10 @@ Functional tests for `shade` network methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestNetwork(base.BaseFunctionalTestCase):
+class TestNetwork(base.BaseFunctionalTest):
     def setUp(self):
         super(TestNetwork, self).setUp()
         if not self.operator_cloud.has_service('network'):

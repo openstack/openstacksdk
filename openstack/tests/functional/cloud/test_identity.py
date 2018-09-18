@@ -21,10 +21,10 @@ import random
 import string
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestIdentity(base.KeystoneBaseFunctionalTestCase):
+class TestIdentity(base.KeystoneBaseFunctionalTest):
     def setUp(self):
         super(TestIdentity, self).setUp()
         self.role_prefix = 'test_role' + ''.join(

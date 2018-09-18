@@ -19,10 +19,10 @@ Functional tests for `shade`QoS policies methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestQosPolicy(base.BaseFunctionalTestCase):
+class TestQosPolicy(base.BaseFunctionalTest):
     def setUp(self):
         super(TestQosPolicy, self).setUp()
         if not self.operator_cloud.has_service('network'):

@@ -24,10 +24,10 @@ import random
 
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.cloud.exc import OpenStackCloudUnavailableFeature
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestEndpoints(base.KeystoneBaseFunctionalTestCase):
+class TestEndpoints(base.KeystoneBaseFunctionalTest):
 
     endpoint_attributes = ['id', 'region', 'publicurl', 'internalurl',
                            'service_id', 'adminurl']

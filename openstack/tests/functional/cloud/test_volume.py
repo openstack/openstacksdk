@@ -21,11 +21,11 @@ from fixtures import TimeoutException
 from testtools import content
 
 from openstack.cloud import exc
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 from openstack import utils
 
 
-class TestVolume(base.BaseFunctionalTestCase):
+class TestVolume(base.BaseFunctionalTest):
 
     # Creating and deleting volumes is slow
     TIMEOUT_SCALING_FACTOR = 1.5

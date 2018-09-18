@@ -18,10 +18,10 @@ Functional tests for `shade` keystone domain resource.
 """
 
 import openstack.cloud
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestDomain(base.BaseFunctionalTestCase):
+class TestDomain(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestDomain, self).setUp()

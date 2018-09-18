@@ -18,10 +18,10 @@ Functional tests for `shade` user methods.
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestUsers(base.KeystoneBaseFunctionalTestCase):
+class TestUsers(base.KeystoneBaseFunctionalTest):
     def setUp(self):
         super(TestUsers, self).setUp()
         self.user_prefix = self.getUniqueString('user')

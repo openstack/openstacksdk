@@ -16,10 +16,10 @@ test_limits
 
 Functional tests for `shade` limits method
 """
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestUsage(base.BaseFunctionalTestCase):
+class TestUsage(base.BaseFunctionalTest):
 
     def test_get_our_compute_limits(self):
         '''Test quotas functionality'''

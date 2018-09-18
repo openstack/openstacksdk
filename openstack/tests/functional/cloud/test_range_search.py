@@ -13,10 +13,10 @@
 # limitations under the License.
 
 from openstack.cloud import exc
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestRangeSearch(base.BaseFunctionalTestCase):
+class TestRangeSearch(base.BaseFunctionalTest):
 
     def _filter_m1_flavors(self, results):
         """The m1 flavors are the original devstack flavors"""

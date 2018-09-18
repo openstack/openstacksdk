@@ -21,10 +21,10 @@ import string
 
 from testtools import content
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestRecordset(base.BaseFunctionalTestCase):
+class TestRecordset(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestRecordset, self).setUp()

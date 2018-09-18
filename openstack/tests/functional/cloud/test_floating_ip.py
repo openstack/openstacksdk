@@ -28,12 +28,12 @@ from testtools import content
 from openstack import _adapter
 from openstack.cloud import meta
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 from openstack.tests.functional.cloud.util import pick_flavor
 from openstack import utils
 
 
-class TestFloatingIP(base.BaseFunctionalTestCase):
+class TestFloatingIP(base.BaseFunctionalTest):
     timeout = 60
 
     def setUp(self):

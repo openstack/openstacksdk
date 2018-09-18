@@ -17,10 +17,10 @@ test_keypairs
 Functional tests for `shade` keypairs methods
 """
 from openstack.tests import fakes
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestKeypairs(base.BaseFunctionalTestCase):
+class TestKeypairs(base.BaseFunctionalTest):
 
     def test_create_and_delete(self):
         '''Test creating and deleting keypairs functionality'''

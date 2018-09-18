@@ -17,10 +17,10 @@ test_quotas
 Functional tests for `shade` quotas methods.
 """
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestComputeQuotas(base.BaseFunctionalTestCase):
+class TestComputeQuotas(base.BaseFunctionalTest):
 
     def test_quotas(self):
         '''Test quotas functionality'''
@@ -35,7 +35,7 @@ class TestComputeQuotas(base.BaseFunctionalTestCase):
             cores, self.operator_cloud.get_compute_quotas('demo')['cores'])
 
 
-class TestVolumeQuotas(base.BaseFunctionalTestCase):
+class TestVolumeQuotas(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestVolumeQuotas, self).setUp()
@@ -56,7 +56,7 @@ class TestVolumeQuotas(base.BaseFunctionalTestCase):
             self.operator_cloud.get_volume_quotas('demo')['volumes'])
 
 
-class TestNetworkQuotas(base.BaseFunctionalTestCase):
+class TestNetworkQuotas(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestNetworkQuotas, self).setUp()

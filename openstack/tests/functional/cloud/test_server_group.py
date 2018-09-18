@@ -17,10 +17,10 @@ test_server_group
 Functional tests for `shade` server_group resource.
 """
 
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
-class TestServerGroup(base.BaseFunctionalTestCase):
+class TestServerGroup(base.BaseFunctionalTest):
 
     def test_server_group(self):
         server_group_name = self.getUniqueString()

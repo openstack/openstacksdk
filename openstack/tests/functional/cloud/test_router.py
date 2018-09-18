@@ -20,7 +20,7 @@ Functional tests for `shade` router methods.
 import ipaddress
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.functional.cloud import base
+from openstack.tests.functional import base
 
 
 EXPECTED_TOPLEVEL_FIELDS = (
@@ -31,7 +31,7 @@ EXPECTED_TOPLEVEL_FIELDS = (
 EXPECTED_GW_INFO_FIELDS = ('network_id', 'enable_snat', 'external_fixed_ips')
 
 
-class TestRouter(base.BaseFunctionalTestCase):
+class TestRouter(base.BaseFunctionalTest):
     def setUp(self):
         super(TestRouter, self).setUp()
         if not self.operator_cloud.has_service('network'):
