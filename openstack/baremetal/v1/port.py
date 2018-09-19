@@ -30,11 +30,11 @@ class Port(resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'fields'
+        'address', 'fields', 'node', 'portgroup',
     )
 
-    # Port group ID introduced in 1.24
-    _max_microversion = '1.24'
+    # The physical_network field introduced in 1.34
+    _max_microversion = '1.34'
 
     #: The physical hardware address of the network port, typically the
     #: hardware MAC address.
@@ -59,6 +59,9 @@ class Port(resource.Resource):
     local_link_connection = resource.Body('local_link_connection')
     #: The UUID of node this port belongs to
     node_id = resource.Body('node_uuid')
+    #: The name of physical network this port is attached to.
+    #: Added in API microversion 1.34.
+    physical_network = resource.Body('physical_network')
     #: The UUID of PortGroup this port belongs to. Added in API microversion
     #: 1.24.
     port_group_id = resource.Body('portgroup_uuid')

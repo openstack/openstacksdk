@@ -34,6 +34,23 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         self.assertRaises(exceptions.ResourceNotFound,
                           self.conn.baremetal.get_port_group, port_group.id)
 
+    def test_port_list(self):
+        node2 = self.create_node(name='test-node')
+
+        pg1 = self.create_port_group(address='11:22:33:44:55:66',
+                                     node_id=node2.id)
+        pg2 = self.create_port_group(address='11:22:33:44:55:77',
+                                     node_id=self.node.id)
+
+        pgs = self.conn.baremetal.port_groups(address='11:22:33:44:55:77')
+        self.assertEqual([p.id for p in pgs], [pg2.id])
+
+        pgs = self.conn.baremetal.port_groups(node=node2.id)
+        self.assertEqual([p.id for p in pgs], [pg1.id])
+
+        pgs = self.conn.baremetal.port_groups(node='test-node')
+        self.assertEqual([p.id for p in pgs], [pg1.id])
+
     def test_port_group_update(self):
         port_group = self.create_port_group()
         port_group.extra = {'answer': 42}

@@ -51,21 +51,26 @@ class Node(resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'associated', 'driver', 'fields', 'provision_state', 'resource_class',
+        'associated', 'conductor_group', 'driver', 'fault', 'fields',
+        'provision_state', 'resource_class',
         instance_id='instance_uuid',
         is_maintenance='maintenance',
     )
 
-    # VIF attach/detach support introduced in 1.28.
-    _max_microversion = '1.28'
+    # The conductor_group field introduced in 1.46 (Rocky).
+    _max_microversion = '1.46'
 
     # Properties
     #: The UUID of the chassis associated wit this node. Can be empty or None.
     chassis_id = resource.Body("chassis_uuid")
     #: The current clean step.
     clean_step = resource.Body("clean_step")
+    #: Conductor group this node is managed by. Added in API microversion 1.46.
+    conductor_group = resource.Body("conductor_group")
     #: Timestamp at which the node was last updated.
     created_at = resource.Body("created_at")
+    #: The current deploy step. Added in API microversion 1.44.
+    deploy_step = resource.Body("deploy_step")
     #: The name of the driver.
     driver = resource.Body("driver")
     #: All the metadata required by the driver to manage this node. List of
@@ -76,6 +81,9 @@ class Node(resource.Resource):
     driver_internal_info = resource.Body("driver_internal_info", type=dict)
     #: A set of one or more arbitrary metadata key and value pairs.
     extra = resource.Body("extra")
+    #: Fault type that caused the node to enter maintenance mode.
+    #: Introduced in API microversion 1.42.
+    fault = resource.Body("fault")
     #: The UUID of the node resource.
     id = resource.Body("uuid", alternate_id=True)
     #: Information used to customize the deployed image, e.g. size of root
@@ -100,9 +108,6 @@ class Node(resource.Resource):
     #: Human readable identifier for the node. May be undefined. Certain words
     #: are reserved. Added in API microversion 1.5
     name = resource.Body("name")
-    #: Network interface provider to use when plumbing the network connections
-    #: for this node. Introduced in API microversion 1.20.
-    network_interface = resource.Body("network_interface")
     #: Links to the collection of ports on this node.
     ports = resource.Body("ports", type=list)
     #: Links to the collection of portgroups on this node. Available since
@@ -135,8 +140,49 @@ class Node(resource.Resource):
     #: The requested RAID configuration of the node which will be applied when
     #: the node next transitions through the CLEANING state.
     target_raid_config = resource.Body("target_raid_config")
+    #: Traits of the node. Introduced in API microversion 1.37.
+    traits = resource.Body("traits", type=list)
     #: Timestamp at which the node was last updated.
     updated_at = resource.Body("updated_at")
+
+    # Hardware interfaces grouped together for convenience.
+
+    #: BIOS interface to use when setting BIOS properties of the node.
+    #: Introduced in API microversion 1.40.
+    bios_interface = resource.Body("bios_interface")
+    #: Boot interface to use when configuring boot of the node.
+    #: Introduced in API microversion 1.31.
+    boot_interface = resource.Body("boot_interface")
+    #: Console interface to use when working with serial console.
+    #: Introduced in API microversion 1.31.
+    console_interface = resource.Body("console_interface")
+    #: Deploy interface to use when deploying the node.
+    #: Introduced in API microversion 1.31.
+    deploy_interface = resource.Body("deploy_interface")
+    #: Inspect interface to use when inspecting the node.
+    #: Introduced in API microversion 1.31.
+    inspect_interface = resource.Body("inspect_interface")
+    #: Management interface to use for management actions on the node.
+    #: Introduced in API microversion 1.31.
+    management_interface = resource.Body("management_interface")
+    #: Network interface provider to use when plumbing the network connections
+    #: for this node. Introduced in API microversion 1.20.
+    network_interface = resource.Body("network_interface")
+    #: Power interface to use for power actions on the node.
+    #: Introduced in API microversion 1.31.
+    power_interface = resource.Body("power_interface")
+    #: RAID interface to use for configuring RAID on the node.
+    #: Introduced in API microversion 1.31.
+    raid_interface = resource.Body("raid_interface")
+    #: Rescue interface to use for rescuing of the node.
+    #: Introduced in API microversion 1.38.
+    rescue_interface = resource.Body("rescue_interface")
+    #: Storage interface to use when attaching remote storage.
+    #: Introduced in API microversion 1.33.
+    storage_interface = resource.Body("storage_interface")
+    #: Vendor interface to use for vendor-specific actions on the node.
+    #: Introduced in API microversion 1.31.
+    vendor_interface = resource.Body("vendor_interface")
 
     def _consume_body_attrs(self, attrs):
         if 'provision_state' in attrs and attrs['provision_state'] is None:
@@ -519,7 +565,8 @@ class NodeDetail(Node):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'associated', 'driver', 'fields', 'provision_state', 'resource_class',
+        'associated', 'conductor_group', 'driver', 'fault',
+        'provision_state', 'resource_class',
         instance_id='instance_uuid',
         is_maintenance='maintenance',
     )
