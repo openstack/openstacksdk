@@ -22,6 +22,7 @@ import uuid
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -120,36 +121,33 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.assert_calls()
 
-    # FIXME(TheJulia): So, this doesn't presently fail, but should fail.
-    # Placing the test here, so we can sort out the issue in the actual
-    # method later.
-    # def test_validate_node_raises_exception(self):
-    #    validate_return = {
-    #        'deploy': {
-    #            'result': False,
-    #            'reason': 'error!',
-    #        },
-    #        'power': {
-    #            'result': False,
-    #            'reason': 'meow!',
-    #        },
-    #        'foo': {
-    #            'result': True
-    #        }}
-    #    self.register_uris([
-    #        dict(method='GET',
-    #             uri=self.get_mock_url(
-    #                 resource='nodes',
-    #                 append=[self.fake_baremetal_node['uuid'],
-    #                         'validate']),
-    #             json=validate_return),
-    #    ])
-    #    self.assertRaises(
-    #        Exception,
-    #        self.cloud.validate_node,
-    #        self.fake_baremetal_node['uuid'])
-    #
-    #    self.assert_calls()
+    def test_validate_node_raises_exception(self):
+        validate_return = {
+            'deploy': {
+                'result': False,
+                'reason': 'error!',
+            },
+            'power': {
+                'result': False,
+                'reason': 'meow!',
+            },
+            'foo': {
+                'result': True
+            }}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid'],
+                             'validate']),
+                 json=validate_return),
+        ])
+        self.assertRaises(
+            exceptions.ValidationException,
+            self.cloud.validate_node,
+            self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
 
     def test_patch_machine(self):
         test_patch = [{

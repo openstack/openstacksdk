@@ -239,3 +239,7 @@ class ConfigException(SDKException):
 
 class NotSupported(SDKException):
     """Request cannot be performed by any supported API version."""
+
+
+class ValidationException(SDKException):
+    """Validation failed for resource."""
