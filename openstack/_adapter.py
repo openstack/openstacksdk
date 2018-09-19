@@ -139,10 +139,14 @@ class OpenStackSDKAdapter(adapter.Adapter):
         request_method = functools.partial(
             super(OpenStackSDKAdapter, self).request, url, method)
 
-        return self.task_manager.submit_function(
-            request_method, run_async=run_async, name=name,
+        ret = self.task_manager.submit_function(
+            request_method, run_async=True, name=name,
             connect_retries=connect_retries, raise_exc=raise_exc,
             **kwargs)
+        if run_async:
+            return ret
+        else:
+            return ret.result()
 
     def _version_matches(self, version):
         api_version = self.get_api_major_version()

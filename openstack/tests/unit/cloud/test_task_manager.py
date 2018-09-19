@@ -62,14 +62,6 @@ class TaskTestSet(task_manager.Task):
         return set([1, 2])
 
 
-class TaskTestAsync(task_manager.Task):
-    def __init__(self):
-        super(TaskTestAsync, self).__init__(run_async=True)
-
-    def main(self):
-        pass
-
-
 class TestTaskManager(base.TestCase):
 
     def setUp(self):
@@ -107,7 +99,8 @@ class TestTaskManager(base.TestCase):
 
     @mock.patch.object(concurrent.futures.ThreadPoolExecutor, 'submit')
     def test_async(self, mock_submit):
-        self.manager.submit_task(TaskTestAsync())
+
+        self.manager.submit_function(set, run_async=True)
         self.assertTrue(mock_submit.called)
 
 
