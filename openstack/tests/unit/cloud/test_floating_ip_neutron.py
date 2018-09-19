@@ -998,3 +998,197 @@ class TestFloatingIP(base.TestCase):
             self.cloud._neutron_create_floating_ip,
             server=dict(id='some-server'))
         self.assert_calls()
+
+    def test_find_nat_source_inferred(self):
+        # payloads contrived but based on ones from citycloud
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={"networks": [{
+                     "status": "ACTIVE",
+                     "subnets": [
+                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
+                     "availability_zone_hints": [],
+                     "availability_zones": ["nova"],
+                     "name": "ext-net",
+                     "admin_state_up": True,
+                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
+                     "tags": [],
+                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
+                     "mtu": 0,
+                     "is_default": False,
+                     "router:external": True,
+                     "ipv4_address_scope": None,
+                     "shared": False,
+                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                     "description": None
+                 }, {
+                     "status": "ACTIVE",
+                     "subnets": [
+                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
+                     "availability_zone_hints": [],
+                     "availability_zones": ["nova"],
+                     "name": "my-network",
+                     "admin_state_up": True,
+                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
+                     "tags": [],
+                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
+                     "mtu": 0,
+                     "is_default": False,
+                     "router:external": True,
+                     "ipv4_address_scope": None,
+                     "shared": False,
+                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebg",
+                     "description": None
+                 }, {
+                     "status": "ACTIVE",
+                     "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
+                     "availability_zone_hints": [],
+                     "availability_zones": ["nova"],
+                     "name": "private",
+                     "admin_state_up": True,
+                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                     "created_at": "2016-10-22T13:46:26",
+                     "tags": [],
+                     "updated_at": "2016-10-22T13:46:26",
+                     "ipv6_address_scope": None,
+                     "router:external": False,
+                     "ipv4_address_scope": None,
+                     "shared": False,
+                     "mtu": 1450,
+                     "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                     "description": ""
+                 }]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={"subnets": [{
+                     "description": "",
+                     "enable_dhcp": True,
+                     "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                     "created_at": "2016-10-22T13:46:26",
+                     "dns_nameservers": [
+                         "89.36.90.101",
+                         "89.36.90.102"],
+                     "updated_at": "2016-10-22T13:46:26",
+                     "gateway_ip": "10.4.0.1",
+                     "ipv6_ra_mode": None,
+                     "allocation_pools": [{
+                         "start": "10.4.0.2",
+                         "end": "10.4.0.200"}],
+                     "host_routes": [],
+                     "ip_version": 4,
+                     "ipv6_address_mode": None,
+                     "cidr": "10.4.0.0/24",
+                     "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
+                     "subnetpool_id": None,
+                     "name": "private-subnet-ipv4",
+                 }]})
+        ])
+
+        self.assertEqual(
+            'ext-net', self.cloud.get_nat_source()['name'])
+
+        self.assert_calls()
+
+    def test_find_nat_source_config(self):
+        self.cloud._nat_source = 'my-network'
+
+        # payloads contrived but based on ones from citycloud
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={"networks": [{
+                     "status": "ACTIVE",
+                     "subnets": [
+                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
+                     "availability_zone_hints": [],
+                     "availability_zones": ["nova"],
+                     "name": "ext-net",
+                     "admin_state_up": True,
+                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
+                     "tags": [],
+                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
+                     "mtu": 0,
+                     "is_default": False,
+                     "router:external": True,
+                     "ipv4_address_scope": None,
+                     "shared": False,
+                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
+                     "description": None
+                 }, {
+                     "status": "ACTIVE",
+                     "subnets": [
+                         "df3e17fa-a4b2-47ae-9015-bc93eb076ba2",
+                         "6b0c3dc9-b0b8-4d87-976a-7f2ebf13e7ec",
+                         "fc541f48-fc7f-48c0-a063-18de6ee7bdd7"],
+                     "availability_zone_hints": [],
+                     "availability_zones": ["nova"],
+                     "name": "my-network",
+                     "admin_state_up": True,
+                     "tenant_id": "a564613210ee43708b8a7fc6274ebd63",
+                     "tags": [],
+                     "ipv6_address_scope": "9f03124f-89af-483a-b6fd-10f08079db4d",  # noqa
+                     "mtu": 0,
+                     "is_default": False,
+                     "router:external": True,
+                     "ipv4_address_scope": None,
+                     "shared": False,
+                     "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebg",
+                     "description": None
+                 }, {
+                     "status": "ACTIVE",
+                     "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
+                     "availability_zone_hints": [],
+                     "availability_zones": ["nova"],
+                     "name": "private",
+                     "admin_state_up": True,
+                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                     "created_at": "2016-10-22T13:46:26",
+                     "tags": [],
+                     "updated_at": "2016-10-22T13:46:26",
+                     "ipv6_address_scope": None,
+                     "router:external": False,
+                     "ipv4_address_scope": None,
+                     "shared": False,
+                     "mtu": 1450,
+                     "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                     "description": ""
+                 }]}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={"subnets": [{
+                     "description": "",
+                     "enable_dhcp": True,
+                     "network_id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
+                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
+                     "created_at": "2016-10-22T13:46:26",
+                     "dns_nameservers": [
+                         "89.36.90.101",
+                         "89.36.90.102"],
+                     "updated_at": "2016-10-22T13:46:26",
+                     "gateway_ip": "10.4.0.1",
+                     "ipv6_ra_mode": None,
+                     "allocation_pools": [{
+                         "start": "10.4.0.2",
+                         "end": "10.4.0.200"}],
+                     "host_routes": [],
+                     "ip_version": 4,
+                     "ipv6_address_mode": None,
+                     "cidr": "10.4.0.0/24",
+                     "id": "f0ad1df5-53ee-473f-b86b-3604ea5591e9",
+                     "subnetpool_id": None,
+                     "name": "private-subnet-ipv4",
+                 }]})
+        ])
+
+        self.assertEqual(
+            'my-network', self.cloud.get_nat_source()['name'])
+
+        self.assert_calls()

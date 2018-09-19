@@ -146,6 +146,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self._external_ipv6_names = self.config.get_external_ipv6_networks()
         self._internal_ipv6_names = self.config.get_internal_ipv6_networks()
         self._nat_destination = self.config.get_nat_destination()
+        self._nat_source = self.config.get_nat_source()
         self._default_network = self.config.get_default_network()
 
         self._floating_ip_source = self.config.config.get(
@@ -2365,6 +2366,7 @@ class OpenStackCloud(_normalize.Normalizer):
             self._external_ipv6_networks = []
             self._internal_ipv6_networks = []
             self._nat_destination_network = None
+            self._nat_source_network = None
             self._default_network_network = None
             self._network_list_stamp = False
 
@@ -2375,6 +2377,7 @@ class OpenStackCloud(_normalize.Normalizer):
         external_ipv6_networks = []
         internal_ipv6_networks = []
         nat_destination = None
+        nat_source = None
         default_network = None
 
         all_subnets = None
@@ -2406,10 +2409,6 @@ class OpenStackCloud(_normalize.Normalizer):
                     network['id'] not in self._internal_ipv4_names):
                 external_ipv4_networks.append(network)
 
-            # External Floating IPv4 networks
-            if ('router:external' in network and network['router:external']):
-                external_ipv4_floating_networks.append(network)
-
             # Internal networks
             if (network['name'] in self._internal_ipv4_names
                     or network['id'] in self._internal_ipv4_names):
@@ -2437,6 +2436,25 @@ class OpenStackCloud(_normalize.Normalizer):
                     network['name'] not in self._external_ipv6_names and
                     network['id'] not in self._external_ipv6_names):
                 internal_ipv6_networks.append(network)
+
+            # External Floating IPv4 networks
+            if self._nat_source in (
+                    network['name'], network['id']):
+                if nat_source:
+                    raise exc.OpenStackCloudException(
+                        'Multiple networks were found matching'
+                        ' {nat_net} which is the network configured'
+                        ' to be the NAT source. Please check your'
+                        ' cloud resources. It is probably a good idea'
+                        ' to configure this network by ID rather than'
+                        ' by name.'.format(
+                            nat_net=self._nat_source))
+                external_ipv4_floating_networks.append(network)
+                nat_source = network
+            elif self._nat_source is None:
+                if network.get('router:external'):
+                    external_ipv4_floating_networks.append(network)
+                    nat_source = nat_source or network
 
             # NAT Destination
             if self._nat_destination in (
@@ -2522,6 +2540,13 @@ class OpenStackCloud(_normalize.Normalizer):
                 ' found'.format(
                     network=self._nat_destination))
 
+        if self._nat_source and not nat_source:
+            raise exc.OpenStackCloudException(
+                'Network {network} was configured to be the'
+                ' source for inbound NAT but it could not be'
+                ' found'.format(
+                    network=self._nat_source))
+
         if self._default_network and not default_network:
             raise exc.OpenStackCloudException(
                 'Network {network} was configured to be the'
@@ -2535,6 +2560,7 @@ class OpenStackCloud(_normalize.Normalizer):
         self._external_ipv6_networks = external_ipv6_networks
         self._internal_ipv6_networks = internal_ipv6_networks
         self._nat_destination_network = nat_destination
+        self._nat_source_network = nat_source
         self._default_network_network = default_network
 
     def _find_interesting_networks(self):
@@ -2560,6 +2586,14 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         self._find_interesting_networks()
         return self._nat_destination_network
+
+    def get_nat_source(self):
+        """Return the network that is configured to be the NAT destination.
+
+        :returns: A network dict if one is found
+        """
+        self._find_interesting_networks()
+        return self._nat_source_network
 
     def get_default_network(self):
         """Return the network that is configured to be the default interface.
@@ -6413,7 +6447,7 @@ class OpenStackCloud(_normalize.Normalizer):
         skip_attach = False
         created = False
         if reuse:
-            f_ip = self.available_floating_ip()
+            f_ip = self.available_floating_ip(server=server)
         else:
             start_time = time.time()
             f_ip = self.create_floating_ip(
