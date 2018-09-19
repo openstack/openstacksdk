@@ -7801,8 +7801,9 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        return self._object_store_client.get(
+        data = self._object_store_client.get(
             container, params=dict(format='json'))
+        return self._get_and_munchify(None, data)
 
     def delete_object(self, container, name, meta=None):
         """Delete an object from a container.
