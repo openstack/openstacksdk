@@ -350,23 +350,22 @@
 
 - project:
     templates:
+      - check-requirements
+      - openstack-cover-jobs
+      - openstack-lower-constraints-jobs
+      - openstack-python-jobs
+      - openstack-python35-jobs
       - openstack-python36-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
       - os-client-config-tox-tips
       - osc-tox-unit-tips
-      - shade-functional-tips
-      - shade-tox-tips
-      - openstack-python-jobs
-      - openstack-python35-jobs
-      - check-requirements
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
+      - shade-functional-tips
+      - shade-tox-tips
     check:
       jobs:
-        - openstack-tox-docs:
-            vars:
-              sphinx_python: python3
         - openstacksdk-ansible-devel-functional-devstack:
             voting: false
         - openstacksdk-ansible-stable-2.6-functional-devstack:
@@ -381,21 +380,13 @@
         - osc-functional-devstack-tips:
             voting: false
         - neutron-grenade
-        - openstack-tox-lower-constraints
         - nodepool-functional-py35-src
         - bifrost-integration-tinyipa-ubuntu-xenial
     gate:
       jobs:
-        - openstack-tox-docs:
-            vars:
-              sphinx_python: python3
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-python3
         - openstacksdk-functional-devstack-senlin
         - neutron-grenade
-        - openstack-tox-lower-constraints
         - nodepool-functional-py35-src
         - bifrost-integration-tinyipa-ubuntu-xenial
-    post:
-      jobs:
-        - openstack-tox-cover
