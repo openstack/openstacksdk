@@ -216,9 +216,6 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
 
     def __init__(self, cloud=None, config=None, session=None,
                  app_name=None, app_version=None,
-                 # TODO(shade) Remove these once we've shifted
-                 # python-openstackclient to not use the profile interface.
-                 authenticator=None, profile=None,
                  extra_services=None,
                  strict=False,
                  use_direct_get=False,
@@ -252,14 +249,6 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
         :param str app_name: Name of the application to be added to User Agent.
         :param str app_version: Version of the application to be added to
             User Agent.
-        :param authenticator: DEPRECATED. Only exists for short-term backwards
-                              compatibility for python-openstackclient while we
-                              transition. See :doc:`transition_from_profile`
-                              for details.
-        :param profile: DEPRECATED. Only exists for short-term backwards
-                        compatibility for python-openstackclient while we
-                        transition. See :doc:`transition_from_profile`
-                        for details.
         :param extra_services: List of
             :class:`~openstack.service_description.ServiceDescription`
             objects describing services that openstacksdk otherwise does not
@@ -284,13 +273,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                 self._extra_services[service.service_type] = service
 
         if not self.config:
-            if profile:
-                import openstack.profile
-                # TODO(shade) Remove this once we've shifted
-                # python-openstackclient to not use the profile interface.
-                self.config = openstack.profile._get_config_from_profile(
-                    profile, authenticator, **kwargs)
-            elif session:
+            if session:
                 self.config = cloud_region.from_session(
                     session=session,
                     app_name=app_name, app_version=app_version,
