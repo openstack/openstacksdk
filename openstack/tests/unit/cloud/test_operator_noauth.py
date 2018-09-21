@@ -64,6 +64,26 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
 
         self.assert_calls()
 
+    def test_ironic_noauth_auth_endpoint(self):
+        """Test noauth selection for Ironic in OpenStackCloud
+
+        Sometimes people also write clouds.yaml files that look like this:
+
+        ::
+          clouds:
+            bifrost:
+              auth_type: "none"
+              endpoint: https://bare-metal.example.com
+        """
+        self.cloud_noauth = openstack.connect(
+            auth_type='none',
+            endpoint='https://bare-metal.example.com/v1',
+        )
+
+        self.cloud_noauth.list_machines()
+
+        self.assert_calls()
+
     def test_ironic_noauth_admin_token_auth_type(self):
         """Test noauth selection for Ironic in OpenStackCloud
 
