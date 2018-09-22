@@ -124,6 +124,8 @@ class TestCase(base.TestCase):
         self.strict_cloud = openstack.connection.Connection(
             config=self.cloud_config,
             strict=True)
+        self.addCleanup(self.cloud.task_manager.stop)
+        self.addCleanup(self.strict_cloud.task_manager.stop)
 
         # FIXME(notmorgan): Convert the uri_registry, discovery.json, and
         # use of keystone_v3/v2 to a proper fixtures.Fixture. For now this

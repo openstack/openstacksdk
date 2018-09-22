@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Client-side rate limiting is now directly exposed via ``rate_limit``
+    and ``concurrency`` parameters. A single value can be given that applies
+    to all services, or a dict of service-type and value if different
+    client-side rate or concurrency limits should be used for different
+    services.

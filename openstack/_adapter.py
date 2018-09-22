@@ -116,11 +116,18 @@ class OpenStackSDKAdapter(adapter.Adapter):
     This allows using the nodepool MultiThreaded Rate Limiting TaskManager.
     """
 
-    def __init__(self, session=None, task_manager=None, *args, **kwargs):
+    def __init__(
+            self, session=None,
+            task_manager=None,
+            rate_limit=None, concurrency=None,
+            *args, **kwargs):
         super(OpenStackSDKAdapter, self).__init__(
             session=session, *args, **kwargs)
         if not task_manager:
-            task_manager = _task_manager.TaskManager(name=self.service_type)
+            task_manager = _task_manager.TaskManager(
+                name=self.service_type,
+                rate=rate_limit,
+                workers=concurrency)
             task_manager.start()
 
         self.task_manager = task_manager
@@ -143,6 +150,7 @@ class OpenStackSDKAdapter(adapter.Adapter):
         ret = self.task_manager.submit_function(
             request_method, run_async=True, name=name,
             connect_retries=connect_retries, raise_exc=raise_exc,
+            tag=self.service_type,
             **kwargs)
         if run_async:
             return ret
