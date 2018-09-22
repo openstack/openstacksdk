@@ -290,6 +290,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
 
         self.task_manager = task_manager or _task_manager.TaskManager(
             self.config.full_name)
+        self.task_manager.start()
 
         self._session = None
         self._proxies = {}

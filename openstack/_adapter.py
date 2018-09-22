@@ -121,6 +121,7 @@ class OpenStackSDKAdapter(adapter.Adapter):
             session=session, *args, **kwargs)
         if not task_manager:
             task_manager = _task_manager.TaskManager(name=self.service_type)
+            task_manager.start()
 
         self.task_manager = task_manager
 

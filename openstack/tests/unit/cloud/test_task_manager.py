@@ -68,6 +68,7 @@ class TestTaskManager(base.TestCase):
     def setUp(self):
         super(TestTaskManager, self).setUp()
         self.manager = task_manager.TaskManager(name='test')
+        self.manager.start()
 
     def test_wait_re_raise(self):
         """Test that Exceptions thrown in a Task is reraised correctly
