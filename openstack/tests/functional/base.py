@@ -34,6 +34,10 @@ def _get_resource_value(resource_key, default):
         return default
 
 
+def _disable_keep_alive(conn):
+    sess = conn.config.get_session()
+    sess.keep_alive = False
+
 IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
 FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 
@@ -43,6 +47,7 @@ class BaseFunctionalTest(base.TestCase):
     def setUp(self):
         super(BaseFunctionalTest, self).setUp()
         self.conn = connection.Connection(config=TEST_CLOUD_REGION)
+        _disable_keep_alive(self.conn)
 
         self._demo_name = os.environ.get('OPENSTACKSDK_DEMO_CLOUD', 'devstack')
         self._op_name = os.environ.get(
@@ -59,11 +64,13 @@ class BaseFunctionalTest(base.TestCase):
         user_config = self.config.get_one(
             cloud=self._demo_name, **kwargs)
         self.user_cloud = connection.Connection(config=user_config)
+        _disable_keep_alive(self.user_cloud)
 
     def _set_operator_cloud(self, **kwargs):
         operator_config = self.config.get_one(
             cloud=self._op_name, **kwargs)
         self.operator_cloud = connection.Connection(config=operator_config)
+        _disable_keep_alive(self.operator_cloud)
 
     def pick_image(self):
         images = self.user_cloud.list_images()
