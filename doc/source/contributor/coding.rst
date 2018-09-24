@@ -18,7 +18,7 @@ Below are the patterns that we expect openstacksdk developers to follow.
 Release Notes
 =============
 
-openstacksdk uses `reno <http://docs.openstack.org/developer/reno/>`_ for
+openstacksdk uses `reno <https://docs.openstack.org/reno/latest/>`_ for
 managing its release notes. A new release note should be added to
 your contribution anytime you add new API calls, fix significant bugs,
 add new functionality or parameters to existing API calls, or make any
