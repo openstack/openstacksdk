@@ -294,9 +294,10 @@ LS             Lausanne, CH
 ZH             Zurich, CH
 ============== ================
 
+* Identity API Version is 3
+* Compute API Version is 2
 * Images must be in `raw` format
-* Images must be uploaded using the Glance Task Interface
-* Volume API Version is 1
+* Volume API Version is 3
 
 ultimum
 -------
