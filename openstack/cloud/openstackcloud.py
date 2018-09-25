@@ -7318,6 +7318,23 @@ class OpenStackCloud(_normalize.Normalizer):
         data = self._object_store_client.get('/', params=dict(format='json'))
         return self._get_and_munchify(None, data)
 
+    def search_containers(self, name=None, filters=None):
+        """Search containers.
+
+        :param string name: container name.
+        :param filters: a dict containing additional filters to use.
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: a list of ``munch.Munch`` containing the containers.
+
+        :raises: ``OpenStackCloudException``: if something goes wrong during
+            the OpenStack API call.
+        """
+        containers = self.list_containers()
+        return _utils._filter_list(containers, name, filters)
+
     def get_container(self, name, skip_cache=False):
         """Get metadata about a container.
 

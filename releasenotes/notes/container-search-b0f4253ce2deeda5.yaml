@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Containers are now searchable both with a JMESPath expression or a dict of
+    container attributes via the
+    ``openstack.connection.Connection.search_containers`` function.
