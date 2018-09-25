@@ -17,6 +17,7 @@ These are the default behaviors unless a cloud is configured differently.
 * Identity API Version is 2
 * Image API Version is 2
 * Volume API Version is 2
+* Compute API Version is 2.1
 * Images must be in `qcow2` format
 * Images are uploaded using PUT interface
 * Public IPv4 is directly routable via DHCP from Neutron
@@ -26,7 +27,7 @@ These are the default behaviors unless a cloud is configured differently.
 * Security groups are provided by Neutron
 * Vendor specific agents are not used
 
-auro
+AURO
 ----
 
 https://api.auro.io:5000/v2.0
@@ -39,7 +40,7 @@ van1           Vancouver, BC
 
 * Public IPv4 is provided via NAT with Neutron Floating IP
 
-betacloud
+Betacloud
 ---------
 
 https://api-1.betacloud.io:5000
@@ -55,7 +56,7 @@ betacloud-1    Nuremberg, Germany
 * Public IPv4 is provided via NAT with Neutron Floating IP
 * Volume API Version is 3
 
-catalyst
+Catalyst
 --------
 
 https://api.cloud.catalyst.net.nz:5000/v2.0
@@ -72,8 +73,8 @@ nz_wlg_2       Wellington, NZ
 * Images must be in `raw` format
 * Volume API Version is 3
 
-citycloud
----------
+City Cloud
+----------
 
 https://identity1.citycloud.com:5000/v3/
 
@@ -92,7 +93,7 @@ Sto2           Stockholm, SE
 * Public IPv4 is provided via NAT with Neutron Floating IP
 * Volume API Version is 1
 
-conoha
+ConoHa
 ------
 
 https://identity.%(region_name)s.conoha.io
@@ -107,7 +108,7 @@ sjc1           San Jose, CA
 
 * Image upload is not supported
 
-dreamcompute
+DreamCompute
 ------------
 
 https://iad2.dream.io:5000
@@ -122,7 +123,7 @@ RegionOne      Ashburn, VA
 * Images must be in `raw` format
 * IPv6 is provided to every server
 
-dreamhost
+DreamHost
 ---------
 
 Deprecated, please use dreamcompute
@@ -139,8 +140,8 @@ RegionOne      Ashburn, VA
 * Public IPv4 is provided via NAT with Neutron Floating IP
 * IPv6 is provided to every server
 
-otc
----
+Open Telekom Cloud
+------------------
 
 https://iam.%(region_name)s.otc.t-systems.com/v3
 
@@ -154,7 +155,7 @@ eu-de          Germany
 * Images must be in `vhd` format
 * Public IPv4 is provided via NAT with Neutron Floating IP
 
-elastx
+ELASTX
 ------
 
 https://ops.elastx.net:5000/v2.0
@@ -167,8 +168,8 @@ regionOne      Stockholm, SE
 
 * Public IPv4 is provided via NAT with Neutron Floating IP
 
-entercloudsuite
----------------
+Enter Cloud Suite
+-----------------
 
 https://api.entercloudsuite.com/v2.0
 
@@ -182,7 +183,7 @@ de-fra1        Frankfurt, DE
 
 * Compute API Version is 2
 
-fuga
+Fuga
 ----
 
 https://identity.api.fuga.io:5000
@@ -196,7 +197,7 @@ cystack        Netherlands
 * Identity API Version is 3
 * Volume API Version is 3
 
-internap
+Internap
 --------
 
 https://identity.api.cloud.iweb.com/v2.0
@@ -213,8 +214,8 @@ sjc01          San Jose, CA
 
 * Floating IPs are not supported
 
-limestonenetworks
------------------
+Limestone Networks
+------------------
 
 https://auth.cloud.lstn.net:5000/v3
 
@@ -229,7 +230,7 @@ us-slc         Salt Lake City, UT
 * Images must be in `raw` format
 * IPv6 is provided to every server connected to the `Public Internet` network
 
-ovh
+OVH
 ---
 
 https://auth.cloud.ovh.net/v2.0
@@ -245,7 +246,7 @@ GRA1           Gravelines, FR
 * Images may be in `raw` format. The `qcow2` default is also supported
 * Floating IPs are not supported
 
-rackspace
+Rackspace
 ---------
 
 https://identity.api.rackspacecloud.com/v2.0/
@@ -282,7 +283,7 @@ SYD            Sydney, NSW
       api_key: myapikey
     auth_type: rackspace_apikey
 
-switchengines
+SWITCHengines
 -------------
 
 https://keystone.cloud.switch.ch:5000/v2.0
@@ -299,7 +300,7 @@ ZH             Zurich, CH
 * Images must be in `raw` format
 * Volume API Version is 3
 
-ultimum
+Ultimum
 -------
 
 https://console.ultimum-cloud.com:5000/v2.0
@@ -312,7 +313,7 @@ RegionOne      Prague, CZ
 
 * Volume API Version is 1
 
-unitedstack
+UnitedStack
 -----------
 
 https://identity.api.ustack.com/v3
@@ -328,7 +329,7 @@ gd1            Guangdong, CN
 * Images must be in `raw` format
 * Volume API Version is 1
 
-vexxhost
+VEXXHOST
 --------
 
 http://auth.vexxhost.net
@@ -344,7 +345,7 @@ sjc1           Santa Clara, CA
 * Identity API Version is 3
 * Volume API Version is 3
 
-zetta
+Zetta
 -----
 
 https://identity.api.zetta.io/v3
