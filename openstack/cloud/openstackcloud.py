@@ -4818,7 +4818,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     exc_info=True)
             raise
 
-        return image
+        return self._normalize_image(image)
 
     def _upload_image_put_v1(
             self, name, image_data, meta, **image_kwargs):
