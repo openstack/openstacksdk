@@ -180,8 +180,7 @@ it-mil1        Milan, IT
 de-fra1        Frankfurt, DE
 ============== ================
 
-* Image API Version is 1
-* Volume API Version is 1
+* Compute API Version is 2
 
 fuga
 ----
