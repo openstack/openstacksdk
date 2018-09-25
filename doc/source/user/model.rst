@@ -56,7 +56,7 @@ If all of the project information is None, then
 
   Location = dict(
     cloud=str(),
-    region=str(),
+    region_name=str(),
     zone=str() or None,
     project=dict(
       id=str() or None,
