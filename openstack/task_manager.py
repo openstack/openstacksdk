@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import concurrent.futures
+import functools
 import sys
 import threading
 import time
@@ -125,27 +126,29 @@ class TaskManager(object):
         This method calls task.wait() so that it only returns when the
         task is complete.
         """
-        if task.run_async:
-            # Async tasks run the wait lower in the stack because the wait
-            # is just returning the concurrent Future object. That future
-            # object handles the exception shifting across threads.
-            return self.run_task(task=task)
-        else:
-            # It's important that we call task.wait() here, rather than in
-            # the run_task call stack below here, since subclasses may
-            # cause run_task to be called from a different thread.
-            self.run_task(task=task)
-            return task.wait()
+        self.run_task(task=task)
+        return task.wait()
 
-    def submit_function(self, method, name=None, *args, **kwargs):
+    def submit_function(
+            self, method, name=None, run_async=False, *args, **kwargs):
         """ Allows submitting an arbitrary method for work.
 
         :param method: Callable to run in the TaskManager.
         :param str name: Name to use for the generated Task object.
+        :param bool run_async: Whether to run this task async or not.
         :param args: positional arguments to pass to the method when it runs.
         :param kwargs: keyword arguments to pass to the method when it runs.
         """
-        task = Task(main=method, name=name, *args, **kwargs)
+        if run_async:
+            payload = functools.partial(
+                self.executor.submit, method, *args, **kwargs)
+            task = Task(
+                main=payload, name=name,
+                run_async=run_async)
+        else:
+            task = Task(
+                main=method, name=name,
+                *args, **kwargs)
         return self.submit_task(task)
 
     def submit_function_async(self, method, name=None, *args, **kwargs):
@@ -156,30 +159,14 @@ class TaskManager(object):
         :param args: positional arguments to pass to the method when it runs.
         :param kwargs: keyword arguments to pass to the method when it runs.
         """
-        task = Task(method=method, name=name, run_async=True, **kwargs)
-        return self.submit_task(task)
+        return self.submit_function(
+            method, name=name, run_async=True, *args, **kwargs)
 
     def pre_run_task(self, task):
         self._log.debug(
             "Manager %s running task %s", self.name, task.name)
 
     def run_task(self, task):
-        if task.run_async:
-            return self._run_task_async(task)
-        else:
-            return self._run_task(task)
-
-    def post_run_task(self, elapsed_time, task):
-        self._log.debug(
-            "Manager %s ran task %s in %ss",
-            self.name, task.name, elapsed_time)
-
-    def _run_task_async(self, task):
-        self._log.debug(
-            "Manager %s submitting task %s", self.name, task.name)
-        return self.executor.submit(self._run_task_wait, task)
-
-    def _run_task(self, task):
         # Never call task.wait() in the run_task call stack because we
         # might be running in another thread.  The exception-shifting
         # code is designed so that caller of submit_task (which may be
@@ -192,13 +179,10 @@ class TaskManager(object):
         dt = end - start
         self.post_run_task(dt, task)
 
-    def _run_task_wait(self, task):
-        # For async tasks, the action being performed is getting a
-        # future back from concurrent.futures.ThreadPoolExecutor.
-        # We do need to run the wait because the Future object is
-        # handling the exception shifting for us.
-        self._run_task(task)
-        return task.wait()
+    def post_run_task(self, elapsed_time, task):
+        self._log.debug(
+            "Manager %s ran task %s in %ss",
+            self.name, task.name, elapsed_time)
 
 
 def wait_for_futures(futures, raise_on_error=True, log=_log):
