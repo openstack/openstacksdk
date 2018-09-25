@@ -337,10 +337,12 @@ http://auth.vexxhost.net
 Region Name    Location
 ============== ================
 ca-ymq-1       Montreal, QC
+sjc1           Santa Clara, CA
 ============== ================
 
 * DNS API Version is 1
 * Identity API Version is 3
+* Volume API Version is 3
 
 zetta
 -----
