@@ -67,9 +67,10 @@ nz-por-1       Porirua, NZ
 nz_wlg_2       Wellington, NZ
 ============== ================
 
-* Image API Version is 1
+* Identity API Version is 3
+* Compute API Version is 2
 * Images must be in `raw` format
-* Volume API Version is 1
+* Volume API Version is 3
 
 citycloud
 ---------
