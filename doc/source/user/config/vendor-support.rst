@@ -123,23 +123,6 @@ RegionOne      Ashburn, VA
 * Images must be in `raw` format
 * IPv6 is provided to every server
 
-DreamHost
----------
-
-Deprecated, please use dreamcompute
-
-https://keystone.dream.io/v2.0
-
-============== ================
-Region Name    Location
-============== ================
-RegionOne      Ashburn, VA
-============== ================
-
-* Images must be in `raw` format
-* Public IPv4 is provided via NAT with Neutron Floating IP
-* IPv6 is provided to every server
-
 Open Telekom Cloud
 ------------------
 

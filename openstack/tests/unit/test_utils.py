@@ -17,6 +17,7 @@ from openstack.tests.unit import base
 
 import fixtures
 
+import openstack
 from openstack import utils
 
 
@@ -53,7 +54,7 @@ class Test_enable_logging(base.TestCase):
 
     def _console_tests(self, level, debug, stream):
 
-        utils.enable_logging(debug=debug, stream=stream)
+        openstack.enable_logging(debug=debug, stream=stream)
 
         self.assertEqual(self.openstack_logger.addHandler.call_count, 1)
         self.openstack_logger.setLevel.assert_called_with(level)
@@ -64,14 +65,14 @@ class Test_enable_logging(base.TestCase):
             fixtures.MonkeyPatch('logging.FileHandler', file_handler))
         fake_path = "fake/path.log"
 
-        utils.enable_logging(debug=debug, path=fake_path)
+        openstack.enable_logging(debug=debug, path=fake_path)
 
         file_handler.assert_called_with(fake_path)
         self.assertEqual(self.openstack_logger.addHandler.call_count, 1)
         self.openstack_logger.setLevel.assert_called_with(level)
 
     def test_none(self):
-        utils.enable_logging(debug=True)
+        openstack.enable_logging(debug=True)
         self.fake_get_logger.assert_has_calls([])
         self.openstack_logger.setLevel.assert_called_with(logging.DEBUG)
         self.assertEqual(self.openstack_logger.addHandler.call_count, 1)

@@ -10,13 +10,6 @@ DEBUG = True if os.getenv("ENFORCER_DEBUG") else False
 
 WRITTEN_METHODS = set()
 
-# NOTE: This is temporary! These methods currently exist on the base
-# Proxy class as public methods, but they're deprecated in favor of
-# subclasses actually exposing them if necessary. However, as they're
-# public and purposely undocumented, they cause spurious warnings.
-# Ignore these methods until they're actually removed from the API,
-# and then we can take this special case out.
-IGNORED_METHODS = ("wait_for_delete", "wait_for_status")
 
 class EnforcementError(errors.SphinxError):
     """A mismatch between what exists and what's documented"""
@@ -51,10 +44,6 @@ def get_proxy_methods():
         instance = module.Proxy("")
         # We only document public names
         names = [name for name in dir(instance) if not name.startswith("_")]
-
-        # Remove the wait_for_* names temporarily.
-        for name in IGNORED_METHODS:
-            names.remove(name)
 
         good_names = [module.__name__ + ".Proxy." + name for name in names]
         methods.update(good_names)
@@ -103,16 +92,6 @@ def build_finished(app, exception):
     app.info("ENFORCER: %d proxy methods exist" % len(all_methods))
     app.info("ENFORCER: %d proxy methods written" % len(WRITTEN_METHODS))
     missing = all_methods - WRITTEN_METHODS
-
-    def is_ignored(name):
-        for ignored_name in IGNORED_METHODS:
-            if ignored_name in name:
-                return True
-        return False
-
-    # TEMPORARY: Ignore the wait_for names when determining what is missing.
-    app.info("ENFORCER: Ignoring wait_for_* names...")
-    missing = set(x for x in missing if not is_ignored(x))
 
     missing_count = len(missing)
     app.info("ENFORCER: Found %d missing proxy methods "

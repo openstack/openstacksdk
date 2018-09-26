@@ -484,47 +484,6 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_port.Port, port, ignore_missing=ignore_missing)
 
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use port_groups instead")
-    def portgroups(self, details=False, **query):
-        """Retrieve a generator of port groups.
-
-        :param details: A boolean indicating whether the detailed information
-                        for every portgroup should be returned.
-        :param dict query: Optional query parameters to be sent to restrict
-            the portgroups returned. Available parameters include:
-
-            * ``address``: Only return portgroups with the specified physical
-                    hardware address, typically a MAC address.
-            * ``fields``: A list containing one or more fields to be returned
-                    in the response. This may lead to some performance gain
-                    because other fields of the resource are not refreshed.
-            * ``limit``: Requests at most the specified number of portgroups
-                    returned from the query.
-            * ``marker``: Specifies the ID of the last-seen portgroup. Use the
-                    ``limit`` parameter to make an initial limited request and
-                    use the ID of the last-seen portgroup from the response as
-                    the ``marker`` value in a subsequent limited request.
-            * ``node``:only return the ones associated with this specific node
-                    (name or UUID), or an empty set if not found.
-            * ``sort_dir``: Sorts the response by the requested sort direction.
-                    A valid value is ``asc`` (ascending) or ``desc``
-                    (descending). Default is ``asc``. You can specify multiple
-                    pairs of sort key and sort direction query parameters. If
-                    you omit the sort direction in a pair, the API uses the
-                    natural sorting direction of the server attribute that is
-                    provided as the ``sort_key``.
-            * ``sort_key``: Sorts the response by the this attribute value.
-                    Default is ``id``. You can specify multiple pairs of sort
-                    key and sort direction query parameters. If you omit the
-                    sort direction in a pair, the API uses the natural sorting
-                    direction of the server attribute that is provided as the
-                    ``sort_key``.
-
-        :returns: A generator of portgroup instances.
-        """
-        return self.port_groups(details=details, **query)
-
     def port_groups(self, details=False, **query):
         """Retrieve a generator of port groups.
 
@@ -565,20 +524,6 @@ class Proxy(proxy.Proxy):
         cls = _portgroup.PortGroupDetail if details else _portgroup.PortGroup
         return self._list(cls, paginated=True, **query)
 
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use create_port_group instead")
-    def create_portgroup(self, **attrs):
-        """Create a new port group from attributes.
-
-        :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.port_group.PortGroup`, it
-             comprises of the properties on the ``PortGroup`` class.
-
-        :returns: The results of portgroup creation.
-        :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`.
-        """
-        return self.create_port_group(**attrs)
-
     def create_port_group(self, **attrs):
         """Create a new portgroup from attributes.
 
@@ -590,21 +535,6 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`.
         """
         return self._create(_portgroup.PortGroup, **attrs)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use find_port_group instead")
-    def find_portgroup(self, name_or_id, ignore_missing=True):
-        """Find a single port group.
-
-        :param str name_or_id: The name or ID of a portgroup.
-        :param bool ignore_missing: When set to ``False``, an exception of
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
-            when the port group does not exist.  When set to `True``, None will
-            be returned when attempting to find a nonexistent port group.
-        :returns: One :class:`~openstack.baremetal.v1.port_group.PortGroup`
-            object or None.
-        """
-        return self.find_port_group(name_or_id, ignore_missing=ignore_missing)
 
     def find_port_group(self, name_or_id, ignore_missing=True):
         """Find a single port group.
@@ -619,26 +549,6 @@ class Proxy(proxy.Proxy):
         """
         return self._find(_portgroup.PortGroup, name_or_id,
                           ignore_missing=ignore_missing)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use get_port_group instead")
-    def get_portgroup(self, portgroup, **query):
-        """Get a specific port group.
-
-        :param portgroup: The value can be the name or ID of a chassis or a
-            :class:`~openstack.baremetal.v1.port_group.PortGroup` instance.
-        :param dict query: Optional query parameters to be sent to restrict
-            the portgroup properties returned. Available parameters include:
-
-            * ``fields``: A list containing one or more fields to be returned
-                    in the response. This may lead to some performance gain
-                    because other fields of the resource are not refreshed.
-
-        :returns: One :class:`~openstack.baremetal.v1.port_group.PortGroup`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
-            port group matching the name or ID could be found.
-        """
-        return self.get_port_group(portgroup, **query)
 
     def get_port_group(self, port_group, **query):
         """Get a specific port group.
@@ -658,22 +568,6 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_portgroup.PortGroup, port_group, **query)
 
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use update_port_group instead")
-    def update_portgroup(self, portgroup, **attrs):
-        """Update a port group.
-
-        :param chassis: Either the name or the ID of a port group or
-            an instance of
-            :class:`~openstack.baremetal.v1.port_group.PortGroup`.
-        :param dict attrs: The attributes to update on the port group
-            represented by the ``portgroup`` parameter.
-
-        :returns: The updated port group.
-        :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`
-        """
-        return self.update_port_group(portgroup, **attrs)
-
     def update_port_group(self, port_group, **attrs):
         """Update a port group.
 
@@ -687,26 +581,6 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`
         """
         return self._update(_portgroup.PortGroup, port_group, **attrs)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use delete_port_group instead")
-    def delete_portgroup(self, portgroup, ignore_missing=True):
-        """Delete a port group.
-
-        :param portgroup: The value can be either the name or ID of a port
-            group or a
-            :class:`~openstack.baremetal.v1.port_group.PortGroup`
-            instance.
-        :param bool ignore_missing: When set to ``False``, an exception
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised
-            when the port group could not be found. When set to ``True``, no
-            exception will be raised when attempting to delete a non-existent
-            port group.
-
-        :returns: The instance of the port group which was deleted.
-        :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`.
-        """
-        return self.delete_port_group(portgroup, ignore_missing=ignore_missing)
 
     def delete_port_group(self, port_group, ignore_missing=True):
         """Delete a port group.

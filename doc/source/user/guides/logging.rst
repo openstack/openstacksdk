@@ -41,9 +41,10 @@ To log messages to a file called ``openstack.log`` and the console on
 .. code-block:: python
 
     import sys
-    from openstack import utils
+    import openstack
 
-    utils.enable_logging(debug=True, path='openstack.log', stream=sys.stdout)
+    openstack.enable_logging(
+        debug=True, path='openstack.log', stream=sys.stdout)
 
 
 `openstack.enable_logging` also sets up a few other loggers and

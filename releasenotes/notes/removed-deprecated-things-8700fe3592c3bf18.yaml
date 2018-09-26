@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    In anticipation of the upcoming 1.0 release, all the things that have been
+    marked as deprecated have been removed.

@@ -25,7 +25,6 @@ from openstack.clustering.v1 import receiver as _receiver
 from openstack.clustering.v1 import service as _service
 from openstack import proxy
 from openstack import resource
-from openstack import utils
 
 
 class Proxy(proxy.Proxy):
@@ -283,18 +282,6 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_cluster.Cluster, cluster, **attrs)
 
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use add_nodes_to_cluster instead")
-    def cluster_add_nodes(self, cluster, nodes):
-        """Add nodes to a cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param nodes: List of nodes to be added to the cluster.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.add_nodes_to_cluster(cluster, nodes)
-
     def add_nodes_to_cluster(self, cluster, nodes):
         """Add nodes to a cluster.
 
@@ -308,23 +295,6 @@ class Proxy(proxy.Proxy):
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.add_nodes(self, nodes)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use remove_nodes_from_cluster instead")
-    def cluster_del_nodes(self, cluster, nodes, **params):
-        """Remove nodes from a cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param nodes: List of nodes to be removed from the cluster.
-        :param kwargs \*\*params: Optional query parameters to be sent to
-            restrict the nodes to be returned. Available parameters include:
-
-            * destroy_after_deletion: A boolean value indicating whether the
-                                      deleted nodes to be destroyed right away.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.remove_nodes_from_cluster(cluster, nodes, **params)
 
     def remove_nodes_from_cluster(self, cluster, nodes, **params):
         """Remove nodes from a cluster.
@@ -345,18 +315,6 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.del_nodes(self, nodes, **params)
 
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use replace_nodes_in_cluster instead")
-    def cluster_replace_nodes(self, cluster, nodes):
-        """Replace the nodes in a cluster with specified nodes.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param nodes: List of nodes to be deleted/added to the cluster.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.replace_nodes_in_cluster(cluster, nodes)
-
     def replace_nodes_in_cluster(self, cluster, nodes):
         """Replace the nodes in a cluster with specified nodes.
 
@@ -370,19 +328,6 @@ class Proxy(proxy.Proxy):
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.replace_nodes(self, nodes)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use scale_out_cluster instead")
-    def cluster_scale_out(self, cluster, count=None):
-        """Inflate the size of a cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param count: Optional parameter specifying the number of nodes to
-            be added.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.scale_out_cluster(cluster, count)
 
     def scale_out_cluster(self, cluster, count=None):
         """Inflate the size of a cluster.
@@ -399,19 +344,6 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.scale_out(self, count)
 
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use scale_in_cluster instead")
-    def cluster_scale_in(self, cluster, count=None):
-        """Shrink the size of a cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param count: Optional parameter specifying the number of nodes to
-            be removed.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.scale_in_cluster(cluster, count)
-
     def scale_in_cluster(self, cluster, count=None):
         """Shrink the size of a cluster.
 
@@ -427,19 +359,6 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.scale_in(self, count)
 
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use resize_cluster instead")
-    def cluster_resize(self, cluster, **params):
-        """Resize of cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param dict \*\*params: A dictionary providing the parameters for the
-            resize action.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.resize_cluster(cluster, **params)
-
     def resize_cluster(self, cluster, **params):
         """Resize of cluster.
 
@@ -454,20 +373,6 @@ class Proxy(proxy.Proxy):
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.resize(self, **params)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use attach_policy_to_cluster instead")
-    def cluster_attach_policy(self, cluster, policy, **params):
-        """Attach a policy to a cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param policy: Either the name or the ID of a policy.
-        :param dict \*\*params: A dictionary containing the properties for the
-            policy to be attached.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.attach_policy_to_cluster(cluster, policy, **params)
 
     def attach_policy_to_cluster(self, cluster, policy, **params):
         """Attach a policy to a cluster.
@@ -485,18 +390,6 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_attach(self, policy, **params)
 
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use detach_policy_from_cluster instead")
-    def cluster_detach_policy(self, cluster, policy):
-        """Detach a policy from a cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param policy: Either the name or the ID of a policy.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.detach_policy_from_cluster(cluster, policy)
-
     def detach_policy_from_cluster(self, cluster, policy):
         """Detach a policy from a cluster.
 
@@ -510,20 +403,6 @@ class Proxy(proxy.Proxy):
         else:
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_detach(self, policy)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use update_cluster_policy instead")
-    def cluster_update_policy(self, cluster, policy, **params):
-        """Change properties of a policy which is bound to the cluster.
-
-        :param cluster: Either the name or the ID of the cluster, or an
-            instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param policy: Either the name or the ID of a policy.
-        :param dict \*\*params: A dictionary containing the new properties for
-            the policy.
-        :returns: A dict containing the action initiated by this operation.
-        """
-        return self.update_cluster_policy(cluster, policy, **params)
 
     def update_cluster_policy(self, cluster, policy, **params):
         """Change properties of a policy which is bound to the cluster.
@@ -578,21 +457,6 @@ class Proxy(proxy.Proxy):
         """
         obj = self._get_resource(_cluster.Cluster, cluster)
         return obj.recover(self, **params)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use perform_operation_on_cluster instead")
-    def cluster_operation(self, cluster, operation, **params):
-        """Perform an operation on the specified cluster.
-
-        :param cluster: The value can be either the ID of a cluster or a
-            :class:`~openstack.clustering.v1.cluster.Cluster` instance.
-        :param operation: A string specifying the operation to be performed.
-        :param dict params: A dictionary providing the parameters for the
-                            operation.
-
-        :returns: A dictionary containing the action ID.
-        """
-        return self.perform_operation_on_cluster(cluster, operation, **params)
 
     def perform_operation_on_cluster(self, cluster, operation, **params):
         """Perform an operation on the specified cluster.
@@ -772,21 +636,6 @@ class Proxy(proxy.Proxy):
         """
         node = self._get_resource(_node.Node, None)
         return node.adopt(self, preview=preview, **attrs)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="Use perform_operation_on_node instead")
-    def node_operation(self, node, operation, **params):
-        """Perform an operation on the specified node.
-
-        :param node: The value can be either the ID of a node or a
-            :class:`~openstack.clustering.v1.node.Node` instance.
-        :param operation: A string specifying the operation to be performed.
-        :param dict params: A dictionary providing the parameters for the
-                            operation.
-
-        :returns: A dictionary containing the action ID.
-        """
-        return self.perform_operation_on_node(node, operation, **params)
 
     def perform_operation_on_node(self, node, operation, **params):
         """Perform an operation on the specified node.
