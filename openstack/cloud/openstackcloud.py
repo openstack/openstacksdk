@@ -6998,7 +6998,8 @@ class OpenStackCloud(_normalize.Normalizer):
         if server['status'] == 'ERROR':
             if 'fault' in server and 'message' in server['fault']:
                 raise exc.OpenStackCloudException(
-                    "Error in creating the server: {reason}".format(
+                    "Error in creating the server."
+                    " Compute service reports fault: {reason}".format(
                         reason=server['fault']['message']),
                     extra_data=dict(server=server))
 
