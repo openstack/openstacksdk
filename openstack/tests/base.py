@@ -41,9 +41,15 @@ class TestCase(base.BaseTestCase):
         # Do this before super setUp so that we intercept the default value
         # in oslotest. TODO(mordred) Make the default timeout configurable
         # in oslotest.
-        self.useFixture(
-            fixtures.EnvironmentVariable(
-                'OS_TEST_TIMEOUT', os.environ.get('OS_TEST_TIMEOUT', '5')))
+        test_timeout = int(os.environ.get('OS_TEST_TIMEOUT', '5'))
+        try:
+            test_timeout = int(test_timeout * self.TIMEOUT_SCALING_FACTOR)
+            self.useFixture(
+                fixtures.EnvironmentVariable(
+                    'OS_TEST_TIMEOUT', str(test_timeout)))
+        except ValueError:
+            # Let oslotest do its thing
+            pass
 
         super(TestCase, self).setUp()
 
