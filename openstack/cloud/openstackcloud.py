@@ -2075,7 +2075,8 @@ class OpenStackCloud(_normalize.Normalizer):
             data = self._network_client.get(
                 '/security-groups.json', params=filters,
                 error_message="Error fetching security group list")
-            return self._get_and_munchify('security_groups', data)
+            return self._normalize_secgroups(
+                self._get_and_munchify('security_groups', data))
 
         # Handle nova security groups
         else:
