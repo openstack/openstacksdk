@@ -228,6 +228,10 @@ def raise_from_response(response, error_message=None):
     )
 
 
+class UnsupportedServiceVersion(Warning):
+    """The user has configured a major version that SDK doesn't know."""
+
+
 class ArgumentDeprecationWarning(Warning):
     """A deprecated argument has been provided."""
     pass

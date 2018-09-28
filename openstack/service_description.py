@@ -11,9 +11,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import warnings
+
 import os_service_types
 
 from openstack import _log
+from openstack import exceptions
 from openstack import proxy
 
 __all__ = [
@@ -74,12 +77,16 @@ class ServiceDescription(object):
         if instance is None:
             return self
         if self.service_type not in instance._proxies:
-            instance._proxies[self.service_type] = self._make_proxy(
-                instance, owner)
+            instance._proxies[self.service_type] = self._make_proxy(instance)
             instance._proxies[self.service_type]._connection = instance
         return instance._proxies[self.service_type]
 
-    def _make_proxy(self, instance, owner):
+    def _make_proxy(self, instance):
+        """Create a Proxy for the service in question.
+
+        :param instance:
+          The `openstack.connection.Connection` we're working with.
+        """
         config = instance.config
 
         # First, check to see if we've got config that matches what we
@@ -90,7 +97,7 @@ class ServiceDescription(object):
         # If the user doesn't give a version in config, but we only support
         # one version, then just use that version.
         if not version_string and len(self.supported_versions) == 1:
-            version_string = list(self.supported_versions.keys())[0]
+            version_string = list(self.supported_versions)[0]
 
         proxy_obj = None
         if endpoint_override and version_string and self.supported_versions:
@@ -103,6 +110,15 @@ class ServiceDescription(object):
                     constructor=proxy_class,
                     task_manager=instance.task_manager,
                 )
+            else:
+                warnings.warn(
+                    "The configured version, {version} for service"
+                    " {service_type} is not known or supported by"
+                    " openstacksdk. The resulting Proxy object will only"
+                    " have direct passthrough REST capabilities.".format(
+                        version=version_string,
+                        service_type=self.service_type),
+                    category=exceptions.UnsupportedVersionWarning)
         elif endpoint_override and self.supported_versions:
             temp_adapter = config.get_session_client(
                 self.service_type
@@ -115,9 +131,25 @@ class ServiceDescription(object):
                     constructor=proxy_class,
                     task_manager=instance.task_manager,
                 )
+            else:
+                warnings.warn(
+                    "Service {service_type) has an endpoint override set"
+                    " but the version discovered at that endpoint, {version}"
+                    " is not supported by openstacksdk. The resulting Proxy"
+                    " object will only have direct passthrough REST"
+                    " capabilities.".format(
+                        version=api_version,
+                        service_type=self.service_type),
+                    category=exceptions.UnsupportedVersionWarning)
 
         if proxy_obj:
             data = proxy_obj.get_endpoint_data()
+            # If we've gotten here with a proxy object it means we have
+            # an endpoint_override in place. If the catalog_url and
+            # service_url don't match, which can happen if there is a
+            # None plugin and auth.endpoint like with standalone ironic,
+            # we need to be explicit that this service has an endpoint_override
+            # so that subsequent discovery calls don't get made incorrectly.
             if data.catalog_url != data.service_url:
                 ep_key = '{service_type}_endpoint_override'.format(
                     service_type=self.service_type)
@@ -152,9 +184,14 @@ class ServiceDescription(object):
             # REST API proxy layer for an unknown service in the
             # service catalog that also doesn't have any useful
             # version discovery?
-            instance._proxies[self.service_type] = temp_adapter
-            instance._proxies[self.service_type]._connection = instance
-            return instance._proxies[self.service_type]
+            warnings.warn(
+                "Service {service_type) has no discoverable version."
+                " The resulting Proxy object will only have direct"
+                " passthrough REST capabilities.".format(
+                    version=api_version,
+                    service_type=self.service_type),
+                category=exceptions.UnsupportedVersionWarning)
+            return temp_adapter
         proxy_class = self.supported_versions.get(str(found_version[0]))
         if not proxy_class:
             proxy_class = proxy.Proxy
