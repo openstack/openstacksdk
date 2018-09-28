@@ -5090,7 +5090,7 @@ class OpenStackCloud(_normalize.Normalizer):
         if not img_props:
             return False
         self._image_client.put(
-            '/images/{id}'.format(image.id), headers=img_props)
+            '/images/{id}'.format(id=image.id), headers=img_props)
         self.list_images.invalidate(self)
         return True
 
