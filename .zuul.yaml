@@ -1,23 +1,8 @@
 - job:
-    name: openstacksdk-tox-py27-tips
-    parent: openstack-tox-py27
+    name: openstacksdk-tox-py36-tips
+    parent: openstack-tox-py36
     description: |
-      Run tox python 27 unittests against master of important libs
-    vars:
-      tox_install_siblings: true
-    # openstacksdk in required-projects so that os-client-config
-    # and keystoneauth can add the job as well
-    required-projects:
-      - openstack-infra/shade
-      - openstack/keystoneauth
-      - openstack/openstacksdk
-      - openstack/os-client-config
-
-- job:
-    name: openstacksdk-tox-py35-tips
-    parent: openstack-tox-py35
-    description: |
-      Run tox python 35 unittests against master of important libs
+      Run tox python 36 unittests against master of important libs
     vars:
       tox_install_siblings: true
     # openstacksdk in required-projects so that osc and keystoneauth
@@ -32,12 +17,10 @@
     name: openstacksdk-tox-tips
     check:
       jobs:
-        - openstacksdk-tox-py27-tips
-        - openstacksdk-tox-py35-tips
+        - openstacksdk-tox-py36-tips
     gate:
       jobs:
-        - openstacksdk-tox-py27-tips
-        - openstacksdk-tox-py35-tips
+        - openstacksdk-tox-py36-tips
 
 - job:
     name: openstacksdk-functional-devstack-minimum
@@ -79,24 +62,14 @@
     parent: openstacksdk-functional-devstack-minimum
     description: |
       Base job for devstack-based functional tests
-    required-projects:
-      - name: openstack/heat
-      - name: openstack/swift
     vars:
+      devstack_plugins:
+        neutron: https://git.openstack.org/openstack/neutron
       devstack_local_conf:
         post-config:
           $CINDER_CONF:
             DEFAULT:
               osapi_max_limit: 6
-      devstack_services:
-        s-account: true
-        s-container: true
-        s-object: true
-        s-proxy: true
-      devstack_plugins:
-        heat: https://git.openstack.org/openstack/heat
-      tox_environment:
-        OPENSTACKSDK_HAS_HEAT: 1
 
 - job:
     name: openstacksdk-functional-devstack-legacy
@@ -120,11 +93,29 @@
     description: |
       Run openstacksdk functional tests against a master devstack
     required-projects:
-      - openstack/designate
-      - openstack/octavia
+      - openstack/heat
     vars:
       devstack_localrc:
         DISABLE_AMP_IMAGE_BUILD: true
+        Q_SERVICE_PLUGIN_CLASSES: qos,trunk
+      devstack_plugins:
+        heat: https://git.openstack.org/openstack/heat
+      tox_environment:
+        OPENSTACKSDK_HAS_HEAT: 1
+      devstack_services:
+        neutron-qos: true
+        neutron-trunk: true
+
+- job:
+    name: openstacksdk-functional-devstack-networking
+    parent: openstacksdk-functional-devstack
+    description: |
+      Run openstacksdk functional tests against a devstack with advanced
+      networking services enabled.
+    required-projects:
+      - openstack/designate
+      - openstack/octavia
+    vars:
       devstack_local_conf:
         post-config:
           $OCTAVIA_CONF:
@@ -138,7 +129,6 @@
               cert_manager: local_cert_manager
       devstack_plugins:
         designate: https://git.openstack.org/openstack/designate
-        neutron: https://git.openstack.org/openstack/neutron
         octavia: https://git.openstack.org/openstack/octavia
       devstack_services:
         designate: true
@@ -148,20 +138,26 @@
         o-hm: true
         o-hk: true
         neutron-dns: true
-        neutron-qos: true
-        neutron-trunk: true
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        h-eng: false
+        h-api: false
+        h-api-cfn: false
       tox_environment:
         OPENSTACKSDK_HAS_DESIGNATE: 1
-        OPENSTACKSDK_HAS_OCTAVIA: 1
+        OPENSTACKSDK_HAS_SWIFT: 0
+        OPENSTACKSDK_HAS_HEAT: 0
 
 - job:
-    name: openstacksdk-functional-devstack-python3
+    name: openstacksdk-functional-devstack-python2
     parent: openstacksdk-functional-devstack
     description: |
-      Run openstacksdk functional tests using python3 against a master devstack
+      Run openstacksdk functional tests using python2 against a master devstack
     vars:
       tox_environment:
-        OPENSTACKSDK_TOX_PYTHON: python3
+        OPENSTACKSDK_TOX_PYTHON: python2
 
 - job:
     name: openstacksdk-functional-devstack-tips
@@ -178,14 +174,14 @@
       tox_install_siblings: true
 
 - job:
-    name: openstacksdk-functional-devstack-tips-python3
+    name: openstacksdk-functional-devstack-tips-python2
     parent: openstacksdk-functional-devstack-tips
     description: |
       Run openstacksdk functional tests with tips of library dependencies using
-      python3 against a master devstack.
+      python2 against a master devstack.
     vars:
       tox_environment:
-        OPENSTACKSDK_TOX_PYTHON: python3
+        OPENSTACKSDK_TOX_PYTHON: python2
 
 - job:
     name: openstacksdk-functional-devstack-magnum
@@ -342,19 +338,17 @@
     check:
       jobs:
         - openstacksdk-functional-devstack-tips
-        - openstacksdk-functional-devstack-tips-python3
+        - openstacksdk-functional-devstack-tips-python2
     gate:
       jobs:
         - openstacksdk-functional-devstack-tips
-        - openstacksdk-functional-devstack-tips-python3
+        - openstacksdk-functional-devstack-tips-python2
 
 - project:
     templates:
       - check-requirements
-      - openstack-cover-jobs
       - openstack-lower-constraints-jobs
       - openstack-python-jobs
-      - openstack-python35-jobs
       - openstack-python36-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
@@ -371,12 +365,13 @@
         - openstacksdk-ansible-stable-2.6-functional-devstack:
             voting: false
         - openstacksdk-functional-devstack
+        - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
         - openstacksdk-functional-devstack-magnum:
             voting: false
         - openstacksdk-functional-devstack-ironic:
             voting: false
-        - openstacksdk-functional-devstack-python3
+        - openstacksdk-functional-devstack-python2
         - osc-functional-devstack-tips:
             voting: false
         - neutron-grenade
@@ -385,7 +380,8 @@
     gate:
       jobs:
         - openstacksdk-functional-devstack
-        - openstacksdk-functional-devstack-python3
+        - openstacksdk-functional-devstack-python2
+        - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
         - neutron-grenade
         - nodepool-functional-py35-src

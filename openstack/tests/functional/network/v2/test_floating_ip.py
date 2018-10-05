@@ -36,6 +36,8 @@ class TestFloatingIP(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestFloatingIP, self).setUp()
+        if not self.conn.has_service('dns'):
+            self.skipTest('dns service not supported by cloud')
         self.TIMEOUT_SCALING_FACTOR = 1.5
         self.ROT_NAME = self.getUniqueString()
         self.EXT_NET_NAME = self.getUniqueString()
