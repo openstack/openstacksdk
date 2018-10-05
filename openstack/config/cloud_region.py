@@ -278,6 +278,11 @@ class CloudRegion(object):
         value = self._get_config('endpoint_override', service_type)
         if not value:
             value = self._get_config('endpoint', service_type)
+        if not value and self.config.get('auth_type') == 'none':
+            # If endpoint is given and we're using the none auth type,
+            # then the endpoint value is the endpoint_override for every
+            # service.
+            value = self.config.get('auth', {}).get('endpoint')
         return value
 
     def get_connect_retries(self, service_type):
