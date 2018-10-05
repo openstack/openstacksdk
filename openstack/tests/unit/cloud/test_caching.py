@@ -104,7 +104,7 @@ class TestMemoryCache(base.TestCase):
         return self.cloud._normalize_images([fake_image])
 
     def test_openstack_cloud(self):
-        self.assertIsInstance(self.cloud, openstack.cloud.OpenStackCloud)
+        self.assertIsInstance(self.cloud, openstack.connection.Connection)
 
     def test_list_projects_v3(self):
         project_one = self._get_project_data()

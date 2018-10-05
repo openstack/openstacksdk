@@ -98,7 +98,7 @@ def _no_pending_stacks(stacks):
     return True
 
 
-class OpenStackCloud(_normalize.Normalizer):
+class _OpenStackCloudMixin(_normalize.Normalizer):
     """Represent a connection to an OpenStack Cloud.
 
     OpenStackCloud is the entry point for all cloud operations, regardless

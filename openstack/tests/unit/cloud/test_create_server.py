@@ -21,7 +21,7 @@ import uuid
 
 import mock
 
-import openstack.cloud
+from openstack.cloud import openstackcloud
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.tests import fakes
@@ -325,7 +325,7 @@ class TestCreateServer(base.TestCase):
 
         self.assert_calls()
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, "wait_for_server")
+    @mock.patch.object(openstackcloud._OpenStackCloudMixin, "wait_for_server")
     def test_create_server_with_admin_pass_wait(self, mock_wait):
         """
         Test that a server with an admin_pass passed returns the password
@@ -411,8 +411,9 @@ class TestCreateServer(base.TestCase):
 
         self.assert_calls()
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, "get_active_server")
-    @mock.patch.object(openstack.cloud.OpenStackCloud, "get_server")
+    @mock.patch.object(
+        openstackcloud._OpenStackCloudMixin, "get_active_server")
+    @mock.patch.object(openstackcloud._OpenStackCloudMixin, "get_server")
     def test_wait_for_server(self, mock_get_server, mock_get_active_server):
         """
         Test that waiting for a server returns the server instance when
@@ -446,7 +447,7 @@ class TestCreateServer(base.TestCase):
 
         self.assertEqual('ACTIVE', server['status'])
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, 'wait_for_server')
+    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'wait_for_server')
     def test_create_server_wait(self, mock_wait):
         """
         Test that create_server with a wait actually does the wait.
@@ -483,7 +484,8 @@ class TestCreateServer(base.TestCase):
         )
         self.assert_calls()
 
-    @mock.patch.object(openstack.cloud.OpenStackCloud, 'add_ips_to_server')
+    @mock.patch.object(
+        openstackcloud._OpenStackCloudMixin, 'add_ips_to_server')
     def test_create_server_no_addresses(
             self, mock_add_ips_to_server):
         """
