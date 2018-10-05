@@ -7396,8 +7396,8 @@ class OpenStackCloud(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = self._object_store_client.get('/', params=dict(format='json'))
-        return self._get_and_munchify(None, data)
+        response = self.object_store.get('/', params=dict(format='json'))
+        return self._get_and_munchify(None, _adapter._json_response(response))
 
     def search_containers(self, name=None, filters=None):
         """Search containers.
@@ -7427,8 +7427,9 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         if skip_cache or name not in self._container_cache:
             try:
-                container = self._object_store_client.head(name)
-                self._container_cache[name] = container.headers
+                response = self.object_store.head(name)
+                exceptions.raise_from_response(response)
+                self._container_cache[name] = response.headers
             except exc.OpenStackCloudHTTPError as e:
                 if e.response.status_code == 404:
                     return None
@@ -7446,7 +7447,7 @@ class OpenStackCloud(_normalize.Normalizer):
         container = self.get_container(name)
         if container:
             return container
-        self._object_store_client.put(name)
+        exceptions.raise_from_response(self.object_store.put(name))
         if public:
             self.set_container_access(name, 'public')
         return self.get_container(name, skip_cache=True)
@@ -7457,7 +7458,7 @@ class OpenStackCloud(_normalize.Normalizer):
         :param str name: Name of the container to delete.
         """
         try:
-            self._object_store_client.delete(name)
+            exceptions.raise_from_response(self.object_store.delete(name))
             self._container_cache.pop(name, None)
             return True
         except exc.OpenStackCloudHTTPError as e:
@@ -7486,7 +7487,8 @@ class OpenStackCloud(_normalize.Normalizer):
         :param dict headers:
             Key/Value headers to set on the container.
         """
-        self._object_store_client.post(name, headers=headers)
+        exceptions.raise_from_response(
+            self.object_store.post(name, headers=headers))
 
     def set_container_access(self, name, access):
         """Set the access control list on a container.
@@ -7556,12 +7558,11 @@ class OpenStackCloud(_normalize.Normalizer):
         # The endpoint in the catalog has version and project-id in it
         # To get capabilities, we have to disassemble and reassemble the URL
         # This logic is taken from swiftclient
-        endpoint = urllib.parse.urlparse(
-            self._object_store_client.get_endpoint())
+        endpoint = urllib.parse.urlparse(self.object_store.get_endpoint())
         url = "{scheme}://{netloc}/info".format(
             scheme=endpoint.scheme, netloc=endpoint.netloc)
 
-        return self._object_store_client.get(url)
+        return _adapter._json_response(self.object_store.get(url))
 
     def get_object_segment_size(self, segment_size):
         """Get a segment size that will work given capabilities"""
@@ -7764,12 +7765,12 @@ class OpenStackCloud(_normalize.Normalizer):
                     file_size, segment_size, use_slo)
 
     def _upload_object_data(self, endpoint, data, headers):
-        return self._object_store_client.put(
-            endpoint, headers=headers, data=data)
+        return _adapter._json_response(self.object_store.put(
+            endpoint, headers=headers, data=data))
 
     def _upload_object(self, endpoint, filename, headers):
-        return self._object_store_client.put(
-            endpoint, headers=headers, data=open(filename, 'r'))
+        return _adapter._json_response(self.object_store.put(
+            endpoint, headers=headers, data=open(filename, 'r')))
 
     def _get_file_segments(self, endpoint, filename, file_size, segment_size):
         # Use an ordered dict here so that testing can replicate things
@@ -7789,7 +7790,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
         Remove the Swift endpoint from the front of the URL, and remove
         the leaving / that will leave behind.'''
-        endpoint = self._object_store_client.get_endpoint()
+        endpoint = self.object_store.get_endpoint()
         object_name = url.replace(endpoint, '')
         if object_name.startswith('/'):
             object_name = object_name[1:]

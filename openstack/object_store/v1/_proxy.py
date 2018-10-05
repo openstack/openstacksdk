@@ -18,6 +18,8 @@ from openstack import proxy
 
 class Proxy(proxy.Proxy):
 
+    skip_discovery = True
+
     Account = _account.Account
     Container = _container.Container
     Object = _obj.Object
