@@ -48,7 +48,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         instance_uuid = str(uuid.uuid4())
 
         node = self.conn.baremetal.update_node(node,
-                                               instance_uuid=instance_uuid)
+                                               instance_id=instance_uuid)
         self.assertEqual('new-name', node.name)
         self.assertEqual({'answer': 42}, node.extra)
         self.assertEqual(instance_uuid, node.instance_id)
@@ -59,10 +59,31 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertEqual(instance_uuid, node.instance_id)
 
         node = self.conn.baremetal.update_node(node,
-                                               instance_uuid=None)
+                                               instance_id=None)
         self.assertIsNone(node.instance_id)
 
         node = self.conn.baremetal.get_node('new-name')
+        self.assertIsNone(node.instance_id)
+
+    def test_node_update_by_name(self):
+        self.create_node(name='node-name', extra={'foo': 'bar'})
+        instance_uuid = str(uuid.uuid4())
+
+        node = self.conn.baremetal.update_node('node-name',
+                                               instance_id=instance_uuid,
+                                               extra={'answer': 42})
+        self.assertEqual({'answer': 42}, node.extra)
+        self.assertEqual(instance_uuid, node.instance_id)
+
+        node = self.conn.baremetal.get_node('node-name')
+        self.assertEqual({'answer': 42}, node.extra)
+        self.assertEqual(instance_uuid, node.instance_id)
+
+        node = self.conn.baremetal.update_node('node-name',
+                                               instance_id=None)
+        self.assertIsNone(node.instance_id)
+
+        node = self.conn.baremetal.get_node('node-name')
         self.assertIsNone(node.instance_id)
 
     def test_node_create_in_enroll_provide(self):

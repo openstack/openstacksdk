@@ -309,7 +309,7 @@ class TestImage(base.TestCase):
     def test_image_update(self):
         values = EXAMPLE.copy()
         del values['instance_uuid']
-        sot = image.Image(**values)
+        sot = image.Image.existing(**values)
         # Let the translate pass through, that portion is tested elsewhere
         sot._translate_response = mock.Mock()
 

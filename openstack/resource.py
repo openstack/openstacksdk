@@ -434,7 +434,15 @@ class Resource(dict):
             synchronized=_synchronized)
         if self.commit_jsonpatch:
             # We need the original body to compare against
-            self._original_body = self._body.attributes.copy()
+            if _synchronized:
+                self._original_body = self._body.attributes.copy()
+            elif self.id:
+                # Never record ID as dirty.
+                self._original_body = {
+                    self._alternate_id() or 'id': self.id
+                }
+            else:
+                self._original_body = {}
 
         # TODO(mordred) This is terrible, but is a hack at the moment to ensure
         # json.dumps works. The json library does basically if not obj: and
