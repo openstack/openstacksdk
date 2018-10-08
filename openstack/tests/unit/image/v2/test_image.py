@@ -311,7 +311,7 @@ class TestImage(base.TestCase):
         self.assertEqual(rv, resp)
 
     def test_image_update(self):
-        sot = image.Image(**EXAMPLE)
+        sot = image.Image.existing(**EXAMPLE)
         # Let the translate pass through, that portion is tested elsewhere
         sot._translate_response = mock.Mock()
 

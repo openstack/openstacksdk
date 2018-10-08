@@ -351,7 +351,15 @@ class Resource(object):
                                       synchronized=_synchronized)
         if self.commit_jsonpatch:
             # We need the original body to compare against
-            self._original_body = self._body.attributes.copy()
+            if _synchronized:
+                self._original_body = self._body.attributes.copy()
+            elif self.id:
+                # Never record ID as dirty.
+                self._original_body = {
+                    self._alternate_id() or 'id': self.id
+                }
+            else:
+                self._original_body = {}
 
     def __repr__(self):
         pairs = ["%s=%s" % (k, v) for k, v in dict(itertools.chain(

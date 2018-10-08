@@ -866,13 +866,29 @@ class TestResource(base.TestCase):
             y = resource.Body("y")
 
         the_id = "id"
-        sot = Test(id=the_id, x=1, y=2)
+        sot = Test.existing(id=the_id, x=1, y=2)
         sot.x = 3
 
         result = sot._prepare_request(requires_id=True, patch=True)
 
         self.assertEqual("something/id", result.url)
         self.assertEqual([{'op': 'replace', 'path': '/x', 'value': 3}],
+                         result.body)
+
+    def test__prepare_request_with_patch_not_synchronized(self):
+        class Test(resource.Resource):
+            commit_jsonpatch = True
+            base_path = "/something"
+            x = resource.Body("x")
+            y = resource.Body("y")
+
+        the_id = "id"
+        sot = Test.new(id=the_id, x=1)
+
+        result = sot._prepare_request(requires_id=True, patch=True)
+
+        self.assertEqual("something/id", result.url)
+        self.assertEqual([{'op': 'add', 'path': '/x', 'value': 1}],
                          result.body)
 
     def test__translate_response_no_body(self):
