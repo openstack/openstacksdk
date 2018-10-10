@@ -9941,9 +9941,25 @@ class OpenStackCloud(_normalize.Normalizer):
         vif_ids = self.baremetal.list_node_vifs(machine)
         return [self.get_port(vif) for vif in vif_ids]
 
+    def validate_machine(self, name_or_id, for_deploy=True):
+        """Validate parameters of the machine.
+
+        :param string name_or_id: The Name or UUID value representing the
+                                  baremetal node.
+        :param bool for_deploy: If ``True``, validate readiness for deployment,
+                                otherwise validate only the power management
+                                properties.
+        :raises: :exc:`~openstack.exceptions.ValidationException`
+        """
+        if for_deploy:
+            ifaces = ('boot', 'deploy', 'management', 'power')
+        else:
+            ifaces = ('power',)
+        self.baremetal.validate_node(name_or_id, required=ifaces)
+
     def validate_node(self, uuid):
-        # TODO(dtantsur): deprecate this short method in favor of a fully
-        # written validate_machine call.
+        warnings.warn('validate_node is deprecated, please use '
+                      'validate_machine instead', DeprecationWarning)
         self.baremetal.validate_node(uuid)
 
     def node_set_provision_state(self,

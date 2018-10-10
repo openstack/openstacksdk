@@ -92,13 +92,64 @@ class TestBaremetalNode(base.IronicTestCase):
                          self.fake_baremetal_node['uuid'])
         self.assert_calls()
 
-    def test_validate_node(self):
+    def test_validate_machine(self):
         # NOTE(TheJulia): Note: These are only the interfaces
-        # that are validated, and both must be true for an
+        # that are validated, and all must be true for an
         # exception to not be raised.
-        # This should be fixed at some point, as some interfaces
-        # are important in some cases and should be validated,
-        # such as storage.
+        validate_return = {
+            'boot': {
+                'result': True,
+            },
+            'deploy': {
+                'result': True,
+            },
+            'management': {
+                'result': True,
+            },
+            'power': {
+                'result': True,
+            },
+            'foo': {
+                'result': False,
+            }}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid'],
+                             'validate']),
+                 json=validate_return),
+        ])
+        self.cloud.validate_machine(self.fake_baremetal_node['uuid'])
+
+        self.assert_calls()
+
+    def test_validate_machine_not_for_deploy(self):
+        validate_return = {
+            'deploy': {
+                'result': False,
+                'reason': 'Not ready',
+            },
+            'power': {
+                'result': True,
+            },
+            'foo': {
+                'result': False,
+            }}
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='nodes',
+                     append=[self.fake_baremetal_node['uuid'],
+                             'validate']),
+                 json=validate_return),
+        ])
+        self.cloud.validate_machine(self.fake_baremetal_node['uuid'],
+                                    for_deploy=False)
+
+        self.assert_calls()
+
+    def test_deprecated_validate_node(self):
         validate_return = {
             'deploy': {
                 'result': True,
@@ -121,15 +172,15 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.assert_calls()
 
-    def test_validate_node_raises_exception(self):
+    def test_validate_machine_raises_exception(self):
         validate_return = {
             'deploy': {
                 'result': False,
                 'reason': 'error!',
             },
             'power': {
-                'result': False,
-                'reason': 'meow!',
+                'result': True,
+                'reason': None,
             },
             'foo': {
                 'result': True
@@ -144,7 +195,7 @@ class TestBaremetalNode(base.IronicTestCase):
         ])
         self.assertRaises(
             exceptions.ValidationException,
-            self.cloud.validate_node,
+            self.cloud.validate_machine,
             self.fake_baremetal_node['uuid'])
 
         self.assert_calls()
