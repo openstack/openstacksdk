@@ -481,7 +481,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # If we detect a different version that was configured, warn the user.
         # shade still knows what to do - but if the user gave us an explicit
         # version and we couldn't find it, they may want to investigate.
-        if api_version and (api_major != config_major):
+        if api_version and config_version and (api_major != config_major):
             warning_msg = (
                 '{service_type} is configured for {config_version}'
                 ' but only {api_version} is available. shade is happy'
