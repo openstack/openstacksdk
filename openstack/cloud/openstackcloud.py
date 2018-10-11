@@ -4783,42 +4783,68 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if disable_vendor_agent:
             kwargs.update(self.config.config['disable_vendor_agent'])
 
+        # If a user used the v1 calling format, they will have
+        # passed a dict called properties along
+        properties = kwargs.pop('properties', {})
+        kwargs.update(properties)
+        image_kwargs = dict(properties=kwargs)
+        if disk_format:
+            image_kwargs['disk_format'] = disk_format
+        if container_format:
+            image_kwargs['container_format'] = container_format
+
+        if self._is_client_version('image', 2):
+            image = self._upload_image_v2(
+                name, filename,
+                wait=wait, timeout=timeout,
+                meta=meta, **image_kwargs)
+        else:
+            image = self._upload_image_v1(
+                name, filename,
+                wait=wait, timeout=timeout,
+                meta=meta, **image_kwargs)
+        self._get_cache(None).invalidate()
+        if not wait:
+            return image
+        try:
+            for count in utils.iterate_timeout(
+                    timeout,
+                    "Timeout waiting for the image to finish."):
+                image_obj = self.get_image(image.id)
+                if image_obj and image_obj.status not in ('queued', 'saving'):
+                    return image_obj
+        except exc.OpenStackCloudTimeout:
+            self.log.debug(
+                "Timeout waiting for image to become ready. Deleting.")
+            self.delete_image(image.id, wait=True)
+            raise
+
+    def _upload_image_v2(
+            self, name, filename=None,
+            wait=False, timeout=3600,
+            meta=None, **kwargs):
         # We can never have nice things. Glance v1 took "is_public" as a
         # boolean. Glance v2 takes "visibility". If the user gives us
         # is_public, we know what they mean. If they give us visibility, they
         # know that they mean.
-        if self._is_client_version('image', 2):
-            if 'is_public' in kwargs:
-                is_public = kwargs.pop('is_public')
-                if is_public:
-                    kwargs['visibility'] = 'public'
-                else:
-                    kwargs['visibility'] = 'private'
+        if 'is_public' in kwargs['properties']:
+            is_public = kwargs['properties'].pop('is_public')
+            if is_public:
+                kwargs['visibility'] = 'public'
+            else:
+                kwargs['visibility'] = 'private'
 
         try:
             # This makes me want to die inside
             if self.image_api_use_tasks:
                 return self._upload_image_task(
-                    name, filename, container,
-                    current_image=current_image,
+                    name, filename,
                     wait=wait, timeout=timeout,
-                    md5=md5, sha256=sha256,
                     meta=meta, **kwargs)
             else:
-                # If a user used the v1 calling format, they will have
-                # passed a dict called properties along
-                properties = kwargs.pop('properties', {})
-                kwargs.update(properties)
-                image_kwargs = dict(properties=kwargs)
-                if disk_format:
-                    image_kwargs['disk_format'] = disk_format
-                if container_format:
-                    image_kwargs['container_format'] = container_format
-
-                return self._upload_image_put(
+                return self._upload_image_put_v2(
                     name, filename, meta=meta,
-                    wait=wait, timeout=timeout,
-                    **image_kwargs)
+                    **kwargs)
         except exc.OpenStackCloudException:
             self.log.debug("Image creation failed", exc_info=True)
             raise
@@ -4869,7 +4895,9 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             self.delete_image(response['image_id'], wait=True)
             raise
 
-    def _upload_image_put_v2(self, name, image_data, meta, **image_kwargs):
+    def _upload_image_put_v2(self, name, filename, meta, **image_kwargs):
+        image_data = open(filename, 'rb')
+
         properties = image_kwargs.pop('properties', {})
 
         image_kwargs.update(self._make_v2_image_params(meta, properties))
@@ -4898,9 +4926,13 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         return self._normalize_image(image)
 
-    def _upload_image_put_v1(
-            self, name, image_data, meta, **image_kwargs):
-
+    def _upload_image_v1(
+            self, name, filename,
+            wait=False, timeout=3600,
+            meta=None, **image_kwargs):
+        # NOTE(mordred) wait and timeout parameters are unused, but
+        # are present for ease at calling site.
+        image_data = open(filename, 'rb')
         image_kwargs['properties'].update(meta)
         image_kwargs['name'] = name
 
@@ -4937,38 +4969,16 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             raise
         return self._normalize_image(image)
 
-    def _upload_image_put(
-            self, name, filename, meta, wait, timeout, **image_kwargs):
-        image_data = open(filename, 'rb')
-        # Because reasons and crying bunnies
-        if self._is_client_version('image', 2):
-            image = self._upload_image_put_v2(
-                name, image_data, meta, **image_kwargs)
-        else:
-            image = self._upload_image_put_v1(
-                name, image_data, meta, **image_kwargs)
-        self._get_cache(None).invalidate()
-        if not wait:
-            return image
-        try:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the image to finish."):
-                image_obj = self.get_image(image.id)
-                if image_obj and image_obj.status not in ('queued', 'saving'):
-                    return image_obj
-        except exc.OpenStackCloudTimeout:
-            self.log.debug(
-                "Timeout waiting for image to become ready. Deleting.")
-            self.delete_image(image.id, wait=True)
-            raise
-
     def _upload_image_task(
-            self, name, filename, container, current_image,
-            wait, timeout, meta, md5=None, sha256=None, **image_kwargs):
+            self, name, filename,
+            wait, timeout, meta, **image_kwargs):
 
-        parameters = image_kwargs.pop('parameters', {})
-        image_kwargs.update(parameters)
+        properties = image_kwargs['properties']
+        md5 = properties[self._IMAGE_MD5_KEY]
+        sha256 = properties[self._IMAGE_SHA256_KEY]
+        container = properties[self._IMAGE_OBJECT_KEY].split('/', 1)[0]
+        properties = image_kwargs.pop('properties', {})
+        image_kwargs.update(properties)
 
         self.create_container(container)
         self.create_object(
@@ -4976,8 +4986,6 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             md5=md5, sha256=sha256,
             metadata={self._OBJECT_AUTOCREATE_KEY: 'true'},
             **{'content-type': 'application/octet-stream'})
-        if not current_image:
-            current_image = self.get_image(name)
         # TODO(mordred): Can we do something similar to what nodepool does
         # using glance properties to not delete then upload but instead make a
         # new "good" image and then mark the old one as "bad"

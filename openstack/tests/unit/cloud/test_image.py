@@ -408,10 +408,6 @@ class TestImage(BaseTestImage):
                      headers={'x-object-meta-x-sdk-md5': fakes.NO_MD5,
                               'x-object-meta-x-sdk-sha256': fakes.NO_SHA256})
                  ),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'image', append=['images'], base_url_append='v2'),
-                 json={'images': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'image', append=['tasks'], base_url_append='v2'),
@@ -475,6 +471,14 @@ class TestImage(BaseTestImage):
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=endpoint, container=self.container_name,
                      object=self.image_name)),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_search_return),
+            # TODO(mordred) The task workflow results in an extra call
+            # in the upper level wait. We should be able to make this
+            # go away once we refactor a wait_for_image out in the next
+            # patch.
             dict(method='GET',
                  uri=self.get_mock_url(
                      'image', append=['images'], base_url_append='v2'),
