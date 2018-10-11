@@ -382,8 +382,6 @@ class Resource(dict):
     requires_id = True
     #: Do responses for this resource have bodies
     has_body = True
-    #: Is this a detailed version of another Resource
-    detail_for = None
 
     #: Maximum microversion to use for getting/creating/updating the Resource
     _max_microversion = None

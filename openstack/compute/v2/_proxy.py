@@ -29,11 +29,96 @@ from openstack import resource
 
 class Proxy(proxy.Proxy):
 
-    Extension = extension.Extension
-    Flavor = _flavor.Flavor
-    FlavorDetail = _flavor.FlavorDetail
-    Server = _server.Server
-    ServerDetail = _server.ServerDetail
+    def find_extension(self, name_or_id, ignore_missing=True):
+        """Find a single extension
+
+        :param name_or_id: The name or ID of an extension.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.compute.v2.extension.Extension` or
+                  None
+        """
+        return self._find(extension.Extension, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def extensions(self):
+        """Retrieve a generator of extensions
+
+        :returns: A generator of extension instances.
+        :rtype: :class:`~openstack.compute.v2.extension.Extension`
+        """
+        return self._list(extension.Extension, paginated=True)
+
+    def find_flavor(self, name_or_id, ignore_missing=True):
+        """Find a single flavor
+
+        :param name_or_id: The name or ID of a flavor.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
+        """
+        return self._find(_flavor.Flavor, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def create_flavor(self, **attrs):
+        """Create a new flavor from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.flavor.Flavor`,
+                           comprised of the properties on the Flavor class.
+
+        :returns: The results of flavor creation
+        :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
+        """
+        return self._create(_flavor.Flavor, **attrs)
+
+    def delete_flavor(self, flavor, ignore_missing=True):
+        """Delete a flavor
+
+        :param flavor: The value can be either the ID of a flavor or a
+                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the flavor does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent flavor.
+
+        :returns: ``None``
+        """
+        self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
+
+    def get_flavor(self, flavor):
+        """Get a single flavor
+
+        :param flavor: The value can be the ID of a flavor or a
+                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
+
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_flavor.Flavor, flavor)
+
+    def flavors(self, details=True, **query):
+        """Return a generator of flavors
+
+        :param bool details: When ``True``, returns
+            :class:`~openstack.compute.v2.flavor.FlavorDetail` objects,
+            otherwise :class:`~openstack.compute.v2.flavor.Flavor`.
+            *Default: ``True``*
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the flavors being returned.
+
+        :returns: A generator of flavor objects
+        """
+        flv = _flavor.FlavorDetail if details else _flavor.Flavor
+        return self._list(flv, paginated=True, **query)
 
     def delete_image(self, image, ignore_missing=True):
         """Delete an image
@@ -227,6 +312,18 @@ class Proxy(proxy.Proxy):
         """
         return self._get(limits.Limits)
 
+    def create_server(self, **attrs):
+        """Create a new server from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.compute.v2.server.Server`,
+                           comprised of the properties on the Server class.
+
+        :returns: The results of server creation
+        :rtype: :class:`~openstack.compute.v2.server.Server`
+        """
+        return self._create(_server.Server, **attrs)
+
     def delete_server(self, server, ignore_missing=True, force=False):
         """Delete a server
 
@@ -246,8 +343,33 @@ class Proxy(proxy.Proxy):
             server = self._get_resource(_server.Server, server)
             server.force_delete(self)
         else:
-            self._generated_delete_server(
-                server, ignore_missing=ignore_missing)
+            self._delete(_server.Server, server, ignore_missing=ignore_missing)
+
+    def find_server(self, name_or_id, ignore_missing=True):
+        """Find a single server
+
+        :param name_or_id: The name or ID of a server.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.compute.v2.server.Server` or None
+        """
+        return self._find(_server.Server, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_server(self, server):
+        """Get a single server
+
+        :param server: The value can be the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+
+        :returns: One :class:`~openstack.compute.v2.server.Server`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_server.Server, server)
 
     def servers(self, details=True, **query):
         """Retrieve a generator of servers
@@ -286,7 +408,8 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of server instances.
         """
-        return self._generated_servers(details=details, **query)
+        srv = _server.ServerDetail if details else _server.Server
+        return self._list(srv, paginated=True, **query)
 
     def update_server(self, server, **attrs):
         """Update a server
