@@ -33,7 +33,6 @@ class TestDatabase(base.TestCase):
         self.assertEqual('databases', sot.resources_key)
         path = '/instances/%(instance_id)s/databases'
         self.assertEqual(path, sot.base_path)
-        self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_create)
         self.assertFalse(sot.allow_fetch)

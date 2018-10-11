@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Keypair(resource.Resource):
     resource_key = 'keypair'
     resources_key = 'keypairs'
     base_path = '/os-keypairs'
-    service = compute_service.ComputeService()
 
     # capabilities
     allow_create = True

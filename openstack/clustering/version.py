@@ -11,7 +11,6 @@
 # under the License.
 
 
-from openstack.clustering import clustering_service
 from openstack import resource
 
 
@@ -19,9 +18,6 @@ class Version(resource.Resource):
     resource_key = 'version'
     resources_key = 'versions'
     base_path = '/'
-    service = clustering_service.ClusteringService(
-        version=clustering_service.ClusteringService.UNVERSIONED
-    )
 
     # capabilities
     allow_list = True

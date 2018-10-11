@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack import _log
-from openstack.baremetal import baremetal_service
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
 from openstack import resource
@@ -39,7 +38,6 @@ class Node(resource.Resource):
 
     resources_key = 'nodes'
     base_path = '/nodes'
-    service = baremetal_service.BaremetalService()
 
     # capabilities
     allow_create = True

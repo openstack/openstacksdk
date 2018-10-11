@@ -31,7 +31,6 @@ class TestAddressScope(base.TestCase):
         self.assertEqual('address_scope', sot.resource_key)
         self.assertEqual('address_scopes', sot.resources_key)
         self.assertEqual('/address-scopes', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

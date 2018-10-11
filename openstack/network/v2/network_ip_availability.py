@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -19,7 +18,6 @@ class NetworkIPAvailability(resource.Resource):
     resources_key = 'network_ip_availabilities'
     base_path = '/network-ip-availabilities'
     name_attribute = 'network_name'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = False

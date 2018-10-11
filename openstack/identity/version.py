@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.identity import identity_service
 from openstack import resource
 
 
@@ -18,9 +17,6 @@ class Version(resource.Resource):
     resource_key = 'version'
     resources_key = 'versions'
     base_path = '/'
-    service = identity_service.IdentityService(
-        version=identity_service.IdentityService.UNVERSIONED
-    )
 
     # capabilities
     allow_list = True

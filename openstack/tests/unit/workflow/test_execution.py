@@ -37,7 +37,6 @@ class TestExecution(base.TestCase):
         self.assertEqual('execution', sot.resource_key)
         self.assertEqual('executions', sot.resources_key)
         self.assertEqual('/executions', sot.base_path)
-        self.assertEqual('workflowv2', sot.service.service_type)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_create)

@@ -14,7 +14,6 @@
 # under the License.
 from openstack.exceptions import HttpException
 
-from openstack.network import network_service
 from openstack import resource
 from openstack import utils
 
@@ -23,7 +22,6 @@ class FirewallPolicy(resource.Resource):
     resource_key = 'firewall_policy'
     resources_key = 'firewall_policies'
     base_path = '/fwaas/firewall_policies'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

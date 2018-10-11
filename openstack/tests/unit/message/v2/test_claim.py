@@ -47,7 +47,6 @@ class TestClaim(base.TestCase):
         sot = claim.Claim()
         self.assertEqual("claims", sot.resources_key)
         self.assertEqual("/queues/%(queue_name)s/claims", sot.base_path)
-        self.assertEqual("messaging", sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)

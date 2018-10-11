@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.identity import identity_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class User(resource.Resource):
     resource_key = 'user'
     resources_key = 'users'
     base_path = '/users'
-    service = identity_service.AdminService()
 
     # capabilities
     allow_create = True

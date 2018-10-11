@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.key_manager import key_manager_service
 from openstack.key_manager.v1 import _format
 from openstack import resource
 from openstack import utils
@@ -19,7 +18,6 @@ from openstack import utils
 class Secret(resource.Resource):
     resources_key = 'secrets'
     base_path = '/secrets'
-    service = key_manager_service.KeyManagerService()
 
     # capabilities
     allow_create = True

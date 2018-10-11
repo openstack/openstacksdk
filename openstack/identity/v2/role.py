@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack import format
-from openstack.identity import identity_service
 from openstack import resource
 
 
@@ -19,7 +18,6 @@ class Role(resource.Resource):
     resource_key = 'role'
     resources_key = 'roles'
     base_path = '/OS-KSADM/roles'
-    service = identity_service.IdentityService()
 
     # capabilities
     allow_create = True

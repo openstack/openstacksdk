@@ -26,7 +26,6 @@ class TestStackFiles(base.TestCase):
 
     def test_basic(self):
         sot = sf.StackFiles()
-        self.assertEqual('orchestration', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)
@@ -47,7 +46,6 @@ class TestStackFiles(base.TestCase):
         sess.get = mock.Mock(return_value=resp)
 
         sot = sf.StackFiles(**FAKE)
-        sot.service = mock.Mock()
 
         req = mock.MagicMock()
         req.url = ('/stacks/%(stack_name)s/%(stack_id)s/files' %

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.identity import identity_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class RoleProjectGroupAssignment(resource.Resource):
     resource_key = 'role'
     resources_key = 'roles'
     base_path = '/projects/%(project_id)s/groups/%(group_id)s/roles'
-    service = identity_service.IdentityService()
 
     # capabilities
     allow_list = True

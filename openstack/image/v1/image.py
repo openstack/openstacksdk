@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.image import image_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Image(resource.Resource):
     resource_key = 'image'
     resources_key = 'images'
     base_path = '/images'
-    service = image_service.ImageService()
 
     # capabilities
     allow_create = True

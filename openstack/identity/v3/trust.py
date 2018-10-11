@@ -11,7 +11,6 @@
 # under the License.
 
 
-from openstack.identity import identity_service
 from openstack import resource
 
 
@@ -19,7 +18,6 @@ class Trust(resource.Resource):
     resource_key = 'trust'
     resources_key = 'trusts'
     base_path = '/OS-TRUST/trusts'
-    service = identity_service.IdentityService()
 
     # capabilities
     allow_create = True

@@ -11,7 +11,6 @@
 # under the License.
 
 
-from openstack.clustering import clustering_service
 from openstack import resource
 
 
@@ -19,7 +18,6 @@ class Event(resource.Resource):
     resource_key = 'event'
     resources_key = 'events'
     base_path = '/events'
-    service = clustering_service.ClusteringService()
 
     # Capabilities
     allow_list = True

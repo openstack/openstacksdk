@@ -10,18 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.clustering.v1 import _proxy
+from openstack import service_description
 
 
-class ClusteringService(service_filter.ServiceFilter):
+class ClusteringService(service_description.ServiceDescription):
     """The clustering service."""
 
-    valid_versions = [service_filter.ValidVersion('v1')]
-    UNVERSIONED = None
-
-    def __init__(self, version=None):
-        """Create a clustering service."""
-        super(ClusteringService, self).__init__(
-            service_type='clustering',
-            version=version
-        )
+    supported_versions = {
+        '1': _proxy.Proxy,
+    }

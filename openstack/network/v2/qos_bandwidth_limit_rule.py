@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class QoSBandwidthLimitRule(resource.Resource):
     resource_key = 'bandwidth_limit_rule'
     resources_key = 'bandwidth_limit_rules'
     base_path = '/qos/policies/%(qos_policy_id)s/bandwidth_limit_rules'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

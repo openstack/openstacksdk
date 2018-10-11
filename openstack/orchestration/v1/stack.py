@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack import exceptions
-from openstack.orchestration import orchestration_service
 from openstack import resource
 from openstack import utils
 
@@ -21,7 +20,6 @@ class Stack(resource.Resource):
     resource_key = 'stack'
     resources_key = 'stacks'
     base_path = '/stacks'
-    service = orchestration_service.OrchestrationService()
 
     # capabilities
     allow_create = True

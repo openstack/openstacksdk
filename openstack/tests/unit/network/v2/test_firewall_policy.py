@@ -35,7 +35,6 @@ class TestFirewallPolicy(testtools.TestCase):
         self.assertEqual('firewall_policy', sot.resource_key)
         self.assertEqual('firewall_policies', sot.resources_key)
         self.assertEqual('/fwaas/firewall_policies', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

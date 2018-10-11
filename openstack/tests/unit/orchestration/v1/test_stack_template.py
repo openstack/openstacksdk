@@ -40,7 +40,6 @@ class TestStackTemplate(base.TestCase):
 
     def test_basic(self):
         sot = stack_template.StackTemplate()
-        self.assertEqual('orchestration', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

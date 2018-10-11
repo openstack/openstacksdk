@@ -29,7 +29,6 @@ class TestServiceProvider(base.TestCase):
 
         self.assertEqual('service_providers', sot.resources_key)
         self.assertEqual('/service-providers', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

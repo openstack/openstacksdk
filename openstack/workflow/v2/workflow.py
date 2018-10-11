@@ -11,14 +11,12 @@
 # under the License.
 
 from openstack import resource
-from openstack.workflow import workflow_service
 
 
 class Workflow(resource.Resource):
     resource_key = 'workflow'
     resources_key = 'workflows'
     base_path = '/workflows'
-    service = workflow_service.WorkflowService()
 
     # capabilities
     allow_create = True

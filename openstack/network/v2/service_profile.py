@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class ServiceProfile(resource.Resource):
     resource_key = 'service_profile'
     resources_key = 'service_profiles'
     base_path = '/service_profiles'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

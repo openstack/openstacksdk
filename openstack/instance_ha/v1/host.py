@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openstack.instance_ha import instance_ha_service
 from openstack import resource
 
 
@@ -20,7 +19,6 @@ class Host(resource.Resource):
     resource_key = "host"
     resources_key = "hosts"
     base_path = "/segments/%(segment_id)s/hosts"
-    service = instance_ha_service.InstanceHaService()
 
     # capabilities
     # 1] GET /v1/segments/<segment_uuid>/hosts

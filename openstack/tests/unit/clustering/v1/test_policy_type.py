@@ -36,7 +36,6 @@ class TestPolicyType(base.TestCase):
         self.assertEqual('policy_type', sot.resource_key)
         self.assertEqual('policy_types', sot.resources_key)
         self.assertEqual('/policy-types', sot.base_path)
-        self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 

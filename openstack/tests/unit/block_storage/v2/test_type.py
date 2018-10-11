@@ -31,7 +31,6 @@ class TestType(base.TestCase):
         self.assertEqual("volume_type", sot.resource_key)
         self.assertEqual("volume_types", sot.resources_key)
         self.assertEqual("/types", sot.base_path)
-        self.assertEqual("block-storage", sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)

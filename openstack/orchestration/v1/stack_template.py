@@ -10,13 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.orchestration import orchestration_service
 from openstack import resource
 
 
 class StackTemplate(resource.Resource):
 
-    service = orchestration_service.OrchestrationService()
     base_path = "/stacks/%(stack_name)s/%(stack_id)s/template"
 
     # capabilities

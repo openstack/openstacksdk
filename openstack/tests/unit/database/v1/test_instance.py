@@ -38,7 +38,6 @@ class TestInstance(base.TestCase):
         self.assertEqual('instance', sot.resource_key)
         self.assertEqual('instances', sot.resources_key)
         self.assertEqual('/instances', sot.base_path)
-        self.assertEqual('database', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

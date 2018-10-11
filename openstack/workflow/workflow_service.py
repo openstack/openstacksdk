@@ -10,17 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack import service_description
+from openstack.workflow.v2 import _proxy
 
 
-class WorkflowService(service_filter.ServiceFilter):
+class WorkflowService(service_description.ServiceDescription):
     """The workflow service."""
 
-    valid_versions = [service_filter.ValidVersion('v2')]
-
-    def __init__(self, version=None):
-        """Create a workflow service."""
-        super(WorkflowService, self).__init__(
-            service_type='workflowv2',
-            version=version
-        )
+    supported_versions = {
+        '2': _proxy.Proxy,
+    }

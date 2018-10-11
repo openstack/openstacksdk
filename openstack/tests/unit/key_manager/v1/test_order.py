@@ -38,7 +38,6 @@ class TestOrder(base.TestCase):
         self.assertIsNone(sot.resource_key)
         self.assertEqual('orders', sot.resources_key)
         self.assertEqual('/orders', sot.base_path)
-        self.assertEqual('key-manager', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

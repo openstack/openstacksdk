@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack.network.v2 import tag
 from openstack import resource
 
@@ -19,7 +18,6 @@ class Network(resource.Resource, tag.TagMixin):
     resource_key = 'network'
     resources_key = 'networks'
     base_path = '/networks'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True
@@ -121,7 +119,6 @@ class DHCPAgentHostingNetwork(Network):
     resources_key = 'networks'
     base_path = '/agents/%(agent_id)s/dhcp-networks'
     resource_name = 'dhcp-network'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = False

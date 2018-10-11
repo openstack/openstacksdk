@@ -30,7 +30,6 @@ class TestRole(base.TestCase):
         self.assertEqual('role', sot.resource_key)
         self.assertEqual('roles', sot.resources_key)
         self.assertEqual('/OS-KSADM/roles', sot.base_path)
-        self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

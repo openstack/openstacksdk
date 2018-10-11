@@ -11,15 +11,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import importlib
-
 import os_service_types
 
 from openstack import _log
 from openstack import proxy
 
 __all__ = [
-    'OpenStackServiceDescription',
     'ServiceDescription',
 ]
 
@@ -29,14 +26,14 @@ _service_type_manager = os_service_types.ServiceTypes()
 
 class ServiceDescription(object):
 
-    #: Proxy class for this service
-    proxy_class = proxy.Proxy
+    #: Dictionary of supported versions and proxy classes for that version
+    supported_versions = None
     #: main service_type to use to find this service in the catalog
     service_type = None
     #: list of aliases this service might be registered as
     aliases = []
 
-    def __init__(self, service_type, proxy_class=None, aliases=None):
+    def __init__(self, service_type, supported_versions=None, aliases=None):
         """Class describing how to interact with a REST service.
 
         Each service in an OpenStack cloud needs to be found by looking
@@ -65,72 +62,112 @@ class ServiceDescription(object):
             be used to register the service in the catalog.
         """
         self.service_type = service_type or self.service_type
-        self.proxy_class = proxy_class or self.proxy_class
-        if self.proxy_class:
-            self._validate_proxy_class()
+        self.supported_versions = (
+            supported_versions
+            or self.supported_versions
+            or {})
+
         self.aliases = aliases or self.aliases
         self.all_types = [service_type] + self.aliases
-        self._proxy = None
-
-    def _validate_proxy_class(self):
-        if not issubclass(self.proxy_class, proxy.Proxy):
-            raise TypeError(
-                "{module}.{proxy_class} must inherit from Proxy".format(
-                    module=self.proxy_class.__module__,
-                    proxy_class=self.proxy_class.__name__))
-
-    def get_proxy_class(self, config):
-        return self.proxy_class
 
     def __get__(self, instance, owner):
         if instance is None:
             return self
         if self.service_type not in instance._proxies:
-            config = instance.config
-            proxy_class = self.get_proxy_class(config)
-            instance._proxies[self.service_type] = config.get_session_client(
-                self.service_type,
-                constructor=proxy_class,
-                task_manager=instance.task_manager,
-                allow_version_hack=True,
-            )
+            instance._proxies[self.service_type] = self._make_proxy(
+                instance, owner)
             instance._proxies[self.service_type]._connection = instance
         return instance._proxies[self.service_type]
+
+    def _make_proxy(self, instance, owner):
+        config = instance.config
+
+        # First, check to see if we've got config that matches what we
+        # understand in the SDK.
+        version_string = config.get_api_version(self.service_type)
+        endpoint_override = config.get_endpoint(self.service_type)
+
+        # If the user doesn't give a version in config, but we only support
+        # one version, then just use that version.
+        if not version_string and len(self.supported_versions) == 1:
+            version_string = list(self.supported_versions.keys())[0]
+
+        proxy_obj = None
+        if endpoint_override and version_string and self.supported_versions:
+            # Both endpoint override and version_string are set, we don't
+            # need to do discovery - just trust the user.
+            proxy_class = self.supported_versions.get(version_string[0])
+            if proxy_class:
+                proxy_obj = config.get_session_client(
+                    self.service_type,
+                    constructor=proxy_class,
+                    task_manager=instance.task_manager,
+                )
+        elif endpoint_override and self.supported_versions:
+            temp_adapter = config.get_session_client(
+                self.service_type
+            )
+            api_version = temp_adapter.get_endpoint_data().api_version
+            proxy_class = self.supported_versions.get(str(api_version[0]))
+            if proxy_class:
+                proxy_obj = config.get_session_client(
+                    self.service_type,
+                    constructor=proxy_class,
+                    task_manager=instance.task_manager,
+                )
+
+        if proxy_obj:
+            data = proxy_obj.get_endpoint_data()
+            if data.catalog_url != data.service_url:
+                ep_key = '{service_type}_endpoint_override'.format(
+                    service_type=self.service_type)
+                config.config[ep_key] = data.service_url
+                proxy_obj = config.get_session_client(
+                    self.service_type,
+                    constructor=proxy_class,
+                    task_manager=instance.task_manager,
+                )
+            return proxy_obj
+
+        # Make an adapter to let discovery take over
+        version_kwargs = {}
+        if version_string:
+            version_kwargs['version'] = version_string
+        elif self.supported_versions:
+            supported_versions = sorted([
+                int(f) for f in self.supported_versions])
+            version_kwargs['min_version'] = str(supported_versions[0])
+            version_kwargs['max_version'] = '{version}.latest'.format(
+                version=str(supported_versions[-1]))
+
+        temp_adapter = config.get_session_client(
+            self.service_type,
+            constructor=proxy.Proxy,
+            allow_version_hack=True,
+            **version_kwargs
+        )
+        found_version = temp_adapter.get_api_major_version()
+        if found_version is None:
+            # Maybe openstacksdk is being used for the passthrough
+            # REST API proxy layer for an unknown service in the
+            # service catalog that also doesn't have any useful
+            # version discovery?
+            instance._proxies[self.service_type] = temp_adapter
+            instance._proxies[self.service_type]._connection = instance
+            return instance._proxies[self.service_type]
+        proxy_class = self.supported_versions.get(str(found_version[0]))
+        if not proxy_class:
+            proxy_class = proxy.Proxy
+        return config.get_session_client(
+            self.service_type,
+            constructor=proxy_class,
+            task_manager=instance.task_manager,
+            allow_version_hack=True,
+            **version_kwargs
+        )
 
     def __set__(self, instance, value):
         raise AttributeError('Service Descriptors cannot be set')
 
     def __delete__(self, instance):
         raise AttributeError('Service Descriptors cannot be deleted')
-
-
-class OpenStackServiceDescription(ServiceDescription):
-    def __init__(self, service_filter_class, *args, **kwargs):
-        """Official OpenStack ServiceDescription.
-
-        The OpenStackServiceDescription class is a helper class for
-        services listed in Service Types Authority and that are directly
-        supported by openstacksdk.
-
-        It finds the proxy_class by looking in the openstacksdk tree for
-        appropriately named modules.
-
-        :param service_filter_class:
-            A subclass of :class:`~openstack.service_filter.ServiceFilter`
-        """
-        super(OpenStackServiceDescription, self).__init__(*args, **kwargs)
-        self._service_filter_class = service_filter_class
-
-    def get_proxy_class(self, config):
-        # TODO(mordred) Replace this with proper discovery
-        if self.service_type == 'block-storage':
-            version_string = config.get_api_version('volume')
-        else:
-            version_string = config.get_api_version(self.service_type)
-        version = None
-        if version_string:
-            version = 'v{version}'.format(version=version_string[0])
-        service_filter = self._service_filter_class(version=version)
-        module_name = service_filter.get_module() + "._proxy"
-        module = importlib.import_module(module_name)
-        return getattr(module, "Proxy")

@@ -29,7 +29,6 @@ class TestServerInterface(base.TestCase):
         self.assertEqual('volumeAttachments', sot.resources_key)
         self.assertEqual('/servers/%(server_id)s/os-volume_attachments',
                          sot.base_path)
-        self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

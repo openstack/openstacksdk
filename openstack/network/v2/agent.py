@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 from openstack import utils
 
@@ -20,7 +19,6 @@ class Agent(resource.Resource):
     resource_key = 'agent'
     resources_key = 'agents'
     base_path = '/agents'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = False
@@ -96,7 +94,6 @@ class NetworkHostingDHCPAgent(Agent):
     resources_key = 'agents'
     resource_name = 'dhcp-agent'
     base_path = '/networks/%(network_id)s/dhcp-agents'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = False
@@ -113,7 +110,6 @@ class RouterL3Agent(Agent):
     resources_key = 'agents'
     base_path = '/routers/%(router_id)s/l3-agents'
     resource_name = 'l3-agent'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = False

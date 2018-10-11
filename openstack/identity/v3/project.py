@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.identity import identity_service
 from openstack import resource
 from openstack import utils
 
@@ -19,7 +18,6 @@ class Project(resource.Resource):
     resource_key = 'project'
     resources_key = 'projects'
     base_path = '/projects'
-    service = identity_service.IdentityService()
 
     # capabilities
     allow_create = True
@@ -119,7 +117,6 @@ class UserProject(Project):
     resource_key = 'project'
     resources_key = 'projects'
     base_path = '/users/%(user_id)s/projects'
-    service = identity_service.IdentityService()
 
     # capabilities
     allow_create = False

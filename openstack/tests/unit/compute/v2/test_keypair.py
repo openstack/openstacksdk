@@ -29,7 +29,6 @@ class TestKeypair(base.TestCase):
         self.assertEqual('keypair', sot.resource_key)
         self.assertEqual('keypairs', sot.resources_key)
         self.assertEqual('/os-keypairs', sot.base_path)
-        self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

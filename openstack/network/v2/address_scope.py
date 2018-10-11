@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -19,7 +18,6 @@ class AddressScope(resource.Resource):
     resource_key = 'address_scope'
     resources_key = 'address_scopes'
     base_path = '/address-scopes'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Quota(resource.Resource):
     resource_key = 'quota'
     resources_key = 'quotas'
     base_path = '/quotas'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_fetch = True

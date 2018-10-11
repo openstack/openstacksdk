@@ -31,7 +31,6 @@ class TestDomain(base.TestCase):
         self.assertEqual('domain', sot.resource_key)
         self.assertEqual('domains', sot.resources_key)
         self.assertEqual('/domains', sot.base_path)
-        self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

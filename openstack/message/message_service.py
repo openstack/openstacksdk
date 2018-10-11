@@ -10,17 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.message.v2 import _proxy
+from openstack import service_description
 
 
-class MessageService(service_filter.ServiceFilter):
+class MessageService(service_description.ServiceDescription):
     """The message service."""
 
-    valid_versions = [service_filter.ValidVersion('v2')]
-
-    def __init__(self, version=None):
-        """Create a message service."""
-        super(MessageService, self).__init__(
-            service_type='messaging',
-            version=version
-        )
+    supported_versions = {
+        '2': _proxy.Proxy,
+    }

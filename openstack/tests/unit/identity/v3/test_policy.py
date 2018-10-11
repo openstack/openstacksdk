@@ -32,7 +32,6 @@ class TestPolicy(base.TestCase):
         self.assertEqual('policy', sot.resource_key)
         self.assertEqual('policies', sot.resources_key)
         self.assertEqual('/policies', sot.base_path)
-        self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

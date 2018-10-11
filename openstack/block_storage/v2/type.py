@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.block_storage import block_storage_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Type(resource.Resource):
     resource_key = "volume_type"
     resources_key = "volume_types"
     base_path = "/types"
-    service = block_storage_service.BlockStorageService()
 
     # capabilities
     allow_fetch = True

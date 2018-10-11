@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack import service_description
+from openstack.compute.v2 import _proxy
 
 
-class ComputeService(service_filter.ServiceFilter):
+class ComputeService(service_description.ServiceDescription):
     """The compute service."""
 
-    valid_versions = [service_filter.ValidVersion('v2')]
-
-    def __init__(self, version=None):
-        """Create a compute service."""
-        super(ComputeService, self).__init__(service_type='compute',
-                                             version=version)
+    supported_versions = {
+        '2': _proxy.Proxy
+    }

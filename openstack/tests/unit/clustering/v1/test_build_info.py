@@ -34,7 +34,6 @@ class TestBuildInfo(base.TestCase):
         sot = build_info.BuildInfo()
         self.assertEqual('/build-info', sot.base_path)
         self.assertEqual('build_info', sot.resource_key)
-        self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_fetch)
 
     def test_instantiate(self):

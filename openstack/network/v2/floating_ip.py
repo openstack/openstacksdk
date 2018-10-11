@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack.network.v2 import tag
 from openstack import resource
 
@@ -21,7 +20,6 @@ class FloatingIP(resource.Resource, tag.TagMixin):
     resource_key = 'floatingip'
     resources_key = 'floatingips'
     base_path = '/floatingips'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

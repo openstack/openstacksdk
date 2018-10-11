@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class PoolMember(resource.Resource):
     resource_key = 'member'
     resources_key = 'members'
     base_path = '/lbaas/pools/%(pool_id)s/members'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

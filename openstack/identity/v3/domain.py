@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.identity import identity_service
 from openstack import resource
 from openstack import utils
 
@@ -19,7 +18,6 @@ class Domain(resource.Resource):
     resource_key = 'domain'
     resources_key = 'domains'
     base_path = '/domains'
-    service = identity_service.IdentityService()
 
     # capabilities
     allow_create = True

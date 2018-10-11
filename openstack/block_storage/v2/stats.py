@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.block_storage import block_storage_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Pools(resource.Resource):
     resource_key = "pool"
     resources_key = "pools"
     base_path = "/scheduler-stats/get_pools?detail=True"
-    service = block_storage_service.BlockStorageService()
 
     # capabilities
     allow_fetch = False

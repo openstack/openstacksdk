@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.orchestration import orchestration_service
 from openstack import resource
 
 
@@ -19,7 +18,6 @@ class Resource(resource.Resource):
     resource_key = 'resource'
     resources_key = 'resources'
     base_path = '/stacks/%(stack_name)s/%(stack_id)s/resources'
-    service = orchestration_service.OrchestrationService()
 
     # capabilities
     allow_create = False

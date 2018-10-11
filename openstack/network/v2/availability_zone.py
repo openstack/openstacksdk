@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource as _resource
 
 
@@ -18,7 +17,6 @@ class AvailabilityZone(_resource.Resource):
     resource_key = 'availability_zone'
     resources_key = 'availability_zones'
     base_path = '/availability_zones'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = False

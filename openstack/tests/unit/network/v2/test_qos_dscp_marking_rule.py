@@ -30,7 +30,6 @@ class TestQoSDSCPMarkingRule(base.TestCase):
         self.assertEqual('dscp_marking_rules', sot.resources_key)
         self.assertEqual('/qos/policies/%(qos_policy_id)s/dscp_marking_rules',
                          sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

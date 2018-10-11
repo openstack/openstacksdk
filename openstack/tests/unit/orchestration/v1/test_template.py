@@ -35,7 +35,6 @@ class TestTemplate(base.TestCase):
 
     def test_basic(self):
         sot = template.Template()
-        self.assertEqual('orchestration', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

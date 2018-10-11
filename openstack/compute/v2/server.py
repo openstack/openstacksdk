@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
 from openstack.compute.v2 import metadata
 from openstack import resource
 from openstack import utils
@@ -20,7 +19,6 @@ class Server(resource.Resource, metadata.MetadataMixin):
     resource_key = 'server'
     resources_key = 'servers'
     base_path = '/servers'
-    service = compute_service.ComputeService()
 
     # capabilities
     allow_create = True
@@ -189,7 +187,7 @@ class Server(resource.Resource, metadata.MetadataMixin):
     def get_password(self, session):
         """Get the encrypted administrator password."""
         url = utils.urljoin(Server.base_path, self.id, 'os-server-password')
-        return session.get(url, endpoint_filter=self.service)
+        return session.get(url)
 
     def reboot(self, session, reboot_type):
         """Reboot server where reboot_type might be 'SOFT' or 'HARD'."""

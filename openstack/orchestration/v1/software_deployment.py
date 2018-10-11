@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.orchestration import orchestration_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class SoftwareDeployment(resource.Resource):
     resource_key = 'software_deployment'
     resources_key = 'software_deployments'
     base_path = '/software_deployments'
-    service = orchestration_service.OrchestrationService()
 
     # capabilities
     allow_create = True

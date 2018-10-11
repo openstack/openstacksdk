@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.baremetal import baremetal_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Chassis(resource.Resource):
 
     resources_key = 'chassis'
     base_path = '/chassis'
-    service = baremetal_service.BaremetalService()
 
     # capabilities
     allow_create = True

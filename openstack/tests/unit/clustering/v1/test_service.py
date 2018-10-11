@@ -41,7 +41,6 @@ class TestService(base.TestCase):
         self.assertEqual('service', sot.resource_key)
         self.assertEqual('services', sot.resources_key)
         self.assertEqual('/services', sot.base_path)
-        self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class ServerGroup(resource.Resource):
     resource_key = 'server_group'
     resources_key = 'server_groups'
     base_path = '/os-server-groups'
-    service = compute_service.ComputeService()
 
     _query_mapping = resource.QueryParameters("all_projects")
 

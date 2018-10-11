@@ -29,7 +29,6 @@ class TestServerIP(base.TestCase):
         sot = server_ip.ServerIP()
         self.assertEqual('addresses', sot.resources_key)
         self.assertEqual('/servers/%(server_id)s/ips', sot.base_path)
-        self.assertEqual('compute', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

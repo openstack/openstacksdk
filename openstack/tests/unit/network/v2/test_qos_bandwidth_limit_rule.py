@@ -33,7 +33,6 @@ class TestQoSBandwidthLimitRule(base.TestCase):
         self.assertEqual(
             '/qos/policies/%(qos_policy_id)s/bandwidth_limit_rules',
             sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

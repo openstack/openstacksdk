@@ -148,7 +148,7 @@ can be customized.
    :maxdepth: 1
 
    resource
-   service_filter
+   service_description
    utils
 
 Presentations

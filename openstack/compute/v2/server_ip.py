@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
 from openstack import resource
 from openstack import utils
 
@@ -18,7 +17,6 @@ from openstack import utils
 class ServerIP(resource.Resource):
     resources_key = 'addresses'
     base_path = '/servers/%(server_id)s/ips'
-    service = compute_service.ComputeService()
 
     # capabilities
     allow_list = True

@@ -10,15 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.compute import compute_service
 from openstack import resource
 
 
 class AvailabilityZone(resource.Resource):
     resources_key = 'availabilityZoneInfo'
     base_path = '/os-availability-zone'
-
-    service = compute_service.ComputeService()
 
     # capabilities
     allow_list = True

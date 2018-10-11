@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 from openstack import utils
 
@@ -19,7 +18,6 @@ class Flavor(resource.Resource):
     resource_key = 'flavor'
     resources_key = 'flavors'
     base_path = '/flavors'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

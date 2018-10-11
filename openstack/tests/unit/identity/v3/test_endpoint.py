@@ -33,7 +33,6 @@ class TestEndpoint(base.TestCase):
         self.assertEqual('endpoint', sot.resource_key)
         self.assertEqual('endpoints', sot.resources_key)
         self.assertEqual('/endpoints', sot.base_path)
-        self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

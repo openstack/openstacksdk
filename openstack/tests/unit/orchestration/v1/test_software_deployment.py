@@ -36,7 +36,6 @@ class TestSoftwareDeployment(base.TestCase):
         self.assertEqual('software_deployment', sot.resource_key)
         self.assertEqual('software_deployments', sot.resources_key)
         self.assertEqual('/software_deployments', sot.base_path)
-        self.assertEqual('orchestration', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

@@ -41,7 +41,6 @@ class TestService(base.TestCase):
         self.assertEqual('service', sot.resource_key)
         self.assertEqual('services', sot.resources_key)
         self.assertEqual('/os-services', sot.base_path)
-        self.assertEqual('compute', sot.service.service_type)
         self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_list)
         self.assertFalse(sot.allow_fetch)

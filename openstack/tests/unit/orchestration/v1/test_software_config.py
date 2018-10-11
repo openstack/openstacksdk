@@ -36,7 +36,6 @@ class TestSoftwareConfig(base.TestCase):
         self.assertEqual('software_config', sot.resource_key)
         self.assertEqual('software_configs', sot.resources_key)
         self.assertEqual('/software_configs', sot.base_path)
-        self.assertEqual('orchestration', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

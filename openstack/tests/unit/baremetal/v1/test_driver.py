@@ -50,7 +50,6 @@ class TestDriver(base.TestCase):
         self.assertIsNone(sot.resource_key)
         self.assertEqual('drivers', sot.resources_key)
         self.assertEqual('/drivers', sot.base_path)
-        self.assertEqual('baremetal', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

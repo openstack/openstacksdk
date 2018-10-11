@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openstack import service_filter
+from openstack.instance_ha.v1 import _proxy
+from openstack import service_description
 
 
-class InstanceHaService(service_filter.ServiceFilter):
+class InstanceHaService(service_description.ServiceDescription):
     """The HA service."""
 
-    valid_versions = [service_filter.ValidVersion('v1')]
-
-    def __init__(self, version=None):
-        """Create an ha service."""
-        super(InstanceHaService, self).__init__(service_type='ha',
-                                                version=version)
+    supported_versions = {
+        '1': _proxy.Proxy,
+    }

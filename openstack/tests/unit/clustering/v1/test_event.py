@@ -41,7 +41,6 @@ class TestEvent(base.TestCase):
         self.assertEqual('event', sot.resource_key)
         self.assertEqual('events', sot.resources_key)
         self.assertEqual('/events', sot.base_path)
-        self.assertEqual('clustering', sot.service.service_type)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 

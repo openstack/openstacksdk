@@ -10,18 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack.image.v1 import _proxy as _proxy_v1
+from openstack.image.v2 import _proxy as _proxy_v2
+from openstack import service_description
 
 
-class ImageService(service_filter.ServiceFilter):
+class ImageService(service_description.ServiceDescription):
     """The image service."""
 
-    valid_versions = [
-        service_filter.ValidVersion('v2'),
-        service_filter.ValidVersion('v1')
-    ]
-
-    def __init__(self, version=None):
-        """Create an image service."""
-        super(ImageService, self).__init__(service_type='image',
-                                           version=version)
+    supported_versions = {
+        '1': _proxy_v1.Proxy,
+        '2': _proxy_v2.Proxy,
+    }

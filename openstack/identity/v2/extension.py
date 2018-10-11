@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.identity import identity_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Extension(resource.Resource):
     resource_key = 'extension'
     resources_key = 'extensions'
     base_path = '/extensions'
-    service = identity_service.IdentityService()
 
     # capabilities
     allow_list = True

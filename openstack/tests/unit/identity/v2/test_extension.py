@@ -33,7 +33,6 @@ class TestExtension(base.TestCase):
         self.assertEqual('extension', sot.resource_key)
         self.assertEqual('extensions', sot.resources_key)
         self.assertEqual('/extensions', sot.base_path)
-        self.assertEqual('identity', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

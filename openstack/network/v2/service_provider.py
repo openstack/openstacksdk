@@ -10,14 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
 class ServiceProvider(resource.Resource):
     resources_key = 'service_providers'
     base_path = '/service-providers'
-    service = network_service.NetworkService()
 
     # Capabilities
     allow_create = False

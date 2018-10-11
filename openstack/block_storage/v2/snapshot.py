@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.block_storage import block_storage_service
 from openstack import format
 from openstack import resource
 
@@ -19,7 +18,6 @@ class Snapshot(resource.Resource):
     resource_key = "snapshot"
     resources_key = "snapshots"
     base_path = "/snapshots"
-    service = block_storage_service.BlockStorageService()
 
     _query_mapping = resource.QueryParameters(
         'all_tenants', 'name', 'status', 'volume_id')

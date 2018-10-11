@@ -42,7 +42,6 @@ class TestQoSRuleType(base.TestCase):
         self.assertEqual('rule_type', sot.resource_key)
         self.assertEqual('rule_types', sot.resources_key)
         self.assertEqual('/qos/rule-types', sot.base_path)
-        self.assertEqual('network', sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertFalse(sot.allow_commit)

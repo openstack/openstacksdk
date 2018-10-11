@@ -10,15 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_filter
+from openstack import service_description
+from openstack.baremetal.v1 import _proxy
 
 
-class BaremetalService(service_filter.ServiceFilter):
+class BaremetalService(service_description.ServiceDescription):
     """The bare metal service."""
 
-    valid_versions = [service_filter.ValidVersion('v1')]
-
-    def __init__(self, version=None):
-        """Create a bare metal service."""
-        super(BaremetalService, self).__init__(service_type='baremetal',
-                                               version=version)
+    supported_versions = {
+        '1': _proxy.Proxy,
+    }

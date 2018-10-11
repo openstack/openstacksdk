@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.database import database_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Database(resource.Resource):
     resource_key = 'database'
     resources_key = 'databases'
     base_path = '/instances/%(instance_id)s/databases'
-    service = database_service.DatabaseService()
 
     # capabilities
     allow_create = True

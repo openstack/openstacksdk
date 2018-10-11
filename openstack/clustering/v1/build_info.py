@@ -10,14 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.clustering import clustering_service
 from openstack import resource
 
 
 class BuildInfo(resource.Resource):
     base_path = '/build-info'
     resource_key = 'build_info'
-    service = clustering_service.ClusteringService()
 
     # Capabilities
     allow_fetch = True

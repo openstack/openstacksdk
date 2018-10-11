@@ -30,7 +30,6 @@ class TestRegion(base.TestCase):
         self.assertEqual('region', sot.resource_key)
         self.assertEqual('regions', sot.resources_key)
         self.assertEqual('/regions', sot.base_path)
-        self.assertEqual('identity', sot.service.service_type)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)

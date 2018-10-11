@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.clustering import clustering_service
 from openstack import resource
 from openstack import utils
 
@@ -19,7 +18,6 @@ class ProfileType(resource.Resource):
     resource_key = 'profile_type'
     resources_key = 'profile_types'
     base_path = '/profile-types'
-    service = clustering_service.ClusteringService()
 
     # Capabilities
     allow_list = True

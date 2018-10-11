@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.clustering import clustering_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class PolicyType(resource.Resource):
     resource_key = 'policy_type'
     resources_key = 'policy_types'
     base_path = '/policy-types'
-    service = clustering_service.ClusteringService()
 
     # Capabilities
     allow_list = True

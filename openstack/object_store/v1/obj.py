@@ -14,7 +14,6 @@
 import copy
 
 from openstack import exceptions
-from openstack.object_store import object_store_service
 from openstack.object_store.v1 import _base
 from openstack import resource
 
@@ -32,7 +31,6 @@ class Object(_base.BaseResource):
 
     base_path = "/%(container)s"
     pagination_key = 'X-Container-Object-Count'
-    service = object_store_service.ObjectStoreService()
 
     allow_create = True
     allow_fetch = True

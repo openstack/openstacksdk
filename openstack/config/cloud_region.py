@@ -252,7 +252,13 @@ class CloudRegion(object):
             'interface', service_type, fallback_to_unprefixed=True)
 
     def get_api_version(self, service_type):
-        return self._get_config('api_version', service_type)
+        version = self._get_config('api_version', service_type)
+        if version:
+            try:
+                float(version)
+            except ValueError:
+                return None
+        return version
 
     def get_default_microversion(self, service_type):
         return self._get_config('default_microversion', service_type)
@@ -412,6 +418,20 @@ class CloudRegion(object):
 
         return version_request
 
+    def get_all_version_data(self, service_type):
+        # Seriously. Don't think about the existential crisis
+        # that is the next line. You'll wind up in cthulhu's lair.
+        service_type = self.get_service_type(service_type)
+        versions = self.get_session().get_all_version_data(
+            service_type=service_type,
+            interface=self.get_interface(service_type),
+            region_name=self.region_name,
+        )
+        region_versions = versions.get(self.region_name, {})
+        interface_versions = region_versions.get(
+            self.get_interface(service_type), {})
+        return interface_versions.get(service_type, [])
+
     def get_session_client(
             self, service_type, version=None, constructor=adapter.Adapter,
             **kwargs):
@@ -436,8 +456,10 @@ class CloudRegion(object):
                           self.get_status_code_retries(service_type))
         endpoint_override = self.get_endpoint(service_type)
         version = version_request.version
-        min_api_version = version_request.min_api_version
-        max_api_version = version_request.max_api_version
+        min_api_version = (
+            kwargs.pop('min_version', None) or version_request.min_api_version)
+        max_api_version = (
+            kwargs.pop('max_version', None) or version_request.max_api_version)
         # Older neutron has inaccessible discovery document. Nobody noticed
         # because neutronclient hard-codes an append of v2.0. YAY!
         if service_type == 'network':

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.identity import identity_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class Credential(resource.Resource):
     resource_key = 'credential'
     resources_key = 'credentials'
     base_path = '/credentials'
-    service = identity_service.IdentityService()
 
     # capabilities
     allow_create = True

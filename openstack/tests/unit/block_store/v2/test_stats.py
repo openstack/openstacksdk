@@ -39,7 +39,6 @@ class TestBackendPools(base.TestCase):
         self.assertEqual("pools", sot.resources_key)
         self.assertEqual("/scheduler-stats/get_pools?detail=True",
                          sot.base_path)
-        self.assertEqual("volume", sot.service.service_type)
         self.assertFalse(sot.allow_create)
         self.assertFalse(sot.allow_fetch)
         self.assertFalse(sot.allow_delete)

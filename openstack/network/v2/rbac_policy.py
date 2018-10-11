@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network import network_service
 from openstack import resource
 
 
@@ -18,7 +17,6 @@ class RBACPolicy(resource.Resource):
     resource_key = 'rbac_policy'
     resources_key = 'rbac_policies'
     base_path = '/rbac-policies'
-    service = network_service.NetworkService()
 
     # capabilities
     allow_create = True

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.baremetal import baremetal_service
 from openstack import resource
 
 
@@ -18,9 +17,6 @@ class Version(resource.Resource):
     resource_key = 'version'
     resources_key = 'versions'
     base_path = '/'
-    service = baremetal_service.BaremetalService(
-        version=baremetal_service.BaremetalService.UNVERSIONED
-    )
 
     # Capabilities
     allow_list = True

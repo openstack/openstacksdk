@@ -34,7 +34,7 @@ already. For reference, those are:
     servers = conn.list_servers()  # High-level resource interface from shade
     servers = conn.compute.servers()  # SDK Service/Object Interface
     response = conn.compute.get('/servers')  # REST passthrough
-
+* Removed ServiceFilter and the various Service objects in favor of discovery.
 
 Next steps
 ==========
@@ -44,8 +44,6 @@ Next steps
   mean anything to people.
 * Migrate unit tests to requests-mock instead of mocking python calls to
   session.
-* Investigate removing ServiceFilter and the various Service objects if an
-  acceptable plan can be found for using discovery.
 * Replace _prepare_request with requests.Session.prepare_request.
 
 shade integration
