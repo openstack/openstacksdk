@@ -18,6 +18,7 @@ from openstack.identity.v3 import group as _group
 from openstack.identity.v3 import policy as _policy
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import region as _region
+from openstack.identity.v3 import registered_limit as _registered_limit
 from openstack.identity.v3 import role as _role
 from openstack.identity.v3 import role_assignment as _role_assignment
 from openstack.identity.v3 import role_domain_group_assignment \
@@ -972,3 +973,77 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_role_assignment.RoleAssignment,
                           paginated=False, **query)
+
+    def registered_limits(self, **query):
+        """Retrieve a generator of registered_limits
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+            the registered_limits being returned.
+
+        :returns: A generator of registered_limits instances.
+        :rtype: :class:
+            `~openstack.identity.v3.registered_limit.RegisteredLimit`
+        """
+        return self._list(_registered_limit.RegisteredLimit, paginated=False,
+                          **query)
+
+    def get_registered_limit(self, registered_limit):
+        """Get a single registered_limit
+
+        :param registered_limit: The value can be the ID of a registered_limit
+            or a :class:
+            `~openstack.identity.v3.registered_limit.RegisteredLimit` instance.
+
+        :returns: One :class:
+                  `~openstack.identity.v3.registered_limit.RegisteredLimit`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_registered_limit.RegisteredLimit, registered_limit)
+
+    def create_registered_limit(self, **attrs):
+        """Create a new registered_limit from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`,
+            comprised of the properties on the RegisteredLimit class.
+
+        :returns: The results of registered_limit creation.
+        :rtype: :class:
+            `~openstack.identity.v3.registered_limit.RegisteredLimit`
+        """
+        return self._create(_registered_limit.RegisteredLimit, **attrs)
+
+    def update_registered_limit(self, registered_limit, **attrs):
+        """Update a registered_limit
+
+        :param registered_limit: Either the ID of a registered_limit. or a
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+            instance.
+        :param dict kwargs: The attributes to update on the registered_limit
+            represented by ``value``.
+
+        :returns: The updated registered_limit.
+        :rtype: :class:
+            `~openstack.identity.v3.registered_limit.RegisteredLimit`
+        """
+        return self._update(_registered_limit.RegisteredLimit,
+                            registered_limit, **attrs)
+
+    def delete_registered_limit(self, registered_limit, ignore_missing=True):
+        """Delete a registered_limit
+
+        :param registered_limit: The value can be either the ID of a
+            registered_limit or a
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the registered_limit does not exist. When set to ``True``, no
+            exception will be thrown when attempting to delete a nonexistent
+            registered_limit.
+
+        :returns: ``None``
+        """
+        self._delete(_registered_limit.RegisteredLimit, registered_limit,
+                     ignore_missing=ignore_missing)
