@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    The ``OpenStackCloud`` bare metal NIC calls now support all microversions
+    supported by the SDK. Previously version 1.6 was hardcoded.

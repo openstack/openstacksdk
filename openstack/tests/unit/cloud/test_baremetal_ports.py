@@ -43,20 +43,20 @@ class TestBaremetalPort(base.IronicTestCase):
     def test_list_nics(self):
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(resource='ports'),
+                 uri=self.get_mock_url(resource='ports', append=['detail']),
                  json={'ports': [self.fake_baremetal_port,
                                  self.fake_baremetal_port2]}),
         ])
 
         return_value = self.cloud.list_nics()
         self.assertEqual(2, len(return_value))
-        self.assertEqual(self.fake_baremetal_port, return_value[0])
+        self.assertSubdict(self.fake_baremetal_port, return_value[0])
         self.assert_calls()
 
     def test_list_nics_failure(self):
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(resource='ports'),
+                 uri=self.get_mock_url(resource='ports', append=['detail']),
                  status_code=400)
         ])
         self.assertRaises(exc.OpenStackCloudException,
@@ -64,11 +64,10 @@ class TestBaremetalPort(base.IronicTestCase):
         self.assert_calls()
 
     def test_list_nics_for_machine(self):
+        query = 'detail?node_uuid=%s' % self.fake_baremetal_node['uuid']
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='nodes',
-                     append=[self.fake_baremetal_node['uuid'], 'ports']),
+                 uri=self.get_mock_url(resource='ports', append=[query]),
                  json={'ports': [self.fake_baremetal_port,
                                  self.fake_baremetal_port2]}),
         ])
@@ -76,15 +75,14 @@ class TestBaremetalPort(base.IronicTestCase):
         return_value = self.cloud.list_nics_for_machine(
             self.fake_baremetal_node['uuid'])
         self.assertEqual(2, len(return_value))
-        self.assertEqual(self.fake_baremetal_port, return_value[0])
+        self.assertSubdict(self.fake_baremetal_port, return_value[0])
         self.assert_calls()
 
     def test_list_nics_for_machine_failure(self):
+        query = 'detail?node_uuid=%s' % self.fake_baremetal_node['uuid']
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='nodes',
-                     append=[self.fake_baremetal_node['uuid'], 'ports']),
+                 uri=self.get_mock_url(resource='ports', append=[query]),
                  status_code=400)
         ])
 
@@ -104,7 +102,7 @@ class TestBaremetalPort(base.IronicTestCase):
 
         return_value = self.cloud.get_nic_by_mac(mac)
 
-        self.assertEqual(self.fake_baremetal_port, return_value)
+        self.assertSubdict(self.fake_baremetal_port, return_value)
         self.assert_calls()
 
     def test_get_nic_by_mac_failure(self):
