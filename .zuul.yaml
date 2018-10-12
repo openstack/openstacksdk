@@ -28,6 +28,9 @@
     description: |
       Minimum job for devstack-based functional tests
     post-run: playbooks/devstack/post.yaml
+    roles:
+      # NOTE: We pull in roles from the tempest repo for stackviz processing.
+      - zuul: git.openstack.org/openstack/tempest
     required-projects:
       # These jobs will DTRT when openstacksdk triggers them, but we want to
       # make sure stable branches of openstacksdk never get cloned by other
@@ -55,6 +58,8 @@
         OPENSTACKSDK_HAS_SWIFT: 1
       tox_install_siblings: false
       tox_envlist: functional
+      zuul_copy_output:
+          '{{ ansible_user_dir }}/stackviz': logs
       zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
 
 - job:
