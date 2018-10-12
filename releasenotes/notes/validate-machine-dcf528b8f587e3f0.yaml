@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    The ``OpenStackCloud.validate_node`` call was deprecated in favor of
+    ``OpenStackCloud.validate_machine``.
