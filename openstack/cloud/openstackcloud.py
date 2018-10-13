@@ -8920,7 +8920,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Zone %s not found." % zone)
         return self._dns_client.get(
             "/zones/{zone_id}/recordsets".format(zone_id=zone_obj['id']),
-            error_message="Error fetching recordsets list")
+            error_message="Error fetching recordsets list")['recordsets']
 
     def get_recordset(self, zone, name_or_id):
         """Get a recordset by name or ID.
