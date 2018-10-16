@@ -2,7 +2,7 @@
   "name": "citycloud",
   "profile": {
     "auth": {
-      "auth_url": "https://identity1.citycloud.com:5000/v3/"
+      "auth_url": "https://%(region_name)s.citycloud.com:5000/v3/"
     },
     "regions": [
       "Buf1",
@@ -10,7 +10,9 @@
       "Fra1",
       "Lon1",
       "Sto2",
-      "Kna1"
+      "Kna1",
+      "dx1",
+      "tky1"
     ],
     "requires_floating_ip": true,
     "block_storage_api_version": "1",
