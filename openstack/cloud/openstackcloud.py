@@ -9460,11 +9460,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
     update_coe_cluster_template = update_cluster_template
 
     def list_nics(self):
-        msg = "Error fetching machine port list"
-        data = self._baremetal_client.get("/ports",
-                                          microversion="1.6",
-                                          error_message=msg)
-        return data['ports']
+        """Return a list of all bare metal ports."""
+        return [nic._to_munch() for nic in self.baremetal.ports(details=True)]
 
     def list_nics_for_machine(self, uuid):
         """Returns a list of ports present on the machine node.
@@ -9473,23 +9470,18 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                      order to identify the machine.
         :returns: A list of ports.
         """
-        msg = "Error fetching port list for node {node_id}".format(
-            node_id=uuid)
-        url = "/nodes/{node_id}/ports".format(node_id=uuid)
-        data = self._baremetal_client.get(url,
-                                          microversion="1.6",
-                                          error_message=msg)
-        return data['ports']
+        # TODO(dtantsur): support node names here.
+        return [nic._to_munch()
+                for nic in self.baremetal.ports(details=True, node_id=uuid)]
 
     def get_nic_by_mac(self, mac):
+        """Get bare metal NIC by its hardware address (usually MAC)."""
+        results = [nic._to_munch()
+                   for nic in self.baremetal.ports(address=mac, details=True)]
         try:
-            url = '/ports/detail?address=%s' % mac
-            data = self._baremetal_client.get(url)
-            if len(data['ports']) == 1:
-                return data['ports'][0]
-        except Exception:
-            pass
-        return None
+            return results[0]
+        except IndexError:
+            return None
 
     def list_machines(self):
         """List Machines.
@@ -9524,14 +9516,11 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: ``munch.Munch`` representing the node found or None
                   if the node is not found.
         """
-        try:
-            port_url = '/ports/detail?address={mac}'.format(mac=mac)
-            port = self._baremetal_client.get(port_url, microversion=1.6)
-            machine_url = '/nodes/{machine}'.format(
-                machine=port['ports'][0]['node_uuid'])
-            return self._baremetal_client.get(machine_url, microversion=1.6)
-        except Exception:
+        nic = self.get_nic_by_mac(mac)
+        if nic is None:
             return None
+        else:
+            return self.get_machine(nic['node_uuid'])
 
     def inspect_machine(self, name_or_id, wait=False, timeout=3600):
         """Inspect a Barmetal machine
