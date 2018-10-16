@@ -85,8 +85,20 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_get_node(self):
         self.verify_get(self.proxy.get_node, node.Node)
 
-    def test_update_node(self):
-        self.verify_update(self.proxy.update_node, node.Node)
+    @mock.patch.object(node.Node, 'commit', autospec=True)
+    def test_update_node(self, mock_commit):
+        self.proxy.update_node('uuid', instance_id='new value')
+        mock_commit.assert_called_once_with(mock.ANY, self.proxy,
+                                            retry_on_conflict=True)
+        self.assertEqual('new value', mock_commit.call_args[0][0].instance_id)
+
+    @mock.patch.object(node.Node, 'commit', autospec=True)
+    def test_update_node_no_retries(self, mock_commit):
+        self.proxy.update_node('uuid', instance_id='new value',
+                               retry_on_conflict=False)
+        mock_commit.assert_called_once_with(mock.ANY, self.proxy,
+                                            retry_on_conflict=False)
+        self.assertEqual('new value', mock_commit.call_args[0][0].instance_id)
 
     def test_delete_node(self):
         self.verify_delete(self.proxy.delete_node, node.Node, False)

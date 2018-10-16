@@ -1105,7 +1105,8 @@ class Resource(dict):
         self._translate_response(response, has_body=False)
         return self
 
-    def commit(self, session, prepend_key=True, has_body=True):
+    def commit(self, session, prepend_key=True, has_body=True,
+               retry_on_conflict=None):
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
@@ -1113,6 +1114,9 @@ class Resource(dict):
         :param prepend_key: A boolean indicating whether the resource_key
                             should be prepended in a resource update request.
                             Default to True.
+        :param bool retry_on_conflict: Whether to enable retries on HTTP
+                                       CONFLICT (409). Value of ``None`` leaves
+                                       the `Adapter` defaults.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1136,20 +1140,30 @@ class Resource(dict):
 
         request = self._prepare_request(prepend_key=prepend_key, **kwargs)
         session = self._get_session(session)
+
+        kwargs = {}
+        retriable_status_codes = set(session.retriable_status_codes or ())
+        if retry_on_conflict:
+            kwargs['retriable_status_codes'] = retriable_status_codes | {409}
+        elif retry_on_conflict is not None and retriable_status_codes:
+            # The baremetal proxy defaults to retrying on conflict, allow
+            # overriding it via an explicit retry_on_conflict=False.
+            kwargs['retriable_status_codes'] = retriable_status_codes - {409}
+
         microversion = self._get_microversion_for(session, 'commit')
 
         if self.commit_method == 'PATCH':
             response = session.patch(
                 request.url, json=request.body, headers=request.headers,
-                microversion=microversion)
+                microversion=microversion, **kwargs)
         elif self.commit_method == 'POST':
             response = session.post(
                 request.url, json=request.body, headers=request.headers,
-                microversion=microversion)
+                microversion=microversion, **kwargs)
         elif self.commit_method == 'PUT':
             response = session.put(
                 request.url, json=request.body, headers=request.headers,
-                microversion=microversion)
+                microversion=microversion, **kwargs)
         else:
             raise exceptions.ResourceFailure(
                 msg="Invalid commit method: %s" % self.commit_method)

@@ -1016,6 +1016,7 @@ class TestResourceActions(base.TestCase):
         self.session.delete = mock.Mock(return_value=self.response)
         self.session.head = mock.Mock(return_value=self.response)
         self.session.default_microversion = None
+        self.session.retriable_status_codes = None
 
         self.endpoint_data = mock.Mock(max_microversion='1.99',
                                        min_microversion=None)
@@ -1157,7 +1158,8 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(result, sot)
 
     def _test_commit(self, commit_method='PUT', prepend_key=True,
-                     has_body=True, microversion=None):
+                     has_body=True, microversion=None,
+                     commit_args=None, expected_args=None):
         self.sot.commit_method = commit_method
 
         # Need to make sot look dirty so we can attempt an update
@@ -1165,7 +1167,7 @@ class TestResourceActions(base.TestCase):
         self.sot._body.dirty = mock.Mock(return_value={"x": "y"})
 
         self.sot.commit(self.session, prepend_key=prepend_key,
-                        has_body=has_body)
+                        has_body=has_body, **(commit_args or {}))
 
         self.sot._prepare_request.assert_called_once_with(
             prepend_key=prepend_key)
@@ -1174,17 +1176,17 @@ class TestResourceActions(base.TestCase):
             self.session.patch.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers,
-                microversion=microversion)
+                microversion=microversion, **(expected_args or {}))
         elif commit_method == 'POST':
             self.session.post.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers,
-                microversion=microversion)
+                microversion=microversion, **(expected_args or {}))
         elif commit_method == 'PUT':
             self.session.put.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers,
-                microversion=microversion)
+                microversion=microversion, **(expected_args or {}))
 
         self.assertEqual(self.sot.microversion, microversion)
         self.sot._translate_response.assert_called_once_with(
@@ -1196,6 +1198,32 @@ class TestResourceActions(base.TestCase):
     def test_commit_patch(self):
         self._test_commit(
             commit_method='PATCH', prepend_key=False, has_body=False)
+
+    def test_commit_patch_retry_on_conflict(self):
+        self._test_commit(
+            commit_method='PATCH',
+            commit_args={'retry_on_conflict': True},
+            expected_args={'retriable_status_codes': {409}})
+
+    def test_commit_put_retry_on_conflict(self):
+        self._test_commit(
+            commit_method='PUT',
+            commit_args={'retry_on_conflict': True},
+            expected_args={'retriable_status_codes': {409}})
+
+    def test_commit_patch_no_retry_on_conflict(self):
+        self.session.retriable_status_codes = {409, 503}
+        self._test_commit(
+            commit_method='PATCH',
+            commit_args={'retry_on_conflict': False},
+            expected_args={'retriable_status_codes': {503}})
+
+    def test_commit_put_no_retry_on_conflict(self):
+        self.session.retriable_status_codes = {409, 503}
+        self._test_commit(
+            commit_method='PATCH',
+            commit_args={'retry_on_conflict': False},
+            expected_args={'retriable_status_codes': {503}})
 
     def test_commit_not_dirty(self):
         self.sot._body = mock.Mock()

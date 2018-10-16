@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import _log
+from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import chassis as _chassis
 from openstack.baremetal.v1 import driver as _driver
 from openstack.baremetal.v1 import node as _node
@@ -24,6 +25,8 @@ _logger = _log.setup_logging('openstack')
 
 
 class Proxy(proxy.Proxy):
+
+    retriable_status_codes = _common.RETRIABLE_STATUS_CODES
 
     def chassis(self, details=False, **query):
         """Retrieve a generator of chassis.
@@ -238,18 +241,23 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_node.Node, node)
 
-    def update_node(self, node, **attrs):
+    def update_node(self, node, retry_on_conflict=True, **attrs):
         """Update a node.
 
         :param chassis: Either the name or the ID of a node or an instance
             of :class:`~openstack.baremetal.v1.node.Node`.
+        :param bool retry_on_conflict: Whether to retry HTTP CONFLICT error.
+            Most of the time it can be retried, since it is caused by the node
+            being locked. However, when setting ``instance_id``, this is
+            a normal code and should not be retried.
         :param dict attrs: The attributes to update on the node represented
             by the ``node`` parameter.
 
         :returns: The updated node.
         :rtype: :class:`~openstack.baremetal.v1.node.Node`
         """
-        return self._update(_node.Node, node, **attrs)
+        res = self._get_resource(_node.Node, node, **attrs)
+        return res.commit(self, retry_on_conflict=retry_on_conflict)
 
     def set_node_provision_state(self, node, target, config_drive=None,
                                  clean_steps=None, rescue_password=None,

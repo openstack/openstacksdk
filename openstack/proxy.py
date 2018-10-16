@@ -42,6 +42,20 @@ def _check_resource(strict=False):
 class Proxy(_adapter.OpenStackSDKAdapter):
     """Represents a service."""
 
+    retriable_status_codes = None
+    """HTTP status codes that should be retried by default.
+
+    The number of retries is defined by the configuration in parameters called
+    ``<service-type>_status_code_retries``.
+    """
+
+    def __init__(self, *args, **kwargs):
+        # NOTE(dtantsur): keystoneauth defaults retriable_status_codes to None,
+        # override it with a class-level value.
+        kwargs.setdefault('retriable_status_codes',
+                          self.retriable_status_codes)
+        super(Proxy, self).__init__(*args, **kwargs)
+
     def _get_resource(self, resource_type, value, **attrs):
         """Get a resource object to work on
 

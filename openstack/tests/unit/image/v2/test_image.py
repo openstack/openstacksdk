@@ -104,6 +104,7 @@ class TestImage(base.TestCase):
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.post = mock.Mock(return_value=self.resp)
         self.sess.default_microversion = None
+        self.sess.retriable_status_codes = None
 
     def test_basic(self):
         sot = image.Image()
