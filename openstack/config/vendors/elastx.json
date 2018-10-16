@@ -5,6 +5,6 @@
       "auth_url": "https://ops.elastx.net:5000"
     },
     "identity_api_version": "3",
-    "region_name": "regionOne"
+    "region_name": "se-sto"
   }
 }
