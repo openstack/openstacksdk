@@ -1,8 +1,23 @@
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
 import importlib
 import os
 
 from bs4 import BeautifulSoup
 from sphinx import errors
+from sphinx.util import logging
+
+LOG = logging.getLogger(__name__)
 
 # NOTE: We do this because I can't find any way to pass "-v"
 # into sphinx-build through pbr...
@@ -73,7 +88,7 @@ def page_context(app, pagename, templatename, context, doctree):
                 written += 1
 
         if DEBUG:
-            app.info("ENFORCER: Wrote %d proxy methods for %s" % (
+            LOG.info("ENFORCER: Wrote %d proxy methods for %s" % (
                      written, pagename))
 
 
@@ -89,12 +104,12 @@ def build_finished(app, exception):
     """
     all_methods = get_proxy_methods()
 
-    app.info("ENFORCER: %d proxy methods exist" % len(all_methods))
-    app.info("ENFORCER: %d proxy methods written" % len(WRITTEN_METHODS))
+    LOG.info("ENFORCER: %d proxy methods exist" % len(all_methods))
+    LOG.info("ENFORCER: %d proxy methods written" % len(WRITTEN_METHODS))
     missing = all_methods - WRITTEN_METHODS
 
     missing_count = len(missing)
-    app.info("ENFORCER: Found %d missing proxy methods "
+    LOG.info("ENFORCER: Found %d missing proxy methods "
              "in the output" % missing_count)
 
     # TODO(shade) This is spewing a bunch of content for missing thing that
@@ -104,7 +119,7 @@ def build_finished(app, exception):
     # We also need to deal with Proxy subclassing keystoneauth.adapter.Adapter
     # now - some of the warnings come from Adapter elements.
     for name in sorted(missing):
-        app.info("ENFORCER: %s was not included in the output" % name)
+        LOG.info("ENFORCER: %s was not included in the output" % name)
 
     if app.config.enforcer_warnings_as_errors and missing_count > 0:
         raise EnforcementError(
