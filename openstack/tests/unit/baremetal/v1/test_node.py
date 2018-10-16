@@ -492,3 +492,42 @@ class TestNodeValidate(base.TestCase):
         # Reason can be empty
         self.assertFalse(result['boot'].result)
         self.assertIsNone(result['boot'].reason)
+
+
+@mock.patch('time.sleep', lambda _t: None)
+@mock.patch.object(node.Node, 'fetch', autospec=True)
+class TestNodeWaitForReservation(base.TestCase):
+
+    def setUp(self):
+        super(TestNodeWaitForReservation, self).setUp()
+        self.session = mock.Mock(spec=adapter.Adapter)
+        self.session.default_microversion = '1.6'
+        self.node = node.Node(**FAKE)
+
+    def test_no_reservation(self, mock_fetch):
+        self.node.reservation = None
+        node = self.node.wait_for_reservation(None)
+        self.assertIs(node, self.node)
+        self.assertFalse(mock_fetch.called)
+
+    def test_reservation(self, mock_fetch):
+        self.node.reservation = 'example.com'
+
+        def _side_effect(node, session):
+            if self.node.reservation == 'example.com':
+                self.node.reservation = 'example2.com'
+            else:
+                self.node.reservation = None
+
+        mock_fetch.side_effect = _side_effect
+        node = self.node.wait_for_reservation(self.session)
+        self.assertIs(node, self.node)
+        self.assertEqual(2, mock_fetch.call_count)
+
+    def test_timeout(self, mock_fetch):
+        self.node.reservation = 'example.com'
+
+        self.assertRaises(exceptions.ResourceTimeout,
+                          self.node.wait_for_reservation,
+                          self.session, timeout=0.001)
+        mock_fetch.assert_called_with(self.node, self.session)
