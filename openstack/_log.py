@@ -103,14 +103,20 @@ def enable_logging(
         file_handler.setFormatter(formatter)
         handlers.append(file_handler)
 
-    # Always set the appropriate level so that if loggers higher in the tree
+    setup_logging('openstack', handlers=handlers, level=level)
+    setup_logging('keystoneauth', handlers=handlers, level=level)
+
+    # Turn off logging on these so that if loggers higher in the tree
     # are more verbose we only get what we want out of the SDK. This is
     # particularly useful when combined with tools like ansible which set
     # debug logging level at the logging root.
-    setup_logging('openstack', handlers=handlers, level=level)
-    setup_logging('keystoneauth', handlers=handlers, level=level)
-    setup_logging('urllib3', handlers=handlers, level=level)
-    setup_logging('stevedore', handlers=handlers, level=level)
+    # If more complex logging is desired including stevedore debug logging,
+    # enable_logging should not be used and instead python logging should
+    # be configured directly.
+    setup_logging(
+        'urllib3', handlers=[logging.NullHandler()], level=logging.INFO)
+    setup_logging(
+        'stevedore', handlers=[logging.NullHandler()], level=logging.INFO)
     # Suppress warning about keystoneauth loggers
     setup_logging('keystoneauth.discovery')
     setup_logging('keystoneauth.identity.base')
