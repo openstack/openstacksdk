@@ -32,9 +32,6 @@ class Trust(resource.Resource):
     #: A boolean indicating whether the trust can be issued by the trustee as
     #: a regulart trust. Default is ``False``.
     allow_redelegation = resource.Body('allow_redelegation', type=bool)
-    #: If ``impersonation`` is set to ``False``, then the token's ``user``
-    #: attribute will represent that of the trustee. *Type: bool*
-    is_impersonation = resource.Body('impersonation', type=bool)
     #: Specifies the expiration time of the trust. A trust may be revoked
     #: ahead of expiration. If the value represents a time in the past,
     #: the trust is deactivated.
