@@ -447,5 +447,3 @@ class ServerDetail(Server):
     allow_commit = False
     allow_delete = False
     allow_list = True
-
-    detail_for = Server
