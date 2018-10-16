@@ -33,6 +33,7 @@ import warnings
 
 import dogpile.cache
 import munch
+import requests.models
 import requestsexceptions
 from six.moves import urllib
 
@@ -41,6 +42,7 @@ import keystoneauth1.session
 
 from openstack import _adapter
 from openstack import _log
+from openstack import exceptions
 from openstack.cloud import exc
 from openstack.cloud._heat import event_utils
 from openstack.cloud._heat import template_utils
@@ -587,23 +589,6 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._raw_clients['image']
 
     @property
-    def _network_client(self):
-        if 'network' not in self._raw_clients:
-            client = self._get_raw_client('network')
-            # TODO(mordred) Replace this with self.network
-            # Don't bother with version discovery - there is only one version
-            # of neutron. This is what neutronclient does, fwiw.
-            endpoint = client.get_endpoint()
-            if not endpoint.rstrip().rsplit('/')[1] == 'v2.0':
-                if not endpoint.endswith('/'):
-                    endpoint += '/'
-                endpoint = urllib.parse.urljoin(
-                    endpoint, 'v2.0')
-            client.endpoint_override = endpoint
-            self._raw_clients['network'] = client
-        return self._raw_clients['network']
-
-    @property
     def _object_store_client(self):
         if 'object-store' not in self._raw_clients:
             raw_client = self._get_raw_client('object-store')
@@ -825,6 +810,8 @@ class OpenStackCloud(_normalize.Normalizer):
         overriding the meta module making the call to meta.get_and_munchify
         to fail.
         """
+        if isinstance(data, requests.models.Response):
+            data = _adapter._json_response(data)
         return meta.get_and_munchify(key, data)
 
     @_utils.cache_on_arguments()
@@ -1456,8 +1443,9 @@ class OpenStackCloud(_normalize.Normalizer):
     @_utils.cache_on_arguments()
     def _neutron_extensions(self):
         extensions = set()
-        data = self._network_client.get(
-            '/extensions.json',
+        resp = self.network.get('/extensions.json')
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching extension list for neutron")
         for extension in self._get_and_munchify('extensions', data):
             extensions.add(extension['alias'])
@@ -1670,7 +1658,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self._network_client.get("/networks.json", params=filters)
+        data = self.network.get("/networks.json", params=filters)
         return self._get_and_munchify('networks', data)
 
     def list_routers(self, filters=None):
@@ -1683,8 +1671,9 @@ class OpenStackCloud(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self._network_client.get(
-            "/routers.json", params=filters,
+        resp = self.network.get("/routers.json", params=filters)
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching router list")
         return self._get_and_munchify('routers', data)
 
@@ -1698,7 +1687,7 @@ class OpenStackCloud(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self._network_client.get("/subnets.json", params=filters)
+        data = self.network.get("/subnets.json", params=filters)
         return self._get_and_munchify('subnets', data)
 
     def list_ports(self, filters=None):
@@ -1734,8 +1723,9 @@ class OpenStackCloud(_normalize.Normalizer):
         return self._ports
 
     def _list_ports(self, filters):
-        data = self._network_client.get(
-            "/ports.json", params=filters,
+        resp = self.network.get("/ports.json", params=filters)
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching port list")
         return self._get_and_munchify('ports', data)
 
@@ -1753,8 +1743,9 @@ class OpenStackCloud(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self._network_client.get(
-            "/qos/rule-types.json", params=filters,
+        resp = self.network.get("/qos/rule-types.json", params=filters)
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS rule types list")
         return self._get_and_munchify('rule_types', data)
 
@@ -1776,8 +1767,10 @@ class OpenStackCloud(_normalize.Normalizer):
                 'qos-rule-type-details extension is not available '
                 'on target cloud')
 
-        data = self._network_client.get(
-            "/qos/rule-types/{rule_type}.json".format(rule_type=rule_type),
+        resp = self.network.get(
+            "/qos/rule-types/{rule_type}.json".format(rule_type=rule_type))
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS details of {rule_type} "
                           "rule type".format(rule_type=rule_type))
         return self._get_and_munchify('rule_type', data)
@@ -1795,8 +1788,9 @@ class OpenStackCloud(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self._network_client.get(
-            "/qos/policies.json", params=filters,
+        resp = self.network.get("/qos/policies.json", params=filters)
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS policies list")
         return self._get_and_munchify('policies', data)
 
@@ -2075,8 +2069,9 @@ class OpenStackCloud(_normalize.Normalizer):
         # Handle neutron security groups
         if self._use_neutron_secgroups():
             # Neutron returns dicts, so no need to convert objects here.
-            data = self._network_client.get(
-                '/security-groups.json', params=filters,
+            resp = self.network.get('/security-groups.json', params=filters)
+            data = _adapter._json_response(
+                resp,
                 error_message="Error fetching security group list")
             return self._normalize_secgroups(
                 self._get_and_munchify('security_groups', data))
@@ -2342,7 +2337,7 @@ class OpenStackCloud(_normalize.Normalizer):
     def _neutron_list_floating_ips(self, filters=None):
         if not filters:
             filters = {}
-        data = self._network_client.get('/floatingips.json', params=filters)
+        data = self.network.get('/floatingips.json', params=filters)
         return self._get_and_munchify('floatingips', data)
 
     def _nova_list_floating_ips(self):
@@ -2748,8 +2743,9 @@ class OpenStackCloud(_normalize.Normalizer):
         :param id: ID of the network.
         :returns: A network ``munch.Munch``.
         """
-        data = self._network_client.get(
-            '/networks/{id}'.format(id=id),
+        resp = self.network.get('/networks/{id}'.format(id=id))
+        data = _adapter._json_response(
+            resp,
             error_message="Error getting network with ID {id}".format(id=id)
         )
         network = self._get_and_munchify('network', data)
@@ -2808,8 +2804,9 @@ class OpenStackCloud(_normalize.Normalizer):
         :param id: ID of the subnet.
         :returns: A subnet ``munch.Munch``.
         """
-        data = self._network_client.get(
-            '/subnets/{id}'.format(id=id),
+        resp = self.network.get('/subnets/{id}'.format(id=id))
+        data = _adapter._json_response(
+            resp,
             error_message="Error getting subnet with ID {id}".format(id=id)
         )
         subnet = self._get_and_munchify('subnet', data)
@@ -2846,8 +2843,9 @@ class OpenStackCloud(_normalize.Normalizer):
         :param id: ID of the port.
         :returns: A port ``munch.Munch``.
         """
-        data = self._network_client.get(
-            '/ports/{id}'.format(id=id),
+        resp = self.network.get('/ports/{id}'.format(id=id))
+        data = _adapter._json_response(
+            resp,
             error_message="Error getting port with ID {id}".format(id=id)
         )
         port = self._get_and_munchify('port', data)
@@ -3048,9 +3046,8 @@ class OpenStackCloud(_normalize.Normalizer):
         error_message = ("Error getting security group with"
                          " ID {id}".format(id=id))
         if self._use_neutron_secgroups():
-            data = self._network_client.get(
-                '/security-groups/{id}'.format(id=id),
-                error_message=error_message)
+            resp = self.network.get('/security-groups/{id}'.format(id=id))
+            data = _adapter._json_response(resp, error_message=error_message)
         else:
             data = _adapter._json_response(
                 self.compute.get(
@@ -3292,8 +3289,8 @@ class OpenStackCloud(_normalize.Normalizer):
         error_message = "Error getting floating ip with ID {id}".format(id=id)
 
         if self._use_neutron_floating():
-            data = self._network_client.get(
-                '/floatingips/{id}'.format(id=id),
+            data = _adapter._json_response(
+                self.network.get('/floatingips/{id}'.format(id=id)),
                 error_message=error_message)
             return self._normalize_floating_ip(
                 self._get_and_munchify('floatingip', data))
@@ -3458,8 +3455,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
             network['mtu'] = mtu_size
 
-        data = self._network_client.post("/networks.json",
-                                         json={'network': network})
+        data = self.network.post("/networks.json", json={'network': network})
 
         # Reset cache so the new network is picked up
         self._reset_network_caches()
@@ -3519,9 +3515,9 @@ class OpenStackCloud(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Network %s not found." % name_or_id)
 
-        data = self._network_client.put(
+        data = _adapter._json_response(self.network.put(
             "/networks/{net_id}.json".format(net_id=network.id),
-            json={"network": kwargs},
+            json={"network": kwargs}),
             error_message="Error updating network {0}".format(name_or_id))
 
         self._reset_network_caches()
@@ -3542,8 +3538,8 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("Network %s not found for deleting", name_or_id)
             return False
 
-        self._network_client.delete(
-            "/networks/{network_id}.json".format(network_id=network['id']))
+        exceptions.raise_from_response(self.network.delete(
+            "/networks/{network_id}.json".format(network_id=network['id'])))
 
         # Reset cache so the deleted network is removed
         self._reset_network_caches()
@@ -3577,8 +3573,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 self.log.debug("'qos-default' extension is not available on "
                                "target cloud")
 
-        data = self._network_client.post("/qos/policies.json",
-                                         json={'policy': kwargs})
+        data = self.network.post("/qos/policies.json", json={'policy': kwargs})
         return self._get_and_munchify('policy', data)
 
     @_utils.valid_kwargs("name", "description", "shared", "default",
@@ -3621,7 +3616,7 @@ class OpenStackCloud(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "QoS policy %s not found." % name_or_id)
 
-        data = self._network_client.put(
+        data = self.network.put(
             "/qos/policies/{policy_id}.json".format(
                 policy_id=curr_policy['id']),
             json={'policy': kwargs})
@@ -3644,8 +3639,8 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("QoS policy %s not found for deleting", name_or_id)
             return False
 
-        self._network_client.delete(
-            "/qos/policies/{policy_id}.json".format(policy_id=policy['id']))
+        exceptions.raise_from_response(self.network.delete(
+            "/qos/policies/{policy_id}.json".format(policy_id=policy['id'])))
 
         return True
 
@@ -3693,10 +3688,12 @@ class OpenStackCloud(_normalize.Normalizer):
         if not filters:
             filters = {}
 
-        data = self._network_client.get(
+        resp = self.network.get(
             "/qos/policies/{policy_id}/bandwidth_limit_rules.json".format(
                 policy_id=policy['id']),
-            params=filters,
+            params=filters)
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS bandwith limit rules from "
                           "{policy}".format(policy=policy['id']))
         return self._get_and_munchify('bandwidth_limit_rules', data)
@@ -3722,9 +3719,11 @@ class OpenStackCloud(_normalize.Normalizer):
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        data = self._network_client.get(
+        resp = self.network.get(
             "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
-            format(policy_id=policy['id'], rule_id=rule_id),
+            format(policy_id=policy['id'], rule_id=rule_id))
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS bandwith limit rule {rule_id} "
                           "from {policy}".format(rule_id=rule_id,
                                                  policy=policy['id']))
@@ -3764,7 +3763,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     "target cloud")
 
         kwargs['max_kbps'] = max_kbps
-        data = self._network_client.post(
+        data = self.network.post(
             "/qos/policies/{policy_id}/bandwidth_limit_rules".format(
                 policy_id=policy['id']),
             json={'bandwidth_limit_rule': kwargs})
@@ -3816,7 +3815,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
 
-        data = self._network_client.put(
+        data = self.network.put(
             "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id),
             json={'bandwidth_limit_rule': kwargs})
@@ -3842,9 +3841,9 @@ class OpenStackCloud(_normalize.Normalizer):
                     name_or_id=policy_name_or_id))
 
         try:
-            self._network_client.delete(
+            exceptions.raise_from_response(self.network.delete(
                 "/qos/policies/{policy}/bandwidth_limit_rules/{rule}.json".
-                format(policy=policy['id'], rule=rule_id))
+                format(policy=policy['id'], rule=rule_id)))
         except exc.OpenStackCloudURINotFound:
             self.log.debug(
                 "QoS bandwidth limit rule {rule_id} not found in policy "
@@ -3898,13 +3897,15 @@ class OpenStackCloud(_normalize.Normalizer):
         if not filters:
             filters = {}
 
-        data = self._network_client.get(
+        resp = self.network.get(
             "/qos/policies/{policy_id}/dscp_marking_rules.json".format(
                 policy_id=policy['id']),
-            params=filters,
+            params=filters)
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS DSCP marking rules from "
                           "{policy}".format(policy=policy['id']))
-        return meta.get_and_munchify('dscp_marking_rules', data)
+        return self._get_and_munchify('dscp_marking_rules', data)
 
     def get_qos_dscp_marking_rule(self, policy_name_or_id, rule_id):
         """Get a QoS DSCP marking rule by name or ID.
@@ -3927,13 +3928,15 @@ class OpenStackCloud(_normalize.Normalizer):
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        data = self._network_client.get(
+        resp = self.network.get(
             "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}.json".
-            format(policy_id=policy['id'], rule_id=rule_id),
+            format(policy_id=policy['id'], rule_id=rule_id))
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS DSCP marking rule {rule_id} "
                           "from {policy}".format(rule_id=rule_id,
                                                  policy=policy['id']))
-        return meta.get_and_munchify('dscp_marking_rule', data)
+        return self._get_and_munchify('dscp_marking_rule', data)
 
     def create_qos_dscp_marking_rule(self, policy_name_or_id, dscp_mark):
         """Create a QoS DSCP marking rule.
@@ -3958,11 +3961,11 @@ class OpenStackCloud(_normalize.Normalizer):
         body = {
             'dscp_mark': dscp_mark
         }
-        data = self._network_client.post(
+        data = self.network.post(
             "/qos/policies/{policy_id}/dscp_marking_rules".format(
                 policy_id=policy['id']),
             json={'dscp_marking_rule': body})
-        return meta.get_and_munchify('dscp_marking_rule', data)
+        return self._get_and_munchify('dscp_marking_rule', data)
 
     @_utils.valid_kwargs("dscp_mark")
     def update_qos_dscp_marking_rule(self, policy_name_or_id, rule_id,
@@ -3999,11 +4002,11 @@ class OpenStackCloud(_normalize.Normalizer):
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
 
-        data = self._network_client.put(
+        data = self.network.put(
             "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id),
             json={'dscp_marking_rule': kwargs})
-        return meta.get_and_munchify('dscp_marking_rule', data)
+        return self._get_and_munchify('dscp_marking_rule', data)
 
     def delete_qos_dscp_marking_rule(self, policy_name_or_id, rule_id):
         """Delete a QoS DSCP marking rule.
@@ -4025,9 +4028,9 @@ class OpenStackCloud(_normalize.Normalizer):
                     name_or_id=policy_name_or_id))
 
         try:
-            self._network_client.delete(
+            exceptions.raise_from_response(self.network.delete(
                 "/qos/policies/{policy}/dscp_marking_rules/{rule}.json".
-                format(policy=policy['id'], rule=rule_id))
+                format(policy=policy['id'], rule=rule_id)))
         except exc.OpenStackCloudURINotFound:
             self.log.debug(
                 "QoS DSCP marking rule {rule_id} not found in policy "
@@ -4083,10 +4086,12 @@ class OpenStackCloud(_normalize.Normalizer):
         if not filters:
             filters = {}
 
-        data = self._network_client.get(
+        resp = self.network.get(
             "/qos/policies/{policy_id}/minimum_bandwidth_rules.json".format(
                 policy_id=policy['id']),
-            params=filters,
+            params=filters)
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS minimum bandwith rules from "
                           "{policy}".format(policy=policy['id']))
         return self._get_and_munchify('minimum_bandwidth_rules', data)
@@ -4112,9 +4117,11 @@ class OpenStackCloud(_normalize.Normalizer):
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        data = self._network_client.get(
+        resp = self.network.get(
             "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}.json".
-            format(policy_id=policy['id'], rule_id=rule_id),
+            format(policy_id=policy['id'], rule_id=rule_id))
+        data = _adapter._json_response(
+            resp,
             error_message="Error fetching QoS minimum_bandwith rule {rule_id} "
                           "from {policy}".format(rule_id=rule_id,
                                                  policy=policy['id']))
@@ -4145,7 +4152,7 @@ class OpenStackCloud(_normalize.Normalizer):
                     name_or_id=policy_name_or_id))
 
         kwargs['min_kbps'] = min_kbps
-        data = self._network_client.post(
+        data = self.network.post(
             "/qos/policies/{policy_id}/minimum_bandwidth_rules".format(
                 policy_id=policy['id']),
             json={'minimum_bandwidth_rule': kwargs})
@@ -4188,7 +4195,7 @@ class OpenStackCloud(_normalize.Normalizer):
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
 
-        data = self._network_client.put(
+        data = self.network.put(
             "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id),
             json={'minimum_bandwidth_rule': kwargs})
@@ -4214,9 +4221,9 @@ class OpenStackCloud(_normalize.Normalizer):
                     name_or_id=policy_name_or_id))
 
         try:
-            self._network_client.delete(
+            exceptions.raise_from_response(self.network.delete(
                 "/qos/policies/{policy}/minimum_bandwidth_rules/{rule}.json".
-                format(policy=policy['id'], rule=rule_id))
+                format(policy=policy['id'], rule=rule_id)))
         except exc.OpenStackCloudURINotFound:
             self.log.debug(
                 "QoS minimum bandwidth rule {rule_id} not found in policy "
@@ -4262,10 +4269,11 @@ class OpenStackCloud(_normalize.Normalizer):
         if port_id:
             json_body['port_id'] = port_id
 
-        return self._network_client.put(
-            "/routers/{router_id}/add_router_interface.json".format(
-                router_id=router['id']),
-            json=json_body,
+        return _adapter._json_response(
+            self.network.put(
+                "/routers/{router_id}/add_router_interface.json".format(
+                    router_id=router['id']),
+                json=json_body),
             error_message="Error attaching interface to router {0}".format(
                 router['id']))
 
@@ -4296,10 +4304,11 @@ class OpenStackCloud(_normalize.Normalizer):
             raise ValueError(
                 "At least one of subnet_id or port_id must be supplied.")
 
-        self._network_client.put(
-            "/routers/{router_id}/remove_router_interface.json".format(
-                router_id=router['id']),
-            json=json_body,
+        exceptions.raise_from_response(
+            self.network.put(
+                "/routers/{router_id}/remove_router_interface.json".format(
+                    router_id=router['id']),
+                json=json_body),
             error_message="Error detaching interface from router {0}".format(
                 router['id']))
 
@@ -4384,8 +4393,8 @@ class OpenStackCloud(_normalize.Normalizer):
                     'target cloud')
             router['availability_zone_hints'] = availability_zone_hints
 
-        data = self._network_client.post(
-            "/routers.json", json={"router": router},
+        data = _adapter._json_response(
+            self.network.post("/routers.json", json={"router": router}),
             error_message="Error creating router {0}".format(name))
         return self._get_and_munchify('router', data)
 
@@ -4450,9 +4459,11 @@ class OpenStackCloud(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Router %s not found." % name_or_id)
 
-        data = self._network_client.put(
+        resp = self.network.put(
             "/routers/{router_id}.json".format(router_id=curr_router['id']),
-            json={"router": router},
+            json={"router": router})
+        data = _adapter._json_response(
+            resp,
             error_message="Error updating router {0}".format(name_or_id))
         return self._get_and_munchify('router', data)
 
@@ -4474,9 +4485,9 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("Router %s not found for deleting", name_or_id)
             return False
 
-        self._network_client.delete(
+        exceptions.raise_from_response(self.network.delete(
             "/routers/{router_id}.json".format(router_id=router['id']),
-            error_message="Error deleting router {0}".format(name_or_id))
+            error_message="Error deleting router {0}".format(name_or_id)))
 
         return True
 
@@ -5952,7 +5963,7 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
-        data = self._network_client.post(
+        data = self.network.post(
             "/floatingips.json", json={"floatingip": kwargs})
         return self._normalize_floating_ip(
             self._get_and_munchify('floatingip', data))
@@ -6103,9 +6114,9 @@ class OpenStackCloud(_normalize.Normalizer):
 
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
-            self._network_client.delete(
+            _adapter._json_response(self.network.delete(
                 "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
-                error_message="unable to delete floating IP")
+                error_message="unable to delete floating IP"))
         except exc.OpenStackCloudResourceNotFound:
             return False
         except Exception as e:
@@ -6344,9 +6355,10 @@ class OpenStackCloud(_normalize.Normalizer):
         if fixed_address is not None:
             floating_ip_args['fixed_ip_address'] = fixed_address
 
-        return self._network_client.put(
-            "/floatingips/{fip_id}.json".format(fip_id=floating_ip['id']),
-            json={'floatingip': floating_ip_args},
+        return _adapter._json_response(
+            self.network.put(
+                "/floatingips/{fip_id}.json".format(fip_id=floating_ip['id']),
+                json={'floatingip': floating_ip_args}),
             error_message=("Error attaching IP {ip} to "
                            "server {server_id}".format(
                                ip=floating_ip['id'],
@@ -6401,9 +6413,10 @@ class OpenStackCloud(_normalize.Normalizer):
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None or not f_ip['attached']:
             return False
-        self._network_client.put(
-            "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
-            json={"floatingip": {"port_id": None}},
+        exceptions.raise_from_response(
+            self.network.put(
+                "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
+                json={"floatingip": {"port_id": None}}),
             error_message=("Error detaching IP {ip} from "
                            "server {server_id}".format(
                                ip=floating_ip_id, server_id=server_id)))
@@ -8234,10 +8247,9 @@ class OpenStackCloud(_normalize.Normalizer):
         if use_default_subnetpool:
             subnet['use_default_subnetpool'] = True
 
-        data = self._network_client.post("/subnets.json",
-                                         json={"subnet": subnet})
+        response = self.network.post("/subnets.json", json={"subnet": subnet})
 
-        return self._get_and_munchify('subnet', data)
+        return self._get_and_munchify('subnet', response)
 
     def delete_subnet(self, name_or_id):
         """Delete a subnet.
@@ -8257,8 +8269,8 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("Subnet %s not found for deleting", name_or_id)
             return False
 
-        self._network_client.delete(
-            "/subnets/{subnet_id}.json".format(subnet_id=subnet['id']))
+        exceptions.raise_from_response(self.network.delete(
+            "/subnets/{subnet_id}.json".format(subnet_id=subnet['id'])))
         return True
 
     def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
@@ -8343,10 +8355,10 @@ class OpenStackCloud(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
 
-        data = self._network_client.put(
+        response = self.network.put(
             "/subnets/{subnet_id}.json".format(subnet_id=curr_subnet['id']),
             json={"subnet": subnet})
-        return self._get_and_munchify('subnet', data)
+        return self._get_and_munchify('subnet', response)
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
                          'subnet_id', 'ip_address', 'security_groups',
@@ -8407,8 +8419,8 @@ class OpenStackCloud(_normalize.Normalizer):
         """
         kwargs['network_id'] = network_id
 
-        data = self._network_client.post(
-            "/ports.json", json={'port': kwargs},
+        data = _adapter._json_response(
+            self.network.post("/ports.json", json={'port': kwargs}),
             error_message="Error creating port for network {0}".format(
                 network_id))
         return self._get_and_munchify('port', data)
@@ -8471,9 +8483,10 @@ class OpenStackCloud(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "failed to find port '{port}'".format(port=name_or_id))
 
-        data = self._network_client.put(
-            "/ports/{port_id}.json".format(port_id=port['id']),
-            json={"port": kwargs},
+        data = _adapter._json_response(
+            self.network.put(
+                "/ports/{port_id}.json".format(port_id=port['id']),
+                json={"port": kwargs}),
             error_message="Error updating port {0}".format(name_or_id))
         return self._get_and_munchify('port', data)
 
@@ -8491,8 +8504,9 @@ class OpenStackCloud(_normalize.Normalizer):
             self.log.debug("Port %s not found for deleting", name_or_id)
             return False
 
-        self._network_client.delete(
-            "/ports/{port_id}.json".format(port_id=port['id']),
+        exceptions.raise_from_response(
+            self.network.delete(
+                "/ports/{port_id}.json".format(port_id=port['id'])),
             error_message="Error deleting port {0}".format(name_or_id))
         return True
 
@@ -8526,9 +8540,10 @@ class OpenStackCloud(_normalize.Normalizer):
         if project_id is not None:
             security_group_json['security_group']['tenant_id'] = project_id
         if self._use_neutron_secgroups():
-            data = self._network_client.post(
-                '/security-groups.json',
-                json=security_group_json,
+            data = _adapter._json_response(
+                self.network.post(
+                    '/security-groups.json',
+                    json=security_group_json),
                 error_message="Error creating security group {0}".format(name))
         else:
             data = _adapter._json_response(self.compute.post(
@@ -8562,8 +8577,10 @@ class OpenStackCloud(_normalize.Normalizer):
             return False
 
         if self._use_neutron_secgroups():
-            self._network_client.delete(
-                '/security-groups/{sg_id}.json'.format(sg_id=secgroup['id']),
+            exceptions.raise_from_response(
+                self.network.delete(
+                    '/security-groups/{sg_id}.json'.format(
+                        sg_id=secgroup['id'])),
                 error_message="Error deleting security group {0}".format(
                     name_or_id)
             )
@@ -8599,9 +8616,10 @@ class OpenStackCloud(_normalize.Normalizer):
                 "Security group %s not found." % name_or_id)
 
         if self._use_neutron_secgroups():
-            data = self._network_client.put(
-                '/security-groups/{sg_id}.json'.format(sg_id=group['id']),
-                json={'security_group': kwargs},
+            data = _adapter._json_response(
+                self.network.put(
+                    '/security-groups/{sg_id}.json'.format(sg_id=group['id']),
+                    json={'security_group': kwargs}),
                 error_message="Error updating security group {0}".format(
                     name_or_id))
         else:
@@ -8698,9 +8716,10 @@ class OpenStackCloud(_normalize.Normalizer):
             if project_id is not None:
                 rule_def['tenant_id'] = project_id
 
-            data = self._network_client.post(
-                '/security-group-rules.json',
-                json={'security_group_rule': rule_def},
+            data = _adapter._json_response(
+                self.network.post(
+                    '/security-group-rules.json',
+                    json={'security_group_rule': rule_def}),
                 error_message="Error creating security group rule")
         else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
@@ -8770,8 +8789,10 @@ class OpenStackCloud(_normalize.Normalizer):
 
         if self._use_neutron_secgroups():
             try:
-                self._network_client.delete(
-                    '/security-group-rules/{sg_id}.json'.format(sg_id=rule_id),
+                exceptions.raise_from_response(
+                    self.network.delete(
+                        '/security-group-rules/{sg_id}.json'.format(
+                            sg_id=rule_id)),
                     error_message="Error deleting security group rule "
                                   "{0}".format(rule_id))
             except exc.OpenStackCloudResourceNotFound:
@@ -8779,8 +8800,13 @@ class OpenStackCloud(_normalize.Normalizer):
             return True
 
         else:
-            _adapter._json_response(self.compute.delete(
-                '/os-security-group-rules/{id}'.format(id=rule_id)))
+            try:
+                exceptions.raise_from_response(
+                    self.compute.delete(
+                        '/os-security-group-rules/{id}'.format(id=rule_id)))
+            except exc.OpenStackCloudResourceNotFound:
+                return False
+
             return True
 
     def list_zones(self):
@@ -11892,9 +11918,10 @@ class OpenStackCloud(_normalize.Normalizer):
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
 
-        self._network_client.put(
-            '/quotas/{project_id}.json'.format(project_id=proj.id),
-            json={'quota': kwargs},
+        exceptions.raise_from_response(
+            self.network.put(
+                '/quotas/{project_id}.json'.format(project_id=proj.id),
+                json={'quota': kwargs}),
             error_message=("Error setting Neutron's quota for "
                            "project {0}".format(proj.id)))
 
@@ -11915,8 +11942,8 @@ class OpenStackCloud(_normalize.Normalizer):
         if details:
             url = url + "/details"
         url = url + ".json"
-        data = self._network_client.get(
-            url,
+        data = _adapter._json_response(
+            self.network.get(url),
             error_message=("Error fetching Neutron's quota for "
                            "project {0}".format(proj.id)))
         return self._get_and_munchify('quota', data)
@@ -11940,8 +11967,9 @@ class OpenStackCloud(_normalize.Normalizer):
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
-        self._network_client.delete(
-            '/quotas/{project_id}.json'.format(project_id=proj.id),
+        exceptions.raise_from_response(
+            self.network.delete(
+                '/quotas/{project_id}.json'.format(project_id=proj.id)),
             error_message=("Error deleting Neutron's quota for "
                            "project {0}".format(proj.id)))
 

@@ -117,6 +117,7 @@ class ServiceDescription(object):
                 )
 
         if proxy_obj:
+
             data = proxy_obj.get_endpoint_data()
             if data.catalog_url != data.service_url:
                 ep_key = '{service_type}_endpoint_override'.format(
