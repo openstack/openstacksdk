@@ -97,17 +97,6 @@ Cluster Operations
    .. automethod:: openstack.clustering.v1._proxy.Proxy.get_cluster_policy
    .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_policies
 
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_add_nodes
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_attach_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_del_nodes
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_detach_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_operation
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_replace_nodes
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_resize
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_scale_in
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_scale_out
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_update_policy
-
 
 Node Operations
 ^^^^^^^^^^^^^^^
@@ -126,7 +115,6 @@ Node Operations
    .. automethod:: openstack.clustering.v1._proxy.Proxy.perform_operation_on_node
 
    .. automethod:: openstack.clustering.v1._proxy.Proxy.adopt_node
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.node_operation
 
 
 Receiver Operations

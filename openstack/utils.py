@@ -10,54 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import functools
 import string
 import time
 
-import deprecation
 import keystoneauth1
 from keystoneauth1 import discover
 
 from openstack import _log
 from openstack import exceptions
-from openstack import version
-
-
-def deprecated(deprecated_in=None, removed_in=None,
-               details=""):
-    """Mark a method as deprecated
-
-    :param deprecated_in: The version string where this method is deprecated.
-                          Generally this is the next version to be released.
-    :param removed_in: The version where this method will be removed
-                       from the code base. Generally this is the next
-                       major version. This argument is helpful for the
-                       tests when using ``deprecation.fail_if_not_removed``.
-    :param str details: Helpful details to callers and the documentation.
-                        This will usually be a recommendation for alternate
-                        code to use.
-    """
-    # As all deprecations within this library have the same current_version,
-    # return a partial function with the library version always set.
-    partial = functools.partial(deprecation.deprecated,
-                                current_version=version.__version__)
-
-    # TODO(shade) shade's tags break these - so hard override them for now.
-    # We'll want a patch fixing this before we cut any releases.
-    removed_in = '2.0.0'
-    return partial(deprecated_in=deprecated_in, removed_in=removed_in,
-                   details=details)
-
-
-@deprecated(deprecated_in="0.10.0", removed_in="1.0",
-            details="Use openstack.enable_logging instead")
-def enable_logging(*args, **kwargs):
-    """Backwards compatibility wrapper function.
-
-    openstacksdk has had enable_logging in utils. It's in _log now and
-    exposed directly at openstack.enable_logging.
-    """
-    return _log.enable_logging(*args, **kwargs)
 
 
 def urljoin(*args):

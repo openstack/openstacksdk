@@ -53,7 +53,6 @@ from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import trunk as _trunk
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
-from openstack import utils
 
 
 class Proxy(proxy.Proxy):
@@ -2869,34 +2868,6 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_security_group.SecurityGroup, security_group,
                             **attrs)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="See the Network user guide for an example")
-    def security_group_open_port(self, sgid, port, protocol='tcp'):
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': protocol,
-            'port_range_max': port,
-            'port_range_min': port,
-            'security_group_id': sgid,
-            'ethertype': 'IPv4'
-        }
-        return self.create_security_group_rule(**rule)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details="See the Network user guide for an example")
-    def security_group_allow_ping(self, sgid):
-        rule = {
-            'direction': 'ingress',
-            'remote_ip_prefix': '0.0.0.0/0',
-            'protocol': 'icmp',
-            'port_range_max': None,
-            'port_range_min': None,
-            'security_group_id': sgid,
-            'ethertype': 'IPv4'
-        }
-        return self.create_security_group_rule(**rule)
 
     def create_security_group_rule(self, **attrs):
         """Create a new security group rule from attributes

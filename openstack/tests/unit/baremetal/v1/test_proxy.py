@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import deprecation
 import mock
 
 from openstack.baremetal.v1 import _proxy
@@ -18,7 +17,6 @@ from openstack.baremetal.v1 import chassis
 from openstack.baremetal.v1 import driver
 from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
-from openstack.baremetal.v1 import port_group
 from openstack import exceptions
 from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
@@ -125,46 +123,6 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
 
     def test_delete_port_ignore(self):
         self.verify_delete(self.proxy.delete_port, port.Port, True)
-
-    @deprecation.fail_if_not_removed
-    def test_portgroups_detailed(self):
-        self.verify_list(self.proxy.portgroups, port_group.PortGroupDetail,
-                         paginated=True,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
-
-    @deprecation.fail_if_not_removed
-    def test_portgroups_not_detailed(self):
-        self.verify_list(self.proxy.portgroups, port_group.PortGroup,
-                         paginated=True,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
-
-    @deprecation.fail_if_not_removed
-    def test_create_portgroup(self):
-        self.verify_create(self.proxy.create_portgroup, port_group.PortGroup)
-
-    @deprecation.fail_if_not_removed
-    def test_find_portgroup(self):
-        self.verify_find(self.proxy.find_portgroup, port_group.PortGroup)
-
-    @deprecation.fail_if_not_removed
-    def test_get_portgroup(self):
-        self.verify_get(self.proxy.get_portgroup, port_group.PortGroup)
-
-    @deprecation.fail_if_not_removed
-    def test_update_portgroup(self):
-        self.verify_update(self.proxy.update_portgroup, port_group.PortGroup)
-
-    @deprecation.fail_if_not_removed
-    def test_delete_portgroup(self):
-        self.verify_delete(self.proxy.delete_portgroup, port_group.PortGroup,
-                           False)
-
-    @deprecation.fail_if_not_removed
-    def test_delete_portgroup_ignore(self):
-        self.verify_delete(self.proxy.delete_portgroup, port_group.PortGroup,
-                           True)
 
 
 @mock.patch('time.sleep', lambda _sec: None)

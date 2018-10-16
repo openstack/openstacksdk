@@ -96,31 +96,31 @@ and destroy them before deleting the cluster object itself.
    :pyobject: delete_cluster
 
 
-Cluster Add Nodes
-~~~~~~~~~~~~~~~~~
+Add Nodes to Cluster
+~~~~~~~~~~~~~~~~~~~~
 
 Add some existing nodes into the specified cluster.
 
 .. literalinclude:: ../../examples/clustering/cluster.py
-   :pyobject: cluster_add_nodes
+   :pyobject: add_nodes_to_cluster
 
 
-Cluster Del Nodes
-~~~~~~~~~~~~~~~~~
+Remove Nodes from Cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Remove nodes from specified cluster.
 
 .. literalinclude:: ../../examples/clustering/cluster.py
-   :pyobject: cluster_del_nodes
+   :pyobject: remove_nodes_from_cluster
 
 
-Cluster Replace Nodes
-~~~~~~~~~~~~~~~~~~~~~
+Replace Nodes in Cluster
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Replace some existing nodes in the specified cluster.
 
 .. literalinclude:: ../../examples/clustering/cluster.py
-   :pyobject: cluster_replace_nodes
+   :pyobject: replace_nodes_in_cluster
 
 
 Cluster Scale Out
@@ -129,7 +129,7 @@ Cluster Scale Out
 Inflate the size of a cluster.
 
 .. literalinclude:: ../../examples/clustering/cluster.py
-   :pyobject: cluster_scale_out
+   :pyobject: scale_out_cluster
 
 
 Cluster Scale In
@@ -138,7 +138,7 @@ Cluster Scale In
 Shrink the size of a cluster.
 
 .. literalinclude:: ../../examples/clustering/cluster.py
-   :pyobject: cluster_scale_in
+   :pyobject: scale_out_cluster
 
 
 Cluster Resize
@@ -147,28 +147,28 @@ Cluster Resize
 Resize of cluster.
 
 .. literalinclude:: ../../examples/clustering/cluster.py
-   :pyobject: cluster_resize
+   :pyobject: resize_cluster
 
 
-Cluster Policy Attach
-~~~~~~~~~~~~~~~~~~~~~
+Attach Policy to Cluster
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once a policy is attached (bound) to a cluster, it will be
 enforced when related actions are performed on that cluster,
 unless the policy is (temporarily) disabled on the cluster
 
 .. literalinclude:: ../../examples/clustering/cluster.py
-   :pyobject: cluster_attach_policy
+   :pyobject: attach_policy_to_cluster
 
 
-Cluster Policy Detach
-~~~~~~~~~~~~~~~~~~~~~
+Detach Policy from Cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once a policy is attached to a cluster, it can be detached
 from the cluster at user's request.
 
 .. literalinclude:: ../../examples/clustering/cluster.py
-   :pyobject: cluster_detach_policy
+   :pyobject: detach_policy_from_cluster
 
 
 Cluster Check

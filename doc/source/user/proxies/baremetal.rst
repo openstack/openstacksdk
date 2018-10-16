@@ -73,15 +73,3 @@ VIF Operations
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.attach_vif_to_node
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.detach_vif_from_node
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.list_node_vifs
-
-Deprecated Methods
-^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: openstack.baremetal.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_portgroup
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_portgroup
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_portgroup
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_portgroup
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_portgroup
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.portgroups

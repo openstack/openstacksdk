@@ -16,7 +16,6 @@ from openstack import _adapter
 from openstack._meta import proxy as _meta
 from openstack import exceptions
 from openstack import resource
-from openstack import utils
 
 
 # The _check_resource decorator is used on Proxy methods to ensure that
@@ -263,61 +262,3 @@ class Proxy(six.with_metaclass(_meta.ProxyMeta, _adapter.OpenStackSDKAdapter)):
         """
         res = self._get_resource(resource_type, value, **attrs)
         return res.head(self)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details=("This is no longer a part of the proxy base, "
-                               "service-specific subclasses should expose "
-                               "this as needed. See resource.wait_for_status "
-                               "for this behavior"))
-    def wait_for_status(self, value, status, failures=None, interval=2,
-                        wait=120):
-        """Wait for a resource to be in a particular status.
-
-        :param value: The resource to wait on to reach the status. The
-                      resource must have a status attribute.
-        :type value: :class:`~openstack.resource.Resource`
-        :param status: Desired status of the resource.
-        :param list failures: Statuses that would indicate the transition
-                              failed such as 'ERROR'.
-        :param interval: Number of seconds to wait between checks.
-        :param wait: Maximum number of seconds to wait for the change.
-
-        :return: Method returns resource on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
-                 to status failed to occur in wait seconds.
-        :raises: :class:`~openstack.exceptions.ResourceFailure` resource
-                 transitioned to one of the failure states.
-        :raises: :class:`~AttributeError` if the resource does not have a
-                 status attribute
-        """
-        failures = [] if failures is None else failures
-        return resource.wait_for_status(
-            self, value, status, failures, interval, wait)
-
-    @utils.deprecated(deprecated_in="0.9.14", removed_in="1.0",
-                      details=("This is no longer a part of the proxy base, "
-                               "service-specific subclasses should expose "
-                               "this as needed. See resource.wait_for_delete "
-                               "for this behavior"))
-    def wait_for_delete(self, value, interval=2, wait=120):
-        """Wait for the resource to be deleted.
-
-        :param value: The resource to wait on to be deleted.
-        :type value: :class:`~openstack.resource.Resource`
-        :param interval: Number of seconds to wait between checks.
-        :param wait: Maximum number of seconds to wait for the delete.
-
-        :return: Method returns resource on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
-                 to delete failed to occur in wait seconds.
-        """
-        return resource.wait_for_delete(self, value, interval, wait)
-
-
-class BaseProxy(Proxy):
-    # Backwards compat wrapper
-
-    @utils.deprecated(deprecated_in="0.11.1", removed_in="1.0",
-                      details="Use openstack.proxy.Proxy instead")
-    def __init__(self, *args, **kwargs):
-        super(BaseProxy, self).__init__(*args, **kwargs)

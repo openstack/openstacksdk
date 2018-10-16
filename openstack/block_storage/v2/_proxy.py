@@ -15,6 +15,7 @@ from openstack.block_storage.v2 import stats as _stats
 from openstack.block_storage.v2 import type as _type
 from openstack.block_storage.v2 import volume as _volume
 from openstack import proxy
+from openstack import resource
 
 
 class Proxy(proxy.Proxy):
@@ -195,3 +196,44 @@ class Proxy(proxy.Proxy):
         :returns A generator of cinder Back-end storage pools objects
         """
         return self._list(_stats.Pools, paginated=False)
+
+    def wait_for_status(self, res, status='ACTIVE', failures=None,
+                        interval=2, wait=120):
+        """Wait for a resource to be in a particular status.
+
+        :param res: The resource to wait on to reach the specified status.
+                    The resource must have a ``status`` attribute.
+        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param status: Desired status.
+        :param failures: Statuses that would be interpreted as failures.
+        :type failures: :py:class:`list`
+        :param interval: Number of seconds to wait before to consecutive
+                         checks. Default to 2.
+        :param wait: Maximum number of seconds to wait before the change.
+                     Default to 120.
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+                 to the desired status failed to occur in specified seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+                 has transited to one of the failure statuses.
+        :raises: :class:`~AttributeError` if the resource does not have a
+                ``status`` attribute.
+        """
+        failures = ['Error'] if failures is None else failures
+        return resource.wait_for_status(
+            self, res, status, failures, interval, wait)
+
+    def wait_for_delete(self, res, interval=2, wait=120):
+        """Wait for a resource to be deleted.
+
+        :param res: The resource to wait on to be deleted.
+        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param interval: Number of seconds to wait before to consecutive
+                         checks. Default to 2.
+        :param wait: Maximum number of seconds to wait before the change.
+                     Default to 120.
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+                 to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(self, res, interval, wait)

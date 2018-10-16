@@ -86,23 +86,23 @@ def delete_cluster(conn):
     print("Cluster deleted")
 
 
-def cluster_add_nodes(conn):
+def add_nodes_to_cluster(conn):
     print("Add nodes to cluster:")
 
     node_ids = [NODE_ID]
-    res = conn.clustering.cluster_add_nodes(CLUSTER_ID, node_ids)
+    res = conn.clustering.add_nodes_to_cluster(CLUSTER_ID, node_ids)
     print(res)
 
 
-def cluster_del_nodes(conn):
+def remove_nodes_from_cluster(conn):
     print("Remove nodes from a cluster:")
 
     node_ids = [NODE_ID]
-    res = conn.clustering.cluster_del_nodes(CLUSTER_ID, node_ids)
+    res = conn.clustering.remove_nodes_from_cluster(CLUSTER_ID, node_ids)
     print(res)
 
 
-def cluster_replace_nodes(conn):
+def replace_nodes_in_cluster(conn):
     print("Replace the nodes in a cluster with specified nodes:")
 
     old_node = NODE_ID
@@ -110,25 +110,25 @@ def cluster_replace_nodes(conn):
     spec = {
         old_node: new_node
     }
-    res = conn.clustering.cluster_replace_nodes(CLUSTER_ID, **spec)
+    res = conn.clustering.replace_nodes_in_cluster(CLUSTER_ID, **spec)
     print(res)
 
 
-def cluster_scale_out(conn):
+def scale_out_cluster(conn):
     print("Inflate the size of a cluster:")
 
-    res = conn.clustering.cluster_scale_out(CLUSTER_ID, 1)
+    res = conn.clustering.scale_out_cluster(CLUSTER_ID, 1)
     print(res)
 
 
-def cluster_scale_in(conn):
+def scale_in_cluster(conn):
     print("Shrink the size of a cluster:")
 
-    res = conn.clustering.cluster_scale_in(CLUSTER_ID, 1)
+    res = conn.clustering.scale_in_cluster(CLUSTER_ID, 1)
     print(res)
 
 
-def cluster_resize(conn):
+def resize_cluster(conn):
     print("Resize of cluster:")
 
     spec = {
@@ -137,23 +137,23 @@ def cluster_resize(conn):
         'adjustment_type': 'EXACT_CAPACITY',
         'number': 2
     }
-    res = conn.clustering.cluster_resize(CLUSTER_ID, **spec)
+    res = conn.clustering.resize_cluster(CLUSTER_ID, **spec)
     print(res)
 
 
-def cluster_attach_policy(conn):
+def attach_policy_to_cluster(conn):
     print("Attach policy to a cluster:")
 
     spec = {'enabled': True}
-    res = conn.clustering.cluster_attach_policy(CLUSTER_ID, POLICY_ID,
-                                                **spec)
+    res = conn.clustering.attach_policy_to_cluster(
+        CLUSTER_ID, POLICY_ID, **spec)
     print(res)
 
 
-def cluster_detach_policy(conn):
+def detach_policy_from_cluster(conn):
     print("Detach a policy from a cluster:")
 
-    res = conn.clustering.cluster_detach_policy(CLUSTER_ID, POLICY_ID)
+    res = conn.clustering.detach_policy_from_cluster(CLUSTER_ID, POLICY_ID)
     print(res)
 
 
