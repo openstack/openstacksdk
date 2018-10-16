@@ -118,6 +118,13 @@ class ServiceDescription(object):
 
         if proxy_obj:
 
+            if getattr(proxy_obj, 'skip_discovery', False):
+                # Some services, like swift, don't have discovery. While
+                # keystoneauth will behave correctly and handle such
+                # scenarios, it's not super efficient as it involves trying
+                # and falling back a few times.
+                return proxy_obj
+
             data = proxy_obj.get_endpoint_data()
             if data.catalog_url != data.service_url:
                 ep_key = '{service_type}_endpoint_override'.format(
