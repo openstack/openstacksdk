@@ -10149,49 +10149,15 @@ class OpenStackCloud(_normalize.Normalizer):
     def wait_for_baremetal_node_lock(self, node, timeout=30):
         """Wait for a baremetal node to have no lock.
 
-        Baremetal nodes in ironic have a reservation lock that
-        is used to represent that a conductor has locked the node
-        while performing some sort of action, such as changing
-        configuration as a result of a machine state change.
-
-        This lock can occur during power syncronization, and prevents
-        updates to objects attached to the node, such as ports.
-
-        In the vast majority of cases, locks should clear in a few
-        seconds, and as such this method will only wait for 30 seconds.
-        The default wait is two seconds between checking if the lock
-        has cleared.
-
-        This method is intended for use by methods that need to
-        gracefully block without genreating errors, however this
-        method does prevent another client or a timer from
-        triggering a lock immediately after we see the lock as
-        having cleared.
-
-        :param node: The json representation of the node,
-                     specificially looking for the node
-                     'uuid' and 'reservation' fields.
-        :param timeout: Integer in seconds to wait for the
-                        lock to clear. Default: 30
+        DEPRECATED, use ``wait_for_node_reservation`` on the `baremetal` proxy.
 
         :raises: OpenStackCloudException upon client failure.
         :returns: None
         """
-        # TODO(TheJulia): This _can_ still fail with a race
-        # condition in that between us checking the status,
-        # a conductor where the conductor could still obtain
-        # a lock before we are able to obtain a lock.
-        # This means we should handle this with such conections
-
-        if node['reservation'] is None:
-            return
-        else:
-            msg = 'Waiting for lock to be released for node {node}'.format(
-                node=node['uuid'])
-            for count in utils.iterate_timeout(timeout, msg, 2):
-                current_node = self.get_machine(node['uuid'])
-                if current_node['reservation'] is None:
-                    return
+        warnings.warn("The wait_for_baremetal_node_lock call is deprecated "
+                      "in favor of wait_for_node_reservation on the baremetal "
+                      "proxy", DeprecationWarning)
+        self.baremetal.wait_for_node_reservation(node, timeout)
 
     @_utils.valid_kwargs('type', 'service_type', 'description')
     def create_service(self, name, enabled=True, **kwargs):

@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Added ``wait_for_node_reservation`` to the baremetal proxy.
+deprecations:
+  - |
+    The `OpenStackCloud` ``wait_for_baremetal_node_lock`` call is deprecated.
+    Generally, users should not have to call it. The new
+    ``wait_for_node_reservation`` from the baremetal proxy can be used when
+    needed.

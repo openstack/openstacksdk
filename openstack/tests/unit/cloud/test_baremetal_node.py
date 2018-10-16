@@ -912,7 +912,8 @@ class TestBaremetalNode(base.IronicTestCase):
                 self.fake_baremetal_node,
                 timeout=1))
 
-        self.assertEqual(0, len(self.adapter.request_history))
+        # NOTE(dtantsur): service discovery apparently requires 3 calls
+        self.assertEqual(3, len(self.adapter.request_history))
 
     def test_wait_for_baremetal_node_lock_timeout(self):
         self.fake_baremetal_node['reservation'] = 'conductor0'
