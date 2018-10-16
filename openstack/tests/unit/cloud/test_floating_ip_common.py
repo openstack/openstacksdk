@@ -22,16 +22,16 @@ Tests floating IP resource methods for Neutron and Nova-network.
 from mock import patch
 
 from openstack.cloud import meta
-from openstack.cloud import OpenStackCloud
+from openstack.cloud import openstackcloud
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
 class TestFloatingIP(base.TestCase):
 
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, '_attach_ip_to_server')
-    @patch.object(OpenStackCloud, 'available_floating_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'get_floating_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, '_attach_ip_to_server')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'available_floating_ip')
     def test_add_auto_ip(
             self, mock_available_floating_ip, mock_attach_ip_to_server,
             mock_get_floating_ip):
@@ -57,7 +57,7 @@ class TestFloatingIP(base.TestCase):
             timeout=60, wait=False, server=server_dict,
             floating_ip=floating_ip_dict, skip_attach=False)
 
-    @patch.object(OpenStackCloud, '_add_ip_from_pool')
+    @patch.object(openstackcloud._OpenStackCloudMixin, '_add_ip_from_pool')
     def test_add_ips_to_server_pool(self, mock_add_ip_from_pool):
         server_dict = fakes.make_fake_server(
             server_id='romeo', name='test-server', status="ACTIVE",
@@ -70,9 +70,9 @@ class TestFloatingIP(base.TestCase):
             server_dict, pool, reuse=True, wait=False, timeout=60,
             fixed_address=None, nat_destination=None)
 
-    @patch.object(OpenStackCloud, 'has_service')
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, '_add_auto_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'has_service')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'get_floating_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, '_add_auto_ip')
     def test_add_ips_to_server_ipv6_only(
             self, mock_add_auto_ip,
             mock_get_floating_ip,
@@ -109,9 +109,9 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(
             new_server['public_v6'], '2001:4800:7819:103:be76:4eff:fe05:8525')
 
-    @patch.object(OpenStackCloud, 'has_service')
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, '_add_auto_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'has_service')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'get_floating_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, '_add_auto_ip')
     def test_add_ips_to_server_rackspace(
             self, mock_add_auto_ip,
             mock_get_floating_ip,
@@ -145,9 +145,9 @@ class TestFloatingIP(base.TestCase):
             new_server['interface_ip'],
             '2001:4800:7819:103:be76:4eff:fe05:8525')
 
-    @patch.object(OpenStackCloud, 'has_service')
-    @patch.object(OpenStackCloud, 'get_floating_ip')
-    @patch.object(OpenStackCloud, '_add_auto_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'has_service')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'get_floating_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, '_add_auto_ip')
     def test_add_ips_to_server_rackspace_local_ipv4(
             self, mock_add_auto_ip,
             mock_get_floating_ip,
@@ -179,7 +179,7 @@ class TestFloatingIP(base.TestCase):
         mock_add_auto_ip.assert_not_called()
         self.assertEqual(new_server['interface_ip'], '104.130.246.91')
 
-    @patch.object(OpenStackCloud, 'add_ip_list')
+    @patch.object(openstackcloud._OpenStackCloudMixin, 'add_ip_list')
     def test_add_ips_to_server_ip_list(self, mock_add_ip_list):
         server_dict = fakes.make_fake_server(
             server_id='server-id', name='test-server', status="ACTIVE",
@@ -191,8 +191,8 @@ class TestFloatingIP(base.TestCase):
         mock_add_ip_list.assert_called_with(
             server_dict, ips, wait=False, timeout=60, fixed_address=None)
 
-    @patch.object(OpenStackCloud, '_needs_floating_ip')
-    @patch.object(OpenStackCloud, '_add_auto_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, '_needs_floating_ip')
+    @patch.object(openstackcloud._OpenStackCloudMixin, '_add_auto_ip')
     def test_add_ips_to_server_auto_ip(
             self, mock_add_auto_ip, mock_needs_floating_ip):
         server_dict = fakes.make_fake_server(

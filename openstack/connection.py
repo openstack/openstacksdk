@@ -163,7 +163,7 @@ import six
 
 from openstack import _log
 from openstack._meta import connection as _meta
-from openstack import cloud as _cloud
+from openstack.cloud import openstackcloud as _cloud
 from openstack import config as _config
 from openstack.config import cloud_region
 from openstack import exceptions
@@ -212,7 +212,7 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
 
 
 class Connection(six.with_metaclass(_meta.ConnectionMeta,
-                                    _cloud.OpenStackCloud)):
+                                    _cloud._OpenStackCloudMixin)):
 
     def __init__(self, cloud=None, config=None, session=None,
                  app_name=None, app_version=None,
@@ -296,9 +296,9 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
         self._proxies = {}
         self.use_direct_get = use_direct_get
         self.strict_mode = strict
-        # Call the OpenStackCloud constructor while we work on integrating
-        # things better.
-        _cloud.OpenStackCloud.__init__(self)
+        # Call the _OpenStackCloudMixin constructor while we work on
+        # integrating things better.
+        _cloud._OpenStackCloudMixin.__init__(self)
 
     @property
     def session(self):

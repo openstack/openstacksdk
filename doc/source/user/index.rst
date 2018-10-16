@@ -28,7 +28,6 @@ approach, this is where you'll want to begin.
    Configuration <config/index>
    Connect to an OpenStack Cloud <guides/connect>
    Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
-   Using Cloud Abstration Layer <usage>
    Logging <guides/logging>
    Microversions <microversions>
    Baremetal <guides/baremetal>
