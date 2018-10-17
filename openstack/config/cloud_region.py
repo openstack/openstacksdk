@@ -257,6 +257,11 @@ class CloudRegion(object):
             try:
                 float(version)
             except ValueError:
+                if 'latest' in version:
+                    warnings.warn(
+                        "You have a configured API_VERSION with 'latest' in"
+                        " it. In the context of openstacksdk this doesn't make"
+                        " any sense.")
                 return None
         return version
 
