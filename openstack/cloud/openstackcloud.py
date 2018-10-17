@@ -9543,56 +9543,43 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         return_to_available = False
 
-        machine = self.get_machine(name_or_id)
-        if not machine:
-            raise exc.OpenStackCloudException(
-                "Machine inspection failed to find: %s." % name_or_id)
+        node = self.baremetal.get_node(name_or_id)
 
         # NOTE(TheJulia): If in available state, we can do this. However,
         # we need to to move the machine back to manageable first.
-        if "available" in machine['provision_state']:
-            if machine['instance_uuid']:
+        if node.provision_state == 'available':
+            if node.instance_id:
                 raise exc.OpenStackCloudException(
                     "Refusing to inspect available machine %(node)s "
                     "which is associated with an instance "
                     "(instance_uuid %(inst)s)" %
-                    {'node': machine['uuid'],
-                     'inst': machine['instance_uuid']})
+                    {'node': node.id, 'inst': node.instance_id})
 
             return_to_available = True
             # NOTE(TheJulia): Changing available machine to managedable state
             # and due to state transitions we need to until that transition has
-            # completd.
-            self.node_set_provision_state(machine['uuid'], 'manage',
-                                          wait=True, timeout=timeout)
-        elif ("manage" not in machine['provision_state'] and
-                "inspect failed" not in machine['provision_state']):
+            # completed.
+            node = self.baremetal.set_node_provision_state(node, 'manage',
+                                                           wait=True,
+                                                           timeout=timeout)
+
+        if node.provision_state not in ('manageable', 'inspect failed'):
             raise exc.OpenStackCloudException(
-                "Machine must be in 'manage' or 'available' state to "
-                "engage inspection: Machine: %s State: %s"
-                % (machine['uuid'], machine['provision_state']))
-        with _utils.shade_exceptions("Error inspecting machine"):
-            machine = self.node_set_provision_state(machine['uuid'], 'inspect')
-            if wait:
-                for count in utils.iterate_timeout(
-                        timeout,
-                        "Timeout waiting for node transition to "
-                        "target state of 'inspect'"):
-                    machine = self.get_machine(name_or_id)
+                "Machine %(node)s must be in 'manageable', 'inspect failed' "
+                "or 'available' provision state to start inspection, the "
+                "current state is %(state)s" %
+                {'node': node.id, 'state': node.provision_state})
 
-                    if "inspect failed" in machine['provision_state']:
-                        raise exc.OpenStackCloudException(
-                            "Inspection of node %s failed, last error: %s"
-                            % (machine['uuid'], machine['last_error']))
+        node = self.baremetal.set_node_provision_state(node, 'inspect',
+                                                       wait=True,
+                                                       timeout=timeout)
 
-                    if "manageable" in machine['provision_state']:
-                        break
+        if return_to_available:
+            node = self.baremetal.set_node_provision_state(node, 'provide',
+                                                           wait=True,
+                                                           timeout=timeout)
 
-            if return_to_available:
-                machine = self.node_set_provision_state(
-                    machine['uuid'], 'provide', wait=wait, timeout=timeout)
-
-            return(machine)
+        return node._to_munch()
 
     def register_machine(self, nics, wait=False, timeout=3600,
                          lock_timeout=600, **kwargs):
