@@ -2,3 +2,4 @@
   roles:
     - fetch-tox-output
     - fetch-subunit-output
+    - process-stackviz
