@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Re-added support for `v4-fixed-ip` and `v6-fixed-ip` in the `nics`
+    parameter to `create_server`. These are aliaes for `fixed_ip` provided
+    by novaclient which shade used to use. The switch to REST didn't include
+    support for these aliases, resulting in a behavior regression.

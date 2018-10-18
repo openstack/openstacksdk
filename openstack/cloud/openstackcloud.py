@@ -6963,13 +6963,19 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                         "Requested network {net} could not be found.".format(
                             net=nic['net-name']))
                 net['uuid'] = nic_net['id']
+            for ip_key in ('v4-fixed-ip', 'v6-fixed-ip', 'fixed_ip'):
+                fixed_ip = nic.pop(ip_key, None)
+                if fixed_ip and net.get('fixed_ip'):
+                    raise exc.OpenStackCloudException(
+                        "Only one of v4-fixed-ip, v6-fixed-ip or fixed_ip"
+                        " may be given")
+                if fixed_ip:
+                    net['fixed_ip'] = fixed_ip
             # TODO(mordred) Add support for tag if server supports microversion
             # 2.32-2.36 or >= 2.42
-            for key in ('port', 'fixed_ip'):
+            for key in ('port', 'port-id'):
                 if key in nic:
-                    net[key] = nic.pop(key)
-            if 'port-id' in nic:
-                net['port'] = nic.pop('port-id')
+                    net['port'] = nic.pop(key)
             if nic:
                 raise exc.OpenStackCloudException(
                     "Additional unsupported keys given for server network"
