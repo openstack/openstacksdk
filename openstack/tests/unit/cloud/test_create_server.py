@@ -632,6 +632,152 @@ class TestCreateServer(base.TestCase):
             network='network-name', nics=[])
         self.assert_calls()
 
+    def test_create_server_network_fixed_ip(self):
+        """
+        Verify that if 'fixed_ip' is supplied in nics, we pass it to networks
+        appropriately.
+        """
+        network = {
+            'id': 'network-id',
+            'name': 'network-name'
+        }
+        fixed_ip = '10.0.0.1'
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': build_server},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'networks': [{'fixed_ip': fixed_ip}],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': build_server}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [network]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': []}),
+        ])
+        self.cloud.create_server(
+            'server-name', dict(id='image-id'), dict(id='flavor-id'),
+            nics=[{'fixed_ip': fixed_ip}])
+        self.assert_calls()
+
+    def test_create_server_network_v4_fixed_ip(self):
+        """
+        Verify that if 'v4-fixed-ip' is supplied in nics, we pass it to
+        networks appropriately.
+        """
+        network = {
+            'id': 'network-id',
+            'name': 'network-name'
+        }
+        fixed_ip = '10.0.0.1'
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': build_server},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'networks': [{'fixed_ip': fixed_ip}],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': build_server}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [network]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': []}),
+        ])
+        self.cloud.create_server(
+            'server-name', dict(id='image-id'), dict(id='flavor-id'),
+            nics=[{'fixed_ip': fixed_ip}])
+        self.assert_calls()
+
+    def test_create_server_network_v6_fixed_ip(self):
+        """
+        Verify that if 'v6-fixed-ip' is supplied in nics, we pass it to
+        networks appropriately.
+        """
+        network = {
+            'id': 'network-id',
+            'name': 'network-name'
+        }
+        # Note - it doesn't actually have to be a v6 address - it's just
+        # an alias.
+        fixed_ip = 'fe80::28da:5fff:fe57:13ed'
+        build_server = fakes.make_fake_server('1234', '', 'BUILD')
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': build_server},
+                 validate=dict(
+                     json={'server': {
+                         u'flavorRef': u'flavor-id',
+                         u'imageRef': u'image-id',
+                         u'max_count': 1,
+                         u'min_count': 1,
+                         u'networks': [{'fixed_ip': fixed_ip}],
+                         u'name': u'server-name'}})),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': build_server}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks.json']),
+                 json={'networks': [network]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets.json']),
+                 json={'subnets': []}),
+        ])
+        self.cloud.create_server(
+            'server-name', dict(id='image-id'), dict(id='flavor-id'),
+            nics=[{'fixed_ip': fixed_ip}])
+        self.assert_calls()
+
+    def test_create_server_network_fixed_ip_conflicts(self):
+        """
+        Verify that if 'fixed_ip' and 'v4-fixed-ip' are both supplied in nics,
+        we throw an exception.
+        """
+        # Note - it doesn't actually have to be a v6 address - it's just
+        # an alias.
+        self.use_nothing()
+        fixed_ip = '10.0.0.1'
+        self.assertRaises(
+            exc.OpenStackCloudException, self.cloud.create_server,
+            'server-name', dict(id='image-id'), dict(id='flavor-id'),
+            nics=[{
+                'fixed_ip': fixed_ip,
+                'v4-fixed-ip': fixed_ip
+            }])
+        self.assert_calls()
+
     def test_create_server_get_flavor_image(self):
         self.use_glance()
         image_id = str(uuid.uuid4())
