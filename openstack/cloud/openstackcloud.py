@@ -7784,7 +7784,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
     def _upload_object(self, endpoint, filename, headers):
         return _adapter._json_response(self.object_store.put(
-            endpoint, headers=headers, data=open(filename, 'r')))
+            endpoint, headers=headers, data=open(filename, 'rb')))
 
     def _get_file_segments(self, endpoint, filename, file_size, segment_size):
         # Use an ordered dict here so that testing can replicate things
