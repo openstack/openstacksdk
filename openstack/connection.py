@@ -288,9 +288,14 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                     load_envvars=cloud is not None,
                     **kwargs)
 
-        self.task_manager = task_manager or _task_manager.TaskManager(
-            self.config.full_name)
-        self.task_manager.start()
+        if task_manager:
+            # If a TaskManager was passed in, don't start it, assume it's
+            # under the control of the calling context.
+            self.task_manager = task_manager
+        else:
+            self.task_manager = _task_manager.TaskManager(
+                self.config.full_name)
+            self.task_manager.start()
 
         self._session = None
         self._proxies = {}

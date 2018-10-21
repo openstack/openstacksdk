@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed a regression in the new `TaskManager` code which caused programs that
+    were passing in a `TaskManager` that they had been running `start` on to
+    fail due to a double call.
