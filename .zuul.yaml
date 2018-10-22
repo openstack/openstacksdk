@@ -8,7 +8,6 @@
     # openstacksdk in required-projects so that osc and keystoneauth
     # can add the job as well
     required-projects:
-      - openstack-infra/shade
       - openstack/keystoneauth
       - openstack/openstacksdk
       - openstack/os-client-config
@@ -36,8 +35,6 @@
       # make sure stable branches of openstacksdk never get cloned by other
       # people, since stable branches of openstacksdk are, well, not actually
       # things.
-      - name: openstack-infra/shade
-        override-branch: master
       - name: openstack/openstacksdk
         override-branch: master
       - name: openstack/os-client-config
@@ -182,7 +179,6 @@
       Run openstacksdk functional tests with tips of library dependencies
       against a master devstack.
     required-projects:
-      - openstack-infra/shade
       - openstack/keystoneauth
       - openstack/openstacksdk
       - openstack/os-client-config
@@ -226,7 +222,7 @@
     name: openstacksdk-functional-devstack-senlin
     parent: openstacksdk-functional-devstack
     description: |
-      Run shade functional tests against a master devstack with senlin
+      Run openstacksdk functional tests against a master devstack with senlin
     required-projects:
       - openstack/senlin
     vars:
@@ -372,8 +368,6 @@
       - osc-tox-unit-tips
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
-      - shade-functional-tips
-      - shade-tox-tips
     check:
       jobs:
         - openstacksdk-ansible-devel-functional-devstack:
