@@ -2,7 +2,7 @@
   "name": "citycloud",
   "profile": {
     "auth": {
-      "auth_url": "https://%(region_name)s.citycloud.com:5000/v3/"
+      "auth_url": "https://{region_name}.citycloud.com:5000/v3/"
     },
     "regions": [
       "Buf1",
