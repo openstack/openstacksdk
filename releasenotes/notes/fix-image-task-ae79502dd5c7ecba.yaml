@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed a regression in image upload when the cloud uses the task
+    upload method. A refactor led to attempting to update the disk_format
+    and container_format values after the image had been imported.
