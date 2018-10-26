@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix a regression where the ``TaskManager.post_run_task`` ``elapsed_time``
+    argument was not reflecting the time taken by the actual task.
