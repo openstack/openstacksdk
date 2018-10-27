@@ -8379,7 +8379,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
     @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
                          'subnet_id', 'ip_address', 'security_groups',
                          'allowed_address_pairs', 'extra_dhcp_opts',
-                         'device_owner', 'device_id', 'binding:vnic_type')
+                         'device_owner', 'device_id', 'binding:vnic_type',
+                         'port_security_enabled')
     def create_port(self, network_id, **kwargs):
         """Create a port
 
@@ -8429,6 +8430,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :param device_id: The ID of the device that uses this port.
             For example, a virtual server. (Optional)
         :param binding vnic_type: The type of the created port. (Optional)
+        :param port_security_enabled: The security port state created on
+            the network. (Optional)
 
         :returns: a ``munch.Munch`` describing the created port.
 
@@ -8445,7 +8448,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
     @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
                          'security_groups', 'allowed_address_pairs',
                          'extra_dhcp_opts', 'device_owner', 'device_id',
-                         'binding:vnic_type')
+                         'binding:vnic_type', 'port_security_enabled')
     def update_port(self, name_or_id, **kwargs):
         """Update a port
 
@@ -8492,6 +8495,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             For example, a DHCP agent.  (Optional)
         :param device_id: The ID of the resource this port is attached to.
         :param binding vnic_type: The type of the created port. (Optional)
+        :param port_security_enabled: The security port state created on
+            the network. (Optional)
 
         :returns: a ``munch.Munch`` describing the updated port.
 
