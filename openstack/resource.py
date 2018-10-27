@@ -842,6 +842,16 @@ class Resource(dict):
         return munch.Munch(self.to_dict(body=True, headers=False,
                                         original_names=True))
 
+    def _prepare_request_body(self, patch, prepend_key):
+        if patch:
+            new = self._body.attributes
+            body = jsonpatch.make_patch(self._original_body, new).patch
+        else:
+            body = self._body.dirty
+            if prepend_key and self.resource_key is not None:
+                body = {self.resource_key: body}
+        return body
+
     def _prepare_request(self, requires_id=None, prepend_key=False,
                          patch=False):
         """Prepare a request to be sent to the server
@@ -861,13 +871,7 @@ class Resource(dict):
         if requires_id is None:
             requires_id = self.requires_id
 
-        if patch:
-            new = self._body.attributes
-            body = jsonpatch.make_patch(self._original_body, new).patch
-        else:
-            body = self._body.dirty
-            if prepend_key and self.resource_key is not None:
-                body = {self.resource_key: body}
+        body = self._prepare_request_body(patch, prepend_key)
 
         # TODO(mordred) Ensure headers have string values better than this
         headers = {}
