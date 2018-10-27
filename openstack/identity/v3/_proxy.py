@@ -15,6 +15,7 @@ from openstack.identity.v3 import credential as _credential
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import endpoint as _endpoint
 from openstack.identity.v3 import group as _group
+from openstack.identity.v3 import limit as _limit
 from openstack.identity.v3 import policy as _policy
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import region as _region
@@ -1046,4 +1047,70 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         self._delete(_registered_limit.RegisteredLimit, registered_limit,
+                     ignore_missing=ignore_missing)
+
+    def limits(self, **query):
+        """Retrieve a generator of limits
+
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+            the limits being returned.
+
+        :returns: A generator of limits instances.
+        :rtype: :class:`~openstack.identity.v3.limit.Limit`
+        """
+        return self._list(_limit.Limit, paginated=False,
+                          **query)
+
+    def get_limit(self, limit):
+        """Get a single limit
+
+        :param limit: The value can be the ID of a limit
+            or a :class:`~openstack.identity.v3.limit.Limit` instance.
+
+        :returns: One :class:
+                  `~openstack.identity.v3.limit.Limit`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        return self._get(_limit.Limit, limit)
+
+    def create_limit(self, **attrs):
+        """Create a new limit from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.identity.v3.limit.Limit`, comprised of the
+            properties on the Limit class.
+
+        :returns: The results of limit creation.
+        :rtype: :class:`~openstack.identity.v3.limit.Limit`
+        """
+        return self._create(_limit.Limit, **attrs)
+
+    def update_limit(self, limit, **attrs):
+        """Update a limit
+
+        :param limit: Either the ID of a limit. or a
+            :class:`~openstack.identity.v3.limit.Limit` instance.
+        :param dict kwargs: The attributes to update on the limit represented
+            by ``value``.
+
+        :returns: The updated limit.
+        :rtype: :class:`~openstack.identity.v3.limit.Limit`
+        """
+        return self._update(_limit.Limit,
+                            limit, **attrs)
+
+    def delete_limit(self, limit, ignore_missing=True):
+        """Delete a limit
+
+        :param limit: The value can be either the ID of a limit or a
+            :class:`~openstack.identity.v3.limit.Limit` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the limit does not exist. When set to ``True``, no exception will
+            be thrown when attempting to delete a nonexistent limit.
+
+        :returns: ``None``
+        """
+        self._delete(limit.Limit, limit,
                      ignore_missing=ignore_missing)
