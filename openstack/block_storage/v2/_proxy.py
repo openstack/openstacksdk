@@ -190,6 +190,18 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_volume.Volume, volume, ignore_missing=ignore_missing)
 
+    def extend_volume(self, volume, size):
+        """Extend a volume
+
+        :param volume: The value can be either the ID of a volume or a
+                       :class:`~openstack.volume.v2.volume.Volume` instance.
+        :param size: New volume size
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.extend(self, size)
+
     def backend_pools(self):
         """Returns a generator of cinder Back-end storage pools
 

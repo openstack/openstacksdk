@@ -11,6 +11,7 @@
 # under the License.
 
 import copy
+import mock
 
 from openstack.tests.unit import base
 
@@ -63,6 +64,14 @@ VOLUME_DETAIL.update(DETAILS)
 
 class TestVolume(base.TestCase):
 
+    def setUp(self):
+        super(TestVolume, self).setUp()
+        self.resp = mock.Mock()
+        self.resp.body = None
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.sess = mock.Mock()
+        self.sess.post = mock.Mock(return_value=self.resp)
+
     def test_basic(self):
         sot = volume.Volume(VOLUME)
         self.assertEqual("volume", sot.resource_key)
@@ -99,6 +108,16 @@ class TestVolume(base.TestCase):
                          sot.volume_image_metadata)
         self.assertEqual(VOLUME["size"], sot.size)
         self.assertEqual(VOLUME["imageRef"], sot.image_id)
+
+    def test_extend(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.extend(self.sess, '20'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {"os-extend": {"new_size": "20"}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(url, json=body, headers=headers)
 
 
 class TestVolumeDetail(base.TestCase):

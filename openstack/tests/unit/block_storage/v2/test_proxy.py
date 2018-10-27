@@ -88,6 +88,12 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_volume_delete_ignore(self):
         self.verify_delete(self.proxy.delete_volume, volume.Volume, True)
 
+    def test_volume_extend(self):
+        self._verify("openstack.block_storage.v2.volume.Volume.extend",
+                     self.proxy.extend_volume,
+                     method_args=["value", "new-size"],
+                     expected_args=["new-size"])
+
     def test_backend_pools(self):
         self.verify_list(self.proxy.backend_pools, stats.Pools,
                          paginated=False)
