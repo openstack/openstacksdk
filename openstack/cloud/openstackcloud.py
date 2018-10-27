@@ -4973,12 +4973,13 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             self, name, filename,
             wait, timeout, meta, **image_kwargs):
 
-        properties = image_kwargs['properties']
+        properties = image_kwargs.pop('properties', {})
         md5 = properties[self._IMAGE_MD5_KEY]
         sha256 = properties[self._IMAGE_SHA256_KEY]
         container = properties[self._IMAGE_OBJECT_KEY].split('/', 1)[0]
-        properties = image_kwargs.pop('properties', {})
         image_kwargs.update(properties)
+        image_kwargs.pop('disk_format', None)
+        image_kwargs.pop('container_format', None)
 
         self.create_container(container)
         self.create_object(

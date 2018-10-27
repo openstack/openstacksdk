@@ -487,6 +487,7 @@ class TestImage(BaseTestImage):
 
         self.cloud.create_image(
             self.image_name, self.imagefile.name, wait=True, timeout=1,
+            disk_format='vhd', container_format='ovf',
             is_public=False, container=self.container_name)
 
         self.assert_calls()
