@@ -33,7 +33,13 @@ ORCHESTRATION_ENDPOINT = 'https://orchestration.example.com/v1/{p}'.format(
     p=PROJECT_ID)
 NO_MD5 = '93b885adfe0da089cdf634904fd59f71'
 NO_SHA256 = '6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d'
-FAKE_PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkF3MX59OrlBs3dH5CU7lNmvpbrgZxSpyGjlnE8Flkirnc/Up22lpjznoxqeoTAwTW034k7Dz6aYIrZGmQwe2TkE084yqvlj45Dkyoj95fW/sZacm0cZNuL69EObEGHdprfGJQajrpz22NQoCD8TFB8Wv+8om9NH9Le6s+WPe98WC77KLw8qgfQsbIey+JawPWl4O67ZdL5xrypuRjfIPWjgy/VH85IXg/Z/GONZ2nxHgSShMkwqSFECAC5L3PHB+0+/12M/iikdatFSVGjpuHvkLOs3oe7m6HlOfluSJ85BzLWBbvva93qkGmLg4ZAc8rPh2O+YIsBUHNLLMM/oQp Generated-by-Nova\n"  # flake8: noqa
+FAKE_PUBLIC_KEY = (
+    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCkF3MX59OrlBs3dH5CU7lNmvpbrgZxSpyGj"
+    "lnE8Flkirnc/Up22lpjznoxqeoTAwTW034k7Dz6aYIrZGmQwe2TkE084yqvlj45Dkyoj95fW/"
+    "sZacm0cZNuL69EObEGHdprfGJQajrpz22NQoCD8TFB8Wv+8om9NH9Le6s+WPe98WC77KLw8qg"
+    "fQsbIey+JawPWl4O67ZdL5xrypuRjfIPWjgy/VH85IXg/Z/GONZ2nxHgSShMkwqSFECAC5L3P"
+    "HB+0+/12M/iikdatFSVGjpuHvkLOs3oe7m6HlOfluSJ85BzLWBbvva93qkGmLg4ZAc8rPh2O+"
+    "YIsBUHNLLMM/oQp Generated-by-Nova\n")
 
 
 def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
@@ -250,11 +256,12 @@ def make_fake_machine(machine_name, machine_id=None):
         id=machine_id,
         name=machine_name))
 
+
 def make_fake_port(address, node_id=None, port_id=None):
     if not node_id:
-         node_id = uuid.uuid4().hex
+        node_id = uuid.uuid4().hex
     if not port_id:
-         port_id = uuid.uuid4().hex
+        port_id = uuid.uuid4().hex
     return meta.obj_to_munch(FakeMachinePort(
         id=port_id,
         address=address,
@@ -378,6 +385,7 @@ class FakeMachinePort(object):
         self.uuid = id
         self.address = address
         self.node_uuid = node_id
+
 
 def make_fake_neutron_security_group(
         id, name, description, rules, project_id=None):
