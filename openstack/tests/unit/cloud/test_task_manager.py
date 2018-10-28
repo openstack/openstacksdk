@@ -63,6 +63,25 @@ class TaskTestSet(task_manager.Task):
         return set([1, 2])
 
 
+class TestRateTransforms(base.TestCase):
+
+    def test_rate_parameter_scalar(self):
+        manager = task_manager.TaskManager(name='test', rate=0.1234)
+        self.assertEqual(1 / 0.1234, manager._get_wait('compute'))
+        self.assertEqual(1 / 0.1234, manager._get_wait(None))
+
+    def test_rate_parameter_dict(self):
+        manager = task_manager.TaskManager(
+            name='test',
+            rate={
+                'compute': 20,
+                'network': 10,
+            })
+        self.assertEqual(1 / 20, manager._get_wait('compute'))
+        self.assertEqual(1 / 10, manager._get_wait('network'))
+        self.assertIsNone(manager._get_wait('object-store'))
+
+
 class TestTaskManager(base.TestCase):
 
     def setUp(self):

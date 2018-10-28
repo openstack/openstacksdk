@@ -220,6 +220,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                  strict=False,
                  use_direct_get=False,
                  task_manager=None,
+                 rate_limit=None,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -262,6 +263,12 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             Defaults to None which causes a direct-action Task Manager to be
             used.
         :type manager: :class:`~openstack.task_manager.TaskManager`
+        :param rate_limit:
+            Client-side rate limit, expressed in calls per second. The
+            parameter can either be a single float, or it can be a dict with
+            keys as service-type and values as floats expressing the calls
+            per second for that service. Defaults to None, which means no
+            rate-limiting is performed.
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion contructor.
@@ -294,7 +301,8 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             self.task_manager = task_manager
         else:
             self.task_manager = _task_manager.TaskManager(
-                self.config.full_name)
+                self.config.full_name,
+                rate=rate_limit)
             self.task_manager.start()
 
         self._session = None

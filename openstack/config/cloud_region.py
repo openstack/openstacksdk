@@ -15,7 +15,6 @@
 import copy
 import warnings
 
-from keystoneauth1 import adapter
 from keystoneauth1 import discover
 import keystoneauth1.exceptions.catalog
 from keystoneauth1 import session as ks_session
@@ -23,6 +22,7 @@ import os_service_types
 import requestsexceptions
 from six.moves import urllib
 
+from openstack import _adapter
 from openstack import version as openstack_version
 from openstack import _log
 from openstack.config import _util
@@ -247,6 +247,17 @@ class CloudRegion(object):
                 value = converter(value)
             return value
 
+    def _get_service_config(self, key, service_type):
+        config_dict = self.config.get(key)
+        if not config_dict:
+            return None
+        if not isinstance(config_dict, dict):
+            return config_dict
+
+        for st in self._service_type_manager.get_all_types(service_type):
+            if st in config_dict:
+                return config_dict[st]
+
     def get_interface(self, service_type=None):
         return self._get_config(
             'interface', service_type, fallback_to_unprefixed=True)
@@ -438,7 +449,8 @@ class CloudRegion(object):
         return interface_versions.get(service_type, [])
 
     def get_session_client(
-            self, service_type, version=None, constructor=adapter.Adapter,
+            self, service_type, version=None,
+            constructor=_adapter.OpenStackSDKAdapter,
             **kwargs):
         """Return a prepped keystoneauth Adapter for a given service.
 
@@ -498,6 +510,8 @@ class CloudRegion(object):
             max_version=max_api_version,
             endpoint_override=endpoint_override,
             default_microversion=version_request.default_microversion,
+            rate_limit=self.get_rate_limit(service_type),
+            concurrency=self.get_concurrency(service_type),
             **kwargs)
         if version_request.default_microversion:
             default_microversion = version_request.default_microversion
@@ -724,3 +738,11 @@ class CloudRegion(object):
 
     def get_password_callback(self):
         return self._password_callback
+
+    def get_rate_limit(self, service_type=None):
+        return self._get_service_config(
+            'rate_limit', service_type=service_type)
+
+    def get_concurrency(self, service_type=None):
+        return self._get_service_config(
+            'concurrency', service_type=service_type)

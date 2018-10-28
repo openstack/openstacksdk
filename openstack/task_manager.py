@@ -45,7 +45,9 @@ class Task(object):
                     the main payload at execution time.
     """
 
-    def __init__(self, main=None, name=None, run_async=False, *args, **kwargs):
+    def __init__(
+            self, main=None, name=None, run_async=False,
+            tag=None, *args, **kwargs):
         self._exception = None
         self._traceback = None
         self._result = None
@@ -56,6 +58,7 @@ class Task(object):
         self.args = args
         self.kwargs = kwargs
         self.name = name or type(self).__name__
+        self.tag = tag
 
     def main(self):
         return self._main(*self.args, **self.kwargs)
@@ -103,11 +106,21 @@ class TaskManager(object):
         self.daemon = True
         self.queue = queue.Queue()
         self._running = True
-        if rate is not None:
-            rate = float(rate)
-        self.rate = rate
+        if isinstance(rate, dict):
+            self._waits = {}
+            for (k, v) in rate.items():
+                if v:
+                    self._waits[k] = 1.0 / v
+        else:
+            if rate:
+                self._waits = {None: 1.0 / rate}
+            else:
+                self._waits = {}
         self._thread = threading.Thread(name=name, target=self.run)
         self._thread.daemon = True
+
+    def _get_wait(self, tag):
+        return self._waits.get(tag, self._waits.get(None))
 
     @property
     def executor(self):
@@ -129,7 +142,7 @@ class TaskManager(object):
         self._thread.join()
 
     def run(self):
-        last_ts = 0
+        last_ts_dict = {}
         try:
             while True:
                 task = self.queue.get()
@@ -137,12 +150,15 @@ class TaskManager(object):
                     if not self._running:
                         break
                     continue
-                if self.rate:
+                wait = self._get_wait(task.tag)
+                if wait:
+                    last_ts = last_ts_dict.get(task.tag, 0)
                     while True:
                         delta = time.time() - last_ts
-                        if delta >= self.rate:
+                        if delta >= wait:
                             break
-                        time.sleep(self.rate - delta)
+                        time.sleep(wait - delta)
+                    last_ts_dict[task.tag] = time.time()
                 self._log.debug(
                     "TaskManager {name} queue size: {size})".format(
                         name=self.name,
@@ -171,12 +187,14 @@ class TaskManager(object):
         return task.wait()
 
     def submit_function(
-            self, method, name=None, run_async=False, *args, **kwargs):
+            self, method, name=None, run_async=False, tag=None,
+            *args, **kwargs):
         """ Allows submitting an arbitrary method for work.
 
         :param method: Callable to run in the TaskManager.
         :param str name: Name to use for the generated Task object.
         :param bool run_async: Whether to run this task async or not.
+        :param str tag: Named rate-limiting context for the task.
         :param args: positional arguments to pass to the method when it runs.
         :param kwargs: keyword arguments to pass to the method when it runs.
         """
@@ -185,10 +203,12 @@ class TaskManager(object):
                 self.executor.submit, method, *args, **kwargs)
             task = Task(
                 main=payload, name=name,
-                run_async=run_async)
+                run_async=run_async,
+                tag=tag)
         else:
             task = Task(
                 main=method, name=name,
+                tag=tag,
                 *args, **kwargs)
         return self.submit_task(task)
 
