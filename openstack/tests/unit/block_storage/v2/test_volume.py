@@ -85,7 +85,7 @@ class TestVolume(base.TestCase):
 
         self.assertDictEqual({"name": "name",
                               "status": "status",
-                              "all_tenants": "all_tenants",
+                              "all_projects": "all_tenants",
                               "project_id": "project_id",
                               "limit": "limit",
                               "marker": "marker"},

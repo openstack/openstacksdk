@@ -29,7 +29,7 @@ class Server(resource.Resource, metadata.MetadataMixin):
 
     _query_mapping = resource.QueryParameters(
         "image", "flavor", "name",
-        "status", "host", "all_tenants",
+        "status", "host",
         "sort_key", "sort_dir",
         "reservation_id", "tags",
         "project_id",
@@ -39,7 +39,8 @@ class Server(resource.Resource, metadata.MetadataMixin):
         is_deleted="deleted",
         ipv4_address="ip",
         ipv6_address="ip6",
-        changes_since="changes-since")
+        changes_since="changes-since",
+        all_projects="all_tenants")
 
     #: A list of dictionaries holding links relevant to this server.
     links = resource.Body('links')

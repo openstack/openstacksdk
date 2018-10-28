@@ -21,7 +21,7 @@ class Volume(resource.Resource):
     base_path = "/volumes"
 
     _query_mapping = resource.QueryParameters(
-        'all_tenants', 'name', 'status', 'project_id')
+        'name', 'status', 'project_id', all_projects='all_tenants')
 
     # capabilities
     allow_fetch = True

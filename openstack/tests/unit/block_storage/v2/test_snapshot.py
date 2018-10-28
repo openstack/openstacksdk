@@ -53,7 +53,7 @@ class TestSnapshot(base.TestCase):
 
         self.assertDictEqual({"name": "name",
                               "status": "status",
-                              "all_tenants": "all_tenants",
+                              "all_projects": "all_tenants",
                               "volume_id": "volume_id",
                               "limit": "limit",
                               "marker": "marker"},

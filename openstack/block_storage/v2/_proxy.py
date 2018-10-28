@@ -45,7 +45,7 @@ class Proxy(proxy.Proxy):
             the snapshots being returned.  Available parameters include:
 
             * name: Name of the snapshot as a string.
-            * all_tenants: Whether return the snapshots of all tenants.
+            * all_projects: Whether return the snapshots in all projects.
             * volume_id: volume id of a snapshot.
             * status: Value of the status of the snapshot so that you can
                       filter on "available" for example.
@@ -154,7 +154,7 @@ class Proxy(proxy.Proxy):
             the volumes being returned.  Available parameters include:
 
             * name: Name of the volume as a string.
-            * all_tenants: Whether return the volumes of all tenants
+            * all_projects: Whether return the volumes in all projects
             * status: Value of the status of the volume so that you can filter
                     on "available" for example.
 

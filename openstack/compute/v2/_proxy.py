@@ -371,7 +371,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_server.Server, server)
 
-    def servers(self, details=True, **query):
+    def servers(self, details=True, all_projects=False, **query):
         """Retrieve a generator of servers
 
         :param bool details: When set to ``False``
@@ -395,6 +395,8 @@ class Proxy(proxy.Proxy):
             * status: Value of the status of the server so that you can filter
                     on "ACTIVE" for example.
             * host: Name of the host as a string.
+            * all_projects: Flag to request servers be returned from all
+                            projects, not just the currently scoped one.
             * limit: Requests a specified page size of returned items from the
                      query.  Returns a number of items up to the specified
                      limit value. Use the limit parameter to make an initial
@@ -408,6 +410,8 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of server instances.
         """
+        if all_projects:
+            query['all_projects'] = True
         srv = _server.ServerDetail if details else _server.Server
         return self._list(srv, paginated=True, **query)
 
