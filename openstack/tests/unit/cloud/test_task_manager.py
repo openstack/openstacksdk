@@ -17,6 +17,7 @@ import concurrent.futures
 import fixtures
 import mock
 import threading
+import time
 
 from six.moves import queue
 
@@ -123,6 +124,28 @@ class TestTaskManager(base.TestCase):
 
         self.manager.submit_function(set, run_async=True)
         self.assertTrue(mock_submit.called)
+
+    @mock.patch.object(task_manager.TaskManager, 'post_run_task')
+    @mock.patch.object(task_manager.TaskManager, 'pre_run_task')
+    def test_pre_post_calls(self, mock_pre, mock_post):
+        self.manager.submit_function(lambda: None)
+        mock_pre.assert_called_once()
+        mock_post.assert_called_once()
+
+    @mock.patch.object(task_manager.TaskManager, 'post_run_task')
+    @mock.patch.object(task_manager.TaskManager, 'pre_run_task')
+    def test_validate_timing(self, mock_pre, mock_post):
+        # Note the unit test setup has mocked out time.sleep() and
+        # done a * 0.0001, and the test should be under the 5
+        # second timeout.  Thus with below, we should see at
+        # *least* a 1 second pause running the task.
+        self.manager.submit_function(lambda: time.sleep(10000))
+
+        mock_pre.assert_called_once()
+        mock_post.assert_called_once()
+
+        args, kwargs = mock_post.call_args_list[0]
+        self.assertTrue(args[0] > 1.0)
 
 
 class ThreadingTaskManager(task_manager.TaskManager):

@@ -183,8 +183,14 @@ class TaskManager(object):
             raise exceptions.TaskManagerStopped(
                 "TaskManager {name} is no longer running".format(
                     name=self.name))
+        self.pre_run_task(task)
+        start = time.time()
         self.queue.put(task)
-        return task.wait()
+        ret = task.wait()
+        end = time.time()
+        dt = end - start
+        self.post_run_task(dt, task)
+        return ret
 
     def submit_function(
             self, method, name=None, run_async=False, tag=None,
@@ -224,6 +230,13 @@ class TaskManager(object):
             method, name=name, run_async=True, *args, **kwargs)
 
     def pre_run_task(self, task):
+        '''Callback when task enters the task queue
+
+        :param task: the task
+
+        Intended to be overridden by child classes to track task
+        progress.
+        '''
         self._log.debug(
             "Manager %s running task %s", self.name, task.name)
 
@@ -233,14 +246,21 @@ class TaskManager(object):
         # code is designed so that caller of submit_task (which may be
         # in a different thread than this run_task) gets the
         # exception.
-        self.pre_run_task(task)
-        start = time.time()
+        #
+        # Note all threads go through the threadpool, so this is an
+        # async call.  submit_task will wait() for the final result.
         task.run()
-        end = time.time()
-        dt = end - start
-        self.post_run_task(dt, task)
 
     def post_run_task(self, elapsed_time, task):
+        '''Callback at task completion
+
+        :param float elapsed_time: time in seconds between task entering
+            queue and finishing
+        :param task: the task
+
+        This function is intended to be overridden by child classes to
+        monitor task runtimes.
+        '''
         self._log.debug(
             "Manager %s ran task %s in %ss",
             self.name, task.name, elapsed_time)
