@@ -22,7 +22,6 @@ except ImportError:
     JSONDecodeError = ValueError
 
 from six.moves import urllib
-
 from keystoneauth1 import adapter
 
 from openstack import exceptions

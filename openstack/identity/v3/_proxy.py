@@ -96,7 +96,7 @@ class Proxy(proxy.Proxy):
     def credentials(self, **query):
         """Retrieve a generator of credentials
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of credentials instances.
@@ -174,7 +174,7 @@ class Proxy(proxy.Proxy):
     def domains(self, **query):
         """Retrieve a generator of domains
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of domain instances.
@@ -254,7 +254,7 @@ class Proxy(proxy.Proxy):
     def endpoints(self, **query):
         """Retrieve a generator of endpoints
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of endpoint instances.
@@ -334,7 +334,7 @@ class Proxy(proxy.Proxy):
     def groups(self, **query):
         """Retrieve a generator of groups
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of group instances.
@@ -412,7 +412,7 @@ class Proxy(proxy.Proxy):
     def policies(self, **query):
         """Retrieve a generator of policies
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of policy instances.
@@ -490,7 +490,7 @@ class Proxy(proxy.Proxy):
     def projects(self, **query):
         """Retrieve a generator of projects
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of project instances.
@@ -505,7 +505,7 @@ class Proxy(proxy.Proxy):
 
         :param user: Either the user id or an instance of
                      :class:`~openstack.identity.v3.user.User`
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of project instances.
@@ -584,7 +584,7 @@ class Proxy(proxy.Proxy):
     def services(self, **query):
         """Retrieve a generator of services
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of service instances.
@@ -662,7 +662,7 @@ class Proxy(proxy.Proxy):
     def users(self, **query):
         """Retrieve a generator of users
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of user instances.
@@ -740,7 +740,7 @@ class Proxy(proxy.Proxy):
     def trusts(self, **query):
         """Retrieve a generator of trusts
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of trust instances.
@@ -805,7 +805,7 @@ class Proxy(proxy.Proxy):
     def regions(self, **query):
         """Retrieve a generator of regions
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the regions being returned.
 
         :returns: A generator of region instances.
@@ -883,7 +883,7 @@ class Proxy(proxy.Proxy):
     def roles(self, **query):
         """Retrieve a generator of roles
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned. The options
                                  are: domain_id, name.
         :return: A generator of role instances.
@@ -964,7 +964,7 @@ class Proxy(proxy.Proxy):
     def role_assignments(self, **query):
         """Retrieve a generator of role assignments
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned. The options
                                  are: group_id, role_id, scope_domain_id,
                                  scope_project_id, user_id, include_names,
@@ -978,7 +978,7 @@ class Proxy(proxy.Proxy):
     def registered_limits(self, **query):
         """Retrieve a generator of registered_limits
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the registered_limits being returned.
 
         :returns: A generator of registered_limits instances.
@@ -1052,7 +1052,7 @@ class Proxy(proxy.Proxy):
     def limits(self, **query):
         """Retrieve a generator of limits
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the limits being returned.
 
         :returns: A generator of limits instances.

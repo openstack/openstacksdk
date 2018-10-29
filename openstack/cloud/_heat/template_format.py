@@ -27,6 +27,8 @@ def _construct_yaml_str(self, node):
     # Override the default string handling function
     # to always return unicode objects
     return self.construct_scalar(node)
+
+
 HeatYamlLoader.add_constructor(u'tag:yaml.org,2002:str', _construct_yaml_str)
 # Unquoted dates like 2013-05-23 in yaml files get loaded as objects of type
 # datetime.data which causes problems in API layer when being processed by

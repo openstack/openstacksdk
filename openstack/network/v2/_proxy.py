@@ -214,7 +214,7 @@ class Proxy(proxy.Proxy):
 
         :param agent: Either the agent id of an instance of
                       :class:`~openstack.network.v2.network_agent.Agent`
-        :param query: kwargs \*\*query: Optional query parameters to be sent
+        :param query: kwargs query: Optional query parameters to be sent
                                         to limit the resources being returned.
         :return: A generator of networks
         """
@@ -1136,7 +1136,7 @@ class Proxy(proxy.Proxy):
     def networks(self, **query):
         """Return a generator of networks
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The network description.
@@ -1210,7 +1210,7 @@ class Proxy(proxy.Proxy):
     def network_ip_availabilities(self, **query):
         """Return a generator of network ip availabilities
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``ip_version``: IP version of the network
@@ -1504,7 +1504,7 @@ class Proxy(proxy.Proxy):
     def ports(self, **query):
         """Return a generator of ports
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The port description.
@@ -1647,7 +1647,7 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
                            rule belongs or a :class:`~openstack.network.v2.
                            qos_policy.QoSPolicy` instance.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
         :returns: A generator of bandwidth limit rule objects
         :rtype: :class:`~openstack.network.v2.qos_bandwidth_limit_rule.
@@ -1770,7 +1770,7 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
                            rule belongs or a :class:`~openstack.network.v2.
                            qos_policy.QoSPolicy` instance.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
         :returns: A generator of QoS DSCP marking rule objects
         :rtype: :class:`~openstack.network.v2.qos_dscp_marking_rule.
@@ -1893,7 +1893,7 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
                            rule belongs or a :class:`~openstack.network.v2.
                            qos_policy.QoSPolicy` instance.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
         :returns: A generator of minimum bandwidth rule objects
         :rtype: :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.
@@ -2385,7 +2385,7 @@ class Proxy(proxy.Proxy):
 
         :param router: Either the router id or an instance of
                         :class:`~openstack.network.v2.router.Router`
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources returned
 
         :returns: A generator of Router L3 Agents
@@ -2400,7 +2400,7 @@ class Proxy(proxy.Proxy):
 
         :param agent: Either the agent id of an instance of
                       :class:`~openstack.network.v2.network_agent.Agent`
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources returned
 
         :returns: A generator of routers
@@ -2939,7 +2939,7 @@ class Proxy(proxy.Proxy):
     def security_group_rules(self, **query):
         """Return a generator of security group rules
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The security group rule description
@@ -3019,7 +3019,7 @@ class Proxy(proxy.Proxy):
     def segments(self, **query):
         """Return a generator of segments
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``description``: The segment description
@@ -3051,7 +3051,7 @@ class Proxy(proxy.Proxy):
     def service_providers(self, **query):
         """Return a generator of service providers
 
-        :param kwargs \*\* query: Optional query parameters to be sent to limit
+        :param kwargs  query: Optional query parameters to be sent to limit
                                   the resources being returned.
 
         :returns: A generator of service provider objects
@@ -3308,7 +3308,7 @@ class Proxy(proxy.Proxy):
     def subnet_pools(self, **query):
         """Return a generator of subnet pools
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned. Available parameters include:
 
             * ``address_scope_id``: Subnet pool address scope ID

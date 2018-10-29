@@ -138,7 +138,7 @@ class Proxy(proxy.Proxy):
     def images(self, **query):
         """Return a generator of images
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of image objects

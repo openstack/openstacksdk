@@ -64,6 +64,8 @@ def make_fake_flavor(flavor_id, name, ram=100, disk=1600, vcpus=24):
         u'swap': u'',
         u'vcpus': vcpus
     }
+
+
 FAKE_FLAVOR = make_fake_flavor(FLAVOR_ID, 'vanilla')
 FAKE_CHOCOLATE_FLAVOR = make_fake_flavor(
     CHOCOLATE_FLAVOR_ID, 'chocolate', ram=200)

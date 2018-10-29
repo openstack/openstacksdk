@@ -78,7 +78,7 @@ class Proxy(proxy.Proxy):
     def containers(self, **query):
         """Return a generator of containers
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of container objects
@@ -158,7 +158,7 @@ class Proxy(proxy.Proxy):
     def orders(self, **query):
         """Return a generator of orders
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of order objects
@@ -239,7 +239,7 @@ class Proxy(proxy.Proxy):
     def secrets(self, **query):
         """Return a generator of secrets
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of secret objects

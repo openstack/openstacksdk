@@ -29,7 +29,7 @@ class Proxy(proxy.Proxy):
     def notifications(self, **query):
         """Return a generator of notifications.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
                                  limit the notifications being returned.
         :returns: A generator of notifications
         """
@@ -67,7 +67,7 @@ class Proxy(proxy.Proxy):
     def segments(self, **query):
         """Return a generator of segments.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
                                  limit the segments being returned.
         :returns: A generator of segments
         """
@@ -132,7 +132,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of hosts.
 
         :param segment_id: The ID of a failover segment.
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
                                  limit the hosts being returned.
 
         :returns: A generator of hosts

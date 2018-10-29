@@ -38,6 +38,7 @@ def _disable_keep_alive(conn):
     sess = conn.config.get_session()
     sess.keep_alive = False
 
+
 IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.5-x86_64-disk')
 FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 
@@ -129,10 +130,12 @@ class BaseFunctionalTest(base.TestCase):
         if not min_microversion:
             return
 
-        if not (data.min_microversion and data.max_microversion and
-                discover.version_between(data.min_microversion,
-                                         data.max_microversion,
-                                         min_microversion)):
+        if not (data.min_microversion
+                and data.max_microversion
+                and discover.version_between(
+                    data.min_microversion,
+                    data.max_microversion,
+                    min_microversion)):
             self.skipTest('Service {service_type} does not provide '
                           'microversion {ver}'.format(
                               service_type=service_type,

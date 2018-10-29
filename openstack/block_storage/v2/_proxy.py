@@ -41,7 +41,7 @@ class Proxy(proxy.Proxy):
                     objects will be returned. The default, ``True``, will cause
                     :class:`~openstack.block_storage.v2.snapshot.SnapshotDetail`
                     objects to be returned.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the snapshots being returned.  Available parameters include:
 
             * name: Name of the snapshot as a string.
@@ -150,7 +150,7 @@ class Proxy(proxy.Proxy):
                     will be returned. The default, ``True``, will cause
                     :class:`~openstack.block_storage.v2.volume.VolumeDetail`
                     objects to be returned.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the volumes being returned.  Available parameters include:
 
             * name: Name of the volume as a string.

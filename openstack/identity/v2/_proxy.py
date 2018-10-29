@@ -96,7 +96,7 @@ class Proxy(proxy.Proxy):
     def roles(self, **query):
         """Retrieve a generator of roles
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of role instances.
@@ -173,7 +173,7 @@ class Proxy(proxy.Proxy):
     def tenants(self, **query):
         """Retrieve a generator of tenants
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of tenant instances.
@@ -250,7 +250,7 @@ class Proxy(proxy.Proxy):
     def users(self, **query):
         """Retrieve a generator of users
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of user instances.

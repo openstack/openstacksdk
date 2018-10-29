@@ -72,8 +72,8 @@ class Proxy(proxy.Proxy):
     def images(self, **query):
         """Return a generator of images
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+        :param kwargs query: Optional query parameters to be sent to limit
+                               the resources being returned.
 
         :returns: A generator of image objects
         :rtype: :class:`~openstack.image.v1.image.Image`

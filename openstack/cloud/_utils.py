@@ -113,8 +113,8 @@ def _filter_list(data, name_or_id, filters):
             e_id = _make_unicode(e.get('id', None))
             e_name = _make_unicode(e.get('name', None))
 
-            if ((e_id and e_id == name_or_id) or
-                    (e_name and e_name == name_or_id)):
+            if ((e_id and e_id == name_or_id)
+                    or (e_name and e_name == name_or_id)):
                 identifier_matches.append(e)
             else:
                 # Only try fnmatch if we don't match exactly
@@ -123,8 +123,8 @@ def _filter_list(data, name_or_id, filters):
                     # so that we log the bad pattern
                     bad_pattern = True
                     continue
-                if ((e_id and fn_reg.match(e_id)) or
-                        (e_name and fn_reg.match(e_name))):
+                if ((e_id and fn_reg.match(e_id))
+                        or (e_name and fn_reg.match(e_name))):
                     identifier_matches.append(e)
         if not identifier_matches and bad_pattern:
             log.debug("Bad pattern passed to fnmatch", exc_info=True)
@@ -187,8 +187,8 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
     # an additional call, it's simple enough to test to see if we got an
     # object and just short-circuit return it.
 
-    if (hasattr(name_or_id, 'id') or
-            (isinstance(name_or_id, dict) and 'id' in name_or_id)):
+    if (hasattr(name_or_id, 'id')
+            or (isinstance(name_or_id, dict) and 'id' in name_or_id)):
         return name_or_id
 
     # If a uuid is passed short-circuit it calling the
@@ -528,8 +528,8 @@ def _call_client_and_retry(client, url, retry_on=None,
         try:
             ret_val = client(url, **kwargs)
         except exc.OpenStackCloudHTTPError as e:
-            if (retry_on is not None and
-                    e.response.status_code in retry_on):
+            if (retry_on is not None
+                    and e.response.status_code in retry_on):
                 log.debug('Received retryable error {err}, waiting '
                           '{wait} seconds to retry', {
                               'err': e.response.status_code,
@@ -570,7 +570,7 @@ def parse_range(value):
     if value is None:
         return None
 
-    range_exp = re.match('(<|>|<=|>=){0,1}(\d+)$', value)
+    range_exp = re.match(r'(<|>|<=|>=){0,1}(\d+)$', value)
     if range_exp is None:
         return None
 
