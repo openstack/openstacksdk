@@ -367,3 +367,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             return self.session.get_token()
         except keystoneauth1.exceptions.ClientException as e:
             raise exceptions.raise_from_response(e.response)
+
+    def close(self):
+        """Release any resources held open."""
+        self.task_manager.stop()
