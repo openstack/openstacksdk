@@ -6163,7 +6163,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                       A value of 0 will also cause no checking of results to
                       occur.
 
-        :returns: True if Floating IPs have been deleted, False if not
+        :returns: Number of Floating IPs deleted, False if none
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
@@ -6173,7 +6173,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 if not ip['attached']:
                     processed.append(self.delete_floating_ip(
                         floating_ip_id=ip['id'], retry=retry))
-        return all(processed) if processed else False
+        return len(processed) if all(processed) else False
 
     def _attach_ip_to_server(
             self, server, floating_ip,

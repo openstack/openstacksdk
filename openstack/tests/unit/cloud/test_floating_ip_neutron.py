@@ -929,6 +929,14 @@ class TestFloatingIP(base.TestCase):
             "port_id": None,
             "status": "ACTIVE"
         }, {
+            "id": "this-is-a-second-floating-ip-id",
+            "fixed_ip_address": None,
+            "internal_network": None,
+            "floating_ip_address": "203.0.113.30",
+            "network": "this-is-a-net-or-pool-id",
+            "port_id": None,
+            "status": "ACTIVE"
+        }, {
             "id": "this-is-an-attached-floating-ip-id",
             "fixed_ip_address": None,
             "internal_network": None,
@@ -949,12 +957,24 @@ class TestFloatingIP(base.TestCase):
                      append=['v2.0', 'floatingips/{0}.json'.format(
                          floating_ips[0]['id'])]),
                  json={}),
+            # First IP has been deleted now, return just the second
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'floatingips.json']),
-                 json={'floatingips': [floating_ips[1]]}),
+                 json={'floatingips': floating_ips[1:]}),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'floatingips/{0}.json'.format(
+                         floating_ips[1]['id'])]),
+                 json={}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                 json={'floatingips': [floating_ips[2]]}),
         ])
-        self.cloud.delete_unattached_floating_ips()
+        cleaned_up = self.cloud.delete_unattached_floating_ips()
+        self.assertEqual(cleaned_up, 2)
         self.assert_calls()
 
     def test_create_floating_ip_no_port(self):
