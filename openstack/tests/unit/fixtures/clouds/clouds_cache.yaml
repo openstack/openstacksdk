@@ -3,6 +3,7 @@ cache:
   class: dogpile.cache.memory
   expiration:
     server: 1
+    port: 1
 clouds:
   _test_cloud_:
     auth:

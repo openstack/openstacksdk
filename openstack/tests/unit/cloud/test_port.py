@@ -241,6 +241,18 @@ class TestPort(base.TestCase):
         self.assertItemsEqual(self.mock_neutron_port_list_rep['ports'], ports)
         self.assert_calls()
 
+    def test_list_ports_filtered(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json'],
+                     qs_elements=['status=DOWN']),
+                 json=self.mock_neutron_port_list_rep)
+        ])
+        ports = self.cloud.list_ports(filters={'status': 'DOWN'})
+        self.assertItemsEqual(self.mock_neutron_port_list_rep['ports'], ports)
+        self.assert_calls()
+
     def test_list_ports_exception(self):
         self.register_uris([
             dict(method='GET',
