@@ -371,3 +371,9 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
     def close(self):
         """Release any resources held open."""
         self.task_manager.stop()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
