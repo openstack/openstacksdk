@@ -21,6 +21,7 @@ from openstack.cloud import meta
 from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack.tests.unit.cloud import test_port
 
 
 # Mock out the gettext function so that the task schema can be copypasta
@@ -533,6 +534,25 @@ class TestMemoryCache(base.TestCase):
                 self.cloud._normalize_image(fi2)
             ],
             self.cloud.list_images())
+
+    def test_list_ports_filtered(self):
+        down_port = test_port.TestPort.mock_neutron_port_create_rep['port']
+        active_port = down_port.copy()
+        active_port['status'] = 'ACTIVE'
+        # We're testing to make sure a query string isn't passed when we're
+        # caching, but that the results are still filtered.
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports.json']),
+                 json={'ports': [
+                     down_port,
+                     active_port,
+                 ]}),
+        ])
+        ports = self.cloud.list_ports(filters={'status': 'DOWN'})
+        self.assertItemsEqual([down_port], ports)
+        self.assert_calls()
 
 
 class TestCacheIgnoresQueuedStatus(base.TestCase):

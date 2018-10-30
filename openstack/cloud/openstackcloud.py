@@ -1702,8 +1702,6 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if filters and self._PORT_AGE == 0:
             return self._list_ports(filters)
 
-        # Translate None from search interface to empty {} for kwargs below
-        filters = {}
         if (time.time() - self._ports_time) >= self._PORT_AGE:
             # Since we're using cached data anyway, we don't need to
             # have more than one thread actually submit the list
@@ -1716,11 +1714,14 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             if self._ports_lock.acquire(first_run):
                 try:
                     if not (first_run and self._ports is not None):
-                        self._ports = self._list_ports(filters)
+                        self._ports = self._list_ports({})
                         self._ports_time = time.time()
                 finally:
                     self._ports_lock.release()
-        return self._ports
+        # Wrap the return with filter_list so that if filters were passed
+        # but we were batching/caching and thus always fetching the whole
+        # list from the cloud, we still return a filtered list.
+        return _utils._filter_list(self._ports, None, filters or {})
 
     def _list_ports(self, filters):
         resp = self.network.get("/ports.json", params=filters)
