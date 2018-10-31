@@ -2101,6 +2101,16 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A list of server ``munch.Munch``.
 
         """
+        # If pushdown filters are specified and we do not have batched caching
+        # enabled, bypass local caching and push down the filters.
+        if filters and self._SERVER_AGE == 0:
+            return self._list_servers(
+                detailed=detailed,
+                all_projects=all_projects,
+                bare=bare,
+                filters=filters,
+            )
+
         if (time.time() - self._servers_time) >= self._SERVER_AGE:
             # Since we're using cached data anyway, we don't need to
             # have more than one thread actually submit the list
@@ -2116,12 +2126,14 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                         self._servers = self._list_servers(
                             detailed=detailed,
                             all_projects=all_projects,
-                            bare=bare,
-                            filters=filters)
+                            bare=bare)
                         self._servers_time = time.time()
                 finally:
                     self._servers_lock.release()
-        return self._servers
+        # Wrap the return with filter_list so that if filters were passed
+        # but we were batching/caching and thus always fetching the whole
+        # list from the cloud, we still return a filtered list.
+        return _utils._filter_list(self._servers, None, filters)
 
     def _list_servers(self, detailed=False, all_projects=False, bare=False,
                       filters=None):
@@ -2333,7 +2345,10 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                         self._floating_ips_time = time.time()
                 finally:
                     self._floating_ips_lock.release()
-        return self._floating_ips
+        # Wrap the return with filter_list so that if filters were passed
+        # but we were batching/caching and thus always fetching the whole
+        # list from the cloud, we still return a filtered list.
+        return _utils._filter_list(self._floating_ips, None, filters)
 
     def _neutron_list_floating_ips(self, filters=None):
         if not filters:
