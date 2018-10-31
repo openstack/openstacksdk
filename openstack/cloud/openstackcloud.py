@@ -1377,8 +1377,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         """
         flavors = self.list_flavors(get_extra=get_extra)
         for flavor in sorted(flavors, key=operator.itemgetter('ram')):
-            if (flavor['ram'] >= ram and
-                    (not include or include in flavor['name'])):
+            if (flavor['ram'] >= ram
+                    and (not include or include in flavor['name'])):
                 return flavor
         raise exc.OpenStackCloudException(
             "Could not find a flavor with {ram} and '{include}'".format(
@@ -2418,38 +2418,38 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                     or network['id'] in self._external_ipv4_names):
                 external_ipv4_networks.append(network)
             elif ((('router:external' in network
-                    and network['router:external']) or
-                    network.get('provider:physical_network')) and
-                    network['name'] not in self._internal_ipv4_names and
-                    network['id'] not in self._internal_ipv4_names):
+                    and network['router:external'])
+                   or network.get('provider:physical_network'))
+                  and network['name'] not in self._internal_ipv4_names
+                  and network['id'] not in self._internal_ipv4_names):
                 external_ipv4_networks.append(network)
 
             # Internal networks
             if (network['name'] in self._internal_ipv4_names
                     or network['id'] in self._internal_ipv4_names):
                 internal_ipv4_networks.append(network)
-            elif (not network.get('router:external', False) and
-                    not network.get('provider:physical_network') and
-                    network['name'] not in self._external_ipv4_names and
-                    network['id'] not in self._external_ipv4_names):
+            elif (not network.get('router:external', False)
+                  and not network.get('provider:physical_network')
+                  and network['name'] not in self._external_ipv4_names
+                  and network['id'] not in self._external_ipv4_names):
                 internal_ipv4_networks.append(network)
 
             # External networks
             if (network['name'] in self._external_ipv6_names
                     or network['id'] in self._external_ipv6_names):
                 external_ipv6_networks.append(network)
-            elif (network.get('router:external') and
-                    network['name'] not in self._internal_ipv6_names and
-                    network['id'] not in self._internal_ipv6_names):
+            elif (network.get('router:external')
+                  and network['name'] not in self._internal_ipv6_names
+                  and network['id'] not in self._internal_ipv6_names):
                 external_ipv6_networks.append(network)
 
             # Internal networks
             if (network['name'] in self._internal_ipv6_names
                     or network['id'] in self._internal_ipv6_names):
                 internal_ipv6_networks.append(network)
-            elif (not network.get('router:external', False) and
-                    network['name'] not in self._external_ipv6_names and
-                    network['id'] not in self._external_ipv6_names):
+            elif (not network.get('router:external', False)
+                  and network['name'] not in self._external_ipv6_names
+                  and network['id'] not in self._external_ipv6_names):
                 internal_ipv6_networks.append(network)
 
             # External Floating IPv4 networks
@@ -2628,8 +2628,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         """
         self._find_interesting_networks()
         return list(
-            set(self._external_ipv4_networks) |
-            set(self._external_ipv6_networks))
+            set(self._external_ipv4_networks)
+            | set(self._external_ipv6_networks))
 
     def get_internal_networks(self):
         """Return the networks that are configured to not route northbound.
@@ -2641,8 +2641,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         """
         self._find_interesting_networks()
         return list(
-            set(self._internal_ipv4_networks) |
-            set(self._internal_ipv6_networks))
+            set(self._internal_ipv4_networks)
+            | set(self._internal_ipv6_networks))
 
     def get_external_ipv4_networks(self):
         """Return the networks that are configured to route northbound.
@@ -9760,8 +9760,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                             "Timeout waiting for reservation to clear "
                             "before setting provide state"):
                         machine = self.get_machine(machine['uuid'])
-                        if (machine['reservation'] is None and
-                           machine['provision_state'] is not 'enroll'):
+                        if (machine['reservation'] is None
+                                and machine['provision_state'] != 'enroll'):
                             # NOTE(TheJulia): In this case, the node has
                             # has moved on from the previous state and is
                             # likely not being verified, as no lock is

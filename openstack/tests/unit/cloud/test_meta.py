@@ -79,6 +79,7 @@ class FakeCloud(object):
     def get_default_network(self):
         return None
 
+
 standard_fake_server = fakes.make_fake_server(
     server_id='test-id-0',
     name='test-id-0',

@@ -239,16 +239,16 @@ class Node(resource.Resource):
         self._body.clean(only={'provision_state'})
         super(Node, self).create(session, *args, **kwargs)
 
-        if (self.provision_state == 'enroll' and
-                expected_provision_state != 'enroll'):
+        if (self.provision_state == 'enroll'
+                and expected_provision_state != 'enroll'):
             self.set_provision_state(session, 'manage', wait=True)
 
-        if (self.provision_state == 'manageable' and
-                expected_provision_state == 'available'):
+        if (self.provision_state == 'manageable'
+                and expected_provision_state == 'available'):
             self.set_provision_state(session, 'provide', wait=True)
 
-        if (self.provision_state == 'available' and
-                expected_provision_state == 'manageable'):
+        if (self.provision_state == 'available'
+                and expected_provision_state == 'manageable'):
             self.set_provision_state(session, 'manage', wait=True)
 
         return self
@@ -422,9 +422,9 @@ class Node(resource.Resource):
             a failure state is reached.
         """
         # NOTE(dtantsur): microversion 1.2 changed None to available
-        if (self.provision_state == expected_state or
-                (expected_state == 'available' and
-                 self.provision_state is None)):
+        if (self.provision_state == expected_state
+                or (expected_state == 'available'
+                    and self.provision_state is None)):
             return True
         elif not abort_on_failed_state:
             return False
@@ -437,8 +437,8 @@ class Node(resource.Resource):
                  'error': self.last_error})
         # Special case: a failure state for "manage" transition can be
         # "enroll"
-        elif (expected_state == 'manageable' and
-              self.provision_state == 'enroll' and self.last_error):
+        elif (expected_state == 'manageable'
+              and self.provision_state == 'enroll' and self.last_error):
             raise exceptions.SDKException(
                 "Node %(node)s could not reach state manageable: "
                 "failed to verify management credentials; "

@@ -150,7 +150,7 @@ class Proxy(proxy.Proxy):
             that you want to retrieve objects from.
         :type container:
             :class:`~openstack.object_store.v1.container.Container`
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :rtype: A generator of

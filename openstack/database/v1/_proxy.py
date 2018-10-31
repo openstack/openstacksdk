@@ -81,7 +81,7 @@ class Proxy(proxy.Proxy):
         :param instance: This can be either the ID of an instance
                          or a :class:`~openstack.database.v1.instance.Instance`
                          instance that the interface belongs to.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of database objects
@@ -137,7 +137,7 @@ class Proxy(proxy.Proxy):
     def flavors(self, **query):
         """Return a generator of flavors
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of flavor objects
@@ -203,7 +203,7 @@ class Proxy(proxy.Proxy):
     def instances(self, **query):
         """Return a generator of instances
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of instance objects
@@ -283,7 +283,7 @@ class Proxy(proxy.Proxy):
 
         :param instance: This can be either the ID of an instance
                          or a :class:`~openstack.database.v1.instance.Instance`
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of user objects

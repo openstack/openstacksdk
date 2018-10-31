@@ -44,7 +44,7 @@ class Proxy(proxy.Proxy):
     def workflows(self, **query):
         """Retrieve a generator of workflows
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the workflows to be returned. Available parameters
             include:
 
@@ -120,7 +120,7 @@ class Proxy(proxy.Proxy):
     def executions(self, **query):
         """Retrieve a generator of executions
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the executions to be returned. Available parameters
             include:
 

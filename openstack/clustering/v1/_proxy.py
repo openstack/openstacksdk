@@ -134,7 +134,7 @@ class Proxy(proxy.Proxy):
     def profiles(self, **query):
         """Retrieve a generator of profiles.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the profiles to be returned. Available parameters include:
 
             * name: The name of a profile.
@@ -247,7 +247,7 @@ class Proxy(proxy.Proxy):
     def clusters(self, **query):
         """Retrieve a generator of clusters.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the clusters to be returned. Available parameters include:
 
             * name: The name of a cluster.
@@ -302,7 +302,7 @@ class Proxy(proxy.Proxy):
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
         :param nodes: List of nodes to be removed from the cluster.
-        :param kwargs \*\*params: Optional query parameters to be sent to
+        :param kwargs params: Optional query parameters to be sent to
             restrict the nodes to be returned. Available parameters include:
 
             * destroy_after_deletion: A boolean value indicating whether the
@@ -364,7 +364,7 @@ class Proxy(proxy.Proxy):
 
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
-        :param dict \*\*params: A dictionary providing the parameters for the
+        :param dict params: A dictionary providing the parameters for the
             resize action.
         :returns: A dict containing the action initiated by this operation.
         """
@@ -380,7 +380,7 @@ class Proxy(proxy.Proxy):
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
         :param policy: Either the name or the ID of a policy.
-        :param dict \*\*params: A dictionary containing the properties for the
+        :param dict params: A dictionary containing the properties for the
             policy to be attached.
         :returns: A dict containing the action initiated by this operation.
         """
@@ -410,7 +410,7 @@ class Proxy(proxy.Proxy):
         :param cluster: Either the name or the ID of the cluster, or an
             instance of :class:`~openstack.clustering.v1.cluster.Cluster`.
         :param policy: Either the name or the ID of a policy.
-        :param dict \*\*params: A dictionary containing the new properties for
+        :param dict params: A dictionary containing the new properties for
             the policy.
         :returns: A dict containing the action initiated by this operation.
         """
@@ -544,7 +544,7 @@ class Proxy(proxy.Proxy):
     def nodes(self, **query):
         """Retrieve a generator of nodes.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the nodes to be returned. Available parameters include:
 
             * cluster_id: A string including the name or ID of a cluster to
@@ -708,7 +708,7 @@ class Proxy(proxy.Proxy):
     def policies(self, **query):
         """Retrieve a generator of policies.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the policies to be returned. Available parameters include:
 
             * name: The name of a policy.
@@ -760,7 +760,7 @@ class Proxy(proxy.Proxy):
 
         :param cluster: The value can be the name or ID of a cluster or a
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the policies to be returned. Available parameters include:
 
             * enabled: A boolean value indicating whether the policy is
@@ -858,7 +858,7 @@ class Proxy(proxy.Proxy):
     def receivers(self, **query):
         """Retrieve a generator of receivers.
 
-        :param kwargs \*\*query: Optional query parameters for restricting the
+        :param kwargs query: Optional query parameters for restricting the
             receivers to be returned. Available parameters include:
 
             * name: The name of a receiver object.
@@ -891,7 +891,7 @@ class Proxy(proxy.Proxy):
     def actions(self, **query):
         """Retrieve a generator of actions.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the actions to be returned. Available parameters include:
 
             * name: name of action for query.
@@ -929,7 +929,7 @@ class Proxy(proxy.Proxy):
     def events(self, **query):
         """Retrieve a generator of events.
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the events to be returned. Available parameters include:
 
             * obj_name: name string of the object associated with an event.

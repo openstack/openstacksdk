@@ -59,7 +59,7 @@ class Proxy(proxy.Proxy):
     def stacks(self, **query):
         """Return a generator of stacks
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of stack objects
@@ -84,7 +84,7 @@ class Proxy(proxy.Proxy):
 
         :param stack: The value can be the ID of a stack or a
                :class:`~openstack.orchestration.v1.stack.Stack` instance.
-        :param kwargs \*\*attrs: The attributes to update on the stack
+        :param kwargs attrs: The attributes to update on the stack
                                  represented by ``value``.
 
         :returns: The updated stack
@@ -191,7 +191,7 @@ class Proxy(proxy.Proxy):
 
         :param stack: This can be a stack object, or the name of a stack
                       for which the resources are to be listed.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of resource objects if the stack exists and

@@ -79,8 +79,8 @@ def resolve_template_get_files(template, files, template_base_url,
             return True
         if not isinstance(value, six.string_types):
             return True
-        if (key == 'type' and
-                not value.endswith(('.yaml', '.template'))):
+        if (key == 'type'
+                and not value.endswith(('.yaml', '.template'))):
             return True
         return False
 

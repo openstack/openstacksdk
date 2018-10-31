@@ -90,7 +90,7 @@ class Task(object):
             # Retry one time if we get a retriable connection failure
             try:
                 self.done(self.main())
-            except keystoneauth1.exceptions.RetriableConnectionFailure as e:
+            except keystoneauth1.exceptions.RetriableConnectionFailure:
                 self.done(self.main())
         except Exception as e:
             self.exception(e, sys.exc_info()[2])

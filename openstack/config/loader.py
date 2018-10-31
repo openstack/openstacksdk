@@ -919,9 +919,9 @@ class OpenStackConfig(object):
     def option_prompt(self, config, p_opt):
         """Prompt user for option that requires a value"""
         if (
-                getattr(p_opt, 'prompt', None) is not None and
-                p_opt.dest not in config['auth'] and
-                self._pw_callback is not None
+                getattr(p_opt, 'prompt', None) is not None
+                and p_opt.dest not in config['auth']
+                and self._pw_callback is not None
         ):
             config['auth'][p_opt.dest] = self._pw_callback(p_opt.prompt)
         return config
@@ -948,9 +948,9 @@ class OpenStackConfig(object):
         """Perform the set of magic argument fixups"""
 
         # Infer token plugin if a token was given
-        if (('auth' in config and 'token' in config['auth']) or
-                ('auth_token' in config and config['auth_token']) or
-                ('token' in config and config['token'])):
+        if (('auth' in config and 'token' in config['auth'])
+                or ('auth_token' in config and config['auth_token'])
+                or ('token' in config and config['token'])):
             config.setdefault('token', config.pop('auth_token', None))
 
         # These backwards compat values are only set via argparse. If it's

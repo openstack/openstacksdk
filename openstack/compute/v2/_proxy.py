@@ -113,7 +113,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.flavor.FlavorDetail` objects,
             otherwise :class:`~openstack.compute.v2.flavor.Flavor`.
             *Default: ``True``*
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the flavors being returned.
 
         :returns: A generator of flavor objects
@@ -235,7 +235,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.image.ImageDetail` objects,
             otherwise :class:`~openstack.compute.v2.image.Image`.
             *Default: ``True``*
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of image objects
@@ -446,7 +446,7 @@ class Proxy(proxy.Proxy):
                     will be returned. The default, ``True``, will cause
                     :class:`~openstack.compute.v2.server.ServerDetail`
                     instances to be returned.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
             the servers being returned.  Available parameters include:
 
             * changes_since: A time/date stamp for when the server last changed
@@ -1144,7 +1144,7 @@ class Proxy(proxy.Proxy):
     def server_groups(self, **query):
         """Return a generator of server groups
 
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of ServerGroup objects

@@ -29,6 +29,8 @@ class SDKException(Exception):
         self.message = self.__class__.__name__ if message is None else message
         self.extra_data = extra_data
         super(SDKException, self).__init__(self.message)
+
+
 OpenStackCloudException = SDKException
 
 

@@ -47,7 +47,7 @@ class Proxy(proxy.Proxy):
     def queues(self, **query):
         """Retrieve a generator of queues
 
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the queues to be returned. Available parameters include:
 
             * limit: Requests at most the specified number of items be
@@ -93,7 +93,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of messages
 
         :param queue_name: The name of target queue to query messages from.
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the messages to be returned. Available parameters include:
 
             * limit: Requests at most the specified number of items be
@@ -170,7 +170,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of subscriptions
 
         :param queue_name: The name of target queue to subscribe on.
-        :param kwargs \*\*query: Optional query parameters to be sent to
+        :param kwargs query: Optional query parameters to be sent to
             restrict the subscriptions to be returned. Available parameters
             include:
 
