@@ -16,7 +16,7 @@
 import openstack.config
 import pprint
 import sys
-import urlparse
+from six.moves.urllib import parse as urlparse
 
 
 def print_versions(r):
