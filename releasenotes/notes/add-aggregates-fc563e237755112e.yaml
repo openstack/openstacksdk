@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Basic CRUD functionality was added on Host Aggregates. Actions are not
+    implemented yet (adding/removing hosts from Host Aggregates).

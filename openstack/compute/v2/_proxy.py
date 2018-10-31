@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.compute.v2 import aggregate as _aggregate
 from openstack.compute.v2 import availability_zone
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor as _flavor
@@ -119,6 +120,72 @@ class Proxy(proxy.Proxy):
         """
         flv = _flavor.FlavorDetail if details else _flavor.Flavor
         return self._list(flv, paginated=True, **query)
+
+    def aggregates(self):
+        """Return a generator of aggregate
+
+        :returns: A generator of aggregate
+        :rtype: class: `~openstack.compute.v2.aggregate.Aggregate`
+        """
+        aggregate = _aggregate.Aggregate
+
+        return self._list(aggregate, paginated=False)
+
+    def get_aggregate(self, aggregate):
+        """Get a single host aggregate
+
+        :param image: The value can be the ID of an aggregate or a
+                      :class:`~openstack.compute.v2.aggregate.Aggregate`
+                      instance.
+
+        :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_aggregate.Aggregate, aggregate)
+
+    def create_aggregate(self, **attrs):
+        """Create a new host aggregate from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+                           :class:`~openstack.compute.v2.aggregate.Aggregate`,
+                           comprised of the properties on the Aggregate class.
+
+        :returns: The results of aggregate creation
+        :rtype: :class:`~openstack.compute.v2.aggregate.Aggregate`
+        """
+        return self._create(_aggregate.Aggregate, **attrs)
+
+    def update_aggregate(self, aggregate, **attrs):
+        """Update a host aggregate
+
+        :param server: Either the ID of a host aggregate or a
+                       :class:`~openstack.compute.v2.aggregate.Aggregate`
+                       instance.
+        :attrs kwargs: The attributes to update on the aggregate represented
+                       by ``aggregate``.
+
+        :returns: The updated aggregate
+        :rtype: :class:`~openstack.compute.v2.aggregate.Aggregate`
+        """
+        return self._update(_aggregate.Aggregate, aggregate, **attrs)
+
+    def delete_aggregate(self, aggregate, ignore_missing=True):
+        """Delete a host aggregate
+
+        :param keypair: The value can be either the ID of an aggregate or a
+                        :class:`~openstack.compute.v2.aggregate.Aggregate`
+                        instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the aggregate does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent aggregate.
+
+        :returns: ``None``
+        """
+        self._delete(_aggregate.Aggregate, aggregate,
+                     ignore_missing=ignore_missing)
 
     def delete_image(self, image, ignore_missing=True):
         """Delete an image
