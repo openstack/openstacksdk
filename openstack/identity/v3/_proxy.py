@@ -1114,3 +1114,18 @@ class Proxy(proxy.Proxy):
         """
         self._delete(limit.Limit, limit,
                      ignore_missing=ignore_missing)
+
+    def assign_project_role_to_user(self, project, user, role):
+        """Assign role to user on a project
+
+        :param project: Either the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project`
+                      instance.
+        :param user: Either the ID of a user or a
+                     :class:`~openstack.identity.v3.user.User` instance.
+        :param role: Either the ID of a role or a
+                     :class:`~openstack.identity.v3.role.Role` instance.
+        :return: ``None``
+        """
+        project = self._get_resource(_project.Project, project)
+        project.assign_role_to_user(self, user, role)
