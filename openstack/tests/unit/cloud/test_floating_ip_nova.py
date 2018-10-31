@@ -318,4 +318,4 @@ class TestFloatingIP(base.TestCase):
 
     def test_cleanup_floating_ips(self):
         # This should not call anything because it's unsafe on nova.
-        self.cloud.delete_unattached_floating_ips()
+        self.assertFalse(self.cloud.delete_unattached_floating_ips())
