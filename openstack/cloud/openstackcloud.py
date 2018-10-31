@@ -2137,19 +2137,11 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
     def _list_servers(self, detailed=False, all_projects=False, bare=False,
                       filters=None):
-        error_msg = "Error fetching server list on {cloud}:{region}:".format(
-            cloud=self.name,
-            region=self.config.region_name)
-
-        params = filters or {}
-        if all_projects:
-            params['all_tenants'] = True
-        data = _adapter._json_response(
-            self.compute.get(
-                '/servers/detail', params=params),
-            error_message=error_msg)
-        servers = self._normalize_servers(
-            self._get_and_munchify('servers', data))
+        filters = filters or {}
+        servers = [
+            self._normalize_server(server.to_dict())
+            for server in self.compute.servers(
+                all_projects=all_projects, **filters)]
         return [
             self._expand_server(server, detailed, bare)
             for server in servers

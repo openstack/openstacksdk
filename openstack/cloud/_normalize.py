@@ -480,7 +480,8 @@ class Normalizer(object):
             server, 'os-extended-volumes:volumes_attached',
             [], self.strict_mode)
 
-        config_drive = server.pop('config_drive', False)
+        config_drive = server.pop(
+            'has_config_drive', server.pop('config_drive', False))
         ret['has_config_drive'] = _to_bool(config_drive)
 
         host_id = server.pop('hostId', None)
