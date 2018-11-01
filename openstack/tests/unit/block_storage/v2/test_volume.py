@@ -126,6 +126,11 @@ class TestVolumeDetail(base.TestCase):
         sot = volume.VolumeDetail(VOLUME_DETAIL)
         self.assertIsInstance(sot, volume.Volume)
         self.assertEqual("/volumes/detail", sot.base_path)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
+        self.assertFalse(sot.allow_create)
+        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_list)
 
     def test_create(self):
         sot = volume.VolumeDetail(**VOLUME_DETAIL)

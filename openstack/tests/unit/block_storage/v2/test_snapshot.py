@@ -77,6 +77,11 @@ class TestSnapshotDetail(base.TestCase):
         sot = snapshot.SnapshotDetail(DETAILED_SNAPSHOT)
         self.assertIsInstance(sot, snapshot.Snapshot)
         self.assertEqual("/snapshots/detail", sot.base_path)
+        self.assertFalse(sot.allow_fetch)
+        self.assertFalse(sot.allow_commit)
+        self.assertFalse(sot.allow_create)
+        self.assertFalse(sot.allow_delete)
+        self.assertTrue(sot.allow_list)
 
     def test_create_detailed(self):
         sot = snapshot.SnapshotDetail(**DETAILED_SNAPSHOT)
