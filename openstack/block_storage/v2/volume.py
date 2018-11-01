@@ -94,6 +94,13 @@ class VolumeDetail(Volume):
 
     base_path = "/volumes/detail"
 
+    # capabilities
+    allow_fetch = False
+    allow_create = False
+    allow_delete = False
+    allow_commit = False
+    allow_list = True
+
     #: The volume's current back-end.
     host = resource.Body("os-vol-host-attr:host")
     #: The project ID associated with current back-end.

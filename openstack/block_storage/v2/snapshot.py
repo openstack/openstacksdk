@@ -57,6 +57,13 @@ class SnapshotDetail(Snapshot):
 
     base_path = "/snapshots/detail"
 
+    # capabilities
+    allow_fetch = False
+    allow_create = False
+    allow_delete = False
+    allow_commit = False
+    allow_list = True
+
     #: The percentage of completeness the snapshot is currently at.
     progress = resource.Body("os-extended-snapshot-attributes:progress")
     #: The project ID this snapshot is associated with.
