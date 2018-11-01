@@ -32,5 +32,9 @@ class Role(resource.Resource):
     # Properties
     #: Unique role name, within the owning domain. *Type: string*
     name = resource.Body('name')
+    #: User-facing description of the role. *Type: string*
+    description = resource.Body('description')
+    #: References the domain ID which owns the role. *Type: string*
+    domain_id = resource.Body('domain_id')
     #: The links for the service resource.
     links = resource.Body('links')

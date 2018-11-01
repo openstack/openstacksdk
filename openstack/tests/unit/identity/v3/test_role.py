@@ -19,6 +19,8 @@ EXAMPLE = {
     'id': IDENTIFIER,
     'links': {'self': 'http://example.com/user1'},
     'name': '2',
+    'description': 'test description for role',
+    'domain_id': 'default'
 }
 
 
@@ -50,3 +52,5 @@ class TestRole(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
