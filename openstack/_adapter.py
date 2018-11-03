@@ -135,13 +135,7 @@ class OpenStackSDKAdapter(adapter.Adapter):
             self, url, method, run_async=False, error_message=None,
             raise_exc=False, connect_retries=1, *args, **kwargs):
         name_parts = _extract_name(url, self.service_type)
-        # TODO(mordred) This if is in service of unit tests that are making
-        # calls without a service_type. It should be fixable once we shift
-        # to requests-mock and stop mocking internals.
-        if self.service_type:
-            name = '.'.join([self.service_type, method] + name_parts)
-        else:
-            name = '.'.join([method] + name_parts)
+        name = '.'.join([self.service_type, method] + name_parts)
 
         request_method = functools.partial(
             super(OpenStackSDKAdapter, self).request, url, method)
