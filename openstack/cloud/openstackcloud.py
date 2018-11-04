@@ -3672,7 +3672,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         return _utils._filter_list(rules, rule_id, filters)
 
     def list_qos_bandwidth_limit_rules(self, policy_name_or_id, filters=None):
-        """List all available QoS bandwith limit rules.
+        """List all available QoS bandwidth limit rules.
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
             from rules should be listed.
@@ -3702,7 +3702,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             params=filters)
         data = _adapter._json_response(
             resp,
-            error_message="Error fetching QoS bandwith limit rules from "
+            error_message="Error fetching QoS bandwidth limit rules from "
                           "{policy}".format(policy=policy['id']))
         return self._get_and_munchify('bandwidth_limit_rules', data)
 
@@ -3732,7 +3732,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             format(policy_id=policy['id'], rule_id=rule_id))
         data = _adapter._json_response(
             resp,
-            error_message="Error fetching QoS bandwith limit rule {rule_id} "
+            error_message="Error fetching QoS bandwidth limit rule {rule_id} "
                           "from {policy}".format(rule_id=rule_id,
                                                  policy=policy['id']))
         return self._get_and_munchify('bandwidth_limit_rule', data)
@@ -4070,7 +4070,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
     def list_qos_minimum_bandwidth_rules(self, policy_name_or_id,
                                          filters=None):
-        """List all available QoS minimum bandwith rules.
+        """List all available QoS minimum bandwidth rules.
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
             from rules should be listed.
@@ -4100,7 +4100,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             params=filters)
         data = _adapter._json_response(
             resp,
-            error_message="Error fetching QoS minimum bandwith rules from "
+            error_message="Error fetching QoS minimum bandwidth rules from "
                           "{policy}".format(policy=policy['id']))
         return self._get_and_munchify('minimum_bandwidth_rules', data)
 
@@ -4130,9 +4130,9 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             format(policy_id=policy['id'], rule_id=rule_id))
         data = _adapter._json_response(
             resp,
-            error_message="Error fetching QoS minimum_bandwith rule {rule_id} "
-                          "from {policy}".format(rule_id=rule_id,
-                                                 policy=policy['id']))
+            error_message="Error fetching QoS minimum_bandwidth rule {rule_id}"
+                          " from {policy}".format(rule_id=rule_id,
+                                                  policy=policy['id']))
         return self._get_and_munchify('minimum_bandwidth_rule', data)
 
     @_utils.valid_kwargs("direction")
