@@ -184,14 +184,27 @@ its file location needs to be set via `key`.
 
   # clouds.yaml
   clouds:
-    secure:
-      auth: ...
+    regular-secure-cloud:
+      auth:
+        auth_url: https://signed.cert.domain:5000
+        ...
+    unknown-ca-with-client-cert-secure-cloud:
+      auth:
+        auth_url: https://unknown.ca.but.secure.domain:5000
+        ...
       key: /home/myhome/client-cert.key
       cert: /home/myhome/client-cert.crt
       cacert: /home/myhome/ca.crt
-    insecure:
-      auth: ...
+    self-signed-insecure-cloud:
+      auth:
+        auth_url: https://self.signed.cert.domain:5000
+        ...
       verify: False
+
+Note for parity with ``openstack`` command-line options the `insecure`
+boolean is also recognised (with the opposite semantics to `verify`;
+i.e. `True` ignores certificate failures).  This should be considered
+deprecated for `verify`.
 
 Cache Settings
 --------------

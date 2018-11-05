@@ -29,14 +29,14 @@ CONFIG_CACERT = "TrustMe"
 
 CLOUD_CONFIG = """
 clouds:
-  sample:
+  sample-cloud:
     region_name: RegionOne
     auth:
       auth_url: {auth_url}
       username: {username}
       password: {password}
       project_name: {project}
-  insecure:
+  insecure-cloud:
     auth:
       auth_url: {auth_url}
       username: {username}
@@ -44,7 +44,14 @@ clouds:
       project_name: {project}
     cacert: {cacert}
     verify: False
-  cacert:
+  insecure-cloud-alternative-format:
+    auth:
+      auth_url: {auth_url}
+      username: {username}
+      password: {password}
+      project_name: {project}
+    insecure: True
+  cacert-cloud:
     auth:
       auth_url: {auth_url}
       username: {username}
@@ -73,7 +80,7 @@ class TestConnection(base.TestCase):
         self.use_keystone_v2()
 
     def test_other_parameters(self):
-        conn = connection.Connection(cloud='sample', cert='cert')
+        conn = connection.Connection(cloud='sample-cloud', cert='cert')
         self.assertEqual(conn.session.cert, 'cert')
 
     def test_session_provided(self):
@@ -85,13 +92,13 @@ class TestConnection(base.TestCase):
         self.assertEqual('auth.example.com', conn.config.name)
 
     def test_task_manager_rate_scalar(self):
-        conn = connection.Connection(cloud='sample', rate_limit=20)
+        conn = connection.Connection(cloud='sample-cloud', rate_limit=20)
         self.assertEqual(1 / 20, conn.task_manager._get_wait('object-store'))
         self.assertEqual(1 / 20, conn.task_manager._get_wait(None))
 
     def test_task_manager_rate_dict(self):
         conn = connection.Connection(
-            cloud='sample',
+            cloud='sample-cloud',
             rate_limit={
                 'compute': 20,
                 'network': 10,
@@ -101,7 +108,7 @@ class TestConnection(base.TestCase):
         self.assertIsNone(conn.task_manager._get_wait('object-store'))
 
     def test_create_session(self):
-        conn = connection.Connection(cloud='sample')
+        conn = connection.Connection(cloud='sample-cloud')
         self.assertIsNotNone(conn)
         # TODO(mordred) Rework this - we need to provide requests-mock
         # entries for each of the proxies below
@@ -127,27 +134,27 @@ class TestConnection(base.TestCase):
         #                  conn.workflow.__class__.__module__)
 
     def test_create_connection_version_param_default(self):
-        c1 = connection.Connection(cloud='sample')
+        c1 = connection.Connection(cloud='sample-cloud')
         conn = connection.Connection(session=c1.session)
         self.assertEqual('openstack.identity.v3._proxy',
                          conn.identity.__class__.__module__)
 
     def test_create_connection_version_param_string(self):
-        c1 = connection.Connection(cloud='sample')
+        c1 = connection.Connection(cloud='sample-cloud')
         conn = connection.Connection(
             session=c1.session, identity_api_version='2')
         self.assertEqual('openstack.identity.v2._proxy',
                          conn.identity.__class__.__module__)
 
     def test_create_connection_version_param_int(self):
-        c1 = connection.Connection(cloud='sample')
+        c1 = connection.Connection(cloud='sample-cloud')
         conn = connection.Connection(
             session=c1.session, identity_api_version=3)
         self.assertEqual('openstack.identity.v3._proxy',
                          conn.identity.__class__.__module__)
 
     def test_create_connection_version_param_bogus(self):
-        c1 = connection.Connection(cloud='sample')
+        c1 = connection.Connection(cloud='sample-cloud')
         conn = connection.Connection(
             session=c1.session, identity_api_version='red')
         # TODO(mordred) This is obviously silly behavior
@@ -155,7 +162,8 @@ class TestConnection(base.TestCase):
                          conn.identity.__class__.__module__)
 
     def test_from_config_given_config(self):
-        cloud_region = openstack.config.OpenStackConfig().get_one("sample")
+        cloud_region = (openstack.config.OpenStackConfig().
+                        get_one("sample-cloud"))
 
         sot = connection.from_config(config=cloud_region)
 
@@ -169,7 +177,7 @@ class TestConnection(base.TestCase):
                          sot.config.config['auth']['project_name'])
 
     def test_from_config_given_cloud(self):
-        sot = connection.from_config(cloud="sample")
+        sot = connection.from_config(cloud="sample-cloud")
 
         self.assertEqual(CONFIG_USERNAME,
                          sot.config.config['auth']['username'])
@@ -181,7 +189,8 @@ class TestConnection(base.TestCase):
                          sot.config.config['auth']['project_name'])
 
     def test_from_config_given_cloud_config(self):
-        cloud_region = openstack.config.OpenStackConfig().get_one("sample")
+        cloud_region = (openstack.config.OpenStackConfig().
+                        get_one("sample-cloud"))
 
         sot = connection.from_config(cloud_config=cloud_region)
 
@@ -195,7 +204,7 @@ class TestConnection(base.TestCase):
                          sot.config.config['auth']['project_name'])
 
     def test_from_config_given_cloud_name(self):
-        sot = connection.from_config(cloud_name="sample")
+        sot = connection.from_config(cloud_name="sample-cloud")
 
         self.assertEqual(CONFIG_USERNAME,
                          sot.config.config['auth']['username'])
@@ -207,11 +216,16 @@ class TestConnection(base.TestCase):
                          sot.config.config['auth']['project_name'])
 
     def test_from_config_verify(self):
-        sot = connection.from_config(cloud="insecure")
+        sot = connection.from_config(cloud="insecure-cloud")
         self.assertFalse(sot.session.verify)
 
-        sot = connection.from_config(cloud="cacert")
+        sot = connection.from_config(cloud="cacert-cloud")
         self.assertEqual(CONFIG_CACERT, sot.session.verify)
+
+    def test_from_config_insecure(self):
+        # Ensure that the "insecure=True" flag implies "verify=False"
+        sot = connection.from_config("insecure-cloud-alternative-format")
+        self.assertFalse(sot.session.verify)
 
 
 class TestNetworkConnection(base.TestCase):
