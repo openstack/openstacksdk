@@ -93,8 +93,8 @@ class TestConnection(base.TestCase):
 
     def test_task_manager_rate_scalar(self):
         conn = connection.Connection(cloud='sample-cloud', rate_limit=20)
-        self.assertEqual(1 / 20, conn.task_manager._get_wait('object-store'))
-        self.assertEqual(1 / 20, conn.task_manager._get_wait(None))
+        self.assertEqual(1.0 / 20, conn.task_manager._get_wait('object-store'))
+        self.assertEqual(1.0 / 20, conn.task_manager._get_wait(None))
 
     def test_task_manager_rate_dict(self):
         conn = connection.Connection(
@@ -103,8 +103,8 @@ class TestConnection(base.TestCase):
                 'compute': 20,
                 'network': 10,
             })
-        self.assertEqual(1 / 20, conn.task_manager._get_wait('compute'))
-        self.assertEqual(1 / 10, conn.task_manager._get_wait('network'))
+        self.assertEqual(1.0 / 20, conn.task_manager._get_wait('compute'))
+        self.assertEqual(1.0 / 10, conn.task_manager._get_wait('network'))
         self.assertIsNone(conn.task_manager._get_wait('object-store'))
 
     def test_create_session(self):

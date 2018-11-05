@@ -78,8 +78,8 @@ class TestRateTransforms(base.TestCase):
                 'compute': 20,
                 'network': 10,
             })
-        self.assertEqual(1 / 20, manager._get_wait('compute'))
-        self.assertEqual(1 / 10, manager._get_wait('network'))
+        self.assertEqual(1.0 / 20, manager._get_wait('compute'))
+        self.assertEqual(1.0 / 10, manager._get_wait('network'))
         self.assertIsNone(manager._get_wait('object-store'))
 
 
