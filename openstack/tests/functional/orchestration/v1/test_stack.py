@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import yaml
+
 from openstack import exceptions
 from openstack.orchestration.v1 import stack
 from openstack.tests.functional import base
@@ -26,9 +28,6 @@ class TestStack(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestStack, self).setUp()
-        self.skipTest(
-            'Orchestration functional tests disabled:'
-            ' https://storyboard.openstack.org/#!/story/1525005')
         self.require_service('orchestration')
 
         if self.conn.compute.find_keypair(self.NAME) is None:
@@ -36,7 +35,10 @@ class TestStack(base.BaseFunctionalTest):
         image = next(self.conn.image.images())
         tname = "openstack/tests/functional/orchestration/v1/hello_world.yaml"
         with open(tname) as f:
-            template = f.read()
+            template = yaml.safe_load(f)
+        # TODO(mordred) Fix the need for this. We have better support in
+        # the shade layer.
+        template['heat_template_version'] = '2013-05-23'
         self.network, self.subnet = test_network.create_network(
             self.conn,
             self.NAME,
