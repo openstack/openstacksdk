@@ -132,7 +132,7 @@ class OpenStackSDKAdapter(adapter.Adapter):
         self.task_manager = task_manager
 
     def request(
-            self, url, method, run_async=False, error_message=None,
+            self, url, method, error_message=None,
             raise_exc=False, connect_retries=1, *args, **kwargs):
         name_parts = _extract_name(url, self.service_type)
         name = '.'.join([self.service_type, method] + name_parts)
@@ -145,10 +145,7 @@ class OpenStackSDKAdapter(adapter.Adapter):
             connect_retries=connect_retries, raise_exc=raise_exc,
             tag=self.service_type,
             **kwargs)
-        if run_async:
-            return ret
-        else:
-            return ret.result()
+        return ret.result()
 
     def _version_matches(self, version):
         api_version = self.get_api_major_version()
@@ -160,11 +157,6 @@ class OpenStackSDKAdapter(adapter.Adapter):
 class ShadeAdapter(OpenStackSDKAdapter):
     """Wrapper for shade methods that expect json unpacking."""
 
-    def request(self, url, method,
-                run_async=False, error_message=None, **kwargs):
-        response = super(ShadeAdapter, self).request(
-            url, method, run_async=run_async, **kwargs)
-        if run_async:
-            return response
-        else:
-            return _json_response(response, error_message=error_message)
+    def request(self, url, method, error_message=None, **kwargs):
+        response = super(ShadeAdapter, self).request(url, method, **kwargs)
+        return _json_response(response, error_message=error_message)
