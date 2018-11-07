@@ -84,7 +84,7 @@ An example config file is probably helpful:
 
   clouds:
     mtvexx:
-      profile: vexxhost
+      profile: https://vexxhost.com
       auth:
         username: mordred@inaugust.com
         password: XXXXXXXXX
@@ -111,7 +111,8 @@ An example config file is probably helpful:
 
 You may note a few things. First, since `auth_url` settings are silly
 and embarrassingly ugly, known cloud vendor profile information is included and
-may be referenced by name. One of the benefits of that is that `auth_url`
+may be referenced by name or by base URL to the cloud in question if the
+cloud serves a vendor profile. One of the benefits of that is that `auth_url`
 isn't the only thing the vendor defaults contain. For instance, since
 Rackspace lists `rax:database` as the service type for trove, `openstacksdk`
 knows that so that you don't have to. In case the cloud vendor profile is not

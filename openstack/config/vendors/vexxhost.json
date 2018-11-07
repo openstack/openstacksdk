@@ -1,18 +1,6 @@
 {
   "name": "vexxhost",
   "profile": {
-    "auth_type": "v3password",
-    "auth": {
-      "auth_url": "https://auth.vexxhost.net/v3"
-    },
-    "regions": [
-      "ca-ymq-1",
-      "sjc1"
-    ],
-    "dns_api_version": "1",
-    "identity_api_version": "3",
-    "image_format": "raw",
-    "floating_ip_source": "None",
-    "requires_floating_ip": false
+    "profile": "https://vexxhost.com"
   }
 }
