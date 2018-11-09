@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed incorrect neutron endpoint mangling for the cases when the catalog
+    contains a versioned neutron endpoint.

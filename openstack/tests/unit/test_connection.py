@@ -229,6 +229,20 @@ class TestConnection(base.TestCase):
 
 
 class TestNetworkConnection(base.TestCase):
+
+    # Verify that if the catalog has the suffix we don't mess things up.
+    def test_network_proxy(self):
+        self.use_keystone_v3(catalog='catalog-v3-suffix.json')
+        self.assertEqual(
+            'openstack.network.v2._proxy',
+            self.conn.network.__class__.__module__)
+        self.assert_calls()
+        self.assertEqual(
+            "https://network.example.com/v2.0",
+            self.conn.network.get_endpoint())
+
+
+class TestNetworkConnectionSuffix(base.TestCase):
     # We need to do the neutron adapter test differently because it needs
     # to actually get a catalog.
 
