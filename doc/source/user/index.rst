@@ -13,6 +13,10 @@ The OpenStack SDK is available on
 
    $ pip install openstacksdk
 
+To check the installed version you can call the module with ::
+
+   $ python -m openstack version
+
 .. _user_guides:
 
 User Guides
