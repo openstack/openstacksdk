@@ -141,14 +141,15 @@ eu-de          Germany
 ELASTX
 ------
 
-https://ops.elastx.net:5000/v2.0
+https://ops.elastx.cloud:5000/v3
 
 ============== ================
 Region Name    Location
 ============== ================
-regionOne      Stockholm, SE
+se-sto         Stockholm, SE
 ============== ================
 
+* Identity API Version is 3
 * Public IPv4 is provided via NAT with Neutron Floating IP
 
 Enter Cloud Suite
