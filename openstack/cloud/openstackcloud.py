@@ -10269,7 +10269,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             - description: <service description>
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
 
         """
         type_ = kwargs.pop('type', None)
@@ -10328,7 +10328,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the services description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
         """
         if self._is_client_version('identity', 2):
             url, key = '/OS-KSADM/services', 'OS-KSADM:services'
@@ -10350,7 +10350,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the services description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call.
+            OpenStack API call.
         """
         services = self.list_services()
         return _utils._filter_list(services, name_or_id, filters)
@@ -10370,7 +10370,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             - description: <service description>
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
-            openstack API call or if multiple matches are found.
+            OpenStack API call or if multiple matches are found.
         """
         return _utils._get_entity(self, 'service', name_or_id, filters)
 
@@ -10382,7 +10382,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call
+            the OpenStack API call
         """
         service = self.get_service(name_or_id=name_or_id)
         if service is None:
@@ -10422,7 +10422,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the endpoint description
 
         :raises: OpenStackCloudException if the service cannot be found or if
-            something goes wrong during the openstack API call.
+            something goes wrong during the OpenStack API call.
         """
         public_url = kwargs.pop('public_url', None)
         internal_url = kwargs.pop('internal_url', None)
@@ -10531,7 +10531,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the endpoint description
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         # Force admin interface if v2.0 is in use
         v2 = self._is_client_version('identity', 2)
@@ -10559,7 +10559,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             - admin_url: <endpoint admin url> (optional)
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         # NOTE(SamYaple): With keystone v3 we can filter directly via the
         # the keystone api, but since the return of all the endpoints even in
@@ -10593,7 +10593,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         endpoint = self.get_endpoint(id=id)
         if endpoint is None:
@@ -10666,7 +10666,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         if domain_id is None:
             if name_or_id is None:
@@ -10694,7 +10694,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the domain description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         data = self._identity_client.get(
             '/domains', params=filters, error_message="Failed to list domains")
@@ -10715,7 +10715,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             - description: <domain description>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         if filters is None:
             filters = {}
@@ -10741,7 +10741,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             - description: <domain description>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         if domain_id is None:
             # NOTE(SamYaple): search_domains() has filters and name_or_id
@@ -10769,7 +10769,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A list of ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         data = self._identity_client.get(
             '/groups', params=kwargs, error_message="Failed to list groups")
@@ -10786,7 +10786,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A list of ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         groups = self.list_groups(**kwargs)
         return _utils._filter_list(groups, name_or_id, filters)
@@ -10802,7 +10802,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         return _utils._get_entity(self, 'group', name_or_id, filters, **kwargs)
 
@@ -10816,7 +10816,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         group_ref = {'name': name}
         if description:
@@ -10849,7 +10849,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A ``munch.Munch`` containing the group description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         self.list_groups.invalidate(self)
         group = self.get_group(name_or_id, **kwargs)
@@ -10882,7 +10882,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         group = self.get_group(name_or_id, **kwargs)
         if group is None:
@@ -10906,7 +10906,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: a list of ``munch.Munch`` containing the role description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         v2 = self._is_client_version('identity', 2)
         url = '/OS-KSADM/roles' if v2 else '/roles'
@@ -10930,7 +10930,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 - description: <role description>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         roles = self.list_roles(**kwargs)
         return _utils._filter_list(roles, name_or_id, filters)
@@ -10951,7 +10951,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 - description: <role description>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         return _utils._get_entity(self, 'role', name_or_id, filters, **kwargs)
 
@@ -11036,7 +11036,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 - project|domain: <project or domain id>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         # NOTE(samueldmq): although 'include_names' is a valid query parameter
         # in the keystone v3 list role assignments API, it would have NO effect
@@ -11271,7 +11271,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: True if delete succeeded, False otherwise.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         role = self.get_role(name_or_id, **kwargs)
         if role is None:
@@ -11501,7 +11501,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: a list of dicts containing the aggregates
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
-            the openstack API call.
+            the OpenStack API call.
         """
         aggregates = self.list_aggregates()
         return _utils._filter_list(aggregates, name_or_id, filters)
@@ -12563,7 +12563,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :param bool shared: Visibility to other projects.
                        Defaults to False.
         :param source_firewall_group_id: ID of source firewall group.
-        :param source_ip_address: IPv4-, IPv6 adress or CIDR.
+        :param source_ip_address: IPv4-, IPv6 address or CIDR.
         :param source_port: Port or port range (e.g. 80:90)
         :raises: BadRequestException if parameters are malformed
         :return: created firewall rule
