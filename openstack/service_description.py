@@ -196,7 +196,6 @@ class ServiceDescription(object):
                 "Service {service_type) has no discoverable version."
                 " The resulting Proxy object will only have direct"
                 " passthrough REST capabilities.".format(
-                    version=api_version,
                     service_type=self.service_type),
                 category=exceptions.UnsupportedVersionWarning)
             return temp_adapter
