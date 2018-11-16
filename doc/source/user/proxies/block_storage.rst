@@ -22,6 +22,17 @@ Volume Operations
    .. automethod:: openstack.block_storage.v2._proxy.Proxy.get_volume
    .. automethod:: openstack.block_storage.v2._proxy.Proxy.volumes
 
+Backup Operations
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+
+   .. automethod:: openstack.block_storage.v2._proxy.Proxy.create_backup
+   .. automethod:: openstack.block_storage.v2._proxy.Proxy.delete_backup
+   .. automethod:: openstack.block_storage.v2._proxy.Proxy.get_backup
+   .. automethod:: openstack.block_storage.v2._proxy.Proxy.backups
+   .. automethod:: openstack.block_storage.v2._proxy.Proxy.restore_backup
+
 Type Operations
 ^^^^^^^^^^^^^^^
 

@@ -10,10 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import stats as _stats
 from openstack.block_storage.v2 import type as _type
 from openstack.block_storage.v2 import volume as _volume
+from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 
@@ -208,6 +210,107 @@ class Proxy(proxy.Proxy):
         :returns A generator of cinder Back-end storage pools objects
         """
         return self._list(_stats.Pools, paginated=False)
+
+    def backups(self, details=True, **query):
+        """Retrieve a generator of backups
+
+        :param bool details: When set to ``False``
+            :class:`~openstack.block_storage.v2.backup.Backup` objects
+            will be returned. The default, ``True``, will cause
+            :class:`~openstack.block_storage.v2.backup.BackupDetail`
+            objects to be returned.
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned:
+
+            * offset: pagination marker
+            * limit: pagination limit
+            * sort_key: Sorts by an attribute. A valid value is
+                name, status, container_format, disk_format, size, id,
+                created_at, or updated_at. Default is created_at.
+                The API uses the natural sorting direction of the
+                sort_key attribute value.
+            * sort_dir: Sorts by one or more sets of attribute and sort
+                direction combinations. If you omit the sort direction
+                in a set, default is desc.
+
+        :returns: A generator of backup objects.
+        """
+        if not self._connection.has_service('object-store'):
+            raise exceptions.SDKException(
+                'Object-store service is required for block-store backups'
+            )
+        backup = _backup.BackupDetail if details else _backup.Backup
+        return self._list(backup, paginated=True, **query)
+
+    def get_backup(self, backup):
+        """Get a backup
+
+        :param backup: The value can be the ID of a backup
+            or a :class:`~openstack.block_storage.v2.backup.Backup`
+            instance.
+
+        :returns: Backup instance
+        :rtype: :class:`~openstack.block_storage.v2.backup.Backup`
+        """
+        if not self._connection.has_service('object-store'):
+            raise exceptions.SDKException(
+                'Object-store service is required for block-store backups'
+            )
+        return self._get(_backup.Backup, backup)
+
+    def create_backup(self, **attrs):
+        """Create a new Backup from attributes with native API
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v2.backup.Backup`
+            comprised of the properties on the Backup class.
+
+        :returns: The results of Backup creation
+        :rtype: :class:`~openstack.block_storage.v2.backup.Backup`
+        """
+        if not self._connection.has_service('object-store'):
+            raise exceptions.SDKException(
+                'Object-store service is required for block-store backups'
+            )
+        return self._create(_backup.Backup, **attrs)
+
+    def delete_backup(self, backup, ignore_missing=True):
+        """Delete a CloudBackup
+
+        :param backup: The value can be the ID of a backup or a
+            :class:`~openstack.block_storage.v2.backup.Backup` instance
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the zone does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent zone.
+
+        :returns: ``None``
+        """
+        if not self._connection.has_service('object-store'):
+            raise exceptions.SDKException(
+                'Object-store service is required for block-store backups'
+            )
+        self._delete(_backup.Backup, backup,
+                     ignore_missing=ignore_missing)
+
+    def restore_backup(self, backup, volume_id, name):
+        """Restore a Backup to volume
+
+        :param backup: The value can be the ID of a backup or a
+            :class:`~openstack.block_storage.v2.backup.Backup` instance
+        :param volume_id: The ID of the volume to restore the backup to.
+        :param name: The name for new volume creation to restore.
+
+        :returns: Updated backup instance
+        :rtype: :class:`~openstack.block_storage.v2.backup.Backup`
+        """
+        if not self._connection.has_service('object-store'):
+            raise exceptions.SDKException(
+                'Object-store service is required for block-store backups'
+            )
+        backup = self._get_resource(_backup.Backup, backup)
+        return backup.restore(self, volume_id=volume_id, name=name)
 
     def wait_for_status(self, res, status='ACTIVE', failures=None,
                         interval=2, wait=120):

@@ -9,8 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import mock
+
+from openstack import exceptions
 
 from openstack.block_storage.v2 import _proxy
+from openstack.block_storage.v2 import backup
 from openstack.block_storage.v2 import snapshot
 from openstack.block_storage.v2 import stats
 from openstack.block_storage.v2 import type
@@ -97,3 +101,71 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_backend_pools(self):
         self.verify_list(self.proxy.backend_pools, stats.Pools,
                          paginated=False)
+
+    def test_backups_detailed(self):
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=True)
+        self.verify_list(self.proxy.backups, backup.BackupDetail,
+                         paginated=True,
+                         method_kwargs={"details": True, "query": 1},
+                         expected_kwargs={"query": 1})
+
+    def test_backups_not_detailed(self):
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=True)
+        self.verify_list(self.proxy.backups, backup.Backup,
+                         paginated=True,
+                         method_kwargs={"details": False, "query": 1},
+                         expected_kwargs={"query": 1})
+
+    def test_backup_get(self):
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=True)
+        self.verify_get(self.proxy.get_backup, backup.Backup)
+
+    def test_backup_delete(self):
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=True)
+        self.verify_delete(self.proxy.delete_backup, backup.Backup, False)
+
+    def test_backup_delete_ignore(self):
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=True)
+        self.verify_delete(self.proxy.delete_backup, backup.Backup, True)
+
+    def test_backup_create_attrs(self):
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=True)
+        self.verify_create(self.proxy.create_backup, backup.Backup)
+
+    def test_backup_restore(self):
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=True)
+        self._verify2(
+            'openstack.block_storage.v2.backup.Backup.restore',
+            self.proxy.restore_backup,
+            method_args=['volume_id'],
+            method_kwargs={'volume_id': 'vol_id', 'name': 'name'},
+            expected_args=[self.proxy],
+            expected_kwargs={'volume_id': 'vol_id', 'name': 'name'}
+        )
+
+    def test_backup_no_swift(self):
+        """Ensure proxy method raises exception if swift is not available
+        """
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=False)
+        self.assertRaises(
+            exceptions.SDKException,
+            self.proxy.restore_backup,
+            'backup',
+            'volume_id',
+            'name')
