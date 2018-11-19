@@ -9730,7 +9730,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                     try:
                         port_url = '/ports/{uuid}'.format(uuid=uuid)
                         # NOTE(TheJulia): Added in hope that it is logged.
-                        port_msg = ('Failed to delete port {port} for node'
+                        port_msg = ('Failed to delete port {port} for node '
                                     '{node}').format(port=uuid,
                                                      node=machine['uuid'])
                         self._baremetal_client.delete(port_url,
