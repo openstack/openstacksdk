@@ -1206,7 +1206,7 @@ class Resource(dict):
         return self
 
     @classmethod
-    def list(cls, session, paginated=False, **params):
+    def list(cls, session, paginated=False, base_path=None, **params):
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query
@@ -1220,6 +1220,9 @@ class Resource(dict):
                                **When paginated is False only one
                                page of data will be returned regardless
                                of the API's support of pagination.**
+        :param str base_path: Base part of the URI for listing resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
         :param dict params: These keyword arguments are passed through the
             :meth:`~openstack.resource.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be
@@ -1241,9 +1244,11 @@ class Resource(dict):
         session = cls._get_session(session)
         microversion = cls._get_microversion_for_list(session)
 
-        cls._query_mapping._validate(params, base_path=cls.base_path)
+        if base_path is None:
+            base_path = cls.base_path
+        cls._query_mapping._validate(params, base_path=base_path)
         query_params = cls._query_mapping._transpose(params)
-        uri = cls.base_path % params
+        uri = base_path % params
 
         limit = query_params.get('limit')
 

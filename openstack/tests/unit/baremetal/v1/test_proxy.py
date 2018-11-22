@@ -17,6 +17,7 @@ from openstack.baremetal.v1 import chassis
 from openstack.baremetal.v1 import driver
 from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
+from openstack.baremetal.v1 import port_group
 from openstack import exceptions
 from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
@@ -34,17 +35,17 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_get_driver(self):
         self.verify_get(self.proxy.get_driver, driver.Driver)
 
-    def test_chassis_detailed(self):
-        self.verify_list(self.proxy.chassis, chassis.ChassisDetail,
-                         paginated=True,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+    @mock.patch.object(chassis.Chassis, 'list')
+    def test_chassis_detailed(self, mock_list):
+        result = self.proxy.chassis(details=True, query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
 
-    def test_chassis_not_detailed(self):
-        self.verify_list(self.proxy.chassis, chassis.Chassis,
-                         paginated=True,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+    @mock.patch.object(chassis.Chassis, 'list')
+    def test_chassis_not_detailed(self, mock_list):
+        result = self.proxy.chassis(query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=False, query=1)
 
     def test_create_chassis(self):
         self.verify_create(self.proxy.create_chassis, chassis.Chassis)
@@ -64,17 +65,17 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_delete_chassis_ignore(self):
         self.verify_delete(self.proxy.delete_chassis, chassis.Chassis, True)
 
-    def test_nodes_detailed(self):
-        self.verify_list(self.proxy.nodes, node.NodeDetail,
-                         paginated=True,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+    @mock.patch.object(node.Node, 'list')
+    def test_nodes_detailed(self, mock_list):
+        result = self.proxy.nodes(details=True, query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
 
-    def test_nodes_not_detailed(self):
-        self.verify_list(self.proxy.nodes, node.Node,
-                         paginated=True,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+    @mock.patch.object(node.Node, 'list')
+    def test_nodes_not_detailed(self, mock_list):
+        result = self.proxy.nodes(query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=False, query=1)
 
     def test_create_node(self):
         self.verify_create(self.proxy.create_node, node.Node)
@@ -106,17 +107,17 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_delete_node_ignore(self):
         self.verify_delete(self.proxy.delete_node, node.Node, True)
 
-    def test_ports_detailed(self):
-        self.verify_list(self.proxy.ports, port.PortDetail,
-                         paginated=True,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+    @mock.patch.object(port.Port, 'list')
+    def test_ports_detailed(self, mock_list):
+        result = self.proxy.ports(details=True, query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
 
-    def test_ports_not_detailed(self):
-        self.verify_list(self.proxy.ports, port.Port,
-                         paginated=True,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+    @mock.patch.object(port.Port, 'list')
+    def test_ports_not_detailed(self, mock_list):
+        result = self.proxy.ports(query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=False, query=1)
 
     def test_create_port(self):
         self.verify_create(self.proxy.create_port, port.Port)
@@ -135,6 +136,18 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
 
     def test_delete_port_ignore(self):
         self.verify_delete(self.proxy.delete_port, port.Port, True)
+
+    @mock.patch.object(port_group.PortGroup, 'list')
+    def test_port_groups_detailed(self, mock_list):
+        result = self.proxy.port_groups(details=True, query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=True, query=1)
+
+    @mock.patch.object(port_group.PortGroup, 'list')
+    def test_port_groups_not_detailed(self, mock_list):
+        result = self.proxy.port_groups(query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, details=False, query=1)
 
 
 @mock.patch('time.sleep', lambda _sec: None)

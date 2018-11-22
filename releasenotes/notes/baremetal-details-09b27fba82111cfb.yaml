@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    The objects returned by baremetal detailed listing functions
+    (``connection.baremetal.{nodes,ports,chassis,port_groups}``) are now
+    fully functional, e.g. can be directly updated or deleted.
+deprecations:
+  - |
+    The following baremetal resource classes are no longer used and will be
+    removed in a future release: ``NodeDetail``, ``PortDetail``,
+    ``ChassisDetail`` and ``PortGroupDetail``. The regular ``Node``, ``Port``,
+    ``Chassis`` and ``PortGroup`` are now used instead.

@@ -66,27 +66,3 @@ class TestChassis(base.TestCase):
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['nodes'], sot.nodes)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
-
-
-class TestChassisDetail(base.TestCase):
-
-    def test_basic(self):
-        sot = chassis.ChassisDetail()
-        self.assertIsNone(sot.resource_key)
-        self.assertEqual('chassis', sot.resources_key)
-        self.assertEqual('/chassis/detail', sot.base_path)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
-
-    def test_instantiate(self):
-        sot = chassis.ChassisDetail(**FAKE)
-        self.assertEqual(FAKE['uuid'], sot.id)
-        self.assertEqual(FAKE['created_at'], sot.created_at)
-        self.assertEqual(FAKE['description'], sot.description)
-        self.assertEqual(FAKE['extra'], sot.extra)
-        self.assertEqual(FAKE['links'], sot.links)
-        self.assertEqual(FAKE['nodes'], sot.nodes)
-        self.assertEqual(FAKE['updated_at'], sot.updated_at)

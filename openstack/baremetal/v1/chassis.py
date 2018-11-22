@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class Chassis(resource.Resource):
+class Chassis(_common.ListMixin, resource.Resource):
 
     resources_key = 'chassis'
     base_path = '/chassis'
@@ -47,16 +48,4 @@ class Chassis(resource.Resource):
     updated_at = resource.Body('updated_at')
 
 
-class ChassisDetail(Chassis):
-
-    base_path = '/chassis/detail'
-
-    # capabilities
-    allow_create = False
-    allow_fetch = False
-    allow_commit = False
-    allow_delete = False
-    allow_list = True
-
-    #: The UUID for the chassis
-    id = resource.Body('uuid', alternate_id=True)
+ChassisDetail = Chassis

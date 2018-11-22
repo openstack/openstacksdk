@@ -70,32 +70,3 @@ class TestPort(base.TestCase):
         self.assertEqual(FAKE['portgroup_uuid'], sot.port_group_id)
         self.assertEqual(FAKE['pxe_enabled'], sot.is_pxe_enabled)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
-
-
-class TestPortDetail(base.TestCase):
-
-    def test_basic(self):
-        sot = port.PortDetail()
-        self.assertIsNone(sot.resource_key)
-        self.assertEqual('ports', sot.resources_key)
-        self.assertEqual('/ports/detail', sot.base_path)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
-
-    def test_instantiate(self):
-        sot = port.PortDetail(**FAKE)
-        self.assertEqual(FAKE['uuid'], sot.id)
-        self.assertEqual(FAKE['address'], sot.address)
-        self.assertEqual(FAKE['created_at'], sot.created_at)
-        self.assertEqual(FAKE['extra'], sot.extra)
-        self.assertEqual(FAKE['internal_info'], sot.internal_info)
-        self.assertEqual(FAKE['links'], sot.links)
-        self.assertEqual(FAKE['local_link_connection'],
-                         sot.local_link_connection)
-        self.assertEqual(FAKE['node_uuid'], sot.node_id)
-        self.assertEqual(FAKE['portgroup_uuid'], sot.port_group_id)
-        self.assertEqual(FAKE['pxe_enabled'], sot.is_pxe_enabled)
-        self.assertEqual(FAKE['updated_at'], sot.updated_at)

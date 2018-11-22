@@ -153,58 +153,6 @@ class TestNode(base.TestCase):
         self.assertEqual('available', sot.provision_state)
 
 
-class TestNodeDetail(base.TestCase):
-
-    def test_basic(self):
-        sot = node.NodeDetail()
-        self.assertIsNone(sot.resource_key)
-        self.assertEqual('nodes', sot.resources_key)
-        self.assertEqual('/nodes/detail', sot.base_path)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
-
-    def test_instantiate(self):
-        sot = node.NodeDetail(**FAKE)
-
-        self.assertEqual(FAKE['uuid'], sot.id)
-        self.assertEqual(FAKE['name'], sot.name)
-
-        self.assertEqual(FAKE['chassis_uuid'], sot.chassis_id)
-        self.assertEqual(FAKE['clean_step'], sot.clean_step)
-        self.assertEqual(FAKE['created_at'], sot.created_at)
-        self.assertEqual(FAKE['driver'], sot.driver)
-        self.assertEqual(FAKE['driver_info'], sot.driver_info)
-        self.assertEqual(FAKE['driver_internal_info'],
-                         sot.driver_internal_info)
-        self.assertEqual(FAKE['extra'], sot.extra)
-        self.assertEqual(FAKE['instance_info'], sot.instance_info)
-        self.assertEqual(FAKE['instance_uuid'], sot.instance_id)
-        self.assertEqual(FAKE['console_enabled'], sot.is_console_enabled)
-        self.assertEqual(FAKE['maintenance'], sot.is_maintenance)
-        self.assertEqual(FAKE['last_error'], sot.last_error)
-        self.assertEqual(FAKE['links'], sot.links)
-        self.assertEqual(FAKE['maintenance_reason'], sot.maintenance_reason)
-        self.assertEqual(FAKE['name'], sot.name)
-        self.assertEqual(FAKE['network_interface'], sot.network_interface)
-        self.assertEqual(FAKE['ports'], sot.ports)
-        self.assertEqual(FAKE['portgroups'], sot.port_groups)
-        self.assertEqual(FAKE['power_state'], sot.power_state)
-        self.assertEqual(FAKE['properties'], sot.properties)
-        self.assertEqual(FAKE['provision_state'], sot.provision_state)
-        self.assertEqual(FAKE['raid_config'], sot.raid_config)
-        self.assertEqual(FAKE['reservation'], sot.reservation)
-        self.assertEqual(FAKE['resource_class'], sot.resource_class)
-        self.assertEqual(FAKE['states'], sot.states)
-        self.assertEqual(FAKE['target_provision_state'],
-                         sot.target_provision_state)
-        self.assertEqual(FAKE['target_power_state'], sot.target_power_state)
-        self.assertEqual(FAKE['target_raid_config'], sot.target_raid_config)
-        self.assertEqual(FAKE['updated_at'], sot.updated_at)
-
-
 @mock.patch('time.sleep', lambda _t: None)
 @mock.patch.object(node.Node, 'fetch', autospec=True)
 class TestNodeWaitForProvisionState(base.TestCase):

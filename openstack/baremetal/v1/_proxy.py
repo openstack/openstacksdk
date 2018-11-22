@@ -61,8 +61,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of chassis instances.
         """
-        cls = _chassis.ChassisDetail if details else _chassis.Chassis
-        return self._list(cls, paginated=True, **query)
+        return _chassis.Chassis.list(self, details=details, **query)
 
     def create_chassis(self, **attrs):
         """Create a new chassis from attributes.
@@ -198,10 +197,9 @@ class Proxy(proxy.Proxy):
                     direction of the server attribute that is provided as the
                     ``sort_key``.
 
-        :returns: A generator of node instances.
+        :returns: A generator of :class:`~openstack.baremetal.v1.node.Node`
         """
-        cls = _node.NodeDetail if details else _node.Node
-        return self._list(cls, paginated=True, **query)
+        return _node.Node.list(self, details=details, **query)
 
     def create_node(self, **attrs):
         """Create a new node from attributes.
@@ -442,8 +440,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of port instances.
         """
-        cls = _port.PortDetail if details else _port.Port
-        return self._list(cls, paginated=True, **query)
+        return _port.Port.list(self, details=details, **query)
 
     def create_port(self, **attrs):
         """Create a new port from attributes.
@@ -555,8 +552,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of port group instances.
         """
-        cls = _portgroup.PortGroupDetail if details else _portgroup.PortGroup
-        return self._list(cls, paginated=True, **query)
+        return _portgroup.PortGroup.list(self, details=details, **query)
 
     def create_port_group(self, **attrs):
         """Create a new portgroup from attributes.
