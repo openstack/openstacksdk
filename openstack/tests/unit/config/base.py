@@ -142,7 +142,10 @@ USER_CONF = {
                     'values': {
                         'external_network': 'my-network',
                     }
-                }
+                },
+                {
+                    'name': 'region-no-value',
+                },
             ],
         },
         '_test_cloud_hyphenated': {
