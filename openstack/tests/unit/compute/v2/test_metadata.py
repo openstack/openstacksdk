@@ -11,6 +11,7 @@
 # under the License.
 
 import mock
+from openstack import exceptions
 from openstack.tests.unit import base
 
 from openstack.compute.v2 import server
@@ -41,6 +42,7 @@ class TestMetadata(base.TestCase):
 
     def _test_get_all_metadata(self, sot):
         response = mock.Mock()
+        response.status_code = 200
         response.json.return_value = self.metadata_result
         sess = mock.Mock()
         sess.get.return_value = response
@@ -54,6 +56,7 @@ class TestMetadata(base.TestCase):
 
     def test_set_metadata(self):
         response = mock.Mock()
+        response.status_code = 200
         response.json.return_value = self.metadata_result
         sess = mock.Mock()
         sess.post.return_value = response
@@ -71,7 +74,9 @@ class TestMetadata(base.TestCase):
 
     def test_delete_metadata(self):
         sess = mock.Mock()
-        sess.delete.return_value = None
+        response = mock.Mock()
+        response.status_code = 200
+        sess.delete.return_value = response
 
         sot = server.Server(id=IDENTIFIER)
 
@@ -83,3 +88,37 @@ class TestMetadata(base.TestCase):
             "servers/IDENTIFIER/metadata/" + key,
             headers={"Accept": ""},
         )
+
+    def test_delete_metadata_error(self):
+        sess = mock.Mock()
+        response = mock.Mock()
+        response.status_code = 400
+        response.content = None
+        sess.delete.return_value = response
+
+        sot = server.Server(id=IDENTIFIER)
+
+        key = "hey"
+
+        self.assertRaises(
+            exceptions.BadRequestException,
+            sot.delete_metadata,
+            sess,
+            [key])
+
+    def test_set_metadata_error(self):
+        sess = mock.Mock()
+        response = mock.Mock()
+        response.status_code = 400
+        response.content = None
+        sess.post.return_value = response
+
+        sot = server.Server(id=IDENTIFIER)
+
+        set_meta = {"lol": "rofl"}
+
+        self.assertRaises(
+            exceptions.BadRequestException,
+            sot.set_metadata,
+            sess,
+            **set_meta)
