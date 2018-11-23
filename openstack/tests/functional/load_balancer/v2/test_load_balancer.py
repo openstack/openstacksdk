@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
 from openstack.load_balancer.v2 import health_monitor
 from openstack.load_balancer.v2 import l7_policy
 from openstack.load_balancer.v2 import l7_rule
@@ -45,6 +47,13 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     L7RULE_TYPE = 'HOST_NAME'
     L7RULE_VALUE = 'example'
 
+    @classmethod
+    def setUpClass(cls):
+        super(TestLoadBalancer, cls).setUpClass()
+        cls._wait_for_timeout = int(os.getenv(
+            'OPENSTACKSDK_FUNC_TEST_TIMEOUT_LOAD_BALANCER',
+            cls._wait_for_timeout))
+
     # TODO(shade): Creating load balancers can be slow on some hosts due to
     #              nova instance boot times (up to ten minutes). This used to
     #              use setUpClass, but that's a whole other pile of bad, so
@@ -70,8 +79,9 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.assertEqual(self.LB_NAME, test_lb.name)
         # Wait for the LB to go ACTIVE.  On non-virtualization enabled hosts
         # it can take nova up to ten minutes to boot a VM.
-        self.conn.load_balancer.wait_for_load_balancer(test_lb.id, interval=1,
-                                                       wait=600)
+        self.conn.load_balancer.wait_for_load_balancer(
+            test_lb.id, interval=1,
+            wait=self._wait_for_timeout)
         self.LB_ID = test_lb.id
 
         test_listener = self.conn.load_balancer.create_listener(
@@ -80,7 +90,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         assert isinstance(test_listener, listener.Listener)
         self.assertEqual(self.LISTENER_NAME, test_listener.name)
         self.LISTENER_ID = test_listener.id
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         test_pool = self.conn.load_balancer.create_pool(
             name=self.POOL_NAME, protocol=self.PROTOCOL,
@@ -88,7 +99,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         assert isinstance(test_pool, pool.Pool)
         self.assertEqual(self.POOL_NAME, test_pool.name)
         self.POOL_ID = test_pool.id
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         test_member = self.conn.load_balancer.create_member(
             pool=self.POOL_ID, name=self.MEMBER_NAME,
@@ -97,7 +109,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         assert isinstance(test_member, member.Member)
         self.assertEqual(self.MEMBER_NAME, test_member.name)
         self.MEMBER_ID = test_member.id
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         test_hm = self.conn.load_balancer.create_health_monitor(
             pool_id=self.POOL_ID, name=self.HM_NAME, delay=self.DELAY,
@@ -106,7 +119,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         assert isinstance(test_hm, health_monitor.HealthMonitor)
         self.assertEqual(self.HM_NAME, test_hm.name)
         self.HM_ID = test_hm.id
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         test_l7policy = self.conn.load_balancer.create_l7_policy(
             listener_id=self.LISTENER_ID, name=self.L7POLICY_NAME,
@@ -114,7 +128,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         assert isinstance(test_l7policy, l7_policy.L7Policy)
         self.assertEqual(self.L7POLICY_NAME, test_l7policy.name)
         self.L7POLICY_ID = test_l7policy.id
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         test_l7rule = self.conn.load_balancer.create_l7_rule(
             l7_policy=self.L7POLICY_ID, compare_type=self.COMPARE_TYPE,
@@ -122,34 +137,42 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         assert isinstance(test_l7rule, l7_rule.L7Rule)
         self.assertEqual(self.COMPARE_TYPE, test_l7rule.compare_type)
         self.L7RULE_ID = test_l7rule.id
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
     def tearDown(self):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         self.conn.load_balancer.delete_l7_rule(
             self.L7RULE_ID, l7_policy=self.L7POLICY_ID, ignore_missing=False)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         self.conn.load_balancer.delete_l7_policy(
             self.L7POLICY_ID, ignore_missing=False)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         self.conn.load_balancer.delete_health_monitor(
             self.HM_ID, ignore_missing=False)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         self.conn.load_balancer.delete_member(
             self.MEMBER_ID, self.POOL_ID, ignore_missing=False)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         self.conn.load_balancer.delete_pool(self.POOL_ID, ignore_missing=False)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         self.conn.load_balancer.delete_listener(self.LISTENER_ID,
                                                 ignore_missing=False)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
 
         self.conn.load_balancer.delete_load_balancer(
             self.LB_ID, ignore_missing=False)
@@ -172,13 +195,15 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     def test_lb_update(self):
         self.conn.load_balancer.update_load_balancer(
             self.LB_ID, name=self.UPDATE_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.assertEqual(self.UPDATE_NAME, test_lb.name)
 
         self.conn.load_balancer.update_load_balancer(
             self.LB_ID, name=self.LB_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.assertEqual(self.LB_NAME, test_lb.name)
 
@@ -203,13 +228,15 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
         self.conn.load_balancer.update_listener(
             self.LISTENER_ID, name=self.UPDATE_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_listener = self.conn.load_balancer.get_listener(self.LISTENER_ID)
         self.assertEqual(self.UPDATE_NAME, test_listener.name)
 
         self.conn.load_balancer.update_listener(
             self.LISTENER_ID, name=self.LISTENER_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_listener = self.conn.load_balancer.get_listener(self.LISTENER_ID)
         self.assertEqual(self.LISTENER_NAME, test_listener.name)
 
@@ -232,13 +259,15 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
         self.conn.load_balancer.update_pool(self.POOL_ID,
                                             name=self.UPDATE_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
         self.assertEqual(self.UPDATE_NAME, test_pool.name)
 
         self.conn.load_balancer.update_pool(self.POOL_ID,
                                             name=self.POOL_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_pool = self.conn.load_balancer.get_pool(self.POOL_ID)
         self.assertEqual(self.POOL_NAME, test_pool.name)
 
@@ -266,14 +295,16 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
         self.conn.load_balancer.update_member(self.MEMBER_ID, self.POOL_ID,
                                               name=self.UPDATE_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
                                                          self.POOL_ID)
         self.assertEqual(self.UPDATE_NAME, test_member.name)
 
         self.conn.load_balancer.update_member(self.MEMBER_ID, self.POOL_ID,
                                               name=self.MEMBER_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_member = self.conn.load_balancer.get_member(self.MEMBER_ID,
                                                          self.POOL_ID)
         self.assertEqual(self.MEMBER_NAME, test_member.name)
@@ -300,13 +331,15 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
         self.conn.load_balancer.update_health_monitor(self.HM_ID,
                                                       name=self.UPDATE_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_hm = self.conn.load_balancer.get_health_monitor(self.HM_ID)
         self.assertEqual(self.UPDATE_NAME, test_hm.name)
 
         self.conn.load_balancer.update_health_monitor(self.HM_ID,
                                                       name=self.HM_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_hm = self.conn.load_balancer.get_health_monitor(self.HM_ID)
         self.assertEqual(self.HM_NAME, test_hm.name)
 
@@ -331,14 +364,16 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
         self.conn.load_balancer.update_l7_policy(
             self.L7POLICY_ID, name=self.UPDATE_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_l7_policy = self.conn.load_balancer.get_l7_policy(
             self.L7POLICY_ID)
         self.assertEqual(self.UPDATE_NAME, test_l7_policy.name)
 
         self.conn.load_balancer.update_l7_policy(self.L7POLICY_ID,
                                                  name=self.L7POLICY_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_l7_policy = self.conn.load_balancer.get_l7_policy(
             self.L7POLICY_ID)
         self.assertEqual(self.L7POLICY_NAME, test_l7_policy.name)
@@ -368,7 +403,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.conn.load_balancer.update_l7_rule(self.L7RULE_ID,
                                                l7_policy=self.L7POLICY_ID,
                                                rule_value=self.UPDATE_NAME)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
             self.L7RULE_ID, l7_policy=self.L7POLICY_ID)
         self.assertEqual(self.UPDATE_NAME, test_l7_rule.rule_value)
@@ -376,7 +412,8 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.conn.load_balancer.update_l7_rule(self.L7RULE_ID,
                                                l7_policy=self.L7POLICY_ID,
                                                rule_value=self.L7RULE_VALUE)
-        self.conn.load_balancer.wait_for_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
             self.L7RULE_ID, l7_policy=self.L7POLICY_ID,)
         self.assertEqual(self.L7RULE_VALUE, test_l7_rule.rule_value)

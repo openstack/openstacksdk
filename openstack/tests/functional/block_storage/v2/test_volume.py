@@ -10,12 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 from openstack.block_storage.v2 import volume as _volume
-from openstack.tests.functional import base
+from openstack.tests.functional.block_storage.v2 import base
 
 
-class TestVolume(base.BaseFunctionalTest):
+class TestVolume(base.BaseBlockStorageTest):
 
     def setUp(self):
         super(TestVolume, self).setUp()
@@ -31,7 +30,7 @@ class TestVolume(base.BaseFunctionalTest):
             status='available',
             failures=['error'],
             interval=2,
-            wait=120)
+            wait=self._wait_for_timeout)
         assert isinstance(volume, _volume.Volume)
         self.assertEqual(self.VOLUME_NAME, volume.name)
         self.VOLUME_ID = volume.id

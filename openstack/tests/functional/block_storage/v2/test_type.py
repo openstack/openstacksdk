@@ -12,10 +12,10 @@
 
 
 from openstack.block_storage.v2 import type as _type
-from openstack.tests.functional import base
+from openstack.tests.functional.block_storage.v2 import base
 
 
-class TestType(base.BaseFunctionalTest):
+class TestType(base.BaseBlockStorageTest):
 
     def setUp(self):
         super(TestType, self).setUp()

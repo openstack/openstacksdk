@@ -12,10 +12,11 @@
 
 from openstack.compute.v2 import server
 from openstack.tests.functional import base
+from openstack.tests.functional.compute import base as ft_base
 from openstack.tests.functional.network.v2 import test_network
 
 
-class TestServer(base.BaseFunctionalTest):
+class TestServer(ft_base.BaseComputeTest):
 
     def setUp(self):
         super(TestServer, self).setUp()
@@ -38,7 +39,7 @@ class TestServer(base.BaseFunctionalTest):
         sot = self.conn.compute.create_server(
             name=self.NAME, flavor_id=flavor.id, image_id=image.id,
             networks=[{"uuid": self.network.id}])
-        self.conn.compute.wait_for_server(sot)
+        self.conn.compute.wait_for_server(sot, wait=self._wait_for_timeout)
         assert isinstance(sot, server.Server)
         self.assertEqual(self.NAME, sot.name)
         self.server = sot
@@ -47,7 +48,8 @@ class TestServer(base.BaseFunctionalTest):
         sot = self.conn.compute.delete_server(self.server.id)
         self.assertIsNone(sot)
         # Need to wait for the stack to go away before network delete
-        self.conn.compute.wait_for_delete(self.server)
+        self.conn.compute.wait_for_delete(self.server,
+                                          wait=self._wait_for_timeout)
         test_network.delete_network(self.conn, self.network, self.subnet)
         super(TestServer, self).tearDown()
 

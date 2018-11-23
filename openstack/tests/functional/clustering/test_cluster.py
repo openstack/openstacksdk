@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
 import time
 
 from openstack.clustering.v1 import cluster
@@ -18,6 +19,13 @@ from openstack.tests.functional.network.v2 import test_network
 
 
 class TestCluster(base.BaseFunctionalTest):
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestCluster, cls).setUpClass()
+        cls._wait_for_timeout = int(os.getenv(
+            'OPENSTACKSDK_FUNC_TEST_TIMEOUT_CLUSTER',
+            cls._wait_for_timeout))
 
     def setUp(self):
         super(TestCluster, self).setUp()
@@ -56,12 +64,15 @@ class TestCluster(base.BaseFunctionalTest):
         }
 
         self.cluster = self.conn.clustering.create_cluster(**cluster_spec)
-        self.conn.clustering.wait_for_status(self.cluster, 'ACTIVE')
+        self.conn.clustering.wait_for_status(
+            self.cluster, 'ACTIVE',
+            wait=self._wait_for_timeout)
         assert isinstance(self.cluster, cluster.Cluster)
 
     def tearDown(self):
         self.conn.clustering.delete_cluster(self.cluster.id)
-        self.conn.clustering.wait_for_delete(self.cluster)
+        self.conn.clustering.wait_for_delete(self.cluster,
+                                             wait=self._wait_for_timeout)
 
         test_network.delete_network(self.conn, self.network, self.subnet)
 

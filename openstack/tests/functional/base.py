@@ -45,6 +45,15 @@ FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 
 class BaseFunctionalTest(base.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super(BaseFunctionalTest, cls).setUpClass()
+        # Defines default timeout for wait_for methods used
+        # in the functional tests
+        cls._wait_for_timeout = int(os.getenv(
+            'OPENSTACKSDK_FUNC_TEST_TIMEOUT',
+            300))
+
     def setUp(self):
         super(BaseFunctionalTest, self).setUp()
         self.conn = connection.Connection(config=TEST_CLOUD_REGION)
