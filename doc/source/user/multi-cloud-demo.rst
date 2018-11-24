@@ -221,7 +221,7 @@ Simple example of a clouds.yaml
 * Config for a named `cloud` "my-citycloud"
 * Reference a well-known "named" profile: `citycloud`
 * `os-client-config` has a built-in list of profiles at
-  https://docs.openstack.org/os-client-config/latest/user/vendor-support.html
+  https://docs.openstack.org/openstacksdk/latest/user/config/vendor-support.html
 * Vendor profiles contain various advanced config
 * `cloud` name can match `profile` name (using different names for clarity)
 
