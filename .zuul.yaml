@@ -345,6 +345,25 @@
       test_matrix_branch: master
       tox_install_siblings: true
 
+- job:
+    name: openstacksdk-functional-devstack-masakari
+    parent: openstacksdk-functional-devstack-minimum
+    description: |
+      Run openstacksdk functional tests against a master devstack with masakari
+    required-projects:
+      - openstack/masakari
+    vars:
+      devstack_plugins:
+        masakari: https://git.openstack.org/openstack/masakari
+      devstack_services:
+        masakari-api: true
+        masakari-engine: true
+      tox_environment:
+        OPENSTACKSDK_HAS_MASAKARI: 1
+        OPENSTACKSDK_TESTS_SUBDIR: instance_ha
+      zuul_copy_output:
+        '{{ devstack_base_dir }}/masakari-logs': logs
+
 - project-template:
     name: openstacksdk-functional-tips
     check:
@@ -378,6 +397,8 @@
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
         - openstacksdk-functional-devstack-magnum:
+            voting: false
+        - openstacksdk-functional-devstack-masakari:
             voting: false
         - openstacksdk-functional-devstack-ironic:
             voting: false
