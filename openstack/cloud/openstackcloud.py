@@ -10318,7 +10318,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         msg = 'Error in updating service {service}'.format(service=name_or_id)
         data = self._identity_client.patch(
             '{url}/{id}'.format(url=url, id=service['id']), json={key: kwargs},
-            endpoint_filter={'interface': 'admin'}, error_message=msg)
+            error_message=msg)
         service = self._get_and_munchify(key, data)
         return _utils.normalize_keystone_services([service])[0]
 
@@ -10332,10 +10332,13 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         """
         if self._is_client_version('identity', 2):
             url, key = '/OS-KSADM/services', 'OS-KSADM:services'
+            endpoint_filter = {'interface': 'admin'}
         else:
             url, key = '/services', 'services'
+            endpoint_filter = {}
+
         data = self._identity_client.get(
-            url, endpoint_filter={'interface': 'admin'},
+            url, endpoint_filter=endpoint_filter,
             error_message="Failed to list services")
         services = self._get_and_munchify(key, data)
         return _utils.normalize_keystone_services(services)
@@ -10391,13 +10394,15 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         if self._is_client_version('identity', 2):
             url = '/OS-KSADM/services'
+            endpoint_filter = {'interface': 'admin'}
         else:
             url = '/services'
+            endpoint_filter = {}
 
         error_msg = 'Failed to delete service {id}'.format(id=service['id'])
         self._identity_client.delete(
             '{url}/{id}'.format(url=url, id=service['id']),
-            endpoint_filter={'interface': 'admin'}, error_message=error_msg)
+            endpoint_filter=endpoint_filter, error_message=error_msg)
 
         return True
 
