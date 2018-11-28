@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
 import yaml
 
 from openstack import exceptions
@@ -25,6 +26,13 @@ class TestStack(base.BaseFunctionalTest):
     network = None
     subnet = None
     cidr = '10.99.99.0/16'
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestStack, cls).setUpClass()
+        cls._wait_for_timeout = int(os.getenv(
+            'OPENSTACKSDK_FUNC_TEST_TIMEOUT_ORCHESTRATION',
+            cls._wait_for_timeout))
 
     def setUp(self):
         super(TestStack, self).setUp()
@@ -58,7 +66,8 @@ class TestStack(base.BaseFunctionalTest):
         self.stack = sot
         self.assertEqual(self.NAME, sot.name)
         self.conn.orchestration.wait_for_status(
-            sot, status='CREATE_COMPLETE', failures=['CREATE_FAILED'])
+            sot, status='CREATE_COMPLETE', failures=['CREATE_FAILED'],
+            wait=self._wait_for_timeout)
 
     def tearDown(self):
         self.conn.orchestration.delete_stack(self.stack, ignore_missing=False)
@@ -66,7 +75,7 @@ class TestStack(base.BaseFunctionalTest):
         # Need to wait for the stack to go away before network delete
         try:
             self.conn.orchestration.wait_for_status(
-                self.stack, 'DELETE_COMPLETE')
+                self.stack, 'DELETE_COMPLETE', wait=self._wait_for_timeout)
         except exceptions.ResourceNotFound:
             pass
         test_network.delete_network(self.conn, self.network, self.subnet)

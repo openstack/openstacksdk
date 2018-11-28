@@ -13,10 +13,10 @@
 
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import volume as _volume
-from openstack.tests.functional import base
+from openstack.tests.functional.block_storage.v2 import base
 
 
-class TestSnapshot(base.BaseFunctionalTest):
+class TestSnapshot(base.BaseBlockStorageTest):
 
     def setUp(self):
         super(TestSnapshot, self).setUp()
@@ -34,7 +34,7 @@ class TestSnapshot(base.BaseFunctionalTest):
             status='available',
             failures=['error'],
             interval=2,
-            wait=120)
+            wait=self._wait_for_timeout)
         assert isinstance(volume, _volume.Volume)
         self.assertEqual(self.VOLUME_NAME, volume.name)
         self.VOLUME_ID = volume.id
@@ -46,7 +46,7 @@ class TestSnapshot(base.BaseFunctionalTest):
             status='available',
             failures=['error'],
             interval=2,
-            wait=120)
+            wait=self._wait_for_timeout)
         assert isinstance(snapshot, _snapshot.Snapshot)
         self.assertEqual(self.SNAPSHOT_NAME, snapshot.name)
         self.SNAPSHOT_ID = snapshot.id
@@ -56,7 +56,7 @@ class TestSnapshot(base.BaseFunctionalTest):
         sot = self.conn.block_storage.delete_snapshot(
             snapshot, ignore_missing=False)
         self.conn.block_storage.wait_for_delete(
-            snapshot, interval=2, wait=120)
+            snapshot, interval=2, wait=self._wait_for_timeout)
         self.assertIsNone(sot)
         sot = self.conn.block_storage.delete_volume(
             self.VOLUME_ID, ignore_missing=False)
