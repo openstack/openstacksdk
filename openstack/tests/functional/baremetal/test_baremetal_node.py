@@ -86,6 +86,20 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         node = self.conn.baremetal.get_node('node-name')
         self.assertIsNone(node.instance_id)
 
+    def test_node_list_update_delete(self):
+        self.create_node(name='node-name', extra={'foo': 'bar'})
+        node = next(n for n in
+                    self.conn.baremetal.nodes(details=True,
+                                              provision_state='available',
+                                              is_maintenance=False,
+                                              associated=False)
+                    if n.name == 'node-name')
+        self.assertEqual(node.extra, {'foo': 'bar'})
+
+        # This test checks that resources returned from listing are usable
+        self.conn.baremetal.update_node(node, extra={'foo': 42})
+        self.conn.baremetal.delete_node(node, ignore_missing=False)
+
     def test_node_create_in_enroll_provide(self):
         node = self.create_node(provision_state='enroll')
         self.node_id = node.id

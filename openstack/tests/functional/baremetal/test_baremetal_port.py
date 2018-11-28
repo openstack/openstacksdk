@@ -53,6 +53,17 @@ class TestBareMetalPort(base.BaseBaremetalTest):
         ports = self.conn.baremetal.ports(node='test-node')
         self.assertEqual([p.id for p in ports], [port1.id])
 
+    def test_port_list_update_delete(self):
+        self.create_port(address='11:22:33:44:55:66', node_id=self.node.id,
+                         extra={'foo': 'bar'})
+        port = next(self.conn.baremetal.ports(details=True,
+                                              address='11:22:33:44:55:66'))
+        self.assertEqual(port.extra, {'foo': 'bar'})
+
+        # This test checks that resources returned from listing are usable
+        self.conn.baremetal.update_port(port, extra={'foo': 42})
+        self.conn.baremetal.delete_port(port, ignore_missing=False)
+
     def test_port_update(self):
         port = self.create_port(address='11:22:33:44:55:66')
         port.address = '66:55:44:33:22:11'

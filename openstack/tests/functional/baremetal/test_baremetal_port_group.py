@@ -51,6 +51,17 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         pgs = self.conn.baremetal.port_groups(node='test-node')
         self.assertEqual([p.id for p in pgs], [pg1.id])
 
+    def test_port_list_update_delete(self):
+        self.create_port_group(address='11:22:33:44:55:66',
+                               extra={'foo': 'bar'})
+        port_group = next(self.conn.baremetal.port_groups(
+            details=True, address='11:22:33:44:55:66'))
+        self.assertEqual(port_group.extra, {'foo': 'bar'})
+
+        # This test checks that resources returned from listing are usable
+        self.conn.baremetal.update_port_group(port_group, extra={'foo': 42})
+        self.conn.baremetal.delete_port_group(port_group, ignore_missing=False)
+
     def test_port_group_update(self):
         port_group = self.create_port_group()
         port_group.extra = {'answer': 42}

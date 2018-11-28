@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class PortGroup(resource.Resource):
+class PortGroup(_common.ListMixin, resource.Resource):
 
     resources_key = 'portgroups'
     base_path = '/portgroups'
@@ -66,19 +67,4 @@ class PortGroup(resource.Resource):
     updated_at = resource.Body('updated_at')
 
 
-class PortGroupDetail(PortGroup):
-
-    base_path = '/portgroups/detail'
-
-    allow_create = False
-    allow_fetch = False
-    allow_commit = False
-    allow_delete = False
-    allow_list = True
-
-    _query_mapping = resource.QueryParameters(
-        'node', 'address',
-    )
-
-    #: The UUID for the portgroup
-    id = resource.Body('uuid', alternate_id=True)
+PortGroupDetail = PortGroup

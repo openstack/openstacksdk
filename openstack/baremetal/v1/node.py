@@ -34,7 +34,7 @@ class ValidationResult(object):
         self.reason = reason
 
 
-class Node(resource.Resource):
+class Node(_common.ListMixin, resource.Resource):
 
     resources_key = 'nodes'
     base_path = '/nodes'
@@ -589,23 +589,4 @@ class Node(resource.Resource):
                 for key, value in result.items()}
 
 
-class NodeDetail(Node):
-
-    base_path = '/nodes/detail'
-
-    # capabilities
-    allow_create = False
-    allow_fetch = False
-    allow_commit = False
-    allow_delete = False
-    allow_list = True
-
-    _query_mapping = resource.QueryParameters(
-        'associated', 'conductor_group', 'driver', 'fault',
-        'provision_state', 'resource_class',
-        instance_id='instance_uuid',
-        is_maintenance='maintenance',
-    )
-
-    #: The UUID of the node resource.
-    id = resource.Body("uuid", alternate_id=True)
+NodeDetail = Node

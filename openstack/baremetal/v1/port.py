@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.baremetal.v1 import _common
 from openstack import resource
 
 
-class Port(resource.Resource):
+class Port(_common.ListMixin, resource.Resource):
 
     resources_key = 'ports'
     base_path = '/ports'
@@ -29,6 +30,7 @@ class Port(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'address', 'fields', 'node', 'portgroup',
+        node_id='node_uuid',
     )
 
     # The physical_network field introduced in 1.34
@@ -67,21 +69,4 @@ class Port(resource.Resource):
     updated_at = resource.Body('updated_at')
 
 
-class PortDetail(Port):
-
-    base_path = '/ports/detail'
-
-    # capabilities
-    allow_create = False
-    allow_fetch = False
-    allow_commit = False
-    allow_delete = False
-    allow_list = True
-
-    _query_mapping = resource.QueryParameters(
-        'address', 'fields', 'node', 'portgroup',
-        node_id='node_uuid',
-    )
-
-    #: The UUID of the port
-    id = resource.Body('uuid', alternate_id=True)
+PortDetail = Port
