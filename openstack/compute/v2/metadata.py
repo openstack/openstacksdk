@@ -12,6 +12,7 @@
 
 import six
 
+from openstack import exceptions
 from openstack import utils
 
 
@@ -48,6 +49,8 @@ class MetadataMixin(object):
 
         response = method(url, headers=headers, **kwargs)
 
+        # ensure Nova API has not returned us an error
+        exceptions.raise_from_response(response)
         # DELETE doesn't return a JSON body while everything else does.
         return response.json() if not delete else None
 
