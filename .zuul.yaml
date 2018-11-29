@@ -107,6 +107,7 @@
       devstack_services:
         neutron-qos: true
         neutron-trunk: true
+        neutron-port-forwarding: true
 
 - job:
     name: openstacksdk-functional-devstack-networking
