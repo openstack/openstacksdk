@@ -595,7 +595,7 @@ class CloudRegion(object):
         if not endpoint:
             self.log.warning(
                 "Keystone catalog entry not found ("
-                "service_type=%s,service_name=%s"
+                "service_type=%s,service_name=%s,"
                 "interface=%s,region_name=%s)",
                 service_type,
                 service_name,
