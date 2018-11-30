@@ -2141,7 +2141,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                       filters=None):
         filters = filters or {}
         servers = [
-            self._normalize_server(munch.Munch(server.to_dict()))
+            self._normalize_server(server.to_dict())
             for server in self.compute.servers(
                 all_projects=all_projects, **filters)]
         return [
