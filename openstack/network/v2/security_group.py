@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import tag
 from openstack import resource
 
 
-class SecurityGroup(resource.Resource, tag.TagMixin):
+class SecurityGroup(resource.Resource, resource.TagMixin):
     resource_key = 'security_group'
     resources_key = 'security_groups'
     base_path = '/security-groups'
@@ -29,7 +28,7 @@ class SecurityGroup(resource.Resource, tag.TagMixin):
     _query_mapping = resource.QueryParameters(
         'description', 'name',
         project_id='tenant_id',
-        **tag.TagMixin._tag_query_parameters
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties

@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import tag
 from openstack import resource
 
 
-class FloatingIP(resource.Resource, tag.TagMixin):
+class FloatingIP(resource.Resource, resource.TagMixin):
     name_attribute = "floating_ip_address"
     resource_name = "floating ip"
     resource_key = 'floatingip'
@@ -33,7 +32,7 @@ class FloatingIP(resource.Resource, tag.TagMixin):
         'floating_ip_address', 'floating_network_id',
         'port_id', 'router_id', 'status', 'subnet_id',
         project_id='tenant_id',
-        **tag.TagMixin._tag_query_parameters)
+        **resource.TagMixin._tag_query_parameters)
 
     # Properties
     #: Timestamp at which the floating IP was created.

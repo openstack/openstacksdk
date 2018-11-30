@@ -103,6 +103,8 @@ class TestImage(base.TestCase):
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess.put = mock.Mock(return_value=FakeResponse({}))
+        self.sess.delete = mock.Mock(return_value=FakeResponse({}))
         self.sess.default_microversion = None
         self.sess.retriable_status_codes = None
 
@@ -197,7 +199,7 @@ class TestImage(base.TestCase):
         sot = image.Image(**EXAMPLE)
         tag = "lol"
 
-        self.assertIsNone(sot.add_tag(self.sess, tag))
+        sot.add_tag(self.sess, tag)
         self.sess.put.assert_called_with(
             'images/IDENTIFIER/tags/%s' % tag,
         )
@@ -206,7 +208,7 @@ class TestImage(base.TestCase):
         sot = image.Image(**EXAMPLE)
         tag = "lol"
 
-        self.assertIsNone(sot.remove_tag(self.sess, tag))
+        sot.remove_tag(self.sess, tag)
         self.sess.delete.assert_called_with(
             'images/IDENTIFIER/tags/%s' % tag,
         )

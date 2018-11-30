@@ -49,6 +49,10 @@ class TestProject(base.TestCase):
                 'is_enabled': 'enabled',
                 'limit': 'limit',
                 'marker': 'marker',
+                'tags': 'tags',
+                'any_tags': 'tags-any',
+                'not_tags': 'not-tags',
+                'not_any_tags': 'not-tags-any',
             },
             sot._query_mapping._mapping)
 

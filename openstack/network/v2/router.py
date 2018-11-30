@@ -10,12 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import tag
 from openstack import resource
 from openstack import utils
 
 
-class Router(resource.Resource, tag.TagMixin):
+class Router(resource.Resource, resource.TagMixin):
     resource_key = 'router'
     resources_key = 'routers'
     base_path = '/routers'
@@ -34,7 +33,7 @@ class Router(resource.Resource, tag.TagMixin):
         is_distributed='distributed',
         is_ha='ha',
         project_id='tenant_id',
-        **tag.TagMixin._tag_query_parameters
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties

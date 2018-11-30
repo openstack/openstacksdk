@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import tag
 from openstack import resource
 
 
-class Subnet(resource.Resource, tag.TagMixin):
+class Subnet(resource.Resource, resource.TagMixin):
     resource_key = 'subnet'
     resources_key = 'subnets'
     base_path = '/subnets'
@@ -35,7 +34,7 @@ class Subnet(resource.Resource, tag.TagMixin):
         project_id='tenant_id',
         subnet_pool_id='subnetpool_id',
         use_default_subnet_pool='use_default_subnetpool',
-        **tag.TagMixin._tag_query_parameters
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties

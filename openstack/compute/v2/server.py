@@ -15,7 +15,7 @@ from openstack import resource
 from openstack import utils
 
 
-class Server(resource.Resource, metadata.MetadataMixin):
+class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     resource_key = 'server'
     resources_key = 'servers'
     base_path = '/servers'
@@ -33,14 +33,13 @@ class Server(resource.Resource, metadata.MetadataMixin):
         "sort_key", "sort_dir",
         "reservation_id", "tags",
         "project_id",
-        tags_any="tags-any",
-        not_tags="not-tags",
-        not_tags_any="not-tags-any",
         is_deleted="deleted",
         ipv4_address="ip",
         ipv6_address="ip6",
         changes_since="changes-since",
-        all_projects="all_tenants")
+        all_projects="all_tenants",
+        **resource.TagMixin._tag_query_parameters
+    )
 
     #: A list of dictionaries holding links relevant to this server.
     links = resource.Body('links')
