@@ -37,6 +37,10 @@ class Container(_base.BaseResource):
     allow_list = True
     allow_head = True
 
+    _query_mapping = resource.QueryParameters(
+        'prefix',
+    )
+
     # Container body data (when id=None)
     #: The name of the container.
     name = resource.Body("name", alternate_id=True, alias='id')

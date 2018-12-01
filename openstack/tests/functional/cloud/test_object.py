@@ -42,6 +42,8 @@ class TestObject(base.BaseFunctionalTest):
         self.user_cloud.create_container(container_name)
         self.assertEqual(container_name,
                          self.user_cloud.list_containers()[0]['name'])
+        self.assertEqual([],
+                         self.user_cloud.list_containers(prefix='somethin'))
         sizes = (
             (64 * 1024, 1),  # 64K, one segment
             (64 * 1024, 5)   # 64MB, 5 segments
@@ -90,6 +92,10 @@ class TestObject(base.BaseFunctionalTest):
             self.assertEqual(
                 name,
                 self.user_cloud.list_objects(container_name)[0]['name'])
+            self.assertEqual(
+                [],
+                self.user_cloud.list_objects(container_name,
+                                             prefix='abc'))
             self.assertTrue(
                 self.user_cloud.delete_object(container_name, name))
         self.assertEqual([], self.user_cloud.list_objects(container_name))

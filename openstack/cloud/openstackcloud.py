@@ -7412,7 +7412,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         return True
 
-    def list_containers(self, full_listing=True):
+    def list_containers(self, full_listing=True, prefix=None):
         """List containers.
 
         :param full_listing: Ignored. Present for backwards compat
@@ -7421,7 +7421,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        response = self.object_store.get('/', params=dict(format='json'))
+        params = dict(format='json', prefix=prefix)
+        response = self.object_store.get('/', params=params)
         return self._get_and_munchify(None, _adapter._json_response(response))
 
     def search_containers(self, name=None, filters=None):
@@ -7971,18 +7972,21 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 container=container, object=name),
             headers=headers)
 
-    def list_objects(self, container, full_listing=True):
+    def list_objects(self, container, full_listing=True, prefix=None):
         """List objects.
 
         :param container: Name of the container to list objects in.
         :param full_listing: Ignored. Present for backwards compat
+        :param string prefix:
+            only objects with this prefix will be returned.
+            (optional)
 
         :returns: list of Munch of the objects
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = self._object_store_client.get(
-            container, params=dict(format='json'))
+        params = dict(format='json', prefix=prefix)
+        data = self._object_store_client.get(container, params=params)
         return self._get_and_munchify(None, data)
 
     def search_objects(self, container, name=None, filters=None):

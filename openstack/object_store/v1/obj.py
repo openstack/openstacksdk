@@ -39,6 +39,10 @@ class Object(_base.BaseResource):
     allow_list = True
     allow_head = True
 
+    _query_mapping = resource.QueryParameters(
+        'prefix',
+    )
+
     # Data to be passed during a POST call to create an object on the server.
     # TODO(mordred) Make a base class BaseDataResource that can be used here
     # and with glance images that has standard overrides for dealing with
