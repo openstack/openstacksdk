@@ -47,7 +47,7 @@ is the recommended way to go:
 If the application in question is a command line application that should also
 accept command line arguments, an `argparse.Namespace` can be passed to
 :func:`openstack.connect` that will have relevant arguments added to it and
-then subsequently consumed by the construtor:
+then subsequently consumed by the constructor:
 
 .. code-block:: python
 
@@ -271,7 +271,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             rate-limiting is performed.
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
-            CloudRegion contructor.
+            CloudRegion constructor.
         """
         self.config = config
         self._extra_services = {}
