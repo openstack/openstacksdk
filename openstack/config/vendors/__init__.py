@@ -18,20 +18,25 @@ import os
 
 import yaml
 
-_vendors_path = os.path.dirname(os.path.realpath(__file__))
-_vendor_defaults = None
+_VENDORS_PATH = os.path.dirname(os.path.realpath(__file__))
+_VENDOR_DEFAULTS = {}
+
+
+def _get_vendor_defaults():
+    global _VENDOR_DEFAULTS
+    if not _VENDOR_DEFAULTS:
+        for vendor in glob.glob(os.path.join(_VENDORS_PATH, '*.yaml')):
+            with open(vendor, 'r') as f:
+                vendor_data = yaml.safe_load(f)
+                _VENDOR_DEFAULTS[vendor_data['name']] = vendor_data['profile']
+        for vendor in glob.glob(os.path.join(_VENDORS_PATH, '*.json')):
+            with open(vendor, 'r') as f:
+                vendor_data = json.load(f)
+                _VENDOR_DEFAULTS[vendor_data['name']] = vendor_data['profile']
+    return _VENDOR_DEFAULTS
 
 
 def get_profile(profile_name):
-    global _vendor_defaults
-    if _vendor_defaults is None:
-        _vendor_defaults = {}
-        for vendor in glob.glob(os.path.join(_vendors_path, '*.yaml')):
-            with open(vendor, 'r') as f:
-                vendor_data = yaml.safe_load(f)
-                _vendor_defaults[vendor_data['name']] = vendor_data['profile']
-        for vendor in glob.glob(os.path.join(_vendors_path, '*.json')):
-            with open(vendor, 'r') as f:
-                vendor_data = json.load(f)
-                _vendor_defaults[vendor_data['name']] = vendor_data['profile']
-    return _vendor_defaults.get(profile_name)
+    vendor_defaults = _get_vendor_defaults()
+    if profile_name in vendor_defaults:
+        return vendor_defaults[profile_name].copy()

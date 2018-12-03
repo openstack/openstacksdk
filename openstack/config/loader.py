@@ -455,35 +455,37 @@ class OpenStackConfig(object):
         # Expand a profile if it exists. 'cloud' is an old confusing name
         # for this.
         profile_name = our_cloud.get('profile', our_cloud.get('cloud', None))
-        if profile_name and profile_name != self.envvar_key:
-            if 'cloud' in our_cloud:
-                warnings.warn(
-                    "{0} use the keyword 'cloud' to reference a known "
-                    "vendor profile. This has been deprecated in favor of the "
-                    "'profile' keyword.".format(self.config_filename))
-            vendor_filename, vendor_file = self._load_vendor_file()
-            if vendor_file and profile_name in vendor_file['public-clouds']:
-                _auth_update(cloud, vendor_file['public-clouds'][profile_name])
+        if not profile_name or profile_name == self.envvar_key:
+            return
+        if 'cloud' in our_cloud:
+            warnings.warn(
+                "{0} uses the keyword 'cloud' to reference a known "
+                "vendor profile. This has been deprecated in favor of the "
+                "'profile' keyword.".format(self.config_filename))
+
+        vendor_filename, vendor_file = self._load_vendor_file()
+        if vendor_file and profile_name in vendor_file['public-clouds']:
+            _auth_update(cloud, vendor_file['public-clouds'][profile_name])
+        else:
+            profile_data = vendors.get_profile(profile_name)
+            if profile_data:
+                status = profile_data.pop('status', 'active')
+                message = profile_data.pop('message', '')
+                if status == 'deprecated':
+                    warnings.warn(
+                        "{profile_name} is deprecated: {message}".format(
+                            profile_name=profile_name, message=message))
+                elif status == 'shutdown':
+                    raise exceptions.ConfigException(
+                        "{profile_name} references a cloud that no longer"
+                        " exists: {message}".format(
+                            profile_name=profile_name, message=message))
+                _auth_update(cloud, profile_data)
             else:
-                profile_data = vendors.get_profile(profile_name)
-                if profile_data:
-                    status = profile_data.pop('status', 'active')
-                    message = profile_data.pop('message', '')
-                    if status == 'deprecated':
-                        warnings.warn(
-                            "{profile_name} is deprecated: {message}".format(
-                                profile_name=profile_name, message=message))
-                    elif status == 'shutdown':
-                        raise exceptions.ConfigException(
-                            "{profile_name} references a cloud that no longer"
-                            " exists: {message}".format(
-                                profile_name=profile_name, message=message))
-                    _auth_update(cloud, profile_data)
-                else:
-                    # Can't find the requested vendor config, go about business
-                    warnings.warn("Couldn't find the vendor profile '{0}', for"
-                                  " the cloud '{1}'".format(profile_name,
-                                                            name))
+                # Can't find the requested vendor config, go about business
+                warnings.warn("Couldn't find the vendor profile '{0}', for"
+                              " the cloud '{1}'".format(profile_name,
+                                                        name))
 
     def _project_scoped(self, cloud):
         return ('project_id' in cloud or 'project_name' in cloud
