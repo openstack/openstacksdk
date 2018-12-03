@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added the newly supported ``description`` parameter and the missing
+    ``domain_id`` parameter  to ``Role`` resource.
