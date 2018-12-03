@@ -451,7 +451,8 @@ class Normalizer(object):
     def _normalize_server(self, server):
         ret = munch.Munch()
         # Copy incoming server because of shared dicts in unittests
-        server = server.copy()
+        # Wrap the copy in munch so that sub-dicts are properly munched
+        server = munch.Munch(server)
 
         self._remove_novaclient_artifacts(server)
 
