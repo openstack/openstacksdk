@@ -98,12 +98,12 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_type.Type, type)
 
-    def types(self):
+    def types(self, **query):
         """Retrieve a generator of volume types
 
         :returns: A generator of volume type objects.
         """
-        return self._list(_type.Type, paginated=False)
+        return self._list(_type.Type, paginated=False, **query)
 
     def create_type(self, **attrs):
         """Create a new type from attributes

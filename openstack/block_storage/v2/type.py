@@ -24,6 +24,8 @@ class Type(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters("is_public")
+
     # Properties
     #: A ID representing this type.
     id = resource.Body("id")
@@ -31,3 +33,5 @@ class Type(resource.Resource):
     name = resource.Body("name")
     #: A dict of extra specifications. "capabilities" is a usual key.
     extra_specs = resource.Body("extra_specs", type=dict)
+    #: a private volume-type. *Type: bool*
+    is_public = resource.Body('os-volume-type-access:is_public', type=bool)
