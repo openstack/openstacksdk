@@ -282,6 +282,25 @@ class TestObject(BaseTestObject):
         self.assert_calls()
         self.assertEqual(objects, ret)
 
+    def test_list_objects_with_prefix(self):
+        endpoint = '{endpoint}?format=json&prefix=test'.format(
+            endpoint=self.container_endpoint)
+
+        objects = [{
+            u'bytes': 20304400896,
+            u'last_modified': u'2016-12-15T13:34:13.650090',
+            u'hash': u'daaf9ed2106d09bba96cf193d866445e',
+            u'name': self.object,
+            u'content_type': u'application/octet-stream'}]
+
+        self.register_uris([dict(method='GET', uri=endpoint, complete_qs=True,
+                                 json=objects)])
+
+        ret = self.cloud.list_objects(self.container, prefix='test')
+
+        self.assert_calls()
+        self.assertEqual(objects, ret)
+
     def test_list_objects_exception(self):
         endpoint = '{endpoint}?format=json'.format(
             endpoint=self.container_endpoint)
