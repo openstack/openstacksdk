@@ -29,6 +29,9 @@ class Stack(resource.Resource):
     allow_delete = True
 
     # Properties
+    #: A list of resource objects that will be added if a stack update
+    #  is performed.
+    added = resource.Body('added')
     #: Placeholder for AWS compatible template listing capabilities
     #: required by the stack.
     capabilities = resource.Body('capabilities')
@@ -36,6 +39,9 @@ class Stack(resource.Resource):
     created_at = resource.Body('creation_time')
     #: A text description of the stack.
     description = resource.Body('description')
+    #: A list of resource objects that will be deleted if a stack
+    #: update is performed.
+    deleted = resource.Body('deleted', type=list)
     #: Whether the stack will support a rollback operation on stack
     #: create/update failures. *Type: bool*
     is_rollback_disabled = resource.Body('disable_rollback', type=bool)
@@ -43,6 +49,7 @@ class Stack(resource.Resource):
     links = resource.Body('links')
     #: Name of the stack.
     name = resource.Body('stack_name')
+    stack_name = resource.URI('stack_name')
     #: Placeholder for future extensions where stack related events
     #: can be published.
     notification_topics = resource.Body('notification_topics')
@@ -54,6 +61,9 @@ class Stack(resource.Resource):
     parameters = resource.Body('parameters', type=dict)
     #: The ID of the parent stack if any
     parent_id = resource.Body('parent')
+    #: A list of resource objects that will be replaced if a stack update
+    #: is performed.
+    replaced = resource.Body('replaced')
     #: A string representation of the stack status, e.g. ``CREATE_COMPLETE``.
     status = resource.Body('stack_status')
     #: A text explaining how the stack transits to its current status.
@@ -69,6 +79,12 @@ class Stack(resource.Resource):
     template_url = resource.Body('template_url')
     #: Stack operation timeout in minutes.
     timeout_mins = resource.Body('timeout_mins')
+    #: A list of resource objects that will remain unchanged if a stack
+    #: update is performed.
+    unchanged = resource.Body('unchanged')
+    #: A list of resource objects that will have their properties updated
+    #: in place if a stack update is performed.
+    updated = resource.Body('updated')
     #: Timestamp of last update on the stack.
     updated_at = resource.Body('updated_time')
     #: The ID of the user project created for this stack.
@@ -86,6 +102,27 @@ class Stack(resource.Resource):
         return super(Stack, self).commit(session, prepend_key=False,
                                          has_body=False, base_path=None)
 
+    def update(self, session, preview=False):
+        # This overrides the default behavior of resource update because
+        # we need to use other endpoint for update preview.
+        request = self._prepare_request(
+            prepend_key=False,
+            base_path='/stacks/%(stack_name)s/' % {'stack_name': self.name})
+
+        microversion = self._get_microversion_for(session, 'commit')
+
+        request_url = request.url
+        if preview:
+            request_url = utils.urljoin(request_url, 'preview')
+
+        response = session.put(
+            request_url, json=request.body, headers=request.headers,
+            microversion=microversion)
+
+        self.microversion = microversion
+        self._translate_response(response, has_body=True)
+        return self
+
     def _action(self, session, body):
         """Perform stack actions"""
         url = utils.urljoin(self.base_path, self._get_id(self), 'actions')
@@ -94,6 +131,12 @@ class Stack(resource.Resource):
 
     def check(self, session):
         return self._action(session, {'check': ''})
+
+    def abandon(self, session):
+        url = utils.urljoin(self.base_path, self.name,
+                            self._get_id(self), 'abandon')
+        resp = session.delete(url)
+        return resp.json()
 
     def fetch(self, session, requires_id=True,
               base_path=None, error_message=None):
@@ -108,11 +151,4 @@ class Stack(resource.Resource):
         return stk
 
 
-class StackPreview(Stack):
-    base_path = '/stacks/preview'
-
-    allow_create = True
-    allow_list = False
-    allow_fetch = False
-    allow_commit = False
-    allow_delete = False
+StackPreview = Stack
