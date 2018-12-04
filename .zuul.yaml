@@ -406,7 +406,7 @@
         - openstacksdk-functional-devstack-python2
         - osc-functional-devstack-tips:
             voting: false
-        - neutron-grenade
+        - grenade-py3
         - nodepool-functional-py35-src
         - bifrost-integration-tinyipa-ubuntu-xenial
     gate:
@@ -415,6 +415,6 @@
         - openstacksdk-functional-devstack-python2
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
-        - neutron-grenade
+        - grenade-py3
         - nodepool-functional-py35-src
         - bifrost-integration-tinyipa-ubuntu-xenial
