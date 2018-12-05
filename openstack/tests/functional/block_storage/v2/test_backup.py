@@ -12,10 +12,10 @@
 
 from openstack.block_storage.v2 import volume as _volume
 from openstack.block_storage.v2 import backup as _backup
-from openstack.tests.functional import base
+from openstack.tests.functional.block_storage.v2 import base
 
 
-class TestBackup(base.BaseFunctionalTest):
+class TestBackup(base.BaseBlockStorageTest):
 
     def setUp(self):
         super(TestBackup, self).setUp()
@@ -36,7 +36,7 @@ class TestBackup(base.BaseFunctionalTest):
             status='available',
             failures=['error'],
             interval=5,
-            wait=300)
+            wait=self._wait_for_timeout)
         assert isinstance(volume, _volume.Volume)
         self.VOLUME_ID = volume.id
 
@@ -48,7 +48,7 @@ class TestBackup(base.BaseFunctionalTest):
             status='available',
             failures=['error'],
             interval=5,
-            wait=300)
+            wait=self._wait_for_timeout)
         assert isinstance(backup, _backup.Backup)
         self.assertEqual(self.BACKUP_NAME, backup.name)
         self.BACKUP_ID = backup.id
