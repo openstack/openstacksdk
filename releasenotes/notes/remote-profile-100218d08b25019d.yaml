@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Vendor profiles can now be fetched from an RFC 5785 compliant URL on a
+    cloud, namely, ``https://example.com/.well-known/openstack/api``. A cloud
+    can manage their own vendor profile and serve it from that URL, allowing
+    a user to simply list ``https://example.com`` as the profile name.

@@ -96,6 +96,39 @@ class TestConfig(base.TestCase):
         cc = c.get_one()
         self.assertEqual(cc.name, 'single')
 
+    def test_remote_profile(self):
+        single_conf = base._write_yaml({
+            'clouds': {
+                'remote': {
+                    'profile': 'https://example.com',
+                    'auth': {
+                        'username': 'testuser',
+                        'password': 'testpass',
+                        'project_name': 'testproject',
+                    },
+                    'region_name': 'test-region',
+                }
+            }
+        })
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://example.com/.well-known/openstack/api',
+                 json={
+                     "name": "example",
+                     "profile": {
+                         "auth": {
+                             "auth_url": "https://auth.example.com/v3",
+                         }
+                     }
+                 }),
+        ])
+
+        c = config.OpenStackConfig(config_files=[single_conf])
+        cc = c.get_one(cloud='remote')
+        self.assertEqual(cc.name, 'remote')
+        self.assertEqual(cc.auth['auth_url'], 'https://auth.example.com/v3')
+        self.assertEqual(cc.auth['username'], 'testuser')
+
     def test_get_one_auth_defaults(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml])
         cc = c.get_one(cloud='_test-cloud_', auth={'username': 'user'})

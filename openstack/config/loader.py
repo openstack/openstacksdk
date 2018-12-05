@@ -469,6 +469,11 @@ class OpenStackConfig(object):
         else:
             profile_data = vendors.get_profile(profile_name)
             if profile_data:
+                nested_profile = profile_data.pop('profile', None)
+                if nested_profile:
+                    nested_profile_data = vendors.get_profile(nested_profile)
+                    if nested_profile_data:
+                        profile_data = nested_profile_data
                 status = profile_data.pop('status', 'active')
                 message = profile_data.pop('message', '')
                 if status == 'deprecated':
