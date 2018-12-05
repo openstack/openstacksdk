@@ -29,7 +29,8 @@ class Port(_common.ListMixin, resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'address', 'fields', 'node', 'portgroup',
+        'address', 'node', 'portgroup',
+        fields={'name': 'fields', 'type': _common.comma_separated_list},
         node_id='node_uuid',
     )
 

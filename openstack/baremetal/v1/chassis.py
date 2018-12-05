@@ -19,6 +19,9 @@ class Chassis(_common.ListMixin, resource.Resource):
     resources_key = 'chassis'
     base_path = '/chassis'
 
+    # Specifying fields became possible in 1.8.
+    _max_microversion = '1.8'
+
     # capabilities
     allow_create = True
     allow_fetch = True
@@ -29,7 +32,7 @@ class Chassis(_common.ListMixin, resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'fields'
+        fields={'name': 'fields', 'type': _common.comma_separated_list},
     )
 
     #: Timestamp at which the chassis was created.

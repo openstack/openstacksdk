@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixes specifying fields when listing bare metal resources.

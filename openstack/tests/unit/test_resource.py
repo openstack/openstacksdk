@@ -360,32 +360,43 @@ class TestQueryParameters(base.TestCase):
 
     def test_create(self):
         location = "location"
-        mapping = {"first_name": "first-name"}
+        mapping = {"first_name": "first-name",
+                   "second_name": {"name": "second-name"},
+                   "third_name": {"name": "third", "type": int}}
 
         sot = resource.QueryParameters(location, **mapping)
 
         self.assertEqual({"location": "location",
                           "first_name": "first-name",
+                          "second_name": {"name": "second-name"},
+                          "third_name": {"name": "third", "type": int},
                           "limit": "limit",
                           "marker": "marker"},
                          sot._mapping)
 
     def test_transpose_unmapped(self):
         location = "location"
-        mapping = {"first_name": "first-name"}
+        mapping = {"first_name": "first-name",
+                   "pet_name": {"name": "pet"},
+                   "answer": {"name": "answer", "type": int}}
 
         sot = resource.QueryParameters(location, **mapping)
         result = sot._transpose({"location": "Brooklyn",
                                  "first_name": "Brian",
+                                 "pet_name": "Meow",
+                                 "answer": "42",
                                  "last_name": "Curtin"})
 
         # last_name isn't mapped and shouldn't be included
-        self.assertEqual({"location": "Brooklyn", "first-name": "Brian"},
+        self.assertEqual({"location": "Brooklyn", "first-name": "Brian",
+                          "pet": "Meow", "answer": 42},
                          result)
 
     def test_transpose_not_in_query(self):
         location = "location"
-        mapping = {"first_name": "first-name"}
+        mapping = {"first_name": "first-name",
+                   "pet_name": {"name": "pet"},
+                   "answer": {"name": "answer", "type": int}}
 
         sot = resource.QueryParameters(location, **mapping)
         result = sot._transpose({"location": "Brooklyn"})
