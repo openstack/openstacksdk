@@ -485,7 +485,7 @@ class Normalizer(object):
             'has_config_drive', server.pop('config_drive', False))
         ret['has_config_drive'] = _to_bool(config_drive)
 
-        host_id = server.pop('hostId', None)
+        host_id = server.pop('hostId', server.pop('host_id', None))
         ret['host_id'] = host_id
 
         ret['progress'] = _pop_int(server, 'progress')
