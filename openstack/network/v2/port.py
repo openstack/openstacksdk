@@ -103,6 +103,9 @@ class Port(resource.Resource, tag.TagMixin):
     #: The ID of the project who owns the network. Only administrative
     #: users can specify a project ID other than their own.
     project_id = resource.Body('tenant_id')
+    #: Whether to propagate uplink status of the port. *Type: bool*
+    propagate_uplink_status = resource.Body('propagate_uplink_status',
+                                            type=bool)
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.Body('qos_policy_id')
     #: Revision number of the port. *Type: int*

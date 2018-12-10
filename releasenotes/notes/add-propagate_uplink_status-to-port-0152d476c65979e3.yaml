@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Add ``propagate_uplink_status`` attribute to ``port`` resource.
+    Users can set this attribute to ``True`` or ``False``.
+    If it is set to ``True``, uplink status propagation is enabled.
+    Otherwise, it is disabled.
+    Neutron server needs to have the API extension
+    ``uplink-status-propagation`` in order to support this feature.
+    This feature can be used in SRIOV scenario, in which users
+    enable uplink status propagation of the SRIOV port
+    so that the link status of the VF will follow the PF.

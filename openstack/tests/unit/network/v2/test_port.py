@@ -39,6 +39,7 @@ EXAMPLE = {
     'network_id': '18',
     'port_security_enabled': True,
     'qos_policy_id': '21',
+    'propagate_uplink_status': False,
     'revision_number': 22,
     'security_groups': ['23'],
     'status': '25',
@@ -121,6 +122,8 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
         self.assertTrue(sot.is_port_security_enabled)
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
+        self.assertEqual(EXAMPLE['propagate_uplink_status'],
+                         sot.propagate_uplink_status)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)
         self.assertEqual(EXAMPLE['status'], sot.status)
