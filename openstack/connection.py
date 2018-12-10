@@ -344,10 +344,11 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
         # we get an adapter.
         if isinstance(service, six.string_types):
             service = service_description.ServiceDescription(service)
+        service_proxy = service._make_proxy(self)
 
         # Register the proxy class with every known alias
         for attr_name in service.all_types:
-            setattr(self, attr_name.replace('-', '_'), service)
+            setattr(self, attr_name.replace('-', '_'), service_proxy)
 
     def authorize(self):
         """Authorize this Connection
