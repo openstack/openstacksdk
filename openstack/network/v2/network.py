@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import tag
 from openstack import resource
 
 
-class Network(resource.Resource, tag.TagMixin):
+class Network(resource.Resource, resource.TagMixin):
     resource_key = 'network'
     resources_key = 'networks'
     base_path = '/networks'
@@ -39,7 +38,7 @@ class Network(resource.Resource, tag.TagMixin):
         provider_network_type='provider:network_type',
         provider_physical_network='provider:physical_network',
         provider_segmentation_id='provider:segmentation_id',
-        **tag.TagMixin._tag_query_parameters
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties

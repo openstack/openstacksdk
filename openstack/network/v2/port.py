@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import tag
 from openstack import resource
 
 
-class Port(resource.Resource, tag.TagMixin):
+class Port(resource.Resource, resource.TagMixin):
     resource_key = 'port'
     resources_key = 'ports'
     base_path = '/ports'
@@ -35,7 +34,7 @@ class Port(resource.Resource, tag.TagMixin):
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
         project_id='tenant_id',
-        **tag.TagMixin._tag_query_parameters
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties

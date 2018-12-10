@@ -14,7 +14,7 @@ from openstack import resource
 from openstack import utils
 
 
-class Project(resource.Resource):
+class Project(resource.Resource, resource.TagMixin):
     resource_key = 'project'
     resources_key = 'projects'
     base_path = '/projects'
@@ -33,6 +33,7 @@ class Project(resource.Resource):
         'name',
         'parent_id',
         is_enabled='enabled',
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties

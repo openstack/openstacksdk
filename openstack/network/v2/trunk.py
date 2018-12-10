@@ -14,7 +14,7 @@ from openstack import resource
 from openstack import utils
 
 
-class Trunk(resource.Resource):
+class Trunk(resource.Resource, resource.TagMixin):
     resource_key = 'trunk'
     resources_key = 'trunks'
     base_path = '/trunks'
@@ -30,6 +30,7 @@ class Trunk(resource.Resource):
         'name', 'description', 'port_id', 'status', 'sub_ports',
         project_id='tenant_id',
         is_admin_state_up='admin_state_up',
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties

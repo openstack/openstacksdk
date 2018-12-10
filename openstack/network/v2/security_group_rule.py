@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class SecurityGroupRule(resource.Resource):
+class SecurityGroupRule(resource.Resource, resource.TagMixin):
     resource_key = 'security_group_rule'
     resources_key = 'security_group_rules'
     base_path = '/security-group-rules'
@@ -30,6 +30,7 @@ class SecurityGroupRule(resource.Resource):
         'remote_group_id', 'security_group_id',
         ether_type='ethertype',
         project_id='tenant_id',
+        **resource.TagMixin._tag_query_parameters
 
     )
 

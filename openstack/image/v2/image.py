@@ -20,7 +20,7 @@ from openstack import utils
 _logger = _log.setup_logging('openstack')
 
 
-class Image(resource.Resource):
+class Image(resource.Resource, resource.TagMixin):
     resources_key = 'images'
     base_path = '/images'
 
@@ -231,16 +231,6 @@ class Image(resource.Resource):
         Note: The image must exist in order to be reactivated.
         """
         self._action(session, "reactivate")
-
-    def add_tag(self, session, tag):
-        """Add a tag to an image"""
-        url = utils.urljoin(self.base_path, self.id, 'tags', tag)
-        session.put(url,)
-
-    def remove_tag(self, session, tag):
-        """Remove a tag from an image"""
-        url = utils.urljoin(self.base_path, self.id, 'tags', tag)
-        session.delete(url,)
 
     def upload(self, session):
         """Upload data into an existing image"""
