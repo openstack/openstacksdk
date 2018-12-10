@@ -187,6 +187,47 @@ class Proxy(proxy.Proxy):
         self._delete(_aggregate.Aggregate, aggregate,
                      ignore_missing=ignore_missing)
 
+    def add_host_to_aggregate(self, aggregate, host):
+        """Adds a host to an aggregate
+
+        :param aggregate: Either the ID of a aggregate or a
+                    :class:`~openstack.compute.v2.aggregate.Aggregate`
+                    instance.
+        :param str host: The host to add to the aggregate
+
+        :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
+        """
+        aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
+        return aggregate.add_host(self, host)
+
+    def remove_host_from_aggregate(self, aggregate, host):
+        """Removes a host from an aggregate
+
+        :param aggregate: Either the ID of a aggregate or a
+                    :class:`~openstack.compute.v2.aggregate.Aggregate`
+                    instance.
+        :param str host: The host to remove from the aggregate
+
+        :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
+        """
+        aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
+        return aggregate.remove_host(self, host)
+
+    def set_aggregate_metadata(self, aggregate, metadata):
+        """Creates or replaces metadata for an aggregate
+
+        :param aggregate: Either the ID of a aggregate or a
+                    :class:`~openstack.compute.v2.aggregate.Aggregate`
+                    instance.
+        :param dict metadata: Metadata key and value pairs. The maximum
+                    size for each metadata key and value pair
+                    is 255 bytes.
+
+        :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
+        """
+        aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
+        return aggregate.set_metadata(self, metadata)
+
     def delete_image(self, image, ignore_missing=True):
         """Delete an image
 
