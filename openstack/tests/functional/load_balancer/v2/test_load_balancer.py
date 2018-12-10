@@ -19,6 +19,7 @@ from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer
 from openstack.load_balancer.v2 import member
 from openstack.load_balancer.v2 import pool
+from openstack.load_balancer.v2 import quota
 from openstack.tests.functional import base
 
 
@@ -72,6 +73,14 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         subnets = list(self.conn.network.subnets())
         self.VIP_SUBNET_ID = subnets[0].id
         self.PROJECT_ID = self.conn.session.get_project_id()
+        test_quota = self.conn.load_balancer.update_quota(
+            self.PROJECT_ID, **{'load_balancer': 100,
+                                'pool': 100,
+                                'listener': 100,
+                                'health_monitor': 100,
+                                'member': 100})
+        assert isinstance(test_quota, quota.Quota)
+        self.assertEqual(self.PROJECT_ID, test_quota.id)
         test_lb = self.conn.load_balancer.create_load_balancer(
             name=self.LB_NAME, vip_subnet_id=self.VIP_SUBNET_ID,
             project_id=self.PROJECT_ID)
@@ -144,6 +153,9 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.conn.load_balancer.wait_for_load_balancer(
             self.LB_ID, wait=self._wait_for_timeout)
+
+        self.conn.load_balancer.delete_quota(self.PROJECT_ID,
+                                             ignore_missing=False)
 
         self.conn.load_balancer.delete_l7_rule(
             self.L7RULE_ID, l7_policy=self.L7POLICY_ID, ignore_missing=False)
@@ -417,3 +429,23 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         test_l7_rule = self.conn.load_balancer.get_l7_rule(
             self.L7RULE_ID, l7_policy=self.L7POLICY_ID,)
         self.assertEqual(self.L7RULE_VALUE, test_l7_rule.rule_value)
+
+    def test_quota_list(self):
+        for qot in self.conn.load_balancer.quotas():
+            self.assertIsNotNone(qot.project_id)
+
+    def test_quota_get(self):
+        test_quota = self.conn.load_balancer.get_quota(self.PROJECT_ID)
+        self.assertEqual(self.PROJECT_ID, test_quota.id)
+
+    def test_quota_update(self):
+        attrs = {'load_balancer': 12345, 'pool': 67890}
+        for project_quota in self.conn.load_balancer.quotas():
+            self.conn.load_balancer.update_quota(project_quota, **attrs)
+            new_quota = self.conn.load_balancer.get_quota(
+                project_quota.project_id)
+            self.assertEqual(12345, new_quota.load_balancers)
+            self.assertEqual(67890, new_quota.pools)
+
+    def test_default_quota(self):
+        self.conn.load_balancer.get_quota_default()
