@@ -678,8 +678,6 @@ class Proxy(proxy.Proxy):
                            the resources being returned. Valid parameters are:
 
             * ``internal_port_id``: The ID of internal port.
-            * ``internal_ip_address``: The internal IP address
-            * ``internal_port``: The internal TCP/UDP/other port number
             * ``external_port``: The external TCP/UDP/other port number
             * ``protocol``: TCP/UDP/other protocol
 

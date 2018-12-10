@@ -40,6 +40,13 @@ class TestFloatingIP(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({'internal_port_id': 'internal_port_id',
+                              'external_port': 'external_port',
+                              'limit': 'limit',
+                              'marker': 'marker',
+                              'protocol': 'protocol'},
+                             sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = port_forwarding.PortForwarding(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)

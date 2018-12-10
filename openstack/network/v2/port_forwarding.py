@@ -27,6 +27,10 @@ class PortForwarding(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'internal_port_id', 'external_port', 'protocol'
+    )
+
     # Properties
     #: The ID of Floating IP address
     floatingip_id = resource.URI('floatingip_id')
