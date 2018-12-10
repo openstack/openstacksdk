@@ -273,13 +273,18 @@ class QueryParameters(object):
 
         :param mappings: Key-value pairs where the key is the client-side
                          name we'll accept here and the value is the name
-                         the server expects, e.g, changes_since=changes-since
+                         the server expects, e.g, changes_since=changes-since.
+                         Additionally, a value can be a dict with optional keys
+                         name - server-side name,
+                         type - callable to convert from client to server
+                         representation.
 
         By default, both limit and marker are included in the initial mapping
         as they're the most common query parameters used for listing resources.
         """
         self._mapping = {"limit": "limit", "marker": "marker"}
-        self._mapping.update(dict({name: name for name in names}, **mappings))
+        self._mapping.update({name: name for name in names})
+        self._mapping.update(mappings)
 
     def _validate(self, query, base_path=None):
         """Check that supplied query keys match known query mappings
@@ -290,7 +295,9 @@ class QueryParameters(object):
                           the resource.
         """
         expected_params = list(self._mapping.keys())
-        expected_params += self._mapping.values()
+        expected_params.extend(
+            value['name'] if isinstance(value, dict) else value
+            for value in self._mapping.values())
 
         if base_path:
             expected_params += utils.get_string_format_keys(base_path)
@@ -312,11 +319,25 @@ class QueryParameters(object):
                            server side name.
         """
         result = {}
-        for key, value in self._mapping.items():
-            if key in query:
-                result[value] = query[key]
-            elif value in query:
-                result[value] = query[value]
+        for client_side, server_side in self._mapping.items():
+            if isinstance(server_side, dict):
+                name = server_side['name']
+                type_ = server_side.get('type')
+            else:
+                name = server_side
+                type_ = None
+
+            if client_side in query:
+                value = query[client_side]
+            elif name in query:
+                value = query[name]
+            else:
+                continue
+
+            if type_ is not None:
+                result[name] = type_(value)
+            else:
+                result[name] = value
         return result
 
 

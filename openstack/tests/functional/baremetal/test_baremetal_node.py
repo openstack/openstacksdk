@@ -142,6 +142,18 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertIsNone(self.conn.baremetal.delete_node(uuid))
 
 
+class TestBareMetalNodeFields(base.BaseBaremetalTest):
+
+    min_microversion = '1.8'
+
+    def test_node_fields(self):
+        self.create_node()
+        result = self.conn.baremetal.nodes(fields=['uuid', 'name'])
+        for item in result:
+            self.assertIsNotNone(item.id)
+            self.assertIsNone(item.driver)
+
+
 class TestBareMetalVif(base.BaseBaremetalTest):
 
     min_microversion = '1.28'

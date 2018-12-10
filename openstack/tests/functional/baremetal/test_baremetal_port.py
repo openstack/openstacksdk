@@ -92,3 +92,16 @@ class TestBareMetalPort(base.BaseBaremetalTest):
                           pxe_enabled=True)
         self.assertIsNone(self.conn.baremetal.find_port(uuid))
         self.assertIsNone(self.conn.baremetal.delete_port(uuid))
+
+
+class TestBareMetalPortFields(base.BaseBaremetalTest):
+
+    min_microversion = '1.8'
+
+    def test_port_fields(self):
+        self.create_node()
+        self.create_port(address='11:22:33:44:55:66')
+        result = self.conn.baremetal.ports(fields=['uuid'])
+        for item in result:
+            self.assertIsNotNone(item.id)
+            self.assertIsNone(item.address)

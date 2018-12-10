@@ -84,3 +84,10 @@ class ListMixin(object):
             base_path += '/detail'
         return super(ListMixin, cls).list(session, paginated=True,
                                           base_path=base_path, **params)
+
+
+def comma_separated_list(value):
+    if value is None:
+        return None
+    else:
+        return ','.join(value)

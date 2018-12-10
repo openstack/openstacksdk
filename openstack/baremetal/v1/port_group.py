@@ -29,7 +29,8 @@ class PortGroup(_common.ListMixin, resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        'node', 'address', 'fields',
+        'node', 'address',
+        fields={'name': 'fields', 'type': _common.comma_separated_list},
     )
 
     # The mode and properties field introduced in 1.26.
