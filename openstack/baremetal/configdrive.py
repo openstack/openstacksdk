@@ -1,0 +1,116 @@
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+"""Helpers for building configdrive compatible with the Bare Metal service."""
+
+import base64
+import contextlib
+import gzip
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+
+import six
+
+
+@contextlib.contextmanager
+def populate_directory(metadata, user_data, versions=None):
+    """Populate a directory with configdrive files.
+
+    :param dict metadata: Metadata.
+    :param bytes user_data: Vendor-specific user data.
+    :param versions: List of metadata versions to support.
+    :return: a context manager yielding a directory with files
+    """
+    d = tempfile.mkdtemp()
+    versions = versions or ('2012-08-10', 'latest')
+    try:
+        for version in versions:
+            subdir = os.path.join(d, 'openstack', version)
+            if not os.path.exists(subdir):
+                os.makedirs(subdir)
+
+            with open(os.path.join(subdir, 'meta_data.json'), 'w') as fp:
+                json.dump(metadata, fp)
+
+            if user_data:
+                with open(os.path.join(subdir, 'user_data'), 'wb') as fp:
+                    fp.write(user_data)
+
+        yield d
+    finally:
+        shutil.rmtree(d)
+
+
+def build(metadata, user_data, versions=None):
+    """Make a configdrive compatible with the Bare Metal service.
+
+    Requires the genisoimage utility to be available.
+
+    :param dict metadata: Metadata.
+    :param user_data: Vendor-specific user data.
+    :param versions: List of metadata versions to support.
+    :return: configdrive contents as a base64-encoded string.
+    """
+    with populate_directory(metadata, user_data, versions) as path:
+        return pack(path)
+
+
+def pack(path):
+    """Pack a directory with files into a Bare Metal service configdrive.
+
+    Creates an ISO image with the files and label "config-2".
+
+    :param str path: Path to directory with files
+    :return: configdrive contents as a base64-encoded string.
+    """
+    with tempfile.NamedTemporaryFile() as tmpfile:
+        try:
+            p = subprocess.Popen(['genisoimage',
+                                  '-o', tmpfile.name,
+                                  '-ldots', '-allow-lowercase',
+                                  '-allow-multidot', '-l',
+                                  '-publisher', 'metalsmith',
+                                  '-quiet', '-J',
+                                  '-r', '-V', 'config-2',
+                                  path],
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        except OSError as e:
+            raise RuntimeError(
+                'Error generating the configdrive. Make sure the '
+                '"genisoimage" tool is installed. Error: %s') % e
+
+        stdout, stderr = p.communicate()
+        if p.returncode != 0:
+            raise RuntimeError(
+                'Error generating the configdrive.'
+                'Stdout: "%(stdout)s". Stderr: "%(stderr)s"' %
+                {'stdout': stdout, 'stderr': stderr})
+
+        tmpfile.seek(0)
+
+        with tempfile.NamedTemporaryFile() as tmpzipfile:
+            with gzip.GzipFile(fileobj=tmpzipfile, mode='wb') as gz_file:
+                shutil.copyfileobj(tmpfile, gz_file)
+
+            tmpzipfile.seek(0)
+            cd = base64.b64encode(tmpzipfile.read())
+
+    # NOTE(dtantsur): Ironic expects configdrive to be a string, but base64
+    # returns bytes on Python 3.
+    if not isinstance(cd, six.string_types):
+        cd = cd.decode('utf-8')
+
+    return cd

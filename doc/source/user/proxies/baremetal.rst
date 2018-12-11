@@ -74,3 +74,12 @@ VIF Operations
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.attach_vif_to_node
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.detach_vif_from_node
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.list_node_vifs
+
+Utilities
+---------
+
+Building config drives
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: openstack.baremetal.configdrive
+   :members:
