@@ -280,7 +280,7 @@ class Test_download_object(base_test_object.BaseTestObject):
                  content=self.the_data)])
 
     def test_download(self):
-        data = self.conn.object_store.download_object(
+        data = self.cloud.object_store.download_object(
             self.object, container=self.container)
 
         self.assertEqual(data, self.the_data)
@@ -288,7 +288,7 @@ class Test_download_object(base_test_object.BaseTestObject):
 
     def test_stream(self):
         chunk_size = 2
-        for index, chunk in enumerate(self.conn.object_store.stream_object(
+        for index, chunk in enumerate(self.cloud.object_store.stream_object(
                 self.object, container=self.container,
                 chunk_size=chunk_size)):
             chunk_len = len(chunk)

@@ -436,9 +436,8 @@ class TestCase(base.TestCase):
         test_cloud = os.environ.get('OPENSTACKSDK_OS_CLOUD', cloud_name)
         self.cloud_config = self.config.get_one(
             cloud=test_cloud, validate=True, **kwargs)
-        self.conn = openstack.connection.Connection(
+        self.cloud = openstack.connection.Connection(
             config=self.cloud_config, strict=self.strict_cloud)
-        self.cloud = self.conn
         self.addCleanup(self.cloud.task_manager.stop)
 
     def get_glance_discovery_mock_dict(
