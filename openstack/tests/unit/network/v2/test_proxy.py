@@ -32,6 +32,7 @@ from openstack.network.v2 import metering_label
 from openstack.network.v2 import metering_label_rule
 from openstack.network.v2 import network
 from openstack.network.v2 import network_ip_availability
+from openstack.network.v2 import network_segment_range
 from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
@@ -961,6 +962,35 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_firewall_rule_update(self):
         self.verify_update(self.proxy.update_firewall_rule,
                            firewall_rule.FirewallRule)
+
+    def test_network_segment_range_create_attrs(self):
+        self.verify_create(self.proxy.create_network_segment_range,
+                           network_segment_range.NetworkSegmentRange)
+
+    def test_network_segment_range_delete(self):
+        self.verify_delete(self.proxy.delete_network_segment_range,
+                           network_segment_range.NetworkSegmentRange, False)
+
+    def test_network_segment_range_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_network_segment_range,
+                           network_segment_range.NetworkSegmentRange, True)
+
+    def test_network_segment_range_find(self):
+        self.verify_find(self.proxy.find_network_segment_range,
+                         network_segment_range.NetworkSegmentRange)
+
+    def test_network_segment_range_get(self):
+        self.verify_get(self.proxy.get_network_segment_range,
+                        network_segment_range.NetworkSegmentRange)
+
+    def test_network_segment_ranges(self):
+        self.verify_list(self.proxy.network_segment_ranges,
+                         network_segment_range.NetworkSegmentRange,
+                         paginated=False)
+
+    def test_network_segment_range_update(self):
+        self.verify_update(self.proxy.update_network_segment_range,
+                           network_segment_range.NetworkSegmentRange)
 
     def test_security_group_create_attrs(self):
         self.verify_create(self.proxy.create_security_group,
