@@ -8182,7 +8182,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                       gateway_ip=None, disable_gateway_ip=False,
                       dns_nameservers=None, host_routes=None,
                       ipv6_ra_mode=None, ipv6_address_mode=None,
-                      use_default_subnetpool=False):
+                      use_default_subnetpool=False, **kwargs):
         """Create a subnet on a specified network.
 
         :param string network_name_or_id:
@@ -8248,6 +8248,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
            Use the default subnetpool for ``ip_version`` to obtain a CIDR. It
            is required to pass ``None`` to the ``cidr`` argument when enabling
            this option.
+        :param kwargs: Key value pairs to be passed to the Neutron API.
 
         :returns: The new subnet object.
         :raises: OpenStackCloudException on operation error.
@@ -8286,11 +8287,11 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         # The body of the neutron message for the subnet we wish to create.
         # This includes attributes that are required or have defaults.
-        subnet = {
+        subnet = dict({
             'network_id': network['id'],
             'ip_version': ip_version,
-            'enable_dhcp': enable_dhcp
-        }
+            'enable_dhcp': enable_dhcp,
+        }, **kwargs)
 
         # Add optional attributes to the message.
         if cidr:
