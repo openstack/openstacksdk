@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed a regression with sub-dicts of server objects
+    were not usable with object notation.

@@ -600,8 +600,7 @@ class Resource(dict):
         # TODO(mordred) We should make a Location Resource and add it here
         # instead of just the dict.
         if self._connection:
-            computed['location'] = munch.unmunchify(
-                self._connection._openstackcloud.current_location)
+            computed['location'] = self._connection.current_location
 
         return body, header, uri, computed
 
@@ -786,7 +785,7 @@ class Resource(dict):
         return cls(_synchronized=synchronized, connection=connection, **obj)
 
     def to_dict(self, body=True, headers=True, computed=True,
-                ignore_none=False, original_names=False):
+                ignore_none=False, original_names=False, _to_munch=False):
         """Return a dictionary of this resource's contents
 
         :param bool body: Include the :class:`~openstack.resource.Body`
@@ -800,11 +799,16 @@ class Resource(dict):
                                  attributes that the server hasn't returned.
         :param bool original_names: When True, use attribute names as they
                                     were received from the server.
+        :param bool _to_munch: For internal use only. Converts to `munch.Munch`
+                               instead of dict.
 
         :return: A dictionary of key/value pairs where keys are named
                  as they exist as attributes of this class.
         """
-        mapping = {}
+        if _to_munch:
+            mapping = munch.Munch()
+        else:
+            mapping = {}
 
         components = []
         if body:
@@ -840,12 +844,17 @@ class Resource(dict):
                         if ignore_none and value is None:
                             continue
                         if isinstance(value, Resource):
-                            mapping[key] = value.to_dict()
+                            mapping[key] = value.to_dict(_to_munch=_to_munch)
+                        elif isinstance(value, dict) and _to_munch:
+                            mapping[key] = munch.Munch(value)
                         elif value and isinstance(value, list):
                             converted = []
                             for raw in value:
                                 if isinstance(raw, Resource):
-                                    converted.append(raw.to_dict())
+                                    converted.append(
+                                        raw.to_dict(_to_munch=_to_munch))
+                                elif isinstance(raw, dict) and _to_munch:
+                                    converted.append(munch.Munch(raw))
                                 else:
                                     converted.append(raw)
                             mapping[key] = converted
@@ -858,10 +867,11 @@ class Resource(dict):
     # Make the munch copy method use to_dict
     copy = to_dict
 
-    def _to_munch(self):
+    def _to_munch(self, original_names=True):
         """Convert this resource into a Munch compatible with shade."""
-        return munch.Munch(self.to_dict(body=True, headers=False,
-                                        original_names=True))
+        return self.to_dict(
+            body=True, headers=False,
+            original_names=original_names, _to_munch=True)
 
     def _prepare_request_body(self, patch, prepend_key):
         if patch:
