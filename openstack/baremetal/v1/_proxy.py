@@ -270,7 +270,8 @@ class Proxy(proxy.Proxy):
         :param target: Provisioning action, e.g. ``active``, ``provide``.
             See the Bare Metal service documentation for available actions.
         :param config_drive: Config drive to pass to the node, only valid
-            for ``active` and ``rebuild`` targets.
+            for ``active` and ``rebuild`` targets. You can use functions from
+            :mod:`openstack.baremetal.configdrive` to build it.
         :param clean_steps: Clean steps to execute, only valid for ``clean``
             target.
         :param rescue_password: Password for the rescue operation, only valid
