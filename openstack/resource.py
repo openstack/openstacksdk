@@ -765,11 +765,7 @@ class Resource(dict):
         :param dict kwargs: Each of the named arguments will be set as
                             attributes on the resulting Resource object.
         """
-        res = cls(_synchronized=True, **kwargs)
-        # TODO(shade) Done as a second call rather than a constructor param
-        # because otherwise the mocking in the tests goes nuts.
-        res._connection = connection
-        return res
+        return cls(_synchronized=True, connection=connection, **kwargs)
 
     @classmethod
     def _from_munch(cls, obj, synchronized=True, connection=None):
@@ -1338,11 +1334,10 @@ class Resource(dict):
                 # argument and is practically a reserved word.
                 raw_resource.pop("self", None)
 
-                value = cls.existing(microversion=microversion, **raw_resource)
-                # TODO(shade) Done as a second call rather than a constructor
-                # param because otherwise the mocking in the tests goes nuts.
-                if hasattr(session, '_sdk_connection'):
-                    value._connection = session._sdk_connection
+                value = cls.existing(
+                    microversion=microversion,
+                    connection=session._get_connection(),
+                    **raw_resource)
                 marker = value.id
                 yield value
                 total_yielded += 1
@@ -1447,13 +1442,13 @@ class Resource(dict):
         :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
                  is found and ignore_missing is ``False``.
         """
+        session = cls._get_session(session)
         # Try to short-circuit by looking directly for a matching ID.
         try:
-            match = cls.existing(id=name_or_id, **params)
-            # TODO(shade) Done as a second call rather than a constructor
-            # param because otherwise the mocking in the tests goes nuts.
-            if hasattr(session, '_sdk_connection'):
-                match._connection = session._sdk_connection
+            match = cls.existing(
+                id=name_or_id,
+                connection=session._get_connection(),
+                **params)
             return match.fetch(session)
         except exceptions.NotFoundException:
             pass

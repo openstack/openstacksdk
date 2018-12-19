@@ -1068,6 +1068,8 @@ class TestResourceActions(base.TestCase):
         self.session.post = mock.Mock(return_value=self.response)
         self.session.delete = mock.Mock(return_value=self.response)
         self.session.head = mock.Mock(return_value=self.response)
+        self.session.session = self.session
+        self.session._get_connection = mock.Mock(return_value=self.cloud)
         self.session.default_microversion = None
         self.session.retriable_status_codes = None
 
@@ -2048,20 +2050,23 @@ class TestResourceFind(base.TestCase):
                 mock_match.fetch.return_value = value
                 return mock_match
 
-        result = Test.find("session", "name")
+        result = Test.find(self.cloud.compute, "name")
 
         self.assertEqual(result, value)
 
     def test_no_match_raise(self):
         self.assertRaises(exceptions.ResourceNotFound, self.no_results.find,
-                          "session", "name", ignore_missing=False)
+                          self.cloud.compute, "name", ignore_missing=False)
 
     def test_no_match_return(self):
         self.assertIsNone(
-            self.no_results.find("session", "name", ignore_missing=True))
+            self.no_results.find(
+                self.cloud.compute, "name", ignore_missing=True))
 
     def test_find_result(self):
-        self.assertEqual(self.result, self.one_result.find("session", "name"))
+        self.assertEqual(
+            self.result,
+            self.one_result.find(self.cloud.compute, "name"))
 
     def test_match_empty_results(self):
         self.assertIsNone(resource.Resource._get_one_match("name", []))
@@ -2126,7 +2131,7 @@ class TestWaitForStatus(base.TestCase):
         res.status = status
 
         result = resource.wait_for_status(
-            "session", res, status, "failures", "interval", "wait")
+            self.cloud.compute, res, status, "failures", "interval", "wait")
 
         self.assertTrue(result, res)
 
@@ -2136,7 +2141,7 @@ class TestWaitForStatus(base.TestCase):
         res.status = status
 
         result = resource.wait_for_status(
-            "session", res, 'lOling', "failures", "interval", "wait")
+            self.cloud.compute, res, 'lOling', "failures", "interval", "wait")
 
         self.assertTrue(result, res)
 
@@ -2146,7 +2151,7 @@ class TestWaitForStatus(base.TestCase):
         res.mood = status
 
         result = resource.wait_for_status(
-            "session", res, status, "failures", "interval", "wait",
+            self.cloud.compute, res, status, "failures", "interval", "wait",
             attribute='mood')
 
         self.assertTrue(result, res)
@@ -2236,7 +2241,7 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertRaises(exceptions.ResourceTimeout,
                           resource.wait_for_status,
-                          "session", res, status, None, 0.01, 0.1)
+                          self.cloud.compute, res, status, None, 0.01, 0.1)
 
     def test_no_sleep(self):
         res = mock.Mock()
@@ -2245,7 +2250,7 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertRaises(exceptions.ResourceTimeout,
                           resource.wait_for_status,
-                          "session", res, "status", None, 0, -1)
+                          self.cloud.compute, res, "status", None, 0, -1)
 
 
 class TestWaitForDelete(base.TestCase):
@@ -2259,7 +2264,7 @@ class TestWaitForDelete(base.TestCase):
             None, None,
             exceptions.ResourceNotFound('Not Found', response)]
 
-        result = resource.wait_for_delete("session", res, 1, 3)
+        result = resource.wait_for_delete(self.cloud.compute, res, 1, 3)
 
         self.assertEqual(result, res)
 
@@ -2271,7 +2276,7 @@ class TestWaitForDelete(base.TestCase):
         self.assertRaises(
             exceptions.ResourceTimeout,
             resource.wait_for_delete,
-            "session", res, 0.1, 0.3)
+            self.cloud.compute, res, 0.1, 0.3)
 
 
 @mock.patch.object(resource.Resource, '_get_microversion_for', autospec=True)

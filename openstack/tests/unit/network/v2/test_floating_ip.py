@@ -10,11 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystoneauth1 import adapter
 import mock
-from openstack.tests.unit import base
 
+from openstack import proxy
 from openstack.network.v2 import floating_ip
+from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -73,9 +73,10 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(EXAMPLE['tags'], sot.tags)
 
     def test_find_available(self):
-        mock_session = mock.Mock(spec=adapter.Adapter)
+        mock_session = mock.Mock(spec=proxy.Proxy)
         mock_session.get_filter = mock.Mock(return_value={})
         mock_session.default_microversion = None
+        mock_session.session = self.cloud.session
         data = {'id': 'one', 'floating_ip_address': '10.0.0.1'}
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: [data]}
@@ -93,7 +94,7 @@ class TestFloatingIP(base.TestCase):
             microversion=None)
 
     def test_find_available_nada(self):
-        mock_session = mock.Mock(spec=adapter.Adapter)
+        mock_session = mock.Mock(spec=proxy.Proxy)
         mock_session.default_microversion = None
         fake_response = mock.Mock()
         body = {floating_ip.FloatingIP.resources_key: []}

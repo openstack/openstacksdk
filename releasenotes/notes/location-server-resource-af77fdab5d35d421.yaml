@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Corrected the location property on the ``Server`` resource to
+    use the ``project_id`` from the remote resource rather than the
+    information from the token of the user.

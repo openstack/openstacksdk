@@ -138,6 +138,14 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     #: only.
     instance_name = resource.Body('OS-EXT-SRV-ATTR:instance_name')
 
+    def __init__(self, *args, **kwargs):
+        super(Server, self).__init__(*args, **kwargs)
+
+        if self._connection:
+            self.location = self._connection._get_current_location(
+                project_id=self.project_id,
+                zone=self.availability_zone)
+
     def _prepare_request(self, requires_id=True, prepend_key=True,
                          base_path=None):
         request = super(Server, self)._prepare_request(requires_id=requires_id,
