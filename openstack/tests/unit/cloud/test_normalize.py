@@ -10,9 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-import fixtures
-
 from openstack.compute.v2 import server as server_resource
 from openstack.tests.unit import base
 
@@ -180,15 +177,16 @@ RAW_FLAVOR_DICT = {
     'vcpus': 8}
 
 
-# TODO(shade) Convert this to TestCase
-class TestUtils(base.TestCase):
+def _assert_server_munch_attributes(testcase, raw, server):
+    testcase.assertEqual(server.flavor.id, raw['flavor']['id'])
+    testcase.assertEqual(server.image.id, raw['image']['id'])
+    testcase.assertEqual(server.metadata.group, raw['metadata']['group'])
+    testcase.assertEqual(
+        server.security_groups[0].name,
+        raw['security_groups'][0]['name'])
 
-    def setUp(self):
 
-        super(TestUtils, self).setUp()
-        self.session_fixture = self.useFixture(fixtures.MonkeyPatch(
-            'openstack.config.cloud_region.CloudRegion.get_session',
-            mock.Mock()))
+class TestNormalize(base.TestCase):
 
     def test_normalize_flavors(self):
         raw_flavor = RAW_FLAVOR_DICT.copy()
@@ -216,7 +214,7 @@ class TestUtils(base.TestCase):
                 'project': {
                     'domain_id': None,
                     'domain_name': 'default',
-                    'id': mock.ANY,
+                    'id': '1c36b64c840a42cd9e9b931a369337f0',
                     'name': 'admin'},
                 'region_name': u'RegionOne',
                 'zone': None},
@@ -234,38 +232,6 @@ class TestUtils(base.TestCase):
             'swap': 0,
             'vcpus': 8}
         retval = self.cloud._normalize_flavor(raw_flavor)
-        self.assertEqual(expected, retval)
-
-    def test_normalize_flavors_strict(self):
-        raw_flavor = RAW_FLAVOR_DICT.copy()
-        expected = {
-            'disk': 40,
-            'ephemeral': 80,
-            'extra_specs': {
-                u'class': u'performance1',
-                u'disk_io_index': u'40',
-                u'number_of_data_disks': u'1',
-                u'policy_class': u'performance_flavor',
-                u'resize_policy_class': u'performance_flavor'},
-            'id': u'performance1-8',
-            'is_disabled': False,
-            'is_public': False,
-            'location': {
-                'cloud': '_test_cloud_',
-                'project': {
-                    'domain_id': None,
-                    'domain_name': 'default',
-                    'id': mock.ANY,
-                    'name': 'admin'},
-                'region_name': u'RegionOne',
-                'zone': None},
-            'name': u'8 GB Performance',
-            'properties': {},
-            'ram': 8192,
-            'rxtx_factor': 1600.0,
-            'swap': 0,
-            'vcpus': 8}
-        retval = self.strict_cloud._normalize_flavor(raw_flavor)
         self.assertEqual(expected, retval)
 
     def test_normalize_nova_images(self):
@@ -302,7 +268,7 @@ class TestUtils(base.TestCase):
                 'project': {
                     'domain_id': None,
                     'domain_name': 'default',
-                    'id': mock.ANY,
+                    'id': '1c36b64c840a42cd9e9b931a369337f0',
                     'name': 'admin'},
                 'region_name': u'RegionOne',
                 'zone': None},
@@ -359,60 +325,6 @@ class TestUtils(base.TestCase):
             'virtual_size': 0,
             'visibility': 'private'}
         retval = self.cloud._normalize_image(raw_image)
-        self.assertEqual(expected, retval)
-
-    def test_normalize_nova_images_strict(self):
-        raw_image = RAW_NOVA_IMAGE_DICT.copy()
-        expected = {
-            'checksum': None,
-            'container_format': None,
-            'created_at': '2015-02-15T22:58:45Z',
-            'direct_url': None,
-            'disk_format': None,
-            'file': None,
-            'id': u'f2868d7c-63e1-4974-a64d-8670a86df21e',
-            'is_protected': False,
-            'is_public': False,
-            'location': {
-                'cloud': '_test_cloud_',
-                'project': {
-                    'domain_id': None,
-                    'domain_name': 'default',
-                    'id': mock.ANY,
-                    'name': 'admin'},
-                'region_name': u'RegionOne',
-                'zone': None},
-            'locations': [],
-            'min_disk': 20,
-            'min_ram': 0,
-            'name': u'Test Monty Ubuntu',
-            'owner': None,
-            'properties': {
-                u'auto_disk_config': u'False',
-                u'com.rackspace__1__build_core': u'1',
-                u'com.rackspace__1__build_managed': u'1',
-                u'com.rackspace__1__build_rackconnect': u'1',
-                u'com.rackspace__1__options': u'0',
-                u'com.rackspace__1__source': u'import',
-                u'com.rackspace__1__visible_core': u'1',
-                u'com.rackspace__1__visible_managed': u'1',
-                u'com.rackspace__1__visible_rackconnect': u'1',
-                u'image_type': u'import',
-                u'org.openstack__1__architecture': u'x64',
-                u'os_type': u'linux',
-                u'user_id': u'156284',
-                u'vm_mode': u'hvm',
-                u'xenapi_use_agent': u'False',
-                'OS-DCF:diskConfig': u'MANUAL',
-                'progress': 100},
-            'size': 323004185,
-            'status': u'active',
-            'tags': [],
-            'updated_at': u'2015-02-15T23:04:34Z',
-            'virtual_size': 0,
-            'visibility': 'private'}
-        retval = self.strict_cloud._normalize_image(raw_image)
-        self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
         self.assertEqual(expected, retval)
 
     def test_normalize_glance_images(self):
@@ -503,137 +415,6 @@ class TestUtils(base.TestCase):
             u'vm_mode': u'hvm',
             u'xenapi_use_agent': u'False'}
         retval = self.cloud._normalize_image(raw_image)
-        self.assertEqual(expected, retval)
-
-    def test_normalize_glance_images_strict(self):
-        raw_image = RAW_GLANCE_IMAGE_DICT.copy()
-        expected = {
-            'checksum': u'774f48af604ab1ec319093234c5c0019',
-            'container_format': u'ovf',
-            'created_at': u'2015-02-15T22:58:45Z',
-            'direct_url': None,
-            'disk_format': u'vhd',
-            'file': u'/v2/images/f2868d7c-63e1-4974-a64d-8670a86df21e/file',
-            'id': u'f2868d7c-63e1-4974-a64d-8670a86df21e',
-            'is_protected': False,
-            'is_public': False,
-            'location': {
-                'cloud': '_test_cloud_',
-                'project': {
-                    'domain_id': None,
-                    'domain_name': None,
-                    'id': u'610275',
-                    'name': None},
-                'region_name': u'RegionOne',
-                'zone': None},
-            'locations': [],
-            'min_disk': 20,
-            'min_ram': 0,
-            'name': u'Test Monty Ubuntu',
-            'owner': u'610275',
-            'properties': {
-                u'auto_disk_config': u'False',
-                u'com.rackspace__1__build_core': u'1',
-                u'com.rackspace__1__build_managed': u'1',
-                u'com.rackspace__1__build_rackconnect': u'1',
-                u'com.rackspace__1__options': u'0',
-                u'com.rackspace__1__source': u'import',
-                u'com.rackspace__1__visible_core': u'1',
-                u'com.rackspace__1__visible_managed': u'1',
-                u'com.rackspace__1__visible_rackconnect': u'1',
-                u'image_type': u'import',
-                u'org.openstack__1__architecture': u'x64',
-                u'os_type': u'linux',
-                u'schema': u'/v2/schemas/image',
-                u'user_id': u'156284',
-                u'vm_mode': u'hvm',
-                u'xenapi_use_agent': u'False'},
-            'size': 323004185,
-            'status': u'active',
-            'tags': [],
-            'updated_at': u'2015-02-15T23:04:34Z',
-            'virtual_size': 0,
-            'visibility': 'private'}
-        retval = self.strict_cloud._normalize_image(raw_image)
-        self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
-        self.assertEqual(expected, retval)
-
-    def _assert_server_munch_attributes(self, raw, server):
-        self.assertEqual(server.flavor.id, raw['flavor']['id'])
-        self.assertEqual(server.image.id, raw['image']['id'])
-        self.assertEqual(server.metadata.group, raw['metadata']['group'])
-        self.assertEqual(
-            server.security_groups[0].name,
-            raw['security_groups'][0]['name'])
-
-    def test_normalize_servers_strict(self):
-        res = server_resource.Server(
-            connection=self.strict_cloud,
-            **RAW_SERVER_DICT)
-        expected = {
-            'accessIPv4': u'',
-            'accessIPv6': u'',
-            'addresses': {
-                u'public': [{
-                    u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:9f:46:3e',
-                    u'OS-EXT-IPS:type': u'fixed',
-                    u'addr': u'2604:e100:1:0:f816:3eff:fe9f:463e',
-                    u'version': 6
-                }, {
-                    u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:9f:46:3e',
-                    u'OS-EXT-IPS:type': u'fixed',
-                    u'addr': u'162.253.54.192',
-                    u'version': 4}]},
-            'adminPass': None,
-            'block_device_mapping': None,
-            'created': u'2015-08-01T19:52:16Z',
-            'created_at': u'2015-08-01T19:52:16Z',
-            'disk_config': u'MANUAL',
-            'flavor': {u'id': u'bbcb7eb5-5c8d-498f-9d7e-307c575d3566'},
-            'has_config_drive': True,
-            'host_id': u'bd37',
-            'hypervisor_hostname': None,
-            'id': u'811c5197-dba7-4d3a-a3f6-68ca5328b9a7',
-            'image': {u'id': u'69c99b45-cd53-49de-afdc-f24789eb8f83'},
-            'interface_ip': u'',
-            'instance_name': None,
-            'key_name': u'mordred',
-            'launched_at': u'2015-08-01T19:52:02.000000',
-            'location': {
-                'cloud': '_test_cloud_',
-                'project': {
-                    'domain_id': None,
-                    'domain_name': None,
-                    'id': u'db92b20496ae4fbda850a689ea9d563f',
-                    'name': None},
-                'region_name': u'RegionOne',
-                'zone': u'ca-ymq-2'},
-            'metadata': {u'group': u'irc', u'groups': u'irc,enabled'},
-            'name': u'mordred-irc',
-            'networks': {
-                u'public': [
-                    u'2604:e100:1:0:f816:3eff:fe9f:463e',
-                    u'162.253.54.192']},
-            'personality': None,
-            'power_state': 1,
-            'private_v4': None,
-            'progress': 0,
-            'properties': {},
-            'public_v4': None,
-            'public_v6': None,
-            'scheduler_hints': None,
-            'security_groups': [{u'name': u'default'}],
-            'status': u'ACTIVE',
-            'tags': [],
-            'task_state': None,
-            'terminated_at': None,
-            'updated': u'2016-10-15T15:49:29Z',
-            'user_data': None,
-            'user_id': u'e9b21dc437d149858faee0898fb08e92',
-            'vm_state': u'active',
-            'volumes': []}
-        retval = self.strict_cloud._normalize_server(res._to_munch())
-        self._assert_server_munch_attributes(res, retval)
         self.assertEqual(expected, retval)
 
     def test_normalize_servers_normal(self):
@@ -734,53 +515,7 @@ class TestUtils(base.TestCase):
             'vm_state': u'active',
             'volumes': []}
         retval = self.cloud._normalize_server(res._to_munch())
-        self._assert_server_munch_attributes(res, retval)
-        self.assertEqual(expected, retval)
-
-    def test_normalize_secgroups_strict(self):
-        nova_secgroup = dict(
-            id='abc123',
-            name='nova_secgroup',
-            description='A Nova security group',
-            rules=[
-                dict(id='123', from_port=80, to_port=81, ip_protocol='tcp',
-                     ip_range={'cidr': '0.0.0.0/0'}, parent_group_id='xyz123')
-            ]
-        )
-
-        expected = dict(
-            id='abc123',
-            name='nova_secgroup',
-            description='A Nova security group',
-            properties={},
-            location=dict(
-                region_name='RegionOne',
-                zone=None,
-                project=dict(
-                    domain_name='default',
-                    id=mock.ANY,
-                    domain_id=None,
-                    name='admin'),
-                cloud='_test_cloud_'),
-            security_group_rules=[
-                dict(id='123', direction='ingress', ethertype='IPv4',
-                     port_range_min=80, port_range_max=81, protocol='tcp',
-                     remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123',
-                     properties={},
-                     remote_group_id=None,
-                     location=dict(
-                         region_name='RegionOne',
-                         zone=None,
-                         project=dict(
-                             domain_name='default',
-                             id=mock.ANY,
-                             domain_id=None,
-                             name='admin'),
-                         cloud='_test_cloud_'))
-            ]
-        )
-
-        retval = self.strict_cloud._normalize_secgroup(nova_secgroup)
+        _assert_server_munch_attributes(self, res, retval)
         self.assertEqual(expected, retval)
 
     def test_normalize_secgroups(self):
@@ -806,7 +541,7 @@ class TestUtils(base.TestCase):
                 zone=None,
                 project=dict(
                     domain_name='default',
-                    id=mock.ANY,
+                    id='1c36b64c840a42cd9e9b931a369337f0',
                     domain_id=None,
                     name='admin'),
                 cloud='_test_cloud_'),
@@ -823,7 +558,7 @@ class TestUtils(base.TestCase):
                          zone=None,
                          project=dict(
                              domain_name='default',
-                             id=mock.ANY,
+                             id='1c36b64c840a42cd9e9b931a369337f0',
                              domain_id=None,
                              name='admin'),
                          cloud='_test_cloud_'))
@@ -864,7 +599,7 @@ class TestUtils(base.TestCase):
                      zone=None,
                      project=dict(
                          domain_name='default',
-                         id=mock.ANY,
+                         id='1c36b64c840a42cd9e9b931a369337f0',
                          domain_id=None,
                          name='admin'),
                      cloud='_test_cloud_'))
@@ -882,6 +617,12 @@ class TestUtils(base.TestCase):
             status='in-use',
             created_at='2015-08-27T09:49:58-05:00',
         )
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'block-storage', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [vol]}),
+        ])
         expected = {
             'attachments': [],
             'availability_zone': None,
@@ -902,7 +643,7 @@ class TestUtils(base.TestCase):
                 'project': {
                     'domain_id': None,
                     'domain_name': 'default',
-                    'id': mock.ANY,
+                    'id': '1c36b64c840a42cd9e9b931a369337f0',
                     'name': 'admin'},
                 'region_name': u'RegionOne',
                 'zone': None},
@@ -921,7 +662,7 @@ class TestUtils(base.TestCase):
             'updated_at': None,
             'volume_type': None,
         }
-        retval = self.cloud._normalize_volume(vol)
+        retval = self.cloud.list_volumes(vol)[0]
         self.assertEqual(expected, retval)
 
     def test_normalize_volumes_v2(self):
@@ -982,7 +723,276 @@ class TestUtils(base.TestCase):
         retval = self.cloud._normalize_volume(vol)
         self.assertEqual(expected, retval)
 
-    def test_normalize_volumes_v1_strict(self):
+
+class TestStrictNormalize(base.TestCase):
+
+    strict_cloud = True
+
+    def setUp(self):
+        super(TestStrictNormalize, self).setUp()
+        self.assertTrue(self.cloud.strict_mode)
+
+    def test_normalize_flavors(self):
+        raw_flavor = RAW_FLAVOR_DICT.copy()
+        expected = {
+            'disk': 40,
+            'ephemeral': 80,
+            'extra_specs': {
+                u'class': u'performance1',
+                u'disk_io_index': u'40',
+                u'number_of_data_disks': u'1',
+                u'policy_class': u'performance_flavor',
+                u'resize_policy_class': u'performance_flavor'},
+            'id': u'performance1-8',
+            'is_disabled': False,
+            'is_public': False,
+            'location': {
+                'cloud': '_test_cloud_',
+                'project': {
+                    'domain_id': None,
+                    'domain_name': 'default',
+                    'id': u'1c36b64c840a42cd9e9b931a369337f0',
+                    'name': 'admin'},
+                'region_name': u'RegionOne',
+                'zone': None},
+            'name': u'8 GB Performance',
+            'properties': {},
+            'ram': 8192,
+            'rxtx_factor': 1600.0,
+            'swap': 0,
+            'vcpus': 8}
+        retval = self.cloud._normalize_flavor(raw_flavor)
+        self.assertEqual(expected, retval)
+
+    def test_normalize_nova_images(self):
+        raw_image = RAW_NOVA_IMAGE_DICT.copy()
+        expected = {
+            'checksum': None,
+            'container_format': None,
+            'created_at': '2015-02-15T22:58:45Z',
+            'direct_url': None,
+            'disk_format': None,
+            'file': None,
+            'id': u'f2868d7c-63e1-4974-a64d-8670a86df21e',
+            'is_protected': False,
+            'is_public': False,
+            'location': {
+                'cloud': '_test_cloud_',
+                'project': {
+                    'domain_id': None,
+                    'domain_name': 'default',
+                    'id': u'1c36b64c840a42cd9e9b931a369337f0',
+                    'name': 'admin'},
+                'region_name': u'RegionOne',
+                'zone': None},
+            'locations': [],
+            'min_disk': 20,
+            'min_ram': 0,
+            'name': u'Test Monty Ubuntu',
+            'owner': None,
+            'properties': {
+                u'auto_disk_config': u'False',
+                u'com.rackspace__1__build_core': u'1',
+                u'com.rackspace__1__build_managed': u'1',
+                u'com.rackspace__1__build_rackconnect': u'1',
+                u'com.rackspace__1__options': u'0',
+                u'com.rackspace__1__source': u'import',
+                u'com.rackspace__1__visible_core': u'1',
+                u'com.rackspace__1__visible_managed': u'1',
+                u'com.rackspace__1__visible_rackconnect': u'1',
+                u'image_type': u'import',
+                u'org.openstack__1__architecture': u'x64',
+                u'os_type': u'linux',
+                u'user_id': u'156284',
+                u'vm_mode': u'hvm',
+                u'xenapi_use_agent': u'False',
+                'OS-DCF:diskConfig': u'MANUAL',
+                'progress': 100},
+            'size': 323004185,
+            'status': u'active',
+            'tags': [],
+            'updated_at': u'2015-02-15T23:04:34Z',
+            'virtual_size': 0,
+            'visibility': 'private'}
+        retval = self.cloud._normalize_image(raw_image)
+        self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
+        self.assertEqual(expected, retval)
+
+    def test_normalize_glance_images(self):
+        raw_image = RAW_GLANCE_IMAGE_DICT.copy()
+        expected = {
+            'checksum': u'774f48af604ab1ec319093234c5c0019',
+            'container_format': u'ovf',
+            'created_at': u'2015-02-15T22:58:45Z',
+            'direct_url': None,
+            'disk_format': u'vhd',
+            'file': u'/v2/images/f2868d7c-63e1-4974-a64d-8670a86df21e/file',
+            'id': u'f2868d7c-63e1-4974-a64d-8670a86df21e',
+            'is_protected': False,
+            'is_public': False,
+            'location': {
+                'cloud': '_test_cloud_',
+                'project': {
+                    'domain_id': None,
+                    'domain_name': None,
+                    'id': u'610275',
+                    'name': None},
+                'region_name': u'RegionOne',
+                'zone': None},
+            'locations': [],
+            'min_disk': 20,
+            'min_ram': 0,
+            'name': u'Test Monty Ubuntu',
+            'owner': u'610275',
+            'properties': {
+                u'auto_disk_config': u'False',
+                u'com.rackspace__1__build_core': u'1',
+                u'com.rackspace__1__build_managed': u'1',
+                u'com.rackspace__1__build_rackconnect': u'1',
+                u'com.rackspace__1__options': u'0',
+                u'com.rackspace__1__source': u'import',
+                u'com.rackspace__1__visible_core': u'1',
+                u'com.rackspace__1__visible_managed': u'1',
+                u'com.rackspace__1__visible_rackconnect': u'1',
+                u'image_type': u'import',
+                u'org.openstack__1__architecture': u'x64',
+                u'os_type': u'linux',
+                u'schema': u'/v2/schemas/image',
+                u'user_id': u'156284',
+                u'vm_mode': u'hvm',
+                u'xenapi_use_agent': u'False'},
+            'size': 323004185,
+            'status': u'active',
+            'tags': [],
+            'updated_at': u'2015-02-15T23:04:34Z',
+            'virtual_size': 0,
+            'visibility': 'private'}
+        retval = self.cloud._normalize_image(raw_image)
+        self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
+        self.assertEqual(expected, retval)
+
+    def test_normalize_servers(self):
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [RAW_SERVER_DICT]}),
+        ])
+        expected = {
+            'accessIPv4': u'',
+            'accessIPv6': u'',
+            'addresses': {
+                u'public': [{
+                    u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:9f:46:3e',
+                    u'OS-EXT-IPS:type': u'fixed',
+                    u'addr': u'2604:e100:1:0:f816:3eff:fe9f:463e',
+                    u'version': 6
+                }, {
+                    u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:9f:46:3e',
+                    u'OS-EXT-IPS:type': u'fixed',
+                    u'addr': u'162.253.54.192',
+                    u'version': 4}]},
+            'adminPass': None,
+            'block_device_mapping': None,
+            'created': u'2015-08-01T19:52:16Z',
+            'created_at': u'2015-08-01T19:52:16Z',
+            'disk_config': u'MANUAL',
+            'flavor': {u'id': u'bbcb7eb5-5c8d-498f-9d7e-307c575d3566'},
+            'has_config_drive': True,
+            'host_id': u'bd37',
+            'hypervisor_hostname': None,
+            'id': u'811c5197-dba7-4d3a-a3f6-68ca5328b9a7',
+            'image': {u'id': u'69c99b45-cd53-49de-afdc-f24789eb8f83'},
+            'interface_ip': u'',
+            'instance_name': None,
+            'key_name': u'mordred',
+            'launched_at': u'2015-08-01T19:52:02.000000',
+            'location': {
+                'cloud': '_test_cloud_',
+                'project': {
+                    'domain_id': None,
+                    'domain_name': None,
+                    'id': u'db92b20496ae4fbda850a689ea9d563f',
+                    'name': None},
+                'region_name': u'RegionOne',
+                'zone': u'ca-ymq-2'},
+            'metadata': {u'group': u'irc', u'groups': u'irc,enabled'},
+            'name': u'mordred-irc',
+            'networks': {
+                u'public': [
+                    u'2604:e100:1:0:f816:3eff:fe9f:463e',
+                    u'162.253.54.192']},
+            'personality': None,
+            'power_state': 1,
+            'private_v4': None,
+            'progress': 0,
+            'properties': {},
+            'public_v4': None,
+            'public_v6': None,
+            'scheduler_hints': None,
+            'security_groups': [{u'name': u'default'}],
+            'status': u'ACTIVE',
+            'tags': [],
+            'task_state': None,
+            'terminated_at': None,
+            'updated': u'2016-10-15T15:49:29Z',
+            'user_data': None,
+            'user_id': u'e9b21dc437d149858faee0898fb08e92',
+            'vm_state': u'active',
+            'volumes': []}
+        self.cloud.strict_mode = True
+        retval = self.cloud.list_servers(bare=True)[0]
+        _assert_server_munch_attributes(self, expected, retval)
+        self.assertEqual(expected, retval)
+
+    def test_normalize_secgroups(self):
+        nova_secgroup = dict(
+            id='abc123',
+            name='nova_secgroup',
+            description='A Nova security group',
+            rules=[
+                dict(id='123', from_port=80, to_port=81, ip_protocol='tcp',
+                     ip_range={'cidr': '0.0.0.0/0'}, parent_group_id='xyz123')
+            ]
+        )
+
+        expected = dict(
+            id='abc123',
+            name='nova_secgroup',
+            description='A Nova security group',
+            properties={},
+            location=dict(
+                region_name='RegionOne',
+                zone=None,
+                project=dict(
+                    domain_name='default',
+                    id='1c36b64c840a42cd9e9b931a369337f0',
+                    domain_id=None,
+                    name='admin'),
+                cloud='_test_cloud_'),
+            security_group_rules=[
+                dict(id='123', direction='ingress', ethertype='IPv4',
+                     port_range_min=80, port_range_max=81, protocol='tcp',
+                     remote_ip_prefix='0.0.0.0/0', security_group_id='xyz123',
+                     properties={},
+                     remote_group_id=None,
+                     location=dict(
+                         region_name='RegionOne',
+                         zone=None,
+                         project=dict(
+                             domain_name='default',
+                             id='1c36b64c840a42cd9e9b931a369337f0',
+                             domain_id=None,
+                             name='admin'),
+                         cloud='_test_cloud_'))
+            ]
+        )
+
+        retval = self.cloud._normalize_secgroup(nova_secgroup)
+        self.assertEqual(expected, retval)
+
+    def test_normalize_volumes_v1(self):
         vol = dict(
             id='55db9e89-9cb4-4202-af88-d8c4a174998e',
             display_name='test',
@@ -1007,7 +1017,7 @@ class TestUtils(base.TestCase):
                 'project': {
                     'domain_id': None,
                     'domain_name': 'default',
-                    'id': mock.ANY,
+                    'id': '1c36b64c840a42cd9e9b931a369337f0',
                     'name': 'admin'},
                 'region_name': u'RegionOne',
                 'zone': None},
@@ -1025,10 +1035,10 @@ class TestUtils(base.TestCase):
             'updated_at': None,
             'volume_type': None,
         }
-        retval = self.strict_cloud._normalize_volume(vol)
+        retval = self.cloud._normalize_volume(vol)
         self.assertEqual(expected, retval)
 
-    def test_normalize_volumes_v2_strict(self):
+    def test_normalize_volumes_v2(self):
         vol = dict(
             id='55db9e89-9cb4-4202-af88-d8c4a174998e',
             name='test',
@@ -1073,5 +1083,5 @@ class TestUtils(base.TestCase):
             'updated_at': None,
             'volume_type': None,
         }
-        retval = self.strict_cloud._normalize_volume(vol)
+        retval = self.cloud._normalize_volume(vol)
         self.assertEqual(expected, retval)
