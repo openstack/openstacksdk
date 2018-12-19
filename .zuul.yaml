@@ -43,6 +43,13 @@
     vars:
       devstack_localrc:
         Q_ML2_PLUGIN_EXT_DRIVERS: qos,port_security
+      devstack_services:
+        # sdk doesn't need vnc access
+        n-cauth: false
+        n-novnc: false
+        # sdk testing uses config drive only
+        n-api-meta: false
+        q-meta: false
       tox_environment:
         # Do we really need to set this? It's cargo culted
         PYTHONUNBUFFERED: 'true'
