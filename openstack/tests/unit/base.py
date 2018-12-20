@@ -82,6 +82,8 @@ _RoleData = collections.namedtuple(
 
 class TestCase(base.TestCase):
 
+    strict_cloud = False
+
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         """Run before each test method to initialize test environment."""
 
@@ -111,21 +113,10 @@ class TestCase(base.TestCase):
         vendor.write(b'{}')
         vendor.close()
 
-        test_cloud = os.environ.get('OPENSTACKSDK_OS_CLOUD', '_test_cloud_')
         self.config = occ.OpenStackConfig(
             config_files=[config.name],
             vendor_files=[vendor.name],
             secure_files=['non-existant'])
-        self.cloud_config = self.config.get_one(
-            cloud=test_cloud, validate=False)
-        self.cloud = openstack.connection.Connection(
-            config=self.cloud_config,
-            strict=False)
-        self.strict_cloud = openstack.connection.Connection(
-            config=self.cloud_config,
-            strict=True)
-        self.addCleanup(self.cloud.task_manager.stop)
-        self.addCleanup(self.strict_cloud.task_manager.stop)
 
         # FIXME(notmorgan): Convert the uri_registry, discovery.json, and
         # use of keystone_v3/v2 to a proper fixtures.Fixture. For now this
@@ -446,8 +437,9 @@ class TestCase(base.TestCase):
         self.cloud_config = self.config.get_one(
             cloud=test_cloud, validate=True, **kwargs)
         self.conn = openstack.connection.Connection(
-            config=self.cloud_config)
+            config=self.cloud_config, strict=self.strict_cloud)
         self.cloud = self.conn
+        self.addCleanup(self.cloud.task_manager.stop)
 
     def get_glance_discovery_mock_dict(
             self,
