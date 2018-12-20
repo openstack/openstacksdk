@@ -21,7 +21,7 @@ class TestContainer(base.TestCase):
     def setUp(self):
         super(TestContainer, self).setUp()
         self.container = self.getUniqueString()
-        self.endpoint = self.conn.object_store.get_endpoint() + '/'
+        self.endpoint = self.cloud.object_store.get_endpoint() + '/'
         self.container_endpoint = '{endpoint}{container}'.format(
             endpoint=self.endpoint, container=self.container)
 
@@ -118,7 +118,7 @@ class TestContainer(base.TestCase):
                  json=containers)
         ])
 
-        response = container.Container.list(self.conn.object_store)
+        response = container.Container.list(self.cloud.object_store)
 
         self.assertEqual(len(containers), len(list(response)))
         for index, item in enumerate(response):
@@ -143,7 +143,7 @@ class TestContainer(base.TestCase):
                  json=self.body,
                  validate=dict(headers=headers)),
         ])
-        sot_call(self.conn.object_store)
+        sot_call(self.cloud.object_store)
 
         self.assert_calls()
 
@@ -199,7 +199,7 @@ class TestContainer(base.TestCase):
                      headers=headers,
                      json=data))
         ])
-        sot_call(self.conn.object_store)
+        sot_call(self.cloud.object_store)
 
     def test_create_no_headers(self):
         sot = container.Container.new(name=self.container)

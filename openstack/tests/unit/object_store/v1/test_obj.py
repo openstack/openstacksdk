@@ -121,7 +121,7 @@ class TestObject(base_test_object.BaseTestObject):
         # the up-conversion works properly.
         sot.if_match = self.headers['Etag']
 
-        rv = sot.download(self.conn.object_store)
+        rv = sot.download(self.cloud.object_store)
 
         self.assertEqual(self.the_data, rv)
 
@@ -139,7 +139,7 @@ class TestObject(base_test_object.BaseTestObject):
                      headers=sent_headers))
         ])
 
-        rv = sot.create(self.conn.object_store)
+        rv = sot.create(self.cloud.object_store)
         self.assertEqual(rv.etag, self.headers['Etag'])
 
         self.assert_calls()

@@ -235,11 +235,11 @@ class TestNetworkConnection(base.TestCase):
         self.use_keystone_v3(catalog='catalog-v3-suffix.json')
         self.assertEqual(
             'openstack.network.v2._proxy',
-            self.conn.network.__class__.__module__)
+            self.cloud.network.__class__.__module__)
         self.assert_calls()
         self.assertEqual(
             "https://network.example.com/v2.0",
-            self.conn.network.get_endpoint())
+            self.cloud.network.get_endpoint())
 
 
 class TestNetworkConnectionSuffix(base.TestCase):
@@ -249,21 +249,21 @@ class TestNetworkConnectionSuffix(base.TestCase):
     def test_network_proxy(self):
         self.assertEqual(
             'openstack.network.v2._proxy',
-            self.conn.network.__class__.__module__)
+            self.cloud.network.__class__.__module__)
         self.assert_calls()
         self.assertEqual(
             "https://network.example.com/v2.0",
-            self.conn.network.get_endpoint())
+            self.cloud.network.get_endpoint())
 
 
 class TestAuthorize(base.TestCase):
 
     def test_authorize_works(self):
-        res = self.conn.authorize()
+        res = self.cloud.authorize()
         self.assertEqual('KeystoneToken-1', res)
 
     def test_authorize_failure(self):
         self.use_broken_keystone()
 
         self.assertRaises(openstack.exceptions.HttpException,
-                          self.conn.authorize)
+                          self.cloud.authorize)
