@@ -2141,7 +2141,10 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                       filters=None):
         filters = filters or {}
         servers = [
-            self._normalize_server(server.to_dict())
+            # TODO(mordred) Add original_names=False here and update the
+            # normalize file for server. Then, just remove the normalize call
+            # and the to_munch call.
+            self._normalize_server(server._to_munch())
             for server in self.compute.servers(
                 all_projects=all_projects, **filters)]
         return [

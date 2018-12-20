@@ -13,6 +13,7 @@
 import mock
 import fixtures
 
+from openstack.compute.v2 import server as server_resource
 from openstack.tests.unit import base
 
 RAW_SERVER_DICT = {
@@ -557,8 +558,18 @@ class TestUtils(base.TestCase):
         self.assertEqual(sorted(expected.keys()), sorted(retval.keys()))
         self.assertEqual(expected, retval)
 
+    def _assert_server_munch_attributes(self, raw, server):
+        self.assertEqual(server.flavor.id, raw['flavor']['id'])
+        self.assertEqual(server.image.id, raw['image']['id'])
+        self.assertEqual(server.metadata.group, raw['metadata']['group'])
+        self.assertEqual(
+            server.security_groups[0].name,
+            raw['security_groups'][0]['name'])
+
     def test_normalize_servers_strict(self):
-        raw_server = RAW_SERVER_DICT.copy()
+        res = server_resource.Server(
+            connection=self.strict_cloud,
+            **RAW_SERVER_DICT)
         expected = {
             'accessIPv4': u'',
             'accessIPv6': u'',
@@ -574,15 +585,18 @@ class TestUtils(base.TestCase):
                     u'addr': u'162.253.54.192',
                     u'version': 4}]},
             'adminPass': None,
+            'block_device_mapping': None,
             'created': u'2015-08-01T19:52:16Z',
             'created_at': u'2015-08-01T19:52:16Z',
             'disk_config': u'MANUAL',
             'flavor': {u'id': u'bbcb7eb5-5c8d-498f-9d7e-307c575d3566'},
             'has_config_drive': True,
             'host_id': u'bd37',
+            'hypervisor_hostname': None,
             'id': u'811c5197-dba7-4d3a-a3f6-68ca5328b9a7',
             'image': {u'id': u'69c99b45-cd53-49de-afdc-f24789eb8f83'},
             'interface_ip': u'',
+            'instance_name': None,
             'key_name': u'mordred',
             'launched_at': u'2015-08-01T19:52:02.000000',
             'location': {
@@ -600,31 +614,42 @@ class TestUtils(base.TestCase):
                 u'public': [
                     u'2604:e100:1:0:f816:3eff:fe9f:463e',
                     u'162.253.54.192']},
+            'personality': None,
             'power_state': 1,
             'private_v4': None,
             'progress': 0,
             'properties': {},
             'public_v4': None,
             'public_v6': None,
+            'scheduler_hints': None,
             'security_groups': [{u'name': u'default'}],
             'status': u'ACTIVE',
+            'tags': [],
             'task_state': None,
             'terminated_at': None,
             'updated': u'2016-10-15T15:49:29Z',
+            'user_data': None,
             'user_id': u'e9b21dc437d149858faee0898fb08e92',
             'vm_state': u'active',
             'volumes': []}
-        retval = self.strict_cloud._normalize_server(raw_server)
+        retval = self.strict_cloud._normalize_server(res._to_munch())
+        self._assert_server_munch_attributes(res, retval)
         self.assertEqual(expected, retval)
 
     def test_normalize_servers_normal(self):
-        raw_server = RAW_SERVER_DICT.copy()
+        res = server_resource.Server(
+            connection=self.cloud,
+            **RAW_SERVER_DICT)
         expected = {
             'OS-DCF:diskConfig': u'MANUAL',
             'OS-EXT-AZ:availability_zone': u'ca-ymq-2',
+            'OS-EXT-SRV-ATTR:hypervisor_hostname': None,
+            'OS-EXT-SRV-ATTR:instance_name': None,
+            'OS-EXT-SRV-ATTR:user_data': None,
             'OS-EXT-STS:power_state': 1,
             'OS-EXT-STS:task_state': None,
             'OS-EXT-STS:vm_state': u'active',
+            'OS-SCH-HNT:scheduler_hints': None,
             'OS-SRV-USG:launched_at': u'2015-08-01T19:52:02.000000',
             'OS-SRV-USG:terminated_at': None,
             'accessIPv4': u'',
@@ -642,6 +667,7 @@ class TestUtils(base.TestCase):
                     u'version': 4}]},
             'adminPass': None,
             'az': u'ca-ymq-2',
+            'block_device_mapping': None,
             'cloud': '_test_cloud_',
             'config_drive': u'True',
             'created': u'2015-08-01T19:52:16Z',
@@ -653,7 +679,9 @@ class TestUtils(base.TestCase):
             'host_id': u'bd37',
             'id': u'811c5197-dba7-4d3a-a3f6-68ca5328b9a7',
             'image': {u'id': u'69c99b45-cd53-49de-afdc-f24789eb8f83'},
+            'instance_name': None,
             'interface_ip': '',
+            'hypervisor_hostname': None,
             'key_name': u'mordred',
             'launched_at': u'2015-08-01T19:52:02.000000',
             'location': {
@@ -672,6 +700,7 @@ class TestUtils(base.TestCase):
                     u'2604:e100:1:0:f816:3eff:fe9f:463e',
                     u'162.253.54.192']},
             'os-extended-volumes:volumes_attached': [],
+            'personality': None,
             'power_state': 1,
             'private_v4': None,
             'progress': 0,
@@ -679,25 +708,33 @@ class TestUtils(base.TestCase):
             'properties': {
                 'OS-DCF:diskConfig': u'MANUAL',
                 'OS-EXT-AZ:availability_zone': u'ca-ymq-2',
+                'OS-EXT-SRV-ATTR:hypervisor_hostname': None,
+                'OS-EXT-SRV-ATTR:instance_name': None,
+                'OS-EXT-SRV-ATTR:user_data': None,
                 'OS-EXT-STS:power_state': 1,
                 'OS-EXT-STS:task_state': None,
                 'OS-EXT-STS:vm_state': u'active',
+                'OS-SCH-HNT:scheduler_hints': None,
                 'OS-SRV-USG:launched_at': u'2015-08-01T19:52:02.000000',
                 'OS-SRV-USG:terminated_at': None,
                 'os-extended-volumes:volumes_attached': []},
             'public_v4': None,
             'public_v6': None,
             'region': u'RegionOne',
+            'scheduler_hints': None,
             'security_groups': [{u'name': u'default'}],
             'status': u'ACTIVE',
+            'tags': [],
             'task_state': None,
             'tenant_id': u'db92b20496ae4fbda850a689ea9d563f',
             'terminated_at': None,
             'updated': u'2016-10-15T15:49:29Z',
+            'user_data': None,
             'user_id': u'e9b21dc437d149858faee0898fb08e92',
             'vm_state': u'active',
             'volumes': []}
-        retval = self.cloud._normalize_server(raw_server)
+        retval = self.cloud._normalize_server(res._to_munch())
+        self._assert_server_munch_attributes(res, retval)
         self.assertEqual(expected, retval)
 
     def test_normalize_secgroups_strict(self):

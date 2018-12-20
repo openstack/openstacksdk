@@ -41,12 +41,14 @@ _SERVER_FIELDS = (
     'key_name',
     'metadata',
     'networks',
+    'personality',
     'private_v4',
     'public_v4',
     'public_v6',
     'status',
     'updated',
     'user_id',
+    'tags',
 )
 
 _KEYPAIR_FIELDS = (
@@ -461,18 +463,28 @@ class Normalizer(object):
 
         server['flavor'].pop('links', None)
         ret['flavor'] = server.pop('flavor')
+        # From original_names from sdk
+        server.pop('flavorRef', None)
 
         # OpenStack can return image as a string when you've booted
         # from volume
         if str(server['image']) != server['image']:
             server['image'].pop('links', None)
         ret['image'] = server.pop('image')
+        # From original_names from sdk
+        server.pop('imageRef', None)
+        # From original_names from sdk
+        ret['block_device_mapping'] = server.pop('block_device_mapping_v2', {})
 
         project_id = server.pop('tenant_id', '')
         project_id = server.pop('project_id', project_id)
 
         az = _pop_or_get(
             server, 'OS-EXT-AZ:availability_zone', None, self.strict_mode)
+        # the server resource has this already, but it's missing az info
+        # from the resource.
+        # TODO(mordred) Fix server resource to set az in the location
+        server.pop('location', None)
         ret['location'] = self._get_current_location(
             project_id=project_id, zone=az)
 
@@ -498,7 +510,12 @@ class Normalizer(object):
                 'OS-EXT-STS:task_state',
                 'OS-EXT-STS:vm_state',
                 'OS-SRV-USG:launched_at',
-                'OS-SRV-USG:terminated_at'):
+                'OS-SRV-USG:terminated_at',
+                'OS-EXT-SRV-ATTR:hypervisor_hostname',
+                'OS-EXT-SRV-ATTR:instance_name',
+                'OS-EXT-SRV-ATTR:user_data',
+                'OS-SCH-HNT:scheduler_hints',
+        ):
             short_key = key.split(':')[1]
             ret[short_key] = _pop_or_get(server, key, None, self.strict_mode)
 

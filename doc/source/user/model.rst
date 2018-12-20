@@ -226,6 +226,13 @@ A Server from Nova
     launched_at=str() or None,
     terminated_at=str() or None,
     task_state=str() or None,
+    block_device_mapping=dict() or None,
+    instance_name=str() or None,
+    hypervisor_name=str() or None,
+    tags=list(),
+    personality=str() or None,
+    scheduler_hints=str() or None,
+    user_data=str() or None,
     properties=dict())
 
 ComputeLimits
