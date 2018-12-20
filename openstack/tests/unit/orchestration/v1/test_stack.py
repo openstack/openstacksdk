@@ -93,7 +93,8 @@ class TestStack(base.TestCase):
 
         res = sot.create(sess)
 
-        mock_create.assert_called_once_with(sess, prepend_key=False)
+        mock_create.assert_called_once_with(sess, prepend_key=False,
+                                            base_path=None)
         self.assertEqual(mock_create.return_value, res)
 
     @mock.patch.object(resource.Resource, 'commit')
@@ -104,7 +105,8 @@ class TestStack(base.TestCase):
         res = sot.commit(sess)
 
         mock_commit.assert_called_once_with(sess, prepend_key=False,
-                                            has_body=False)
+                                            has_body=False,
+                                            base_path=None)
         self.assertEqual(mock_commit.return_value, res)
 
     def test_check(self):

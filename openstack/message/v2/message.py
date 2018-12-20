@@ -67,7 +67,7 @@ class Message(resource.Resource):
         return response.json()['resources']
 
     @classmethod
-    def list(cls, session, paginated=True, **params):
+    def list(cls, session, paginated=True, base_path=None, **params):
         """This method is a generator which yields message objects.
 
         This is almost the copy of list method of resource.Resource class.
@@ -107,8 +107,10 @@ class Message(resource.Resource):
             query_params["limit"] = yielded
             query_params["marker"] = new_marker
 
-    def fetch(self, session, requires_id=True, error_message=None):
-        request = self._prepare_request(requires_id=requires_id)
+    def fetch(self, session, requires_id=True,
+              base_path=None, error_message=None):
+        request = self._prepare_request(requires_id=requires_id,
+                                        base_path=base_path)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
             "X-PROJECT-ID": self.project_id or session.get_project_id()

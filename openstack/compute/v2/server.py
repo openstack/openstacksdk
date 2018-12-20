@@ -138,7 +138,8 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     #: only.
     instance_name = resource.Body('OS-EXT-SRV-ATTR:instance_name')
 
-    def _prepare_request(self, requires_id=True, prepend_key=True):
+    def _prepare_request(self, requires_id=True, prepend_key=True,
+                         base_path=None):
         request = super(Server, self)._prepare_request(requires_id=requires_id,
                                                        prepend_key=prepend_key)
 

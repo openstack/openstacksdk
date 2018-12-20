@@ -43,7 +43,7 @@ class Extension(resource.Resource):
     updated_at = resource.Body('updated')
 
     @classmethod
-    def list(cls, session, paginated=False, **params):
+    def list(cls, session, paginated=False, base_path=None, **params):
         resp = session.get(cls.base_path,
                            params=params)
         resp = resp.json()

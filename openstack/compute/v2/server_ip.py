@@ -33,7 +33,7 @@ class ServerIP(resource.Resource):
 
     @classmethod
     def list(cls, session, paginated=False, server_id=None,
-             network_label=None, **params):
+             network_label=None, base_path=None, **params):
         url = cls.base_path % {"server_id": server_id}
 
         if network_label is not None:

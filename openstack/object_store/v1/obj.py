@@ -285,8 +285,8 @@ class Object(_base.BaseResource):
             session, error_message=error_message, stream=True)
         return response.iter_content(chunk_size, decode_unicode=False)
 
-    def create(self, session):
-        request = self._prepare_request()
+    def create(self, session, base_path=None):
+        request = self._prepare_request(base_path=base_path)
         request.headers['Accept'] = ''
 
         response = session.put(
