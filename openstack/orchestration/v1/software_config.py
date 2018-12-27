@@ -38,7 +38,7 @@ class SoftwareConfig(resource.Resource):
     inputs = resource.Body('inputs')
     #: Name of the software config.
     name = resource.Body('name')
-    #: A string that contains options that are specific to the configuraiton
+    #: A string that contains options that are specific to the configuration
     #: management tool that this resource uses.
     options = resource.Body('options')
     #: A list of schemas each representing an output this software config
