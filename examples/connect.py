@@ -66,10 +66,7 @@ def create_connection_from_config():
 
 def create_connection_from_args():
     parser = argparse.ArgumentParser()
-    config = loader.OpenStackConfig()
-    config.register_argparse_arguments(parser, sys.argv[1:])
-    args = parser.parse_args()
-    return openstack.connect(config=config.get_one(argparse=args))
+    return openstack.connect(options=parser)
 
 
 def create_connection(auth_url, region, project_name, username, password):

@@ -45,14 +45,8 @@ with - as well as a consumption argument.
 .. code-block:: python
 
   import argparse
-  import sys
 
-  import openstack.config
+  import openstack
 
-  config = openstack.config.OpenStackConfig()
   parser = argparse.ArgumentParser()
-  config.register_argparse_arguments(parser, sys.argv)
-
-  options = parser.parse_args()
-
-  cloud_region = config.get_one(argparse=options)
+  cloud = openstack.connect(options=parser)
