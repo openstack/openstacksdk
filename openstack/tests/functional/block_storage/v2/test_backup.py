@@ -20,7 +20,7 @@ class TestBackup(base.BaseBlockStorageTest):
     def setUp(self):
         super(TestBackup, self).setUp()
 
-        if not self.conn.has_service('object-store'):
+        if not self.user_cloud.has_service('object-store'):
             self.skipTest('Object service is requred, but not available')
 
         self.VOLUME_NAME = self.getUniqueString()
@@ -28,10 +28,10 @@ class TestBackup(base.BaseBlockStorageTest):
         self.BACKUP_NAME = self.getUniqueString()
         self.BACKUP_ID = None
 
-        volume = self.conn.block_storage.create_volume(
+        volume = self.user_cloud.block_storage.create_volume(
             name=self.VOLUME_NAME,
             size=1)
-        self.conn.block_storage.wait_for_status(
+        self.user_cloud.block_storage.wait_for_status(
             volume,
             status='available',
             failures=['error'],
@@ -40,10 +40,10 @@ class TestBackup(base.BaseBlockStorageTest):
         assert isinstance(volume, _volume.Volume)
         self.VOLUME_ID = volume.id
 
-        backup = self.conn.block_storage.create_backup(
+        backup = self.user_cloud.block_storage.create_backup(
             name=self.BACKUP_NAME,
             volume_id=volume.id)
-        self.conn.block_storage.wait_for_status(
+        self.user_cloud.block_storage.wait_for_status(
             backup,
             status='available',
             failures=['error'],
@@ -54,15 +54,15 @@ class TestBackup(base.BaseBlockStorageTest):
         self.BACKUP_ID = backup.id
 
     def tearDown(self):
-        sot = self.conn.block_storage.delete_backup(
+        sot = self.user_cloud.block_storage.delete_backup(
             self.BACKUP_ID,
             ignore_missing=False)
-        sot = self.conn.block_storage.delete_volume(
+        sot = self.user_cloud.block_storage.delete_volume(
             self.VOLUME_ID,
             ignore_missing=False)
         self.assertIsNone(sot)
         super(TestBackup, self).tearDown()
 
     def test_get(self):
-        sot = self.conn.block_storage.get_backup(self.BACKUP_ID)
+        sot = self.user_cloud.block_storage.get_backup(self.BACKUP_ID)
         self.assertEqual(self.BACKUP_NAME, sot.name)
