@@ -1342,7 +1342,7 @@ class Resource(dict):
 
             if not pagination_key and 'links' in data:
                 # api-wg guidelines are for a links dict in the main body
-                pagination_key == 'links'
+                pagination_key = 'links'
             if not pagination_key and cls.resources_key:
                 # Nova has a {key}_links dict in the main body
                 pagination_key = '{key}_links'.format(key=cls.resources_key)
