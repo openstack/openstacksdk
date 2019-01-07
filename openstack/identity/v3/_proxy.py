@@ -1129,3 +1129,18 @@ class Proxy(proxy.Proxy):
         """
         project = self._get_resource(_project.Project, project)
         project.assign_role_to_user(self, user, role)
+
+    def unassign_project_role_from_user(self, project, user, role):
+        """Unassign role from user on a project
+
+        :param project: Either the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project`
+                      instance.
+        :param user: Either the ID of a user or a
+                     :class:`~openstack.identity.v3.user.User` instance.
+        :param role: Either the ID of a role or a
+                     :class:`~openstack.identity.v3.role.Role` instance.
+        :return: ``None``
+        """
+        project = self._get_resource(_project.Project, project)
+        project.unassign_role_from_user(self, user, role)
