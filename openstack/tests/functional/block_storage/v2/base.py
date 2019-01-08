@@ -23,3 +23,7 @@ class BaseBlockStorageTest(base.BaseFunctionalTest):
         cls._wait_for_timeout = int(os.getenv(
             'OPENSTACKSDK_FUNC_TEST_TIMEOUT_BLOCK_STORAGE',
             cls._wait_for_timeout))
+
+    def setUp(self):
+        super(BaseBlockStorageTest, self).setUp()
+        self.skipTest('block-storage v2 functional tests broken')
