@@ -109,7 +109,7 @@ class Container(_base.BaseResource):
             kwargs.setdefault('name', name)
         return Container(_synchronized=True, **kwargs)
 
-    def create(self, session, prepend_key=True):
+    def create(self, session, prepend_key=True, base_path=None):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -123,7 +123,7 @@ class Container(_base.BaseResource):
                  :data:`Resource.allow_create` is not set to ``True``.
         """
         request = self._prepare_request(
-            requires_id=True, prepend_key=prepend_key)
+            requires_id=True, prepend_key=prepend_key, base_path=base_path)
         response = session.put(
             request.url, json=request.body, headers=request.headers)
 

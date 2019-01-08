@@ -76,7 +76,17 @@ class TestProxyBase(base.TestCase):
                 else:
                     self.assertEqual(expected_result, test_method(*method_args,
                                      **method_kwargs))
-                mocked.assert_called_with(*expected_args, **expected_kwargs)
+                # Check how the mock was called in detail
+                (called_args, called_kwargs) = mocked.call_args
+                self.assertEqual(list(called_args), expected_args)
+                base_path = expected_kwargs.get('base_path', None)
+                # NOTE(gtema): if base_path is not in epected_kwargs or empty
+                # exclude it from the comparison, since some methods might
+                # still invoke method with None value
+                if not base_path:
+                    expected_kwargs.pop('base_path', None)
+                    called_kwargs.pop('base_path', None)
+                self.assertDictEqual(called_kwargs, expected_kwargs)
             else:
                 self.assertEqual(expected_result, test_method())
                 mocked.assert_called_with(test_method.__self__)
@@ -87,7 +97,9 @@ class TestProxyBase(base.TestCase):
         the_kwargs = {"x": 1, "y": 2, "z": 3}
         method_kwargs = kwargs.pop("method_kwargs", the_kwargs)
         expected_args = [resource_type]
-        expected_kwargs = kwargs.pop("expected_kwargs", the_kwargs)
+        # Default the_kwargs should be copied, since we might need to extend it
+        expected_kwargs = kwargs.pop("expected_kwargs", the_kwargs.copy())
+        expected_kwargs["base_path"] = kwargs.pop("base_path", None)
 
         self._verify2(mock_method, test_method,
                       expected_result=expected_result,
@@ -147,6 +159,7 @@ class TestProxyBase(base.TestCase):
             proxy._get(resource_type)
             res.fetch.assert_called_once_with(
                 proxy, requires_id=True,
+                base_path=None,
                 error_message=mock.ANY)
 
     def verify_head(self, test_method, resource_type,
@@ -216,7 +229,8 @@ class TestProxyBase(base.TestCase):
         method_kwargs = kwargs.pop("method_kwargs", {})
         method_kwargs.update({"x": 1, "y": 2, "z": 3})
         expected_args = kwargs.pop("expected_args", ["resource_or_id"])
-        expected_kwargs = method_kwargs.copy()
+        expected_kwargs = kwargs.pop("expected_kwargs", method_kwargs.copy())
+        expected_kwargs["base_path"] = kwargs.pop("base_path", None)
 
         self._add_path_args_for_verify(path_args, method_args, expected_kwargs,
                                        value=value)

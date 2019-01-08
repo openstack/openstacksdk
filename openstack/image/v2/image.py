@@ -278,10 +278,11 @@ class Image(resource.Resource, resource.TagMixin):
         return resp.content
 
     def _prepare_request(self, requires_id=None, prepend_key=False,
-                         patch=False):
+                         patch=False, base_path=None):
         request = super(Image, self)._prepare_request(requires_id=requires_id,
                                                       prepend_key=prepend_key,
-                                                      patch=patch)
+                                                      patch=patch,
+                                                      base_path=base_path)
         if patch:
             headers = {
                 'Content-Type': 'application/openstack-images-v2.1-json-patch',

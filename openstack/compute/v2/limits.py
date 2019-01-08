@@ -76,7 +76,8 @@ class Limits(resource.Resource):
     absolute = resource.Body("absolute", type=AbsoluteLimits)
     rate = resource.Body("rate", type=list, list_type=RateLimit)
 
-    def fetch(self, session, requires_id=False, error_message=None):
+    def fetch(self, session, requires_id=False, error_message=None,
+              base_path=None):
         """Get the Limits resource.
 
         :param session: The session to use for making this request.
@@ -88,4 +89,5 @@ class Limits(resource.Resource):
         # TODO(mordred) We shouldn't have to subclass just to declare
         # requires_id = False.
         return super(Limits, self).fetch(
-            session=session, requires_id=False, error_message=error_message)
+            session=session, requires_id=False, error_message=error_message,
+            base_path=base_path)

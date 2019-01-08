@@ -161,7 +161,7 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         return rv
 
     @_check_resource(strict=False)
-    def _update(self, resource_type, value, **attrs):
+    def _update(self, resource_type, value, base_path=None, **attrs):
         """Update a resource
 
         :param resource_type: The type of resource to update.
@@ -169,6 +169,9 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         :param value: The resource to update. This must either be a
                       :class:`~openstack.resource.Resource` or an id
                       that corresponds to a resource.
+        :param str base_path: Base part of the URI for updating resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
                            :meth:`~openstack.resource.Resource.update`
                            method to be updated. These should correspond
@@ -180,13 +183,16 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
-        return res.commit(self)
+        return res.commit(self, base_path=base_path)
 
-    def _create(self, resource_type, **attrs):
+    def _create(self, resource_type, base_path=None, **attrs):
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
         :type resource_type: :class:`~openstack.resource.Resource`
+        :param str base_path: Base part of the URI for creating resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
         :param path_args: A dict containing arguments for forming the request
                           URL, if needed.
         :param dict attrs: Attributes to be passed onto the
@@ -200,10 +206,11 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         :rtype: :class:`~openstack.resource.Resource`
         """
         res = resource_type.new(**attrs)
-        return res.create(self)
+        return res.create(self, base_path=base_path)
 
     @_check_resource(strict=False)
-    def _get(self, resource_type, value=None, requires_id=True, **attrs):
+    def _get(self, resource_type, value=None, requires_id=True,
+             base_path=None, **attrs):
         """Fetch a resource
 
         :param resource_type: The type of resource to get.
@@ -211,6 +218,9 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         :param value: The value to get. Can be either the ID of a
                       resource or a :class:`~openstack.resource.Resource`
                       subclass.
+        :param str base_path: Base part of the URI for fetching resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
                            :meth:`~openstack.resource.Resource.get`
                            method. These should correspond
@@ -224,11 +234,12 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         res = self._get_resource(resource_type, value, **attrs)
 
         return res.fetch(
-            self, requires_id=requires_id,
+            self, requires_id=requires_id, base_path=base_path,
             error_message="No {resource_type} found for {value}".format(
                 resource_type=resource_type.__name__, value=value))
 
-    def _list(self, resource_type, value=None, paginated=False, **attrs):
+    def _list(self, resource_type, value=None,
+              paginated=False, base_path=None, **attrs):
         """List a resource
 
         :param resource_type: The type of resource to delete. This should
@@ -241,6 +252,9 @@ class Proxy(_adapter.OpenStackSDKAdapter):
                                to be returned in one response. When set to
                                ``True``, the resource supports data being
                                returned across multiple pages.
+        :param str base_path: Base part of the URI for listing resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
             :meth:`~openstack.resource.Resource.list` method. These should
             correspond to either :class:`~openstack.resource.URI` values
@@ -252,9 +266,10 @@ class Proxy(_adapter.OpenStackSDKAdapter):
                  the ``resource_type``.
         """
         res = self._get_resource(resource_type, value, **attrs)
-        return res.list(self, paginated=paginated, **attrs)
+        return res.list(self, paginated=paginated,
+                        base_path=base_path, **attrs)
 
-    def _head(self, resource_type, value=None, **attrs):
+    def _head(self, resource_type, value=None, base_path=None, **attrs):
         """Retrieve a resource's header
 
         :param resource_type: The type of resource to retrieve.
@@ -263,6 +278,9 @@ class Proxy(_adapter.OpenStackSDKAdapter):
                       for. Can be either the ID of a resource,
                       a :class:`~openstack.resource.Resource` subclass,
                       or ``None``.
+        :param str base_path: Base part of the URI for heading resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
                            :meth:`~openstack.resource.Resource.head` method.
                            These should correspond to
@@ -272,4 +290,4 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         :rtype: :class:`~openstack.resource.Resource`
         """
         res = self._get_resource(resource_type, value, **attrs)
-        return res.head(self)
+        return res.head(self, base_path=base_path)

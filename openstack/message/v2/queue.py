@@ -50,9 +50,10 @@ class Queue(resource.Resource):
     #: in case keystone auth is not enabled in Zaqar service.
     project_id = resource.Header("X-PROJECT-ID")
 
-    def create(self, session, prepend_key=True):
+    def create(self, session, prepend_key=True, base_path=None):
         request = self._prepare_request(requires_id=True,
-                                        prepend_key=prepend_key)
+                                        prepend_key=prepend_key,
+                                        base_path=None)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
             "X-PROJECT-ID": self.project_id or session.get_project_id()
@@ -65,7 +66,7 @@ class Queue(resource.Resource):
         return self
 
     @classmethod
-    def list(cls, session, paginated=False, **params):
+    def list(cls, session, paginated=False, base_path=None, **params):
         """This method is a generator which yields queue objects.
 
         This is almost the copy of list method of resource.Resource class.
@@ -105,8 +106,10 @@ class Queue(resource.Resource):
             query_params["limit"] = yielded
             query_params["marker"] = new_marker
 
-    def fetch(self, session, requires_id=True, error_message=None):
-        request = self._prepare_request(requires_id=requires_id)
+    def fetch(self, session, requires_id=True,
+              base_path=None, error_message=None):
+        request = self._prepare_request(requires_id=requires_id,
+                                        base_path=base_path)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
             "X-PROJECT-ID": self.project_id or session.get_project_id()

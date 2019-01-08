@@ -254,13 +254,22 @@ class TestProxyUpdate(base.TestCase):
 
         self.assertEqual(rv, self.fake_result)
         self.res._update.assert_called_once_with(**self.attrs)
-        self.res.commit.assert_called_once_with(self.sot)
+        self.res.commit.assert_called_once_with(self.sot, base_path=None)
+
+    def test_update_resource_override_base_path(self):
+        base_path = 'dummy'
+        rv = self.sot._update(UpdateableResource, self.res,
+                              base_path=base_path, **self.attrs)
+
+        self.assertEqual(rv, self.fake_result)
+        self.res._update.assert_called_once_with(**self.attrs)
+        self.res.commit.assert_called_once_with(self.sot, base_path=base_path)
 
     def test_update_id(self):
         rv = self.sot._update(UpdateableResource, self.fake_id, **self.attrs)
 
         self.assertEqual(rv, self.fake_result)
-        self.res.commit.assert_called_once_with(self.sot)
+        self.res.commit.assert_called_once_with(self.sot, base_path=None)
 
 
 class TestProxyCreate(base.TestCase):
@@ -284,7 +293,18 @@ class TestProxyCreate(base.TestCase):
 
         self.assertEqual(rv, self.fake_result)
         CreateableResource.new.assert_called_once_with(**attrs)
-        self.res.create.assert_called_once_with(self.sot)
+        self.res.create.assert_called_once_with(self.sot, base_path=None)
+
+    def test_create_attributes_override_base_path(self):
+        CreateableResource.new = mock.Mock(return_value=self.res)
+
+        base_path = 'dummy'
+        attrs = {"x": 1, "y": 2, "z": 3}
+        rv = self.sot._create(CreateableResource, base_path=base_path, **attrs)
+
+        self.assertEqual(rv, self.fake_result)
+        CreateableResource.new.assert_called_once_with(**attrs)
+        self.res.create.assert_called_once_with(self.sot, base_path=base_path)
 
 
 class TestProxyGet(base.TestCase):
@@ -309,6 +329,7 @@ class TestProxyGet(base.TestCase):
 
         self.res.fetch.assert_called_with(
             self.sot, requires_id=True,
+            base_path=None,
             error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
@@ -318,7 +339,7 @@ class TestProxyGet(base.TestCase):
 
         self.res._update.assert_called_once_with(**args)
         self.res.fetch.assert_called_with(
-            self.sot, requires_id=True,
+            self.sot, requires_id=True, base_path=None,
             error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
@@ -327,7 +348,18 @@ class TestProxyGet(base.TestCase):
 
         RetrieveableResource.new.assert_called_with(id=self.fake_id)
         self.res.fetch.assert_called_with(
-            self.sot, requires_id=True,
+            self.sot, requires_id=True, base_path=None,
+            error_message=mock.ANY)
+        self.assertEqual(rv, self.fake_result)
+
+    def test_get_base_path(self):
+        base_path = 'dummy'
+        rv = self.sot._get(RetrieveableResource, self.fake_id,
+                           base_path=base_path)
+
+        RetrieveableResource.new.assert_called_with(id=self.fake_id)
+        self.res.fetch.assert_called_with(
+            self.sot, requires_id=True, base_path=base_path,
             error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
@@ -354,18 +386,22 @@ class TestProxyList(base.TestCase):
         ListableResource.list = mock.Mock()
         ListableResource.list.return_value = self.fake_response
 
-    def _test_list(self, paginated):
-        rv = self.sot._list(ListableResource, paginated=paginated, **self.args)
+    def _test_list(self, paginated, base_path=None):
+        rv = self.sot._list(ListableResource, paginated=paginated,
+                            base_path=base_path, **self.args)
 
         self.assertEqual(self.fake_response, rv)
         ListableResource.list.assert_called_once_with(
-            self.sot, paginated=paginated, **self.args)
+            self.sot, paginated=paginated, base_path=base_path, **self.args)
 
     def test_list_paginated(self):
         self._test_list(True)
 
     def test_list_non_paginated(self):
         self._test_list(False)
+
+    def test_list_override_base_path(self):
+        self._test_list(False, base_path='dummy')
 
 
 class TestProxyHead(base.TestCase):
@@ -388,12 +424,19 @@ class TestProxyHead(base.TestCase):
     def test_head_resource(self):
         rv = self.sot._head(HeadableResource, self.res)
 
-        self.res.head.assert_called_with(self.sot)
+        self.res.head.assert_called_with(self.sot, base_path=None)
+        self.assertEqual(rv, self.fake_result)
+
+    def test_head_resource_base_path(self):
+        base_path = 'dummy'
+        rv = self.sot._head(HeadableResource, self.res, base_path=base_path)
+
+        self.res.head.assert_called_with(self.sot, base_path=base_path)
         self.assertEqual(rv, self.fake_result)
 
     def test_head_id(self):
         rv = self.sot._head(HeadableResource, self.fake_id)
 
         HeadableResource.new.assert_called_with(id=self.fake_id)
-        self.res.head.assert_called_with(self.sot)
+        self.res.head.assert_called_with(self.sot, base_path=None)
         self.assertEqual(rv, self.fake_result)

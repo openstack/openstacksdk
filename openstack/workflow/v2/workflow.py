@@ -46,9 +46,10 @@ class Workflow(resource.Resource):
     #: The time at which the workflow was created
     updated_at = resource.Body("updated_at")
 
-    def create(self, session, prepend_key=True):
+    def create(self, session, prepend_key=True, base_path=None):
         request = self._prepare_request(requires_id=False,
-                                        prepend_key=prepend_key)
+                                        prepend_key=prepend_key,
+                                        base_path=base_path)
 
         headers = {
             "Content-Type": 'text/plain'

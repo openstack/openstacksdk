@@ -1076,16 +1076,18 @@ class TestResourceActions(base.TestCase):
         self.session.get_endpoint_data.return_value = self.endpoint_data
 
     def _test_create(self, cls, requires_id=False, prepend_key=False,
-                     microversion=None):
+                     microversion=None, base_path=None):
         id = "id" if requires_id else None
         sot = cls(id=id)
         sot._prepare_request = mock.Mock(return_value=self.request)
         sot._translate_response = mock.Mock()
 
-        result = sot.create(self.session, prepend_key=prepend_key)
+        result = sot.create(self.session, prepend_key=prepend_key,
+                            base_path=base_path)
 
         sot._prepare_request.assert_called_once_with(
-            requires_id=requires_id, prepend_key=prepend_key)
+            requires_id=requires_id, prepend_key=prepend_key,
+            base_path=base_path)
         if requires_id:
             self.session.put.assert_called_once_with(
                 self.request.url,
@@ -1130,10 +1132,21 @@ class TestResourceActions(base.TestCase):
 
         self._test_create(Test, requires_id=False, prepend_key=True)
 
+    def test_post_create_base_path(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'POST'
+
+        self._test_create(Test, requires_id=False, prepend_key=True,
+                          base_path='dummy')
+
     def test_fetch(self):
         result = self.sot.fetch(self.session)
 
-        self.sot._prepare_request.assert_called_once_with(requires_id=True)
+        self.sot._prepare_request.assert_called_once_with(
+            requires_id=True, base_path=None)
         self.session.get.assert_called_once_with(
             self.request.url, microversion=None)
 
@@ -1154,7 +1167,8 @@ class TestResourceActions(base.TestCase):
 
         result = sot.fetch(self.session)
 
-        sot._prepare_request.assert_called_once_with(requires_id=True)
+        sot._prepare_request.assert_called_once_with(
+            requires_id=True, base_path=None)
         self.session.get.assert_called_once_with(
             self.request.url, microversion='1.42')
 
@@ -1165,7 +1179,20 @@ class TestResourceActions(base.TestCase):
     def test_fetch_not_requires_id(self):
         result = self.sot.fetch(self.session, False)
 
-        self.sot._prepare_request.assert_called_once_with(requires_id=False)
+        self.sot._prepare_request.assert_called_once_with(
+            requires_id=False, base_path=None)
+        self.session.get.assert_called_once_with(
+            self.request.url, microversion=None)
+
+        self.sot._translate_response.assert_called_once_with(self.response)
+        self.assertEqual(result, self.sot)
+
+    def test_fetch_base_path(self):
+        result = self.sot.fetch(self.session, False, base_path='dummy')
+
+        self.sot._prepare_request.assert_called_once_with(
+            requires_id=False,
+            base_path='dummy')
         self.session.get.assert_called_once_with(
             self.request.url, microversion=None)
 
@@ -1175,7 +1202,21 @@ class TestResourceActions(base.TestCase):
     def test_head(self):
         result = self.sot.head(self.session)
 
-        self.sot._prepare_request.assert_called_once_with()
+        self.sot._prepare_request.assert_called_once_with(base_path=None)
+        self.session.head.assert_called_once_with(
+            self.request.url,
+            headers={"Accept": ""},
+            microversion=None)
+
+        self.assertIsNone(self.sot.microversion)
+        self.sot._translate_response.assert_called_once_with(
+            self.response, has_body=False)
+        self.assertEqual(result, self.sot)
+
+    def test_head_base_path(self):
+        result = self.sot.head(self.session, base_path='dummy')
+
+        self.sot._prepare_request.assert_called_once_with(base_path='dummy')
         self.session.head.assert_called_once_with(
             self.request.url,
             headers={"Accept": ""},
@@ -1199,7 +1240,7 @@ class TestResourceActions(base.TestCase):
 
         result = sot.head(self.session)
 
-        sot._prepare_request.assert_called_once_with()
+        sot._prepare_request.assert_called_once_with(base_path=None)
         self.session.head.assert_called_once_with(
             self.request.url,
             headers={"Accept": ""},
@@ -1212,7 +1253,7 @@ class TestResourceActions(base.TestCase):
 
     def _test_commit(self, commit_method='PUT', prepend_key=True,
                      has_body=True, microversion=None,
-                     commit_args=None, expected_args=None):
+                     commit_args=None, expected_args=None, base_path=None):
         self.sot.commit_method = commit_method
 
         # Need to make sot look dirty so we can attempt an update
@@ -1220,10 +1261,11 @@ class TestResourceActions(base.TestCase):
         self.sot._body.dirty = mock.Mock(return_value={"x": "y"})
 
         self.sot.commit(self.session, prepend_key=prepend_key,
-                        has_body=has_body, **(commit_args or {}))
+                        has_body=has_body, base_path=base_path,
+                        **(commit_args or {}))
 
         self.sot._prepare_request.assert_called_once_with(
-            prepend_key=prepend_key)
+            prepend_key=prepend_key, base_path=base_path)
 
         if commit_method == 'PATCH':
             self.session.patch.assert_called_once_with(
@@ -1251,6 +1293,10 @@ class TestResourceActions(base.TestCase):
     def test_commit_patch(self):
         self._test_commit(
             commit_method='PATCH', prepend_key=False, has_body=False)
+
+    def test_commit_base_path(self):
+        self._test_commit(commit_method='PUT', prepend_key=True, has_body=True,
+                          base_path='dummy')
 
     def test_commit_patch_retry_on_conflict(self):
         self._test_commit(

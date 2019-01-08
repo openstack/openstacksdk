@@ -51,7 +51,7 @@ class Keypair(resource.Resource):
         return super(Keypair, self)._consume_attrs(mapping, attrs)
 
     @classmethod
-    def list(cls, session, paginated=False):
+    def list(cls, session, paginated=False, base_path=None):
         resp = session.get(cls.base_path,
                            headers={"Accept": "application/json"})
         resp = resp.json()

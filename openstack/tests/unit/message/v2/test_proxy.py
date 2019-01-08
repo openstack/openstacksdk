@@ -130,7 +130,8 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
     def test_subscription_create(self):
         self._verify("openstack.message.v2.subscription.Subscription.create",
                      self.proxy.create_subscription,
-                     method_args=["test_queue"])
+                     method_args=["test_queue"],
+                     expected_kwargs={"base_path": None})
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
     def test_subscription_get(self, mock_get_resource):
@@ -175,7 +176,8 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
     def test_claim_create(self):
         self._verify("openstack.message.v2.claim.Claim.create",
                      self.proxy.create_claim,
-                     method_args=["test_queue"])
+                     method_args=["test_queue"],
+                     expected_kwargs={"base_path": None})
 
     def test_claim_get(self):
         self._verify2("openstack.proxy.Proxy._get",

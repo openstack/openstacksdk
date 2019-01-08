@@ -884,7 +884,7 @@ class Resource(dict):
         return body
 
     def _prepare_request(self, requires_id=None, prepend_key=False,
-                         patch=False):
+                         patch=False, base_path=None):
         """Prepare a request to be sent to the server
 
         Create operations don't require an ID, but all others do,
@@ -912,7 +912,9 @@ class Resource(dict):
             else:
                 headers[k] = str(v)
 
-        uri = self.base_path % self._uri.attributes
+        if base_path is None:
+            base_path = self.base_path
+        uri = base_path % self._uri.attributes
         if requires_id:
             if self.id is None:
                 raise exceptions.InvalidRequest(
@@ -1047,7 +1049,7 @@ class Resource(dict):
 
         return actual
 
-    def create(self, session, prepend_key=True):
+    def create(self, session, prepend_key=True, base_path=None):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1055,7 +1057,9 @@ class Resource(dict):
         :param prepend_key: A boolean indicating whether the resource_key
                             should be prepended in a resource creation
                             request. Default to True.
-
+        :param str base_path: Base part of the URI for creating resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_create` is not set to ``True``.
@@ -1067,13 +1071,15 @@ class Resource(dict):
         microversion = self._get_microversion_for(session, 'create')
         if self.create_method == 'PUT':
             request = self._prepare_request(requires_id=True,
-                                            prepend_key=prepend_key)
+                                            prepend_key=prepend_key,
+                                            base_path=base_path)
             response = session.put(request.url,
                                    json=request.body, headers=request.headers,
                                    microversion=microversion)
         elif self.create_method == 'POST':
             request = self._prepare_request(requires_id=False,
-                                            prepend_key=prepend_key)
+                                            prepend_key=prepend_key,
+                                            base_path=base_path)
             response = session.post(request.url,
                                     json=request.body, headers=request.headers,
                                     microversion=microversion)
@@ -1085,13 +1091,19 @@ class Resource(dict):
         self._translate_response(response)
         return self
 
-    def fetch(self, session, requires_id=True, error_message=None):
+    def fetch(self, session, requires_id=True,
+              base_path=None, error_message=None):
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param boolean requires_id: A boolean indicating whether resource ID
                                     should be part of the requested URI.
+        :param str base_path: Base part of the URI for fetching resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
+        :param str error_message: An Error message to be returned if
+                                  requested object does not exist.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_fetch` is not set to ``True``.
@@ -1101,7 +1113,8 @@ class Resource(dict):
         if not self.allow_fetch:
             raise exceptions.MethodNotSupported(self, "fetch")
 
-        request = self._prepare_request(requires_id=requires_id)
+        request = self._prepare_request(requires_id=requires_id,
+                                        base_path=base_path)
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'fetch')
         response = session.get(request.url, microversion=microversion)
@@ -1113,11 +1126,14 @@ class Resource(dict):
         self._translate_response(response, **kwargs)
         return self
 
-    def head(self, session):
+    def head(self, session, base_path=None):
         """Get headers from a remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param str base_path: Base part of the URI for fetching resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1128,7 +1144,7 @@ class Resource(dict):
         if not self.allow_head:
             raise exceptions.MethodNotSupported(self, "head")
 
-        request = self._prepare_request()
+        request = self._prepare_request(base_path=base_path)
 
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'fetch')
@@ -1141,7 +1157,7 @@ class Resource(dict):
         return self
 
     def commit(self, session, prepend_key=True, has_body=True,
-               retry_on_conflict=None):
+               retry_on_conflict=None, base_path=None):
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
@@ -1152,6 +1168,9 @@ class Resource(dict):
         :param bool retry_on_conflict: Whether to enable retries on HTTP
                                        CONFLICT (409). Value of ``None`` leaves
                                        the `Adapter` defaults.
+        :param str base_path: Base part of the URI for modifying resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1173,7 +1192,9 @@ class Resource(dict):
         if self.commit_jsonpatch:
             kwargs['patch'] = True
 
-        request = self._prepare_request(prepend_key=prepend_key, **kwargs)
+        request = self._prepare_request(prepend_key=prepend_key,
+                                        base_path=base_path,
+                                        **kwargs)
         session = self._get_session(session)
 
         kwargs = {}

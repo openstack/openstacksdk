@@ -74,16 +74,17 @@ class Stack(resource.Resource):
     #: The ID of the user project created for this stack.
     user_project_id = resource.Body('stack_user_project_id')
 
-    def create(self, session):
+    def create(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
-        return super(Stack, self).create(session, prepend_key=False)
+        return super(Stack, self).create(session, prepend_key=False,
+                                         base_path=base_path)
 
-    def commit(self, session):
+    def commit(self, session, base_path=None):
         # This overrides the default behavior of resource creation because
         # heat doesn't accept resource_key in its request.
         return super(Stack, self).commit(session, prepend_key=False,
-                                         has_body=False)
+                                         has_body=False, base_path=None)
 
     def _action(self, session, body):
         """Perform stack actions"""
@@ -94,10 +95,12 @@ class Stack(resource.Resource):
     def check(self, session):
         return self._action(session, {'check': ''})
 
-    def fetch(self, session, requires_id=True, error_message=None):
+    def fetch(self, session, requires_id=True,
+              base_path=None, error_message=None):
         stk = super(Stack, self).fetch(
             session,
             requires_id=requires_id,
+            base_path=base_path,
             error_message=error_message)
         if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
             raise exceptions.ResourceNotFound(
