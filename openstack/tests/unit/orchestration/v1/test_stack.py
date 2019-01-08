@@ -49,6 +49,73 @@ FAKE_CREATE_RESPONSE = {
             'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
             'rel': 'self'}]}
 }
+FAKE_UPDATE_PREVIEW_RESPONSE = {
+    'unchanged': [
+        {
+            'updated_time': 'datetime',
+            'resource_name': '',
+            'physical_resource_id': '{resource id or ''}',
+            'resource_action': 'CREATE',
+            'resource_status': 'COMPLETE',
+            'resource_status_reason': '',
+            'resource_type': 'restype',
+            'stack_identity': '{stack_id}',
+            'stack_name': '{stack_name}'
+        }
+    ],
+    'updated': [
+        {
+            'updated_time': 'datetime',
+            'resource_name': '',
+            'physical_resource_id': '{resource id or ''}',
+            'resource_action': 'CREATE',
+            'resource_status': 'COMPLETE',
+            'resource_status_reason': '',
+            'resource_type': 'restype',
+            'stack_identity': '{stack_id}',
+            'stack_name': '{stack_name}'
+        }
+    ],
+    'replaced': [
+        {
+            'updated_time': 'datetime',
+            'resource_name': '',
+            'physical_resource_id': '{resource id or ''}',
+            'resource_action': 'CREATE',
+            'resource_status': 'COMPLETE',
+            'resource_status_reason': '',
+            'resource_type': 'restype',
+            'stack_identity': '{stack_id}',
+            'stack_name': '{stack_name}'
+        }
+    ],
+    'added': [
+        {
+            'updated_time': 'datetime',
+            'resource_name': '',
+            'physical_resource_id': '{resource id or ''}',
+            'resource_action': 'CREATE',
+            'resource_status': 'COMPLETE',
+            'resource_status_reason': '',
+            'resource_type': 'restype',
+            'stack_identity': '{stack_id}',
+            'stack_name': '{stack_name}'
+        }
+    ],
+    'deleted': [
+        {
+            'updated_time': 'datetime',
+            'resource_name': '',
+            'physical_resource_id': '{resource id or ''}',
+            'resource_action': 'CREATE',
+            'resource_status': 'COMPLETE',
+            'resource_status_reason': '',
+            'resource_type': 'restype',
+            'stack_identity': '{stack_id}',
+            'stack_name': '{stack_name}'
+        }
+    ]
+}
 
 
 class TestStack(base.TestCase):
@@ -138,15 +205,78 @@ class TestStack(base.TestCase):
         self.assertEqual('No stack found for %s' % FAKE_ID,
                          six.text_type(ex))
 
+    def test_abandon(self):
+        sess = mock.Mock()
+        sess.default_microversion = None
 
-class TestStackPreview(base.TestCase):
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.headers = {}
+        mock_response.json.return_value = {}
+        sess.delete = mock.Mock(return_value=mock_response)
+        sot = stack.Stack(**FAKE)
 
-    def test_basic(self):
-        sot = stack.StackPreview()
+        sot.abandon(sess)
 
-        self.assertEqual('/stacks/preview', sot.base_path)
-        self.assertTrue(sot.allow_create)
-        self.assertFalse(sot.allow_list)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_delete)
+        sess.delete.assert_called_with(
+            'stacks/%s/%s/abandon' % (FAKE_NAME, FAKE_ID),
+
+        )
+
+    def test_update(self):
+        sess = mock.Mock()
+        sess.default_microversion = None
+
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.headers = {}
+        mock_response.json.return_value = {}
+        sess.put = mock.Mock(return_value=mock_response)
+        sot = stack.Stack(**FAKE)
+        body = sot._body.dirty.copy()
+
+        sot.update(sess)
+
+        sess.put.assert_called_with(
+            'stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
+            headers={},
+            microversion=None,
+            json=body
+        )
+
+    def test_update_preview(self):
+        sess = mock.Mock()
+        sess.default_microversion = None
+
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.headers = {}
+        mock_response.json.return_value = FAKE_UPDATE_PREVIEW_RESPONSE.copy()
+        sess.put = mock.Mock(return_value=mock_response)
+        sot = stack.Stack(**FAKE)
+        body = sot._body.dirty.copy()
+
+        ret = sot.update(sess, preview=True)
+
+        sess.put.assert_called_with(
+            'stacks/%s/%s/preview' % (FAKE_NAME, FAKE_ID),
+            headers={},
+            microversion=None,
+            json=body
+        )
+
+        self.assertEqual(
+            FAKE_UPDATE_PREVIEW_RESPONSE['added'],
+            ret.added)
+        self.assertEqual(
+            FAKE_UPDATE_PREVIEW_RESPONSE['deleted'],
+            ret.deleted)
+        self.assertEqual(
+            FAKE_UPDATE_PREVIEW_RESPONSE['replaced'],
+            ret.replaced)
+        self.assertEqual(
+            FAKE_UPDATE_PREVIEW_RESPONSE['unchanged'],
+            ret.unchanged)
+        self.assertEqual(
+            FAKE_UPDATE_PREVIEW_RESPONSE['updated'],
+            ret.updated)

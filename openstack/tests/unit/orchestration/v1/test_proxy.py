@@ -36,7 +36,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
     def test_create_stack_preview(self):
         method_kwargs = {"preview": True, "x": 1, "y": 2, "z": 3}
-        self.verify_create(self.proxy.create_stack, stack.StackPreview,
+        self.verify_create(self.proxy.create_stack, stack.Stack,
                            method_kwargs=method_kwargs)
 
     def test_find_stack(self):
@@ -52,7 +52,27 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
             'openstack.orchestration.v1.stack.Stack')
 
     def test_update_stack(self):
-        self.verify_update(self.proxy.update_stack, stack.Stack)
+        self._verify2('openstack.orchestration.v1.stack.Stack.update',
+                      self.proxy.update_stack,
+                      expected_result='result',
+                      method_args=['stack'],
+                      method_kwargs={'preview': False},
+                      expected_args=[self.proxy, False])
+
+    def test_update_stack_preview(self):
+        self._verify2('openstack.orchestration.v1.stack.Stack.update',
+                      self.proxy.update_stack,
+                      expected_result='result',
+                      method_args=['stack'],
+                      method_kwargs={'preview': True},
+                      expected_args=[self.proxy, True])
+
+    def test_abandon_stack(self):
+        self._verify2('openstack.orchestration.v1.stack.Stack.abandon',
+                      self.proxy.abandon_stack,
+                      expected_result='result',
+                      method_args=['stack'],
+                      expected_args=[self.proxy])
 
     def test_delete_stack(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, False)

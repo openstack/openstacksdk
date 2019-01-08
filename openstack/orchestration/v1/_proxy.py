@@ -28,10 +28,8 @@ class Proxy(proxy.Proxy):
     def create_stack(self, preview=False, **attrs):
         """Create a new stack from attributes
 
-        :param bool preview: When ``True``, returns
-            an :class:`~openstack.orchestration.v1.stack.StackPreview` object,
-            otherwise an :class:`~openstack.orchestration.v1.stack.Stack`
-            object.
+        :param bool preview: When ``True``, a preview endpoint will be used to
+            verify the template
             *Default: ``False``*
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.orchestration.v1.stack.Stack`,
@@ -40,8 +38,8 @@ class Proxy(proxy.Proxy):
         :returns: The results of stack creation
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        res_type = _stack.StackPreview if preview else _stack.Stack
-        return self._create(res_type, **attrs)
+        base_path = None if not preview else '/stacks/preview'
+        return self._create(_stack.Stack, base_path=base_path, **attrs)
 
     def find_stack(self, name_or_id, ignore_missing=True):
         """Find a single stack
@@ -80,7 +78,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_stack.Stack, stack)
 
-    def update_stack(self, stack, **attrs):
+    def update_stack(self, stack, preview=False, **attrs):
         """Update a stack
 
         :param stack: The value can be the ID of a stack or a
@@ -93,7 +91,8 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._update(_stack.Stack, stack, **attrs)
+        res = self._get_resource(_stack.Stack, stack, **attrs)
+        return res.update(self, preview)
 
     def delete_stack(self, stack, ignore_missing=True):
         """Delete a stack
@@ -127,6 +126,16 @@ class Proxy(proxy.Proxy):
             stk_obj = _stack.Stack.existing(id=stack)
 
         stk_obj.check(self)
+
+    def abandon_stack(self, stack):
+        """Abandon a stack's without deleting it's resources
+
+        :param stack: The value can be either the ID of a stack or an instance
+                      of :class:`~openstack.orchestration.v1.stack.Stack`.
+        :returns: ``None``
+        """
+        res = self._get_resource(_stack.Stack, stack)
+        return res.abandon(self)
 
     def get_stack_template(self, stack):
         """Get template used by a stack
