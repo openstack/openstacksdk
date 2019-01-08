@@ -40,8 +40,7 @@ class TestKeyManagerProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_container, container.Container)
 
     def test_containers(self):
-        self.verify_list(self.proxy.containers, container.Container,
-                         paginated=False)
+        self.verify_list(self.proxy.containers, container.Container)
 
     def test_container_update(self):
         self.verify_update(self.proxy.update_container, container.Container)
@@ -62,7 +61,7 @@ class TestKeyManagerProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_order, order.Order)
 
     def test_orders(self):
-        self.verify_list(self.proxy.orders, order.Order, paginated=False)
+        self.verify_list(self.proxy.orders, order.Order)
 
     def test_order_update(self):
         self.verify_update(self.proxy.update_order, order.Order)
@@ -86,7 +85,7 @@ class TestKeyManagerProxy(test_proxy_base.TestProxyBase):
             'openstack.key_manager.v1.secret.Secret')
 
     def test_secrets(self):
-        self.verify_list(self.proxy.secrets, secret.Secret, paginated=False)
+        self.verify_list(self.proxy.secrets, secret.Secret)
 
     def test_secret_update(self):
         self.verify_update(self.proxy.update_secret, secret.Secret)

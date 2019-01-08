@@ -103,7 +103,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.credential.Credential`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_credential.Credential, paginated=False, **query)
+        return self._list(_credential.Credential, **query)
 
     def update_credential(self, credential, **attrs):
         """Update a credential
@@ -181,7 +181,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.domain.Domain`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_domain.Domain, paginated=False, **query)
+        return self._list(_domain.Domain, **query)
 
     def update_domain(self, domain, **attrs):
         """Update a domain
@@ -261,7 +261,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_endpoint.Endpoint, paginated=False, **query)
+        return self._list(_endpoint.Endpoint, **query)
 
     def update_endpoint(self, endpoint, **attrs):
         """Update a endpoint
@@ -341,7 +341,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.group.Group`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_group.Group, paginated=False, **query)
+        return self._list(_group.Group, **query)
 
     def update_group(self, group, **attrs):
         """Update a group
@@ -419,7 +419,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.policy.Policy`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_policy.Policy, paginated=False, **query)
+        return self._list(_policy.Policy, **query)
 
     def update_policy(self, policy, **attrs):
         """Update a policy
@@ -497,7 +497,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.project.Project`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_project.Project, paginated=False, **query)
+        return self._list(_project.Project, **query)
 
     def user_projects(self, user, **query):
         """Retrieve a generator of projects to which the user has authorization
@@ -512,8 +512,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.project.UserProject`
         """
         user = self._get_resource(_user.User, user)
-        return self._list(_project.UserProject, paginated=True,
-                          user_id=user.id, **query)
+        return self._list(_project.UserProject, user_id=user.id, **query)
 
     def update_project(self, project, **attrs):
         """Update a project
@@ -591,7 +590,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.service.Service`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_service.Service, paginated=False, **query)
+        return self._list(_service.Service, **query)
 
     def update_service(self, service, **attrs):
         """Update a service
@@ -669,7 +668,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.user.User`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_user.User, paginated=False, **query)
+        return self._list(_user.User, **query)
 
     def update_user(self, user, **attrs):
         """Update a user
@@ -747,7 +746,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.trust.Trust`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_trust.Trust, paginated=False, **query)
+        return self._list(_trust.Trust, **query)
 
     def create_region(self, **attrs):
         """Create a new region from attributes
@@ -812,7 +811,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.region.Region`
         """
         # TODO(briancurtin): This is paginated but requires base list changes.
-        return self._list(_region.Region, paginated=False, **query)
+        return self._list(_region.Region, **query)
 
     def update_region(self, region, **attrs):
         """Update a region
@@ -889,7 +888,7 @@ class Proxy(proxy.Proxy):
         :return: A generator of role instances.
         :rtype: :class:`~openstack.identity.v3.role.Role`
         """
-        return self._list(_role.Role, paginated=False, **query)
+        return self._list(_role.Role, **query)
 
     def update_role(self, role, **attrs):
         """Update a role
@@ -942,24 +941,24 @@ class Proxy(proxy.Proxy):
                 group = self._get_resource(_group.Group, group)
                 return self._list(
                     _role_domain_group_assignment.RoleDomainGroupAssignment,
-                    paginated=False, domain_id=domain.id, group_id=group.id)
+                    domain_id=domain.id, group_id=group.id)
             else:
                 user = self._get_resource(_user.User, user)
                 return self._list(
                     _role_domain_user_assignment.RoleDomainUserAssignment,
-                    paginated=False, domain_id=domain.id, user_id=user.id)
+                    domain_id=domain.id, user_id=user.id)
         else:
             project = self._get_resource(_project.Project, project)
             if group:
                 group = self._get_resource(_group.Group, group)
                 return self._list(
                     _role_project_group_assignment.RoleProjectGroupAssignment,
-                    paginated=False, project_id=project.id, group_id=group.id)
+                    project_id=project.id, group_id=group.id)
             else:
                 user = self._get_resource(_user.User, user)
                 return self._list(
                     _role_project_user_assignment.RoleProjectUserAssignment,
-                    paginated=False, project_id=project.id, user_id=user.id)
+                    project_id=project.id, user_id=user.id)
 
     def role_assignments(self, **query):
         """Retrieve a generator of role assignments
@@ -972,8 +971,7 @@ class Proxy(proxy.Proxy):
         :return:
                 :class:`~openstack.identity.v3.role_assignment.RoleAssignment`
         """
-        return self._list(_role_assignment.RoleAssignment,
-                          paginated=False, **query)
+        return self._list(_role_assignment.RoleAssignment, **query)
 
     def registered_limits(self, **query):
         """Retrieve a generator of registered_limits
@@ -985,8 +983,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:
             `~openstack.identity.v3.registered_limit.RegisteredLimit`
         """
-        return self._list(_registered_limit.RegisteredLimit, paginated=False,
-                          **query)
+        return self._list(_registered_limit.RegisteredLimit, **query)
 
     def get_registered_limit(self, registered_limit):
         """Get a single registered_limit
@@ -1058,8 +1055,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of limits instances.
         :rtype: :class:`~openstack.identity.v3.limit.Limit`
         """
-        return self._list(_limit.Limit, paginated=False,
-                          **query)
+        return self._list(_limit.Limit, **query)
 
     def get_limit(self, limit):
         """Get a single limit

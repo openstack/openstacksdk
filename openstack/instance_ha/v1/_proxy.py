@@ -33,7 +33,7 @@ class Proxy(proxy.Proxy):
                                  limit the notifications being returned.
         :returns: A generator of notifications
         """
-        return self._list(_notification.Notification, paginated=False, **query)
+        return self._list(_notification.Notification, **query)
 
     def get_notification(self, notification):
         """Get a single notification.
@@ -71,7 +71,7 @@ class Proxy(proxy.Proxy):
                                  limit the segments being returned.
         :returns: A generator of segments
         """
-        return self._list(_segment.Segment, paginated=False, **query)
+        return self._list(_segment.Segment, **query)
 
     def get_segment(self, segment):
         """Get a single segment.
@@ -137,8 +137,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of hosts
         """
-        return self._list(_host.Host, segment_id=segment_id, paginated=False,
-                          **query)
+        return self._list(_host.Host, segment_id=segment_id, **query)
 
     def create_host(self, segment_id, **attrs):
         """Create a new host.

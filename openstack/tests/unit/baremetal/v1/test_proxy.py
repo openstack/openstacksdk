@@ -30,7 +30,7 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_drivers(self):
-        self.verify_list(self.proxy.drivers, driver.Driver, paginated=False)
+        self.verify_list(self.proxy.drivers, driver.Driver)
 
     def test_get_driver(self):
         self.verify_get(self.proxy.get_driver, driver.Driver)

@@ -55,7 +55,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of load balancer instances
         """
-        return self._list(_lb.LoadBalancer, paginated=True, **query)
+        return self._list(_lb.LoadBalancer, **query)
 
     def delete_load_balancer(self, load_balancer, ignore_missing=True,
                              cascade=False):
@@ -180,7 +180,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of listener objects
         :rtype: :class:`~openstack.load_balancer.v2.listener.Listener`
         """
-        return self._list(_listener.Listener, paginated=True, **query)
+        return self._list(_listener.Listener, **query)
 
     def update_listener(self, listener, **attrs):
         """Update a listener
@@ -227,7 +227,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of Pool instances
         """
-        return self._list(_pool.Pool, paginated=True, **query)
+        return self._list(_pool.Pool, **query)
 
     def delete_pool(self, pool, ignore_missing=True):
         """Delete a pool
@@ -364,8 +364,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.load_balancer.v2.member.Member`
         """
         poolobj = self._get_resource(_pool.Pool, pool)
-        return self._list(_member.Member, paginated=True,
-                          pool_id=poolobj.id, **query)
+        return self._list(_member.Member, pool_id=poolobj.id, **query)
 
     def update_member(self, member, pool, **attrs):
         """Update a member
@@ -451,7 +450,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of health monitor instances
         """
-        return self._list(_hm.HealthMonitor, paginated=True, **query)
+        return self._list(_hm.HealthMonitor, **query)
 
     def delete_health_monitor(self, healthmonitor, ignore_missing=True):
         """Delete a health monitor
@@ -554,7 +553,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of l7policy objects
         :rtype: :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
         """
-        return self._list(_l7policy.L7Policy, paginated=True, **query)
+        return self._list(_l7policy.L7Policy, **query)
 
     def update_l7_policy(self, l7_policy, **attrs):
         """Update a l7policy
@@ -660,8 +659,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.load_balancer.v2.l7_rule.L7Rule`
         """
         l7policyobj = self._get_resource(_l7policy.L7Policy, l7_policy)
-        return self._list(_l7rule.L7Rule, paginated=True,
-                          l7policy_id=l7policyobj.id, **query)
+        return self._list(_l7rule.L7Rule, l7policy_id=l7policyobj.id, **query)
 
     def update_l7_rule(self, l7rule, l7_policy, **attrs):
         """Update a l7rule
@@ -692,7 +690,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of quota objects
         :rtype: :class:`~openstack.load_balancer.v2.quota.Quota`
         """
-        return self._list(_quota.Quota, paginated=False, **query)
+        return self._list(_quota.Quota, **query)
 
     def get_quota(self, quota):
         """Get a quota

@@ -59,7 +59,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_tenant, tenant.Tenant)
 
     def test_tenants(self):
-        self.verify_list(self.proxy.tenants, tenant.Tenant, paginated=True)
+        self.verify_list(self.proxy.tenants, tenant.Tenant)
 
     def test_tenant_update(self):
         self.verify_update(self.proxy.update_tenant, tenant.Tenant)

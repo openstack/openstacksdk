@@ -143,7 +143,7 @@ class Proxy(proxy.Proxy):
         # 1.30. Thus we do not send any value if not needed.
         if details:
             kwargs['details'] = True
-        return self._list(_driver.Driver, paginated=False, **kwargs)
+        return self._list(_driver.Driver, **kwargs)
 
     def get_driver(self, driver):
         """Get a specific driver.

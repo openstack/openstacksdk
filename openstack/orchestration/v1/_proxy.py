@@ -64,7 +64,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of stack objects
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
-        return self._list(_stack.Stack, paginated=False, **query)
+        return self._list(_stack.Stack, **query)
 
     def get_stack(self, stack):
         """Get a single stack
@@ -218,8 +218,8 @@ class Proxy(proxy.Proxy):
         else:
             obj = self._find(_stack.Stack, stack, ignore_missing=False)
 
-        return self._list(_resource.Resource, paginated=False,
-                          stack_name=obj.name, stack_id=obj.id, **query)
+        return self._list(_resource.Resource, stack_name=obj.name,
+                          stack_id=obj.id, **query)
 
     def create_software_config(self, **attrs):
         """Create a new software config from attributes
@@ -243,7 +243,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.orchestration.v1.software_config.\
                 SoftwareConfig`
         """
-        return self._list(_sc.SoftwareConfig, paginated=True, **query)
+        return self._list(_sc.SoftwareConfig, **query)
 
     def get_software_config(self, software_config):
         """Get details about a specific software config.
@@ -295,7 +295,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.orchestration.v1.software_deployment.\
                 SoftwareDeployment`
         """
-        return self._list(_sd.SoftwareDeployment, paginated=False, **query)
+        return self._list(_sd.SoftwareDeployment, **query)
 
     def get_software_deployment(self, software_deployment):
         """Get details about a specific software deployment resource

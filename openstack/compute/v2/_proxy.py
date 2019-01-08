@@ -51,7 +51,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of extension instances.
         :rtype: :class:`~openstack.compute.v2.extension.Extension`
         """
-        return self._list(extension.Extension, paginated=True)
+        return self._list(extension.Extension)
 
     def find_flavor(self, name_or_id, ignore_missing=True):
         """Find a single flavor
@@ -119,7 +119,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of flavor objects
         """
         flv = _flavor.FlavorDetail if details else _flavor.Flavor
-        return self._list(flv, paginated=True, **query)
+        return self._list(flv, **query)
 
     def aggregates(self):
         """Return a generator of aggregate
@@ -129,7 +129,7 @@ class Proxy(proxy.Proxy):
         """
         aggregate = _aggregate.Aggregate
 
-        return self._list(aggregate, paginated=False)
+        return self._list(aggregate)
 
     def get_aggregate(self, aggregate):
         """Get a single host aggregate
@@ -282,7 +282,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of image objects
         """
         img = _image.ImageDetail if details else _image.Image
-        return self._list(img, paginated=True, **query)
+        return self._list(img, **query)
 
     def _get_base_resource(self, res, base):
         # Metadata calls for Image and Server can work for both those
@@ -408,7 +408,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of keypair objects
         :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
-        return self._list(_keypair.Keypair, paginated=False)
+        return self._list(_keypair.Keypair)
 
     def get_limits(self):
         """Retrieve limits that are applied to the project's account
@@ -521,7 +521,7 @@ class Proxy(proxy.Proxy):
         if all_projects:
             query['all_projects'] = True
         srv = _server.ServerDetail if details else _server.Server
-        return self._list(srv, paginated=True, **query)
+        return self._list(srv, **query)
 
     def update_server(self, server, **attrs):
         """Update a server
@@ -1033,7 +1033,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         server_id = resource.Resource._get_id(server)
-        return self._list(_server_interface.ServerInterface, paginated=False,
+        return self._list(_server_interface.ServerInterface,
                           server_id=server_id)
 
     def server_ips(self, server, network_label=None):
@@ -1048,7 +1048,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.server_ip.ServerIP`
         """
         server_id = resource.Resource._get_id(server)
-        return self._list(server_ip.ServerIP, paginated=False,
+        return self._list(server_ip.ServerIP,
                           server_id=server_id, network_label=network_label)
 
     def availability_zones(self, details=False):
@@ -1067,7 +1067,7 @@ class Proxy(proxy.Proxy):
         else:
             az = availability_zone.AvailabilityZone
 
-        return self._list(az, paginated=False)
+        return self._list(az)
 
     def get_server_metadata(self, server):
         """Return a dictionary of metadata for a server
@@ -1191,7 +1191,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of ServerGroup objects
         :rtype: :class:`~openstack.compute.v2.server_group.ServerGroup`
         """
-        return self._list(_server_group.ServerGroup, paginated=False, **query)
+        return self._list(_server_group.ServerGroup, **query)
 
     def hypervisors(self, details=False):
         """Return a generator of hypervisor
@@ -1209,7 +1209,7 @@ class Proxy(proxy.Proxy):
         else:
             hypervisor = _hypervisor.Hypervisor
 
-        return self._list(hypervisor, paginated=False)
+        return self._list(hypervisor)
 
     def find_hypervisor(self, name_or_id, ignore_missing=True):
         """Find a hypervisor from name or id to get the corresponding info
@@ -1288,7 +1288,7 @@ class Proxy(proxy.Proxy):
         :rtype: class: `~openstack.compute.v2.service.Service`
         """
 
-        return self._list(_service.Service, paginated=False)
+        return self._list(_service.Service)
 
     def create_volume_attachment(self, server, **attrs):
         """Create a new volume attachment from attributes
@@ -1410,7 +1410,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
         """
         server_id = resource.Resource._get_id(server)
-        return self._list(_volume_attachment.VolumeAttachment, paginated=False,
+        return self._list(_volume_attachment.VolumeAttachment,
                           server_id=server_id)
 
     def migrate_server(self, server):

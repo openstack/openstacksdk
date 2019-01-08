@@ -42,16 +42,14 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_profile_types(self):
         self.verify_list(self.proxy.profile_types,
-                         profile_type.ProfileType,
-                         paginated=False)
+                         profile_type.ProfileType)
 
     def test_profile_type_get(self):
         self.verify_get(self.proxy.get_profile_type,
                         profile_type.ProfileType)
 
     def test_policy_types(self):
-        self.verify_list(self.proxy.policy_types, policy_type.PolicyType,
-                         paginated=False)
+        self.verify_list(self.proxy.policy_types, policy_type.PolicyType)
 
     def test_policy_type_get(self):
         self.verify_get(self.proxy.get_policy_type, policy_type.PolicyType)
@@ -77,7 +75,6 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_profiles(self):
         self.verify_list(self.proxy.profiles, profile.Profile,
-                         paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 
@@ -106,7 +103,6 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_clusters(self):
         self.verify_list(self.proxy.clusters, cluster.Cluster,
-                         paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 
@@ -115,8 +111,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_services(self):
         self.verify_list(self.proxy.services,
-                         service.Service,
-                         paginated=False)
+                         service.Service)
 
     @mock.patch.object(proxy_base.Proxy, '_find')
     def test_resize_cluster(self, mock_find):
@@ -140,7 +135,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_collect_cluster_attrs(self):
         self.verify_list(self.proxy.collect_cluster_attrs,
-                         cluster_attr.ClusterAttr, paginated=False,
+                         cluster_attr.ClusterAttr,
                          method_args=['FAKE_ID', 'path.to.attr'],
                          expected_kwargs={'cluster_id': 'FAKE_ID',
                                           'path': 'path.to.attr'})
@@ -194,7 +189,6 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_nodes(self):
         self.verify_list(self.proxy.nodes, node.Node,
-                         paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 
@@ -261,7 +255,6 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_policies(self):
         self.verify_list(self.proxy.policies, policy.Policy,
-                         paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 
@@ -271,7 +264,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
     def test_cluster_policies(self):
         self.verify_list(self.proxy.cluster_policies,
                          cluster_policy.ClusterPolicy,
-                         paginated=False, method_args=["FAKE_CLUSTER"],
+                         method_args=["FAKE_CLUSTER"],
                          expected_kwargs={"cluster_id": "FAKE_CLUSTER"})
 
     def test_get_cluster_policy(self):
@@ -324,7 +317,6 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_receivers(self):
         self.verify_list(self.proxy.receivers, receiver.Receiver,
-                         paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 
@@ -333,7 +325,6 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_actions(self):
         self.verify_list(self.proxy.actions, action.Action,
-                         paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 
@@ -342,7 +333,6 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_events(self):
         self.verify_list(self.proxy.events, event.Event,
-                         paginated=True,
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 

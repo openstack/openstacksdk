@@ -74,7 +74,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_image, image.Image)
 
     def test_images(self):
-        self.verify_list(self.proxy.images, image.Image, paginated=True)
+        self.verify_list(self.proxy.images, image.Image)
 
     def test_add_tag(self):
         self._verify("openstack.image.v2.image.Image.add_tag",
@@ -151,6 +151,6 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                        'image_id': 'image_id'})
 
     def test_members(self):
-        self.verify_list(self.proxy.members, member.Member, paginated=False,
+        self.verify_list(self.proxy.members, member.Member,
                          method_args=('image_1',),
                          expected_kwargs={'image_id': 'image_1'})

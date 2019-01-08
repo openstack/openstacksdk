@@ -53,8 +53,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_credential, credential.Credential)
 
     def test_credentials(self):
-        self.verify_list(self.proxy.credentials, credential.Credential,
-                         paginated=False)
+        self.verify_list(self.proxy.credentials, credential.Credential)
 
     def test_credential_update(self):
         self.verify_update(self.proxy.update_credential, credential.Credential)
@@ -75,7 +74,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_domain, domain.Domain)
 
     def test_domains(self):
-        self.verify_list(self.proxy.domains, domain.Domain, paginated=False)
+        self.verify_list(self.proxy.domains, domain.Domain)
 
     def test_domain_update(self):
         self.verify_update(self.proxy.update_domain, domain.Domain)
@@ -98,8 +97,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_endpoint, endpoint.Endpoint)
 
     def test_endpoints(self):
-        self.verify_list(self.proxy.endpoints, endpoint.Endpoint,
-                         paginated=False)
+        self.verify_list(self.proxy.endpoints, endpoint.Endpoint)
 
     def test_endpoint_update(self):
         self.verify_update(self.proxy.update_endpoint, endpoint.Endpoint)
@@ -120,7 +118,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_group, group.Group)
 
     def test_groups(self):
-        self.verify_list(self.proxy.groups, group.Group, paginated=False)
+        self.verify_list(self.proxy.groups, group.Group)
 
     def test_group_update(self):
         self.verify_update(self.proxy.update_group, group.Group)
@@ -141,7 +139,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_policy, policy.Policy)
 
     def test_policies(self):
-        self.verify_list(self.proxy.policies, policy.Policy, paginated=False)
+        self.verify_list(self.proxy.policies, policy.Policy)
 
     def test_policy_update(self):
         self.verify_update(self.proxy.update_policy, policy.Policy)
@@ -162,13 +160,12 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_project, project.Project)
 
     def test_projects(self):
-        self.verify_list(self.proxy.projects, project.Project, paginated=False)
+        self.verify_list(self.proxy.projects, project.Project)
 
     def test_user_projects(self):
         self.verify_list(
             self.proxy.user_projects,
             project.UserProject,
-            paginated=True,
             method_kwargs={'user': USER_ID},
             expected_kwargs={'user_id': USER_ID}
         )
@@ -192,7 +189,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_service, service.Service)
 
     def test_services(self):
-        self.verify_list(self.proxy.services, service.Service, paginated=False)
+        self.verify_list(self.proxy.services, service.Service)
 
     def test_service_update(self):
         self.verify_update(self.proxy.update_service, service.Service)
@@ -213,7 +210,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_user, user.User)
 
     def test_users(self):
-        self.verify_list(self.proxy.users, user.User, paginated=False)
+        self.verify_list(self.proxy.users, user.User)
 
     def test_user_update(self):
         self.verify_update(self.proxy.update_user, user.User)
@@ -234,7 +231,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_trust, trust.Trust)
 
     def test_trusts(self):
-        self.verify_list(self.proxy.trusts, trust.Trust, paginated=False)
+        self.verify_list(self.proxy.trusts, trust.Trust)
 
     def test_region_create_attrs(self):
         self.verify_create(self.proxy.create_region, region.Region)
@@ -252,7 +249,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_region, region.Region)
 
     def test_regions(self):
-        self.verify_list(self.proxy.regions, region.Region, paginated=False)
+        self.verify_list(self.proxy.regions, region.Region)
 
     def test_region_update(self):
         self.verify_update(self.proxy.update_region, region.Region)
@@ -273,7 +270,7 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_role, role.Role)
 
     def test_roles(self):
-        self.verify_list(self.proxy.roles, role.Role, paginated=False)
+        self.verify_list(self.proxy.roles, role.Role)
 
     def test_role_update(self):
         self.verify_update(self.proxy.update_role, role.Role)

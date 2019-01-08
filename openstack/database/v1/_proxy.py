@@ -88,8 +88,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.database.v1.database.Database`
         """
         instance = self._get_resource(_instance.Instance, instance)
-        return self._list(_database.Database, paginated=False,
-                          instance_id=instance.id, **query)
+        return self._list(_database.Database, instance_id=instance.id, **query)
 
     def get_database(self, database, instance=None):
         """Get a single database
@@ -143,7 +142,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of flavor objects
         :rtype: :class:`~openstack.database.v1.flavor.Flavor`
         """
-        return self._list(_flavor.Flavor, paginated=False, **query)
+        return self._list(_flavor.Flavor, **query)
 
     def create_instance(self, **attrs):
         """Create a new instance from attributes
@@ -209,7 +208,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of instance objects
         :rtype: :class:`~openstack.database.v1.instance.Instance`
         """
-        return self._list(_instance.Instance, paginated=False, **query)
+        return self._list(_instance.Instance, **query)
 
     def update_instance(self, instance, **attrs):
         """Update a instance
@@ -290,8 +289,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.database.v1.user.User`
         """
         instance = self._get_resource(_instance.Instance, instance)
-        return self._list(_user.User, instance_id=instance.id,
-                          paginated=False, **query)
+        return self._list(_user.User, instance_id=instance.id, **query)
 
     def get_user(self, user, instance=None):
         """Get a single user

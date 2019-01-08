@@ -84,7 +84,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of container objects
         :rtype: :class:`~openstack.key_manager.v1.container.Container`
         """
-        return self._list(_container.Container, paginated=False, **query)
+        return self._list(_container.Container, **query)
 
     def update_container(self, container, **attrs):
         """Update a container
@@ -164,7 +164,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of order objects
         :rtype: :class:`~openstack.key_manager.v1.order.Order`
         """
-        return self._list(_order.Order, paginated=False, **query)
+        return self._list(_order.Order, **query)
 
     def update_order(self, order, **attrs):
         """Update a order
@@ -245,7 +245,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of secret objects
         :rtype: :class:`~openstack.key_manager.v1.secret.Secret`
         """
-        return self._list(_secret.Secret, paginated=False, **query)
+        return self._list(_secret.Secret, **query)
 
     def update_secret(self, secret, **attrs):
         """Update a secret

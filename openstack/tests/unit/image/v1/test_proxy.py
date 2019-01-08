@@ -36,7 +36,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_image, image.Image)
 
     def test_images(self):
-        self.verify_list(self.proxy.images, image.Image, paginated=True)
+        self.verify_list(self.proxy.images, image.Image)
 
     def test_image_update(self):
         self.verify_update(self.proxy.update_image, image.Image)

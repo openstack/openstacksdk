@@ -254,7 +254,7 @@ class Proxy(_adapter.OpenStackSDKAdapter):
                 resource_type=resource_type.__name__, value=value))
 
     def _list(self, resource_type, value=None,
-              paginated=False, base_path=None, **attrs):
+              paginated=True, base_path=None, **attrs):
         """List a resource
 
         :param resource_type: The type of resource to delete. This should

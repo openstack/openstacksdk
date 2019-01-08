@@ -144,7 +144,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of image objects
         :rtype: :class:`~openstack.image.v2.image.Image`
         """
-        return self._list(_image.Image, paginated=True, **query)
+        return self._list(_image.Image, **query)
 
     def update_image(self, image, **attrs):
         """Update a image
@@ -287,8 +287,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
         image_id = resource.Resource._get_id(image)
-        return self._list(_member.Member, paginated=False,
-                          image_id=image_id)
+        return self._list(_member.Member, image_id=image_id)
 
     def update_member(self, member, image, **attrs):
         """Update the member of an image

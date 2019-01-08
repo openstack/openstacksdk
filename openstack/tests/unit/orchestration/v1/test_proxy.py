@@ -43,7 +43,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_stack, stack.Stack)
 
     def test_stacks(self):
-        self.verify_list(self.proxy.stacks, stack.Stack, paginated=False)
+        self.verify_list(self.proxy.stacks, stack.Stack)
 
     def test_get_stack(self):
         self.verify_get(self.proxy.get_stack, stack.Stack)
@@ -195,7 +195,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stk = stack.Stack(id=stack_id, name=stack_name)
 
         self.verify_list(self.proxy.resources, resource.Resource,
-                         paginated=False, method_args=[stk],
+                         method_args=[stk],
                          expected_kwargs={'stack_name': stack_name,
                                           'stack_id': stack_id})
 
@@ -209,7 +209,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         mock_find.return_value = stk
 
         self.verify_list(self.proxy.resources, resource.Resource,
-                         paginated=False, method_args=[stack_id],
+                         method_args=[stack_id],
                          expected_kwargs={'stack_name': stack_name,
                                           'stack_id': stack_id})
 
@@ -232,8 +232,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                            sc.SoftwareConfig)
 
     def test_software_configs(self):
-        self.verify_list(self.proxy.software_configs, sc.SoftwareConfig,
-                         paginated=True)
+        self.verify_list(self.proxy.software_configs, sc.SoftwareConfig)
 
     def test_get_software_config(self):
         self.verify_get(self.proxy.get_software_config, sc.SoftwareConfig)
@@ -250,7 +249,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
     def test_software_deployments(self):
         self.verify_list(self.proxy.software_deployments,
-                         sd.SoftwareDeployment, paginated=False)
+                         sd.SoftwareDeployment)
 
     def test_get_software_deployment(self):
         self.verify_get(self.proxy.get_software_deployment,

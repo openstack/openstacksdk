@@ -37,8 +37,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
 
     def test_load_balancers(self):
         self.verify_list(self.proxy.load_balancers,
-                         lb.LoadBalancer,
-                         paginated=True)
+                         lb.LoadBalancer)
 
     def test_load_balancer_get(self):
         self.verify_get(self.proxy.get_load_balancer,
@@ -90,8 +89,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
 
     def test_listeners(self):
         self.verify_list(self.proxy.listeners,
-                         listener.Listener,
-                         paginated=True)
+                         listener.Listener)
 
     def test_listener_get(self):
         self.verify_get(self.proxy.get_listener,
@@ -115,8 +113,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
 
     def test_pools(self):
         self.verify_list(self.proxy.pools,
-                         pool.Pool,
-                         paginated=True)
+                         pool.Pool)
 
     def test_pool_get(self):
         self.verify_get(self.proxy.get_pool,
@@ -141,7 +138,6 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_members(self):
         self.verify_list(self.proxy.members,
                          member.Member,
-                         paginated=True,
                          method_kwargs={'pool': self.POOL_ID},
                          expected_kwargs={'pool_id': self.POOL_ID})
 
@@ -181,8 +177,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
 
     def test_health_monitors(self):
         self.verify_list(self.proxy.health_monitors,
-                         health_monitor.HealthMonitor,
-                         paginated=True)
+                         health_monitor.HealthMonitor)
 
     def test_health_monitor_get(self):
         self.verify_get(self.proxy.get_health_monitor,
@@ -206,8 +201,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
 
     def test_l7_policies(self):
         self.verify_list(self.proxy.l7_policies,
-                         l7_policy.L7Policy,
-                         paginated=True)
+                         l7_policy.L7Policy)
 
     def test_l7_policy_get(self):
         self.verify_get(self.proxy.get_l7_policy,
@@ -232,7 +226,6 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_l7_rules(self):
         self.verify_list(self.proxy.l7_rules,
                          l7_rule.L7Rule,
-                         paginated=True,
                          method_kwargs={'l7_policy': self.L7_POLICY_ID},
                          expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
 
@@ -271,7 +264,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
                       expected_kwargs={"l7policy_id": self.L7_POLICY_ID})
 
     def test_quotas(self):
-        self.verify_list(self.proxy.quotas, quota.Quota, paginated=False)
+        self.verify_list(self.proxy.quotas, quota.Quota)
 
     def test_quota_get(self):
         self.verify_get(self.proxy.get_quota, quota.Quota)

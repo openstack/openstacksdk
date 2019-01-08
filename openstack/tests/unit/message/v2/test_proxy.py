@@ -38,7 +38,7 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
             'openstack.message.v2.queue.Queue')
 
     def test_queues(self):
-        self.verify_list(self.proxy.queues, queue.Queue, paginated=True)
+        self.verify_list(self.proxy.queues, queue.Queue)
 
     def test_queue_delete(self):
         self.verify_delete(self.proxy.delete_queue, queue.Queue, False)
@@ -73,7 +73,7 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
 
     def test_messages(self):
         self.verify_list(self.proxy.messages, message.Message,
-                         paginated=True, method_args=["test_queue"],
+                         method_args=["test_queue"],
                          expected_kwargs={"queue_name": "test_queue"})
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -150,7 +150,7 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
 
     def test_subscriptions(self):
         self.verify_list(self.proxy.subscriptions, subscription.Subscription,
-                         paginated=True, method_args=["test_queue"],
+                         method_args=["test_queue"],
                          expected_kwargs={"queue_name": "test_queue"})
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')

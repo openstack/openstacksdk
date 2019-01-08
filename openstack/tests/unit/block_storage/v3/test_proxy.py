@@ -32,13 +32,11 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_snapshots_detailed(self):
         self.verify_list(self.proxy.snapshots, snapshot.SnapshotDetail,
-                         paginated=True,
                          method_kwargs={"details": True, "query": 1},
                          expected_kwargs={"query": 1})
 
     def test_snapshots_not_detailed(self):
         self.verify_list(self.proxy.snapshots, snapshot.Snapshot,
-                         paginated=True,
                          method_kwargs={"details": False, "query": 1},
                          expected_kwargs={"query": 1})
 
@@ -57,7 +55,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_type, type.Type)
 
     def test_types(self):
-        self.verify_list(self.proxy.types, type.Type, paginated=False)
+        self.verify_list(self.proxy.types, type.Type)
 
     def test_type_create_attrs(self):
         self.verify_create(self.proxy.create_type, type.Type)
@@ -73,13 +71,11 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_volumes_detailed(self):
         self.verify_list(self.proxy.volumes, volume.VolumeDetail,
-                         paginated=True,
                          method_kwargs={"details": True, "query": 1},
                          expected_kwargs={"query": 1})
 
     def test_volumes_not_detailed(self):
         self.verify_list(self.proxy.volumes, volume.Volume,
-                         paginated=True,
                          method_kwargs={"details": False, "query": 1},
                          expected_kwargs={"query": 1})
 
@@ -99,15 +95,13 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                      expected_args=["new-size"])
 
     def test_backend_pools(self):
-        self.verify_list(self.proxy.backend_pools, stats.Pools,
-                         paginated=False)
+        self.verify_list(self.proxy.backend_pools, stats.Pools)
 
     def test_backups_detailed(self):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
         self.verify_list(self.proxy.backups, backup.BackupDetail,
-                         paginated=True,
                          method_kwargs={"details": True, "query": 1},
                          expected_kwargs={"query": 1})
 
@@ -116,7 +110,6 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
         self.verify_list(self.proxy.backups, backup.Backup,
-                         paginated=True,
                          method_kwargs={"details": False, "query": 1},
                          expected_kwargs={"query": 1})
 

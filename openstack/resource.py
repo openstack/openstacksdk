@@ -1254,7 +1254,7 @@ class Resource(dict):
         return self
 
     @classmethod
-    def list(cls, session, paginated=False, base_path=None, **params):
+    def list(cls, session, paginated=True, base_path=None, **params):
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query

@@ -23,13 +23,11 @@ class TestWorkflowProxy(test_proxy_base.TestProxyBase):
 
     def test_workflows(self):
         self.verify_list(self.proxy.workflows,
-                         workflow.Workflow,
-                         paginated=True)
+                         workflow.Workflow)
 
     def test_executions(self):
         self.verify_list(self.proxy.executions,
-                         execution.Execution,
-                         paginated=True)
+                         execution.Execution)
 
     def test_workflow_get(self):
         self.verify_get(self.proxy.get_workflow,

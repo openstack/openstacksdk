@@ -55,7 +55,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of snapshot objects.
         """
         snapshot = _snapshot.SnapshotDetail if details else _snapshot.Snapshot
-        return self._list(snapshot, paginated=True, **query)
+        return self._list(snapshot, **query)
 
     def create_snapshot(self, **attrs):
         """Create a new snapshot from attributes
@@ -103,7 +103,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of volume type objects.
         """
-        return self._list(_type.Type, paginated=False, **query)
+        return self._list(_type.Type, **query)
 
     def create_type(self, **attrs):
         """Create a new type from attributes
@@ -163,7 +163,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of volume objects.
         """
         volume = _volume.VolumeDetail if details else _volume.Volume
-        return self._list(volume, paginated=True, **query)
+        return self._list(volume, **query)
 
     def create_volume(self, **attrs):
         """Create a new volume from attributes
@@ -209,7 +209,7 @@ class Proxy(proxy.Proxy):
 
         :returns A generator of cinder Back-end storage pools objects
         """
-        return self._list(_stats.Pools, paginated=False)
+        return self._list(_stats.Pools)
 
     def backups(self, details=True, **query):
         """Retrieve a generator of backups
@@ -240,7 +240,7 @@ class Proxy(proxy.Proxy):
                 'Object-store service is required for block-store backups'
             )
         backup = _backup.BackupDetail if details else _backup.Backup
-        return self._list(backup, paginated=True, **query)
+        return self._list(backup, **query)
 
     def get_backup(self, backup):
         """Get a backup

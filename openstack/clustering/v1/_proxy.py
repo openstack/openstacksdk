@@ -42,7 +42,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of objects that are of type
                   :class:`~openstack.clustering.v1.profile_type.ProfileType`
         """
-        return self._list(_profile_type.ProfileType, paginated=False, **query)
+        return self._list(_profile_type.ProfileType, **query)
 
     def get_profile_type(self, profile_type):
         """Get the details about a profile type.
@@ -63,7 +63,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of objects that are of type
                   :class:`~openstack.clustering.v1.policy_type.PolicyType`
         """
-        return self._list(_policy_type.PolicyType, paginated=False, **query)
+        return self._list(_policy_type.PolicyType, **query)
 
     def get_policy_type(self, policy_type):
         """Get the details about a policy type.
@@ -156,7 +156,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of profile instances.
         """
-        return self._list(_profile.Profile, paginated=True, **query)
+        return self._list(_profile.Profile, **query)
 
     def update_profile(self, profile, **attrs):
         """Update a profile.
@@ -267,7 +267,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of cluster instances.
         """
-        return self._list(_cluster.Cluster, paginated=True, **query)
+        return self._list(_cluster.Cluster, **query)
 
     def update_cluster(self, cluster, **attrs):
         """Update a cluster.
@@ -429,8 +429,8 @@ class Proxy(proxy.Proxy):
 
         :returns: A dictionary containing the list of attribute values.
         """
-        return self._list(_cluster_attr.ClusterAttr, paginated=False,
-                          cluster_id=cluster, path=path)
+        return self._list(_cluster_attr.ClusterAttr, cluster_id=cluster,
+                          path=path)
 
     def check_cluster(self, cluster, **params):
         """Check a cluster.
@@ -565,7 +565,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of node instances.
         """
-        return self._list(_node.Node, paginated=True, **query)
+        return self._list(_node.Node, **query)
 
     def update_node(self, node, **attrs):
         """Update a node.
@@ -728,7 +728,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of policy instances.
         """
-        return self._list(_policy.Policy, paginated=True, **query)
+        return self._list(_policy.Policy, **query)
 
     def update_policy(self, policy, **attrs):
         """Update a policy.
@@ -768,8 +768,8 @@ class Proxy(proxy.Proxy):
         :returns: A generator of cluster-policy binding instances.
         """
         cluster_id = resource.Resource._get_id(cluster)
-        return self._list(_cluster_policy.ClusterPolicy, paginated=False,
-                          cluster_id=cluster_id, **query)
+        return self._list(_cluster_policy.ClusterPolicy, cluster_id=cluster_id,
+                          **query)
 
     def get_cluster_policy(self, cluster_policy, cluster):
         """Get a cluster-policy binding.
@@ -873,7 +873,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of receiver instances.
         """
-        return self._list(_receiver.Receiver, paginated=True, **query)
+        return self._list(_receiver.Receiver, **query)
 
     def get_action(self, action):
         """Get a single action.
@@ -911,7 +911,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of action instances.
         """
-        return self._list(_action.Action, paginated=True, **query)
+        return self._list(_action.Action, **query)
 
     def get_event(self, event):
         """Get a single event.
@@ -954,7 +954,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of event instances.
         """
-        return self._list(_event.Event, paginated=True, **query)
+        return self._list(_event.Event, **query)
 
     def wait_for_status(self, res, status, failures=None, interval=2,
                         wait=120):
@@ -1003,7 +1003,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of objects that are of type
                   :class:`~openstack.clustering.v1.service.Service`
         """
-        return self._list(_service.Service, paginated=False, **query)
+        return self._list(_service.Service, **query)
 
     def list_profile_type_operations(self, profile_type):
         """Get the operation about a profile type.

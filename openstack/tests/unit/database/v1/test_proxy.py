@@ -50,7 +50,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
 
     def test_databases(self):
         self.verify_list(self.proxy.databases, database.Database,
-                         paginated=False, method_args=["id"],
+                         method_args=["id"],
                          expected_kwargs={"instance_id": "id"})
 
     def test_database_get(self):
@@ -63,8 +63,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_flavor, flavor.Flavor)
 
     def test_flavors(self):
-        self.verify_list(self.proxy.flavors, flavor.Flavor,
-                         paginated=False)
+        self.verify_list(self.proxy.flavors, flavor.Flavor)
 
     def test_instance_create_attrs(self):
         self.verify_create(self.proxy.create_instance, instance.Instance)
@@ -84,8 +83,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_instance, instance.Instance)
 
     def test_instances(self):
-        self.verify_list(self.proxy.instances, instance.Instance,
-                         paginated=False)
+        self.verify_list(self.proxy.instances, instance.Instance)
 
     def test_instance_update(self):
         self.verify_update(self.proxy.update_instance, instance.Instance)
@@ -114,7 +112,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                                        "ignore_missing": True})
 
     def test_users(self):
-        self.verify_list(self.proxy.users, user.User, paginated=False,
+        self.verify_list(self.proxy.users, user.User,
                          method_args=["test_instance"],
                          expected_kwargs={"instance_id": "test_instance"})
 

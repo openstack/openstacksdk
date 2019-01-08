@@ -59,7 +59,7 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of queue instances.
         """
-        return self._list(_queue.Queue, paginated=True, **query)
+        return self._list(_queue.Queue, **query)
 
     def delete_queue(self, value, ignore_missing=True):
         """Delete a queue
@@ -110,7 +110,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of message instances.
         """
         query["queue_name"] = queue_name
-        return self._list(_message.Message, paginated=True, **query)
+        return self._list(_message.Message, **query)
 
     def get_message(self, queue_name, message):
         """Get a message
@@ -184,7 +184,7 @@ class Proxy(proxy.Proxy):
         :returns: A generator of subscription instances.
         """
         query["queue_name"] = queue_name
-        return self._list(_subscription.Subscription, paginated=True, **query)
+        return self._list(_subscription.Subscription, **query)
 
     def get_subscription(self, queue_name, subscription):
         """Get a subscription

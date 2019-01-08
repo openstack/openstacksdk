@@ -35,8 +35,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_extension, extension.Extension)
 
     def test_extensions(self):
-        self.verify_list_no_kwargs(self.proxy.extensions, extension.Extension,
-                                   paginated=True)
+        self.verify_list_no_kwargs(self.proxy.extensions, extension.Extension)
 
     def test_flavor_create(self):
         self.verify_create(self.proxy.create_flavor, flavor.Flavor)
@@ -55,13 +54,11 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_flavors_detailed(self):
         self.verify_list(self.proxy.flavors, flavor.FlavorDetail,
-                         paginated=True,
                          method_kwargs={"details": True, "query": 1},
                          expected_kwargs={"query": 1})
 
     def test_flavors_not_detailed(self):
         self.verify_list(self.proxy.flavors, flavor.Flavor,
-                         paginated=True,
                          method_kwargs={"details": False, "query": 1},
                          expected_kwargs={"query": 1})
 
@@ -79,13 +76,11 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_images_detailed(self):
         self.verify_list(self.proxy.images, image.ImageDetail,
-                         paginated=True,
                          method_kwargs={"details": True, "query": 1},
                          expected_kwargs={"query": 1})
 
     def test_images_not_detailed(self):
         self.verify_list(self.proxy.images, image.Image,
-                         paginated=True,
                          method_kwargs={"details": False, "query": 1},
                          expected_kwargs={"query": 1})
 
@@ -105,8 +100,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_keypair, keypair.Keypair)
 
     def test_keypairs(self):
-        self.verify_list_no_kwargs(self.proxy.keypairs, keypair.Keypair,
-                                   paginated=False)
+        self.verify_list_no_kwargs(self.proxy.keypairs, keypair.Keypair)
 
     def test_limits_get(self):
         self.verify_get(self.proxy.get_limits, limits.Limits, value=[])
@@ -183,19 +177,19 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
     def test_server_interfaces(self):
         self.verify_list(self.proxy.server_interfaces,
                          server_interface.ServerInterface,
-                         paginated=False, method_args=["test_id"],
+                         method_args=["test_id"],
                          expected_kwargs={"server_id": "test_id"})
 
     def test_server_ips_with_network_label(self):
         self.verify_list(self.proxy.server_ips, server_ip.ServerIP,
-                         paginated=False, method_args=["test_id"],
+                         method_args=["test_id"],
                          method_kwargs={"network_label": "test_label"},
                          expected_kwargs={"server_id": "test_id",
                                           "network_label": "test_label"})
 
     def test_server_ips_without_network_label(self):
         self.verify_list(self.proxy.server_ips, server_ip.ServerIP,
-                         paginated=False, method_args=["test_id"],
+                         method_args=["test_id"],
                          expected_kwargs={"server_id": "test_id",
                                           "network_label": None})
 
@@ -221,18 +215,15 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_servers_detailed(self):
         self.verify_list(self.proxy.servers, server.ServerDetail,
-                         paginated=True,
                          method_kwargs={"details": True,
                                         "changes_since": 1, "image": 2},
                          expected_kwargs={"changes_since": 1, "image": 2})
 
     def test_servers_not_detailed(self):
         self.verify_list(self.proxy.servers, server.Server,
-                         paginated=True,
                          method_kwargs={"details": False,
                                         "changes_since": 1, "image": 2},
-                         expected_kwargs={"paginated": True,
-                                          "changes_since": 1, "image": 2})
+                         expected_kwargs={"changes_since": 1, "image": 2})
 
     def test_server_update(self):
         self.verify_update(self.proxy.update_server, server.Server)
@@ -421,13 +412,11 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
     def test_availability_zones_not_detailed(self):
         self.verify_list(self.proxy.availability_zones,
                          az.AvailabilityZone,
-                         paginated=False,
                          method_kwargs={"details": False})
 
     def test_availability_zones_detailed(self):
         self.verify_list(self.proxy.availability_zones,
                          az.AvailabilityZoneDetail,
-                         paginated=False,
                          method_kwargs={"details": True})
 
     def test_get_all_server_metadata(self):
@@ -479,17 +468,14 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                         server_group.ServerGroup)
 
     def test_server_groups(self):
-        self.verify_list(self.proxy.server_groups, server_group.ServerGroup,
-                         paginated=False)
+        self.verify_list(self.proxy.server_groups, server_group.ServerGroup)
 
     def test_hypervisors_not_detailed(self):
         self.verify_list(self.proxy.hypervisors, hypervisor.Hypervisor,
-                         paginated=False,
                          method_kwargs={"details": False})
 
     def test_hypervisors_detailed(self):
         self.verify_list(self.proxy.hypervisors, hypervisor.HypervisorDetail,
-                         paginated=False,
                          method_kwargs={"details": True})
 
     def test_find_hypervisor(self):
@@ -502,8 +488,7 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
 
     def test_services(self):
         self.verify_list_no_kwargs(self.proxy.services,
-                                   service.Service,
-                                   paginated=False)
+                                   service.Service)
 
     def test_enable_service(self):
         self._verify('openstack.compute.v2.service.Service.enable',
