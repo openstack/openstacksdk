@@ -18,5 +18,5 @@ futures>=3.0.0;python_version=='2.7' or python_version=='2.6' # BSD
 iso8601>=0.1.11 # MIT
 netifaces>=0.10.4 # MIT
 
-dogpile.cache>=0.6.2,<0.7.0 # BSD
+dogpile.cache>=0.6.2 # BSD
 cryptography>=2.1 # BSD/Apache-2.0
