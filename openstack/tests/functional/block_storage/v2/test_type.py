@@ -23,17 +23,18 @@ class TestType(base.BaseBlockStorageTest):
         self.TYPE_NAME = self.getUniqueString()
         self.TYPE_ID = None
 
-        sot = self.conn.block_storage.create_type(name=self.TYPE_NAME)
+        sot = self.operator_cloud.block_storage.create_type(
+            name=self.TYPE_NAME)
         assert isinstance(sot, _type.Type)
         self.assertEqual(self.TYPE_NAME, sot.name)
         self.TYPE_ID = sot.id
 
     def tearDown(self):
-        sot = self.conn.block_storage.delete_type(
+        sot = self.operator_cloud.block_storage.delete_type(
             self.TYPE_ID, ignore_missing=False)
         self.assertIsNone(sot)
         super(TestType, self).tearDown()
 
     def test_get(self):
-        sot = self.conn.block_storage.get_type(self.TYPE_ID)
+        sot = self.operator_cloud.block_storage.get_type(self.TYPE_ID)
         self.assertEqual(self.TYPE_NAME, sot.name)

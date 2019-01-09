@@ -19,13 +19,16 @@ class TestVolume(base.BaseBlockStorageTest):
     def setUp(self):
         super(TestVolume, self).setUp()
 
+        if not self.user_cloud.has_service('block-storage'):
+            self.skipTest('block-storage service not supported by cloud')
+
         self.VOLUME_NAME = self.getUniqueString()
         self.VOLUME_ID = None
 
-        volume = self.conn.block_storage.create_volume(
+        volume = self.user_cloud.block_storage.create_volume(
             name=self.VOLUME_NAME,
             size=1)
-        self.conn.block_storage.wait_for_status(
+        self.user_cloud.block_storage.wait_for_status(
             volume,
             status='available',
             failures=['error'],
@@ -36,12 +39,12 @@ class TestVolume(base.BaseBlockStorageTest):
         self.VOLUME_ID = volume.id
 
     def tearDown(self):
-        sot = self.conn.block_storage.delete_volume(
+        sot = self.user_cloud.block_storage.delete_volume(
             self.VOLUME_ID,
             ignore_missing=False)
         self.assertIsNone(sot)
         super(TestVolume, self).tearDown()
 
     def test_get(self):
-        sot = self.conn.block_storage.get_volume(self.VOLUME_ID)
+        sot = self.user_cloud.block_storage.get_volume(self.VOLUME_ID)
         self.assertEqual(self.VOLUME_NAME, sot.name)
