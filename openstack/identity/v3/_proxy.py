@@ -1128,6 +1128,8 @@ class Proxy(proxy.Proxy):
         :return: ``None``
         """
         project = self._get_resource(_project.Project, project)
+        user = self._get_resource(_user.User, user)
+        role = self._get_resource(_role.Role, role)
         project.assign_role_to_user(self, user, role)
 
     def unassign_project_role_from_user(self, project, user, role):
@@ -1143,4 +1145,6 @@ class Proxy(proxy.Proxy):
         :return: ``None``
         """
         project = self._get_resource(_project.Project, project)
+        user = self._get_resource(_user.User, user)
+        role = self._get_resource(_role.Role, role)
         project.unassign_role_from_user(self, user, role)
