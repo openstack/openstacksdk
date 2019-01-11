@@ -30,7 +30,7 @@ class TestInventory(base.BaseFunctionalTest):
         super(TestInventory, self).setUp()
         # This needs to use an admin account, otherwise a public IP
         # is not allocated from devstack.
-        self.inventory = inventory.OpenStackInventory()
+        self.inventory = inventory.OpenStackInventory(cloud='devstack-admin')
         self.server_name = self.getUniqueString('inventory')
         self.flavor = pick_flavor(
             self.user_cloud.list_flavors(get_extra=False))
