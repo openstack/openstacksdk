@@ -29,6 +29,8 @@ from openstack.network.v2 import metering_label as _metering_label
 from openstack.network.v2 import metering_label_rule as _metering_label_rule
 from openstack.network.v2 import network as _network
 from openstack.network.v2 import network_ip_availability
+from openstack.network.v2 import network_segment_range as \
+    _network_segment_range
 from openstack.network.v2 import pool as _pool
 from openstack.network.v2 import pool_member as _pool_member
 from openstack.network.v2 import port as _port
@@ -1344,6 +1346,122 @@ class Proxy(proxy.Proxy):
         """
         return self._list(network_ip_availability.NetworkIPAvailability,
                           paginated=False, **query)
+
+    def create_network_segment_range(self, **attrs):
+        """Create a new network segment range from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+                           :class:`~openstack.network.v2.
+                           network_segment_range.NetworkSegmentRange`,
+                           comprised of the properties on the
+                           NetworkSegmentRange class.
+
+        :returns: The results of network segment range creation
+        :rtype: :class:`~openstack.network.v2.network_segment_range
+                .NetworkSegmentRange`
+        """
+        return self._create(_network_segment_range.NetworkSegmentRange,
+                            **attrs)
+
+    def delete_network_segment_range(self, network_segment_range,
+                                     ignore_missing=True):
+        """Delete a network segment range
+
+        :param network_segment_range: The value can be either the ID of a
+                    network segment range or a
+                    :class:`~openstack.network.v2.network_segment_range.
+                    NetworkSegmentRange` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the network segment range does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent network segment range.
+
+        :returns: ``None``
+        """
+        self._delete(_network_segment_range.NetworkSegmentRange,
+                     network_segment_range, ignore_missing=ignore_missing)
+
+    def find_network_segment_range(self, name_or_id, ignore_missing=True,
+                                   **args):
+        """Find a single network segment range
+
+        :param name_or_id: The name or ID of a network segment range.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.network_segment_range
+                  .NetworkSegmentRange` or None
+        """
+        return self._find(_network_segment_range.NetworkSegmentRange,
+                          name_or_id, ignore_missing=ignore_missing, **args)
+
+    def get_network_segment_range(self, network_segment_range):
+        """Get a single network segment range
+
+        :param network_segment_range: The value can be the ID of a network
+                    segment range or a :class:`~openstack.network.v2.
+                    network_segment_range.NetworkSegmentRange` instance.
+
+        :returns: One :class:`~openstack.network.v2._network_segment_range.
+                  NetworkSegmentRange`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_network_segment_range.NetworkSegmentRange,
+                         network_segment_range)
+
+    def network_segment_ranges(self, **query):
+        """Return a generator of network segment ranges
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned. Available parameters include:
+
+            * ``name``: Name of the segments
+            * ``default``: The network segment range is loaded from the host
+                           configuration file.
+            * ``shared``: The network segment range is shared with other
+                          projects
+            * ``project_id``: ID of the project that owns the network
+                              segment range
+            * ``network_type``: Network type for the network segment ranges
+            * ``physical_network``: Physical network name for the network
+                                    segment ranges
+            * ``minimum``: Minimum segmentation ID for the network segment
+                           ranges
+            * ``maximum``: Maximum Segmentation ID for the network segment
+                           ranges
+            * ``used``: Mapping of which segmentation ID in the range is
+                        used by which tenant
+            * ``available``: List of available segmentation IDs in this
+                             network segment range
+
+        :returns: A generator of network segment range objects
+        :rtype: :class:`~openstack.network.v2._network_segment_range.
+                NetworkSegmentRange`
+        """
+        return self._list(_network_segment_range.NetworkSegmentRange,
+                          paginated=False, **query)
+
+    def update_network_segment_range(self, network_segment_range, **attrs):
+        """Update a network segment range
+
+        :param network_segment_range: Either the id of a network segment range
+                    or a :class:`~openstack.network.v2._network_segment_range.
+                    NetworkSegmentRange` instance.
+        :attrs kwargs: The attributes to update on the network segment range
+                       represented by ``value``.
+
+        :returns: The updated network segment range
+        :rtype: :class:`~openstack.network.v2._network_segment_range.
+                NetworkSegmentRange`
+        """
+        return self._update(_network_segment_range.NetworkSegmentRange,
+                            network_segment_range, **attrs)
 
     def create_pool(self, **attrs):
         """Create a new pool from attributes
