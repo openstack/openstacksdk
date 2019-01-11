@@ -107,6 +107,10 @@ class Port(resource.Resource, resource.TagMixin):
                                             type=bool)
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.Body('qos_policy_id')
+    #: Read-only. The port-resource-request exposes Placement resources
+    # (i.e.: minimum-bandwidth) and traits (i.e.: vnic-type, physnet)
+    # requested by a port to Nova and Placement.
+    resource_request = resource.Body('resource_request', type=dict)
     #: Revision number of the port. *Type: int*
     revision_number = resource.Body('revision_number', type=int)
     #: The IDs of any attached security groups.

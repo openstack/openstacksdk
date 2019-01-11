@@ -40,6 +40,12 @@ EXAMPLE = {
     'port_security_enabled': True,
     'qos_policy_id': '21',
     'propagate_uplink_status': False,
+    'resource_request': {
+        'required': [
+            'CUSTOM_PHYSNET_PUBLIC', 'CUSTOM_VNIC_TYPE_NORMAL'],
+        'resources': {
+            'NET_BW_EGR_KILOBIT_PER_SEC': 1,
+            'NET_BW_IGR_KILOBIT_PER_SEC': 2}},
     'revision_number': 22,
     'security_groups': ['23'],
     'status': '25',
@@ -124,6 +130,7 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
         self.assertEqual(EXAMPLE['propagate_uplink_status'],
                          sot.propagate_uplink_status)
+        self.assertEqual(EXAMPLE['resource_request'], sot.resource_request)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)
         self.assertEqual(EXAMPLE['status'], sot.status)
