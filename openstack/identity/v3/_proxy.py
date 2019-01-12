@@ -1148,3 +1148,20 @@ class Proxy(proxy.Proxy):
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
         project.unassign_role_from_user(self, user, role)
+
+    def validate_user_has_role(self, project, user, role):
+        """Validates that a user has a role on a project
+
+        :param project: Either the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project`
+                      instance.
+        :param user: Either the ID of a user or a
+                     :class:`~openstack.identity.v3.user.User` instance.
+        :param role: Either the ID of a role or a
+                     :class:`~openstack.identity.v3.role.Role` instance.
+        :returns: True if user has role in project
+        """
+        project = self._get_resource(_project.Project, project)
+        user = self._get_resource(_user.User, user)
+        role = self._get_resource(_role.Role, role)
+        return project.validate_user_has_role(self, user, role)

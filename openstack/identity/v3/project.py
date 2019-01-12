@@ -73,7 +73,7 @@ class Project(resource.Resource, resource.TagMixin):
         url = utils.urljoin(self.base_path, self.id, 'users',
                             user.id, 'roles', role.id)
         resp = session.head(url,)
-        if resp.status_code == 201:
+        if resp.status_code == 204:
             return True
         return False
 
@@ -100,7 +100,7 @@ class Project(resource.Resource, resource.TagMixin):
         url = utils.urljoin(self.base_path, self.id, 'groups',
                             group.id, 'roles', role.id)
         resp = session.head(url,)
-        if resp.status_code == 201:
+        if resp.status_code == 204:
             return True
         return False
 
