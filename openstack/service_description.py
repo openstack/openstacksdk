@@ -199,6 +199,7 @@ class ServiceDescription(object):
                     service_type=self.service_type),
                 category=exceptions.UnsupportedServiceVersion)
             return temp_adapter
+        temp_adapter.task_manager.stop()
         proxy_class = self.supported_versions.get(str(found_version[0]))
         if not proxy_class:
             proxy_class = proxy.Proxy
