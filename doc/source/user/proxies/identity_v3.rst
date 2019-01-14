@@ -107,8 +107,21 @@ Role Operations
    .. automethod:: openstack.identity.v3._proxy.Proxy.get_role
    .. automethod:: openstack.identity.v3._proxy.Proxy.find_role
    .. automethod:: openstack.identity.v3._proxy.Proxy.roles
+
+Role Assignment Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.identity.v3._proxy.Proxy
+
    .. automethod:: openstack.identity.v3._proxy.Proxy.role_assignments
    .. automethod:: openstack.identity.v3._proxy.Proxy.role_assignments_filter
+   .. automethod:: openstack.identity.v3._proxy.Proxy.assign_project_role_to_user
+   .. automethod:: openstack.identity.v3._proxy.Proxy.unassign_project_role_from_user
+   .. automethod:: openstack.identity.v3._proxy.Proxy.validate_user_has_role
+   .. automethod:: openstack.identity.v3._proxy.Proxy.assign_project_role_to_group
+   .. automethod:: openstack.identity.v3._proxy.Proxy.unassign_project_role_from_group
+   .. automethod:: openstack.identity.v3._proxy.Proxy.validate_group_has_role
+
 
 Service Operations
 ^^^^^^^^^^^^^^^^^^
