@@ -10,15 +10,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.block_storage.v2 import _proxy as _v2_proxy
-from openstack.block_storage.v3 import _proxy as _v3_proxy
-from openstack import service_description
+from openstack import resource
 
 
-class BlockStorageService(service_description.ServiceDescription):
-    """The block storage service."""
+class Pools(resource.Resource):
+    resource_key = "pool"
+    resources_key = "pools"
+    base_path = "/scheduler-stats/get_pools?detail=True"
 
-    supported_versions = {
-        '3': _v3_proxy.Proxy,
-        '2': _v2_proxy.Proxy,
-    }
+    # capabilities
+    allow_fetch = False
+    allow_create = False
+    allow_delete = False
+    allow_list = True
+
+    # Properties
+    #: The Cinder name for the pool
+    name = resource.Body("name")
+    #: returns a dict with information about the pool
+    capabilities = resource.Body("capabilities", type=dict)
