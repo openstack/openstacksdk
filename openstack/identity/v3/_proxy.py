@@ -1165,3 +1165,54 @@ class Proxy(proxy.Proxy):
         user = self._get_resource(_user.User, user)
         role = self._get_resource(_role.Role, role)
         return project.validate_user_has_role(self, user, role)
+
+    def assign_project_role_to_group(self, project, group, role):
+        """Assign role to group on a project
+
+        :param project: Either the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project`
+                      instance.
+        :param group: Either the ID of a group or a
+                     :class:`~openstack.identity.v3.group.Group` instance.
+        :param role: Either the ID of a role or a
+                     :class:`~openstack.identity.v3.role.Role` instance.
+        :return: ``None``
+        """
+        project = self._get_resource(_project.Project, project)
+        group = self._get_resource(_group.Group, group)
+        role = self._get_resource(_role.Role, role)
+        project.assign_role_to_group(self, group, role)
+
+    def unassign_project_role_from_group(self, project, group, role):
+        """Unassign role from group on a project
+
+        :param project: Either the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project`
+                      instance.
+        :param group: Either the ID of a group or a
+                     :class:`~openstack.identity.v3.group.Group` instance.
+        :param role: Either the ID of a role or a
+                     :class:`~openstack.identity.v3.role.Role` instance.
+        :return: ``None``
+        """
+        project = self._get_resource(_project.Project, project)
+        group = self._get_resource(_group.Group, group)
+        role = self._get_resource(_role.Role, role)
+        project.unassign_role_from_group(self, group, role)
+
+    def validate_group_has_role(self, project, group, role):
+        """Validates that a group has a role on a project
+
+        :param project: Either the ID of a project or a
+                      :class:`~openstack.identity.v3.project.Project`
+                      instance.
+        :param group: Either the ID of a group or a
+                     :class:`~openstack.identity.v3.group.Group` instance.
+        :param role: Either the ID of a role or a
+                     :class:`~openstack.identity.v3.role.Role` instance.
+        :returns: True if group has role in project
+        """
+        project = self._get_resource(_project.Project, project)
+        group = self._get_resource(_group.Group, group)
+        role = self._get_resource(_role.Role, role)
+        return project.validate_group_has_role(self, group, role)
