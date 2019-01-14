@@ -6971,11 +6971,12 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 # If there's a net-id, ignore net-name
                 nic.pop('net-name', None)
             elif 'net-name' in nic:
-                nic_net = self.get_network(nic['net-name'])
+                net_name = nic.pop('net-name')
+                nic_net = self.get_network(net_name)
                 if not nic_net:
                     raise exc.OpenStackCloudException(
                         "Requested network {net} could not be found.".format(
-                            net=nic['net-name']))
+                            net=net_name))
                 net['uuid'] = nic_net['id']
             for ip_key in ('v4-fixed-ip', 'v6-fixed-ip', 'fixed_ip'):
                 fixed_ip = nic.pop(ip_key, None)
