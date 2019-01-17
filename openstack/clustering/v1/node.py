@@ -13,8 +13,10 @@
 from openstack import resource
 from openstack import utils
 
+from openstack.clustering.v1 import _async_resource
 
-class Node(resource.Resource):
+
+class Node(_async_resource.AsyncResource):
     resource_key = 'node'
     resources_key = 'nodes'
     base_path = '/nodes'
@@ -158,9 +160,8 @@ class Node(resource.Resource):
         """Force delete a node."""
         body = {'force': True}
         url = utils.urljoin(self.base_path, self.id)
-        resp = session.delete(url, json=body)
-        self._translate_response(resp, has_body=False)
-        return self
+        response = session.delete(url, json=body)
+        return self._delete_response(response)
 
 
 class NodeDetail(Node):

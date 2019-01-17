@@ -1,0 +1,13 @@
+---
+fixes:
+  - |
+    Fixed a regression in deleting Node and Cluster resources
+    in clustering caused by the addition of the ``location``
+    property to all resource objects. Previously the delete
+    calls had directly returned the ``location`` field
+    returned in the headers from the clustering service pointing
+    to an Action resource that could be fetched to get status
+    on the delete operation. The delete calls now return an
+    Action resource directly that is correctly constructed
+    so that ``wait_for_status`` and ``wait_for_deleted``
+    work as expected.

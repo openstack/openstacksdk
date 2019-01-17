@@ -415,6 +415,7 @@ class Resource(dict):
     _uri = None
     _computed = None
     _original_body = None
+    _delete_response_class = None
 
     def __init__(self, _synchronized=False, connection=None, **attrs):
         """The base resource
@@ -1240,6 +1241,16 @@ class Resource(dict):
         :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
                  the resource was not found.
         """
+
+        response = self._raw_delete(session)
+        kwargs = {}
+        if error_message:
+            kwargs['error_message'] = error_message
+
+        self._translate_response(response, has_body=False, **kwargs)
+        return self
+
+    def _raw_delete(self, session):
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, "delete")
 
@@ -1247,15 +1258,10 @@ class Resource(dict):
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'delete')
 
-        response = session.delete(request.url,
-                                  headers={"Accept": ""},
-                                  microversion=microversion)
-        kwargs = {}
-        if error_message:
-            kwargs['error_message'] = error_message
-
-        self._translate_response(response, has_body=False, **kwargs)
-        return self
+        return session.delete(
+            request.url,
+            headers={"Accept": ""},
+            microversion=microversion)
 
     @classmethod
     def list(cls, session, paginated=False, base_path=None, **params):

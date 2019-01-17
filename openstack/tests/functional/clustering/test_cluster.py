@@ -70,9 +70,10 @@ class TestCluster(base.BaseFunctionalTest):
         assert isinstance(self.cluster, cluster.Cluster)
 
     def tearDown(self):
-        self.conn.clustering.delete_cluster(self.cluster.id)
-        self.conn.clustering.wait_for_delete(self.cluster,
-                                             wait=self._wait_for_timeout)
+        if self.cluster:
+            self.conn.clustering.delete_cluster(self.cluster.id)
+            self.conn.clustering.wait_for_delete(
+                self.cluster, wait=self._wait_for_timeout)
 
         test_network.delete_network(self.conn, self.network, self.subnet)
 
@@ -100,3 +101,31 @@ class TestCluster(base.BaseFunctionalTest):
         time.sleep(2)
         sot = self.conn.clustering.get_cluster(self.cluster)
         self.assertEqual(new_cluster_name, sot.name)
+
+    def test_delete(self):
+        cluster_delete_action = self.conn.clustering.delete_cluster(
+            self.cluster.id)
+
+        self.conn.clustering.wait_for_delete(self.cluster,
+                                             wait=self._wait_for_timeout)
+
+        action = self.conn.clustering.get_action(cluster_delete_action.id)
+        self.assertEqual(action.target_id, self.cluster.id)
+        self.assertEqual(action.action, 'CLUSTER_DELETE')
+        self.assertEqual(action.status, 'SUCCEEDED')
+
+        self.cluster = None
+
+    def test_force_delete(self):
+        cluster_delete_action = self.conn.clustering.delete_cluster(
+            self.cluster.id, False, True)
+
+        self.conn.clustering.wait_for_delete(self.cluster,
+                                             wait=self._wait_for_timeout)
+
+        action = self.conn.clustering.get_action(cluster_delete_action.id)
+        self.assertEqual(action.target_id, self.cluster.id)
+        self.assertEqual(action.action, 'CLUSTER_DELETE')
+        self.assertEqual(action.status, 'SUCCEEDED')
+
+        self.cluster = None
