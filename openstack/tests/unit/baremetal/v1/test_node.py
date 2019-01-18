@@ -342,7 +342,15 @@ class TestNodeVif(base.TestCase):
         self.session.post.assert_called_once_with(
             'nodes/%s/vifs' % self.node.id, json={'id': self.vif_id},
             headers=mock.ANY, microversion='1.28',
-            retriable_status_codes=[503])
+            retriable_status_codes=[409, 503])
+
+    def test_attach_vif_no_retries(self):
+        self.assertIsNone(self.node.attach_vif(self.session, self.vif_id,
+                                               retry_on_conflict=False))
+        self.session.post.assert_called_once_with(
+            'nodes/%s/vifs' % self.node.id, json={'id': self.vif_id},
+            headers=mock.ANY, microversion='1.28',
+            retriable_status_codes={503})
 
     def test_detach_vif_existing(self):
         self.assertTrue(self.node.detach_vif(self.session, self.vif_id))

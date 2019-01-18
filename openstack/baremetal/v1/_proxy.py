@@ -632,7 +632,7 @@ class Proxy(proxy.Proxy):
         return self._delete(_portgroup.PortGroup, port_group,
                             ignore_missing=ignore_missing)
 
-    def attach_vif_to_node(self, node, vif_id):
+    def attach_vif_to_node(self, node, vif_id, retry_on_conflict=True):
         """Attach a VIF to the node.
 
         The exact form of the VIF ID depends on the network interface used by
@@ -643,12 +643,16 @@ class Proxy(proxy.Proxy):
         :param node: The value can be either the name or ID of a node or
             a :class:`~openstack.baremetal.v1.node.Node` instance.
         :param string vif_id: Backend-specific VIF ID.
+        :param retry_on_conflict: Whether to retry HTTP CONFLICT errors.
+            This can happen when either the VIF is already used on a node or
+            the node is locked. Since the latter happens more often, the
+            default value is True.
         :return: ``None``
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
         """
         res = self._get_resource(_node.Node, node)
-        res.attach_vif(self, vif_id)
+        res.attach_vif(self, vif_id, retry_on_conflict=retry_on_conflict)
 
     def detach_vif_from_node(self, node, vif_id, ignore_missing=True):
         """Detach a VIF from the node.
