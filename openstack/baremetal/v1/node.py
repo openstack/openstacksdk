@@ -56,14 +56,17 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # The conductor_group field introduced in 1.46 (Rocky).
-    _max_microversion = '1.46'
+    # The conductor field introduced in 1.49 (Stein).
+    _max_microversion = '1.49'
 
     # Properties
     #: The UUID of the chassis associated wit this node. Can be empty or None.
     chassis_id = resource.Body("chassis_uuid")
     #: The current clean step.
     clean_step = resource.Body("clean_step")
+    #: Hostname of the conductor currently handling this ndoe. Added in API
+    # microversion 1.49.
+    conductor = resource.Body("conductor")
     #: Conductor group this node is managed by. Added in API microversion 1.46.
     conductor_group = resource.Body("conductor_group")
     #: Timestamp at which the node was last updated.
@@ -91,11 +94,16 @@ class Node(_common.ListMixin, resource.Resource):
     instance_info = resource.Body("instance_info")
     #: UUID of the nova instance associated with this node.
     instance_id = resource.Body("instance_uuid")
+    #: Override enabling of automated cleaning. Added in API microversion 1.47.
+    is_automated_clean_enabled = resource.Body("automated_clean", type=bool)
     #: Whether console access is enabled on this node.
     is_console_enabled = resource.Body("console_enabled", type=bool)
     #: Whether node is currently in "maintenance mode". Nodes put into
     #: maintenance mode are removed from the available resource pool.
     is_maintenance = resource.Body("maintenance", type=bool)
+    # Whether the node is protected from undeploying. Added in API microversion
+    # 1.48.
+    is_protected = resource.Body("protected", type=bool)
     #: Any error from the most recent transaction that started but failed to
     #: finish.
     last_error = resource.Body("last_error")
@@ -118,6 +126,8 @@ class Node(_common.ListMixin, resource.Resource):
     #: Physical characteristics of the node. Content populated by the service
     #: during inspection.
     properties = resource.Body("properties", type=dict)
+    # The reason why this node is protected. Added in API microversion 1.48.
+    protected_reason = resource.Body("protected_reason")
     #: The current provisioning state of the node.
     provision_state = resource.Body("provision_state")
     #: The current RAID configuration of the node.
