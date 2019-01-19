@@ -457,7 +457,7 @@ class Node(_common.ListMixin, resource.Resource):
                 "the last error is %(error)s" %
                 {'node': self.id, 'error': self.last_error})
 
-    def attach_vif(self, session, vif_id):
+    def attach_vif(self, session, vif_id, retry_on_conflict=True):
         """Attach a VIF to the node.
 
         The exact form of the VIF ID depends on the network interface used by
@@ -468,6 +468,10 @@ class Node(_common.ListMixin, resource.Resource):
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param string vif_id: Backend-specific VIF ID.
+        :param retry_on_conflict: Whether to retry HTTP CONFLICT errors.
+            This can happen when either the VIF is already used on a node or
+            the node is locked. Since the latter happens more often, the
+            default value is True.
         :return: ``None``
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
@@ -480,12 +484,13 @@ class Node(_common.ListMixin, resource.Resource):
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'vifs')
         body = {'id': vif_id}
+        retriable_status_codes = _common.RETRIABLE_STATUS_CODES
+        if not retry_on_conflict:
+            retriable_status_codes = set(retriable_status_codes) - {409}
         response = session.post(
             request.url, json=body,
             headers=request.headers, microversion=version,
-            # NOTE(dtantsur): do not retry CONFLICT, it's a valid status code
-            # in this API when the VIF is already attached to another node.
-            retriable_status_codes=[503])
+            retriable_status_codes=retriable_status_codes)
 
         msg = ("Failed to attach VIF {vif} to bare metal node {node}"
                .format(node=self.id, vif=vif_id))

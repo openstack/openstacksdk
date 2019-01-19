@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Changes the ``baremetal.attach_vif_to_node`` call to retry HTTP CONFLICT
+    by default. While it's a valid error code when a VIF is already attached
+    to a node, the same code is also used when the target node is locked.
+    The latter happens more often, so the retries are now on by default and
+    can be disabled by setting ``retry_on_conflict`` to ``False``.
