@@ -16,6 +16,8 @@
 import json
 import os
 
+import mock
+import six
 import testtools
 
 from openstack.baremetal import configdrive
@@ -46,3 +48,25 @@ class TestPopulateDirectory(testtools.TestCase):
 
     def test_with_user_data(self):
         self._check({'foo': 42}, b'I am user data')
+
+
+@mock.patch('subprocess.Popen', autospec=True)
+class TestPack(testtools.TestCase):
+
+    def test_no_genisoimage(self, mock_popen):
+        mock_popen.side_effect = OSError
+        self.assertRaisesRegex(RuntimeError, "genisoimage",
+                               configdrive.pack, "/fake")
+
+    def test_genisoimage_fails(self, mock_popen):
+        mock_popen.return_value.communicate.return_value = "", "BOOM"
+        mock_popen.return_value.returncode = 1
+        self.assertRaisesRegex(RuntimeError, "BOOM",
+                               configdrive.pack, "/fake")
+
+    def test_success(self, mock_popen):
+        mock_popen.return_value.communicate.return_value = "", ""
+        mock_popen.return_value.returncode = 0
+        result = configdrive.pack("/fake")
+        # Make sure the result is string on all python versions
+        self.assertIsInstance(result, six.string_types)

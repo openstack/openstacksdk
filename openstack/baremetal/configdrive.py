@@ -90,7 +90,7 @@ def pack(path):
         except OSError as e:
             raise RuntimeError(
                 'Error generating the configdrive. Make sure the '
-                '"genisoimage" tool is installed. Error: %s') % e
+                '"genisoimage" tool is installed. Error: %s' % e)
 
         stdout, stderr = p.communicate()
         if p.returncode != 0:
