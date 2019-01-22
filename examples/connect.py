@@ -47,7 +47,7 @@ def _get_resource_value(resource_key, default):
 
 
 SERVER_NAME = 'openstacksdk-example'
-IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.3.6-x86_64-disk')
+IMAGE_NAME = _get_resource_value('image_name', 'cirros-0.4.0-x86_64-disk')
 FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 NETWORK_NAME = _get_resource_value('network_name', 'private')
 KEYPAIR_NAME = _get_resource_value('keypair_name', 'openstacksdk-example')
