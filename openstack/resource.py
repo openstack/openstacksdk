@@ -1369,6 +1369,9 @@ class Resource(dict):
                 pagination_key = '{key}_links'.format(key=cls.resources_key)
             if pagination_key:
                 links = data.get(pagination_key, {})
+                # keystone might return a dict
+                if isinstance(links, dict):
+                    links = ({k: v} for k, v in six.iteritems(links))
                 for item in links:
                     if item.get('rel') == 'next' and 'href' in item:
                         next_link = item['href']
