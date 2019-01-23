@@ -60,7 +60,8 @@ class Subscription(resource.Resource):
 
     def create(self, session, prepend_key=True, base_path=None):
         request = self._prepare_request(requires_id=False,
-                                        prepend_key=prepend_key)
+                                        prepend_key=prepend_key,
+                                        base_path=base_path)
         headers = {
             "Client-ID": self.client_id or str(uuid.uuid4()),
             "X-PROJECT-ID": self.project_id or session.get_project_id()
@@ -81,7 +82,11 @@ class Subscription(resource.Resource):
         and `X-PROJECT-ID` fields which are required by Zaqar v2 API.
         """
         more_data = True
-        uri = cls.base_path % params
+
+        if base_path is None:
+            base_path = cls.base_path
+
+        uri = base_path % params
         headers = {
             "Client-ID": params.get('client_id', None) or str(uuid.uuid4()),
             "X-PROJECT-ID": params.get('project_id', None

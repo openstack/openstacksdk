@@ -52,7 +52,11 @@ class Keypair(resource.Resource):
 
     @classmethod
     def list(cls, session, paginated=False, base_path=None):
-        resp = session.get(cls.base_path,
+
+        if base_path is None:
+            base_path = cls.base_path
+
+        resp = session.get(base_path,
                            headers={"Accept": "application/json"})
         resp = resp.json()
         resp = resp[cls.resources_key]

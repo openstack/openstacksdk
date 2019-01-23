@@ -44,7 +44,11 @@ class Extension(resource.Resource):
 
     @classmethod
     def list(cls, session, paginated=False, base_path=None, **params):
-        resp = session.get(cls.base_path,
+
+        if base_path is None:
+            base_path = cls.base_path
+
+        resp = session.get(base_path,
                            params=params)
         resp = resp.json()
         for data in resp[cls.resources_key]['values']:

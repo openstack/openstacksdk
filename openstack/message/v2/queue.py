@@ -75,7 +75,11 @@ class Queue(resource.Resource):
         """
         more_data = True
         query_params = cls._query_mapping._transpose(params)
-        uri = cls.base_path % params
+
+        if base_path is None:
+            base_path = cls.base_path
+
+        uri = base_path % params
         headers = {
             "Client-ID": params.get('client_id', None) or str(uuid.uuid4()),
             "X-PROJECT-ID": params.get('project_id', None

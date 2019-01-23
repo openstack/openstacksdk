@@ -141,7 +141,8 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     def _prepare_request(self, requires_id=True, prepend_key=True,
                          base_path=None):
         request = super(Server, self)._prepare_request(requires_id=requires_id,
-                                                       prepend_key=prepend_key)
+                                                       prepend_key=prepend_key,
+                                                       base_path=base_path)
 
         server_body = request.body[self.resource_key]
 

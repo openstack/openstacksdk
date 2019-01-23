@@ -43,7 +43,10 @@ class User(resource.Resource):
         """
         body = {self.resources_key: self._body.dirty}
 
-        uri = self.base_path % self._uri.attributes
+        if base_path is None:
+            base_path = self.base_path
+
+        uri = base_path % self._uri.attributes
         uri = utils.urljoin(uri, self.id)
 
         return resource._Request(uri, body, None)
