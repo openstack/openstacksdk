@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -59,6 +61,14 @@ class Test_HttpException(base.TestCase):
 
         self.assertEqual(self.message, exc.message)
         self.assertEqual(http_status, exc.status_code)
+
+    def test_unicode_message(self):
+        unicode_message = u"Event: No item found for does_not_exist©"
+        http_exception = exceptions.HttpException(message=unicode_message)
+        try:
+            http_exception.__unicode__()
+        except Exception:
+            self.fail("HttpException unicode message error")
 
 
 class TestRaiseFromResponse(base.TestCase):
