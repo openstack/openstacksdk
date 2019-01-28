@@ -372,6 +372,12 @@
       zuul_copy_output:
         '{{ devstack_base_dir }}/masakari-logs': logs
 
+- job:
+    name: metalsmith-integration-openstacksdk-src
+    parent: metalsmith-integration-glance-netboot-cirros-direct
+    required-projects:
+      - openstack/openstacksdk
+
 - project-template:
     name: openstacksdk-functional-tips
     check:
@@ -415,6 +421,8 @@
             voting: false
         - nodepool-functional-py35-src
         - bifrost-integration-tinyipa-ubuntu-xenial
+        - metalsmith-integration-openstacksdk-src:
+            voting: false
     gate:
       jobs:
         - openstacksdk-functional-devstack
