@@ -13,6 +13,8 @@
 import string
 import time
 
+import six
+
 import keystoneauth1
 from keystoneauth1 import discover
 
@@ -27,7 +29,7 @@ def urljoin(*args):
     like /path this should be joined to http://host/path as it is an anchored
     link. We generally won't care about that in client.
     """
-    return '/'.join(str(a or '').strip('/') for a in args)
+    return '/'.join(six.text_type(a or '').strip('/') for a in args)
 
 
 def iterate_timeout(timeout, message, wait=2):
