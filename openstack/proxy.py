@@ -56,6 +56,17 @@ class Proxy(_adapter.OpenStackSDKAdapter):
                           self.retriable_status_codes)
         super(Proxy, self).__init__(*args, **kwargs)
 
+    def _get_connection(self):
+        """Get the Connection object associated with this Proxy.
+
+        When the Session is created, a reference to the Connection is attached
+        to the ``_sdk_connection`` attribute. We also add a reference to it
+        directly on ourselves. Use one of them.
+        """
+        return getattr(
+            self, '_connection', getattr(
+                self.session, '_sdk_connection', None))
+
     def _get_resource(self, resource_type, value, **attrs):
         """Get a resource object to work on
 
@@ -69,16 +80,19 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         :param path_args: A dict containing arguments for forming the request
                           URL, if needed.
         """
+        conn = self._get_connection()
         if value is None:
             # Create a bare resource
-            res = resource_type.new(**attrs)
+            res = resource_type.new(connection=conn, **attrs)
         elif (isinstance(value, dict)
               and not isinstance(value, resource.Resource)):
-            res = resource_type._from_munch(value)
+            res = resource_type._from_munch(
+                value, connection=conn)
             res._update(**attrs)
         elif not isinstance(value, resource_type):
             # Create from an ID
-            res = resource_type.new(id=value, **attrs)
+            res = resource_type.new(
+                id=value, connection=conn, **attrs)
         else:
             # An existing resource instance
             res = value
@@ -205,7 +219,8 @@ class Proxy(_adapter.OpenStackSDKAdapter):
         :returns: The result of the ``create``
         :rtype: :class:`~openstack.resource.Resource`
         """
-        res = resource_type.new(**attrs)
+        conn = self._get_connection()
+        res = resource_type.new(connection=conn, **attrs)
         return res.create(self, base_path=base_path)
 
     @_check_resource(strict=False)
@@ -265,9 +280,10 @@ class Proxy(_adapter.OpenStackSDKAdapter):
                  :class:`~openstack.resource.Resource` that doesn't match
                  the ``resource_type``.
         """
-        res = self._get_resource(resource_type, value, **attrs)
-        return res.list(self, paginated=paginated,
-                        base_path=base_path, **attrs)
+        return resource_type.list(
+            self, paginated=paginated,
+            base_path=base_path,
+            **attrs)
 
     def _head(self, resource_type, value=None, base_path=None, **attrs):
         """Retrieve a resource's header

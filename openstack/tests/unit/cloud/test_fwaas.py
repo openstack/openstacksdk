@@ -48,9 +48,10 @@ class TestFirewallRule(FirewallTestCase):
     mock_firewall_rule = None
 
     def setUp(self, cloud_config_fixture='clouds.yaml'):
-        self.mock_firewall_rule = FirewallRule(
-            **self._mock_firewall_rule_attrs).to_dict()
         super(TestFirewallRule, self).setUp()
+        self.mock_firewall_rule = FirewallRule(
+            connection=self.cloud,
+            **self._mock_firewall_rule_attrs).to_dict()
 
     def test_create_firewall_rule(self):
         # attributes that are passed to the tested function
@@ -260,9 +261,10 @@ class TestFirewallPolicy(FirewallTestCase):
     mock_firewall_policy = None
 
     def setUp(self, cloud_config_fixture='clouds.yaml'):
-        self.mock_firewall_policy = FirewallPolicy(
-            **self._mock_firewall_policy_attrs).to_dict()
         super(TestFirewallPolicy, self).setUp()
+        self.mock_firewall_policy = FirewallPolicy(
+            connection=self.cloud,
+            **self._mock_firewall_policy_attrs).to_dict()
 
     def test_create_firewall_policy(self):
         # attributes that are passed to the tested method
@@ -272,7 +274,7 @@ class TestFirewallPolicy(FirewallTestCase):
         # policy that is returned by the POST request
         created_attrs = deepcopy(self._mock_firewall_policy_attrs)
         created_attrs['firewall_rules'][0] = TestFirewallRule.firewall_rule_id
-        created_policy = FirewallPolicy(**created_attrs)
+        created_policy = FirewallPolicy(connection=self.cloud, **created_attrs)
 
         # attributes used to validate the request inside register_uris()
         validate_attrs = deepcopy(created_attrs)
@@ -421,7 +423,9 @@ class TestFirewallPolicy(FirewallTestCase):
                      self.mock_firewall_policy.copy(),
                      self.mock_firewall_policy.copy()]})
         ])
-        policy = FirewallPolicy(**self.mock_firewall_policy)
+        policy = FirewallPolicy(
+            connection=self.cloud,
+            **self.mock_firewall_policy)
         self.assertListEqual(self.cloud.list_firewall_policies(),
                              [policy, policy])
         self.assert_calls()
@@ -434,12 +438,16 @@ class TestFirewallPolicy(FirewallTestCase):
                  json={'firewall_policies': [
                      self.mock_firewall_policy]})
         ])
-        self.assertListEqual(self.cloud.list_firewall_policies(filters),
-                             [FirewallPolicy(**self.mock_firewall_policy)])
+        self.assertListEqual(
+            self.cloud.list_firewall_policies(filters), [
+                FirewallPolicy(
+                    connection=self.cloud,
+                    **self.mock_firewall_policy)])
         self.assert_calls()
 
     def test_update_firewall_policy(self):
         lookup_rule = FirewallRule(
+            connection=self.cloud,
             **TestFirewallRule._mock_firewall_rule_attrs).to_dict()
         params = {'firewall_rules': [lookup_rule['id']],
                   'description': 'updated!'}
@@ -520,7 +528,9 @@ class TestFirewallPolicy(FirewallTestCase):
         self.cloud.network.find_firewall_policy = _find
 
     def test_insert_rule_into_policy(self):
-        rule0 = FirewallRule(**TestFirewallRule._mock_firewall_rule_attrs)
+        rule0 = FirewallRule(
+            connection=self.cloud,
+            **TestFirewallRule._mock_firewall_rule_attrs)
 
         _rule1_attrs = deepcopy(
             TestFirewallRule._mock_firewall_rule_attrs)
@@ -834,15 +844,19 @@ class TestFirewallGroup(FirewallTestCase):
     mock_returned_firewall_rule = None
 
     def setUp(self, cloud_config_fixture='clouds.yaml'):
+        super(TestFirewallGroup, self).setUp()
         self.mock_egress_policy = FirewallPolicy(
+            connection=self.cloud,
             **self._mock_egress_policy_attrs).to_dict()
         self.mock_ingress_policy = FirewallPolicy(
+            connection=self.cloud,
             **self._mock_ingress_policy_attrs).to_dict()
         self.mock_firewall_group = FirewallGroup(
+            connection=self.cloud,
             **self._mock_firewall_group_attrs).to_dict()
         self.mock_returned_firewall_group = FirewallGroup(
+            connection=self.cloud,
             **self._mock_returned_firewall_group_attrs).to_dict()
-        super(TestFirewallGroup, self).setUp()
 
     def test_create_firewall_group(self):
         create_group_attrs = self._mock_firewall_group_attrs.copy()
@@ -901,7 +915,10 @@ class TestFirewallGroup(FirewallTestCase):
         ])
         r = self.cloud.create_firewall_group(**firewall_group)
         self.assertDictEqual(
-            FirewallGroup(**created_firewall).to_dict(), r.to_dict())
+            FirewallGroup(
+                connection=self.cloud,
+                **created_firewall).to_dict(),
+            r.to_dict())
         self.assert_calls()
 
     def test_delete_firewall_group(self):
@@ -1010,7 +1027,7 @@ class TestFirewallGroup(FirewallTestCase):
                  uri=self._make_mock_url('firewall_groups'),
                  json={'firewall_groups': [returned_attrs, returned_attrs]})
         ])
-        group = FirewallGroup(**returned_attrs)
+        group = FirewallGroup(connection=self.cloud, **returned_attrs)
         self.assertListEqual([group, group], self.cloud.list_firewall_groups())
         self.assert_calls()
 

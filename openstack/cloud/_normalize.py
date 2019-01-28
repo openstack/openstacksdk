@@ -483,10 +483,11 @@ class Normalizer(object):
             server, 'OS-EXT-AZ:availability_zone', None, self.strict_mode)
         # the server resource has this already, but it's missing az info
         # from the resource.
-        # TODO(mordred) Fix server resource to set az in the location
-        server.pop('location', None)
-        ret['location'] = self._get_current_location(
-            project_id=project_id, zone=az)
+        # TODO(mordred) create_server is still normalizing servers that aren't
+        # from the resource layer.
+        ret['location'] = server.pop(
+            'location', self._get_current_location(
+                project_id=project_id, zone=az))
 
         # Ensure volumes is always in the server dict, even if empty
         ret['volumes'] = _pop_or_get(

@@ -54,7 +54,10 @@ class TestProxyPrivate(base.TestCase):
         self.sot = mock.Mock()
         self.sot.method = method
 
-        self.fake_proxy = proxy.Proxy("session")
+        self.session = mock.Mock()
+        self.session._sdk_connection = self.cloud
+        self.fake_proxy = proxy.Proxy(self.session)
+        self.fake_proxy._connection = self.cloud
 
     def _test_correct(self, value):
         decorated = proxy._check_resource(strict=False)(self.sot.method)
@@ -119,7 +122,7 @@ class TestProxyPrivate(base.TestCase):
 
         result = self.fake_proxy._get_resource(fake_type, None, **attrs)
 
-        fake_type.new.assert_called_with(**attrs)
+        fake_type.new.assert_called_with(connection=self.cloud, **attrs)
         self.assertEqual(value, result)
 
     def test__get_resource_from_id(self):
@@ -143,7 +146,8 @@ class TestProxyPrivate(base.TestCase):
 
         result = self.fake_proxy._get_resource(Fake, id, **attrs)
 
-        self.assertDictEqual(dict(id=id, **attrs), Fake.call)
+        self.assertDictEqual(
+            dict(id=id, connection=mock.ANY, **attrs), Fake.call)
         self.assertEqual(value, result)
 
     def test__get_resource_from_resource(self):
@@ -169,7 +173,7 @@ class TestProxyPrivate(base.TestCase):
 
         result = self.fake_proxy._get_resource(cls, m, **attrs)
 
-        cls._from_munch.assert_called_once_with(m)
+        cls._from_munch.assert_called_once_with(m, connection=self.cloud)
         res._update.assert_called_once_with(**attrs)
         self.assertEqual(result, res)
 
@@ -180,6 +184,7 @@ class TestProxyDelete(base.TestCase):
         super(TestProxyDelete, self).setUp()
 
         self.session = mock.Mock()
+        self.session._sdk_connection = self.cloud
 
         self.fake_id = 1
         self.res = mock.Mock(spec=DeleteableResource)
@@ -187,6 +192,7 @@ class TestProxyDelete(base.TestCase):
         self.res.delete = mock.Mock()
 
         self.sot = proxy.Proxy(self.session)
+        self.sot._connection = self.cloud
         DeleteableResource.new = mock.Mock(return_value=self.res)
 
     def test_delete(self):
@@ -194,7 +200,8 @@ class TestProxyDelete(base.TestCase):
         self.res.delete.assert_called_with(self.sot)
 
         self.sot._delete(DeleteableResource, self.fake_id)
-        DeleteableResource.new.assert_called_with(id=self.fake_id)
+        DeleteableResource.new.assert_called_with(
+            connection=self.cloud, id=self.fake_id)
         self.res.delete.assert_called_with(self.sot)
 
         # Delete generally doesn't return anything, so we will normally
@@ -244,6 +251,7 @@ class TestProxyUpdate(base.TestCase):
         self.res.commit = mock.Mock(return_value=self.fake_result)
 
         self.sot = proxy.Proxy(self.session)
+        self.sot._connection = self.cloud
 
         self.attrs = {"x": 1, "y": 2, "z": 3}
 
@@ -278,12 +286,14 @@ class TestProxyCreate(base.TestCase):
         super(TestProxyCreate, self).setUp()
 
         self.session = mock.Mock()
+        self.session._sdk_connection = self.cloud
 
         self.fake_result = "fake_result"
         self.res = mock.Mock(spec=CreateableResource)
         self.res.create = mock.Mock(return_value=self.fake_result)
 
         self.sot = proxy.Proxy(self.session)
+        self.sot._connection = self.cloud
 
     def test_create_attributes(self):
         CreateableResource.new = mock.Mock(return_value=self.res)
@@ -292,7 +302,8 @@ class TestProxyCreate(base.TestCase):
         rv = self.sot._create(CreateableResource, **attrs)
 
         self.assertEqual(rv, self.fake_result)
-        CreateableResource.new.assert_called_once_with(**attrs)
+        CreateableResource.new.assert_called_once_with(
+            connection=self.cloud, **attrs)
         self.res.create.assert_called_once_with(self.sot, base_path=None)
 
     def test_create_attributes_override_base_path(self):
@@ -303,7 +314,8 @@ class TestProxyCreate(base.TestCase):
         rv = self.sot._create(CreateableResource, base_path=base_path, **attrs)
 
         self.assertEqual(rv, self.fake_result)
-        CreateableResource.new.assert_called_once_with(**attrs)
+        CreateableResource.new.assert_called_once_with(
+            connection=self.cloud, **attrs)
         self.res.create.assert_called_once_with(self.sot, base_path=base_path)
 
 
@@ -313,6 +325,7 @@ class TestProxyGet(base.TestCase):
         super(TestProxyGet, self).setUp()
 
         self.session = mock.Mock()
+        self.session._sdk_connection = self.cloud
 
         self.fake_id = 1
         self.fake_name = "fake_name"
@@ -322,6 +335,7 @@ class TestProxyGet(base.TestCase):
         self.res.fetch = mock.Mock(return_value=self.fake_result)
 
         self.sot = proxy.Proxy(self.session)
+        self.sot._connection = self.cloud
         RetrieveableResource.new = mock.Mock(return_value=self.res)
 
     def test_get_resource(self):
@@ -346,7 +360,8 @@ class TestProxyGet(base.TestCase):
     def test_get_id(self):
         rv = self.sot._get(RetrieveableResource, self.fake_id)
 
-        RetrieveableResource.new.assert_called_with(id=self.fake_id)
+        RetrieveableResource.new.assert_called_with(
+            connection=self.cloud, id=self.fake_id)
         self.res.fetch.assert_called_with(
             self.sot, requires_id=True, base_path=None,
             error_message=mock.ANY)
@@ -357,7 +372,8 @@ class TestProxyGet(base.TestCase):
         rv = self.sot._get(RetrieveableResource, self.fake_id,
                            base_path=base_path)
 
-        RetrieveableResource.new.assert_called_with(id=self.fake_id)
+        RetrieveableResource.new.assert_called_with(
+            connection=self.cloud, id=self.fake_id)
         self.res.fetch.assert_called_with(
             self.sot, requires_id=True, base_path=base_path,
             error_message=mock.ANY)
@@ -383,6 +399,7 @@ class TestProxyList(base.TestCase):
         self.fake_response = [resource.Resource()]
 
         self.sot = proxy.Proxy(self.session)
+        self.sot._connection = self.cloud
         ListableResource.list = mock.Mock()
         ListableResource.list.return_value = self.fake_response
 
@@ -410,6 +427,7 @@ class TestProxyHead(base.TestCase):
         super(TestProxyHead, self).setUp()
 
         self.session = mock.Mock()
+        self.session._sdk_connection = self.cloud
 
         self.fake_id = 1
         self.fake_name = "fake_name"
@@ -419,6 +437,7 @@ class TestProxyHead(base.TestCase):
         self.res.head = mock.Mock(return_value=self.fake_result)
 
         self.sot = proxy.Proxy(self.session)
+        self.sot._connection = self.cloud
         HeadableResource.new = mock.Mock(return_value=self.res)
 
     def test_head_resource(self):
@@ -437,6 +456,7 @@ class TestProxyHead(base.TestCase):
     def test_head_id(self):
         rv = self.sot._head(HeadableResource, self.fake_id)
 
-        HeadableResource.new.assert_called_with(id=self.fake_id)
+        HeadableResource.new.assert_called_with(
+            connection=self.cloud, id=self.fake_id)
         self.res.head.assert_called_with(self.sot, base_path=None)
         self.assertEqual(rv, self.fake_result)
