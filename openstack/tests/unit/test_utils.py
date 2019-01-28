@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -104,3 +106,14 @@ class Test_urljoin(testtools.TestCase):
 
         result = utils.urljoin(root, *leaves)
         self.assertEqual(result, "http://www.example.com/foo/")
+
+    def test_unicode_strings(self):
+        root = "http://www.example.com"
+        leaves = u"ascii", u"extra_chars-™"
+
+        try:
+            result = utils.urljoin(root, *leaves)
+        except Exception:
+            self.fail("urljoin failed on unicode strings")
+
+        self.assertEqual(result, u"http://www.example.com/ascii/extra_chars-™")
