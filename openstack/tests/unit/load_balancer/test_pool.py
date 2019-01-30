@@ -81,3 +81,27 @@ class TestPool(base.TestCase):
         self.assertEqual(EXAMPLE['health_monitor_id'],
                          test_pool.health_monitor_id)
         self.assertEqual(EXAMPLE['members'], test_pool.members)
+
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'created_at': 'created_at',
+             'updated_at': 'updated_at',
+             'description': 'description',
+             'name': 'name',
+             'project_id': 'project_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
+             'operating_status': 'operating_status',
+             'provisioning_status': 'provisioning_status',
+             'is_admin_state_up': 'admin_state_up',
+
+             'health_monitor_id': 'health_monitor_id',
+             'lb_algorithm': 'lb_algorithm',
+             'listener_id': 'listener_id',
+             'loadbalancer_id': 'loadbalancer_id',
+             'protocol': 'protocol',
+             },
+            test_pool._query_mapping._mapping)

@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class LoadBalancer(resource.Resource):
+class LoadBalancer(resource.Resource, resource.TagMixin):
     resource_key = 'loadbalancer'
     resources_key = 'loadbalancers'
     base_path = '/lbaas/loadbalancers'
@@ -26,10 +26,11 @@ class LoadBalancer(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'flavor', 'name', 'project_id', 'provider',
+        'description', 'flavor_id', 'name', 'project_id', 'provider',
         'vip_address', 'vip_network_id', 'vip_port_id', 'vip_subnet_id',
         'vip_qos_policy_id', 'provisioning_status', 'operating_status',
-        is_admin_state_up='admin_state_up'
+        is_admin_state_up='admin_state_up',
+        **resource.TagMixin._tag_query_parameters
     )
 
     #: Properties
@@ -39,8 +40,8 @@ class LoadBalancer(resource.Resource):
     created_at = resource.Body('created_at')
     #: The load balancer description
     description = resource.Body('description')
-    #: The load balancer flavor
-    flavor = resource.Body('flavor')
+    #: The load balancer flavor ID
+    flavor_id = resource.Body('flavor_id')
     #: List of listeners associated with this load balancer
     listeners = resource.Body('listeners', type=list)
     #: The load balancer name

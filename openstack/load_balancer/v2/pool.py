@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class Pool(resource.Resource):
+class Pool(resource.Resource, resource.TagMixin):
     resource_key = 'pool'
     resources_key = 'pools'
     base_path = '/lbaas/pools'
@@ -29,7 +29,8 @@ class Pool(resource.Resource):
         'health_monitor_id', 'lb_algorithm', 'listener_id', 'loadbalancer_id',
         'description', 'name', 'project_id', 'protocol',
         'created_at', 'updated_at', 'provisioning_status', 'operating_status',
-        is_admin_state_up='admin_state_up'
+        is_admin_state_up='admin_state_up',
+        **resource.TagMixin._tag_query_parameters
     )
 
     #: Properties

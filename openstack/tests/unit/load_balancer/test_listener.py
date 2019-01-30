@@ -93,3 +93,34 @@ class TestListener(base.TestCase):
                          test_listener.timeout_member_data)
         self.assertEqual(EXAMPLE['timeout_tcp_inspect'],
                          test_listener.timeout_tcp_inspect)
+
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'created_at': 'created_at',
+             'updated_at': 'updated_at',
+             'description': 'description',
+             'name': 'name',
+             'project_id': 'project_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
+             'operating_status': 'operating_status',
+             'provisioning_status': 'provisioning_status',
+             'is_admin_state_up': 'admin_state_up',
+
+             'connection_limit': 'connection_limit',
+             'default_pool_id': 'default_pool_id',
+             'default_tls_container_ref': 'default_tls_container_ref',
+             'sni_container_refs': 'sni_container_refs',
+             'insert_headers': 'insert_headers',
+             'load_balancer_id': 'load_balancer_id',
+             'protocol': 'protocol',
+             'protocol_port': 'protocol_port',
+             'timeout_client_data': 'timeout_client_data',
+             'timeout_member_connect': 'timeout_member_connect',
+             'timeout_member_data': 'timeout_member_data',
+             'timeout_tcp_inspect': 'timeout_tcp_inspect',
+             },
+            test_listener._query_mapping._mapping)
