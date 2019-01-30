@@ -25,7 +25,7 @@ import sys
 
 openstack.enable_logging(True, stream=sys.stdout)
 
-#: Defines the OpenStack Config loud key in your config file,
+#: Defines the OpenStack Config cloud key in your config file,
 #: typically in $HOME/.config/openstack/clouds.yaml. That configuration
 #: will determine where the examples will be run and what resource defaults
 #: will be used to run the examples.
