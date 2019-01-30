@@ -89,3 +89,29 @@ class Listener(resource.Resource, resource.TagMixin):
     #: Time, in milliseconds, to wait for additional TCP packets for content
     #: inspection.
     timeout_tcp_inspect = resource.Body('timeout_tcp_inspect', type=int)
+
+
+class ListenerStats(resource.Resource):
+    resource_key = 'stats'
+    base_path = '/lbaas/listeners/%(listener_id)s/stats'
+
+    # capabilities
+    allow_create = False
+    allow_fetch = True
+    allow_commit = False
+    allow_delete = False
+    allow_list = False
+
+    # Properties
+    #: The ID of the listener.
+    listener_id = resource.URI('listener_id')
+    #: The currently active connections.
+    active_connections = resource.Body('active_connections', type=int)
+    #: The total bytes received.
+    bytes_in = resource.Body('bytes_in', type=int)
+    #: The total bytes sent.
+    bytes_out = resource.Body('bytes_out', type=int)
+    #: The total requests that were unable to be fulfilled.
+    request_errors = resource.Body('request_errors', type=int)
+    #: The total connections handled.
+    total_connections = resource.Body('total_connections', type=int)

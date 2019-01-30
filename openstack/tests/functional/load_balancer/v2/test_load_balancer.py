@@ -200,6 +200,15 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.assertEqual(self.LB_ID, test_lb.id)
         self.assertEqual(self.VIP_SUBNET_ID, test_lb.vip_subnet_id)
 
+    def test_lb_get_stats(self):
+        test_lb_stats = self.conn.load_balancer.get_load_balancer_statistics(
+            self.LB_ID)
+        self.assertEqual(0, test_lb_stats.active_connections)
+        self.assertEqual(0, test_lb_stats.bytes_in)
+        self.assertEqual(0, test_lb_stats.bytes_out)
+        self.assertEqual(0, test_lb_stats.request_errors)
+        self.assertEqual(0, test_lb_stats.total_connections)
+
     def test_lb_list(self):
         names = [lb.name for lb in self.conn.load_balancer.load_balancers()]
         self.assertIn(self.LB_NAME, names)
@@ -230,6 +239,15 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.assertEqual(self.LISTENER_ID, test_listener.id)
         self.assertEqual(self.PROTOCOL, test_listener.protocol)
         self.assertEqual(self.PROTOCOL_PORT, test_listener.protocol_port)
+
+    def test_listener_get_stats(self):
+        test_listener_stats = self.conn.load_balancer.get_listener_statistics(
+            self.LISTENER_ID)
+        self.assertEqual(0, test_listener_stats.active_connections)
+        self.assertEqual(0, test_listener_stats.bytes_in)
+        self.assertEqual(0, test_listener_stats.bytes_out)
+        self.assertEqual(0, test_listener_stats.request_errors)
+        self.assertEqual(0, test_listener_stats.total_connections)
 
     def test_listener_list(self):
         names = [ls.name for ls in self.conn.load_balancer.listeners()]

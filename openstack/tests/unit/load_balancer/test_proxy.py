@@ -28,6 +28,8 @@ from openstack.tests.unit import test_proxy_base
 
 class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
 
+    LB_ID = uuid.uuid4()
+    LISTENER_ID = uuid.uuid4()
     POOL_ID = uuid.uuid4()
     L7_POLICY_ID = uuid.uuid4()
 
@@ -42,6 +44,14 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_load_balancer_get(self):
         self.verify_get(self.proxy.get_load_balancer,
                         lb.LoadBalancer)
+
+    def test_load_balancer_stats_get(self):
+        self.verify_get(self.proxy.get_load_balancer_statistics,
+                        lb.LoadBalancerStats,
+                        value=[self.LB_ID],
+                        expected_args=[lb.LoadBalancerStats],
+                        expected_kwargs={'lb_id': self.LB_ID,
+                                         'requires_id': False})
 
     def test_load_balancer_create(self):
         self.verify_create(self.proxy.create_load_balancer,
@@ -94,6 +104,14 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_listener_get(self):
         self.verify_get(self.proxy.get_listener,
                         listener.Listener)
+
+    def test_listener_stats_get(self):
+        self.verify_get(self.proxy.get_listener_statistics,
+                        listener.ListenerStats,
+                        value=[self.LISTENER_ID],
+                        expected_args=[listener.ListenerStats],
+                        expected_kwargs={'listener_id': self.LISTENER_ID,
+                                         'requires_id': False})
 
     def test_listener_create(self):
         self.verify_create(self.proxy.create_listener,

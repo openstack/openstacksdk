@@ -50,6 +50,17 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_lb.LoadBalancer, *attrs)
 
+    def get_load_balancer_statistics(self, name_or_id):
+        """Get the load balancer statistics
+
+        :param name_or_id: The name or ID of a load balancer
+
+        :returns: One :class:`~openstack.load_balancer.v2.load_balancer.
+                  LoadBalancerStats`
+        """
+        return self._get(_lb.LoadBalancerStats, lb_id=name_or_id,
+                         requires_id=False)
+
     def load_balancers(self, **query):
         """Retrieve a generator of load balancers
 
@@ -171,6 +182,21 @@ class Proxy(proxy.Proxy):
                  when no resource can be found.
         """
         return self._get(_listener.Listener, listener)
+
+    def get_listener_statistics(self, listener):
+        """Get the listener statistics
+
+        :param listener: The value can be the ID of a listener or a
+               :class:`~openstack.load_balancer.v2.listener.Listener`
+               instance.
+
+        :returns: One :class:`~openstack.load_balancer.v2.listener.
+            ListenerStats`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_listener.ListenerStats, listener_id=listener,
+                         requires_id=False)
 
     def listeners(self, **query):
         """Return a generator of listeners
