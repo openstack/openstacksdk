@@ -3096,10 +3096,10 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             return ""
 
     def _get_server_console_output(self, server_id, length=None):
-            data = _adapter._json_response(self.compute.post(
-                '/servers/{server_id}/action'.format(server_id=server_id),
-                json={'os-getConsoleOutput': {'length': length}}))
-            return self._get_and_munchify('output', data)
+        data = _adapter._json_response(self.compute.post(
+            '/servers/{server_id}/action'.format(server_id=server_id),
+            json={'os-getConsoleOutput': {'length': length}}))
+        return self._get_and_munchify('output', data)
 
     def get_server(
             self, name_or_id=None, filters=None, detailed=False, bare=False,
