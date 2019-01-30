@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Added Octavia (load_balancer) load balancer failover.

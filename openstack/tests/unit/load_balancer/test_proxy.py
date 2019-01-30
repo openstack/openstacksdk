@@ -97,6 +97,13 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_load_balancer,
                            lb.LoadBalancer)
 
+    def test_load_balancer_failover(self):
+        self.verify_update(self.proxy.failover_load_balancer,
+                           lb.LoadBalancerFailover,
+                           value=[self.LB_ID],
+                           expected_args=[],
+                           expected_kwargs={'lb_id': self.LB_ID})
+
     def test_listeners(self):
         self.verify_list(self.proxy.listeners,
                          listener.Listener)

@@ -33,7 +33,7 @@ class LoadBalancer(resource.Resource, resource.TagMixin):
         **resource.TagMixin._tag_query_parameters
     )
 
-    #: Properties
+    # Properties
     #: The administrative state of the load balancer *Type: bool*
     is_admin_state_up = resource.Body('admin_state_up', type=bool)
     #: Timestamp when the load balancer was created
@@ -113,3 +113,38 @@ class LoadBalancerStats(resource.Resource):
     request_errors = resource.Body('request_errors', type=int)
     #: The total connections handled.
     total_connections = resource.Body('total_connections', type=int)
+
+
+class LoadBalancerFailover(resource.Resource):
+    base_path = '/lbaas/loadbalancers/%(lb_id)s/failover'
+
+    # capabilities
+    allow_create = False
+    allow_fetch = False
+    allow_commit = True
+    allow_delete = False
+    allow_list = False
+
+    requires_id = False
+
+    # Properties
+    #: The ID of the load balancer.
+    lb_id = resource.URI('lb_id')
+
+    # The parent commit method assumes there is a header or body change,
+    # which we do not have here. The default _update code path also has no
+    # way to pass has_body into this function, so overriding the method here.
+    def commit(self, session, base_path=None):
+        kwargs = {}
+        request = self._prepare_request(prepend_key=False,
+                                        base_path=base_path,
+                                        **kwargs)
+        session = self._get_session(session)
+        kwargs = {}
+        microversion = self._get_microversion_for(session, 'commit')
+        response = session.put(request.url, json=request.body,
+                               headers=request.headers,
+                               microversion=microversion, **kwargs)
+        self.microversion = microversion
+        self._translate_response(response, has_body=False)
+        return self
