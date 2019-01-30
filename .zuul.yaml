@@ -46,16 +46,12 @@
       Minimum job for devstack-based functional tests
     post-run: playbooks/devstack/post.yaml
     required-projects:
-      # These jobs will DTRT when openstacksdk triggers them, but we want to
-      # make sure stable branches of openstacksdk never get cloned by other
-      # people, since stable branches of openstacksdk are, well, not actually
-      # things.
       - name: openstack-infra/shade
         override-branch: master
       - name: openstack/openstacksdk
-        override-branch: master
+        override-branch: stable/rocky
       - name: openstack/os-client-config
-        override-branch: master
+        override-branch: stable/rocky
     timeout: 9000
     vars:
       devstack_localrc:
@@ -118,7 +114,7 @@
     name: openstacksdk-functional-devstack
     parent: openstacksdk-functional-devstack-base
     description: |
-      Run openstacksdk functional tests against a master devstack
+      Run openstacksdk functional tests against a stable/rocky devstack
     required-projects:
       - openstack/designate
       - openstack/octavia
@@ -382,7 +378,6 @@
             voting: false
         - neutron-grenade
         - openstack-tox-lower-constraints
-        - nodepool-functional-py35-src
     gate:
       jobs:
         - build-openstack-sphinx-docs:
@@ -393,7 +388,6 @@
         - openstacksdk-functional-devstack-senlin
         - neutron-grenade
         - openstack-tox-lower-constraints
-        - nodepool-functional-py35-src
     post:
       jobs:
         - openstack-tox-cover
