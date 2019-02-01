@@ -47,6 +47,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     COMPARE_TYPE = 'CONTAINS'
     L7RULE_TYPE = 'HOST_NAME'
     L7RULE_VALUE = 'example'
+    AMPHORA = 'amphora'
 
     @classmethod
     def setUpClass(cls):
@@ -474,3 +475,16 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
     def test_default_quota(self):
         self.conn.load_balancer.get_quota_default()
+
+    def test_providers(self):
+        providers = self.conn.load_balancer.providers()
+        # Make sure our default provider is in the list
+        self.assertTrue(
+            any(prov['name'] == self.AMPHORA for prov in providers))
+
+    def test_provider_flavor_capabilities(self):
+        capabilities = self.conn.load_balancer.provider_flavor_capabilities(
+            self.AMPHORA)
+        # Make sure a known capability is in the default provider
+        self.assertTrue(any(
+            cap['name'] == 'loadbalancer_topology' for cap in capabilities))
