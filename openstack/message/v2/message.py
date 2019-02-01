@@ -75,7 +75,11 @@ class Message(resource.Resource):
         and `X-PROJECT-ID` fields which are required by Zaqar v2 API.
         """
         more_data = True
-        uri = cls.base_path % params
+
+        if base_path is None:
+            base_path = cls.base_path
+
+        uri = base_path % params
         headers = {
             "Client-ID": params.get('client_id', None) or str(uuid.uuid4()),
             "X-PROJECT-ID": params.get('project_id', None
