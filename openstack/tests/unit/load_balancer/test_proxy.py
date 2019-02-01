@@ -14,6 +14,7 @@ import uuid
 import mock
 
 from openstack.load_balancer.v2 import _proxy
+from openstack.load_balancer.v2 import flavor_profile
 from openstack.load_balancer.v2 import health_monitor
 from openstack.load_balancer.v2 import l7_policy
 from openstack.load_balancer.v2 import l7_rule
@@ -319,3 +320,27 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
                          provider.ProviderFlavorCapabilities,
                          method_args=[self.AMPHORA],
                          expected_kwargs={'provider': self.AMPHORA})
+
+    def test_flavor_profiles(self):
+        self.verify_list(self.proxy.flavor_profiles,
+                         flavor_profile.FlavorProfile)
+
+    def test_flavor_profile_get(self):
+        self.verify_get(self.proxy.get_flavor_profile,
+                        flavor_profile.FlavorProfile)
+
+    def test_flavor_profile_create(self):
+        self.verify_create(self.proxy.create_flavor_profile,
+                           flavor_profile.FlavorProfile)
+
+    def test_flavor_profile_delete(self):
+        self.verify_delete(self.proxy.delete_flavor_profile,
+                           flavor_profile.FlavorProfile, True)
+
+    def test_flavor_profile_find(self):
+        self.verify_find(self.proxy.find_flavor_profile,
+                         flavor_profile.FlavorProfile)
+
+    def test_flavor_profile_update(self):
+        self.verify_update(self.proxy.update_flavor_profile,
+                           flavor_profile.FlavorProfile)

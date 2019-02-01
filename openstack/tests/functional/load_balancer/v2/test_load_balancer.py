@@ -12,6 +12,7 @@
 
 import os
 
+from openstack.load_balancer.v2 import flavor_profile
 from openstack.load_balancer.v2 import health_monitor
 from openstack.load_balancer.v2 import l7_policy
 from openstack.load_balancer.v2 import l7_rule
@@ -33,6 +34,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     POOL_ID = None
     VIP_SUBNET_ID = None
     PROJECT_ID = None
+    FLAVOR_PROFILE_ID = None
     PROTOCOL = 'HTTP'
     PROTOCOL_PORT = 80
     LB_ALGORITHM = 'ROUND_ROBIN'
@@ -48,6 +50,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     L7RULE_TYPE = 'HOST_NAME'
     L7RULE_VALUE = 'example'
     AMPHORA = 'amphora'
+    FLAVOR_DATA = '{"loadbalancer_topology": "SINGLE"}'
 
     @classmethod
     def setUpClass(cls):
@@ -71,6 +74,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.MEMBER_NAME = self.getUniqueString()
         self.POOL_NAME = self.getUniqueString()
         self.UPDATE_NAME = self.getUniqueString()
+        self.FLAVOR_PROFILE_NAME = self.getUniqueString()
         subnets = list(self.conn.network.subnets())
         self.VIP_SUBNET_ID = subnets[0].id
         self.PROJECT_ID = self.conn.session.get_project_id()
@@ -82,6 +86,14 @@ class TestLoadBalancer(base.BaseFunctionalTest):
                                 'member': 100})
         assert isinstance(test_quota, quota.Quota)
         self.assertEqual(self.PROJECT_ID, test_quota.id)
+
+        test_profile = self.conn.load_balancer.create_flavor_profile(
+            name=self.FLAVOR_PROFILE_NAME, provider_name=self.AMPHORA,
+            flavor_data=self.FLAVOR_DATA)
+        assert isinstance(test_profile, flavor_profile.FlavorProfile)
+        self.assertEqual(self.FLAVOR_PROFILE_NAME, test_profile.name)
+        self.FLAVOR_PROFILE_ID = test_profile.id
+
         test_lb = self.conn.load_balancer.create_load_balancer(
             name=self.LB_NAME, vip_subnet_id=self.VIP_SUBNET_ID,
             project_id=self.PROJECT_ID)
@@ -190,6 +202,9 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.conn.load_balancer.delete_load_balancer(
             self.LB_ID, ignore_missing=False)
         super(TestLoadBalancer, self).tearDown()
+
+        self.conn.load_balancer.delete_flavor_profile(self.FLAVOR_PROFILE_ID,
+                                                      ignore_missing=False)
 
     def test_lb_find(self):
         test_lb = self.conn.load_balancer.find_load_balancer(self.LB_NAME)
@@ -488,3 +503,33 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         # Make sure a known capability is in the default provider
         self.assertTrue(any(
             cap['name'] == 'loadbalancer_topology' for cap in capabilities))
+
+    def test_flavor_profile_find(self):
+        test_profile = self.conn.load_balancer.find_flavor_profile(
+            self.FLAVOR_PROFILE_NAME)
+        self.assertEqual(self.FLAVOR_PROFILE_ID, test_profile.id)
+
+    def test_flavor_profile_get(self):
+        test_flavor_profile = self.conn.load_balancer.get_flavor_profile(
+            self.FLAVOR_PROFILE_ID)
+        self.assertEqual(self.FLAVOR_PROFILE_NAME, test_flavor_profile.name)
+        self.assertEqual(self.FLAVOR_PROFILE_ID, test_flavor_profile.id)
+        self.assertEqual(self.AMPHORA, test_flavor_profile.provider_name)
+        self.assertEqual(self.FLAVOR_DATA, test_flavor_profile.flavor_data)
+
+    def test_flavor_profile_list(self):
+        names = [fv.name for fv in self.conn.load_balancer.flavor_profiles()]
+        self.assertIn(self.FLAVOR_PROFILE_NAME, names)
+
+    def test_flavor_profile_update(self):
+        self.conn.load_balancer.update_flavor_profile(
+            self.FLAVOR_PROFILE_ID, name=self.UPDATE_NAME)
+        test_flavor_profile = self.conn.load_balancer.get_flavor_profile(
+            self.FLAVOR_PROFILE_ID)
+        self.assertEqual(self.UPDATE_NAME, test_flavor_profile.name)
+
+        self.conn.load_balancer.update_flavor_profile(
+            self.FLAVOR_PROFILE_ID, name=self.FLAVOR_PROFILE_NAME)
+        test_flavor_profile = self.conn.load_balancer.get_flavor_profile(
+            self.FLAVOR_PROFILE_ID)
+        self.assertEqual(self.FLAVOR_PROFILE_NAME, test_flavor_profile.name)
