@@ -464,6 +464,8 @@ class Resource(dict):
             else:
                 self._original_body = {}
 
+        self._update_location()
+
         # TODO(mordred) This is terrible, but is a hack at the moment to ensure
         # json.dumps works. The json library does basically if not obj: and
         # obj.items() ... but I think the if not obj: is short-circuiting down
@@ -571,6 +573,7 @@ class Resource(dict):
         self._header.update(header)
         self._uri.update(uri)
         self._computed.update(computed)
+        self._update_location()
 
         # TODO(mordred) This is terrible, but is a hack at the moment to ensure
         # json.dumps works. The json library does basically if not obj: and
@@ -601,9 +604,30 @@ class Resource(dict):
         # TODO(mordred) We should make a Location Resource and add it here
         # instead of just the dict.
         if self._connection:
-            computed['location'] = self._connection.current_location
+            computed.setdefault('location', self._connection.current_location)
 
         return body, header, uri, computed
+
+    def _update_location(self):
+        """Update location to include resource project/zone information.
+
+        Location should describe the location of the resource. For some
+        resources, where the resource doesn't have any such baked-in notion
+        we assume the resource exists in the same project as the logged-in
+        user's token.
+
+        However, if a resource contains a project_id, then that project is
+        where the resource lives, and the location should reflect that.
+        """
+        if not self._connection:
+            return
+        kwargs = {}
+        if hasattr(self, 'project_id'):
+            kwargs['project_id'] = self.project_id
+        if hasattr(self, 'availability_zone'):
+            kwargs['zone'] = self.availability_zone
+        if kwargs:
+            self.location = self._connection._get_current_location(**kwargs)
 
     def _compute_attributes(self, body, header, uri):
         """Compute additional attributes from the remote resource."""
@@ -948,6 +972,7 @@ class Resource(dict):
         headers = self._consume_header_attrs(response.headers)
         self._header.attributes.update(headers)
         self._header.clean()
+        self._update_location()
 
     @classmethod
     def _get_session(cls, session):
