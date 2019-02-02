@@ -37,7 +37,7 @@ class Service(resource.Resource):
     #: Host where service runs
     host = resource.Body('host')
     #: The availability zone of service
-    zone = resource.Body("zone")
+    availability_zone = resource.Body("zone")
 
     def _action(self, session, action, body):
         url = utils.urljoin(Service.base_path, action)
