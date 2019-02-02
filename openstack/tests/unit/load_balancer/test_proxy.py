@@ -14,6 +14,7 @@ import uuid
 import mock
 
 from openstack.load_balancer.v2 import _proxy
+from openstack.load_balancer.v2 import amphora
 from openstack.load_balancer.v2 import flavor
 from openstack.load_balancer.v2 import flavor_profile
 from openstack.load_balancer.v2 import health_monitor
@@ -36,6 +37,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     POOL_ID = uuid.uuid4()
     L7_POLICY_ID = uuid.uuid4()
     AMPHORA = 'amphora'
+    AMPHORA_ID = uuid.uuid4()
 
     def setUp(self):
         super(TestLoadBalancerProxy, self).setUp()
@@ -363,3 +365,26 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
 
     def test_flavor_update(self):
         self.verify_update(self.proxy.update_flavor, flavor.Flavor)
+
+    def test_amphorae(self):
+        self.verify_list(self.proxy.amphorae, amphora.Amphora)
+
+    def test_amphora_get(self):
+        self.verify_get(self.proxy.get_amphora, amphora.Amphora)
+
+    def test_amphora_find(self):
+        self.verify_find(self.proxy.find_amphora, amphora.Amphora)
+
+    def test_amphora_configure(self):
+        self.verify_update(self.proxy.configure_amphora,
+                           amphora.AmphoraConfig,
+                           value=[self.AMPHORA_ID],
+                           expected_args=[],
+                           expected_kwargs={'amphora_id': self.AMPHORA_ID})
+
+    def test_amphora_failover(self):
+        self.verify_update(self.proxy.failover_amphora,
+                           amphora.AmphoraFailover,
+                           value=[self.AMPHORA_ID],
+                           expected_args=[],
+                           expected_kwargs={'amphora_id': self.AMPHORA_ID})

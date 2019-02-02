@@ -37,6 +37,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     PROJECT_ID = None
     FLAVOR_PROFILE_ID = None
     FLAVOR_ID = None
+    AMPHORA_ID = None
     PROTOCOL = 'HTTP'
     PROTOCOL_PORT = 80
     LB_ALGORITHM = 'ROUND_ROBIN'
@@ -116,6 +117,10 @@ class TestLoadBalancer(base.BaseFunctionalTest):
             test_lb.id, interval=1,
             wait=self._wait_for_timeout)
         self.LB_ID = test_lb.id
+
+        amphorae = self.conn.load_balancer.amphorae(loadbalancer_id=self.LB_ID)
+        for amp in amphorae:
+            self.AMPHORA_ID = amp.id
 
         test_listener = self.conn.load_balancer.create_listener(
             name=self.LISTENER_NAME, protocol=self.PROTOCOL,
@@ -573,3 +578,25 @@ class TestLoadBalancer(base.BaseFunctionalTest):
             self.FLAVOR_ID, name=self.FLAVOR_NAME)
         test_flavor = self.conn.load_balancer.get_flavor(self.FLAVOR_ID)
         self.assertEqual(self.FLAVOR_NAME, test_flavor.name)
+
+    def test_amphora_list(self):
+        amp_ids = [amp.id for amp in self.conn.load_balancer.amphorae()]
+        self.assertIn(self.AMPHORA_ID, amp_ids)
+
+    def test_amphora_find(self):
+        test_amphora = self.conn.load_balancer.find_amphora(self.AMPHORA_ID)
+        self.assertEqual(self.AMPHORA_ID, test_amphora.id)
+
+    def test_amphora_get(self):
+        test_amphora = self.conn.load_balancer.get_amphora(self.AMPHORA_ID)
+        self.assertEqual(self.AMPHORA_ID, test_amphora.id)
+
+    def test_amphora_configure(self):
+        self.conn.load_balancer.configure_amphora(self.AMPHORA_ID)
+        test_amp = self.conn.load_balancer.get_amphora(self.AMPHORA_ID)
+        self.assertEqual(self.AMPHORA_ID, test_amp.id)
+
+    def test_amphora_failover(self):
+        self.conn.load_balancer.failover_amphora(self.AMPHORA_ID)
+        test_amp = self.conn.load_balancer.get_amphora(self.AMPHORA_ID)
+        self.assertEqual(self.AMPHORA_ID, test_amp.id)

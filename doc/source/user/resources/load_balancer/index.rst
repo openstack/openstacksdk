@@ -14,3 +14,4 @@ Load Balancer Resources
    v2/provider
    v2/flavor_profile
    v2/flavor
+   v2/amphora

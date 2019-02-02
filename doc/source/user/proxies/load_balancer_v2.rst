@@ -128,3 +128,14 @@ Flavor Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_flavor
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_flavor
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_flavor
+
+Amphora Operations
+^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.amphorae
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_amphora
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_amphora
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.configure_amphora
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.failover_amphora
