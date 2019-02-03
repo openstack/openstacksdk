@@ -19,6 +19,7 @@ Load Balancer Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_load_balancer
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_load_balancer
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_load_balancer
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_load_balancer_statistics
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.load_balancers
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_load_balancer
 
@@ -31,6 +32,7 @@ Listener Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_listener
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_listener
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_listener
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_listener_statistics
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.listeners
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_listener
 

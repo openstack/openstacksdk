@@ -42,6 +42,14 @@ EXAMPLE = {
     'timeout_tcp_inspect': 0,
 }
 
+EXAMPLE_STATS = {
+    'active_connections': 1,
+    'bytes_in': 2,
+    'bytes_out': 3,
+    'request_errors': 4,
+    'total_connections': 5
+}
+
 
 class TestListener(base.TestCase):
 
@@ -124,3 +132,30 @@ class TestListener(base.TestCase):
              'timeout_tcp_inspect': 'timeout_tcp_inspect',
              },
             test_listener._query_mapping._mapping)
+
+
+class TestListenerStats(base.TestCase):
+
+    def test_basic(self):
+        test_listener = listener.ListenerStats()
+        self.assertEqual('stats', test_listener.resource_key)
+        self.assertEqual('/lbaas/listeners/%(listener_id)s/stats',
+                         test_listener.base_path)
+        self.assertFalse(test_listener.allow_create)
+        self.assertTrue(test_listener.allow_fetch)
+        self.assertFalse(test_listener.allow_delete)
+        self.assertFalse(test_listener.allow_list)
+        self.assertFalse(test_listener.allow_commit)
+
+    def test_make_it(self):
+        test_listener = listener.ListenerStats(**EXAMPLE_STATS)
+        self.assertEqual(EXAMPLE_STATS['active_connections'],
+                         test_listener.active_connections)
+        self.assertEqual(EXAMPLE_STATS['bytes_in'],
+                         test_listener.bytes_in)
+        self.assertEqual(EXAMPLE_STATS['bytes_out'],
+                         test_listener.bytes_out)
+        self.assertEqual(EXAMPLE_STATS['request_errors'],
+                         test_listener.request_errors)
+        self.assertEqual(EXAMPLE_STATS['total_connections'],
+                         test_listener.total_connections)

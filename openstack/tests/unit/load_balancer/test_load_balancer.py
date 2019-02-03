@@ -38,6 +38,14 @@ EXAMPLE = {
     'vip_qos_policy_id': uuid.uuid4(),
 }
 
+EXAMPLE_STATS = {
+    'active_connections': 1,
+    'bytes_in': 2,
+    'bytes_out': 3,
+    'request_errors': 4,
+    'total_connections': 5
+}
+
 
 class TestLoadBalancer(base.TestCase):
 
@@ -56,7 +64,7 @@ class TestLoadBalancer(base.TestCase):
     def test_make_it(self):
         test_load_balancer = load_balancer.LoadBalancer(**EXAMPLE)
         self.assertTrue(test_load_balancer.is_admin_state_up)
-        self.assertEqual(EXAMPLE['created_at'], test_load_balancer.created_at),
+        self.assertEqual(EXAMPLE['created_at'], test_load_balancer.created_at)
         self.assertEqual(EXAMPLE['description'],
                          test_load_balancer.description)
         self.assertEqual(EXAMPLE['flavor_id'], test_load_balancer.flavor_id)
@@ -70,7 +78,7 @@ class TestLoadBalancer(base.TestCase):
         self.assertEqual(EXAMPLE['provider'], test_load_balancer.provider)
         self.assertEqual(EXAMPLE['provisioning_status'],
                          test_load_balancer.provisioning_status)
-        self.assertEqual(EXAMPLE['updated_at'], test_load_balancer.updated_at),
+        self.assertEqual(EXAMPLE['updated_at'], test_load_balancer.updated_at)
         self.assertEqual(EXAMPLE['vip_address'],
                          test_load_balancer.vip_address)
         self.assertEqual(EXAMPLE['vip_network_id'],
@@ -152,3 +160,30 @@ class TestLoadBalancer(base.TestCase):
             error_message=None,
             has_body=False,
         )
+
+
+class TestLoadBalancerStats(base.TestCase):
+
+    def test_basic(self):
+        test_load_balancer = load_balancer.LoadBalancerStats()
+        self.assertEqual('stats', test_load_balancer.resource_key)
+        self.assertEqual('/lbaas/loadbalancers/%(lb_id)s/stats',
+                         test_load_balancer.base_path)
+        self.assertFalse(test_load_balancer.allow_create)
+        self.assertTrue(test_load_balancer.allow_fetch)
+        self.assertFalse(test_load_balancer.allow_delete)
+        self.assertFalse(test_load_balancer.allow_list)
+        self.assertFalse(test_load_balancer.allow_commit)
+
+    def test_make_it(self):
+        test_load_balancer = load_balancer.LoadBalancerStats(**EXAMPLE_STATS)
+        self.assertEqual(EXAMPLE_STATS['active_connections'],
+                         test_load_balancer.active_connections)
+        self.assertEqual(EXAMPLE_STATS['bytes_in'],
+                         test_load_balancer.bytes_in)
+        self.assertEqual(EXAMPLE_STATS['bytes_out'],
+                         test_load_balancer.bytes_out)
+        self.assertEqual(EXAMPLE_STATS['request_errors'],
+                         test_load_balancer.request_errors)
+        self.assertEqual(EXAMPLE_STATS['total_connections'],
+                         test_load_balancer.total_connections)
