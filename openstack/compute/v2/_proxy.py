@@ -19,6 +19,7 @@ from openstack.compute.v2 import image as _image
 from openstack.compute.v2 import keypair as _keypair
 from openstack.compute.v2 import limits
 from openstack.compute.v2 import server as _server
+from openstack.compute.v2 import server_diagnostics as _server_diagnostics
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
@@ -1466,3 +1467,20 @@ class Proxy(proxy.Proxy):
                  to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
+
+    def get_server_diagnostics(self, server):
+        """Get a single server diagnostics
+
+        :param server: This parameter need to be specified when ServerInterface
+                       ID is given as value. It can be either the ID of a
+                       server or a :class:`~openstack.compute.v2.server.Server`
+                       instance that the interface belongs to.
+
+        :returns: One
+            :class:`~openstack.compute.v2.server_diagnostics.ServerDiagnostics`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        server_id = self._get_resource(_server.Server, server).id
+        return self._get(_server_diagnostics.ServerDiagnostics,
+                         server_id=server_id, requires_id=False)
