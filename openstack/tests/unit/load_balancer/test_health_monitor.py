@@ -72,3 +72,30 @@ class TestPoolHealthMonitor(base.TestCase):
         self.assertEqual(EXAMPLE['type'], test_hm.type)
         self.assertEqual(EXAMPLE['updated_at'], test_hm.updated_at)
         self.assertEqual(EXAMPLE['url_path'], test_hm.url_path)
+
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'created_at': 'created_at',
+             'updated_at': 'updated_at',
+             'name': 'name',
+             'project_id': 'project_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
+             'operating_status': 'operating_status',
+             'provisioning_status': 'provisioning_status',
+             'is_admin_state_up': 'admin_state_up',
+
+             'delay': 'delay',
+             'expected_codes': 'expected_codes',
+             'http_method': 'http_method',
+             'max_retries': 'max_retries',
+             'max_retries_down': 'max_retries_down',
+             'pool_id': 'pool_id',
+             'timeout': 'timeout',
+             'type': 'type',
+             'url_path': 'url_path'
+             },
+            test_hm._query_mapping._mapping)

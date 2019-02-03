@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class HealthMonitor(resource.Resource):
+class HealthMonitor(resource.Resource, resource.TagMixin):
     resource_key = 'healthmonitor'
     resources_key = 'healthmonitors'
     base_path = '/lbaas/healthmonitors'
@@ -30,6 +30,7 @@ class HealthMonitor(resource.Resource):
         'http_method', 'max_retries', 'max_retries_down', 'pool_id',
         'provisioning_status', 'operating_status', 'timeout',
         'project_id', 'type', 'url_path', is_admin_state_up='admin_state_up',
+        **resource.TagMixin._tag_query_parameters
     )
 
     #: Properties

@@ -1,0 +1,10 @@
+---
+features:
+  - Add tags support for the Octavia (load_balancer) objects.
+  - |
+    Added support for the Octavia (load_balancer) L7 Policy "redirect_prefix"
+    capability.
+fixes:
+  - |
+    Fixed the Octavia (load_balancer) load balancer objects to have
+    "flavor_id" instead of the nonexistent "flavor" field.

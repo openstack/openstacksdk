@@ -28,6 +28,7 @@ EXAMPLE = {
     'project_id': uuid.uuid4(),
     'provisioning_status': 'ACTIVE',
     'redirect_pool_id': uuid.uuid4(),
+    'redirect_prefix': 'https://www.example.com',
     'redirect_url': '/test_url',
     'rules': [{'id': uuid.uuid4()}],
     'updated_at': '2017-07-17T12:16:57.233772',
@@ -64,6 +65,31 @@ class TestL7Policy(base.TestCase):
                          test_l7_policy.provisioning_status)
         self.assertEqual(EXAMPLE['redirect_pool_id'],
                          test_l7_policy.redirect_pool_id)
+        self.assertEqual(EXAMPLE['redirect_prefix'],
+                         test_l7_policy.redirect_prefix)
         self.assertEqual(EXAMPLE['redirect_url'], test_l7_policy.redirect_url)
         self.assertEqual(EXAMPLE['rules'], test_l7_policy.rules)
         self.assertEqual(EXAMPLE['updated_at'], test_l7_policy.updated_at)
+
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'name': 'name',
+             'description': 'description',
+             'project_id': 'project_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
+             'operating_status': 'operating_status',
+             'provisioning_status': 'provisioning_status',
+             'is_admin_state_up': 'admin_state_up',
+
+             'action': 'action',
+             'listener_id': 'listener_id',
+             'position': 'position',
+             'redirect_pool_id': 'redirect_pool_id',
+             'redirect_url': 'redirect_url',
+             'redirect_prefix': 'redirect_prefix'
+             },
+            test_l7_policy._query_mapping._mapping)

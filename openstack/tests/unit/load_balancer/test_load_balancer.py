@@ -21,7 +21,7 @@ EXAMPLE = {
     'admin_state_up': True,
     'created_at': '2017-07-17T12:14:57.233772',
     'description': 'fake_description',
-    'flavor': uuid.uuid4(),
+    'flavor_id': uuid.uuid4(),
     'id': IDENTIFIER,
     'listeners': [{'id', uuid.uuid4()}],
     'name': 'test_load_balancer',
@@ -59,7 +59,7 @@ class TestLoadBalancer(base.TestCase):
         self.assertEqual(EXAMPLE['created_at'], test_load_balancer.created_at),
         self.assertEqual(EXAMPLE['description'],
                          test_load_balancer.description)
-        self.assertEqual(EXAMPLE['flavor'], test_load_balancer.flavor)
+        self.assertEqual(EXAMPLE['flavor_id'], test_load_balancer.flavor_id)
         self.assertEqual(EXAMPLE['id'], test_load_balancer.id)
         self.assertEqual(EXAMPLE['listeners'], test_load_balancer.listeners)
         self.assertEqual(EXAMPLE['name'], test_load_balancer.name)
@@ -81,6 +81,29 @@ class TestLoadBalancer(base.TestCase):
                          test_load_balancer.vip_subnet_id)
         self.assertEqual(EXAMPLE['vip_qos_policy_id'],
                          test_load_balancer.vip_qos_policy_id)
+
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'description': 'description',
+             'flavor_id': 'flavor_id',
+             'name': 'name',
+             'project_id': 'project_id',
+             'provider': 'provider',
+             'operating_status': 'operating_status',
+             'provisioning_status': 'provisioning_status',
+             'is_admin_state_up': 'admin_state_up',
+             'vip_address': 'vip_address',
+             'vip_network_id': 'vip_network_id',
+             'vip_port_id': 'vip_port_id',
+             'vip_subnet_id': 'vip_subnet_id',
+             'vip_qos_policy_id': 'vip_qos_policy_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
+             },
+            test_load_balancer._query_mapping._mapping)
 
     def test_delete_non_cascade(self):
         sess = mock.Mock()

@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class L7Policy(resource.Resource):
+class L7Policy(resource.Resource, resource.TagMixin):
     resource_key = 'l7policy'
     resources_key = 'l7policies'
     base_path = '/lbaas/l7policies'
@@ -28,7 +28,9 @@ class L7Policy(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'action', 'description', 'listener_id', 'name', 'position',
         'redirect_pool_id', 'redirect_url', 'provisioning_status',
-        'operating_status', is_admin_state_up='admin_state_up',
+        'operating_status', 'redirect_prefix', 'project_id',
+        is_admin_state_up='admin_state_up',
+        **resource.TagMixin._tag_query_parameters
     )
 
     #: Properties
@@ -54,6 +56,8 @@ class L7Policy(resource.Resource):
     provisioning_status = resource.Body('provisioning_status')
     #: The ID of the pool to which the requests will be redirected
     redirect_pool_id = resource.Body('redirect_pool_id')
+    #: The URL prefix to which the requests should be redirected
+    redirect_prefix = resource.Body('redirect_prefix')
     #: The URL to which the requests should be redirected
     redirect_url = resource.Body('redirect_url')
     #: The list of L7Rules associated with the l7policy

@@ -63,3 +63,26 @@ class TestL7Rule(base.TestCase):
         self.assertEqual(EXAMPLE['type'], test_l7rule.type)
         self.assertEqual(EXAMPLE['updated_at'], test_l7rule.updated_at)
         self.assertEqual(EXAMPLE['value'], test_l7rule.rule_value)
+
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'created_at': 'created_at',
+             'updated_at': 'updated_at',
+             'project_id': 'project_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
+             'operating_status': 'operating_status',
+             'provisioning_status': 'provisioning_status',
+             'is_admin_state_up': 'admin_state_up',
+
+             'compare_type': 'compare_type',
+             'invert': 'invert',
+             'key': 'key',
+             'type': 'type',
+             'rule_value': 'rule_value',
+             'l7_policy_id': 'l7policy_id'
+             },
+            test_l7rule._query_mapping._mapping)

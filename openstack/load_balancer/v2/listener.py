@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class Listener(resource.Resource):
+class Listener(resource.Resource, resource.TagMixin):
     resource_key = 'listener'
     resources_key = 'listeners'
     base_path = '/lbaas/listeners'
@@ -33,6 +33,7 @@ class Listener(resource.Resource):
         'timeout_client_data', 'timeout_member_connect',
         'timeout_member_data', 'timeout_tcp_inspect',
         is_admin_state_up='admin_state_up',
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties

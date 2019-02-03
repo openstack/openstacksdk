@@ -61,3 +61,28 @@ class TestPoolMember(base.TestCase):
         self.assertEqual(EXAMPLE['subnet_id'], test_member.subnet_id)
         self.assertEqual(EXAMPLE['weight'], test_member.weight)
         self.assertFalse(test_member.backup)
+
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'created_at': 'created_at',
+             'updated_at': 'updated_at',
+             'name': 'name',
+             'project_id': 'project_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
+             'operating_status': 'operating_status',
+             'provisioning_status': 'provisioning_status',
+             'is_admin_state_up': 'admin_state_up',
+
+             'address': 'address',
+             'protocol_port': 'protocol_port',
+             'subnet_id': 'subnet_id',
+             'weight': 'weight',
+             'monitor_address': 'monitor_address',
+             'monitor_port': 'monitor_port',
+             'backup': 'backup'
+             },
+            test_member._query_mapping._mapping)
