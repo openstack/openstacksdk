@@ -28,6 +28,7 @@ EXAMPLE = {
     'heartbeat_timestamp': '2016-08-09T12:14:57.233772',
     'host': 'test-host',
     'id': IDENTIFIER,
+    'resources_synced': False,
     'started_at': '2016-07-09T12:14:57.233772',
     'topic': 'test-topic',
     'ha_state': 'active'
@@ -61,6 +62,7 @@ class TestAgent(base.TestCase):
         self.assertEqual(EXAMPLE['heartbeat_timestamp'], sot.last_heartbeat_at)
         self.assertEqual(EXAMPLE['host'], sot.host)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['resources_synced'], sot.resources_synced)
         self.assertEqual(EXAMPLE['started_at'], sot.started_at)
         self.assertEqual(EXAMPLE['topic'], sot.topic)
         self.assertEqual(EXAMPLE['ha_state'], sot.ha_state)

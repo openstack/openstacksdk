@@ -57,6 +57,15 @@ class Agent(resource.Resource):
     #: Whether or not the network agent is alive.
     #: *Type: bool*
     is_alive = resource.Body('alive', type=bool)
+    #: Whether or not the agent is succesffully synced towards placement.
+    #: Agents supporting the guaranteed minimum bandwidth feature share their
+    #: resource view with neutron-server and neutron-server share this view
+    #: with placement, resources_synced represents the success of the latter.
+    #: The value None means no resource view synchronization to Placement was
+    #: attempted. true / false values signify the success of the last
+    #: synchronization attempt.
+    #: *Type: bool*
+    resources_synced = resource.Body('resources_synced', type=bool)
     #: Timestamp when the network agent was last started.
     started_at = resource.Body('started_at')
     #: The messaging queue topic the network agent subscribes to.
