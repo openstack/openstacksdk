@@ -487,3 +487,31 @@ class TestNodeWaitForReservation(base.TestCase):
                           self.node.wait_for_reservation,
                           self.session, timeout=0.001)
         mock_fetch.assert_called_with(self.node, self.session)
+
+
+@mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+class TestNodeSetPowerState(base.TestCase):
+
+    def setUp(self):
+        super(TestNodeSetPowerState, self).setUp()
+        self.node = node.Node(**FAKE)
+        self.session = mock.Mock(spec=adapter.Adapter,
+                                 default_microversion=None)
+
+    def test_power_on(self):
+        self.node.set_power_state(self.session, 'power on')
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/power' % FAKE['uuid'],
+            json={'target': 'power on'},
+            headers=mock.ANY,
+            microversion=None,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+    def test_soft_power_on(self):
+        self.node.set_power_state(self.session, 'soft power off')
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/power' % FAKE['uuid'],
+            json={'target': 'soft power off'},
+            headers=mock.ANY,
+            microversion='1.27',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)

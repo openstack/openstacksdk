@@ -339,6 +339,19 @@ class Proxy(proxy.Proxy):
                           {'nodes': ', '.join(n.id for n in remaining),
                            'target': expected_state})
 
+    def set_node_power_state(self, node, target):
+        """Run an action modifying node's power state.
+
+        This call is asynchronous, it will return success as soon as the Bare
+        Metal service acknowledges the request.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param target: Target power state, e.g. "rebooting", "power on".
+            See the Bare Metal service documentation for available actions.
+        """
+        self._get_resource(_node.Node, node).set_power_state(self, target)
+
     def wait_for_node_reservation(self, node, timeout=None):
         """Wait for a lock on the node to be released.
 

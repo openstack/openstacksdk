@@ -10141,40 +10141,6 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         """
         self.set_machine_maintenance_state(name_or_id, False)
 
-    def _set_machine_power_state(self, name_or_id, state):
-        """Set machine power state to on or off
-
-        This private method allows a user to turn power on or off to
-        a node via the Baremetal API.
-
-        :params string name_or_id: A string representing the baremetal
-                                   node to have power turned to an "on"
-                                   state.
-        :params string state: A value of "on", "off", or "reboot" that is
-                              passed to the baremetal API to be asserted to
-                              the machine.  In the case of the "reboot" state,
-                              Ironic will return the host to the "on" state.
-
-        :raises: OpenStackCloudException on operation error or.
-
-        :returns: None
-        """
-        msg = ("Error setting machine power state to {state} on node "
-               "{node}").format(state=state, node=name_or_id)
-        url = '/nodes/{name_or_id}/states/power'.format(name_or_id=name_or_id)
-        if 'reboot' in state:
-            desired_state = 'rebooting'
-        else:
-            desired_state = 'power {state}'.format(state=state)
-        payload = {'target': desired_state}
-        _utils._call_client_and_retry(self._baremetal_client.put,
-                                      url,
-                                      retry_on=[409, 503],
-                                      json=payload,
-                                      error_message=msg,
-                                      microversion="1.6")
-        return None
-
     def set_machine_power_on(self, name_or_id):
         """Activate baremetal machine power
 
@@ -10188,7 +10154,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :returns: None
         """
-        self._set_machine_power_state(name_or_id, 'on')
+        self.baremetal.set_node_power_state(name_or_id, 'power on')
 
     def set_machine_power_off(self, name_or_id):
         """De-activate baremetal machine power
@@ -10203,7 +10169,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :returns:
         """
-        self._set_machine_power_state(name_or_id, 'off')
+        self.baremetal.set_node_power_state(name_or_id, 'power off')
 
     def set_machine_power_reboot(self, name_or_id):
         """De-activate baremetal machine power
@@ -10220,7 +10186,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :returns: None
         """
-        self._set_machine_power_state(name_or_id, 'reboot')
+        self.baremetal.set_node_power_state(name_or_id, 'rebooting')
 
     def activate_node(self, uuid, configdrive=None,
                       wait=False, timeout=1200):
