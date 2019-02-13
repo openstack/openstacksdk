@@ -56,10 +56,13 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # The conductor field introduced in 1.49 (Stein).
-    _max_microversion = '1.49'
+    # The allocation_uuid field introduced in 1.52 (Stein).
+    _max_microversion = '1.52'
 
     # Properties
+    #: The UUID of the allocation associated with this node. Added in API
+    #: microversion 1.52.
+    allocation_id = resource.Body("allocation_uuid")
     #: The UUID of the chassis associated wit this node. Can be empty or None.
     chassis_id = resource.Body("chassis_uuid")
     #: The current clean step.

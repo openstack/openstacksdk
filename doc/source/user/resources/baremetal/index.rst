@@ -9,3 +9,4 @@ Baremetal Resources
    v1/node
    v1/port
    v1/port_group
+   v1/allocation
