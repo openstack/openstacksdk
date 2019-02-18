@@ -39,4 +39,5 @@ def pick_flavor(flavors):
     for flavor in sorted(
             flavors,
             key=operator.attrgetter('ram')):
-        return flavor
+        if flavor.disk:
+            return flavor
