@@ -45,3 +45,19 @@ class TestImage(base.BaseFunctionalTest):
     def test_get_image(self):
         img2 = self.conn.image.get_image(self.img)
         self.assertEqual(self.img, img2)
+
+    def test_get_images_schema(self):
+        schema = self.conn.image.get_images_schema()
+        self.assertIsNotNone(schema)
+
+    def test_get_image_schema(self):
+        schema = self.conn.image.get_image_schema()
+        self.assertIsNotNone(schema)
+
+    def test_get_members_schema(self):
+        schema = self.conn.image.get_members_schema()
+        self.assertIsNotNone(schema)
+
+    def test_get_member_schema(self):
+        schema = self.conn.image.get_member_schema()
+        self.assertIsNotNone(schema)

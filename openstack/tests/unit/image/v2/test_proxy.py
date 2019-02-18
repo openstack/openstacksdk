@@ -16,6 +16,7 @@ from openstack import exceptions
 from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
+from openstack.image.v2 import schema
 from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base
 
@@ -154,3 +155,31 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.members, member.Member,
                          method_args=('image_1',),
                          expected_kwargs={'image_id': 'image_1'})
+
+    def test_images_schema_get(self):
+        self._verify2("openstack.proxy.Proxy._get",
+                      self.proxy.get_images_schema,
+                      expected_args=[schema.Schema],
+                      expected_kwargs={'base_path': '/schemas/images',
+                                       'requires_id': False})
+
+    def test_image_schema_get(self):
+        self._verify2("openstack.proxy.Proxy._get",
+                      self.proxy.get_image_schema,
+                      expected_args=[schema.Schema],
+                      expected_kwargs={'base_path': '/schemas/image',
+                                       'requires_id': False})
+
+    def test_members_schema_get(self):
+        self._verify2("openstack.proxy.Proxy._get",
+                      self.proxy.get_members_schema,
+                      expected_args=[schema.Schema],
+                      expected_kwargs={'base_path': '/schemas/members',
+                                       'requires_id': False})
+
+    def test_member_schema_get(self):
+        self._verify2("openstack.proxy.Proxy._get",
+                      self.proxy.get_member_schema,
+                      expected_args=[schema.Schema],
+                      expected_kwargs={'base_path': '/schemas/member',
+                                       'requires_id': False})

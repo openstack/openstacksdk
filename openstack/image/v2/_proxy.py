@@ -13,6 +13,7 @@
 from openstack import exceptions
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
+from openstack.image.v2 import schema as _schema
 from openstack import proxy
 from openstack import resource
 
@@ -307,3 +308,43 @@ class Proxy(proxy.Proxy):
         image_id = resource.Resource._get_id(image)
         return self._update(_member.Member, member_id=member_id,
                             image_id=image_id, **attrs)
+
+    def get_images_schema(self):
+        """Get images schema
+
+        :returns: One :class:`~openstack.image.v2.schema.Schema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_schema.Schema, requires_id=False,
+                         base_path='/schemas/images')
+
+    def get_image_schema(self):
+        """Get single image schema
+
+        :returns: One :class:`~openstack.image.v2.schema.Schema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_schema.Schema, requires_id=False,
+                         base_path='/schemas/image')
+
+    def get_members_schema(self):
+        """Get image members schema
+
+        :returns: One :class:`~openstack.image.v2.schema.Schema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_schema.Schema, requires_id=False,
+                         base_path='/schemas/members')
+
+    def get_member_schema(self):
+        """Get image member schema
+
+        :returns: One :class:`~openstack.image.v2.schema.Schema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_schema.Schema, requires_id=False,
+                         base_path='/schemas/member')
