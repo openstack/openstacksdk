@@ -177,7 +177,15 @@ class ServiceDescription(object):
             **version_kwargs
         )
         found_version = temp_adapter.get_api_major_version()
-        if found_version is None:
+        if found_version is None and version_kwargs:
+            raise exceptions.NotSupported(
+                "The {service_type} service for {cloud}:{region_name}"
+                " exists but does not have any supported versions.".format(
+                    service_type=self.service_type,
+                    cloud=instance.name,
+                    region_name=instance.config.region_name))
+        proxy_class = self.supported_versions.get(str(found_version[0]))
+        if not proxy_class:
             # Maybe openstacksdk is being used for the passthrough
             # REST API proxy layer for an unknown service in the
             # service catalog that also doesn't have any useful
