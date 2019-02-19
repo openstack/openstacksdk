@@ -457,6 +457,41 @@ class Node(_common.ListMixin, resource.Resource):
                 "the last error is %(error)s" %
                 {'node': self.id, 'error': self.last_error})
 
+    # TODO(dtantsur): waiting for power state
+    def set_power_state(self, session, target):
+        """Run an action modifying this node's power state.
+
+        This call is asynchronous, it will return success as soon as the Bare
+        Metal service acknowledges the request.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param target: Target power state, e.g. "rebooting", "power on".
+            See the Bare Metal service documentation for available actions.
+        """
+        session = self._get_session(session)
+
+        if target.startswith("soft "):
+            version = '1.27'
+        else:
+            version = None
+
+        version = utils.pick_microversion(session, version)
+
+        # TODO(dtantsur): server timeout support
+        body = {'target': target}
+
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'states', 'power')
+        response = session.put(
+            request.url, json=body,
+            headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to set power state for bare metal node {node} "
+               "to {target}".format(node=self.id, target=target))
+        exceptions.raise_from_response(response, error_message=msg)
+
     def attach_vif(self, session, vif_id, retry_on_conflict=True):
         """Attach a VIF to the node.
 

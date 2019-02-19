@@ -117,6 +117,19 @@ class TestBareMetalNode(base.BaseBaremetalTest):
                                                      wait=True)
         self.assertEqual(node.provision_state, 'available')
 
+    def test_node_power_state(self):
+        node = self.create_node()
+        self.assertIsNone(node.power_state)
+
+        self.conn.baremetal.set_node_power_state(node, 'power on')
+        node = self.conn.baremetal.get_node(node.id)
+        # Fake nodes react immediately to power requests.
+        self.assertEqual('power on', node.power_state)
+
+        self.conn.baremetal.set_node_power_state(node, 'power off')
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertEqual('power off', node.power_state)
+
     def test_node_validate(self):
         node = self.create_node()
         # Fake hardware passes validation for all interfaces
