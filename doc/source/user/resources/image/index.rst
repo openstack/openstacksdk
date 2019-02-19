@@ -14,3 +14,4 @@ Image v2 Resources
 
    v2/image
    v2/member
+   v2/task

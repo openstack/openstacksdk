@@ -61,3 +61,7 @@ class TestImage(base.BaseFunctionalTest):
     def test_get_member_schema(self):
         schema = self.conn.image.get_member_schema()
         self.assertIsNotNone(schema)
+
+    def test_list_tasks(self):
+        tasks = self.conn.image.tasks()
+        self.assertIsNotNone(tasks)
