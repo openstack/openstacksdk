@@ -12,6 +12,7 @@
 
 from openstack import _log
 from openstack.baremetal.v1 import _common
+from openstack.baremetal.v1 import allocation as _allocation
 from openstack.baremetal.v1 import chassis as _chassis
 from openstack.baremetal.v1 import driver as _driver
 from openstack.baremetal.v1 import node as _node
@@ -703,3 +704,94 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_node.Node, node)
         return res.list_vifs(self)
+
+    def allocations(self, **query):
+        """Retrieve a generator of allocations.
+
+        :param dict query: Optional query parameters to be sent to restrict
+            the allocation to be returned. Available parameters include:
+
+            * ``fields``: A list containing one or more fields to be returned
+                in the response. This may lead to some performance gain
+                because other fields of the resource are not refreshed.
+            * ``limit``: Requests at most the specified number of items be
+                returned from the query.
+            * ``marker``: Specifies the ID of the last-seen allocation. Use the
+                    ``limit`` parameter to make an initial limited request and
+                    use the ID of the last-seen allocation from the response as
+                    the ``marker`` value in a subsequent limited request.
+            * ``sort_dir``: Sorts the response by the requested sort direction.
+                    A valid value is ``asc`` (ascending) or ``desc``
+                    (descending). Default is ``asc``. You can specify multiple
+                    pairs of sort key and sort direction query parameters. If
+                    you omit the sort direction in a pair, the API uses the
+                    natural sorting direction of the server attribute that is
+                    provided as the ``sort_key``.
+            * ``sort_key``: Sorts the response by the this attribute value.
+                    Default is ``id``. You can specify multiple pairs of sort
+                    key and sort direction query parameters. If you omit the
+                    sort direction in a pair, the API uses the natural sorting
+                    direction of the server attribute that is provided as the
+                    ``sort_key``.
+
+        :returns: A generator of allocation instances.
+        """
+        return _allocation.Allocation.list(self, **query)
+
+    def create_allocation(self, **attrs):
+        """Create a new allocation from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+             :class:`~openstack.baremetal.v1.allocation.Allocation`.
+
+        :returns: The results of allocation creation.
+        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
+        """
+        return self._create(_allocation.Allocation, **attrs)
+
+    def get_allocation(self, allocation):
+        """Get a specific allocation.
+
+        :param allocation: The value can be the name or ID of an allocation or
+            a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
+
+        :returns: One :class:`~openstack.baremetal.v1.allocation.Allocation`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            allocation matching the name or ID could be found.
+        """
+        return self._get(_allocation.Allocation, allocation)
+
+    def delete_allocation(self, allocation, ignore_missing=True):
+        """Delete an allocation.
+
+        :param allocation: The value can be the name or ID of an allocation or
+            a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the allocation could not be found. When set to ``True``, no
+            exception will be raised when attempting to delete a non-existent
+            allocation.
+
+        :returns: The instance of the allocation which was deleted.
+        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
+        """
+        return self._delete(_allocation.Allocation, allocation,
+                            ignore_missing=ignore_missing)
+
+    def wait_for_allocation(self, allocation, timeout=None,
+                            ignore_error=False):
+        """Wait for the allocation to become active.
+
+        :param allocation: The value can be the name or ID of an allocation or
+            a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
+        :param timeout: How much (in seconds) to wait for the allocation.
+            The value of ``None`` (the default) means no client-side timeout.
+        :param ignore_error: If ``True``, this call will raise an exception
+            if the allocation reaches the ``error`` state. Otherwise the error
+            state is considered successful and the call returns.
+
+        :returns: The instance of the allocation.
+        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
+        """
+        res = self._get_resource(_allocation.Allocation, allocation)
+        return res.wait(self, timeout=timeout, ignore_error=ignore_error)

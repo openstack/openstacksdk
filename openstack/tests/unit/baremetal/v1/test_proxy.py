@@ -13,6 +13,7 @@
 import mock
 
 from openstack.baremetal.v1 import _proxy
+from openstack.baremetal.v1 import allocation
 from openstack.baremetal.v1 import chassis
 from openstack.baremetal.v1 import driver
 from openstack.baremetal.v1 import node
@@ -148,6 +149,20 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
         result = self.proxy.port_groups(query=1)
         self.assertIs(result, mock_list.return_value)
         mock_list.assert_called_once_with(self.proxy, details=False, query=1)
+
+    def test_create_allocation(self):
+        self.verify_create(self.proxy.create_allocation, allocation.Allocation)
+
+    def test_get_allocation(self):
+        self.verify_get(self.proxy.get_allocation, allocation.Allocation)
+
+    def test_delete_allocation(self):
+        self.verify_delete(self.proxy.delete_allocation, allocation.Allocation,
+                           False)
+
+    def test_delete_allocation_ignore(self):
+        self.verify_delete(self.proxy.delete_allocation, allocation.Allocation,
+                           True)
 
 
 @mock.patch('time.sleep', lambda _sec: None)

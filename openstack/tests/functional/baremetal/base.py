@@ -23,6 +23,13 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
         self.require_service('baremetal',
                              min_microversion=self.min_microversion)
 
+    def create_allocation(self, **kwargs):
+        allocation = self.conn.baremetal.create_allocation(**kwargs)
+        self.addCleanup(
+            lambda: self.conn.baremetal.delete_allocation(allocation.id,
+                                                          ignore_missing=True))
+        return allocation
+
     def create_chassis(self, **kwargs):
         chassis = self.conn.baremetal.create_chassis(**kwargs)
         self.addCleanup(
