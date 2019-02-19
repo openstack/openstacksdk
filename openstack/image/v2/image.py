@@ -36,10 +36,11 @@ class Image(resource.Resource, resource.TagMixin):
     _query_mapping = resource.QueryParameters(
         "name", "visibility",
         "member_status", "owner",
-        "status", "size_min",
-        "size_max", "sort_key",
-        "sort_dir", "sort", "tag",
-        "created_at", "updated_at")
+        "status", "size_min", "size_max",
+        "protected", "is_hidden",
+        "sort_key", "sort_dir", "sort", "tag",
+        "created_at", "updated_at",
+        is_hidden="os_hidden")
 
     # NOTE: Do not add "self" support here. If you've used Python before,
     # you know that self, while not being a reserved word, has special
@@ -69,9 +70,18 @@ class Image(resource.Resource, resource.TagMixin):
     #: disk image. Virtual appliance vendors have different formats
     #: for laying out the information contained in a VM disk image.
     disk_format = resource.Body('disk_format')
+    #: This field controls whether an image is displayed in the default
+    #: image-list response
+    is_hidden = resource.Body('os_hidden', type=bool)
     #: Defines whether the image can be deleted.
     #: *Type: bool*
     is_protected = resource.Body('protected', type=bool)
+    #: The algorithm used to compute a secure hash of the image data
+    #: for this image
+    hash_algo = resource.Body('os_hash_algo')
+    #: The hexdigest of the secure hash of the image data computed using
+    #: the algorithm whose name is the value of the os_hash_algo property.
+    hash_value = resource.Body('os_hash_value')
     #: The minimum disk size in GB that is required to boot the image.
     min_disk = resource.Body('min_disk')
     #: The minimum amount of RAM in MB that is required to boot the image.

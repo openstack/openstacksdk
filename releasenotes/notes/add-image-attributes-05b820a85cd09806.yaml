@@ -1,0 +1,3 @@
+---
+features:
+  - Add image attributes is_hidden, hash_algo, hash_value
