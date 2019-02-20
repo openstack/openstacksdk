@@ -38,27 +38,27 @@ class Proxy(proxy.Proxy):
             restrict the chassis to be returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
-                in the response. This may lead to some performance gain
-                because other fields of the resource are not refreshed.
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
             * ``limit``: Requests at most the specified number of items be
-                returned from the query.
+              returned from the query.
             * ``marker``: Specifies the ID of the last-seen chassis. Use the
-                    ``limit`` parameter to make an initial limited request and
-                    use the ID of the last-seen chassis from the response as
-                    the ``marker`` value in a subsequent limited request.
+              ``limit`` parameter to make an initial limited request and
+              use the ID of the last-seen chassis from the response as
+              the ``marker`` value in a subsequent limited request.
             * ``sort_dir``: Sorts the response by the requested sort direction.
-                    A valid value is ``asc`` (ascending) or ``desc``
-                    (descending). Default is ``asc``. You can specify multiple
-                    pairs of sort key and sort direction query parameters. If
-                    you omit the sort direction in a pair, the API uses the
-                    natural sorting direction of the server attribute that is
-                    provided as the ``sort_key``.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``. You can specify multiple
+              pairs of sort key and sort direction query parameters. If
+              you omit the sort direction in a pair, the API uses the
+              natural sorting direction of the server attribute that is
+              provided as the ``sort_key``.
             * ``sort_key``: Sorts the response by the this attribute value.
-                    Default is ``id``. You can specify multiple pairs of sort
-                    key and sort direction query parameters. If you omit the
-                    sort direction in a pair, the API uses the natural sorting
-                    direction of the server attribute that is provided as the
-                    ``sort_key``.
+              Default is ``id``. You can specify multiple pairs of sort
+              key and sort direction query parameters. If you omit the
+              sort direction in a pair, the API uses the natural sorting
+              direction of the server attribute that is provided as the
+              ``sort_key``.
 
         :returns: A generator of chassis instances.
         """
@@ -68,8 +68,7 @@ class Proxy(proxy.Proxy):
         """Create a new chassis from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.chassis.Chassis`, it comprised
-             of the properties on the ``Chassis`` class.
+             :class:`~openstack.baremetal.v1.chassis.Chassis`.
 
         :returns: The results of chassis creation.
         :rtype: :class:`~openstack.baremetal.v1.chassis.Chassis`.
@@ -79,7 +78,7 @@ class Proxy(proxy.Proxy):
     def find_chassis(self, name_or_id, ignore_missing=True):
         """Find a single chassis.
 
-        :param str name_or_id: The name or ID of a chassis.
+        :param str name_or_id: The ID of a chassis.
         :param bool ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the chassis does not exist.  When set to `True``, None will
@@ -93,7 +92,7 @@ class Proxy(proxy.Proxy):
     def get_chassis(self, chassis):
         """Get a specific chassis.
 
-        :param chassis: The value can be the name or ID of a chassis or a
+        :param chassis: The value can be the ID of a chassis or a
             :class:`~openstack.baremetal.v1.chassis.Chassis` instance.
 
         :returns: One :class:`~openstack.baremetal.v1.chassis.Chassis`
@@ -105,7 +104,7 @@ class Proxy(proxy.Proxy):
     def update_chassis(self, chassis, **attrs):
         """Update a chassis.
 
-        :param chassis: Either the name or the ID of a chassis, or an instance
+        :param chassis: Either the ID of a chassis, or an instance
             of :class:`~openstack.baremetal.v1.chassis.Chassis`.
         :param dict attrs: The attributes to update on the chassis represented
             by the ``chassis`` parameter.
@@ -118,7 +117,7 @@ class Proxy(proxy.Proxy):
     def delete_chassis(self, chassis, ignore_missing=True):
         """Delete a chassis.
 
-        :param chassis: The value can be either the name or ID of a chassis or
+        :param chassis: The value can be either the ID of a chassis or
             a :class:`~openstack.baremetal.v1.chassis.Chassis` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
@@ -167,36 +166,41 @@ class Proxy(proxy.Proxy):
             the nodes returned. Available parameters include:
 
             * ``associated``: Only return those which are, or are not,
-                    associated with an ``instance_id``.
+              associated with an ``instance_id``.
+            * ``conductor_group``: Only return those in the specified
+              ``conductor_group``.
             * ``driver``: Only return those with the specified ``driver``.
+            * ``fault``: Only return those with the specified fault type.
             * ``fields``: A list containing one or more fields to be returned
-                    in the response. This may lead to some performance gain
-                    because other fields of the resource are not refreshed.
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
             * ``instance_id``: Only return the node with this specific instance
-                    UUID or an empty set if not found.
+              UUID or an empty set if not found.
             * ``is_maintenance``: Only return those with ``maintenance`` set to
-                    ``True`` or ``False``.
+              ``True`` or ``False``.
             * ``limit``: Requests at most the specified number of nodes be
-                    returned from the query.
+              returned from the query.
             * ``marker``: Specifies the ID of the last-seen node. Use the
-                    ``limit`` parameter to make an initial limited request and
-                    use the ID of the last-seen node from the response as
-                    the ``marker`` value in a subsequent limited request.
+              ``limit`` parameter to make an initial limited request and
+              use the ID of the last-seen node from the response as
+              the ``marker`` value in a subsequent limited request.
             * ``provision_state``: Only return those nodes with the specified
-                    ``provision_state``.
+              ``provision_state``.
+            * ``resource_class``: Only return those with the specified
+              ``resource_class``.
             * ``sort_dir``: Sorts the response by the requested sort direction.
-                    A valid value is ``asc`` (ascending) or ``desc``
-                    (descending). Default is ``asc``. You can specify multiple
-                    pairs of sort key and sort direction query parameters. If
-                    you omit the sort direction in a pair, the API uses the
-                    natural sorting direction of the server attribute that is
-                    provided as the ``sort_key``.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``. You can specify multiple
+              pairs of sort key and sort direction query parameters. If
+              you omit the sort direction in a pair, the API uses the
+              natural sorting direction of the server attribute that is
+              provided as the ``sort_key``.
             * ``sort_key``: Sorts the response by the this attribute value.
-                    Default is ``id``. You can specify multiple pairs of sort
-                    key and sort direction query parameters. If you omit the
-                    sort direction in a pair, the API uses the natural sorting
-                    direction of the server attribute that is provided as the
-                    ``sort_key``.
+              Default is ``id``. You can specify multiple pairs of sort
+              key and sort direction query parameters. If you omit the
+              sort direction in a pair, the API uses the natural sorting
+              direction of the server attribute that is provided as the
+              ``sort_key``.
 
         :returns: A generator of :class:`~openstack.baremetal.v1.node.Node`
         """
@@ -206,8 +210,7 @@ class Proxy(proxy.Proxy):
         """Create a new node from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.node.Node`, it comprised
-             of the properties on the ``Node`` class.
+             :class:`~openstack.baremetal.v1.node.Node`.
 
         :returns: The results of node creation.
         :rtype: :class:`~openstack.baremetal.v1.node.Node`.
@@ -231,7 +234,7 @@ class Proxy(proxy.Proxy):
     def get_node(self, node):
         """Get a specific node.
 
-        :param node: The value can be the name or ID of a chassis or a
+        :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
 
         :returns: One :class:`~openstack.baremetal.v1.node.Node`
@@ -421,37 +424,37 @@ class Proxy(proxy.Proxy):
             the ports returned. Available parameters include:
 
             * ``address``: Only return ports with the specified physical
-                    hardware address, typically a MAC address.
+              hardware address, typically a MAC address.
             * ``driver``: Only return those with the specified ``driver``.
             * ``fields``: A list containing one or more fields to be returned
-                    in the response. This may lead to some performance gain
-                    because other fields of the resource are not refreshed.
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
             * ``limit``: Requests at most the specified number of ports be
-                    returned from the query.
+              returned from the query.
             * ``marker``: Specifies the ID of the last-seen port. Use the
-                    ``limit`` parameter to make an initial limited request and
-                    use the ID of the last-seen port from the response as
-                    the ``marker`` value in a subsequent limited request.
+              ``limit`` parameter to make an initial limited request and
+              use the ID of the last-seen port from the response as
+              the ``marker`` value in a subsequent limited request.
             * ``node``:only return the ones associated with this specific node
-                    (name or UUID), or an empty set if not found.
+              (name or UUID), or an empty set if not found.
             * ``node_id``:only return the ones associated with this specific
-                    node UUID, or an empty set if not found.
+              node UUID, or an empty set if not found.
             * ``portgroup``: only return the ports associated with this
-                    specific Portgroup (name or UUID), or an empty set if not
-                    found.  Added in API microversion 1.24.
+              specific Portgroup (name or UUID), or an empty set if not
+              found.  Added in API microversion 1.24.
             * ``sort_dir``: Sorts the response by the requested sort direction.
-                    A valid value is ``asc`` (ascending) or ``desc``
-                    (descending). Default is ``asc``. You can specify multiple
-                    pairs of sort key and sort direction query parameters. If
-                    you omit the sort direction in a pair, the API uses the
-                    natural sorting direction of the server attribute that is
-                    provided as the ``sort_key``.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``. You can specify multiple
+              pairs of sort key and sort direction query parameters. If
+              you omit the sort direction in a pair, the API uses the
+              natural sorting direction of the server attribute that is
+              provided as the ``sort_key``.
             * ``sort_key``: Sorts the response by the this attribute value.
-                    Default is ``id``. You can specify multiple pairs of sort
-                    key and sort direction query parameters. If you omit the
-                    sort direction in a pair, the API uses the natural sorting
-                    direction of the server attribute that is provided as the
-                    ``sort_key``.
+              Default is ``id``. You can specify multiple pairs of sort
+              key and sort direction query parameters. If you omit the
+              sort direction in a pair, the API uses the natural sorting
+              direction of the server attribute that is provided as the
+              ``sort_key``.
 
         :returns: A generator of port instances.
         """
@@ -461,8 +464,7 @@ class Proxy(proxy.Proxy):
         """Create a new port from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.port.Port`, it comprises of the
-             properties on the ``Port`` class.
+             :class:`~openstack.baremetal.v1.port.Port`.
 
         :returns: The results of port creation.
         :rtype: :class:`~openstack.baremetal.v1.port.Port`.
@@ -472,7 +474,7 @@ class Proxy(proxy.Proxy):
     def find_port(self, name_or_id, ignore_missing=True):
         """Find a single port.
 
-        :param str name_or_id: The name or ID of a port.
+        :param str name_or_id: The ID of a port.
         :param bool ignore_missing: When set to ``False``, an exception of
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the port does not exist.  When set to `True``, None will
@@ -486,14 +488,14 @@ class Proxy(proxy.Proxy):
     def get_port(self, port, **query):
         """Get a specific port.
 
-        :param port: The value can be the name or ID of a chassis or a
+        :param port: The value can be the ID of a port or a
             :class:`~openstack.baremetal.v1.port.Port` instance.
         :param dict query: Optional query parameters to be sent to restrict
             the port properties returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
-                    in the response. This may lead to some performance gain
-                    because other fields of the resource are not refreshed.
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
 
         :returns: One :class:`~openstack.baremetal.v1.port.Port`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
@@ -504,7 +506,7 @@ class Proxy(proxy.Proxy):
     def update_port(self, port, **attrs):
         """Update a port.
 
-        :param chassis: Either the name or the ID of a port or an instance
+        :param chassis: Either the ID of a port or an instance
             of :class:`~openstack.baremetal.v1.port.Port`.
         :param dict attrs: The attributes to update on the port represented
             by the ``port`` parameter.
@@ -517,7 +519,7 @@ class Proxy(proxy.Proxy):
     def delete_port(self, port, ignore_missing=True):
         """Delete a port.
 
-        :param port: The value can be either the name or ID of a port or
+        :param port: The value can be either the ID of a port or
             a :class:`~openstack.baremetal.v1.port.Port` instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
@@ -539,31 +541,31 @@ class Proxy(proxy.Proxy):
             the port groups returned. Available parameters include:
 
             * ``address``: Only return portgroups with the specified physical
-                    hardware address, typically a MAC address.
+              hardware address, typically a MAC address.
             * ``fields``: A list containing one or more fields to be returned
-                    in the response. This may lead to some performance gain
-                    because other fields of the resource are not refreshed.
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
             * ``limit``: Requests at most the specified number of portgroups
-                    returned from the query.
+              returned from the query.
             * ``marker``: Specifies the ID of the last-seen portgroup. Use the
-                    ``limit`` parameter to make an initial limited request and
-                    use the ID of the last-seen portgroup from the response as
-                    the ``marker`` value in a subsequent limited request.
+              ``limit`` parameter to make an initial limited request and
+              use the ID of the last-seen portgroup from the response as
+              the ``marker`` value in a subsequent limited request.
             * ``node``:only return the ones associated with this specific node
-                    (name or UUID), or an empty set if not found.
+              (name or UUID), or an empty set if not found.
             * ``sort_dir``: Sorts the response by the requested sort direction.
-                    A valid value is ``asc`` (ascending) or ``desc``
-                    (descending). Default is ``asc``. You can specify multiple
-                    pairs of sort key and sort direction query parameters. If
-                    you omit the sort direction in a pair, the API uses the
-                    natural sorting direction of the server attribute that is
-                    provided as the ``sort_key``.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``. You can specify multiple
+              pairs of sort key and sort direction query parameters. If
+              you omit the sort direction in a pair, the API uses the
+              natural sorting direction of the server attribute that is
+              provided as the ``sort_key``.
             * ``sort_key``: Sorts the response by the this attribute value.
-                    Default is ``id``. You can specify multiple pairs of sort
-                    key and sort direction query parameters. If you omit the
-                    sort direction in a pair, the API uses the natural sorting
-                    direction of the server attribute that is provided as the
-                    ``sort_key``.
+              Default is ``id``. You can specify multiple pairs of sort
+              key and sort direction query parameters. If you omit the
+              sort direction in a pair, the API uses the natural sorting
+              direction of the server attribute that is provided as the
+              ``sort_key``.
 
         :returns: A generator of port group instances.
         """
@@ -573,8 +575,7 @@ class Proxy(proxy.Proxy):
         """Create a new portgroup from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.port_group.PortGroup`, it
-             comprises of the properties on the ``PortGroup`` class.
+             :class:`~openstack.baremetal.v1.port_group.PortGroup`.
 
         :returns: The results of portgroup creation.
         :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`.
@@ -604,8 +605,8 @@ class Proxy(proxy.Proxy):
             the port group properties returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
-                    in the response. This may lead to some performance gain
-                    because other fields of the resource are not refreshed.
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
 
         :returns: One :class:`~openstack.baremetal.v1.port_group.PortGroup`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
@@ -712,27 +713,27 @@ class Proxy(proxy.Proxy):
             the allocation to be returned. Available parameters include:
 
             * ``fields``: A list containing one or more fields to be returned
-                in the response. This may lead to some performance gain
-                because other fields of the resource are not refreshed.
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
             * ``limit``: Requests at most the specified number of items be
-                returned from the query.
+              returned from the query.
             * ``marker``: Specifies the ID of the last-seen allocation. Use the
-                    ``limit`` parameter to make an initial limited request and
-                    use the ID of the last-seen allocation from the response as
-                    the ``marker`` value in a subsequent limited request.
+              ``limit`` parameter to make an initial limited request and
+              use the ID of the last-seen allocation from the response as
+              the ``marker`` value in a subsequent limited request.
             * ``sort_dir``: Sorts the response by the requested sort direction.
-                    A valid value is ``asc`` (ascending) or ``desc``
-                    (descending). Default is ``asc``. You can specify multiple
-                    pairs of sort key and sort direction query parameters. If
-                    you omit the sort direction in a pair, the API uses the
-                    natural sorting direction of the server attribute that is
-                    provided as the ``sort_key``.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``. You can specify multiple
+              pairs of sort key and sort direction query parameters. If
+              you omit the sort direction in a pair, the API uses the
+              natural sorting direction of the server attribute that is
+              provided as the ``sort_key``.
             * ``sort_key``: Sorts the response by the this attribute value.
-                    Default is ``id``. You can specify multiple pairs of sort
-                    key and sort direction query parameters. If you omit the
-                    sort direction in a pair, the API uses the natural sorting
-                    direction of the server attribute that is provided as the
-                    ``sort_key``.
+              Default is ``id``. You can specify multiple pairs of sort
+              key and sort direction query parameters. If you omit the
+              sort direction in a pair, the API uses the natural sorting
+              direction of the server attribute that is provided as the
+              ``sort_key``.
 
         :returns: A generator of allocation instances.
         """
