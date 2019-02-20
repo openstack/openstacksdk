@@ -64,3 +64,11 @@ Schema Operations
    .. automethod:: openstack.image.v2._proxy.Proxy.get_member_schema
    .. automethod:: openstack.image.v2._proxy.Proxy.get_tasks_schema
    .. automethod:: openstack.image.v2._proxy.Proxy.get_task_schema
+
+Service Info Discovery Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+
+   .. automethod:: openstack.image.v2._proxy.Proxy.stores
+   .. automethod:: openstack.image.v2._proxy.Proxy.get_import_info

@@ -23,6 +23,7 @@ from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import schema as _schema
 from openstack.image.v2 import task as _task
+from openstack.image.v2 import service_info as _si
 from openstack import resource
 from openstack import utils
 
@@ -660,3 +661,20 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/task')
+
+    def stores(self, **query):
+        """Return a generator of supported image stores
+
+        :returns: A generator of store objects
+        :rtype: :class:`~openstack.image.v2.service_info.Store`
+        """
+        return self._list(_si.Store, **query)
+
+    def get_import_info(self):
+        """Get a info about image constraints
+
+        :returns: One :class:`~openstack.image.v2.service_info.Import`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_si.Import, require_id=False)
