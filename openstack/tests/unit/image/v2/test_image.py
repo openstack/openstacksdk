@@ -36,6 +36,9 @@ EXAMPLE = {
     'status': '8',
     'tags': ['g', 'h', 'i'],
     'updated_at': '2015-03-09T12:15:57.233772',
+    'os_hash_algo': 'sha512',
+    'os_hash_value': '073b4523583784fbe01daff81eba092a262ec3',
+    'os_hidden': False,
     'virtual_size': '10',
     'visibility': '11',
     'location': '12',
@@ -119,6 +122,26 @@ class TestImage(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({'created_at': 'created_at',
+                              'is_hidden': 'os_hidden',
+                              'limit': 'limit',
+                              'marker': 'marker',
+                              'member_status': 'member_status',
+                              'name': 'name',
+                              'owner': 'owner',
+                              'protected': 'protected',
+                              'size_max': 'size_max',
+                              'size_min': 'size_min',
+                              'sort': 'sort',
+                              'sort_dir': 'sort_dir',
+                              'sort_key': 'sort_key',
+                              'status': 'status',
+                              'tag': 'tag',
+                              'updated_at': 'updated_at',
+                              'visibility': 'visibility'
+                              },
+                             sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = image.Image(**EXAMPLE)
         self.assertEqual(IDENTIFIER, sot.id)
@@ -134,6 +157,9 @@ class TestImage(base.TestCase):
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['tags'], sot.tags)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
+        self.assertEqual(EXAMPLE['os_hash_algo'], sot.hash_algo)
+        self.assertEqual(EXAMPLE['os_hash_value'], sot.hash_value)
+        self.assertEqual(EXAMPLE['os_hidden'], sot.is_hidden)
         self.assertEqual(EXAMPLE['virtual_size'], sot.virtual_size)
         self.assertEqual(EXAMPLE['visibility'], sot.visibility)
         self.assertEqual(EXAMPLE['size'], sot.size)
