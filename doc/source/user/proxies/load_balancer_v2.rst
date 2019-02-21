@@ -116,3 +116,15 @@ Flavor Profile Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_flavor_profile
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_flavor_profile
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_flavor_profile
+
+Flavor Operations
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_flavor
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_flavor
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.flavors
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_flavor
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_flavor
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_flavor
