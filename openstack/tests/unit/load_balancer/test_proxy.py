@@ -21,6 +21,7 @@ from openstack.load_balancer.v2 import listener
 from openstack.load_balancer.v2 import load_balancer as lb
 from openstack.load_balancer.v2 import member
 from openstack.load_balancer.v2 import pool
+from openstack.load_balancer.v2 import provider
 from openstack.load_balancer.v2 import quota
 from openstack import proxy as proxy_base
 from openstack.tests.unit import test_proxy_base
@@ -32,6 +33,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     LISTENER_ID = uuid.uuid4()
     POOL_ID = uuid.uuid4()
     L7_POLICY_ID = uuid.uuid4()
+    AMPHORA = 'amphora'
 
     def setUp(self):
         super(TestLoadBalancerProxy, self).setUp()
@@ -308,3 +310,12 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
 
     def test_quota_delete_ignore(self):
         self.verify_delete(self.proxy.delete_quota, quota.Quota, True)
+
+    def test_providers(self):
+        self.verify_list(self.proxy.providers, provider.Provider)
+
+    def test_provider_flavor_capabilities(self):
+        self.verify_list(self.proxy.provider_flavor_capabilities,
+                         provider.ProviderFlavorCapabilities,
+                         method_args=[self.AMPHORA],
+                         expected_kwargs={'provider': self.AMPHORA})

@@ -96,3 +96,11 @@ L7 Rule Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_l7_rule
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.l7_rules
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_l7_rule
+
+Provider Operations
+^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.providers
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.provider_flavor_capabilities
