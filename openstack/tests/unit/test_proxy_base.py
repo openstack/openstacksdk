@@ -80,7 +80,7 @@ class TestProxyBase(base.TestCase):
                 (called_args, called_kwargs) = mocked.call_args
                 self.assertEqual(list(called_args), expected_args)
                 base_path = expected_kwargs.get('base_path', None)
-                # NOTE(gtema): if base_path is not in epected_kwargs or empty
+                # NOTE(gtema): if base_path is not in expected_kwargs or empty
                 # exclude it from the comparison, since some methods might
                 # still invoke method with None value
                 if not base_path:
@@ -205,7 +205,7 @@ class TestProxyBase(base.TestCase):
                     **kwargs):
         expected_kwargs = kwargs.pop("expected_kwargs", {})
         if 'paginated' in kwargs:
-            expected_kwargs.update({"paginated": kwargs['paginated']})
+            expected_kwargs.update({"paginated": kwargs.pop('paginated')})
         method_kwargs = kwargs.pop("method_kwargs", {})
         self._verify2(mock_method, test_method,
                       method_kwargs=method_kwargs,
