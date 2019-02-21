@@ -228,6 +228,13 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
         self.assertEqual(self.LB_NAME, test_lb.name)
 
+    def test_lb_failover(self):
+        self.conn.load_balancer.failover_load_balancer(self.LB_ID)
+        self.conn.load_balancer.wait_for_load_balancer(
+            self.LB_ID, wait=self._wait_for_timeout)
+        test_lb = self.conn.load_balancer.get_load_balancer(self.LB_ID)
+        self.assertEqual(self.LB_NAME, test_lb.name)
+
     def test_listener_find(self):
         test_listener = self.conn.load_balancer.find_listener(
             self.LISTENER_NAME)

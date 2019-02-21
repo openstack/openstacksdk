@@ -126,6 +126,15 @@ class Proxy(proxy.Proxy):
         return resource.wait_for_status(self, lb, status, failures, interval,
                                         wait, attribute='provisioning_status')
 
+    def failover_load_balancer(self, name_or_id, **attrs):
+        """Failover a load balancer
+
+        :param name_or_id: The name or ID of a load balancer
+
+        :returns: ``None``
+        """
+        return self._update(_lb.LoadBalancerFailover, lb_id=name_or_id)
+
     def create_listener(self, **attrs):
         """Create a new listener from attributes
 
