@@ -104,3 +104,15 @@ Provider Operations
 
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.providers
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.provider_flavor_capabilities
+
+Flavor Profile Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_flavor_profile
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_flavor_profile
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.flavor_profiles
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_flavor_profile
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_flavor_profile
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_flavor_profile

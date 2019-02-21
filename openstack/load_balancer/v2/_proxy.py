@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.load_balancer.v2 import flavor_profile as _flavor_profile
 from openstack.load_balancer.v2 import health_monitor as _hm
 from openstack.load_balancer.v2 import l7_policy as _l7policy
 from openstack.load_balancer.v2 import l7_rule as _l7rule
@@ -795,3 +796,85 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_provider.ProviderFlavorCapabilities,
                           provider=provider, **query)
+
+    def create_flavor_profile(self, **attrs):
+        """Create a new flavor profile from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.load_balancer.v2.
+                           flavor_profile.FlavorProfile`,
+                           comprised of the properties on the
+                           FlavorProfile class.
+
+        :returns: The results of profile creation creation
+        :rtype: :class:`~openstack.load_balancer.v2.flavor_profile.
+                        FlavorProfile`
+        """
+        return self._create(_flavor_profile.FlavorProfile, **attrs)
+
+    def get_flavor_profile(self, *attrs):
+        """Get a flavor profile
+
+        :param flavor_profile: The value can be the name of a flavor profile
+             or :class:`~openstack.load_balancer.v2.flavor_profile.
+             FlavorProfile` instance.
+
+        :returns: One
+             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
+        """
+        return self._get(_flavor_profile.FlavorProfile, *attrs)
+
+    def flavor_profiles(self, **query):
+        """Retrieve a generator of flavor profiles
+
+        :returns: A generator of flavor profiles instances
+        """
+        return self._list(_flavor_profile.FlavorProfile, **query)
+
+    def delete_flavor_profile(self, flavor_profile, ignore_missing=True):
+        """Delete a flavor profile
+
+        :param flavor_profile: The flavor_profile can be either the name or a
+            :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
+            instance
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the flavor profile does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent load balancer.
+
+        :returns: ``None``
+        """
+        self._delete(_flavor_profile.FlavorProfile, flavor_profile,
+                     ignore_missing=ignore_missing)
+
+    def find_flavor_profile(self, name_or_id, ignore_missing=True):
+        """Find a single flavor profile
+
+        :param name_or_id: The name or ID of a flavor profile
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the flavor profile does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to delete a nonexistent flavor profile.
+
+        :returns: ``None``
+        """
+        return self._find(_flavor_profile.FlavorProfile, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def update_flavor_profile(self, flavor_profile, **attrs):
+        """Update a flavor profile
+
+        :param flavor_profile: The flavor_profile can be either the name or a
+            :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
+            instance
+        :param dict attrs: The attributes to update on the flavor profile
+                           represented by ``flavor_profile``.
+
+        :returns: The updated flavor profile
+        :rtype: :class:`~openstack.load_balancer.v2.flavor_profile.
+                        FlavorProfile`
+        """
+        return self._update(_flavor_profile.FlavorProfile, flavor_profile,
+                            **attrs)
