@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.load_balancer.v2 import amphora as _amphora
 from openstack.load_balancer.v2 import flavor as _flavor
 from openstack.load_balancer.v2 import flavor_profile as _flavor_profile
 from openstack.load_balancer.v2 import health_monitor as _hm
@@ -953,3 +954,54 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.load_balancer.v2.flavor.Flavor`
         """
         return self._update(_flavor.Flavor, flavor, **attrs)
+
+    def amphorae(self, **query):
+        """Retrieve a generator of amphorae
+
+        :returns: A generator of amphora instances
+        """
+        return self._list(_amphora.Amphora, **query)
+
+    def get_amphora(self, *attrs):
+        """Get a amphora
+
+        :param amphora: The value can be the ID of an amphora
+             or :class:`~openstack.load_balancer.v2.amphora.Amphora` instance.
+
+        :returns: One
+             :class:`~openstack.load_balancer.v2.amphora.Amphora`
+        """
+        return self._get(_amphora.Amphora, *attrs)
+
+    def find_amphora(self, amphora_id, ignore_missing=True):
+        """Find a single amphora
+
+        :param amphora_id: The ID of a amphora
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the amphora does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to find a nonexistent amphora.
+
+        :returns: ``None``
+        """
+        return self._find(_amphora.Amphora, amphora_id,
+                          ignore_missing=ignore_missing)
+
+    def configure_amphora(self, amphora_id, **attrs):
+        """Update the configuration of an amphora agent
+
+        :param amphora_id: The ID of an amphora
+
+        :returns: ``None``
+        """
+        return self._update(_amphora.AmphoraConfig, amphora_id=amphora_id)
+
+    def failover_amphora(self, amphora_id, **attrs):
+        """Failover an amphora
+
+        :param amphora_id: The ID of an amphora
+
+        :returns: ``None``
+        """
+        return self._update(_amphora.AmphoraFailover, amphora_id=amphora_id)
