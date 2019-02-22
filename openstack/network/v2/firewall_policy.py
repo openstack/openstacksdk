@@ -92,4 +92,5 @@ class FirewallPolicy(resource.Resource):
             raise HttpException(message=message, response=resp)
 
         self._body.attributes.update(data)
+        self._update_location()
         return self
