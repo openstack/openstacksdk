@@ -58,7 +58,7 @@ def get_profile(profile_name):
     if not response.ok:
         raise exceptions.ConfigException(
             "{profile_name} is a remote profile that could not be fetched:"
-            " ({status_code) {reason}".format(
+            " {status_code} {reason}".format(
                 profile_name=profile_name,
                 status_code=response.status_code,
                 reason=response.reason))
