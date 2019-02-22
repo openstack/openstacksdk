@@ -226,24 +226,27 @@ class TestFirewallRule(FirewallTestCase):
         filters = {'project_id': self.mock_firewall_rule['project_id']}
         updated = self.mock_firewall_rule.copy()
         updated.update(params)
-        _find = self.cloud.network.find_firewall_rule
-        self.cloud.network.find_firewall_rule = Mock(
-            return_value=self.mock_firewall_rule)
+        updated_dict = self._mock_firewall_rule_attrs.copy()
+        updated_dict.update(params)
         self.register_uris([
-            dict(method='PUT',
-                 uri=self._make_mock_url('firewall_rules',
-                                         self.firewall_rule_id),
-                 json={'firewall_rule': updated})
+            dict(
+                method='GET',
+                uri=self._make_mock_url(
+                    'firewall_rules', self.firewall_rule_name),
+                json={'firewall_rule': self._mock_firewall_rule_attrs}),
+            dict(
+                method='PUT',
+                uri=self._make_mock_url(
+                    'firewall_rules', self.firewall_rule_id),
+                json={'firewall_rule': updated_dict},
+                validate={
+                    'json': {'firewall_rule': params},
+                })
         ])
-        self.assertDictEqual(updated,
-                             self.cloud.update_firewall_rule(
-                                 self.firewall_rule_name, filters, **params))
+        updated_rule = self.cloud.update_firewall_rule(
+            self.firewall_rule_name, filters, **params)
+        self.assertDictEqual(updated, updated_rule)
         self.assert_calls()
-
-        self.cloud.network.find_firewall_rule.assert_called_once_with(
-            self.firewall_rule_name, ignore_missing=False, **filters)
-        # restore
-        self.cloud.network.find_firewall_rule = _find
 
 
 class TestFirewallPolicy(FirewallTestCase):
