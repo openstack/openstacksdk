@@ -392,6 +392,9 @@ class Resource(dict):
     # OSC no longer checks for allow_get
     allow_get = True
 
+    #: Commits happen without header or body being dirty.
+    allow_empty_commit = False
+
     #: Method for committing a resource (PUT, PATCH, POST)
     commit_method = "PUT"
     #: Method for creating a resource (POST, PUT)
@@ -1177,7 +1180,11 @@ class Resource(dict):
         self._body._dirty.discard("id")
 
         # Only try to update if we actually have anything to commit.
-        if not any([self._body.dirty, self._header.dirty]):
+        if not any([
+            self._body.dirty,
+            self._header.dirty,
+            self.allow_empty_commit,
+        ]):
             return self
 
         if not self.allow_commit:

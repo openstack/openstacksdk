@@ -87,6 +87,7 @@ class AmphoraConfig(resource.Resource):
     allow_commit = True
     allow_delete = False
     allow_list = False
+    allow_empty_commit = True
 
     requires_id = False
 
@@ -94,23 +95,11 @@ class AmphoraConfig(resource.Resource):
     #: The ID of the amphora.
     amphora_id = resource.URI('amphora_id')
 
-    # The parent commit method assumes there is a header or body change,
-    # which we do not have here. The default _update code path also has no
+    # The default _update code path also has no
     # way to pass has_body into this function, so overriding the method here.
     def commit(self, session, base_path=None):
-        kwargs = {}
-        request = self._prepare_request(prepend_key=False,
-                                        base_path=base_path,
-                                        **kwargs)
-        session = self._get_session(session)
-        kwargs = {}
-        microversion = self._get_microversion_for(session, 'commit')
-        response = session.put(request.url, json=request.body,
-                               headers=request.headers,
-                               microversion=microversion, **kwargs)
-        self.microversion = microversion
-        self._translate_response(response, has_body=False)
-        return self
+        return super(AmphoraConfig, self).commit(
+            session, base_path=base_path, has_body=False)
 
 
 class AmphoraFailover(resource.Resource):
@@ -122,6 +111,7 @@ class AmphoraFailover(resource.Resource):
     allow_commit = True
     allow_delete = False
     allow_list = False
+    allow_empty_commit = True
 
     requires_id = False
 
@@ -129,20 +119,8 @@ class AmphoraFailover(resource.Resource):
     #: The ID of the amphora.
     amphora_id = resource.URI('amphora_id')
 
-    # The parent commit method assumes there is a header or body change,
-    # which we do not have here. The default _update code path also has no
+    # The default _update code path also has no
     # way to pass has_body into this function, so overriding the method here.
     def commit(self, session, base_path=None):
-        kwargs = {}
-        request = self._prepare_request(prepend_key=False,
-                                        base_path=base_path,
-                                        **kwargs)
-        session = self._get_session(session)
-        kwargs = {}
-        microversion = self._get_microversion_for(session, 'commit')
-        response = session.put(request.url, json=request.body,
-                               headers=request.headers,
-                               microversion=microversion, **kwargs)
-        self.microversion = microversion
-        self._translate_response(response, has_body=False)
-        return self
+        return super(AmphoraFailover, self).commit(
+            session, base_path=base_path, has_body=False)
