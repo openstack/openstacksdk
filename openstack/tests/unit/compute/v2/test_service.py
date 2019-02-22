@@ -51,7 +51,7 @@ class TestService(base.TestCase):
         self.assertEqual(EXAMPLE['binary'], sot.binary)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['state'], sot.state)
-        self.assertEqual(EXAMPLE['zone'], sot.zone)
+        self.assertEqual(EXAMPLE['zone'], sot.availability_zone)
         self.assertEqual(EXAMPLE['id'], sot.id)
 
     def test_force_down(self):

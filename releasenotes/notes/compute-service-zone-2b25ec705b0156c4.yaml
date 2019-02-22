@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The ``zone`` attribute on compute ``Service`` objects
+    has been renamed to ``availability_zone`` to match all
+    of the other resources, and also to better integrate
+    with the ``Resource.location`` attribute.
