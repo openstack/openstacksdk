@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds support for `network_data
+    <https://specs.openstack.org/openstack/nova-specs/specs/liberty/implemented/metadata-service-network-info.html>`_
+    when building baremetal configdrives.
