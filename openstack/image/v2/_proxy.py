@@ -33,9 +33,38 @@ _INT_PROPERTIES = ('min_disk', 'min_ram', 'size', 'virtual_size')
 
 class Proxy(_base_proxy.BaseImageProxy):
 
+    def import_image(self, image, method='glance-direct', uri=None):
+        """Import data to an existing image
+
+        Interoperable image import process are introduced in the Image API
+        v2.6. It mainly allow image importing from an external url and let
+        Image Service download it by itself without sending binary data at
+        image creation.
+
+        :param image: The value can be the ID of a image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
+        :param method: Method to use for importing the image.
+                       A valid value is glance-direct or web-download.
+        :param uri: Required only if using the web-download import method.
+                    This url is where the data is made available to the Image
+                    service.
+
+        :returns: None
+        """
+        image = self._get_resource(_image.Image, image)
+
+        # as for the standard image upload function, container_format and
+        # disk_format are required for using image import process
+        if not all([image.container_format, image.disk_format]):
+            raise exceptions.InvalidRequest(
+                "Both container_format and disk_format are required for"
+                " importing an image")
+
+        image.import_image(self, method=method, uri=uri)
+
     def upload_image(self, container_format=None, disk_format=None,
                      data=None, **attrs):
-        """Upload a new image from attributes
+        """Create and upload a new image from attributes
 
         .. warning:
           This method is deprecated - and also doesn't work very well.

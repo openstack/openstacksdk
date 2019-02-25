@@ -17,6 +17,8 @@ Image Operations
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
 
+   .. automethod:: openstack.image.v2._proxy.Proxy.create_image
+   .. automethod:: openstack.image.v2._proxy.Proxy.import_image
    .. automethod:: openstack.image.v2._proxy.Proxy.upload_image
    .. automethod:: openstack.image.v2._proxy.Proxy.download_image
    .. automethod:: openstack.image.v2._proxy.Proxy.update_image

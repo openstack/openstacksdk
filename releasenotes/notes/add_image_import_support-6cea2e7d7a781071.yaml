@@ -1,0 +1,7 @@
+---
+features:
+  - Add ability to create image without upload data at the same time
+  - Add support for interoperable image import process as introduced in the 
+    Image API v2.6 at [1]
+
+    [1]https://developer.openstack.org/api-ref/image/v2/index.html#interoperable-image-import

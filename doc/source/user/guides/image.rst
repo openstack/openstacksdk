@@ -32,6 +32,20 @@ Create an image by uploading its data and setting its attributes.
 
 Full example: `image resource create`_
 
+Create Image via interoperable image import process
+---------------------------------------------------
+
+Create an image then use interoperable image import process to download data
+from a web URL.
+
+For more information about the image import process, please check
+`interoperable image import`_
+
+.. literalinclude:: ../examples/image/import.py
+   :pyobject: import_image
+
+Full example: `image resource import`_
+
 .. _download_image-stream-true:
 
 Downloading an Image with stream=True
@@ -76,6 +90,8 @@ Delete an image.
 Full example: `image resource delete`_
 
 .. _image resource create: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/create.py
+.. _image resource import: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/import.py
 .. _image resource delete: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/delete.py
 .. _image resource list: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/list.py
 .. _image resource download: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/download.py
+.. _interoperable image import: https://docs.openstack.org/glance/latest/admin/interoperable-image-import.html

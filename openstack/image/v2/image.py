@@ -249,6 +249,18 @@ class Image(resource.Resource, resource.TagMixin):
                     headers={"Content-Type": "application/octet-stream",
                              "Accept": ""})
 
+    def import_image(self, session, method='glance-direct', uri=None):
+        """Import Image via interoperable image import process"""
+        url = utils.urljoin(self.base_path, self.id, 'import')
+        json = {'method': {'name': method}}
+        if uri:
+            if method == 'web-download':
+                json['method']['uri'] = uri
+            else:
+                raise exceptions.InvalidRequest('URI is only supported with '
+                                                'method: "web-download"')
+        session.post(url, json=json)
+
     def download(self, session, stream=False):
         """Download the data contained in an image"""
         # TODO(briancurtin): This method should probably offload the get

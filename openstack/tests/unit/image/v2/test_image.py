@@ -239,6 +239,23 @@ class TestImage(base.TestCase):
             'images/IDENTIFIER/tags/%s' % tag,
         )
 
+    def test_import_image(self):
+        sot = image.Image(**EXAMPLE)
+        json = {"method": {"name": "web-download", "uri": "such-a-good-uri"}}
+        sot.import_image(self.sess, "web-download", "such-a-good-uri")
+        self.sess.post.assert_called_with(
+            'images/IDENTIFIER/import',
+            json=json
+        )
+
+    def test_import_image_with_uri_not_web_download(self):
+        sot = image.Image(**EXAMPLE)
+        self.assertRaises(exceptions.InvalidRequest,
+                          sot.import_image,
+                          self.sess,
+                          "glance-direct",
+                          "such-a-good-uri")
+
     def test_upload(self):
         sot = image.Image(**EXAMPLE)
 

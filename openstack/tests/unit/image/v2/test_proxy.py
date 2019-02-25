@@ -29,11 +29,26 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         super(TestImageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_image_create_no_args(self):
+    def test_image_import_no_required_attrs(self):
+        # container_format and disk_format are required attrs of the image
+        existing_image = image.Image(id="id")
+        self.assertRaises(exceptions.InvalidRequest,
+                          self.proxy.import_image,
+                          existing_image)
+
+    def test_image_import(self):
+        original_image = image.Image(**EXAMPLE)
+        self._verify("openstack.image.v2.image.Image.import_image",
+                     self.proxy.import_image,
+                     method_args=[original_image, "method", "uri"],
+                     expected_kwargs={"method": "method",
+                                      "uri": "uri"})
+
+    def test_image_upload_no_args(self):
         # container_format and disk_format are required args
         self.assertRaises(exceptions.InvalidRequest, self.proxy.upload_image)
 
-    def test_image_create(self):
+    def test_image_upload(self):
         # NOTE: This doesn't use any of the base class verify methods
         # because it ends up making two separate calls to complete the
         # operation.
