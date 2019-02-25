@@ -54,8 +54,6 @@ import openstack.config
 import openstack.config.defaults
 from openstack import utils
 
-# Rackspace returns this for intermittent import errors
-IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 # This halves the current default for Swift
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
@@ -4738,84 +4736,22 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException if there are problems uploading
         """
-        if container is None:
-            container = self._OBJECT_AUTOCREATE_CONTAINER
-        if not meta:
-            meta = {}
-
-        if not disk_format:
-            disk_format = self.config.config['image_format']
-        if not container_format:
-            # https://docs.openstack.org/image-guide/image-formats.html
-            container_format = 'bare'
-
         if volume:
-            if 'id' in volume:
-                volume_id = volume['id']
-            else:
-                volume_obj = self.get_volume(volume)
-                if not volume_obj:
-                    raise exc.OpenStackCloudException(
-                        "Volume {volume} given to create_image could"
-                        " not be foud".format(volume=volume))
-                volume_id = volume_obj['id']
-            return self._upload_image_from_volume(
-                name=name, volume_id=volume_id,
+            image = self.block_storage.create_image(
+                name=name, volume=volume,
                 allow_duplicates=allow_duplicates,
                 container_format=container_format, disk_format=disk_format,
                 wait=wait, timeout=timeout)
-
-        # If there is no filename, see if name is actually the filename
-        if not filename:
-            name, filename = self._get_name_and_filename(name)
-        if not (md5 or sha256):
-            (md5, sha256) = self._get_file_hashes(filename)
-        if allow_duplicates:
-            current_image = None
         else:
-            current_image = self.get_image(name)
-            if current_image:
-                md5_key = current_image.get(
-                    self._IMAGE_MD5_KEY,
-                    current_image.get(self._SHADE_IMAGE_MD5_KEY, ''))
-                sha256_key = current_image.get(
-                    self._IMAGE_SHA256_KEY,
-                    current_image.get(self._SHADE_IMAGE_SHA256_KEY, ''))
-                up_to_date = self._hashes_up_to_date(
-                    md5=md5, sha256=sha256,
-                    md5_key=md5_key, sha256_key=sha256_key)
-                if up_to_date:
-                    self.log.debug(
-                        "image %(name)s exists and is up to date",
-                        {'name': name})
-                    return current_image
-        kwargs[self._IMAGE_MD5_KEY] = md5 or ''
-        kwargs[self._IMAGE_SHA256_KEY] = sha256 or ''
-        kwargs[self._IMAGE_OBJECT_KEY] = '/'.join([container, name])
-
-        if disable_vendor_agent:
-            kwargs.update(self.config.config['disable_vendor_agent'])
-
-        # If a user used the v1 calling format, they will have
-        # passed a dict called properties along
-        properties = kwargs.pop('properties', {})
-        kwargs.update(properties)
-        image_kwargs = dict(properties=kwargs)
-        if disk_format:
-            image_kwargs['disk_format'] = disk_format
-        if container_format:
-            image_kwargs['container_format'] = container_format
-
-        if self._is_client_version('image', 2):
-            image = self._upload_image_v2(
-                name, filename,
+            image = self.image.create_image(
+                name, filename=filename,
+                container=container,
+                md5=sha256, sha256=sha256,
+                disk_format=disk_format, container_format=container_format,
+                disable_vendor_agent=disable_vendor_agent,
                 wait=wait, timeout=timeout,
-                meta=meta, **image_kwargs)
-        else:
-            image = self._upload_image_v1(
-                name, filename,
-                wait=wait, timeout=timeout,
-                meta=meta, **image_kwargs)
+                allow_duplicates=allow_duplicates, meta=meta, **kwargs)
+
         self._get_cache(None).invalidate()
         if not wait:
             return image
@@ -4832,300 +4768,11 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             self.delete_image(image.id, wait=True)
             raise
 
-    def _upload_image_v2(
-            self, name, filename=None,
-            wait=False, timeout=3600,
-            meta=None, **kwargs):
-        # We can never have nice things. Glance v1 took "is_public" as a
-        # boolean. Glance v2 takes "visibility". If the user gives us
-        # is_public, we know what they mean. If they give us visibility, they
-        # know that they mean.
-        if 'is_public' in kwargs['properties']:
-            is_public = kwargs['properties'].pop('is_public')
-            if is_public:
-                kwargs['visibility'] = 'public'
-            else:
-                kwargs['visibility'] = 'private'
-
-        try:
-            # This makes me want to die inside
-            if self.image_api_use_tasks:
-                return self._upload_image_task(
-                    name, filename,
-                    wait=wait, timeout=timeout,
-                    meta=meta, **kwargs)
-            else:
-                return self._upload_image_put_v2(
-                    name, filename, meta=meta,
-                    **kwargs)
-        except exc.OpenStackCloudException:
-            self.log.debug("Image creation failed", exc_info=True)
-            raise
-        except Exception as e:
-            raise exc.OpenStackCloudException(
-                "Image creation failed: {message}".format(message=str(e)))
-
-    def _make_v2_image_params(self, meta, properties):
-        ret = {}
-        for k, v in iter(properties.items()):
-            if k in ('min_disk', 'min_ram', 'size', 'virtual_size'):
-                ret[k] = int(v)
-            elif k == 'protected':
-                ret[k] = v
-            else:
-                if v is None:
-                    ret[k] = None
-                else:
-                    ret[k] = str(v)
-        ret.update(meta)
-        return ret
-
-    def _upload_image_from_volume(
-            self, name, volume_id, allow_duplicates,
-            container_format, disk_format, wait, timeout):
-        data = self._volume_client.post(
-            '/volumes/{id}/action'.format(id=volume_id),
-            json={
-                'os-volume_upload_image': {
-                    'force': allow_duplicates,
-                    'image_name': name,
-                    'container_format': container_format,
-                    'disk_format': disk_format}})
-        response = self._get_and_munchify('os-volume_upload_image', data)
-
-        if not wait:
-            return self.get_image(response['image_id'])
-        try:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the image to finish."):
-                image_obj = self.get_image(response['image_id'])
-                if image_obj and image_obj.status not in ('queued', 'saving'):
-                    return image_obj
-        except exc.OpenStackCloudTimeout:
-            self.log.debug(
-                "Timeout waiting for image to become ready. Deleting.")
-            self.delete_image(response['image_id'], wait=True)
-            raise
-
-    def _upload_image_put_v2(self, name, filename, meta, **image_kwargs):
-        image_data = open(filename, 'rb')
-
-        properties = image_kwargs.pop('properties', {})
-
-        image_kwargs.update(self._make_v2_image_params(meta, properties))
-        image_kwargs['name'] = name
-
-        data = self._image_client.post('/images', json=image_kwargs)
-        image = self._get_and_munchify(key=None, data=data)
-
-        try:
-            self._image_client.put(
-                '/images/{id}/file'.format(id=image.id),
-                headers={'Content-Type': 'application/octet-stream'},
-                data=image_data)
-
-        except Exception:
-            self.log.debug("Deleting failed upload of image %s", name)
-            try:
-                self._image_client.delete(
-                    '/images/{id}'.format(id=image.id))
-            except exc.OpenStackCloudHTTPError:
-                # We're just trying to clean up - if it doesn't work - shrug
-                self.log.debug(
-                    "Failed deleting image after we failed uploading it.",
-                    exc_info=True)
-            raise
-
-        return self._normalize_image(image)
-
-    def _upload_image_v1(
-            self, name, filename,
-            wait=False, timeout=3600,
-            meta=None, **image_kwargs):
-        # NOTE(mordred) wait and timeout parameters are unused, but
-        # are present for ease at calling site.
-        image_data = open(filename, 'rb')
-        image_kwargs['properties'].update(meta)
-        image_kwargs['name'] = name
-
-        image = self._get_and_munchify(
-            'image',
-            self._image_client.post('/images', json=image_kwargs))
-        checksum = image_kwargs['properties'].get(self._IMAGE_MD5_KEY, '')
-
-        try:
-            # Let us all take a brief moment to be grateful that this
-            # is not actually how OpenStack APIs work anymore
-            headers = {
-                'x-glance-registry-purge-props': 'false',
-            }
-            if checksum:
-                headers['x-image-meta-checksum'] = checksum
-
-            image = self._get_and_munchify(
-                'image',
-                self._image_client.put(
-                    '/images/{id}'.format(id=image.id),
-                    headers=headers, data=image_data))
-
-        except exc.OpenStackCloudHTTPError:
-            self.log.debug("Deleting failed upload of image %s", name)
-            try:
-                self._image_client.delete(
-                    '/images/{id}'.format(id=image.id))
-            except exc.OpenStackCloudHTTPError:
-                # We're just trying to clean up - if it doesn't work - shrug
-                self.log.debug(
-                    "Failed deleting image after we failed uploading it.",
-                    exc_info=True)
-            raise
-        return self._normalize_image(image)
-
-    def _upload_image_task(
-            self, name, filename,
-            wait, timeout, meta, **image_kwargs):
-
-        properties = image_kwargs.pop('properties', {})
-        md5 = properties[self._IMAGE_MD5_KEY]
-        sha256 = properties[self._IMAGE_SHA256_KEY]
-        container = properties[self._IMAGE_OBJECT_KEY].split('/', 1)[0]
-        image_kwargs.update(properties)
-        image_kwargs.pop('disk_format', None)
-        image_kwargs.pop('container_format', None)
-
-        self.create_container(container)
-        self.create_object(
-            container, name, filename,
-            md5=md5, sha256=sha256,
-            metadata={self._OBJECT_AUTOCREATE_KEY: 'true'},
-            **{'content-type': 'application/octet-stream'})
-        # TODO(mordred): Can we do something similar to what nodepool does
-        # using glance properties to not delete then upload but instead make a
-        # new "good" image and then mark the old one as "bad"
-        task_args = dict(
-            type='import', input=dict(
-                import_from='{container}/{name}'.format(
-                    container=container, name=name),
-                image_properties=dict(name=name)))
-        data = self._image_client.post('/tasks', json=task_args)
-        glance_task = self._get_and_munchify(key=None, data=data)
-        self.list_images.invalidate(self)
-        if wait:
-            start = time.time()
-            image_id = None
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the image to import."):
-                try:
-                    if image_id is None:
-                        status = self._image_client.get(
-                            '/tasks/{id}'.format(id=glance_task.id))
-                except exc.OpenStackCloudHTTPError as e:
-                    if e.response.status_code == 503:
-                        # Clear the exception so that it doesn't linger
-                        # and get reported as an Inner Exception later
-                        _utils._exc_clear()
-                        # Intermittent failure - catch and try again
-                        continue
-                    raise
-
-                if status['status'] == 'success':
-                    image_id = status['result']['image_id']
-                    try:
-                        image = self.get_image(image_id)
-                    except exc.OpenStackCloudHTTPError as e:
-                        if e.response.status_code == 503:
-                            # Clear the exception so that it doesn't linger
-                            # and get reported as an Inner Exception later
-                            _utils._exc_clear()
-                            # Intermittent failure - catch and try again
-                            continue
-                        raise
-                    if image is None:
-                        continue
-                    self.update_image_properties(
-                        image=image, meta=meta, **image_kwargs)
-                    self.log.debug(
-                        "Image Task %s imported %s in %s",
-                        glance_task.id, image_id, (time.time() - start))
-                    # Clean up after ourselves. The object we created is not
-                    # needed after the import is done.
-                    self.delete_object(container, name)
-                    return self.get_image(image_id)
-                elif status['status'] == 'failure':
-                    if status['message'] == IMAGE_ERROR_396:
-                        glance_task = self._image_client.post(
-                            '/tasks', data=task_args)
-                        self.list_images.invalidate(self)
-                    else:
-                        # Clean up after ourselves. The image did not import
-                        # and this isn't a 'just retry' error - glance didn't
-                        # like the content. So we don't want to keep it for
-                        # next time.
-                        self.delete_object(container, name)
-                        raise exc.OpenStackCloudException(
-                            "Image creation failed: {message}".format(
-                                message=status['message']),
-                            extra_data=status)
-        else:
-            return glance_task
-
     def update_image_properties(
             self, image=None, name_or_id=None, meta=None, **properties):
-        if image is None:
-            image = self.get_image(name_or_id)
-
-        if not meta:
-            meta = {}
-
-        img_props = {}
-        for k, v in iter(properties.items()):
-            if v and k in ['ramdisk', 'kernel']:
-                v = self.get_image_id(v)
-                k = '{0}_id'.format(k)
-            img_props[k] = v
-
-        # This makes me want to die inside
-        if self._is_client_version('image', 2):
-            return self._update_image_properties_v2(image, meta, img_props)
-        else:
-            return self._update_image_properties_v1(image, meta, img_props)
-
-    def _update_image_properties_v2(self, image, meta, properties):
-        img_props = image.properties.copy()
-        for k, v in iter(self._make_v2_image_params(meta, properties).items()):
-            if image.get(k, None) != v:
-                img_props[k] = v
-        if not img_props:
-            return False
-        headers = {
-            'Content-Type': 'application/openstack-images-v2.1-json-patch'}
-        patch = sorted(list(jsonpatch.JsonPatch.from_diff(
-            image.properties, img_props)), key=operator.itemgetter('value'))
-
-        # No need to fire an API call if there is an empty patch
-        if patch:
-            self._image_client.patch(
-                '/images/{id}'.format(id=image.id),
-                headers=headers,
-                data=json.dumps(patch))
-
-        self.list_images.invalidate(self)
-        return True
-
-    def _update_image_properties_v1(self, image, meta, properties):
-        properties.update(meta)
-        img_props = {}
-        for k, v in iter(properties.items()):
-            if image.properties.get(k, None) != v:
-                img_props['x-image-meta-{key}'.format(key=k)] = v
-        if not img_props:
-            return False
-        self._image_client.put(
-            '/images/{id}'.format(id=image.id), headers=img_props)
-        self.list_images.invalidate(self)
-        return True
+        image = image or name_or_id
+        return self.image.update_image_properties(
+            image=image, meta=meta, **properties)
 
     def create_volume(
             self, size,

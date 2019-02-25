@@ -9,15 +9,22 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import warnings
 
+from openstack.cloud import exc
+from openstack.image import _base_proxy
 from openstack.image.v1 import image as _image
-from openstack import proxy
 
 
-class Proxy(proxy.Proxy):
+class Proxy(_base_proxy.BaseImageProxy):
 
     def upload_image(self, **attrs):
         """Upload a new image from attributes
+
+        .. warning:
+          This method is deprecated - and also doesn't work very well.
+          Please stop using it immediately and switch to
+          `create_image`.
 
         :param dict attrs: Keyword arguments which will be used to create
                            a :class:`~openstack.image.v1.image.Image`,
@@ -26,7 +33,67 @@ class Proxy(proxy.Proxy):
         :returns: The results of image creation
         :rtype: :class:`~openstack.image.v1.image.Image`
         """
+        warnings.warn("upload_image is deprecated. Use create_image instead.")
         return self._create(_image.Image, **attrs)
+
+    def _upload_image(
+            self, name, filename, meta, wait, timeout, **image_kwargs):
+        # NOTE(mordred) wait and timeout parameters are unused, but
+        # are present for ease at calling site.
+        image_data = open(filename, 'rb')
+        image_kwargs['properties'].update(meta)
+        image_kwargs['name'] = name
+
+        # TODO(mordred) Convert this to use image Resource
+        image = self._connection._get_and_munchify(
+            'image',
+            self.post('/images', json=image_kwargs))
+        checksum = image_kwargs['properties'].get(
+            self._connection._IMAGE_MD5_KEY, '')
+
+        try:
+            # Let us all take a brief moment to be grateful that this
+            # is not actually how OpenStack APIs work anymore
+            headers = {
+                'x-glance-registry-purge-props': 'false',
+            }
+            if checksum:
+                headers['x-image-meta-checksum'] = checksum
+
+            image = self._connection._get_and_munchify(
+                'image',
+                self.put(
+                    '/images/{id}'.format(id=image.id),
+                    headers=headers, data=image_data))
+
+        except exc.OpenStackCloudHTTPError:
+            self._connection.log.debug(
+                "Deleting failed upload of image %s", name)
+            try:
+                self.delete('/images/{id}'.format(id=image.id))
+            except exc.OpenStackCloudHTTPError:
+                # We're just trying to clean up - if it doesn't work - shrug
+                self._connection.log.warning(
+                    "Failed deleting image after we failed uploading it.",
+                    exc_info=True)
+            raise
+        return self._connection._normalize_image(image)
+
+    def _update_image_properties(self, image, meta, properties):
+        properties.update(meta)
+        img_props = {}
+        for k, v in iter(properties.items()):
+            if image.properties.get(k, None) != v:
+                img_props['x-image-meta-{key}'.format(key=k)] = v
+        if not img_props:
+            return False
+        self.put(
+            '/images/{id}'.format(id=image.id), headers=img_props)
+        self._connection.list_images.invalidate(self._connection)
+        return True
+
+    def _existing_image(self, **kwargs):
+        return _image.Image.existing(connection=self._connection, **kwargs)
 
     def delete_image(self, image, ignore_missing=True):
         """Delete an image

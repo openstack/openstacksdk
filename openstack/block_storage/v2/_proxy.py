@@ -10,17 +10,17 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_storage import _base_proxy
 from openstack.block_storage.v2 import backup as _backup
 from openstack.block_storage.v2 import snapshot as _snapshot
 from openstack.block_storage.v2 import stats as _stats
 from openstack.block_storage.v2 import type as _type
 from openstack.block_storage.v2 import volume as _volume
 from openstack import exceptions
-from openstack import proxy
 from openstack import resource
 
 
-class Proxy(proxy.Proxy):
+class Proxy(_base_proxy.BaseBlockStorageProxy):
 
     def get_snapshot(self, snapshot):
         """Get a single snapshot

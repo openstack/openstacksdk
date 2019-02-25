@@ -986,6 +986,7 @@ class TestImageVolume(BaseTestImage):
     def test_create_image_volume(self):
 
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'volumev2', append=['volumes', self.volume_id, 'action']),
@@ -1017,6 +1018,7 @@ class TestImageVolume(BaseTestImage):
     def test_create_image_volume_duplicate(self):
 
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'volumev2', append=['volumes', self.volume_id, 'action']),

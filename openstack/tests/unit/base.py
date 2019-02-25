@@ -440,6 +440,15 @@ class TestCase(base.TestCase):
             config=self.cloud_config, strict=self.strict_cloud)
         self.addCleanup(self.cloud.task_manager.stop)
 
+    def get_cinder_discovery_mock_dict(
+            self,
+            block_storage_version_json='block-storage-version.json',
+            block_storage_discovery_url='https://volume.example.com/'):
+        discovery_fixture = os.path.join(
+            self.fixtures_directory, block_storage_version_json)
+        return dict(method='GET', uri=block_storage_discovery_url,
+                    text=open(discovery_fixture, 'r').read())
+
     def get_glance_discovery_mock_dict(
             self,
             image_version_json='image-version.json',
