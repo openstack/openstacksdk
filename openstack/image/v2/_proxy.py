@@ -640,3 +640,23 @@ class Proxy(_base_proxy.BaseImageProxy):
         failures = ['failure'] if failures is None else failures
         return resource.wait_for_status(
             self, task, status, failures, interval, wait)
+
+    def get_tasks_schema(self):
+        """Get image tasks schema
+
+        :returns: One :class:`~openstack.image.v2.schema.Schema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_schema.Schema, requires_id=False,
+                         base_path='/schemas/tasks')
+
+    def get_task_schema(self):
+        """Get image task schema
+
+        :returns: One :class:`~openstack.image.v2.schema.Schema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_schema.Schema, requires_id=False,
+                         base_path='/schemas/task')

@@ -52,3 +52,15 @@ Task Operations
    .. automethod:: openstack.image.v2._proxy.Proxy.create_task
    .. automethod:: openstack.image.v2._proxy.Proxy.get_task
    .. automethod:: openstack.image.v2._proxy.Proxy.wait_for_task
+
+Schema Operations
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+
+   .. automethod:: openstack.image.v2._proxy.Proxy.get_images_schema
+   .. automethod:: openstack.image.v2._proxy.Proxy.get_image_schema
+   .. automethod:: openstack.image.v2._proxy.Proxy.get_members_schema
+   .. automethod:: openstack.image.v2._proxy.Proxy.get_member_schema
+   .. automethod:: openstack.image.v2._proxy.Proxy.get_tasks_schema
+   .. automethod:: openstack.image.v2._proxy.Proxy.get_task_schema
