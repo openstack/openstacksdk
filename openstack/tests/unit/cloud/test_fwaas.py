@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from copy import deepcopy
-from mock import Mock
+import mock
 
 from openstack import exceptions
 from openstack.network.v2.firewall_group import FirewallGroup
@@ -121,8 +121,6 @@ class TestFirewallRule(FirewallTestCase):
         self.assert_calls()
 
     def test_delete_firewall_rule_not_found(self):
-        _delete = self.cloud.network.delete_firewall_rule
-        _log = self.cloud.log.debug
         self.register_uris([
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_rules',
@@ -132,18 +130,14 @@ class TestFirewallRule(FirewallTestCase):
                  uri=self._make_mock_url('firewall_rules'),
                  json={'firewall_rules': []})
         ])
-        self.cloud.network.delete_firewall_rule = Mock()
-        self.cloud.log.debug = Mock()
 
-        self.assertFalse(
-            self.cloud.delete_firewall_rule(self.firewall_rule_name))
+        with mock.patch.object(self.cloud.network, 'delete_firewall_rule'), \
+                mock.patch.object(self.cloud.log, 'debug'):
+            self.assertFalse(
+                self.cloud.delete_firewall_rule(self.firewall_rule_name))
 
-        self.cloud.network.delete_firewall_rule.assert_not_called()
-        self.cloud.log.debug.assert_called_once()
-
-        # restore methods
-        self.cloud.network.delete_firewall_rule = _delete
-        self.cloud.log.debug = _log
+            self.cloud.network.delete_firewall_rule.assert_not_called()
+            self.cloud.log.debug.assert_called_once()
 
     def test_delete_firewall_multiple_matches(self):
         self.register_uris([
@@ -305,8 +299,6 @@ class TestFirewallPolicy(FirewallTestCase):
     def test_create_firewall_policy_rule_not_found(self):
         posted_policy = deepcopy(self._mock_firewall_policy_attrs)
         del posted_policy['id']
-        _create = self.cloud.network.create_firewall_policy
-        self.cloud.network.create_firewall_policy = Mock()
         self.register_uris([
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_rules',
@@ -316,16 +308,15 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_rules'),
                  json={'firewall_rules': []})
         ])
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.cloud.create_firewall_policy, **posted_policy)
-        self.cloud.network.create_firewall_policy.assert_not_called()
-        self.assert_calls()
-        # restore
-        self.cloud.network.create_firewall_policy = _create
+
+        with mock.patch.object(self.cloud.network, 'create_firewall_policy'):
+            self.assertRaises(exceptions.ResourceNotFound,
+                              self.cloud.create_firewall_policy,
+                              **posted_policy)
+            self.cloud.network.create_firewall_policy.assert_not_called()
+            self.assert_calls()
 
     def test_delete_firewall_policy(self):
-        _log = self.cloud.log.debug
-        self.cloud.log.debug = Mock()
         self.register_uris([
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_policies',
@@ -339,37 +330,32 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_id),
                  json={}, status_code=204)
         ])
-        self.assertTrue(
-            self.cloud.delete_firewall_policy(self.firewall_policy_name))
-        self.assert_calls()
 
-        self.cloud.log.debug.assert_not_called()
-        # restore
-        self.cloud.log.debug = _log
+        with mock.patch.object(self.cloud.log, 'debug'):
+            self.assertTrue(
+                self.cloud.delete_firewall_policy(self.firewall_policy_name))
+            self.assert_calls()
+            self.cloud.log.debug.assert_not_called()
 
     def test_delete_firewall_policy_filters(self):
         filters = {'project_id': self.mock_firewall_policy['project_id']}
-        _find = self.cloud.network.find_firewall_policy
-        _log = self.cloud.log.debug
-        self.cloud.log.debug = Mock()
-        self.cloud.network.find_firewall_policy = Mock(
-            return_value=self.mock_firewall_policy)
         self.register_uris([
             dict(method='DELETE',
                  uri=self._make_mock_url('firewall_policies',
                                          self.firewall_policy_id),
                  json={}, status_code=204)
         ])
-        self.assertTrue(
-            self.cloud.delete_firewall_policy(self.firewall_policy_name,
-                                              filters))
-        self.assert_calls()
-        self.cloud.network.find_firewall_policy.assert_called_once_with(
-            self.firewall_policy_name, ignore_missing=False, **filters)
-        self.cloud.log.debug.assert_not_called()
-        # restore
-        self.cloud.network.find_firewall_policy = _find
-        self.cloud.log.debug = _log
+
+        with mock.patch.object(self.cloud.network, 'find_firewall_policy',
+                               return_value=self.mock_firewall_policy), \
+                mock.patch.object(self.cloud.log, 'debug'):
+            self.assertTrue(
+                self.cloud.delete_firewall_policy(self.firewall_policy_name,
+                                                  filters))
+            self.assert_calls()
+            self.cloud.network.find_firewall_policy.assert_called_once_with(
+                self.firewall_policy_name, ignore_missing=False, **filters)
+            self.cloud.log.debug.assert_not_called()
 
     def test_delete_firewall_policy_not_found(self):
         self.register_uris([
@@ -381,14 +367,12 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_policies'),
                  json={'firewall_policies': []})
         ])
-        _log = self.cloud.log.debug
-        self.cloud.log.debug = Mock()
-        self.assertFalse(
-            self.cloud.delete_firewall_policy(self.firewall_policy_name))
-        self.assert_calls()
-        self.cloud.log.debug.assert_called_once()
-        # restore
-        self.cloud.log.debug = _log
+
+        with mock.patch.object(self.cloud.log, 'debug'):
+            self.assertFalse(
+                self.cloud.delete_firewall_policy(self.firewall_policy_name))
+            self.assert_calls()
+            self.cloud.log.debug.assert_called_once()
 
     def test_get_firewall_policy(self):
         self.register_uris([
@@ -510,10 +494,6 @@ class TestFirewallPolicy(FirewallTestCase):
         updated_policy = deepcopy(self.mock_firewall_policy)
         updated_policy.update(params)
 
-        _find = self.cloud.network.find_firewall_policy
-        self.cloud.network.find_firewall_policy = Mock(
-            return_value=deepcopy(self.mock_firewall_policy))
-
         self.register_uris([
             dict(method='PUT',
                  uri=self._make_mock_url('firewall_policies',
@@ -521,14 +501,17 @@ class TestFirewallPolicy(FirewallTestCase):
                  json={'firewall_policy': updated_policy},
                  validate=dict(json={'firewall_policy': params})),
         ])
-        self.assertDictEqual(updated_policy,
-                             self.cloud.update_firewall_policy(
-                                 self.firewall_policy_name, filters, **params))
-        self.assert_calls()
-        self.cloud.network.find_firewall_policy.assert_called_once_with(
-            self.firewall_policy_name, ignore_missing=False, **filters)
-        # restore
-        self.cloud.network.find_firewall_policy = _find
+
+        with mock.patch.object(self.cloud.network, 'find_firewall_policy',
+                               return_value=deepcopy(
+                                   self.mock_firewall_policy)):
+            self.assertDictEqual(
+                updated_policy,
+                self.cloud.update_firewall_policy(self.firewall_policy_name,
+                                                  filters, **params))
+            self.assert_calls()
+            self.cloud.network.find_firewall_policy.assert_called_once_with(
+                self.firewall_policy_name, ignore_missing=False, **filters)
 
     def test_insert_rule_into_policy(self):
         rule0 = FirewallRule(
@@ -638,8 +621,6 @@ class TestFirewallPolicy(FirewallTestCase):
 
     def test_insert_rule_into_policy_not_found(self):
         policy_name = 'bogus_policy'
-        _find_rule = self.cloud.network.find_firewall_rule
-        self.cloud.network.find_firewall_rule = Mock()
         self.register_uris([
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_policies', policy_name),
@@ -648,13 +629,13 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_policies'),
                  json={'firewall_policies': []})
         ])
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.cloud.insert_rule_into_policy,
-                          policy_name, 'bogus_rule')
-        self.assert_calls()
-        self.cloud.network.find_firewall_rule.assert_not_called()
-        # restore
-        self.cloud.network.find_firewall_rule = _find_rule
+
+        with mock.patch.object(self.cloud.network, 'find_firewall_rule'):
+            self.assertRaises(exceptions.ResourceNotFound,
+                              self.cloud.insert_rule_into_policy,
+                              policy_name, 'bogus_rule')
+            self.assert_calls()
+            self.cloud.network.find_firewall_rule.assert_not_called()
 
     def test_insert_rule_into_policy_rule_not_found(self):
         rule_name = 'unknown_rule'
@@ -676,8 +657,6 @@ class TestFirewallPolicy(FirewallTestCase):
         self.assert_calls()
 
     def test_insert_rule_into_policy_already_associated(self):
-        _log = self.cloud.log.debug
-        self.cloud.log.debug = Mock()
         rule = FirewallRule(
             **TestFirewallRule._mock_firewall_rule_attrs).to_dict()
         policy = deepcopy(self.mock_firewall_policy)
@@ -691,12 +670,12 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_rules', rule['id']),
                  json={'firewall_rule': rule})
         ])
-        r = self.cloud.insert_rule_into_policy(policy['id'], rule['id'])
-        self.assertDictEqual(policy, r.to_dict())
-        self.assert_calls()
-        self.cloud.log.debug.assert_called()
-        # restore
-        self.cloud.log.debug = _log
+
+        with mock.patch.object(self.cloud.log, 'debug'):
+            r = self.cloud.insert_rule_into_policy(policy['id'], rule['id'])
+            self.assertDictEqual(policy, r.to_dict())
+            self.assert_calls()
+            self.cloud.log.debug.assert_called()
 
     def test_remove_rule_from_policy(self):
         policy_name = self.firewall_policy_name
@@ -734,8 +713,6 @@ class TestFirewallPolicy(FirewallTestCase):
         self.assert_calls()
 
     def test_remove_rule_from_policy_not_found(self):
-        _find_rule = self.cloud.network.find_firewall_rule
-        self.cloud.network.find_firewall_rule = Mock()
         self.register_uris([
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_policies',
@@ -745,14 +722,14 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_policies'),
                  json={'firewall_policies': []})
         ])
-        self.assertRaises(exceptions.ResourceNotFound,
-                          self.cloud.remove_rule_from_policy,
-                          self.firewall_policy_name,
-                          TestFirewallRule.firewall_rule_name)
-        self.assert_calls()
-        self.cloud.network.find_firewall_rule.assert_not_called()
-        # restore
-        self.cloud.network.find_firewall_rule = _find_rule
+
+        with mock.patch.object(self.cloud.network, 'find_firewall_rule'):
+            self.assertRaises(exceptions.ResourceNotFound,
+                              self.cloud.remove_rule_from_policy,
+                              self.firewall_policy_name,
+                              TestFirewallRule.firewall_rule_name)
+            self.assert_calls()
+            self.cloud.network.find_firewall_rule.assert_not_called()
 
     def test_remove_rule_from_policy_rule_not_found(self):
         retrieved_policy = deepcopy(self.mock_firewall_policy)
@@ -782,10 +759,6 @@ class TestFirewallPolicy(FirewallTestCase):
         policy = deepcopy(self.mock_firewall_policy)
         del policy['firewall_rules'][0]
 
-        _log = self.cloud.log.debug
-        _remove = self.cloud.network.remove_rule_from_policy
-        self.cloud.log.debug = Mock()
-        self.cloud.network.remove_rule_from_policy = Mock()
         self.register_uris([
             dict(method='GET',
                  uri=self._make_mock_url('firewall_policies', policy['id']),
@@ -794,14 +767,14 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_rules', rule['id']),
                  json={'firewall_rule': rule})
         ])
-        r = self.cloud.remove_rule_from_policy(policy['id'], rule['id'])
-        self.assertDictEqual(policy, r.to_dict())
-        self.assert_calls()
-        self.cloud.log.debug.assert_called_once()
-        self.cloud.network.remove_rule_from_policy.assert_not_called()
-        # restore
-        self.cloud.log.debug = _log
-        self.cloud.network.remove_rule_from_policy = _remove
+
+        with mock.patch.object(self.cloud.network, 'remove_rule_from_policy'),\
+                mock.patch.object(self.cloud.log, 'debug'):
+            r = self.cloud.remove_rule_from_policy(policy['id'], rule['id'])
+            self.assertDictEqual(policy, r.to_dict())
+            self.assert_calls()
+            self.cloud.log.debug.assert_called_once()
+            self.cloud.network.remove_rule_from_policy.assert_not_called()
 
 
 class TestFirewallGroup(FirewallTestCase):
@@ -945,24 +918,22 @@ class TestFirewallGroup(FirewallTestCase):
 
     def test_delete_firewall_group_filters(self):
         filters = {'project_id': self.mock_firewall_group['project_id']}
-        _find = self.cloud.network.find_firewall_group
-        self.cloud.network.find_firewall_group = Mock(
-            return_value=deepcopy(self.mock_firewall_group))
         self.register_uris([
             dict(method='DELETE',
                  uri=self._make_mock_url('firewall_groups',
                                          self.firewall_group_id),
                  status_code=204)
         ])
-        self.assertTrue(
-            self.cloud.delete_firewall_group(self.firewall_group_name,
-                                             filters))
-        self.assert_calls()
 
-        self.cloud.network.find_firewall_group.assert_called_once_with(
-            self.firewall_group_name, ignore_missing=False, **filters)
-        # restore
-        self.cloud.network.find_firewall_group = _find
+        with mock.patch.object(self.cloud.network, 'find_firewall_group',
+                               return_value=deepcopy(
+                                   self.mock_firewall_group)):
+            self.assertTrue(
+                self.cloud.delete_firewall_group(self.firewall_group_name,
+                                                 filters))
+            self.assert_calls()
+            self.cloud.network.find_firewall_group.assert_called_once_with(
+                self.firewall_group_name, ignore_missing=False, **filters)
 
     def test_delete_firewall_group_not_found(self):
         self.register_uris([
@@ -974,14 +945,12 @@ class TestFirewallGroup(FirewallTestCase):
                  uri=self._make_mock_url('firewall_groups'),
                  json={'firewall_groups': []})
         ])
-        _log = self.cloud.log.debug
-        self.cloud.log.debug = Mock()
-        self.assertFalse(
-            self.cloud.delete_firewall_group(self.firewall_group_name))
-        self.assert_calls()
-        self.cloud.log.debug.assert_called_once()
-        # restore
-        self.cloud.log.debug = _log
+
+        with mock.patch.object(self.cloud.log, 'debug'):
+            self.assertFalse(
+                self.cloud.delete_firewall_group(self.firewall_group_name))
+            self.assert_calls()
+            self.cloud.log.debug.assert_called_once()
 
     def test_get_firewall_group(self):
         returned_group = deepcopy(self.mock_returned_firewall_group)
@@ -1123,9 +1092,6 @@ class TestFirewallGroup(FirewallTestCase):
 
     def test_update_firewall_group_filters(self):
         filters = {'project_id': self.mock_firewall_group['project_id']}
-        _find = self.cloud.network.find_firewall_group
-        self.cloud.network.find_firewall_group = Mock(
-            return_value=deepcopy(self.mock_firewall_group))
         params = {'description': 'updated again!'}
         updated_group = deepcopy(self.mock_returned_firewall_group)
         self.register_uris([
@@ -1135,15 +1101,16 @@ class TestFirewallGroup(FirewallTestCase):
                  json={'firewall_group': updated_group},
                  validate=dict(json={'firewall_group': params}))
         ])
-        r = self.cloud.update_firewall_group(self.firewall_group_name, filters,
-                                             **params)
-        self.assertDictEqual(updated_group, r.to_dict())
-        self.assert_calls()
 
-        self.cloud.network.find_firewall_group.assert_called_once_with(
-            self.firewall_group_name, ignore_missing=False, **filters)
-        # restore
-        self.cloud.network.find_firewall_group = _find
+        with mock.patch.object(self.cloud.network, 'find_firewall_group',
+                               return_value=deepcopy(
+                                   self.mock_firewall_group)):
+            r = self.cloud.update_firewall_group(self.firewall_group_name,
+                                                 filters, **params)
+            self.assertDictEqual(updated_group, r.to_dict())
+            self.assert_calls()
+            self.cloud.network.find_firewall_group.assert_called_once_with(
+                self.firewall_group_name, ignore_missing=False, **filters)
 
     def test_update_firewall_group_unset_policies(self):
         transformed_params = {'ingress_firewall_policy_id': None,
