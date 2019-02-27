@@ -14,11 +14,13 @@
 
 import tempfile
 
+import mock
 import testtools
 
 import openstack.cloud
 import openstack.cloud.openstackcloud as oc_oc
 from openstack.cloud import exc
+from openstack import exceptions
 from openstack.tests.unit import base
 from openstack.object_store.v1 import _proxy
 
@@ -262,6 +264,178 @@ class TestObject(BaseTestObject):
 
         self.assertRaises(
             exc.OpenStackCloudException, self.cloud.list_containers)
+        self.assert_calls()
+
+    @mock.patch('time.time', autospec=True)
+    def test_generate_form_signature_container_key(self, mock_time):
+
+        mock_time.return_value = 12345
+
+        self.register_uris([
+            dict(method='HEAD', uri=self.container_endpoint,
+                 headers={
+                     'Content-Length': '0',
+                     'X-Container-Object-Count': '0',
+                     'Accept-Ranges': 'bytes',
+                     'X-Storage-Policy': 'Policy-0',
+                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                     'X-Timestamp': '1481912480.41664',
+                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                     'X-Container-Bytes-Used': '0',
+                     'X-Container-Meta-Temp-Url-Key': 'amazingly-secure-key',
+                     'Content-Type': 'text/plain; charset=utf-8'})
+        ])
+        self.assertEqual(
+            (13345, '60731fb66d46c97cdcb79b6154363179c500b9d9'),
+            self.cloud.object_store.generate_form_signature(
+                self.container,
+                object_prefix='prefix/location',
+                redirect_url='https://example.com/location',
+                max_file_size=1024 * 1024 * 1024,
+                max_upload_count=10, timeout=1000, temp_url_key=None))
+        self.assert_calls()
+
+    @mock.patch('time.time', autospec=True)
+    def test_generate_form_signature_account_key(self, mock_time):
+
+        mock_time.return_value = 12345
+
+        self.register_uris([
+            dict(method='HEAD', uri=self.container_endpoint,
+                 headers={
+                     'Content-Length': '0',
+                     'X-Container-Object-Count': '0',
+                     'Accept-Ranges': 'bytes',
+                     'X-Storage-Policy': 'Policy-0',
+                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                     'X-Timestamp': '1481912480.41664',
+                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                     'X-Container-Bytes-Used': '0',
+                     'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='HEAD', uri=self.endpoint + '/',
+                 headers={
+                     'X-Account-Meta-Temp-Url-Key': 'amazingly-secure-key'}),
+        ])
+        self.assertEqual(
+            (13345, '3cb9bc83d5a4136421bb2c1f58b963740566646f'),
+            self.cloud.object_store.generate_form_signature(
+                self.container,
+                object_prefix='prefix/location',
+                redirect_url='https://example.com/location',
+                max_file_size=1024 * 1024 * 1024,
+                max_upload_count=10, timeout=1000, temp_url_key=None))
+        self.assert_calls()
+
+    @mock.patch('time.time')
+    def test_generate_form_signature_key_argument(self, mock_time):
+
+        mock_time.return_value = 12345
+
+        self.assertEqual(
+            (13345, '1c283a05c6628274b732212d9a885265e6f67b63'),
+            self.cloud.object_store.generate_form_signature(
+                self.container,
+                object_prefix='prefix/location',
+                redirect_url='https://example.com/location',
+                max_file_size=1024 * 1024 * 1024,
+                max_upload_count=10, timeout=1000,
+                temp_url_key='amazingly-secure-key'))
+        self.assert_calls()
+
+    def test_generate_form_signature_no_key(self):
+
+        self.register_uris([
+            dict(method='HEAD', uri=self.container_endpoint,
+                 headers={
+                     'Content-Length': '0',
+                     'X-Container-Object-Count': '0',
+                     'Accept-Ranges': 'bytes',
+                     'X-Storage-Policy': 'Policy-0',
+                     'Date': 'Fri, 16 Dec 2016 18:29:05 GMT',
+                     'X-Timestamp': '1481912480.41664',
+                     'X-Trans-Id': 'tx60ec128d9dbf44b9add68-0058543271dfw1',
+                     'X-Container-Bytes-Used': '0',
+                     'Content-Type': 'text/plain; charset=utf-8'}),
+            dict(method='HEAD', uri=self.endpoint + '/',
+                 headers={}),
+        ])
+        self.assertRaises(
+            exceptions.SDKException,
+            self.cloud.object_store.generate_form_signature,
+            self.container,
+            object_prefix='prefix/location',
+            redirect_url='https://example.com/location',
+            max_file_size=1024 * 1024 * 1024,
+            max_upload_count=10, timeout=1000, temp_url_key=None)
+        self.assert_calls()
+
+    def test_set_account_temp_url_key(self):
+
+        key = 'super-secure-key'
+
+        self.register_uris([
+            dict(method='POST', uri=self.endpoint + '/',
+                 status_code=204,
+                 validate=dict(
+                     headers={
+                         'x-account-meta-temp-url-key': key})),
+            dict(method='HEAD', uri=self.endpoint + '/',
+                 headers={
+                     'x-account-meta-temp-url-key': key}),
+        ])
+        self.cloud.object_store.set_account_temp_url_key(key)
+        self.assert_calls()
+
+    def test_set_account_temp_url_key_secondary(self):
+
+        key = 'super-secure-key'
+
+        self.register_uris([
+            dict(method='POST', uri=self.endpoint + '/',
+                 status_code=204,
+                 validate=dict(
+                     headers={
+                         'x-account-meta-temp-url-key-2': key})),
+            dict(method='HEAD', uri=self.endpoint + '/',
+                 headers={
+                     'x-account-meta-temp-url-key-2': key}),
+        ])
+        self.cloud.object_store.set_account_temp_url_key(key, secondary=True)
+        self.assert_calls()
+
+    def test_set_container_temp_url_key(self):
+
+        key = 'super-secure-key'
+
+        self.register_uris([
+            dict(method='POST', uri=self.container_endpoint,
+                 status_code=204,
+                 validate=dict(
+                     headers={
+                         'x-container-meta-temp-url-key': key})),
+            dict(method='HEAD', uri=self.container_endpoint,
+                 headers={
+                     'x-container-meta-temp-url-key': key}),
+        ])
+        self.cloud.object_store.set_container_temp_url_key(self.container, key)
+        self.assert_calls()
+
+    def test_set_container_temp_url_key_secondary(self):
+
+        key = 'super-secure-key'
+
+        self.register_uris([
+            dict(method='POST', uri=self.container_endpoint,
+                 status_code=204,
+                 validate=dict(
+                     headers={
+                         'x-container-meta-temp-url-key-2': key})),
+            dict(method='HEAD', uri=self.container_endpoint,
+                 headers={
+                     'x-container-meta-temp-url-key-2': key}),
+        ])
+        self.cloud.object_store.set_container_temp_url_key(
+            self.container, key, secondary=True)
         self.assert_calls()
 
     def test_list_objects(self):
