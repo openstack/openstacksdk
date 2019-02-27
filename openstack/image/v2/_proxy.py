@@ -17,7 +17,6 @@ import time
 import warnings
 
 from openstack.cloud import exc
-from openstack.cloud import _utils
 from openstack import exceptions
 from openstack.image import _base_proxy
 from openstack.image.v2 import image as _image
@@ -202,34 +201,15 @@ class Proxy(_base_proxy.BaseImageProxy):
             for count in utils.iterate_timeout(
                     timeout,
                     "Timeout waiting for the image to import."):
-                try:
-                    if image_id is None:
-                        response = self.get(
-                            '/tasks/{id}'.format(id=glance_task.id))
-                        status = self._connection._get_and_munchify(
-                            key=None, data=response)
-
-                except exc.OpenStackCloudHTTPError as e:
-                    if e.response.status_code == 503:
-                        # Clear the exception so that it doesn't linger
-                        # and get reported as an Inner Exception later
-                        _utils._exc_clear()
-                        # Intermittent failure - catch and try again
-                        continue
-                    raise
+                if image_id is None:
+                    response = self.get(
+                        '/tasks/{id}'.format(id=glance_task.id))
+                    status = self._connection._get_and_munchify(
+                        key=None, data=response)
 
                 if status['status'] == 'success':
                     image_id = status['result']['image_id']
-                    try:
-                        image = self._connection.get_image(image_id)
-                    except exc.OpenStackCloudHTTPError as e:
-                        if e.response.status_code == 503:
-                            # Clear the exception so that it doesn't linger
-                            # and get reported as an Inner Exception later
-                            _utils._exc_clear()
-                            # Intermittent failure - catch and try again
-                            continue
-                        raise
+                    image = self._connection.get_image(image_id)
                     if image is None:
                         continue
                     self.update_image_properties(

@@ -18,6 +18,8 @@ from openstack import proxy
 
 class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
 
+    retriable_status_codes = [503]
+
     def create_image(
             self, name, filename=None,
             container=None,
