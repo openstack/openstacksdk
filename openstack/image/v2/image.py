@@ -301,3 +301,25 @@ class Image(resource.Resource, resource.TagMixin):
             request.headers.update(headers)
 
         return request
+
+    @classmethod
+    def find(cls, session, name_or_id, ignore_missing=True, **params):
+        # Do a regular search first (ignoring missing)
+        result = super(Image, cls).find(session, name_or_id, True,
+                                        **params)
+
+        if result:
+            return result
+        else:
+            # Search also in hidden images
+            params['is_hidden'] = True
+            data = cls.list(session, **params)
+
+            result = cls._get_one_match(name_or_id, data)
+            if result is not None:
+                return result
+
+        if ignore_missing:
+            return None
+        raise exceptions.ResourceNotFound(
+            "No %s found for %s" % (cls.__name__, name_or_id))
