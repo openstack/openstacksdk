@@ -25,12 +25,14 @@ import six
 
 
 @contextlib.contextmanager
-def populate_directory(metadata, user_data, versions=None):
+def populate_directory(metadata, user_data=None, versions=None,
+                       network_data=None):
     """Populate a directory with configdrive files.
 
     :param dict metadata: Metadata.
     :param bytes user_data: Vendor-specific user data.
     :param versions: List of metadata versions to support.
+    :param dict network_data: Networking configuration.
     :return: a context manager yielding a directory with files
     """
     d = tempfile.mkdtemp()
@@ -44,6 +46,11 @@ def populate_directory(metadata, user_data, versions=None):
             with open(os.path.join(subdir, 'meta_data.json'), 'w') as fp:
                 json.dump(metadata, fp)
 
+            if network_data:
+                with open(os.path.join(subdir, 'network_data.json'),
+                          'w') as fp:
+                    json.dump(network_data, fp)
+
             if user_data:
                 with open(os.path.join(subdir, 'user_data'), 'wb') as fp:
                     fp.write(user_data)
@@ -53,7 +60,7 @@ def populate_directory(metadata, user_data, versions=None):
         shutil.rmtree(d)
 
 
-def build(metadata, user_data, versions=None):
+def build(metadata, user_data=None, versions=None, network_data=None):
     """Make a configdrive compatible with the Bare Metal service.
 
     Requires the genisoimage utility to be available.
@@ -61,6 +68,7 @@ def build(metadata, user_data, versions=None):
     :param dict metadata: Metadata.
     :param user_data: Vendor-specific user data.
     :param versions: List of metadata versions to support.
+    :param dict network_data: Networking configuration.
     :return: configdrive contents as a base64-encoded string.
     """
     with populate_directory(metadata, user_data, versions) as path:
