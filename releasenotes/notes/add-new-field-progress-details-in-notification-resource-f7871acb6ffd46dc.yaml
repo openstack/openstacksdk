@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    In microversion 1.1, Masakari returns ``recovery_workflow_details`` information
+    of the notification in ``GET /notifications/{notification_id}`` API. Added
+    ``recovery_workflow_details`` attribute to Notification class to read the
+    recovery_workflow_details of the notification.

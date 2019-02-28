@@ -15,6 +15,27 @@
 from openstack import resource
 
 
+class ProgressDetailsItem(resource.Resource):
+    #: The timestamp of recovery workflow task.
+    timestamp = resource.Body("timestamp")
+    #: The message of recovery workflow task.
+    message = resource.Body("message")
+    #: The progress of recovery workflow task.
+    progress = resource.Body("progress")
+
+
+class RecoveryWorkflowDetailItem(resource.Resource):
+    #: The progress of recovery workflow.
+    progress = resource.Body("progress")
+    #: The name of recovery workflow.
+    name = resource.Body("name")
+    #: The state of recovery workflow.
+    state = resource.Body("state")
+    #: The progress details of this recovery workflow.
+    progress_details = resource.Body(
+        "progress_details", type=list, list_type=ProgressDetailsItem)
+
+
 class Notification(resource.Resource):
     resource_key = "notification"
     resources_key = "notifications"
@@ -56,6 +77,10 @@ class Notification(resource.Resource):
     payload = resource.Body("payload")
     #: The source host uuid of this notification.
     source_host_uuid = resource.Body("source_host_uuid")
+    #: The recovery workflow details of this notification.
+    recovery_workflow_details = resource.Body(
+        "recovery_workflow_details",
+        type=list, list_type=RecoveryWorkflowDetailItem)
 
     _query_mapping = resource.QueryParameters(
         "sort_key", "sort_dir", source_host_uuid="source_host_uuid",

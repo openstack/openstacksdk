@@ -23,6 +23,16 @@ PAYLOAD = {
     "vir_domain_event": "STOPPED_FAILED",
     "event": "LIFECYCLE"
 }
+
+PROGRESS_DETAILS = [{"timestamp": "2019-02-28 07:21:33.291810",
+                     "progress": 1.0,
+                     "message": "Skipping recovery for process "
+                                "nova-compute as it is already disabled"}]
+
+RECOVERY_WORKFLOW_DETAILS = [{"progress": 1.0, "state": "SUCCESS",
+                              "name": "DisableComputeNodeTask",
+                              "progress_details": PROGRESS_DETAILS}]
+
 NOTIFICATION = {
     "id": FAKE_ID,
     "notification_uuid": FAKE_UUID,
@@ -33,7 +43,8 @@ NOTIFICATION = {
     "status": "new",
     "generated_time": "2018-03-21T00:00:00.000000",
     "payload": PAYLOAD,
-    "source_host_uuid": FAKE_HOST_UUID
+    "source_host_uuid": FAKE_HOST_UUID,
+    "recovery_workflow_details": RECOVERY_WORKFLOW_DETAILS
 }
 
 
@@ -62,6 +73,7 @@ class TestNotification(base.TestCase):
 
     def test_create(self):
         sot = notification.Notification(**NOTIFICATION)
+        rec_workflow_details = NOTIFICATION["recovery_workflow_details"][0]
         self.assertEqual(NOTIFICATION["id"], sot.id)
         self.assertEqual(
             NOTIFICATION["notification_uuid"], sot.notification_uuid)
@@ -74,3 +86,26 @@ class TestNotification(base.TestCase):
         self.assertEqual(NOTIFICATION["payload"], sot.payload)
         self.assertEqual(
             NOTIFICATION["source_host_uuid"], sot.source_host_uuid)
+        self.assertEqual(rec_workflow_details["name"],
+                         sot.recovery_workflow_details[0].name)
+        self.assertEqual(rec_workflow_details["state"],
+                         sot.recovery_workflow_details[0].state)
+        self.assertEqual(rec_workflow_details["progress"],
+                         sot.recovery_workflow_details[0].progress)
+        self.assertEqual(
+            rec_workflow_details["progress_details"][0]['progress'],
+            sot.recovery_workflow_details[0].progress_details[0].progress)
+        self.assertEqual(
+            rec_workflow_details["progress_details"][0]['message'],
+            sot.recovery_workflow_details[0].progress_details[0].message)
+        self.assertEqual(
+            rec_workflow_details["progress_details"][0]['timestamp'],
+            sot.recovery_workflow_details[0].progress_details[0].timestamp)
+        self.assertIsInstance(sot.recovery_workflow_details, list)
+        self.assertIsInstance(
+            sot.recovery_workflow_details[0].progress_details, list)
+        self.assertIsInstance(sot.recovery_workflow_details[0],
+                              notification.RecoveryWorkflowDetailItem)
+        self.assertIsInstance(
+            sot.recovery_workflow_details[0].progress_details[0],
+            notification.ProgressDetailsItem)
