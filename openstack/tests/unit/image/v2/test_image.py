@@ -86,12 +86,16 @@ EXAMPLE = {
 
 
 class FakeResponse(object):
-    def __init__(self, response, status_code=200, headers=None):
+    def __init__(self, response, status_code=200, headers=None, reason=None):
         self.body = response
         self.content = response
         self.status_code = status_code
         headers = headers if headers else {'content-type': 'application/json'}
         self.headers = requests.structures.CaseInsensitiveDict(headers)
+        if reason:
+            self.reason = reason
+        # for the sake of "list" response faking
+        self.links = []
 
     def json(self):
         return self.body
@@ -108,6 +112,7 @@ class TestImage(base.TestCase):
         self.sess.post = mock.Mock(return_value=self.resp)
         self.sess.put = mock.Mock(return_value=FakeResponse({}))
         self.sess.delete = mock.Mock(return_value=FakeResponse({}))
+        self.sess.fetch = mock.Mock(return_value=FakeResponse({}))
         self.sess.default_microversion = None
         self.sess.retriable_status_codes = None
 
@@ -383,3 +388,30 @@ class TestImage(base.TestCase):
         self.assertEqual(
             sorted(value, key=operator.itemgetter('value')),
             sorted(call_kwargs['json'], key=operator.itemgetter('value')))
+
+    def test_image_find(self):
+        sot = image.Image()
+
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
+        self.sess.get.side_effect = [
+            # First fetch by name
+            FakeResponse(None, 404, headers={}, reason='dummy'),
+            # Then list with no results
+            FakeResponse({'images': []}),
+            # And finally new list of hidden images with one searched
+            FakeResponse({'images': [EXAMPLE]})
+
+        ]
+
+        result = sot.find(self.sess, EXAMPLE['name'])
+
+        self.sess.get.assert_has_calls([
+            mock.call('images/' + EXAMPLE['name'], microversion=None),
+            mock.call('/images', headers={'Accept': 'application/json'},
+                      microversion=None, params={}),
+            mock.call('/images', headers={'Accept': 'application/json'},
+                      microversion=None, params={'os_hidden': True})
+        ])
+
+        self.assertIsInstance(result, image.Image)
+        self.assertEqual(IDENTIFIER, result.id)
