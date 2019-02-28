@@ -14,6 +14,7 @@ from openstack import exceptions
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import schema as _schema
+from openstack.image.v2 import task as _task
 from openstack import proxy
 from openstack import resource
 
@@ -348,3 +349,64 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/member')
+
+    def tasks(self, **query):
+        """Return a generator of tasks
+
+        :param kwargs query: Optional query parameters to be sent to limit
+                             the resources being returned.
+
+        :returns: A generator of task objects
+        :rtype: :class:`~openstack.image.v2.task.Task`
+        """
+        return self._list(_task.Task, **query)
+
+    def get_task(self, task):
+        """Get task details
+
+        :param task: The value can be the ID of a task or a
+                     :class:`~openstack.image.v2.task.Task` instance.
+
+        :returns: One :class:`~openstack.image.v2.task.Task`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_task.Task, task)
+
+    def create_task(self, **attrs):
+        """Create a new task from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.image.v2.task.Task`,
+            comprised of the properties on the Task class.
+
+        :returns: The results of task creation
+        :rtype: :class:`~openstack.image.v2.task.Task`
+        """
+        return self._create(_task.Task, **attrs)
+
+    def wait_for_task(self, task, status='success', failures=None,
+                      interval=2, wait=120):
+        """Wait for a task to be in a particular status.
+
+        :param task: The resource to wait on to reach the specified status.
+                    The resource must have a ``status`` attribute.
+        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param status: Desired status.
+        :param failures: Statuses that would be interpreted as failures.
+        :type failures: :py:class:`list`
+        :param interval: Number of seconds to wait before to consecutive
+                         checks. Default to 2.
+        :param wait: Maximum number of seconds to wait before the change.
+                     Default to 120.
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+                 to the desired status failed to occur in specified seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+                 has transited to one of the failure statuses.
+        :raises: :class:`~AttributeError` if the resource does not have a
+                ``status`` attribute.
+        """
+        failures = ['failure'] if failures is None else failures
+        return resource.wait_for_status(
+            self, task, status, failures, interval, wait)

@@ -17,6 +17,7 @@ from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import schema
+from openstack.image.v2 import task
 from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base
 
@@ -183,3 +184,19 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                       expected_args=[schema.Schema],
                       expected_kwargs={'base_path': '/schemas/member',
                                        'requires_id': False})
+
+    def test_task_get(self):
+        self.verify_get(self.proxy.get_task, task.Task)
+
+    def test_tasks(self):
+        self.verify_list(self.proxy.tasks, task.Task)
+
+    def test_task_create(self):
+        self.verify_create(self.proxy.create_task, task.Task)
+
+    def test_task_wait_for(self):
+        value = task.Task(id='1234')
+        self.verify_wait_for_status(
+            self.proxy.wait_for_task,
+            method_args=[value],
+            expected_args=[value, 'success', ['failure'], 2, 120])

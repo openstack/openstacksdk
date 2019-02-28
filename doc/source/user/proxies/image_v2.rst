@@ -40,3 +40,13 @@ Member Operations
    .. automethod:: openstack.image.v2._proxy.Proxy.get_member
    .. automethod:: openstack.image.v2._proxy.Proxy.find_member
    .. automethod:: openstack.image.v2._proxy.Proxy.members
+
+Task Operations
+^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+
+   .. automethod:: openstack.image.v2._proxy.Proxy.tasks
+   .. automethod:: openstack.image.v2._proxy.Proxy.create_task
+   .. automethod:: openstack.image.v2._proxy.Proxy.get_task
+   .. automethod:: openstack.image.v2._proxy.Proxy.wait_for_task
