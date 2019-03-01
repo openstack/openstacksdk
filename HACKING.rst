@@ -51,3 +51,13 @@ in a way that protects against local environment.
 
 Test cases should use requests-mock to mock out HTTP interactions rather than
 using mock to mock out object access.
+
+Don't Use setUpClass
+--------------------
+
+setUpClass looks like it runs once for the class. In parallel test execution
+environments though, it runs once per execution context. This makes reasoning
+about when it is going to actually run and what is going to happen extremely
+difficult and can produce hard to debug test issues.
+
+Don't ever use it. It makes baby pandas cry.

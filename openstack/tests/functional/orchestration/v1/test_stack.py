@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
 import yaml
 
 from openstack import exceptions
@@ -27,12 +26,7 @@ class TestStack(base.BaseFunctionalTest):
     subnet = None
     cidr = '10.99.99.0/16'
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestStack, cls).setUpClass()
-        cls._wait_for_timeout = int(os.getenv(
-            'OPENSTACKSDK_FUNC_TEST_TIMEOUT_ORCHESTRATION',
-            cls._wait_for_timeout))
+    _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_ORCHESTRATION'
 
     def setUp(self):
         super(TestStack, self).setUp()

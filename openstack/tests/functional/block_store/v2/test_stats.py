@@ -17,12 +17,11 @@ from openstack.tests.functional import base
 
 class TestStats(base.BaseFunctionalTest):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestStats, cls).setUpClass()
-        sot = cls.conn.block_storage.backend_pools()
+    def setUp(self):
+        super(TestStats, self).setUp()
+        sot = self.conn.block_storage.backend_pools()
         for pool in sot:
-            assert isinstance(pool, _stats.Pools)
+            self.assertIsInstance(pool, _stats.Pools)
 
     def test_list(self):
         capList = ['volume_backend_name', 'storage_protocol',

@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
-
 from openstack.load_balancer.v2 import flavor
 from openstack.load_balancer.v2 import flavor_profile
 from openstack.load_balancer.v2 import health_monitor
@@ -56,12 +54,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     FLAVOR_DATA = '{"loadbalancer_topology": "SINGLE"}'
     DESCRIPTION = 'Test description'
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestLoadBalancer, cls).setUpClass()
-        cls._wait_for_timeout = int(os.getenv(
-            'OPENSTACKSDK_FUNC_TEST_TIMEOUT_LOAD_BALANCER',
-            cls._wait_for_timeout))
+    _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_LOAD_BALANCER'
 
     # TODO(shade): Creating load balancers can be slow on some hosts due to
     #              nova instance boot times (up to ten minutes). This used to

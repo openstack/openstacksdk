@@ -10,19 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
-
 from openstack.tests.functional import base
 
 
 class BaseBlockStorageTest(base.BaseFunctionalTest):
 
-    @classmethod
-    def setUpClass(cls):
-        super(BaseBlockStorageTest, cls).setUpClass()
-        cls._wait_for_timeout = int(os.getenv(
-            'OPENSTACKSDK_FUNC_TEST_TIMEOUT_BLOCK_STORAGE',
-            cls._wait_for_timeout))
+    _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_BLOCK_STORAGE'
 
     def setUp(self):
         super(BaseBlockStorageTest, self).setUp()
