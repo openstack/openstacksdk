@@ -215,3 +215,17 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
             self.proxy.wait_for_task,
             method_args=[value],
             expected_args=[value, 'success', ['failure'], 2, 120])
+
+    def test_tasks_schema_get(self):
+        self._verify2("openstack.proxy.Proxy._get",
+                      self.proxy.get_tasks_schema,
+                      expected_args=[schema.Schema],
+                      expected_kwargs={'base_path': '/schemas/tasks',
+                                       'requires_id': False})
+
+    def test_task_schema_get(self):
+        self._verify2("openstack.proxy.Proxy._get",
+                      self.proxy.get_task_schema,
+                      expected_args=[schema.Schema],
+                      expected_kwargs={'base_path': '/schemas/task',
+                                       'requires_id': False})
