@@ -91,22 +91,6 @@ class TestConnection(base.TestCase):
         self.assertEqual(mock_session, conn.session)
         self.assertEqual('auth.example.com', conn.config.name)
 
-    def test_task_manager_rate_scalar(self):
-        conn = connection.Connection(cloud='sample-cloud', rate_limit=20)
-        self.assertEqual(1.0 / 20, conn.task_manager._get_wait('object-store'))
-        self.assertEqual(1.0 / 20, conn.task_manager._get_wait(None))
-
-    def test_task_manager_rate_dict(self):
-        conn = connection.Connection(
-            cloud='sample-cloud',
-            rate_limit={
-                'compute': 20,
-                'network': 10,
-            })
-        self.assertEqual(1.0 / 20, conn.task_manager._get_wait('compute'))
-        self.assertEqual(1.0 / 10, conn.task_manager._get_wait('network'))
-        self.assertIsNone(conn.task_manager._get_wait('object-store'))
-
     def test_create_session(self):
         conn = connection.Connection(cloud='sample-cloud')
         self.assertIsNotNone(conn)
