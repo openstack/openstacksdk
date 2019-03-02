@@ -39,6 +39,7 @@ approach, this is where you'll want to begin.
    Clustering <guides/clustering>
    Compute <guides/compute>
    Database <guides/database>
+   DNS <guides/dns>
    Identity <guides/identity>
    Image <guides/image>
    Key Manager <guides/key_manager>
@@ -98,6 +99,7 @@ control which services can be used.
    Clustering <proxies/clustering>
    Compute <proxies/compute>
    Database <proxies/database>
+   DNS <proxies/dns>
    Identity v2 <proxies/identity_v2>
    Identity v3 <proxies/identity_v3>
    Image v1 <proxies/image_v1>
@@ -130,6 +132,7 @@ The following services have exposed *Resource* classes.
    Clustering <resources/clustering/index>
    Compute <resources/compute/index>
    Database <resources/database/index>
+   DNS <resources/dns/index>
    Identity <resources/identity/index>
    Image <resources/image/index>
    Key Management <resources/key_manager/index>

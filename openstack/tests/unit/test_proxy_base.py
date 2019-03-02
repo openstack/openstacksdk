@@ -207,6 +207,7 @@ class TestProxyBase(base.TestCase):
         if 'paginated' in kwargs:
             expected_kwargs.update({"paginated": kwargs.pop('paginated')})
         method_kwargs = kwargs.pop("method_kwargs", {})
+        expected_kwargs["base_path"] = kwargs.pop("base_path", None)
         self._verify2(mock_method, test_method,
                       method_kwargs=method_kwargs,
                       expected_args=[resource_type],

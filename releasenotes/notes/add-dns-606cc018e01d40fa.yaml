@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds support for `dns
+    <https://developer.openstack.org/api-ref/dns/>`_ service.
