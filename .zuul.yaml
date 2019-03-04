@@ -5,6 +5,7 @@
       Run tox python 36 unittests against master of important libs
     vars:
       tox_install_siblings: true
+      zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
     # openstacksdk in required-projects so that osc and keystoneauth
     # can add the job as well
     required-projects:
