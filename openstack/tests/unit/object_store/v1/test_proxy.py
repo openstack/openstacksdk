@@ -10,17 +10,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import random
 import six
+import string
+import tempfile
 
 from openstack.object_store.v1 import _proxy
 from openstack.object_store.v1 import account
 from openstack.object_store.v1 import container
 from openstack.object_store.v1 import obj
 from openstack.tests.unit.cloud import test_object as base_test_object
-from openstack.tests.unit import test_proxy_base2
+from openstack.tests.unit import test_proxy_base
 
 
-class TestObjectStoreProxy(test_proxy_base2.TestProxyBase):
+class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
 
     kwargs_to_path_args = False
 
@@ -51,8 +54,12 @@ class TestObjectStoreProxy(test_proxy_base2.TestProxyBase):
             expected_kwargs={'name': 'container_name', "x": 1, "y": 2, "z": 3})
 
     def test_object_metadata_get(self):
-        self.verify_head(self.proxy.get_object_metadata, obj.Object,
-                         value="object", container="container")
+        self._verify2("openstack.proxy.Proxy._head",
+                      self.proxy.get_object_metadata,
+                      method_args=['object'],
+                      method_kwargs={'container': 'container'},
+                      expected_args=[obj.Object, 'object'],
+                      expected_kwargs={'container': 'container'})
 
     def _test_object_delete(self, ignore):
         expected_kwargs = {
@@ -303,3 +310,28 @@ class Test_copy_object(TestObjectStoreProxy):
 
     def test_copy_object(self):
         self.assertRaises(NotImplementedError, self.proxy.copy_object)
+
+
+class Test_utils(TestObjectStoreProxy):
+    def test_file_segment(self):
+        file_size = 4200
+        content = ''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits)
+            for _ in range(file_size)).encode('latin-1')
+        self.imagefile = tempfile.NamedTemporaryFile(delete=False)
+        self.imagefile.write(content)
+        self.imagefile.close()
+
+        segments = self.proxy._get_file_segments(
+            endpoint='test_container/test_image',
+            filename=self.imagefile.name,
+            file_size=file_size,
+            segment_size=1000)
+        self.assertEqual(len(segments), 5)
+        segment_content = b''
+        for (index, (name, segment)) in enumerate(segments.items()):
+            self.assertEqual(
+                'test_container/test_image/{index:0>6}'.format(index=index),
+                name)
+            segment_content += segment.read()
+        self.assertEqual(content, segment_content)
