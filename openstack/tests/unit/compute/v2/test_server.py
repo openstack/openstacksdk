@@ -149,17 +149,6 @@ class TestServer(base.TestCase):
                          sot.scheduler_hints)
         self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:user_data'], sot.user_data)
 
-    def test_detail(self):
-        sot = server.ServerDetail()
-        self.assertEqual('server', sot.resource_key)
-        self.assertEqual('servers', sot.resources_key)
-        self.assertEqual('/servers/detail', sot.base_path)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
-
     def test__prepare_server(self):
         zone = 1
         data = 2

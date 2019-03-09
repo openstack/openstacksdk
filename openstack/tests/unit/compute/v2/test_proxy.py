@@ -214,10 +214,11 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_server, server.Server)
 
     def test_servers_detailed(self):
-        self.verify_list(self.proxy.servers, server.ServerDetail,
+        self.verify_list(self.proxy.servers, server.Server,
                          method_kwargs={"details": True,
                                         "changes_since": 1, "image": 2},
-                         expected_kwargs={"changes_since": 1, "image": 2})
+                         expected_kwargs={"changes_since": 1, "image": 2,
+                                          "base_path": "/servers/detail"})
 
     def test_servers_not_detailed(self):
         self.verify_list(self.proxy.servers, server.Server,

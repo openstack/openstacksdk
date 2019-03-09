@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    Listing servers with details `servers(details=True)` will return
+    instances of the Server class instead of ServerDetails.
