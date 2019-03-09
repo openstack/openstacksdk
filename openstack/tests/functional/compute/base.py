@@ -10,16 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
-
 from openstack.tests.functional import base
 
 
 class BaseComputeTest(base.BaseFunctionalTest):
 
-    @classmethod
-    def setUpClass(cls):
-        super(BaseComputeTest, cls).setUpClass()
-        cls._wait_for_timeout = int(os.getenv(
-            'OPENSTACKSDK_FUNC_TEST_TIMEOUT_COMPUTE',
-            cls._wait_for_timeout))
+    _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_COMPUTE'

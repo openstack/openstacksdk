@@ -45,14 +45,7 @@ FLAVOR_NAME = _get_resource_value('flavor_name', 'm1.small')
 
 class BaseFunctionalTest(base.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super(BaseFunctionalTest, cls).setUpClass()
-        # Defines default timeout for wait_for methods used
-        # in the functional tests
-        cls._wait_for_timeout = int(os.getenv(
-            'OPENSTACKSDK_FUNC_TEST_TIMEOUT',
-            300))
+    _wait_for_timeout_key = ''
 
     def setUp(self):
         super(BaseFunctionalTest, self).setUp()
@@ -69,6 +62,12 @@ class BaseFunctionalTest(base.TestCase):
 
         self.identity_version = \
             self.operator_cloud.config.get_api_version('identity')
+
+        # Defines default timeout for wait_for methods used
+        # in the functional tests
+        self._wait_for_timeout = int(
+            os.getenv(self._wait_for_timeout_key, os.getenv(
+                'OPENSTACKSDK_FUNC_TEST_TIMEOUT', 300)))
 
     def _set_user_cloud(self, **kwargs):
         user_config = self.config.get_one(

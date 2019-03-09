@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
 import time
 
 from openstack.clustering.v1 import cluster
@@ -20,12 +19,7 @@ from openstack.tests.functional.network.v2 import test_network
 
 class TestCluster(base.BaseFunctionalTest):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestCluster, cls).setUpClass()
-        cls._wait_for_timeout = int(os.getenv(
-            'OPENSTACKSDK_FUNC_TEST_TIMEOUT_CLUSTER',
-            cls._wait_for_timeout))
+    _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_CLUSTER'
 
     def setUp(self):
         super(TestCluster, self).setUp()
