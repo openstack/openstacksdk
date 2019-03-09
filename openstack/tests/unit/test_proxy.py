@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 import mock
 import munch
@@ -460,3 +461,25 @@ class TestProxyHead(base.TestCase):
             connection=self.cloud, id=self.fake_id)
         self.res.head.assert_called_with(self.sot, base_path=None)
         self.assertEqual(rv, self.fake_result)
+
+
+class TestExtractName(base.TestCase):
+
+    scenarios = [
+        ('slash_servers_bare', dict(url='/servers', parts=['servers'])),
+        ('slash_servers_arg', dict(url='/servers/1', parts=['servers'])),
+        ('servers_bare', dict(url='servers', parts=['servers'])),
+        ('servers_arg', dict(url='servers/1', parts=['servers'])),
+        ('networks_bare', dict(url='/v2.0/networks', parts=['networks'])),
+        ('networks_arg', dict(url='/v2.0/networks/1', parts=['networks'])),
+        ('tokens', dict(url='/v3/tokens', parts=['tokens'])),
+        ('discovery', dict(url='/', parts=['discovery'])),
+        ('secgroups', dict(
+            url='/servers/1/os-security-groups',
+            parts=['servers', 'os-security-groups'])),
+    ]
+
+    def test_extract_name(self):
+
+        results = proxy._extract_name(self.url)
+        self.assertEqual(self.parts, results)

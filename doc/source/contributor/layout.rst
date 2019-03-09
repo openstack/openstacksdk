@@ -56,16 +56,10 @@ Each service implements a ``Proxy`` class based on
 service's ``Proxy`` exists in ``openstack/compute/v2/_proxy.py``.
 
 The :class:`~openstack.proxy.Proxy` class is based on
-:class:`~openstack._adapter.OpenStackSDKAdapter` which is in turn based on
 :class:`~keystoneauth1.adapter.Adapter`.
 
 .. autoclass:: openstack.proxy.Proxy
    :members:
-   :show-inheritance:
-
-.. autoclass:: openstack._adapter.OpenStackSDKAdapter
-   :members:
-   :inherited-members:
    :show-inheritance:
 
 Each service's ``Proxy`` provides a higher-level interface for users to work

@@ -63,7 +63,7 @@ Returned Resources
 ------------------
 
 Complex objects returned to the caller must be a `munch.Munch` type. The
-`openstack._adapter.ShadeAdapter` class makes resources into `munch.Munch`.
+`openstack.proxy._ShadeAdapter` class makes resources into `munch.Munch`.
 
 All objects should be normalized. It is shade's purpose in life to make
 OpenStack consistent for end users, and this means not trusting the clouds
