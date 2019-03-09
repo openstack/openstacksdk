@@ -15,7 +15,7 @@ Visual indentation looks like this:
   return_value = self.some_method(arg1, arg1,
                                   arg3, arg4)
 
-Visual indentation makes refactoring the code base unneccesarily hard.
+Visual indentation makes refactoring the code base unnecessarily hard.
 
 Instead of visual indentation, use this:
 
@@ -27,7 +27,7 @@ Instead of visual indentation, use this:
 That way, if some_method ever needs to be renamed, the only line that needs
 to be touched is the line with some_method.
 
-Additionaly, if you need to line break at the top of a block, please indent
+Additionally, if you need to line break at the top of a block, please indent
 the continuation line an additional 4 spaces, like this:
 
 .. code-block:: python
