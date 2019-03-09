@@ -88,13 +88,10 @@ Getting the Source Code
           for details on how to use the continuous integration and code
           review systems that we use.
 
-The canonical Git repository is hosted on openstack.org at
-http://git.openstack.org/cgit/openstack/openstacksdk/, with a
-mirror on GitHub at https://github.com/openstack/openstacksdk.
-Because of how Git works, you can create a local clone from either of those,
-or your own personal fork.::
+The canonical Git repository is hosted on opendev.org at
+http://opendev.org/openstack/openstacksdk/::
 
-   (sdk3)$ git clone https://git.openstack.org/openstack/openstacksdk.git
+   (sdk3)$ git clone https://opendev.org/openstack/openstacksdk
    (sdk3)$ cd openstacksdk
 
 Installing Dependencies

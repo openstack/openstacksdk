@@ -41,4 +41,4 @@ To get the details about a profile type, you need to provide the name of it.
 
 Full example: `manage profile type`_
 
-.. _manage profile type: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/clustering/profile_type.py
+.. _manage profile type: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/clustering/profile_type.py

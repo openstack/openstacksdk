@@ -6,7 +6,7 @@ In order to work with an OpenStack cloud you first need to create a
 :class:`~openstack.connection.Connection` can be
 created in 3 ways, using the class itself (see :doc:`connect`), a file, or
 environment variables as illustrated below. The SDK uses
-`os-client-config <http://git.openstack.org/cgit/openstack/os-client-config/tree/README.rst>`_
+`os-client-config <https://opendev.org/openstack/os-client-config>`_
 to handle the configuration.
 
 Create Connection From A File

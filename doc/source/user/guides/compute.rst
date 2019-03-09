@@ -83,7 +83,7 @@ for it to become active.
 
 Full example: `compute resource create`_
 
-.. _compute resource list: https://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/compute/list.py
-.. _network resource list: https://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/network/list.py
-.. _compute resource create: https://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/compute/create.py
+.. _compute resource list: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/compute/list.py
+.. _network resource list: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/network/list.py
+.. _compute resource create: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/compute/create.py
 .. _public–key cryptography: https://en.wikipedia.org/wiki/Public-key_cryptography

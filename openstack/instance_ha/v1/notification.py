@@ -51,11 +51,6 @@ class Notification(resource.Resource):
     allow_commit = False
     allow_delete = False
 
-    # Properties
-    # Refer "https://github.com/openstack/masakari/tree/
-    # master/masakari/api/openstack/ha/schemas/notificaions.py"
-    # for properties of notifications API
-
     #: A ID of representing this notification.
     id = resource.Body("id")
     #: A Uuid of representing this notification.

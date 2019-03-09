@@ -89,9 +89,9 @@ Delete an image.
 
 Full example: `image resource delete`_
 
-.. _image resource create: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/create.py
-.. _image resource import: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/import.py
-.. _image resource delete: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/delete.py
-.. _image resource list: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/list.py
-.. _image resource download: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/image/download.py
+.. _image resource create: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/image/create.py
+.. _image resource import: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/image/import.py
+.. _image resource delete: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/image/delete.py
+.. _image resource list: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/image/list.py
+.. _image resource download: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/image/download.py
 .. _interoperable image import: https://docs.openstack.org/glance/latest/admin/interoperable-image-import.html
