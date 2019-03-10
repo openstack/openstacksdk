@@ -168,7 +168,6 @@ from openstack import config as _config
 from openstack.config import cloud_region
 from openstack import exceptions
 from openstack import service_description
-from openstack import task_manager as _task_manager
 
 __all__ = [
     'from_config',
@@ -259,10 +258,8 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             filtering instead of making list calls and filtering client-side.
             Default false.
         :param task_manager:
-            Task Manager to handle the execution of remote REST calls.
-            Defaults to None which causes a direct-action Task Manager to be
-            used.
-        :type manager: :class:`~openstack.task_manager.TaskManager`
+            Ignored. Exists for backwards compat during transition. Rate limit
+            parameters should be passed directly to the `rate_limit` parameter.
         :param rate_limit:
             Client-side rate limit, expressed in calls per second. The
             parameter can either be a single float, or it can be a dict with
@@ -286,6 +283,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                     app_name=app_name, app_version=app_version,
                     load_yaml_config=False,
                     load_envvars=False,
+                    rate_limit=rate_limit,
                     **kwargs)
             else:
                 self.config = _config.get_cloud_region(
@@ -293,17 +291,8 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                     app_name=app_name, app_version=app_version,
                     load_yaml_config=cloud is not None,
                     load_envvars=cloud is not None,
+                    rate_limit=rate_limit,
                     **kwargs)
-
-        if task_manager:
-            # If a TaskManager was passed in, don't start it, assume it's
-            # under the control of the calling context.
-            self.task_manager = task_manager
-        else:
-            self.task_manager = _task_manager.TaskManager(
-                self.config.full_name,
-                rate=rate_limit)
-            self.task_manager.start()
 
         self._session = None
         self._proxies = {}
@@ -371,7 +360,8 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
 
     def close(self):
         """Release any resources held open."""
-        self.task_manager.stop()
+        if self.__pool_executor:
+            self.__pool_executor.shutdown()
 
     def __enter__(self):
         return self

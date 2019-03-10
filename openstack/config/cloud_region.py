@@ -492,7 +492,6 @@ class CloudRegion(object):
                     region_name=self.region_name,
                 )
                 network_endpoint = network_adapter.get_endpoint()
-                network_adapter.task_manager.stop()
                 if not network_endpoint.rstrip().rsplit('/')[-1] == 'v2.0':
                     if not network_endpoint.endswith('/'):
                         network_endpoint += '/'
