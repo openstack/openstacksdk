@@ -108,7 +108,6 @@ class ServiceDescription(object):
                 proxy_obj = config.get_session_client(
                     self.service_type,
                     constructor=proxy_class,
-                    task_manager=instance.task_manager,
                 )
             else:
                 warnings.warn(
@@ -129,7 +128,6 @@ class ServiceDescription(object):
                 proxy_obj = config.get_session_client(
                     self.service_type,
                     constructor=proxy_class,
-                    task_manager=instance.task_manager,
                 )
             else:
                 warnings.warn(
@@ -165,7 +163,6 @@ class ServiceDescription(object):
                 proxy_obj = config.get_session_client(
                     self.service_type,
                     constructor=proxy_class,
-                    task_manager=instance.task_manager,
                 )
             return proxy_obj
 
@@ -199,14 +196,12 @@ class ServiceDescription(object):
                     service_type=self.service_type),
                 category=exceptions.UnsupportedServiceVersion)
             return temp_adapter
-        temp_adapter.task_manager.stop()
         proxy_class = self.supported_versions.get(str(found_version[0]))
         if not proxy_class:
             proxy_class = proxy.Proxy
         return config.get_session_client(
             self.service_type,
             constructor=proxy_class,
-            task_manager=instance.task_manager,
             allow_version_hack=True,
             **version_kwargs
         )
