@@ -452,6 +452,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 version=config_major)
             adapter = _adapter.ShadeAdapter(
                 session=self.session,
+                task_manager=self.task_manager,
                 service_type=self.config.get_service_type(service_type),
                 service_name=self.config.get_service_name(service_type),
                 interface=self.config.get_interface(service_type),
@@ -464,6 +465,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         adapter = _adapter.ShadeAdapter(
             session=self.session,
+            task_manager=self.task_manager,
             service_type=self.config.get_service_type(service_type),
             service_name=self.config.get_service_name(service_type),
             interface=self.config.get_interface(service_type),
@@ -502,6 +504,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             self, service_type, api_version=None, endpoint_override=None):
         return _adapter.ShadeAdapter(
             session=self.session,
+            task_manager=self.task_manager,
             service_type=self.config.get_service_type(service_type),
             service_name=self.config.get_service_name(service_type),
             interface=self.config.get_interface(service_type),
