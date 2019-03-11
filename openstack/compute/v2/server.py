@@ -440,12 +440,4 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
             session, {'os-migrateLive': body}, microversion=microversion)
 
 
-class ServerDetail(Server):
-    base_path = '/servers/detail'
-
-    # capabilities
-    allow_create = False
-    allow_fetch = False
-    allow_commit = False
-    allow_delete = False
-    allow_list = True
+ServerDetail = Server

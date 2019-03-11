@@ -484,10 +484,8 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of servers
 
         :param bool details: When set to ``False``
-                    :class:`~openstack.compute.v2.server.Server` instances
-                    will be returned. The default, ``True``, will cause
-                    :class:`~openstack.compute.v2.server.ServerDetail`
-                    instances to be returned.
+            instances with only basic data will be returned. The default,
+            ``True``, will cause instances with full data to be returned.
         :param kwargs query: Optional query parameters to be sent to limit
             the servers being returned.  Available parameters include:
 
@@ -521,8 +519,8 @@ class Proxy(proxy.Proxy):
         """
         if all_projects:
             query['all_projects'] = True
-        srv = _server.ServerDetail if details else _server.Server
-        return self._list(srv, **query)
+        base_path = '/servers/detail' if details else None
+        return self._list(_server.Server, base_path=base_path, **query)
 
     def update_server(self, server, **attrs):
         """Update a server
