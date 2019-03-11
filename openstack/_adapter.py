@@ -14,6 +14,7 @@
 
 ''' Wrapper around keystoneauth Adapter to wrap calls in TaskManager '''
 
+import functools
 try:
     import simplejson
     JSONDecodeError = simplejson.scanner.JSONDecodeError
@@ -24,6 +25,7 @@ from six.moves import urllib
 from keystoneauth1 import adapter
 
 from openstack import exceptions
+from openstack import task_manager as _task_manager
 
 
 def _extract_name(url, service_type=None):
@@ -107,22 +109,43 @@ def _json_response(response, result_key=None, error_message=None):
 
 
 class OpenStackSDKAdapter(adapter.Adapter):
-    """Wrapper around keystoneauth1.adapter.Adapter."""
+    """Wrapper around keystoneauth1.adapter.Adapter.
+
+    Uses task_manager to run tasks rather than executing them directly.
+    This allows using the nodepool MultiThreaded Rate Limiting TaskManager.
+    """
 
     def __init__(
             self, session=None,
+            task_manager=None,
+            rate_limit=None, concurrency=None,
             *args, **kwargs):
         super(OpenStackSDKAdapter, self).__init__(
             session=session, *args, **kwargs)
+        if not task_manager:
+            task_manager = _task_manager.TaskManager(
+                name=self.service_type,
+                rate=rate_limit,
+                workers=concurrency)
+            task_manager.start()
+
+        self.task_manager = task_manager
 
     def request(
             self, url, method, error_message=None,
             raise_exc=False, connect_retries=1, *args, **kwargs):
-        response = super(OpenStackSDKAdapter, self).request(
-            url, method,
-            connect_retries=connect_retries, raise_exc=False,
+        name_parts = _extract_name(url, self.service_type)
+        name = '.'.join([self.service_type, method] + name_parts)
+
+        request_method = functools.partial(
+            super(OpenStackSDKAdapter, self).request, url, method)
+
+        ret = self.task_manager.submit_function(
+            request_method, run_async=True, name=name,
+            connect_retries=connect_retries, raise_exc=raise_exc,
+            tag=self.service_type,
             **kwargs)
-        return response
+        return ret.result()
 
     def _version_matches(self, version):
         api_version = self.get_api_major_version()

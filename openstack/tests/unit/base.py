@@ -438,6 +438,7 @@ class TestCase(base.TestCase):
             cloud=test_cloud, validate=True, **kwargs)
         self.cloud = openstack.connection.Connection(
             config=self.cloud_config, strict=self.strict_cloud)
+        self.addCleanup(self.cloud.task_manager.stop)
 
     def get_cinder_discovery_mock_dict(
             self,
