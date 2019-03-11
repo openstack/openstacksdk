@@ -45,7 +45,7 @@ What are we going to talk about?
 shade is Free Software
 ======================
 
-* https://git.openstack.org/cgit/openstack-infra/shade
+* https://opendev.org/openstack-infra/shade
 * openstack-discuss@lists.openstack.org
 * #openstack-shade on freenode
 

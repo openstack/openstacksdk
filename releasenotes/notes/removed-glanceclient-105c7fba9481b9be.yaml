@@ -9,7 +9,7 @@ prelude: >
     ``openstack.auth.base.BaseAuthPlugin`` classes are no more. Profile has
     been replace by ``openstack.config.cloud_region.CloudRegion`` from
     `os-client-config
-    <http://git.openstack.org/cgit/openstack/os-client-config>`_
+    <https://opendev.org/openstack/os-client-config>`_
     ``openstack.auth.base.BaseAuthPlugin`` has been replaced with the Auth
     plugins from keystoneauth.
 

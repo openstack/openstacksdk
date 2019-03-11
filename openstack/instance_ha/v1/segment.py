@@ -32,11 +32,6 @@ class Segment(resource.Resource):
     allow_commit = True
     allow_delete = True
 
-    # Properties
-    # Refer "https://github.com/openstack/masakari/tree/
-    # master/masakari/api/openstack/ha/schemas"
-    # for properties of each API
-
     #: A ID of representing this segment.
     id = resource.Body("id")
     #: A Uuid of representing this segment.

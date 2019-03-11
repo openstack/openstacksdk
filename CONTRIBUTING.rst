@@ -39,7 +39,7 @@ Mailing list (prefix subjects with ``[sdk]`` for faster responses)
     http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-discuss
 
 Code Hosting
-    https://git.openstack.org/cgit/openstack/openstacksdk
+    https://opendev.org/openstack/openstacksdk
 
 Code Review
     https://review.openstack.org/#/q/status:open+project:openstack/openstacksdk,n,z

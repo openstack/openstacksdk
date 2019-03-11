@@ -59,6 +59,6 @@ for deployment.
 Full example: `baremetal provisioning`_
 
 
-.. _baremetal resource list: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/baremetal/list.py
-.. _baremetal provisioning: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/baremetal/provisioning.py
+.. _baremetal resource list: http://opendev.org/openstack/openstacksdk/src/branch/master/examples/baremetal/list.py
+.. _baremetal provisioning: http://opendev.org/openstack/openstacksdk/src/branch/master/examples/baremetal/provisioning.py
 .. _Bare Metal service states documentation: https://docs.openstack.org/ironic/latest/contributor/states.html

@@ -44,4 +44,4 @@ To get a event based on its name or ID:
 .. literalinclude:: ../../examples/clustering/event.py
    :pyobject: get_event
 
-.. _manage event: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/clustering/event.py
+.. _manage event: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/clustering/event.py

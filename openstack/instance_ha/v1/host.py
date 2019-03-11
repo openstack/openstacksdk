@@ -32,11 +32,6 @@ class Host(resource.Resource):
     allow_commit = True
     allow_delete = True
 
-    # Properties
-    # Refer "https://github.com/openstack/masakari/blob/
-    # master/masakari/api/openstack/ha/schemas/hosts.py"
-    # for properties of host API
-
     #: A ID of representing this host
     id = resource.URI("id")
     #: A Uuid of representing this host

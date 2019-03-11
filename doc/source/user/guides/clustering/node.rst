@@ -117,4 +117,4 @@ To restore a specified node.
 .. literalinclude:: ../../examples/clustering/node.py
    :pyobject: recover_node
 
-.. _manage node: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/clustering/node.py
+.. _manage node: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/clustering/node.py

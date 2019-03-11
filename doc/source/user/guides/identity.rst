@@ -108,4 +108,4 @@ sub-regions with a region to make a tree-like structured hierarchy.
 
 Full example: `identity resource list`_
 
-.. _identity resource list: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/identity/list.py
+.. _identity resource list: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/identity/list.py

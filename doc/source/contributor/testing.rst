@@ -57,14 +57,14 @@ This is the ``local.conf`` file we use to configure DevStack.
 
 Replace ``DEVSTACK_PASSWORD`` with a password of your choice.
 
-Replace ``OPENSTACK_VERSION`` with a `stable branch <http://git.openstack.org/cgit/openstack-dev/devstack/refs/>`_
+Replace ``OPENSTACK_VERSION`` with a `stable branch <http://opendev.org/openstack-dev/devstack/>`_
 of OpenStack (without the ``stable/`` prefix on the branch name).
 
 os-client-config
 ****************
 
 To connect the functional tests to an OpenStack cloud we use
-`os-client-config <http://git.openstack.org/cgit/openstack/os-client-config/tree/README.rst>`_.
+`os-client-config <http://opendev.org/openstack/os-client-config>`_.
 To setup os-client-config create a ``clouds.yaml`` file in the root of your
 source checkout.
 
@@ -113,7 +113,7 @@ public or private OpenStack cloud that you can run the tests against. In
 practice, this means that the tests should initially be run against a stable
 branch of `DevStack <https://docs.openstack.org/devstack/latest/>`_.
 And like the functional tests, the examples tests connect to an OpenStack cloud
-using `os-client-config <http://git.openstack.org/cgit/openstack/os-client-config/tree/README.rst>`_.
+using `os-client-config <http://opendev.org/openstack/os-client-config>`_.
 See the functional tests instructions for information on setting up DevStack
 and os-client-config.
 

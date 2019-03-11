@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "https://git.openstack.org/cgit/openstack/cloud-data/plain/schema.json#",
+  "id": "https://opendev.org/openstack/openstacksdk/raw/branch/master/openstack/config/schema.json",
   "type": "object",
   "properties": {
     "auth_type": {
