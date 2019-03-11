@@ -296,13 +296,17 @@ class Node(_common.ListMixin, resource.Resource):
         """
         session = self._get_session(session)
 
+        version = None
         if target in _common.PROVISIONING_VERSIONS:
             version = '1.%d' % _common.PROVISIONING_VERSIONS[target]
-        else:
-            if config_drive and target == 'rebuild':
+
+        if config_drive:
+            # Some config drive actions require a higher version.
+            if isinstance(config_drive, dict):
+                version = '1.56'
+            elif target == 'rebuild':
                 version = '1.35'
-            else:
-                version = None
+
         version = utils.pick_microversion(session, version)
 
         body = {'target': target}

@@ -225,7 +225,54 @@ class TestNodeSetProvisionState(base.TestCase):
                                  default_microversion=None)
 
     def test_no_arguments(self):
-        self.node.set_provision_state(self.session, 'manage')
+        result = self.node.set_provision_state(self.session, 'active')
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'active'},
+            headers=mock.ANY, microversion=None,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+    def test_manage(self):
+        result = self.node.set_provision_state(self.session, 'manage')
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'manage'},
+            headers=mock.ANY, microversion='1.4',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+    def test_deploy_with_configdrive(self):
+        result = self.node.set_provision_state(self.session, 'active',
+                                               config_drive='abcd')
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'active', 'configdrive': 'abcd'},
+            headers=mock.ANY, microversion=None,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+    def test_rebuild_with_configdrive(self):
+        result = self.node.set_provision_state(self.session, 'rebuild',
+                                               config_drive='abcd')
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'rebuild', 'configdrive': 'abcd'},
+            headers=mock.ANY, microversion='1.35',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+    def test_configdrive_as_dict(self):
+        for target in ('rebuild', 'active'):
+            self.session.put.reset_mock()
+            result = self.node.set_provision_state(
+                self.session, target, config_drive={'user_data': 'abcd'})
+            self.assertIs(result, self.node)
+            self.session.put.assert_called_once_with(
+                'nodes/%s/states/provision' % self.node.id,
+                json={'target': target, 'configdrive': {'user_data': 'abcd'}},
+                headers=mock.ANY, microversion='1.56',
+                retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
 
 @mock.patch.object(node.Node, '_translate_response', mock.Mock())
