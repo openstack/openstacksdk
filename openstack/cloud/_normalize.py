@@ -1165,3 +1165,37 @@ class Normalizer(object):
             location=self._get_identity_location(),
             properties={},
         )
+
+    def _normalize_containers(self, containers):
+        """Normalize Swift Containers"""
+        ret = []
+        for container in containers:
+            ret.append(self._normalize_container(container))
+        return ret
+
+    def _normalize_container(self, container):
+        """Normalize Swift Container."""
+
+        return munch.Munch(
+            name=container.get('name'),
+            bytes=container.get('bytes'),
+            count=container.get('count'),
+        )
+
+    def _normalize_objects(self, objects):
+        """Normalize Swift Objects"""
+        ret = []
+        for object in objects:
+            ret.append(self._normalize_object(object))
+        return ret
+
+    def _normalize_object(self, object):
+        """Normalize Swift Object."""
+
+        return munch.Munch(
+            name=object.get('name'),
+            bytes=object.get('_bytes'),
+            content_type=object.get('content_type'),
+            hash=object.get('_hash'),
+            last_modified=object.get('_last_modified'),
+        )

@@ -38,7 +38,7 @@ class Container(_base.BaseResource):
     allow_head = True
 
     _query_mapping = resource.QueryParameters(
-        'prefix',
+        'prefix', 'format'
     )
 
     # Container body data (when id=None)

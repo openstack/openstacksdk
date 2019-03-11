@@ -10,10 +10,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import collections
+import os
+import json
+
 from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import obj as _obj
+from openstack.object_store.v1 import info as _info
+from openstack import _adapter
+from openstack import exceptions
+from openstack import _log
 from openstack import proxy
+from openstack.cloud import _utils
+
+DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
+DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
 
 
 class Proxy(proxy.Proxy):
@@ -23,6 +35,8 @@ class Proxy(proxy.Proxy):
     Account = _account.Account
     Container = _container.Container
     Object = _obj.Object
+
+    log = _log.setup_logging('openstack')
 
     def get_account_metadata(self):
         """Get metadata for this account.
@@ -105,12 +119,13 @@ class Proxy(proxy.Proxy):
         """
         return self._head(_container.Container, container)
 
-    def set_container_metadata(self, container, **metadata):
+    def set_container_metadata(self, container, refresh=True, **metadata):
         """Set metadata for a container.
 
         :param container: The value can be the name of a container or a
                :class:`~openstack.object_store.v1.container.Container`
                instance.
+        :param refresh: Flag to trigger refresh of container object re-fetch.
         :param kwargs metadata: Key/value pairs to be set as metadata
                                 on the container. Both custom and system
                                 metadata can be set. Custom metadata are keys
@@ -128,7 +143,7 @@ class Proxy(proxy.Proxy):
                                 - `sync_key`
         """
         res = self._get_resource(_container.Container, container)
-        res.set_metadata(self, metadata)
+        res.set_metadata(self, metadata, refresh=refresh)
         return res
 
     def delete_container_metadata(self, container, keys):
@@ -160,7 +175,7 @@ class Proxy(proxy.Proxy):
 
         for obj in self._list(
                 _obj.Object, container=container,
-                paginated=True, **query):
+                paginated=True, format='json', **query):
             obj.container = container
             yield obj
 
@@ -232,25 +247,110 @@ class Proxy(proxy.Proxy):
             _obj.Object, obj, container=container_name, **attrs)
         return obj.stream(self, chunk_size=chunk_size)
 
-    def create_object(self, container, name, **attrs):
-        """Upload a new object from attributes
+    def create_object(
+            self, container, name, filename=None,
+            md5=None, sha256=None, segment_size=None,
+            use_slo=True, metadata=None,
+            generate_checksums=None, data=None,
+            **headers):
+        """Create a file object.
 
-        :param container: The value can be the name of a container or a
-               :class:`~openstack.object_store.v1.container.Container`
-               instance.
-        :param name: Name of the object to create.
-        :param dict attrs: Keyword arguments which will be used to create
-               a :class:`~openstack.object_store.v1.obj.Object`,
-               comprised of the properties on the Object class.
+        Automatically uses large-object segments if needed.
 
-        :returns: The results of object creation
-        :rtype: :class:`~openstack.object_store.v1.container.Container`
+        :param container: The name of the container to store the file in.
+            This container will be created if it does not exist already.
+        :param name: Name for the object within the container.
+        :param filename: The path to the local file whose contents will be
+            uploaded. Mutually exclusive with data.
+        :param data: The content to upload to the object. Mutually exclusive
+           with filename.
+        :param md5: A hexadecimal md5 of the file. (Optional), if it is known
+            and can be passed here, it will save repeating the expensive md5
+            process. It is assumed to be accurate.
+        :param sha256: A hexadecimal sha256 of the file. (Optional) See md5.
+        :param segment_size: Break the uploaded object into segments of this
+            many bytes. (Optional) SDK will attempt to discover the maximum
+            value for this from the server if it is not specified, or will use
+            a reasonable default.
+        :param headers: These will be passed through to the object creation
+            API as HTTP Headers.
+        :param use_slo: If the object is large enough to need to be a Large
+            Object, use a static rather than dynamic object. Static Objects
+            will delete segment objects when the manifest object is deleted.
+            (optional, defaults to True)
+        :param generate_checksums: Whether to generate checksums on the client
+            side that get added to headers for later prevention of double
+            uploads of identical data. (optional, defaults to True)
+        :param metadata: This dict will get changed into headers that set
+            metadata of the object
+
+        :raises: ``OpenStackCloudException`` on operation error.
         """
-        # TODO(mordred) Add ability to stream data from a file
-        # TODO(mordred) Use create_object from OpenStackCloud
+        if data is not None and filename:
+            raise ValueError(
+                "Both filename and data given. Please choose one.")
+        if data is not None and not name:
+            raise ValueError(
+                "name is a required parameter when data is given")
+        if data is not None and generate_checksums:
+            raise ValueError(
+                "checksums cannot be generated with data parameter")
+        if generate_checksums is None:
+            if data is not None:
+                generate_checksums = False
+            else:
+                generate_checksums = True
+
+        if not metadata:
+            metadata = {}
+
+        if not filename and data is None:
+            filename = name
+
+        if generate_checksums and (md5 is None or sha256 is None):
+            (md5, sha256) = self._connection._get_file_hashes(filename)
+        if md5:
+            headers[self._connection._OBJECT_MD5_KEY] = md5 or ''
+        if sha256:
+            headers[self._connection._OBJECT_SHA256_KEY] = sha256 or ''
+        for (k, v) in metadata.items():
+            headers['x-object-meta-' + k] = v
+
         container_name = self._get_container_name(container=container)
-        return self._create(
-            _obj.Object, container=container_name, name=name, **attrs)
+        endpoint = '{container}/{name}'.format(container=container_name,
+                                               name=name)
+
+        if data is not None:
+            self.log.debug(
+                "swift uploading data to %(endpoint)s",
+                {'endpoint': endpoint})
+            # TODO(gtema): custom headers need to be somehow injected
+            return self._create(
+                _obj.Object, container=container_name,
+                name=name, data=data, **headers)
+
+        # segment_size gets used as a step value in a range call, so needs
+        # to be an int
+        if segment_size:
+            segment_size = int(segment_size)
+        segment_size = self.get_object_segment_size(segment_size)
+        file_size = os.path.getsize(filename)
+
+        if self.is_object_stale(container_name, name, filename, md5, sha256):
+
+            self._connection.log.debug(
+                "swift uploading %(filename)s to %(endpoint)s",
+                {'filename': filename, 'endpoint': endpoint})
+
+            if file_size <= segment_size:
+                # TODO(gtema): replace with regular resource put, but
+                # custom headers need to be somehow injected
+                self._upload_object(endpoint, filename, headers)
+            else:
+                self._upload_large_object(
+                    endpoint, filename, headers,
+                    file_size, segment_size, use_slo)
+
     # Backwards compat
     upload_object = create_object
 
@@ -341,3 +441,202 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_obj.Object, obj, container=container_name)
         res.delete_metadata(self, keys)
         return res
+
+    def is_object_stale(
+            self, container, name, filename, file_md5=None, file_sha256=None):
+        """Check to see if an object matches the hashes of a file.
+
+        :param container: Name of the container.
+        :param name: Name of the object.
+        :param filename: Path to the file.
+        :param file_md5:
+            Pre-calculated md5 of the file contents. Defaults to None which
+            means calculate locally.
+        :param file_sha256:
+            Pre-calculated sha256 of the file contents. Defaults to None which
+            means calculate locally.
+        """
+        metadata = self._connection.get_object_metadata(container, name)
+        if not metadata:
+            self._connection.log.debug(
+                "swift stale check, no object: {container}/{name}".format(
+                    container=container, name=name))
+            return True
+
+        if not (file_md5 or file_sha256):
+            (file_md5, file_sha256) = \
+                self._connection._get_file_hashes(filename)
+        md5_key = metadata.get(
+            self._connection._OBJECT_MD5_KEY,
+            metadata.get(self._connection._SHADE_OBJECT_MD5_KEY, ''))
+        sha256_key = metadata.get(
+            self._connection._OBJECT_SHA256_KEY, metadata.get(
+                self._connection._SHADE_OBJECT_SHA256_KEY, ''))
+        up_to_date = self._connection._hashes_up_to_date(
+            md5=file_md5, sha256=file_sha256,
+            md5_key=md5_key, sha256_key=sha256_key)
+
+        if not up_to_date:
+            self._connection.log.debug(
+                "swift checksum mismatch: "
+                " %(filename)s!=%(container)s/%(name)s",
+                {'filename': filename, 'container': container, 'name': name})
+            return True
+
+        self._connection.log.debug(
+            "swift object up to date: %(container)s/%(name)s",
+            {'container': container, 'name': name})
+        return False
+
+    def _upload_large_object(
+            self, endpoint, filename,
+            headers, file_size, segment_size, use_slo):
+        # If the object is big, we need to break it up into segments that
+        # are no larger than segment_size, upload each of them individually
+        # and then upload a manifest object. The segments can be uploaded in
+        # parallel, so we'll use the async feature of the TaskManager.
+
+        segment_futures = []
+        segment_results = []
+        retry_results = []
+        retry_futures = []
+        manifest = []
+
+        # Get an OrderedDict with keys being the swift location for the
+        # segment, the value a FileSegment file-like object that is a
+        # slice of the data for the segment.
+        segments = self._get_file_segments(
+            endpoint, filename, file_size, segment_size)
+
+        # Schedule the segments for upload
+        for name, segment in segments.items():
+            # Async call to put - schedules execution and returns a future
+            segment_future = self._connection._pool_executor.submit(
+                self.put,
+                name, headers=headers, data=segment,
+                raise_exc=False)
+            segment_futures.append(segment_future)
+            # TODO(mordred) Collect etags from results to add to this manifest
+            # dict. Then sort the list of dicts by path.
+            manifest.append(dict(
+                path='/{name}'.format(name=name),
+                size_bytes=segment.length))
+
+        # Try once and collect failed results to retry
+        segment_results, retry_results = self._connection._wait_for_futures(
+            segment_futures, raise_on_error=False)
+
+        self._add_etag_to_manifest(segment_results, manifest)
+
+        for result in retry_results:
+            # Grab the FileSegment for the failed upload so we can retry
+            name = self._object_name_from_url(result.url)
+            segment = segments[name]
+            segment.seek(0)
+            # Async call to put - schedules execution and returns a future
+            segment_future = self._connection._pool_executor.submit(
+                self.put,
+                name, headers=headers, data=segment)
+            # TODO(mordred) Collect etags from results to add to this manifest
+            # dict. Then sort the list of dicts by path.
+            retry_futures.append(segment_future)
+
+        # If any segments fail the second time, just throw the error
+        segment_results, retry_results = self._connection._wait_for_futures(
+            retry_futures, raise_on_error=True)
+
+        self._add_etag_to_manifest(segment_results, manifest)
+
+        if use_slo:
+            return self._finish_large_object_slo(endpoint, headers, manifest)
+        else:
+            return self._finish_large_object_dlo(endpoint, headers)
+
+    def _finish_large_object_slo(self, endpoint, headers, manifest):
+        # TODO(mordred) send an etag of the manifest, which is the md5sum
+        # of the concatenation of the etags of the results
+        headers = headers.copy()
+        return self.put(
+            endpoint,
+            params={'multipart-manifest': 'put'},
+            headers=headers, data=json.dumps(manifest))
+
+    def _finish_large_object_dlo(self, endpoint, headers):
+        headers = headers.copy()
+        headers['X-Object-Manifest'] = endpoint
+        return self.put(endpoint, headers=headers)
+
+    def _upload_object(self, endpoint, filename, headers):
+        with open(filename, 'rb') as dt:
+            return _adapter._json_response(self.put(
+                endpoint, headers=headers, data=dt))
+
+    def _get_file_segments(self, endpoint, filename, file_size, segment_size):
+        # Use an ordered dict here so that testing can replicate things
+        segments = collections.OrderedDict()
+        for (index, offset) in enumerate(range(0, file_size, segment_size)):
+            remaining = file_size - (index * segment_size)
+            segment = _utils.FileSegment(
+                filename, offset,
+                segment_size if segment_size < remaining else remaining)
+            name = '{endpoint}/{index:0>6}'.format(
+                endpoint=endpoint, index=index)
+            segments[name] = segment
+        return segments
+
+    def get_object_segment_size(self, segment_size):
+        """Get a segment size that will work given capabilities"""
+        if segment_size is None:
+            segment_size = DEFAULT_OBJECT_SEGMENT_SIZE
+        min_segment_size = 0
+        try:
+            # caps = self.get_object_capabilities()
+            caps = self.get_info()
+        except exceptions.SDKException as e:
+            if e.response.status_code in (404, 412):
+                # Clear the exception so that it doesn't linger
+                # and get reported as an Inner Exception later
+                _utils._exc_clear()
+                server_max_file_size = DEFAULT_MAX_FILE_SIZE
+                self._connection.log.info(
+                    "Swift capabilities not supported. "
+                    "Using default max file size.")
+            else:
+                raise
+        else:
+            server_max_file_size = caps.swift.get('max_file_size', 0)
+            min_segment_size = caps.slo.get('min_segment_size', 0)
+
+        if segment_size > server_max_file_size:
+            return server_max_file_size
+        if segment_size < min_segment_size:
+            return min_segment_size
+        return segment_size
+
+    def _object_name_from_url(self, url):
+        '''Get container_name/object_name from the full URL called.
+
+        Remove the Swift endpoint from the front of the URL, and remove
+        the leaving / that will leave behind.'''
+        endpoint = self.get_endpoint()
+        object_name = url.replace(endpoint, '')
+        if object_name.startswith('/'):
+            object_name = object_name[1:]
+        return object_name
+
+    def _add_etag_to_manifest(self, segment_results, manifest):
+        for result in segment_results:
+            if 'Etag' not in result.headers:
+                continue
+            name = self._object_name_from_url(result.url)
+            for entry in manifest:
+                if entry['path'] == '/{name}'.format(name=name):
+                    entry['etag'] = result.headers['Etag']
+
+    def get_info(self):
+        """Get infomation about the object-storage service
+
+        The object-storage service publishes a set of capabilities that
+        include metadata about maximum values and thresholds.
+        """
+        return self._get(_info.Info)

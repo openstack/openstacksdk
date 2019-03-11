@@ -41,14 +41,15 @@ class BaseResource(resource.Resource):
             headers[header] = metadata[key]
         return headers
 
-    def set_metadata(self, session, metadata):
+    def set_metadata(self, session, metadata, refresh=True):
         request = self._prepare_request()
         response = session.post(
             request.url,
             headers=self._calculate_headers(metadata))
         self._translate_response(response, has_body=False)
-        response = session.head(request.url)
-        self._translate_response(response, has_body=False)
+        if refresh:
+            response = session.head(request.url)
+            self._translate_response(response, has_body=False)
         return self
 
     def delete_metadata(self, session, keys):

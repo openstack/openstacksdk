@@ -20,6 +20,7 @@ import openstack.cloud
 import openstack.cloud.openstackcloud as oc_oc
 from openstack.cloud import exc
 from openstack.tests.unit import base
+from openstack.object_store.v1 import _proxy
 
 
 class BaseTestObject(base.TestCase):
@@ -443,7 +444,7 @@ class TestObject(BaseTestObject):
         self.register_uris([
             dict(method='GET', uri='https://object-store.example.com/info',
                  status_code=404, reason='Not Found')])
-        self.assertEqual(oc_oc.DEFAULT_OBJECT_SEGMENT_SIZE,
+        self.assertEqual(_proxy.DEFAULT_OBJECT_SEGMENT_SIZE,
                          self.cloud.get_object_segment_size(None))
         self.assert_calls()
 
@@ -452,7 +453,7 @@ class TestObject(BaseTestObject):
             dict(method='GET', uri='https://object-store.example.com/info',
                  status_code=412, reason='Precondition failed')])
         self.assertEqual(
-            oc_oc.DEFAULT_OBJECT_SEGMENT_SIZE,
+            _proxy.DEFAULT_OBJECT_SEGMENT_SIZE,
             self.cloud.get_object_segment_size(None))
         self.assert_calls()
 

@@ -40,7 +40,7 @@ class Object(_base.BaseResource):
     allow_head = True
 
     _query_mapping = resource.QueryParameters(
-        'prefix',
+        'prefix', 'format'
     )
 
     # Data to be passed during a POST call to create an object on the server.
@@ -295,3 +295,26 @@ class Object(_base.BaseResource):
             headers=request.headers)
         self._translate_response(response, has_body=False)
         return self
+
+    def _raw_delete(self, session):
+        if not self.allow_delete:
+            raise exceptions.MethodNotSupported(self, "delete")
+
+        request = self._prepare_request()
+        session = self._get_session(session)
+        microversion = self._get_microversion_for(session, 'delete')
+
+        if self.is_static_large_object is None:
+            # Fetch metadata to determine SLO flag
+            self.head(session)
+
+        headers = {
+            'Accept': ""
+        }
+        if self.is_static_large_object:
+            headers['multipart-manifest'] = 'delete'
+
+        return session.delete(
+            request.url,
+            headers=headers,
+            microversion=microversion)
