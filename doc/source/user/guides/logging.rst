@@ -65,14 +65,6 @@ openstack.config
   Issues pertaining to configuration are logged to the ``openstack.config``
   logger.
 
-openstack.task_manager
-  `openstacksdk` uses a Task Manager to perform remote calls. The
-  ``openstack.task_manager`` logger emits messages at the start and end
-  of each Task announcing what it is going to run and then what it ran and
-  how long it took. Logging ``openstack.task_manager`` is a good way to
-  get a trace of external actions `openstacksdk` is taking without full
-  `HTTP Tracing`_.
-
 openstack.iterate_timeout
   When `openstacksdk` needs to poll a resource, it does so in a loop that waits
   between iterations and ultimately times out. The
