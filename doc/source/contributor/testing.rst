@@ -42,24 +42,6 @@ public clouds but first and foremost they must be run against OpenStack. In
 practice, this means that the tests should initially be run against a stable
 branch of `DevStack <https://docs.openstack.org/devstack/latest/>`_.
 
-DevStack
-********
-
-There are many ways to run and configure DevStack. The link above will show
-you how to run DevStack a number of ways. You'll need to choose a method
-you're familiar with and can run in your environment. Wherever DevStack is
-running, we need to make sure that openstacksdk contributors are
-using the same configuration.
-
-This is the ``local.conf`` file we use to configure DevStack.
-
-.. literalinclude:: local.conf
-
-Replace ``DEVSTACK_PASSWORD`` with a password of your choice.
-
-Replace ``OPENSTACK_VERSION`` with a `stable branch <http://opendev.org/openstack-dev/devstack/>`_
-of OpenStack (without the ``stable/`` prefix on the branch name).
-
 os-client-config
 ****************
 
