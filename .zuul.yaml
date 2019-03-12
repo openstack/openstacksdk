@@ -265,7 +265,7 @@
         IRONIC_VM_LOG_DIR: '{{ devstack_base_dir }}/ironic-bm-logs'
         IRONIC_VM_SPECS_RAM: 384
       devstack_plugins:
-        ironic: git://git.openstack.org/openstack/ironic
+        ironic: https://git.openstack.org/openstack/ironic
       devstack_services:
         c-api: false
         c-bak: false
