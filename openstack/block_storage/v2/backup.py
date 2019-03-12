@@ -90,11 +90,4 @@ class Backup(resource.Resource):
         return self
 
 
-class BackupDetail(Backup):
-    """Volume Backup with Details"""
-    base_path = "/backups/detail"
-
-    # capabilities
-    allow_list = True
-
-    #: Properties
+BackupDetail = Backup

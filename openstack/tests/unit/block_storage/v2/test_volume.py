@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
 import mock
 
 from openstack.tests.unit import base
@@ -42,10 +41,7 @@ VOLUME = {
     "metadata": {},
     "volume_image_metadata": IMAGE_METADATA,
     "id": FAKE_ID,
-    "size": 10
-}
-
-DETAILS = {
+    "size": 10,
     "os-vol-host-attr:host": "127.0.0.1",
     "os-vol-tenant-attr:tenant_id": "some tenant",
     "os-vol-mig-status-attr:migstat": "done",
@@ -55,11 +51,8 @@ DETAILS = {
     "consistencygroup_id": "123asf-asdf123",
     "os-volume-replication:driver_data": "ahasadfasdfasdfasdfsdf",
     "snapshot_id": "93c2e2aa-7744-4fd6-a31a-80c4726b08d7",
-    "encrypted": "false",
+    "encrypted": "false"
 }
-
-VOLUME_DETAIL = copy.copy(VOLUME)
-VOLUME_DETAIL.update(DETAILS)
 
 
 class TestVolume(base.TestCase):
@@ -108,6 +101,23 @@ class TestVolume(base.TestCase):
                          sot.volume_image_metadata)
         self.assertEqual(VOLUME["size"], sot.size)
         self.assertEqual(VOLUME["imageRef"], sot.image_id)
+        self.assertEqual(VOLUME["os-vol-host-attr:host"], sot.host)
+        self.assertEqual(VOLUME["os-vol-tenant-attr:tenant_id"],
+                         sot.project_id)
+        self.assertEqual(VOLUME["os-vol-mig-status-attr:migstat"],
+                         sot.migration_status)
+        self.assertEqual(VOLUME["os-vol-mig-status-attr:name_id"],
+                         sot.migration_id)
+        self.assertEqual(VOLUME["replication_status"],
+                         sot.replication_status)
+        self.assertEqual(
+            VOLUME["os-volume-replication:extended_status"],
+            sot.extended_replication_status)
+        self.assertEqual(VOLUME["consistencygroup_id"],
+                         sot.consistency_group_id)
+        self.assertEqual(VOLUME["os-volume-replication:driver_data"],
+                         sot.replication_driver_data)
+        self.assertFalse(sot.is_encrypted)
 
     def test_extend(self):
         sot = volume.Volume(**VOLUME)
@@ -118,36 +128,3 @@ class TestVolume(base.TestCase):
         body = {"os-extend": {"new_size": "20"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(url, json=body, headers=headers)
-
-
-class TestVolumeDetail(base.TestCase):
-
-    def test_basic(self):
-        sot = volume.VolumeDetail(VOLUME_DETAIL)
-        self.assertIsInstance(sot, volume.Volume)
-        self.assertEqual("/volumes/detail", sot.base_path)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
-
-    def test_create(self):
-        sot = volume.VolumeDetail(**VOLUME_DETAIL)
-        self.assertEqual(VOLUME_DETAIL["os-vol-host-attr:host"], sot.host)
-        self.assertEqual(VOLUME_DETAIL["os-vol-tenant-attr:tenant_id"],
-                         sot.project_id)
-        self.assertEqual(VOLUME_DETAIL["os-vol-mig-status-attr:migstat"],
-                         sot.migration_status)
-        self.assertEqual(VOLUME_DETAIL["os-vol-mig-status-attr:name_id"],
-                         sot.migration_id)
-        self.assertEqual(VOLUME_DETAIL["replication_status"],
-                         sot.replication_status)
-        self.assertEqual(
-            VOLUME_DETAIL["os-volume-replication:extended_status"],
-            sot.extended_replication_status)
-        self.assertEqual(VOLUME_DETAIL["consistencygroup_id"],
-                         sot.consistency_group_id)
-        self.assertEqual(VOLUME_DETAIL["os-volume-replication:driver_data"],
-                         sot.replication_driver_data)
-        self.assertFalse(sot.is_encrypted)

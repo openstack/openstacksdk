@@ -70,9 +70,10 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
     def test_volumes_detailed(self):
-        self.verify_list(self.proxy.volumes, volume.VolumeDetail,
+        self.verify_list(self.proxy.volumes, volume.Volume,
                          method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+                         expected_kwargs={"query": 1,
+                                          "base_path": "/volumes/detail"})
 
     def test_volumes_not_detailed(self):
         self.verify_list(self.proxy.volumes, volume.Volume,
@@ -101,9 +102,10 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
-        self.verify_list(self.proxy.backups, backup.BackupDetail,
+        self.verify_list(self.proxy.backups, backup.Backup,
                          method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+                         expected_kwargs={"query": 1,
+                                          "base_path": "/backups/detail"})
 
     def test_backups_not_detailed(self):
         # NOTE: mock has_service

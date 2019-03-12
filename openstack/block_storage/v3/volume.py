@@ -75,32 +75,6 @@ class Volume(resource.Resource):
     #: The timestamp of this volume creation.
     created_at = resource.Body("created_at")
 
-    def _action(self, session, body):
-        """Preform volume actions given the message body."""
-        # NOTE: This is using Volume.base_path instead of self.base_path
-        # as both Volume and VolumeDetail instances can be acted on, but
-        # the URL used is sans any additional /detail/ part.
-        url = utils.urljoin(Volume.base_path, self.id, 'action')
-        headers = {'Accept': ''}
-        return session.post(url, json=body, headers=headers)
-
-    def extend(self, session, size):
-        """Extend a volume size."""
-        body = {'os-extend': {'new_size': size}}
-        self._action(session, body)
-
-
-class VolumeDetail(Volume):
-
-    base_path = "/volumes/detail"
-
-    # capabilities
-    allow_fetch = False
-    allow_create = False
-    allow_delete = False
-    allow_commit = False
-    allow_list = True
-
     #: The volume's current back-end.
     host = resource.Body("os-vol-host-attr:host")
     #: The project ID associated with current back-end.
@@ -123,3 +97,20 @@ class VolumeDetail(Volume):
     #: ``True`` if this volume is encrypted, ``False`` if not.
     #: *Type: bool*
     is_encrypted = resource.Body("encrypted", type=format.BoolStr)
+
+    def _action(self, session, body):
+        """Preform volume actions given the message body."""
+        # NOTE: This is using Volume.base_path instead of self.base_path
+        # as both Volume and VolumeDetail instances can be acted on, but
+        # the URL used is sans any additional /detail/ part.
+        url = utils.urljoin(Volume.base_path, self.id, 'action')
+        headers = {'Accept': ''}
+        return session.post(url, json=body, headers=headers)
+
+    def extend(self, session, size):
+        """Extend a volume size."""
+        body = {'os-extend': {'new_size': size}}
+        self._action(session, body)
+
+
+VolumeDetail = Volume

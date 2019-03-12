@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import copy
 import mock
 
 from keystoneauth1 import adapter
@@ -37,12 +36,6 @@ BACKUP = {
     "is_incremental": True,
     "has_dependent_backups": False
 }
-
-DETAILS = {
-}
-
-BACKUP_DETAIL = copy.copy(BACKUP)
-BACKUP_DETAIL.update(DETAILS)
 
 
 class TestBackup(base.TestCase):
@@ -91,31 +84,4 @@ class TestBackup(base.TestCase):
         self.assertEqual(BACKUP["is_incremental"], sot.is_incremental)
         self.assertEqual(BACKUP["size"], sot.size)
         self.assertEqual(BACKUP["has_dependent_backups"],
-                         sot.has_dependent_backups)
-
-
-class TestBackupDetail(base.TestCase):
-
-    def test_basic(self):
-        sot = backup.BackupDetail(BACKUP_DETAIL)
-        self.assertIsInstance(sot, backup.Backup)
-        self.assertEqual("/backups/detail", sot.base_path)
-
-    def test_create(self):
-        sot = backup.Backup(**BACKUP_DETAIL)
-        self.assertEqual(BACKUP_DETAIL["id"], sot.id)
-        self.assertEqual(BACKUP_DETAIL["name"], sot.name)
-        self.assertEqual(BACKUP_DETAIL["status"], sot.status)
-        self.assertEqual(BACKUP_DETAIL["container"], sot.container)
-        self.assertEqual(BACKUP_DETAIL["availability_zone"],
-                         sot.availability_zone)
-        self.assertEqual(BACKUP_DETAIL["created_at"], sot.created_at)
-        self.assertEqual(BACKUP_DETAIL["updated_at"], sot.updated_at)
-        self.assertEqual(BACKUP_DETAIL["description"], sot.description)
-        self.assertEqual(BACKUP_DETAIL["fail_reason"], sot.fail_reason)
-        self.assertEqual(BACKUP_DETAIL["volume_id"], sot.volume_id)
-        self.assertEqual(BACKUP_DETAIL["object_count"], sot.object_count)
-        self.assertEqual(BACKUP_DETAIL["is_incremental"], sot.is_incremental)
-        self.assertEqual(BACKUP_DETAIL["size"], sot.size)
-        self.assertEqual(BACKUP_DETAIL["has_dependent_backups"],
                          sot.has_dependent_backups)

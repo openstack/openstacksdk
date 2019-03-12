@@ -147,11 +147,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
     def volumes(self, details=True, **query):
         """Retrieve a generator of volumes
 
-        :param bool details: When set to ``False``
-                    :class:`~openstack.block_storage.v2.volume.Volume` objects
-                    will be returned. The default, ``True``, will cause
-                    :class:`~openstack.block_storage.v2.volume.VolumeDetail`
-                    objects to be returned.
+        :param bool details: When set to ``False`` no extended attributes
+            will be returned. The default, ``True``, will cause objects with
+            additional attributes to be returned.
         :param kwargs query: Optional query parameters to be sent to limit
             the volumes being returned.  Available parameters include:
 
@@ -162,8 +160,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: A generator of volume objects.
         """
-        volume = _volume.VolumeDetail if details else _volume.Volume
-        return self._list(volume, **query)
+        base_path = '/volumes/detail' if details else None
+        return self._list(_volume.Volume, base_path=base_path, **query)
 
     def create_volume(self, **attrs):
         """Create a new volume from attributes
@@ -214,11 +212,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
     def backups(self, details=True, **query):
         """Retrieve a generator of backups
 
-        :param bool details: When set to ``False``
-            :class:`~openstack.block_storage.v2.backup.Backup` objects
-            will be returned. The default, ``True``, will cause
-            :class:`~openstack.block_storage.v2.backup.BackupDetail`
-            objects to be returned.
+        :param bool details: When set to ``False`` no additional details will
+            be returned. The default, ``True``, will cause objects with
+            additional attributes to be returned.
         :param dict query: Optional query parameters to be sent to limit the
             resources being returned:
 
@@ -239,8 +235,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             raise exceptions.SDKException(
                 'Object-store service is required for block-store backups'
             )
-        backup = _backup.BackupDetail if details else _backup.Backup
-        return self._list(backup, **query)
+        base_path = '/backups/detail' if details else None
+        return self._list(_backup.Backup, base_path=base_path, **query)
 
     def get_backup(self, backup):
         """Get a backup

@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    Requesting volumes or backups with details from block_storage will return
+    objects of classes Volume and Backup correspondingly, instead
+    of VolumeDetail and BackupDetail.
