@@ -18,7 +18,6 @@ from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import obj as _obj
 from openstack.object_store.v1 import info as _info
-from openstack import _adapter
 from openstack import exceptions
 from openstack import _log
 from openstack import proxy
@@ -568,7 +567,7 @@ class Proxy(proxy.Proxy):
 
     def _upload_object(self, endpoint, filename, headers):
         with open(filename, 'rb') as dt:
-            return _adapter._json_response(self.put(
+            return proxy._json_response(self.put(
                 endpoint, headers=headers, data=dt))
 
     def _get_file_segments(self, endpoint, filename, file_size, segment_size):

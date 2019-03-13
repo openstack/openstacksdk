@@ -17,7 +17,6 @@ import os_service_types
 
 from openstack import _log
 from openstack import exceptions
-from openstack import proxy
 
 __all__ = [
     'ServiceDescription',
@@ -55,11 +54,6 @@ class ServiceDescription(object):
 
         :param string service_type:
             service_type to look for in the keystone catalog
-        :param proxy.Proxy proxy_class:
-            subclass of :class:`~openstack.proxy.Proxy` implementing
-            an interface for this service. Defaults to
-            :class:`~openstack.proxy.Proxy` which provides REST operations
-            but no additional features.
         :param list aliases:
             Optional list of aliases, if there is more than one name that might
             be used to register the service in the catalog.
@@ -179,7 +173,6 @@ class ServiceDescription(object):
 
         temp_adapter = config.get_session_client(
             self.service_type,
-            constructor=proxy.Proxy,
             allow_version_hack=True,
             **version_kwargs
         )
@@ -197,11 +190,10 @@ class ServiceDescription(object):
                 category=exceptions.UnsupportedServiceVersion)
             return temp_adapter
         proxy_class = self.supported_versions.get(str(found_version[0]))
-        if not proxy_class:
-            proxy_class = proxy.Proxy
+        if proxy_class:
+            version_kwargs['constructor'] = proxy_class
         return config.get_session_client(
             self.service_type,
-            constructor=proxy_class,
             allow_version_hack=True,
             **version_kwargs
         )

@@ -38,7 +38,6 @@ import requestsexceptions
 import keystoneauth1.exceptions
 import keystoneauth1.session
 
-from openstack import _adapter
 from openstack import _log
 from openstack import exceptions
 from openstack.cloud import exc
@@ -49,6 +48,7 @@ from openstack.cloud import meta
 from openstack.cloud import _utils
 import openstack.config
 import openstack.config.defaults
+from openstack import proxy
 from openstack import utils
 
 DEFAULT_SERVER_AGE = 5
@@ -444,7 +444,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             request_min_version = config_version
             request_max_version = '{version}.latest'.format(
                 version=config_major)
-            adapter = _adapter.ShadeAdapter(
+            adapter = proxy._ShadeAdapter(
                 session=self.session,
                 service_type=self.config.get_service_type(service_type),
                 service_name=self.config.get_service_name(service_type),
@@ -456,7 +456,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             if adapter.get_endpoint():
                 return adapter
 
-        adapter = _adapter.ShadeAdapter(
+        adapter = proxy._ShadeAdapter(
             session=self.session,
             service_type=self.config.get_service_type(service_type),
             service_name=self.config.get_service_name(service_type),
@@ -494,7 +494,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
     #             object.
     def _get_raw_client(
             self, service_type, api_version=None, endpoint_override=None):
-        return _adapter.ShadeAdapter(
+        return proxy._ShadeAdapter(
             session=self.session,
             service_type=self.config.get_service_type(service_type),
             service_name=self.config.get_service_name(service_type),
@@ -802,7 +802,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         to fail.
         """
         if isinstance(data, requests.models.Response):
-            data = _adapter._json_response(data)
+            data = proxy._json_response(data)
         return meta.get_and_munchify(key, data)
 
     @_utils.cache_on_arguments()
@@ -1416,7 +1416,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
     @_utils.cache_on_arguments()
     def _nova_extensions(self):
         extensions = set()
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('/extensions'),
             error_message="Error fetching extension list for nova")
 
@@ -1435,7 +1435,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
     def _neutron_extensions(self):
         extensions = set()
         resp = self.network.get('/extensions.json')
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching extension list for neutron")
         for extension in self._get_and_munchify('extensions', data):
@@ -1633,7 +1633,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A list of ``munch.Munch`` containing keypair info.
 
         """
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('/os-keypairs'),
             error_message="Error fetching keypair list")
         return self._normalize_keypairs([
@@ -1663,7 +1663,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if not filters:
             filters = {}
         resp = self.network.get("/routers.json", params=filters)
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching router list")
         return self._get_and_munchify('routers', data)
@@ -1716,7 +1716,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
     def _list_ports(self, filters):
         resp = self.network.get("/ports.json", params=filters)
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching port list")
         return self._get_and_munchify('ports', data)
@@ -1736,7 +1736,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if not filters:
             filters = {}
         resp = self.network.get("/qos/rule-types.json", params=filters)
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS rule types list")
         return self._get_and_munchify('rule_types', data)
@@ -1761,7 +1761,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         resp = self.network.get(
             "/qos/rule-types/{rule_type}.json".format(rule_type=rule_type))
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS details of {rule_type} "
                           "rule type".format(rule_type=rule_type))
@@ -1781,7 +1781,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if not filters:
             filters = {}
         resp = self.network.get("/qos/policies.json", params=filters)
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS policies list")
         return self._get_and_munchify('policies', data)
@@ -1867,7 +1867,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                   list could not be fetched.
         """
         try:
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.compute.get('/os-availability-zone'))
         except exc.OpenStackCloudHTTPError:
             self.log.debug(
@@ -1892,7 +1892,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A list of flavor ``munch.Munch``.
 
         """
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get(
                 '/flavors/detail', params=dict(is_public='None')),
             error_message="Error fetching flavor list")
@@ -1904,7 +1904,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 endpoint = "/flavors/{id}/os-extra_specs".format(
                     id=flavor.id)
                 try:
-                    data = _adapter._json_response(
+                    data = proxy._json_response(
                         self.compute.get(endpoint),
                         error_message="Error fetching flavor extra specs")
                     flavor.extra_specs = self._get_and_munchify(
@@ -1941,7 +1941,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if not self._has_secgroups():
             return []
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get(
                 '/servers/{server_id}/os-security-groups'.format(
                     server_id=server['id'])))
@@ -1998,7 +1998,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             return False
 
         for sg in security_groups:
-            _adapter._json_response(self.compute.post(
+            proxy._json_response(self.compute.post(
                 '/servers/%s/action' % server['id'],
                 json={'addSecurityGroup': {'name': sg.name}}))
 
@@ -2026,7 +2026,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         for sg in security_groups:
             try:
-                _adapter._json_response(self.compute.post(
+                proxy._json_response(self.compute.post(
                     '/servers/%s/action' % server['id'],
                     json={'removeSecurityGroup': {'name': sg.name}}))
 
@@ -2062,7 +2062,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if self._use_neutron_secgroups():
             # Neutron returns dicts, so no need to convert objects here.
             resp = self.network.get('/security-groups.json', params=filters)
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 resp,
                 error_message="Error fetching security group list")
             return self._normalize_secgroups(
@@ -2070,7 +2070,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         # Handle nova security groups
         else:
-            data = _adapter._json_response(self.compute.get(
+            data = proxy._json_response(self.compute.get(
                 '/os-security-groups', params=filters))
         return self._normalize_secgroups(
             self._get_and_munchify('security_groups', data))
@@ -2147,7 +2147,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A list of server group dicts.
 
         """
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('/os-server-groups'),
             error_message="Error fetching server group list")
         return self._get_and_munchify('server_groups', data)
@@ -2174,7 +2174,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             error_msg = "{msg} for the project: {project} ".format(
                 msg=error_msg, project=name_or_id)
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('/limits', params=params))
         limits = self._get_and_munchify('limits', data)
         return self._normalize_compute_limits(limits, project_id=project_id)
@@ -2209,7 +2209,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         except keystoneauth1.exceptions.catalog.EndpointNotFound:
             # We didn't have glance, let's try nova
             # If this doesn't work - we just let the exception propagate
-            response = _adapter._json_response(
+            response = proxy._json_response(
                 self.compute.get('/images/detail'))
         while 'next' in response:
             image_list.extend(meta.obj_list_to_munch(response['images']))
@@ -2250,7 +2250,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'Floating IP pools extension is not available on target cloud')
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('os-floating-ip-pools'),
             error_message="Error fetching floating IP pool list")
         pools = self._get_and_munchify('floating_ip_pools', data)
@@ -2344,7 +2344,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
     def _nova_list_floating_ips(self):
         try:
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.compute.get('/os-floating-ips'))
         except exc.OpenStackCloudURINotFound:
             return []
@@ -2746,7 +2746,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A network ``munch.Munch``.
         """
         resp = self.network.get('/networks/{id}'.format(id=id))
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error getting network with ID {id}".format(id=id)
         )
@@ -2807,7 +2807,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A subnet ``munch.Munch``.
         """
         resp = self.network.get('/subnets/{id}'.format(id=id))
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error getting subnet with ID {id}".format(id=id)
         )
@@ -2846,7 +2846,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A port ``munch.Munch``.
         """
         resp = self.network.get('/ports/{id}'.format(id=id))
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error getting port with ID {id}".format(id=id)
         )
@@ -2985,7 +2985,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
              specs.
         :returns: A flavor ``munch.Munch``.
         """
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('/flavors/{id}'.format(id=id)),
             error_message="Error getting flavor with ID {id}".format(id=id)
         )
@@ -2996,7 +2996,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             endpoint = "/flavors/{id}/os-extra_specs".format(
                 id=flavor.id)
             try:
-                data = _adapter._json_response(
+                data = proxy._json_response(
                     self.compute.get(endpoint),
                     error_message="Error fetching flavor extra specs")
                 flavor.extra_specs = self._get_and_munchify(
@@ -3049,9 +3049,9 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                          " ID {id}".format(id=id))
         if self._use_neutron_secgroups():
             resp = self.network.get('/security-groups/{id}'.format(id=id))
-            data = _adapter._json_response(resp, error_message=error_message)
+            data = proxy._json_response(resp, error_message=error_message)
         else:
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.compute.get(
                     '/os-security-groups/{id}'.format(id=id)),
                 error_message=error_message)
@@ -3085,7 +3085,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             return ""
 
     def _get_server_console_output(self, server_id, length=None):
-        data = _adapter._json_response(self.compute.post(
+        data = proxy._json_response(self.compute.post(
             '/servers/{server_id}/action'.format(server_id=server_id),
             json={'os-getConsoleOutput': {'length': length}}))
         return self._get_and_munchify('output', data)
@@ -3138,7 +3138,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             return meta.add_server_interfaces(self, server)
 
     def get_server_by_id(self, id):
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('/servers/{id}'.format(id=id)))
         server = self._get_and_munchify('server', data)
         return meta.add_server_interfaces(self, self._normalize_server(server))
@@ -3291,13 +3291,13 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         error_message = "Error getting floating ip with ID {id}".format(id=id)
 
         if self._use_neutron_floating():
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.network.get('/floatingips/{id}'.format(id=id)),
                 error_message=error_message)
             return self._normalize_floating_ip(
                 self._get_and_munchify('floatingip', data))
         else:
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.compute.get('/os-floating-ips/{id}'.format(id=id)),
                 error_message=error_message)
             return self._normalize_floating_ip(
@@ -3353,7 +3353,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         }
         if public_key:
             keypair['public_key'] = public_key
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.post(
                 '/os-keypairs',
                 json={'keypair': keypair}),
@@ -3371,7 +3371,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            _adapter._json_response(self.compute.delete(
+            proxy._json_response(self.compute.delete(
                 '/os-keypairs/{name}'.format(name=name)))
         except exc.OpenStackCloudURINotFound:
             self.log.debug("Keypair %s not found for deleting", name)
@@ -3517,7 +3517,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Network %s not found." % name_or_id)
 
-        data = _adapter._json_response(self.network.put(
+        data = proxy._json_response(self.network.put(
             "/networks/{net_id}.json".format(net_id=network.id),
             json={"network": kwargs}),
             error_message="Error updating network {0}".format(name_or_id))
@@ -3694,7 +3694,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             "/qos/policies/{policy_id}/bandwidth_limit_rules.json".format(
                 policy_id=policy['id']),
             params=filters)
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS bandwidth limit rules from "
                           "{policy}".format(policy=policy['id']))
@@ -3724,7 +3724,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         resp = self.network.get(
             "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id))
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS bandwidth limit rule {rule_id} "
                           "from {policy}".format(rule_id=rule_id,
@@ -3903,7 +3903,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             "/qos/policies/{policy_id}/dscp_marking_rules.json".format(
                 policy_id=policy['id']),
             params=filters)
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS DSCP marking rules from "
                           "{policy}".format(policy=policy['id']))
@@ -3933,7 +3933,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         resp = self.network.get(
             "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id))
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS DSCP marking rule {rule_id} "
                           "from {policy}".format(rule_id=rule_id,
@@ -4092,7 +4092,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             "/qos/policies/{policy_id}/minimum_bandwidth_rules.json".format(
                 policy_id=policy['id']),
             params=filters)
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS minimum bandwidth rules from "
                           "{policy}".format(policy=policy['id']))
@@ -4122,7 +4122,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         resp = self.network.get(
             "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}.json".
             format(policy_id=policy['id'], rule_id=rule_id))
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error fetching QoS minimum_bandwidth rule {rule_id}"
                           " from {policy}".format(rule_id=rule_id,
@@ -4271,7 +4271,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if port_id:
             json_body['port_id'] = port_id
 
-        return _adapter._json_response(
+        return proxy._json_response(
             self.network.put(
                 "/routers/{router_id}/add_router_interface.json".format(
                     router_id=router['id']),
@@ -4395,7 +4395,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                     'target cloud')
             router['availability_zone_hints'] = availability_zone_hints
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.network.post("/routers.json", json={"router": router}),
             error_message="Error creating router {0}".format(name))
         return self._get_and_munchify('router', data)
@@ -4464,7 +4464,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         resp = self.network.put(
             "/routers/{router_id}.json".format(router_id=curr_router['id']),
             json={"router": router})
-        data = _adapter._json_response(
+        data = proxy._json_response(
             resp,
             error_message="Error updating router {0}".format(name_or_id))
         return self._get_and_munchify('router', data)
@@ -4542,7 +4542,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                     "Server {server} could not be found and therefore"
                     " could not be snapshotted.".format(server=server))
             server = server_obj
-        response = _adapter._json_response(
+        response = proxy._json_response(
             self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server['id']),
                 json={
@@ -4998,7 +4998,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
 
-        _adapter._json_response(self.compute.delete(
+        proxy._json_response(self.compute.delete(
             '/servers/{server_id}/os-volume_attachments/{volume_id}'.format(
                 server_id=server['id'], volume_id=volume['id'])),
             error_message=(
@@ -5065,7 +5065,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         payload = {'volumeId': volume['id']}
         if device:
             payload['device'] = device
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.post(
                 '/servers/{server_id}/os-volume_attachments'.format(
                     server_id=server['id']),
@@ -5713,11 +5713,11 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                         "unable to find a floating ip pool")
                 pool = pools[0]['name']
 
-            data = _adapter._json_response(self.compute.post(
+            data = proxy._json_response(self.compute.post(
                 '/os-floating-ips', json=dict(pool=pool)))
             pool_ip = self._get_and_munchify('floating_ip', data)
             # TODO(mordred) Remove this - it's just for compat
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.compute.get('/os-floating-ips/{id}'.format(
                     id=pool_ip['id'])))
             return self._get_and_munchify('floating_ip', data)
@@ -5774,7 +5774,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
-            _adapter._json_response(self.network.delete(
+            proxy._json_response(self.network.delete(
                 "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
                 error_message="unable to delete floating IP"))
         except exc.OpenStackCloudResourceNotFound:
@@ -5787,7 +5787,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
     def _nova_delete_floating_ip(self, floating_ip_id):
         try:
-            _adapter._json_response(
+            proxy._json_response(
                 self.compute.delete(
                     '/os-floating-ips/{id}'.format(id=floating_ip_id)),
                 error_message='Unable to delete floating IP {fip_id}'.format(
@@ -6015,7 +6015,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if fixed_address is not None:
             floating_ip_args['fixed_ip_address'] = fixed_address
 
-        return _adapter._json_response(
+        return proxy._json_response(
             self.network.put(
                 "/floatingips/{fip_id}.json".format(fip_id=floating_ip['id']),
                 json={'floatingip': floating_ip_args}),
@@ -6038,7 +6038,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         }
         if fixed_address:
             body['fixed_address'] = fixed_address
-        return _adapter._json_response(
+        return proxy._json_response(
             self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
                 json=dict(addFloatingIp=body)),
@@ -6091,7 +6091,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 "unable to find floating IP {0}".format(floating_ip_id))
         error_message = "Error detaching IP {ip} from instance {id}".format(
             ip=floating_ip_id, id=server_id)
-        return _adapter._json_response(
+        return proxy._json_response(
             self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
                 json=dict(removeFloatingIp=dict(
@@ -6667,7 +6667,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if 'block_device_mapping_v2' in kwargs:
             endpoint = '/os-volumes_boot'
         with _utils.shade_exceptions("Error in creating instance"):
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.compute.post(endpoint, json=server_json))
             server = self._get_and_munchify('server', data)
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
@@ -6788,7 +6788,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if admin_pass:
             kwargs['adminPass'] = admin_pass
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.post(
                 '/servers/{server_id}/action'.format(server_id=server_id),
                 json={'rebuild': kwargs}),
@@ -6838,7 +6838,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 'Invalid Server {server}'.format(server=name_or_id))
 
-        _adapter._json_response(
+        proxy._json_response(
             self.compute.post(
                 '/servers/{server_id}/metadata'.format(server_id=server['id']),
                 json={'metadata': metadata}),
@@ -6862,7 +6862,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         for key in metadata_keys:
             error_message = 'Error deleting metadata {key} on {server}'.format(
                 key=key, server=name_or_id)
-            _adapter._json_response(
+            proxy._json_response(
                 self.compute.delete(
                     '/servers/{server_id}/metadata/{key}'.format(
                         server_id=server['id'],
@@ -6936,7 +6936,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             self._delete_server_floating_ips(server, delete_ip_retry)
 
         try:
-            _adapter._json_response(
+            proxy._json_response(
                 self.compute.delete(
                     '/servers/{id}'.format(id=server['id'])),
                 error_message="Error in deleting server")
@@ -7001,7 +7001,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "failed to find server '{server}'".format(server=name_or_id))
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.put(
                 '/servers/{server_id}'.format(server_id=server['id']),
                 json={'server': kwargs}),
@@ -7020,7 +7020,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.post(
                 '/os-server-groups',
                 json={
@@ -7046,7 +7046,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                            name_or_id)
             return False
 
-        _adapter._json_response(
+        proxy._json_response(
             self.compute.delete(
                 '/os-server-groups/{id}'.format(id=server_group['id'])),
             error_message="Error deleting server group {name}".format(
@@ -7912,7 +7912,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         """
         kwargs['network_id'] = network_id
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.network.post("/ports.json", json={'port': kwargs}),
             error_message="Error creating port for network {0}".format(
                 network_id))
@@ -7980,7 +7980,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "failed to find port '{port}'".format(port=name_or_id))
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.network.put(
                 "/ports/{port_id}.json".format(port_id=port['id']),
                 json={"port": kwargs}),
@@ -8037,13 +8037,13 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if project_id is not None:
             security_group_json['security_group']['tenant_id'] = project_id
         if self._use_neutron_secgroups():
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.network.post(
                     '/security-groups.json',
                     json=security_group_json),
                 error_message="Error creating security group {0}".format(name))
         else:
-            data = _adapter._json_response(self.compute.post(
+            data = proxy._json_response(self.compute.post(
                 '/os-security-groups', json=security_group_json))
         return self._normalize_secgroup(
             self._get_and_munchify('security_group', data))
@@ -8084,7 +8084,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             return True
 
         else:
-            _adapter._json_response(self.compute.delete(
+            proxy._json_response(self.compute.delete(
                 '/os-security-groups/{id}'.format(id=secgroup['id'])))
             return True
 
@@ -8113,7 +8113,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 "Security group %s not found." % name_or_id)
 
         if self._use_neutron_secgroups():
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.network.put(
                     '/security-groups/{sg_id}.json'.format(sg_id=group['id']),
                     json={'security_group': kwargs}),
@@ -8122,7 +8122,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         else:
             for key in ('name', 'description'):
                 kwargs.setdefault(key, group[key])
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.compute.put(
                     '/os-security-groups/{id}'.format(id=group['id']),
                     json={'security_group': kwargs}))
@@ -8213,7 +8213,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             if project_id is not None:
                 rule_def['tenant_id'] = project_id
 
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.network.post(
                     '/security-group-rules.json',
                     json={'security_group_rule': rule_def}),
@@ -8259,7 +8259,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             if project_id is not None:
                 security_group_rule_dict[
                     'security_group_rule']['tenant_id'] = project_id
-            data = _adapter._json_response(
+            data = proxy._json_response(
                 self.compute.post(
                     '/os-security-group-rules',
                     json=security_group_rule_dict
@@ -10495,7 +10495,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             }
             if flavorid == 'auto':
                 payload['id'] = None
-            data = _adapter._json_response(self.compute.post(
+            data = proxy._json_response(self.compute.post(
                 '/flavors',
                 json=dict(flavor=payload)))
 
@@ -10517,7 +10517,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 "Flavor %s not found for deleting", name_or_id)
             return False
 
-        _adapter._json_response(
+        proxy._json_response(
             self.compute.delete(
                 '/flavors/{id}'.format(id=flavor['id'])),
             error_message="Unable to delete flavor {name}".format(
@@ -10534,7 +10534,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
-        _adapter._json_response(
+        proxy._json_response(
             self.compute.post(
                 "/flavors/{id}/os-extra_specs".format(id=flavor_id),
                 json=dict(extra_specs=extra_specs)),
@@ -10550,7 +10550,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
         for key in keys:
-            _adapter._json_response(
+            proxy._json_response(
                 self.compute.delete(
                     "/flavors/{id}/os-extra_specs/{key}".format(
                         id=flavor_id, key=key)),
@@ -10566,7 +10566,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             access = {'tenant': project_id}
             access_key = '{action}TenantAccess'.format(action=action)
 
-            _adapter._json_response(
+            proxy._json_response(
                 self.compute.post(endpoint, json={access_key: access}))
 
     def add_flavor_access(self, flavor_id, project_id):
@@ -10598,7 +10598,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get(
                 '/flavors/{id}/os-flavor-access'.format(id=flavor_id)),
             error_message=(
@@ -10882,7 +10882,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A list of hypervisor ``munch.Munch``.
         """
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('/os-hypervisors/detail'),
             error_message="Error fetching hypervisor list")
         return self._get_and_munchify('hypervisors', data)
@@ -10907,7 +10907,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         :returns: A list of aggregate dicts.
 
         """
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get('/os-aggregates'),
             error_message="Error fetching aggregate list")
         return self._get_and_munchify('aggregates', data)
@@ -10943,7 +10943,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.post(
                 '/os-aggregates',
                 json={'aggregate': {
@@ -10971,7 +10971,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.put(
                 '/os-aggregates/{id}'.format(id=aggregate['id']),
                 json={'aggregate': kwargs}),
@@ -10993,7 +10993,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             self.log.debug("Aggregate %s not found for deleting", name_or_id)
             return False
 
-        return _adapter._json_response(
+        return proxy._json_response(
             self.compute.delete(
                 '/os-aggregates/{id}'.format(id=aggregate['id'])),
             error_message="Error deleting aggregate {name}".format(
@@ -11020,7 +11020,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         err_msg = "Unable to set metadata for host aggregate {name}".format(
             name=name_or_id)
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.post(
                 '/os-aggregates/{id}/action'.format(id=aggregate['id']),
                 json={'set_metadata': {'metadata': metadata}}),
@@ -11043,7 +11043,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         err_msg = "Unable to add host {host} to aggregate {name}".format(
             host=host_name, name=name_or_id)
 
-        return _adapter._json_response(
+        return proxy._json_response(
             self.compute.post(
                 '/os-aggregates/{id}/action'.format(id=aggregate['id']),
                 json={'add_host': {'host': host_name}}),
@@ -11065,7 +11065,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         err_msg = "Unable to remove host {host} to aggregate {name}".format(
             host=host_name, name=name_or_id)
 
-        return _adapter._json_response(
+        return proxy._json_response(
             self.compute.post(
                 '/os-aggregates/{id}/action'.format(id=aggregate['id']),
                 json={'remove_host': {'host': host_name}}),
@@ -11157,7 +11157,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         #                 if key in quota.VOLUME_QUOTAS}
 
         kwargs['force'] = True
-        _adapter._json_response(
+        proxy._json_response(
             self.compute.put(
                 '/os-quota-sets/{project}'.format(project=proj.id),
                 json={'quota_set': kwargs}),
@@ -11174,7 +11174,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get(
                 '/os-quota-sets/{project}'.format(project=proj.id)))
         return self._get_and_munchify('quota_set', data)
@@ -11191,7 +11191,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
-        return _adapter._json_response(
+        return proxy._json_response(
             self.compute.delete(
                 '/os-quota-sets/{project}'.format(project=proj.id)))
 
@@ -11251,7 +11251,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "project does not exist: {}".format(name=proj.id))
 
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.compute.get(
                 '/os-simple-tenant-usage/{project}'.format(project=proj.id),
                 params=dict(start=start.isoformat(), end=end.isoformat())),
@@ -11352,7 +11352,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
         if details:
             url = url + "/details"
         url = url + ".json"
-        data = _adapter._json_response(
+        data = proxy._json_response(
             self.network.get(url),
             error_message=("Error fetching Neutron's quota for "
                            "project {0}".format(proj.id)))

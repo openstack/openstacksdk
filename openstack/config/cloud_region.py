@@ -22,12 +22,12 @@ import os_service_types
 import requestsexceptions
 from six.moves import urllib
 
-from openstack import _adapter
 from openstack import version as openstack_version
 from openstack import _log
 from openstack.config import _util
 from openstack.config import defaults as config_defaults
 from openstack import exceptions
+from openstack import proxy
 
 
 def _make_key(key, service_type):
@@ -450,7 +450,7 @@ class CloudRegion(object):
 
     def get_session_client(
             self, service_type, version=None,
-            constructor=_adapter.OpenStackSDKAdapter,
+            constructor=proxy.Proxy,
             **kwargs):
         """Return a prepped keystoneauth Adapter for a given service.
 
