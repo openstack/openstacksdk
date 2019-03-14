@@ -110,7 +110,7 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
             self, name_or_id,
             template_file=None, template_url=None,
             template_object=None, files=None,
-            rollback=True,
+            rollback=True, tags=None,
             wait=False, timeout=3600,
             environment_files=None,
             **parameters):
@@ -146,6 +146,7 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
             files=files)
         params = dict(
             disable_rollback=not rollback,
+            tags=tags,
             parameters=parameters,
             template=template,
             files=dict(list(tpl_files.items()) + list(envfiles.items())),
