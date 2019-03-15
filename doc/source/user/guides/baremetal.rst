@@ -11,6 +11,9 @@ below.
 
 The primary resource of the Bare Metal service is the **node**.
 
+Below are a few usage examples. For a reference to all the available methods,
+see :doc:`/user/proxies/baremetal`.
+
 CRUD operations
 ~~~~~~~~~~~~~~~
 
