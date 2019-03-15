@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added the ability to create a ``Connection`` from an ``oslo.config``
+    ``CONF`` object. This is primarily intended to be used by OpenStack
+    services using SDK for inter-service communication.

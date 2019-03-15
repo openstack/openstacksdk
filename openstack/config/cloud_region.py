@@ -17,6 +17,7 @@ import warnings
 
 from keystoneauth1 import discover
 import keystoneauth1.exceptions.catalog
+from keystoneauth1.loading import adapter as ks_load_adap
 from keystoneauth1 import session as ks_session
 import os_service_types
 import requestsexceptions
@@ -43,6 +44,10 @@ SCOPE_KEYS = {
     'project_id', 'project_name',
     'system_scope'
 }
+
+
+# Sentinel for nonexistence
+_ENOENT = object()
 
 
 def _make_key(key, service_type):
@@ -96,6 +101,56 @@ def from_session(session, name=None, region_name=None,
         name=name, session=session, config=config_dict,
         region_name=region_name, force_ipv4=force_ipv4,
         app_name=app_name, app_version=app_version)
+
+
+def from_conf(conf, session=None, **kwargs):
+    """Create a CloudRegion from oslo.config ConfigOpts.
+
+    :param oslo_config.cfg.ConfigOpts conf:
+        An oslo.config ConfigOpts containing keystoneauth1.Adapter options in
+        sections named according to project (e.g. [nova], not [compute]).
+        TODO: Current behavior is to use defaults if no such section exists,
+        which may not be what we want long term.
+    :param keystoneauth1.session.Session session:
+        An existing authenticated Session to use. This is currently required.
+        TODO: Load this (and auth) from the conf.
+    :param kwargs:
+        Additional keyword arguments to be passed directly to the CloudRegion
+        constructor.
+    :raise openstack.exceptions.ConfigException:
+        If session is not specified.
+    :return:
+        An openstack.config.cloud_region.CloudRegion.
+    """
+    if not session:
+        # TODO(mordred) Fill this in - not needed for first stab with nova
+        raise exceptions.ConfigException("A Session must be supplied.")
+    config_dict = kwargs.pop('config', config_defaults.get_defaults())
+    stm = os_service_types.ServiceTypes()
+    # TODO(mordred) Think about region_name here
+    region_name = kwargs.pop('region_name', None)
+    for st in stm.all_types_by_service_type:
+        project_name = stm.get_project_name(st)
+        if project_name not in conf:
+            continue
+        opt_dict = {}
+        # Populate opt_dict with (appropriately processed) Adapter conf opts
+        try:
+            ks_load_adap.process_conf_options(conf[project_name], opt_dict)
+        except Exception:
+            # NOTE(efried): This is for oslo_config.cfg.NoSuchOptError, but we
+            # don't want to drag in oslo.config just for that.
+            continue
+        # Load them into config_dict under keys prefixed by ${service_type}_
+        for raw_name, opt_val in opt_dict.items():
+            if raw_name == 'region_name':
+                region_name = opt_val
+                continue
+            config_name = '_'.join([st, raw_name])
+            config_dict[config_name] = opt_val
+    return CloudRegion(
+        session=session, region_name=region_name, config=config_dict,
+        **kwargs)
 
 
 class CloudRegion(object):

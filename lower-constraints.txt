@@ -14,7 +14,7 @@ jmespath==0.9.0
 jsonpatch==1.16
 jsonpointer==1.13
 jsonschema==2.6.0
-keystoneauth1==3.13.0
+keystoneauth1==3.14.0
 linecache2==1.0.0
 mock==2.0.0
 mox3==0.20.0
@@ -22,6 +22,7 @@ munch==2.1.0
 netifaces==0.10.4
 os-client-config==1.28.0
 os-service-types==1.2.0
+oslo.config==6.1.0
 oslotest==3.2.0
 pbr==2.0.0
 prometheus-client==0.4.2

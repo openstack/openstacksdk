@@ -112,6 +112,27 @@ is needed:
         compute_api_version='2',
         identity_interface='internal')
 
+From oslo.conf CONF object
+--------------------------
+
+For applications that have an oslo.config ``CONF`` object that has been
+populated with ``keystoneauth1.loading.register_adapter_conf_options`` in
+groups named by the OpenStack service's project name, it is possible to
+construct a Connection with the ``CONF`` object and an authenticated Session.
+
+.. note::
+
+    This is primarily intended for use by OpenStack services to talk amongst
+    themselves.
+
+.. code-block:: python
+
+    from openstack import connection
+
+    conn = connection.Connection(
+        session=session,
+        oslo_config=CONF)
+
 From existing CloudRegion
 -------------------------
 
@@ -249,6 +270,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                  use_direct_get=False,
                  task_manager=None,
                  rate_limit=None,
+                 oslo_conf=None,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -295,6 +317,11 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             keys as service-type and values as floats expressing the calls
             per second for that service. Defaults to None, which means no
             rate-limiting is performed.
+        :param oslo_conf: An oslo.config CONF object.
+        :type oslo_conf: :class:`~oslo_config.cfg.ConfigOpts`
+            An oslo.config ``CONF`` object that has been populated with
+            ``keystoneauth1.loading.register_adapter_conf_options`` in
+            groups named by the OpenStack service's project name.
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion constructor.
@@ -306,7 +333,11 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                 self._extra_services[service.service_type] = service
 
         if not self.config:
-            if session:
+            if oslo_conf:
+                self.config = cloud_region.from_conf(
+                    oslo_conf, session=session, app_name=app_name,
+                    app_version=app_version)
+            elif session:
                 self.config = cloud_region.from_session(
                     session=session,
                     app_name=app_name, app_version=app_version,
