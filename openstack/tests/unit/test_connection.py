@@ -19,6 +19,7 @@ import mock
 from openstack import connection
 import openstack.config
 from openstack.tests.unit import base
+from openstack.tests.unit.fake import fake_service
 
 
 CONFIG_AUTH_URL = "https://identity.example.com/"
@@ -251,3 +252,56 @@ class TestAuthorize(base.TestCase):
 
         self.assertRaises(openstack.exceptions.HttpException,
                           self.cloud.authorize)
+
+
+class TestNewService(base.TestCase):
+
+    def test_add_service_v1(self):
+        self.use_keystone_v3(catalog='catalog-v3-fake-v1.json')
+        conn = self.cloud
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://fake.example.com',
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://fake.example.com/v1/',
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url('fake'),
+                 status_code=404),
+        ])
+
+        service = fake_service.FakeService('fake')
+
+        conn.add_service(service)
+
+        self.assertEqual(
+            'openstack.tests.unit.fake.v1._proxy',
+            conn.fake.__class__.__module__)
+        self.assertTrue(conn.fake.dummy())
+
+    def test_add_service_v2(self):
+        self.use_keystone_v3(catalog='catalog-v3-fake-v2.json')
+        conn = self.cloud
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://fake.example.com',
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://fake.example.com/v2/',
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url('fake'),
+                 status_code=404),
+        ])
+
+        service = fake_service.FakeService('fake')
+
+        conn.add_service(service)
+
+        self.assertEqual(
+            'openstack.tests.unit.fake.v2._proxy',
+            conn.fake.__class__.__module__)
+        self.assertFalse(conn.fake.dummy())
