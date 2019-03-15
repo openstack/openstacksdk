@@ -250,7 +250,7 @@ class Node(_common.ListMixin, resource.Resource):
                 "state %s" % expected_provision_state)
 
         # Ironic cannot set provision_state itself, so marking it as unchanged
-        self._body.clean(only={'provision_state'})
+        self._clean_body_attrs({'provision_state'})
         super(Node, self).create(session, *args, **kwargs)
 
         if (self.provision_state == 'enroll'
@@ -266,6 +266,39 @@ class Node(_common.ListMixin, resource.Resource):
             self.set_provision_state(session, 'manage', wait=True)
 
         return self
+
+    def commit(self, session, *args, **kwargs):
+        """Commit the state of the instance to the remote resource.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+
+        :return: This :class:`Node` instance.
+        """
+        # These fields have to be set through separate API.
+        if ('maintenance_reason' in self._body.dirty
+                or 'maintenance' in self._body.dirty):
+            if not self.is_maintenance and self.maintenance_reason:
+                if 'maintenance' in self._body.dirty:
+                    self.maintenance_reason = None
+                else:
+                    raise ValueError('Maintenance reason cannot be set when '
+                                     'maintenance is False')
+            if self.is_maintenance:
+                self._do_maintenance_action(
+                    session, 'put', {'reason': self.maintenance_reason})
+            else:
+                # This corresponds to setting maintenance=False and
+                # maintenance_reason=None in the same request.
+                self._do_maintenance_action(session, 'delete')
+
+            self._clean_body_attrs({'maintenance', 'maintenance_reason'})
+            if not self.requires_commit:
+                # Other fields are not updated, re-fetch the node to reflect
+                # the new status.
+                return self.fetch(session)
+
+        return super(Node, self).commit(session, *args, **kwargs)
 
     def set_provision_state(self, session, target, config_drive=None,
                             clean_steps=None, rescue_password=None,
@@ -646,6 +679,39 @@ class Node(_common.ListMixin, resource.Resource):
 
         return {key: ValidationResult(value.get('result'), value.get('reason'))
                 for key, value in result.items()}
+
+    def set_maintenance(self, session, reason=None):
+        """Enable maintenance mode on the node.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param reason: Optional reason for maintenance.
+        :return: This :class:`Node` instance.
+        """
+        self._do_maintenance_action(session, 'put', {'reason': reason})
+        return self.fetch(session)
+
+    def unset_maintenance(self, session):
+        """Disable maintenance mode on the node.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :return: This :class:`Node` instance.
+        """
+        self._do_maintenance_action(session, 'delete')
+        return self.fetch(session)
+
+    def _do_maintenance_action(self, session, verb, body=None):
+        session = self._get_session(session)
+        version = self._get_microversion_for(session, 'commit')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'maintenance')
+        response = getattr(session, verb)(
+            request.url, json=body,
+            headers=request.headers, microversion=version)
+        msg = ("Failed to change maintenance mode for node {node}"
+               .format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
 
 
 NodeDetail = Node

@@ -592,6 +592,12 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid'],
                             'maintenance']),
                 validate=dict(json={'reason': 'no reason'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
         ])
         self.cloud.set_machine_maintenance_state(
             self.fake_baremetal_node['uuid'], True, reason='no reason')
@@ -606,6 +612,12 @@ class TestBaremetalNode(base.IronicTestCase):
                     resource='nodes',
                     append=[self.fake_baremetal_node['uuid'],
                             'maintenance'])),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
         ])
         self.cloud.set_machine_maintenance_state(
             self.fake_baremetal_node['uuid'], False)
@@ -620,6 +632,12 @@ class TestBaremetalNode(base.IronicTestCase):
                     resource='nodes',
                     append=[self.fake_baremetal_node['uuid'],
                             'maintenance'])),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
+                json=self.fake_baremetal_node),
         ])
         self.cloud.remove_machine_from_maintenance(
             self.fake_baremetal_node['uuid'])

@@ -9523,17 +9523,10 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :returns: None
         """
-        msg = ("Error setting machine maintenance state to {state} on node "
-               "{node}").format(state=state, node=name_or_id)
-        url = '/nodes/{name_or_id}/maintenance'.format(name_or_id=name_or_id)
         if state:
-            payload = {'reason': reason}
-            self._baremetal_client.put(url,
-                                       json=payload,
-                                       error_message=msg)
+            self.baremetal.set_node_maintenance(name_or_id, reason)
         else:
-            self._baremetal_client.delete(url, error_message=msg)
-        return None
+            self.baremetal.unset_node_maintenance(name_or_id)
 
     def remove_machine_from_maintenance(self, name_or_id):
         """Remove Baremetal Machine from Maintenance State
@@ -9550,7 +9543,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
 
         :returns: None
         """
-        self.set_machine_maintenance_state(name_or_id, False)
+        self.baremetal.unset_node_maintenance(name_or_id)
 
     def set_machine_power_on(self, name_or_id):
         """Activate baremetal machine power

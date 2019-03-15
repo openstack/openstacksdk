@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Implements updating the baremetal Node's ``maintenance_reason``.
