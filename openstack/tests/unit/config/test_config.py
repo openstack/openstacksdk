@@ -168,6 +168,23 @@ class TestConfig(base.TestCase):
         self.assertNotIn('domain-id', cc.auth)
         self.assertNotIn('domain_id', cc)
 
+    def test_get_one_unscoped_identity(self):
+        single_conf = base._write_yaml({
+            'clouds': {
+                'unscoped': {
+                    'auth': {
+                        'auth_url': 'http://example.com/v2',
+                        'username': 'testuser',
+                        'password': 'testpass',
+                    },
+                }
+            }
+        })
+        c = config.OpenStackConfig(config_files=[single_conf],
+                                   vendor_files=[self.vendor_yaml])
+        cc = c.get_one()
+        self.assertEqual('http://example.com/v2', cc.get_endpoint('identity'))
+
     def test_get_one_domain_scoped(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
@@ -175,6 +192,7 @@ class TestConfig(base.TestCase):
         self.assertEqual('12345', cc.auth['domain_id'])
         self.assertNotIn('user_domain_id', cc.auth)
         self.assertNotIn('project_domain_id', cc.auth)
+        self.assertIsNone(cc.get_endpoint('identity'))
 
     def test_get_one_infer_user_domain(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],

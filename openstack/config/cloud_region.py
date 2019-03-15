@@ -38,6 +38,12 @@ from openstack.config import defaults as config_defaults
 from openstack import exceptions
 from openstack import proxy
 
+SCOPE_KEYS = {
+    'domain_id', 'domain_name',
+    'project_id', 'project_name',
+    'system_scope'
+}
+
 
 def _make_key(key, service_type):
     if not service_type:
@@ -313,6 +319,7 @@ class CloudRegion(object):
         return self._get_config('service_name', service_type)
 
     def get_endpoint(self, service_type):
+        auth = self.config.get('auth', {})
         value = self._get_config('endpoint_override', service_type)
         if not value:
             value = self._get_config('endpoint', service_type)
@@ -320,7 +327,13 @@ class CloudRegion(object):
             # If endpoint is given and we're using the none auth type,
             # then the endpoint value is the endpoint_override for every
             # service.
-            value = self.config.get('auth', {}).get('endpoint')
+            value = auth.get('endpoint')
+        if (not value and service_type == 'identity'
+                and SCOPE_KEYS.isdisjoint(set(auth.keys()))):
+            # There are a small number of unscoped identity operations.
+            # Specifically, looking up a list of projects/domains/system to
+            # scope to.
+            value = auth.get('auth_url')
         return value
 
     def get_connect_retries(self, service_type):

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``auth_url`` will be used for the default value of
+    ``identity_endpoint_override`` in the absence of project or system-scope
+    information. This should simplify some actions such as listing available
+    projects.
