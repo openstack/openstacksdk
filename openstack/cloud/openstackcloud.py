@@ -451,6 +451,10 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                 interface=self.config.get_interface(service_type),
                 endpoint_override=self.config.get_endpoint(service_type),
                 region_name=self.config.region_name,
+                statsd_prefix=self.config.get_statsd_prefix(),
+                statsd_client=self.config.get_statsd_client(),
+                prometheus_counter=self.config.get_prometheus_counter(),
+                prometheus_histogram=self.config.get_prometheus_histogram(),
                 min_version=request_min_version,
                 max_version=request_max_version)
             if adapter.get_endpoint():

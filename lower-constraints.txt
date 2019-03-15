@@ -24,6 +24,7 @@ os-client-config==1.28.0
 os-service-types==1.2.0
 oslotest==3.2.0
 pbr==2.0.0
+prometheus-client==0.4.2
 Pygments==2.2.0
 python-mimeparse==1.6.0
 python-subunit==1.0.0
@@ -32,6 +33,7 @@ requests==2.18.0
 requests-mock==1.2.0
 requestsexceptions==1.2.0
 six==1.10.0
+statsd==3.3.0
 stestr==1.0.0
 stevedore==1.20.0
 testrepository==0.0.18

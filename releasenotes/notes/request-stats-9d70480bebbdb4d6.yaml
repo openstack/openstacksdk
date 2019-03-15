@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support for collecting and reporting stats on calls made to
+    statsd and prometheus.

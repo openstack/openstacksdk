@@ -140,7 +140,9 @@ class OpenStackConfig(object):
                  envvar_prefix=None, secure_files=None,
                  pw_func=None, session_constructor=None,
                  app_name=None, app_version=None,
-                 load_yaml_config=True, load_envvars=True):
+                 load_yaml_config=True, load_envvars=True,
+                 statsd_host=None, statsd_port=None,
+                 statsd_prefix=None):
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
         self._app_name = app_name
@@ -275,6 +277,21 @@ class OpenStackConfig(object):
                 'arguments', self._cache_arguments)
             self._cache_expirations = cache_settings.get(
                 'expiration', self._cache_expirations)
+
+        if load_yaml_config:
+            statsd_config = self.cloud_config.get('statsd', {})
+            statsd_host = statsd_host or statsd_config.get('host')
+            statsd_port = statsd_port or statsd_config.get('port')
+            statsd_prefix = statsd_prefix or statsd_config.get('prefix')
+
+        if load_envvars:
+            statsd_host = statsd_host or os.environ.get('STATSD_HOST')
+            statsd_port = statsd_port or os.environ.get('STATSD_PORT')
+            statsd_prefix = statsd_prefix or os.environ.get('STATSD_PREFIX')
+
+        self._statsd_host = statsd_host
+        self._statsd_port = statsd_port
+        self._statsd_prefix = statsd_prefix
 
         # Flag location to hold the peeked value of an argparse timeout value
         self._argv_timeout = False
@@ -1091,6 +1108,9 @@ class OpenStackConfig(object):
             cache_class=self._cache_class,
             cache_arguments=self._cache_arguments,
             password_callback=self._pw_callback,
+            statsd_host=self._statsd_host,
+            statsd_port=self._statsd_port,
+            statsd_prefix=self._statsd_prefix,
         )
     # TODO(mordred) Backwards compat for OSC transition
     get_one_cloud = get_one

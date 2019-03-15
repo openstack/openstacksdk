@@ -21,6 +21,15 @@ from keystoneauth1 import session as ks_session
 import os_service_types
 import requestsexceptions
 from six.moves import urllib
+try:
+    import statsd
+except ImportError:
+    statsd = None
+try:
+    import prometheus_client
+except ImportError:
+    prometheus_client = None
+
 
 from openstack import version as openstack_version
 from openstack import _log
@@ -96,7 +105,9 @@ class CloudRegion(object):
                  discovery_cache=None, extra_config=None,
                  cache_expiration_time=0, cache_expirations=None,
                  cache_path=None, cache_class='dogpile.cache.null',
-                 cache_arguments=None, password_callback=None):
+                 cache_arguments=None, password_callback=None,
+                 statsd_host=None, statsd_port=None, statsd_prefix=None,
+                 collector_registry=None):
         self._name = name
         self.region_name = region_name
         self.config = _util.normalize_keys(config)
@@ -116,6 +127,11 @@ class CloudRegion(object):
         self._cache_class = cache_class
         self._cache_arguments = cache_arguments
         self._password_callback = password_callback
+        self._statsd_host = statsd_host
+        self._statsd_port = statsd_port
+        self._statsd_prefix = statsd_prefix
+        self._statsd_client = None
+        self._collector_registry = collector_registry
 
         self._service_type_manager = os_service_types.ServiceTypes()
 
@@ -471,6 +487,11 @@ class CloudRegion(object):
                           self.get_connect_retries(service_type))
         kwargs.setdefault('status_code_retries',
                           self.get_status_code_retries(service_type))
+        kwargs.setdefault('statsd_prefix', self.get_statsd_prefix())
+        kwargs.setdefault('statsd_client', self.get_statsd_client())
+        kwargs.setdefault('prometheus_counter', self.get_prometheus_counter())
+        kwargs.setdefault(
+            'prometheus_histogram', self.get_prometheus_histogram())
         endpoint_override = self.get_endpoint(service_type)
         version = version_request.version
         min_api_version = (
@@ -746,3 +767,61 @@ class CloudRegion(object):
     def get_concurrency(self, service_type=None):
         return self._get_service_config(
             'concurrency', service_type=service_type)
+
+    def get_statsd_client(self):
+        if not statsd:
+            return None
+        statsd_args = {}
+        if self._statsd_host:
+            statsd_args['host'] = self._statsd_host
+        if self._statsd_port:
+            statsd_args['port'] = self._statsd_port
+        if statsd_args:
+            return statsd.StatsClient(**statsd_args)
+        else:
+            return None
+
+    def get_statsd_prefix(self):
+        return self._statsd_prefix or 'openstack.api'
+
+    def get_prometheus_registry(self):
+        if not self._collector_registry and prometheus_client:
+            self._collector_registry = prometheus_client.REGISTRY
+        return self._collector_registry
+
+    def get_prometheus_histogram(self):
+        registry = self.get_prometheus_registry()
+        if not registry or not prometheus_client:
+            return
+        # We have to hide a reference to the histogram on the registry
+        # object, because it's collectors must be singletons for a given
+        # registry but register at creation time.
+        hist = getattr(registry, '_openstacksdk_histogram', None)
+        if not hist:
+            hist = prometheus_client.Histogram(
+                'openstack_http_response_time',
+                'Time taken for an http response to an OpenStack service',
+                labelnames=[
+                    'method', 'endpoint', 'service_type', 'status_code'
+                ],
+                registry=registry,
+            )
+            registry._openstacksdk_histogram = hist
+        return hist
+
+    def get_prometheus_counter(self):
+        registry = self.get_prometheus_registry()
+        if not registry or not prometheus_client:
+            return
+        counter = getattr(registry, '_openstacksdk_counter', None)
+        if not counter:
+            counter = prometheus_client.Counter(
+                'openstack_http_requests',
+                'Number of HTTP requests made to an OpenStack service',
+                labelnames=[
+                    'method', 'endpoint', 'service_type', 'status_code'
+                ],
+                registry=registry,
+            )
+            registry._openstacksdk_counter = counter
+        return counter

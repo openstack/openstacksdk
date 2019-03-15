@@ -59,7 +59,9 @@ def _extract_name(url, service_type=None):
         # Strip leading version piece so that
         # GET /v2.0/networks
         # returns ['networks']
-        if url_parts[0] in ('v1', 'v2', 'v2.0'):
+        if (url_parts[0]
+                and url_parts[0][0] == 'v'
+                and url_parts[0][1] and url_parts[0][1].isdigit()):
             url_parts = url_parts[1:]
         name_parts = []
         # Pull out every other URL portion - so that
@@ -118,12 +120,21 @@ class Proxy(adapter.Adapter):
     ``<service-type>_status_code_retries``.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+            self,
+            session,
+            statsd_client=None, statsd_prefix=None,
+            prometheus_counter=None, prometheus_histogram=None,
+            *args, **kwargs):
         # NOTE(dtantsur): keystoneauth defaults retriable_status_codes to None,
         # override it with a class-level value.
         kwargs.setdefault('retriable_status_codes',
                           self.retriable_status_codes)
-        super(Proxy, self).__init__(*args, **kwargs)
+        super(Proxy, self).__init__(session=session, *args, **kwargs)
+        self._statsd_client = statsd_client
+        self._statsd_prefix = statsd_prefix
+        self._prometheus_counter = prometheus_counter
+        self._prometheus_histogram = prometheus_histogram
 
     def request(
             self, url, method, error_message=None,
@@ -132,7 +143,35 @@ class Proxy(adapter.Adapter):
             url, method,
             connect_retries=connect_retries, raise_exc=False,
             **kwargs)
+        for h in response.history:
+            self._report_stats(h)
+        self._report_stats(response)
         return response
+
+    def _report_stats(self, response):
+        if self._statsd_client:
+            self._report_stats_statsd(response)
+        if self._prometheus_counter and self._prometheus_histogram:
+            self._report_stats_prometheus(response)
+
+    def _report_stats_statsd(self, response):
+        name_parts = _extract_name(response.request.url, self.service_type)
+        key = '.'.join(
+            [self._statsd_prefix, self.service_type, response.request.method]
+            + name_parts)
+        self._statsd_client.timing(key, int(response.elapsed.seconds * 1000))
+        self._statsd_client.incr(key)
+
+    def _report_stats_prometheus(self, response):
+        labels = dict(
+            method=response.request.method,
+            endpoint=response.request.url,
+            service_type=self.service_type,
+            status_code=response.status_code,
+        )
+        self._prometheus_counter.labels(**labels).inc()
+        self._prometheus_histogram.labels(**labels).observe(
+            response.elapsed.seconds)
 
     def _version_matches(self, version):
         api_version = self.get_api_major_version()
