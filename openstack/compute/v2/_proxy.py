@@ -930,16 +930,20 @@ class Proxy(proxy.Proxy):
                         interval=2, wait=120):
         """Wait for a server to be in a particular status.
 
-        :param res: The resource to wait on to reach the specified status.
-                    The resource must have a ``status`` attribute.
-        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param server:
+            The :class:`~openstack.compute.v2.server.Server` to wait on
+            to reach the specified status.
+        :type server: :class:`~openstack.compute.v2.server.Server`:
         :param status: Desired status.
-        :param failures: Statuses that would be interpreted as failures.
+        :param failures:
+            Statuses that would be interpreted as failures.
         :type failures: :py:class:`list`
-        :param interval: Number of seconds to wait before to consecutive
-                         checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
-                     Default to 120.
+        :param int interval:
+            Number of seconds to wait before to consecutive checks.
+            Default to 2.
+        :param int wait:
+            Maximum number of seconds to wait before the change.
+            Default to 120.
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
                  to the desired status failed to occur in specified seconds.
