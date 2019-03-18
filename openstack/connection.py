@@ -333,11 +333,19 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
         # we get an adapter.
         if isinstance(service, six.string_types):
             service = service_description.ServiceDescription(service)
-        service_proxy = service._make_proxy(self)
 
-        # Register the proxy class with every known alias
+        # Directly invoke descriptor of the ServiceDescription
+        def getter(self):
+            return service.__get__(self, service)
+
+        # Register the ServiceDescription class (as property)
+        # with every known alias for a "runtime descriptor"
         for attr_name in service.all_types:
-            setattr(self, attr_name.replace('-', '_'), service_proxy)
+            setattr(
+                self.__class__,
+                attr_name.replace('-', '_'),
+                property(fget=getter)
+            )
 
     def authorize(self):
         """Authorize this Connection
