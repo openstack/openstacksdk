@@ -7857,7 +7857,7 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
                          'subnet_id', 'ip_address', 'security_groups',
                          'allowed_address_pairs', 'extra_dhcp_opts',
                          'device_owner', 'device_id', 'binding:vnic_type',
-                         'port_security_enabled')
+                         'binding:profile', 'port_security_enabled')
     def create_port(self, network_id, **kwargs):
         """Create a port
 
@@ -7925,7 +7925,8 @@ class _OpenStackCloudMixin(_normalize.Normalizer):
     @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
                          'security_groups', 'allowed_address_pairs',
                          'extra_dhcp_opts', 'device_owner', 'device_id',
-                         'binding:vnic_type', 'port_security_enabled')
+                         'binding:vnic_type', 'binding:profile',
+                         'port_security_enabled')
     def update_port(self, name_or_id, **kwargs):
         """Update a port
 
