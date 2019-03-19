@@ -695,6 +695,14 @@ class Resource(dict):
 
         return relevant_attrs
 
+    def _clean_body_attrs(self, attrs):
+        """Mark the attributes as up-to-date."""
+        self._body.clean(only=attrs)
+        if self.commit_jsonpatch:
+            for attr in attrs:
+                if attr in self._body:
+                    self._original_body[attr] = self._body[attr]
+
     @classmethod
     def _get_mapping(cls, component):
         """Return a dict of attributes of a given component on the class"""
@@ -1181,6 +1189,12 @@ class Resource(dict):
         self._translate_response(response, has_body=False)
         return self
 
+    @property
+    def requires_commit(self):
+        """Whether the next commit() call will do anything."""
+        return (self._body.dirty or self._header.dirty
+                or self.allow_empty_commit)
+
     def commit(self, session, prepend_key=True, has_body=True,
                retry_on_conflict=None, base_path=None):
         """Commit the state of the instance to the remote resource.
@@ -1205,11 +1219,7 @@ class Resource(dict):
         self._body._dirty.discard("id")
 
         # Only try to update if we actually have anything to commit.
-        if not any([
-            self._body.dirty,
-            self._header.dirty,
-            self.allow_empty_commit,
-        ]):
+        if not self.requires_commit:
             return self
 
         if not self.allow_commit:

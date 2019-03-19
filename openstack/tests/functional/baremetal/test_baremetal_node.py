@@ -154,6 +154,84 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertIsNone(self.conn.baremetal.find_node(uuid))
         self.assertIsNone(self.conn.baremetal.delete_node(uuid))
 
+    def test_maintenance(self):
+        reason = "Prepating for taking over the world"
+
+        node = self.create_node()
+        self.assertFalse(node.is_maintenance)
+        self.assertIsNone(node.maintenance_reason)
+
+        # Initial setting without the reason
+        node = self.conn.baremetal.set_node_maintenance(node)
+        self.assertTrue(node.is_maintenance)
+        self.assertIsNone(node.maintenance_reason)
+
+        # Updating the reason later
+        node = self.conn.baremetal.set_node_maintenance(node, reason)
+        self.assertTrue(node.is_maintenance)
+        self.assertEqual(reason, node.maintenance_reason)
+
+        # Removing the reason later
+        node = self.conn.baremetal.set_node_maintenance(node)
+        self.assertTrue(node.is_maintenance)
+        self.assertIsNone(node.maintenance_reason)
+
+        # Unsetting maintenance
+        node = self.conn.baremetal.unset_node_maintenance(node)
+        self.assertFalse(node.is_maintenance)
+        self.assertIsNone(node.maintenance_reason)
+
+        # Initial setting with the reason
+        node = self.conn.baremetal.set_node_maintenance(node, reason)
+        self.assertTrue(node.is_maintenance)
+        self.assertEqual(reason, node.maintenance_reason)
+
+    def test_maintenance_via_update(self):
+        reason = "Prepating for taking over the world"
+
+        node = self.create_node()
+
+        # Initial setting without the reason
+        node = self.conn.baremetal.update_node(node, is_maintenance=True)
+        self.assertTrue(node.is_maintenance)
+        self.assertIsNone(node.maintenance_reason)
+
+        # Make sure the change has effect on the remote side.
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertTrue(node.is_maintenance)
+        self.assertIsNone(node.maintenance_reason)
+
+        # Updating the reason later
+        node = self.conn.baremetal.update_node(node, maintenance_reason=reason)
+        self.assertTrue(node.is_maintenance)
+        self.assertEqual(reason, node.maintenance_reason)
+
+        # Make sure the change has effect on the remote side.
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertTrue(node.is_maintenance)
+        self.assertEqual(reason, node.maintenance_reason)
+
+        # Unsetting maintenance
+        node = self.conn.baremetal.update_node(node, is_maintenance=False)
+        self.assertFalse(node.is_maintenance)
+        self.assertIsNone(node.maintenance_reason)
+
+        # Make sure the change has effect on the remote side.
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertFalse(node.is_maintenance)
+        self.assertIsNone(node.maintenance_reason)
+
+        # Initial setting with the reason
+        node = self.conn.baremetal.update_node(node, is_maintenance=True,
+                                               maintenance_reason=reason)
+        self.assertTrue(node.is_maintenance)
+        self.assertEqual(reason, node.maintenance_reason)
+
+        # Make sure the change has effect on the remote side.
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertTrue(node.is_maintenance)
+        self.assertEqual(reason, node.maintenance_reason)
+
 
 class TestBareMetalNodeFields(base.BaseBaremetalTest):
 

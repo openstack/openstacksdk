@@ -399,6 +399,27 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.validate(self, required=required)
 
+    def set_node_maintenance(self, node, reason=None):
+        """Enable maintenance mode on the node.
+
+        :param node: The value can be either the name or ID of a node or
+            a :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param reason: Optional reason for maintenance.
+        :return: This :class:`Node` instance.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_maintenance(self, reason)
+
+    def unset_node_maintenance(self, node):
+        """Disable maintenance mode on the node.
+
+        :param node: The value can be either the name or ID of a node or
+            a :class:`~openstack.baremetal.v1.node.Node` instance.
+        :return: This :class:`Node` instance.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.unset_maintenance(self)
+
     def delete_node(self, node, ignore_missing=True):
         """Delete a node.
 
