@@ -260,6 +260,13 @@ class TestNewService(base.TestCase):
         self.use_keystone_v3(catalog='catalog-v3-fake-v1.json')
         conn = self.cloud
 
+        service = fake_service.FakeService('fake')
+
+        conn.add_service(service)
+
+        # Ensure no discovery calls made
+        self.assertEqual(0, len(self.adapter.request_history))
+
         self.register_uris([
             dict(method='GET',
                  uri='https://fake.example.com',
@@ -271,10 +278,6 @@ class TestNewService(base.TestCase):
                  uri=self.get_mock_url('fake'),
                  status_code=404),
         ])
-
-        service = fake_service.FakeService('fake')
-
-        conn.add_service(service)
 
         self.assertEqual(
             'openstack.tests.unit.fake.v1._proxy',
