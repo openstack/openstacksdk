@@ -1901,7 +1901,10 @@ class TestResourceActions(base.TestCase):
             microversion=None)
 
         # Ensure we're done after those three items
-        self.assertRaises(StopIteration, next, results)
+        # In python3.7, PEP 479 is enabled for all code, and StopIteration
+        # raised directly from code is turned into a RuntimeError.
+        # Something about how mock is implemented triggers that here.
+        self.assertRaises((StopIteration, RuntimeError), next, results)
 
         # Ensure we only made two calls to get this done
         self.assertEqual(3, len(self.session.get.call_args_list))
