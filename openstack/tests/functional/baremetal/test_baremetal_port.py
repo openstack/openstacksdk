@@ -77,6 +77,19 @@ class TestBareMetalPort(base.BaseBaremetalTest):
         self.assertEqual('66:55:44:33:22:11', port.address)
         self.assertEqual({'answer': 42}, port.extra)
 
+    def test_port_patch(self):
+        port = self.create_port(address='11:22:33:44:55:66')
+        port.address = '66:55:44:33:22:11'
+
+        port = self.conn.baremetal.patch_port(
+            port, dict(path='/extra/answer', op='add', value=42))
+        self.assertEqual('66:55:44:33:22:11', port.address)
+        self.assertEqual({'answer': 42}, port.extra)
+
+        port = self.conn.baremetal.get_port(port.id)
+        self.assertEqual('66:55:44:33:22:11', port.address)
+        self.assertEqual({'answer': 42}, port.extra)
+
     def test_port_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(exceptions.ResourceNotFound,

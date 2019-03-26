@@ -72,6 +72,16 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
         port_group = self.conn.baremetal.get_port_group(port_group.id)
         self.assertEqual({'answer': 42}, port_group.extra)
 
+    def test_port_group_patch(self):
+        port_group = self.create_port_group()
+
+        port_group = self.conn.baremetal.patch_port_group(
+            port_group, dict(path='/extra/answer', op='add', value=42))
+        self.assertEqual({'answer': 42}, port_group.extra)
+
+        port_group = self.conn.baremetal.get_port_group(port_group.id)
+        self.assertEqual({'answer': 42}, port_group.extra)
+
     def test_port_group_negative_non_existing(self):
         uuid = "5c9dcd04-2073-49bc-9618-99ae634d8971"
         self.assertRaises(exceptions.ResourceNotFound,

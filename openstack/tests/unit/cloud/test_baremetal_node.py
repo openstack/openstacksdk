@@ -206,11 +206,6 @@ class TestBaremetalNode(base.IronicTestCase):
             'path': '/instance_info'}]
         self.fake_baremetal_node['instance_info'] = {}
         self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='nodes',
-                     append=[self.fake_baremetal_node['uuid']]),
-                 json=self.fake_baremetal_node),
             dict(method='PATCH',
                  uri=self.get_mock_url(
                      resource='nodes',

@@ -434,17 +434,8 @@ class BaremetalCloudMixin(_normalize.Normalizer):
 
         :returns: ``munch.Munch`` representing the newly updated node.
         """
-        node = self.baremetal.get_node(name_or_id)
-        microversion = node._get_microversion_for(self._baremetal_client,
-                                                  'commit')
-        msg = ("Error updating machine via patch operation on node "
-               "{node}".format(node=name_or_id))
-        url = '/nodes/{node_id}'.format(node_id=node.id)
         return self._normalize_machine(
-            self._baremetal_client.patch(url,
-                                         json=patch,
-                                         microversion=microversion,
-                                         error_message=msg))
+            self.baremetal.patch_node(name_or_id, patch))
 
     def update_machine(self, name_or_id, **attrs):
         """Update a machine with new configuration information
@@ -687,22 +678,17 @@ class BaremetalCloudMixin(_normalize.Normalizer):
             uuid, 'deleted', wait=wait, timeout=timeout)
 
     def set_node_instance_info(self, uuid, patch):
-        msg = ("Error updating machine via patch operation on node "
-               "{node}".format(node=uuid))
-        url = '/nodes/{node_id}'.format(node_id=uuid)
-        return self._baremetal_client.patch(url,
-                                            json=patch,
-                                            error_message=msg)
+        warnings.warn("The set_node_instance_info call is deprecated, "
+                      "use patch_machine or update_machine instead",
+                      DeprecationWarning)
+        return self.patch_machine(uuid, patch)
 
     def purge_node_instance_info(self, uuid):
-        patch = []
-        patch.append({'op': 'remove', 'path': '/instance_info'})
-        msg = ("Error updating machine via patch operation on node "
-               "{node}".format(node=uuid))
-        url = '/nodes/{node_id}'.format(node_id=uuid)
-        return self._baremetal_client.patch(url,
-                                            json=patch,
-                                            error_message=msg)
+        warnings.warn("The purge_node_instance_info call is deprecated, "
+                      "use patch_machine or update_machine instead",
+                      DeprecationWarning)
+        return self.patch_machine(uuid,
+                                  dict(path='/instance_info', op='remove'))
 
     def wait_for_baremetal_node_lock(self, node, timeout=30):
         """Wait for a baremetal node to have no lock.
