@@ -14,7 +14,7 @@
 
 import mock
 
-from openstack.cloud import openstackcloud
+from openstack import connection
 from openstack.cloud import meta
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -353,10 +353,10 @@ class TestMeta(base.TestCase):
             '10.0.0.101', meta.get_server_private_ip(srv, self.cloud))
         self.assert_calls()
 
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'has_service')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_volumes')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_image_name')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_flavor_name')
+    @mock.patch.object(connection.Connection, 'has_service')
+    @mock.patch.object(connection.Connection, 'get_volumes')
+    @mock.patch.object(connection.Connection, 'get_image_name')
+    @mock.patch.object(connection.Connection, 'get_flavor_name')
     def test_get_server_private_ip_devstack(
             self,
             mock_get_flavor_name, mock_get_image_name,
@@ -418,9 +418,9 @@ class TestMeta(base.TestCase):
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
 
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_volumes')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_image_name')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_flavor_name')
+    @mock.patch.object(connection.Connection, 'get_volumes')
+    @mock.patch.object(connection.Connection, 'get_image_name')
+    @mock.patch.object(connection.Connection, 'get_flavor_name')
     def test_get_server_private_ip_no_fip(
             self,
             mock_get_flavor_name, mock_get_image_name,
@@ -468,9 +468,9 @@ class TestMeta(base.TestCase):
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
 
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_volumes')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_image_name')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_flavor_name')
+    @mock.patch.object(connection.Connection, 'get_volumes')
+    @mock.patch.object(connection.Connection, 'get_image_name')
+    @mock.patch.object(connection.Connection, 'get_flavor_name')
     def test_get_server_cloud_no_fips(
             self,
             mock_get_flavor_name, mock_get_image_name,
@@ -516,10 +516,10 @@ class TestMeta(base.TestCase):
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
 
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'has_service')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_volumes')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_image_name')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_flavor_name')
+    @mock.patch.object(connection.Connection, 'has_service')
+    @mock.patch.object(connection.Connection, 'get_volumes')
+    @mock.patch.object(connection.Connection, 'get_image_name')
+    @mock.patch.object(connection.Connection, 'get_flavor_name')
     def test_get_server_cloud_missing_fips(
             self,
             mock_get_flavor_name, mock_get_image_name,
@@ -585,9 +585,9 @@ class TestMeta(base.TestCase):
         self.assertEqual(PUBLIC_V4, srv['public_v4'])
         self.assert_calls()
 
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_volumes')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_image_name')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_flavor_name')
+    @mock.patch.object(connection.Connection, 'get_volumes')
+    @mock.patch.object(connection.Connection, 'get_image_name')
+    @mock.patch.object(connection.Connection, 'get_flavor_name')
     def test_get_server_cloud_rackspace_v6(
             self, mock_get_flavor_name, mock_get_image_name,
             mock_get_volumes):
@@ -635,9 +635,9 @@ class TestMeta(base.TestCase):
             "2001:4800:7819:103:be76:4eff:fe05:8525", srv['interface_ip'])
         self.assert_calls()
 
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_volumes')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_image_name')
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'get_flavor_name')
+    @mock.patch.object(connection.Connection, 'get_volumes')
+    @mock.patch.object(connection.Connection, 'get_image_name')
+    @mock.patch.object(connection.Connection, 'get_flavor_name')
     def test_get_server_cloud_osic_split(
             self, mock_get_flavor_name, mock_get_image_name,
             mock_get_volumes):
