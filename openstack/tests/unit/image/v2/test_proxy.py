@@ -18,6 +18,7 @@ from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import schema
 from openstack.image.v2 import task
+from openstack.image.v2 import service_info as si
 from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base
 
@@ -229,3 +230,14 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                       expected_args=[schema.Schema],
                       expected_kwargs={'base_path': '/schemas/task',
                                        'requires_id': False})
+
+    def test_stores(self):
+        self.verify_list(self.proxy.stores, si.Store)
+
+    def test_import_info(self):
+        self._verify2("openstack.proxy.Proxy._get",
+                      self.proxy.get_import_info,
+                      method_args=[],
+                      method_kwargs={},
+                      expected_args=[si.Import],
+                      expected_kwargs={'require_id': False})
