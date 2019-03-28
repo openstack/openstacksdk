@@ -425,6 +425,7 @@ class TestStack(base.TestCase):
                         'environment': {},
                         'files': {},
                         'parameters': {},
+                        'tags': self.stack_tag,
                         'template': fakes.FAKE_TEMPLATE_CONTENT,
                         'timeout_mins': 60})),
             dict(
@@ -446,6 +447,7 @@ class TestStack(base.TestCase):
         ])
         self.cloud.update_stack(
             self.stack_name,
+            tags=self.stack_tag,
             template_file=test_template.name)
 
         self.assert_calls()
@@ -479,6 +481,7 @@ class TestStack(base.TestCase):
                         'environment': {},
                         'files': {},
                         'parameters': {},
+                        'tags': self.stack_tag,
                         'template': fakes.FAKE_TEMPLATE_CONTENT,
                         'timeout_mins': 60})),
             dict(
@@ -512,6 +515,7 @@ class TestStack(base.TestCase):
         ])
         self.cloud.update_stack(
             self.stack_name,
+            tags=self.stack_tag,
             template_file=test_template.name,
             wait=True)
 
