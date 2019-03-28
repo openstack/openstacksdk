@@ -387,6 +387,8 @@ class Resource(dict):
     allow_list = False
     #: Allow head operation for this resource.
     allow_head = False
+    #: Allow patch operation for this resource.
+    allow_patch = False
 
     # TODO(mordred) Unused - here for transition with OSC. Remove once
     # OSC no longer checks for allow_get
@@ -455,7 +457,7 @@ class Resource(dict):
         self._computed = _ComponentManager(
             attributes=computed,
             synchronized=_synchronized)
-        if self.commit_jsonpatch:
+        if self.commit_jsonpatch or self.allow_patch:
             # We need the original body to compare against
             if _synchronized:
                 self._original_body = self._body.attributes.copy()
@@ -698,7 +700,7 @@ class Resource(dict):
     def _clean_body_attrs(self, attrs):
         """Mark the attributes as up-to-date."""
         self._body.clean(only=attrs)
-        if self.commit_jsonpatch:
+        if self.commit_jsonpatch or self.allow_patch:
             for attr in attrs:
                 if attr in self._body:
                     self._original_body[attr] = self._body[attr]
@@ -976,7 +978,7 @@ class Resource(dict):
             body = self._consume_body_attrs(body)
             self._body.attributes.update(body)
             self._body.clean()
-            if self.commit_jsonpatch:
+            if self.commit_jsonpatch or self.allow_patch:
                 # We need the original body to compare against
                 self._original_body = body.copy()
 
@@ -1037,11 +1039,11 @@ class Resource(dict):
         Subclasses can override this method if more complex logic is needed.
 
         :param session: :class`keystoneauth1.adapter.Adapter`
-        :param action: One of "fetch", "commit", "create", "delete". Unused in
-            the base implementation.
+        :param action: One of "fetch", "commit", "create", "delete", "patch".
+            Unused in the base implementation.
         :return: microversion as string or ``None``
         """
-        if action not in ('fetch', 'commit', 'create', 'delete'):
+        if action not in ('fetch', 'commit', 'create', 'delete', 'patch'):
             raise ValueError('Invalid action: %s' % action)
 
         return self._get_microversion_for_list(session)
@@ -1234,6 +1236,14 @@ class Resource(dict):
         request = self._prepare_request(prepend_key=prepend_key,
                                         base_path=base_path,
                                         **kwargs)
+        microversion = self._get_microversion_for(session, 'commit')
+
+        return self._commit(session, request, self.commit_method, microversion,
+                            has_body=has_body,
+                            retry_on_conflict=retry_on_conflict)
+
+    def _commit(self, session, request, method, microversion, has_body=True,
+                retry_on_conflict=None):
         session = self._get_session(session)
 
         kwargs = {}
@@ -1245,27 +1255,94 @@ class Resource(dict):
             # overriding it via an explicit retry_on_conflict=False.
             kwargs['retriable_status_codes'] = retriable_status_codes - {409}
 
-        microversion = self._get_microversion_for(session, 'commit')
-
-        if self.commit_method == 'PATCH':
-            response = session.patch(
-                request.url, json=request.body, headers=request.headers,
-                microversion=microversion, **kwargs)
-        elif self.commit_method == 'POST':
-            response = session.post(
-                request.url, json=request.body, headers=request.headers,
-                microversion=microversion, **kwargs)
-        elif self.commit_method == 'PUT':
-            response = session.put(
-                request.url, json=request.body, headers=request.headers,
-                microversion=microversion, **kwargs)
-        else:
+        try:
+            call = getattr(session, method.lower())
+        except AttributeError:
             raise exceptions.ResourceFailure(
-                msg="Invalid commit method: %s" % self.commit_method)
+                msg="Invalid commit method: %s" % method)
+
+        response = call(request.url, json=request.body,
+                        headers=request.headers, microversion=microversion,
+                        **kwargs)
 
         self.microversion = microversion
         self._translate_response(response, has_body=has_body)
         return self
+
+    def _convert_patch(self, patch):
+        if not isinstance(patch, list):
+            patch = [patch]
+
+        converted = []
+        for item in patch:
+            try:
+                path = item['path']
+                parts = path.lstrip('/').split('/', 1)
+                field = parts[0]
+            except (KeyError, IndexError):
+                raise ValueError("Malformed or missing path in %s" % item)
+
+            try:
+                component = getattr(self.__class__, field)
+            except AttributeError:
+                server_field = field
+            else:
+                server_field = component.name
+
+            if len(parts) > 1:
+                new_path = '/%s/%s' % (server_field, parts[1])
+            else:
+                new_path = '/%s' % server_field
+            converted.append(dict(item, path=new_path))
+
+        return converted
+
+    def patch(self, session, patch=None, prepend_key=True, has_body=True,
+              retry_on_conflict=None, base_path=None):
+        """Patch the remote resource.
+
+        Allows modifying the resource by providing a list of JSON patches to
+        apply to it. The patches can use both the original (server-side) and
+        SDK field names.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param patch: Additional JSON patch as a list or one patch item.
+                      If provided, it is applied on top of any changes to the
+                      current resource.
+        :param prepend_key: A boolean indicating whether the resource_key
+                            should be prepended in a resource update request.
+                            Default to True.
+        :param bool retry_on_conflict: Whether to enable retries on HTTP
+                                       CONFLICT (409). Value of ``None`` leaves
+                                       the `Adapter` defaults.
+        :param str base_path: Base part of the URI for modifying resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
+
+        :return: This :class:`Resource` instance.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_patch` is not set to ``True``.
+        """
+        # The id cannot be dirty for an commit
+        self._body._dirty.discard("id")
+
+        # Only try to update if we actually have anything to commit.
+        if not patch and not self.requires_commit:
+            return self
+
+        if not self.allow_patch:
+            raise exceptions.MethodNotSupported(self, "patch")
+
+        request = self._prepare_request(prepend_key=prepend_key,
+                                        base_path=base_path, patch=True)
+        microversion = self._get_microversion_for(session, 'patch')
+        if patch:
+            request.body += self._convert_patch(patch)
+
+        return self._commit(session, request, 'PATCH', microversion,
+                            has_body=has_body,
+                            retry_on_conflict=retry_on_conflict)
 
     def delete(self, session, error_message=None):
         """Delete the remote resource based on this instance.

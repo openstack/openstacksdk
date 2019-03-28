@@ -25,6 +25,7 @@ class PortGroup(_common.ListMixin, resource.Resource):
     allow_commit = True
     allow_delete = True
     allow_list = True
+    allow_patch = True
     commit_method = 'PATCH'
     commit_jsonpatch = True
 

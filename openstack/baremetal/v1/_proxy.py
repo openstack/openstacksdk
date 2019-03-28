@@ -114,6 +114,18 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_chassis.Chassis, chassis, **attrs)
 
+    def patch_chassis(self, chassis, patch):
+        """Apply a JSON patch to the chassis.
+
+        :param chassis: The value can be the ID of a chassis or a
+            :class:`~openstack.baremetal.v1.chassis.Chassis` instance.
+        :param patch: JSON patch to apply.
+
+        :returns: The updated chassis.
+        :rtype: :class:`~openstack.baremetal.v1.chassis.Chassis`
+        """
+        return self._get_resource(_chassis.Chassis, chassis).patch(self, patch)
+
     def delete_chassis(self, chassis, ignore_missing=True):
         """Delete a chassis.
 
@@ -246,8 +258,8 @@ class Proxy(proxy.Proxy):
     def update_node(self, node, retry_on_conflict=True, **attrs):
         """Update a node.
 
-        :param chassis: Either the name or the ID of a node or an instance
-            of :class:`~openstack.baremetal.v1.node.Node`.
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
         :param bool retry_on_conflict: Whether to retry HTTP CONFLICT error.
             Most of the time it can be retried, since it is caused by the node
             being locked. However, when setting ``instance_id``, this is
@@ -260,6 +272,23 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_node.Node, node, **attrs)
         return res.commit(self, retry_on_conflict=retry_on_conflict)
+
+    def patch_node(self, node, patch, retry_on_conflict=True):
+        """Apply a JSON patch to the node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param patch: JSON patch to apply.
+        :param bool retry_on_conflict: Whether to retry HTTP CONFLICT error.
+            Most of the time it can be retried, since it is caused by the node
+            being locked. However, when setting ``instance_id``, this is
+            a normal code and should not be retried.
+
+        :returns: The updated node.
+        :rtype: :class:`~openstack.baremetal.v1.node.Node`
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.patch(self, patch, retry_on_conflict=retry_on_conflict)
 
     def set_node_provision_state(self, node, target, config_drive=None,
                                  clean_steps=None, rescue_password=None,
@@ -527,7 +556,7 @@ class Proxy(proxy.Proxy):
     def update_port(self, port, **attrs):
         """Update a port.
 
-        :param chassis: Either the ID of a port or an instance
+        :param port: Either the ID of a port or an instance
             of :class:`~openstack.baremetal.v1.port.Port`.
         :param dict attrs: The attributes to update on the port represented
             by the ``port`` parameter.
@@ -536,6 +565,18 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.baremetal.v1.port.Port`
         """
         return self._update(_port.Port, port, **attrs)
+
+    def patch_port(self, port, patch):
+        """Apply a JSON patch to the port.
+
+        :param port: The value can be the ID of a port or a
+            :class:`~openstack.baremetal.v1.port.Port` instance.
+        :param patch: JSON patch to apply.
+
+        :returns: The updated port.
+        :rtype: :class:`~openstack.baremetal.v1.port.Port`
+        """
+        return self._get_resource(_port.Port, port).patch(self, patch)
 
     def delete_port(self, port, ignore_missing=True):
         """Delete a port.
@@ -638,7 +679,7 @@ class Proxy(proxy.Proxy):
     def update_port_group(self, port_group, **attrs):
         """Update a port group.
 
-        :param chassis: Either the name or the ID of a port group or
+        :param port_group: Either the name or the ID of a port group or
             an instance of
             :class:`~openstack.baremetal.v1.port_group.PortGroup`.
         :param dict attrs: The attributes to update on the port group
@@ -648,6 +689,19 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`
         """
         return self._update(_portgroup.PortGroup, port_group, **attrs)
+
+    def patch_port_group(self, port_group, patch):
+        """Apply a JSON patch to the port_group.
+
+        :param port_group: The value can be the ID of a port group or a
+            :class:`~openstack.baremetal.v1.port_group.PortGroup` instance.
+        :param patch: JSON patch to apply.
+
+        :returns: The updated port group.
+        :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`
+        """
+        res = self._get_resource(_portgroup.PortGroup, port_group)
+        return res.patch(self, patch)
 
     def delete_port_group(self, port_group, ignore_missing=True):
         """Delete a port group.

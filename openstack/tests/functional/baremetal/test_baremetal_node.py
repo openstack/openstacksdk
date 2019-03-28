@@ -86,6 +86,35 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         node = self.conn.baremetal.get_node('node-name')
         self.assertIsNone(node.instance_id)
 
+    def test_node_patch(self):
+        node = self.create_node(name='node-name', extra={'foo': 'bar'})
+        node.name = 'new-name'
+        instance_uuid = str(uuid.uuid4())
+
+        node = self.conn.baremetal.patch_node(
+            node,
+            [dict(path='/instance_id', op='replace', value=instance_uuid),
+             dict(path='/extra/answer', op='add', value=42)])
+        self.assertEqual('new-name', node.name)
+        self.assertEqual({'foo': 'bar', 'answer': 42}, node.extra)
+        self.assertEqual(instance_uuid, node.instance_id)
+
+        node = self.conn.baremetal.get_node('new-name')
+        self.assertEqual('new-name', node.name)
+        self.assertEqual({'foo': 'bar', 'answer': 42}, node.extra)
+        self.assertEqual(instance_uuid, node.instance_id)
+
+        node = self.conn.baremetal.patch_node(
+            node,
+            [dict(path='/instance_id', op='remove'),
+             dict(path='/extra/answer', op='remove')])
+        self.assertIsNone(node.instance_id)
+        self.assertNotIn('answer', node.extra)
+
+        node = self.conn.baremetal.get_node('new-name')
+        self.assertIsNone(node.instance_id)
+        self.assertNotIn('answer', node.extra)
+
     def test_node_list_update_delete(self):
         self.create_node(name='node-name', extra={'foo': 'bar'})
         node = next(n for n in

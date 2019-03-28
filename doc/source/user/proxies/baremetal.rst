@@ -18,6 +18,7 @@ Node Operations
 
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_node
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_node
+   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_node
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_node
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_node
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_node
@@ -36,6 +37,7 @@ Port Operations
 
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_port
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_port
+   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_port
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_port
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_port
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_port
@@ -47,6 +49,7 @@ Port Group Operations
 
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_port_group
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_port_group
+   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_port_group
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_port_group
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_port_group
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_port_group
@@ -65,6 +68,7 @@ Chassis Operations
 
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_chassis
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_chassis
+   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_chassis
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_chassis
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_chassis
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_chassis

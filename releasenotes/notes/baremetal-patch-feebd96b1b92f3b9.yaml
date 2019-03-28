@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Adds support for changing bare metal resources by providing a JSON patch.
+    Adds the following calls to the bare metal proxy: ``patch_node``,
+    ``patch_port``, ``patch_port_group`` and ``patch_chassis``.
+deprecations:
+  - |
+    The ``set_node_instance_info`` call is deprecated, use ``patch_machine``
+    with the same arguments instead.
+  - |
+    The ``purge_node_instance_info`` call is deprecated, use ``patch_machine``
+    or ``update_machine`` instead.
