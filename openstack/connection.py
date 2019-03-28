@@ -164,6 +164,20 @@ import six
 from openstack import _log
 from openstack._meta import connection as _meta
 from openstack.cloud import openstackcloud as _cloud
+from openstack.cloud import _baremetal
+from openstack.cloud import _block_storage
+from openstack.cloud import _compute
+from openstack.cloud import _clustering
+from openstack.cloud import _coe
+from openstack.cloud import _dns
+from openstack.cloud import _floating_ip
+from openstack.cloud import _identity
+from openstack.cloud import _image
+from openstack.cloud import _network
+from openstack.cloud import _network_common
+from openstack.cloud import _object_store
+from openstack.cloud import _orchestration
+from openstack.cloud import _security_group
 from openstack import config as _config
 from openstack.config import cloud_region
 from openstack import exceptions
@@ -211,7 +225,22 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
 
 
 class Connection(six.with_metaclass(_meta.ConnectionMeta,
-                                    _cloud._OpenStackCloudMixin)):
+                                    _cloud._OpenStackCloudMixin,
+                                    _baremetal.BaremetalCloudMixin,
+                                    _block_storage.BlockStorageCloudMixin,
+                                    _compute.ComputeCloudMixin,
+                                    _clustering.ClusteringCloudMixin,
+                                    _coe.CoeCloudMixin,
+                                    _dns.DnsCloudMixin,
+                                    _floating_ip.FloatingIPCloudMixin,
+                                    _identity.IdentityCloudMixin,
+                                    _image.ImageCloudMixin,
+                                    _network.NetworkCloudMixin,
+                                    _network_common.NetworkCommonCloudMixin,
+                                    _object_store.ObjectStoreCloudMixin,
+                                    _orchestration.OrchestrationCloudMixin,
+                                    _security_group.SecurityGroupCloudMixin
+                                    )):
 
     def __init__(self, cloud=None, config=None, session=None,
                  app_name=None, app_version=None,
@@ -298,9 +327,23 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
         self._proxies = {}
         self.use_direct_get = use_direct_get
         self.strict_mode = strict
-        # Call the _OpenStackCloudMixin constructor while we work on
+        # Call the _*CloudMixin constructors while we work on
         # integrating things better.
         _cloud._OpenStackCloudMixin.__init__(self)
+        _baremetal.BaremetalCloudMixin.__init__(self)
+        _block_storage.BlockStorageCloudMixin.__init__(self)
+        _clustering.ClusteringCloudMixin.__init__(self)
+        _coe.CoeCloudMixin.__init__(self)
+        _compute.ComputeCloudMixin.__init__(self)
+        _dns.DnsCloudMixin.__init__(self)
+        _floating_ip.FloatingIPCloudMixin.__init__(self)
+        _identity.IdentityCloudMixin.__init__(self)
+        _image.ImageCloudMixin.__init__(self)
+        _network_common.NetworkCommonCloudMixin.__init__(self)
+        _network.NetworkCloudMixin.__init__(self)
+        _object_store.ObjectStoreCloudMixin.__init__(self)
+        _orchestration.OrchestrationCloudMixin.__init__(self)
+        _security_group.SecurityGroupCloudMixin.__init__(self)
 
     @property
     def session(self):

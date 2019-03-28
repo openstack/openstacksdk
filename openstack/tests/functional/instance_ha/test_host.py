@@ -15,7 +15,6 @@
 # import unittest
 
 from openstack import connection
-from openstack.cloud.openstackcloud import _OpenStackCloudMixin
 from openstack.tests.functional import base
 
 HYPERVISORS = []
@@ -25,7 +24,7 @@ def hypervisors():
     global HYPERVISORS
     if HYPERVISORS:
         return True
-    HYPERVISORS = _OpenStackCloudMixin.list_hypervisors(
+    HYPERVISORS = connection.Connection.list_hypervisors(
         connection.from_config(cloud_name=base.TEST_CLOUD_NAME))
     return bool(HYPERVISORS)
 

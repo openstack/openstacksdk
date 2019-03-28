@@ -15,7 +15,6 @@ import uuid
 
 import testtools
 
-from openstack.cloud import openstackcloud
 from openstack.cloud import exc
 from openstack import connection
 from openstack.tests import fakes
@@ -63,7 +62,7 @@ class TestShade(base.TestCase):
         # keystoneauth1.loading.base.BaseLoader.load_from_options
         self.cloud.connect_as(project_name='test_project')
 
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'search_images')
+    @mock.patch.object(connection.Connection, 'search_images')
     def test_get_images(self, mock_search):
         image1 = dict(id='123', name='mickey')
         mock_search.return_value = [image1]
@@ -71,7 +70,7 @@ class TestShade(base.TestCase):
         self.assertIsNotNone(r)
         self.assertDictEqual(image1, r)
 
-    @mock.patch.object(openstackcloud._OpenStackCloudMixin, 'search_images')
+    @mock.patch.object(connection.Connection, 'search_images')
     def test_get_image_not_found(self, mock_search):
         mock_search.return_value = []
         r = self.cloud.get_image('doesNotExist')
