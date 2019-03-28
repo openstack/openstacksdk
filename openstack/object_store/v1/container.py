@@ -135,3 +135,22 @@ class Container(_base.BaseResource):
 
         self._translate_response(response, has_body=False)
         return self
+
+    def set_temp_url_key(self, proxy, key, secondary=False):
+        """Set the temporary url key for a container.
+
+        :param proxy: The proxy to use for making this request.
+        :type proxy: :class:`~openstack.proxy.Proxy`
+        :param container:
+          The value can be the name of a container or a
+          :class:`~openstack.object_store.v1.container.Container` instance.
+        :param key:
+          Text of the key to use.
+        :param bool secondary:
+          Whether this should set the second key. (defaults to False)
+        """
+        header = 'Temp-URL-Key'
+        if secondary:
+            header += '-2'
+
+        return self.set_metadata(proxy, {header: key})

@@ -15,7 +15,6 @@ import six
 import string
 import tempfile
 
-from openstack.object_store.v1 import _proxy
 from openstack.object_store.v1 import account
 from openstack.object_store.v1 import container
 from openstack.object_store.v1 import obj
@@ -29,7 +28,11 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
 
     def setUp(self):
         super(TestObjectStoreProxy, self).setUp()
-        self.proxy = _proxy.Proxy(self.session)
+        self.proxy = self.cloud.object_store
+        self.container = self.getUniqueString()
+        self.endpoint = self.cloud.object_store.get_endpoint() + '/'
+        self.container_endpoint = '{endpoint}{container}'.format(
+            endpoint=self.endpoint, container=self.container)
 
     def test_account_metadata_get(self):
         self.verify_head(self.proxy.get_account_metadata, account.Account)
@@ -100,12 +103,80 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
             method_kwargs=kwargs,
             expected_kwargs=kwargs)
 
+    def test_set_temp_url_key(self):
+
+        key = 'super-secure-key'
+
+        self.register_uris([
+            dict(method='POST', uri=self.endpoint,
+                 status_code=204,
+                 validate=dict(
+                     headers={
+                         'x-account-meta-temp-url-key': key})),
+            dict(method='HEAD', uri=self.endpoint,
+                 headers={
+                     'x-account-meta-temp-url-key': key}),
+        ])
+        self.proxy.set_account_temp_url_key(key)
+        self.assert_calls()
+
+    def test_set_account_temp_url_key_second(self):
+
+        key = 'super-secure-key'
+
+        self.register_uris([
+            dict(method='POST', uri=self.endpoint,
+                 status_code=204,
+                 validate=dict(
+                     headers={
+                         'x-account-meta-temp-url-key-2': key})),
+            dict(method='HEAD', uri=self.endpoint,
+                 headers={
+                     'x-account-meta-temp-url-key-2': key}),
+        ])
+        self.proxy.set_account_temp_url_key(key, secondary=True)
+        self.assert_calls()
+
+    def test_set_container_temp_url_key(self):
+
+        key = 'super-secure-key'
+
+        self.register_uris([
+            dict(method='POST', uri=self.container_endpoint,
+                 status_code=204,
+                 validate=dict(
+                     headers={
+                         'x-container-meta-temp-url-key': key})),
+            dict(method='HEAD', uri=self.container_endpoint,
+                 headers={
+                     'x-container-meta-temp-url-key': key}),
+        ])
+        self.proxy.set_container_temp_url_key(self.container, key)
+        self.assert_calls()
+
+    def test_set_container_temp_url_key_second(self):
+
+        key = 'super-secure-key'
+
+        self.register_uris([
+            dict(method='POST', uri=self.container_endpoint,
+                 status_code=204,
+                 validate=dict(
+                     headers={
+                         'x-container-meta-temp-url-key-2': key})),
+            dict(method='HEAD', uri=self.container_endpoint,
+                 headers={
+                     'x-container-meta-temp-url-key-2': key}),
+        ])
+        self.proxy.set_container_temp_url_key(
+            self.container, key, secondary=True)
+        self.assert_calls()
+
 
 class Test_containers(TestObjectStoreProxy):
 
     def setUp(self):
         super(Test_containers, self).setUp()
-        self.proxy = _proxy.Proxy(self.session)
 
         self.containers_body = []
         for i in range(3):
@@ -180,7 +251,6 @@ class Test_objects(TestObjectStoreProxy):
 
     def setUp(self):
         super(Test_objects, self).setUp()
-        self.proxy = _proxy.Proxy(self.session)
 
         self.container_name = six.text_type("my_container")
 

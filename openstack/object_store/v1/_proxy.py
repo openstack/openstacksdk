@@ -653,11 +653,8 @@ class Proxy(proxy.Proxy):
         :param bool secondary:
           Whether this should set the secondary key. (defaults to False)
         """
-        header = 'Temp-URL-Key'
-        if secondary:
-            header += '-2'
-
-        return self.set_account_metadata(**{header: key})
+        account = self._get_resource(_account.Account, None)
+        account.set_temp_url_key(self, key, secondary)
 
     def set_container_temp_url_key(self, container, key, secondary=False):
         """Set the temporary URL key for a container.
@@ -670,11 +667,8 @@ class Proxy(proxy.Proxy):
         :param bool secondary:
           Whether this should set the secondary key. (defaults to False)
         """
-        header = 'Temp-URL-Key'
-        if secondary:
-            header += '-2'
-
-        return self.set_container_metadata(container, **{header: key})
+        res = self._get_resource(_container.Container, container)
+        res.set_temp_url_key(self, key, secondary)
 
     def get_temp_url_key(self, container=None):
         """Get the best temporary url key for a given container.
