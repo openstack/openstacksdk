@@ -202,4 +202,13 @@ class ServiceDescription(object):
         raise AttributeError('Service Descriptors cannot be set')
 
     def __delete__(self, instance):
-        raise AttributeError('Service Descriptors cannot be deleted')
+        # NOTE(gtema) Some clouds are not very fast (or interested at all)
+        # in bringing their changes upstream. If there are incompatible changes
+        # downstream we need to allow overriding default implementation by
+        # deleting service_type attribute of the connection and then
+        # "add_service" with new implementation.
+        # This is implemented explicitely not very comfortable to use
+        # to show how bad it is not to contribute changes back
+        for service_type in self.all_types:
+            if service_type in instance._proxies:
+                del instance._proxies[service_type]
