@@ -43,6 +43,8 @@ class Execution(resource.Resource):
     #: A JSON structure containing workflow input values
     # TODO(briancurtin): type=dict
     input = resource.Body("input")
+    #: An optional JSON structure containing workflow type specific parameters
+    params = resource.Body("params")
     #: The output of the workflow
     output = resource.Body("output")
     #: The time at which the Execution was created
