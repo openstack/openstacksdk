@@ -1915,3 +1915,12 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         # Once we have base64 bytes, make them into a utf-8 string for REST
         return base64.b64encode(userdata).decode('utf-8')
+
+    def get_openstack_vars(self, server):
+        return meta.get_hostvars_from_server(self, server)
+
+    def _expand_server_vars(self, server):
+        # Used by nodepool
+        # TODO(mordred) remove after these make it into what we
+        # actually want the API to be.
+        return meta.expand_server_vars(self, server)

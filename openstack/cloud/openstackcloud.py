@@ -12,7 +12,6 @@
 import copy
 import functools
 import six
-# import threading
 # import types so that we can reference ListType in sphinx param declarations.
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
@@ -28,11 +27,9 @@ import keystoneauth1.exceptions
 import keystoneauth1.session
 
 from openstack import _log
-# from openstack import exceptions
 from openstack.cloud import exc
 from openstack.cloud import _floating_ip
 from openstack.cloud import _object_store
-# from openstack.cloud import _normalize
 from openstack.cloud import meta
 from openstack.cloud import _utils
 import openstack.config
@@ -92,33 +89,10 @@ class _OpenStackCloudMixin(object):
         self.name = self.config.name
         self.auth = self.config.get_auth_args()
         self.default_interface = self.config.get_interface()
-        # self.private = self.config.config.get('private', False)
-        # self.image_api_use_tasks = self.config.config['image_api_use_tasks']
-        # self.secgroup_source = self.config.config['secgroup_source']
         self.force_ipv4 = self.config.force_ipv4
 
-        # self._external_ipv4_names = self.config.get_external_ipv4_networks()
-        # self._internal_ipv4_names = self.config.get_internal_ipv4_networks()
-        # self._external_ipv6_names = self.config.get_external_ipv6_networks()
-        # self._internal_ipv6_names = self.config.get_internal_ipv6_networks()
-        # self._nat_destination = self.config.get_nat_destination()
-        # self._nat_source = self.config.get_nat_source()
-        # self._default_network = self.config.get_default_network()
-
-        # self._floating_ip_source = self.config.config.get(
-        #     'floating_ip_source')
-        # if self._floating_ip_source:
-        #     if self._floating_ip_source.lower() == 'none':
-        #         self._floating_ip_source = None
-        #     else:
-        #         self._floating_ip_source = self._floating_ip_source.lower()
-
-        # self._use_external_network = self.config.config.get(
-        #     'use_external_network', True)
-        # self._use_internal_network = self.config.config.get(
-        #     'use_internal_network', True)
-
         (self.verify, self.cert) = self.config.get_requests_verify_args()
+
         # Turn off urllib3 warnings about insecure certs if we have
         # explicitly configured requests to tell it we do not want
         # cert verification
@@ -131,25 +105,6 @@ class _OpenStackCloudMixin(object):
                 warnings.filterwarnings('ignore', category=category)
 
         self._disable_warnings = {}
-
-        # self._servers = None
-        # self._servers_time = 0
-        # self._servers_lock = threading.Lock()
-
-        # self._ports = None
-        # self._ports_time = 0
-        # self._ports_lock = threading.Lock()
-
-        # self._floating_ips = None
-        # self._floating_ips_time = 0
-        # self._floating_ips_lock = threading.Lock()
-        #
-        # self._floating_network_by_router = None
-        # self._floating_network_by_router_run = False
-        # self._floating_network_by_router_lock = threading.Lock()
-
-        # self._networks_lock = threading.Lock()
-        # self._reset_network_caches()
 
         cache_expiration_time = int(self.config.get_cache_expiration_time())
         cache_class = self.config.get_cache_class()
@@ -742,12 +697,3 @@ class _OpenStackCloudMixin(object):
             return True
         else:
             return False
-
-    def get_openstack_vars(self, server):
-        return meta.get_hostvars_from_server(self, server)
-
-    def _expand_server_vars(self, server):
-        # Used by nodepool
-        # TODO(mordred) remove after these make it into what we
-        # actually want the API to be.
-        return meta.expand_server_vars(self, server)
