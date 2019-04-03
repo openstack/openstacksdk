@@ -184,6 +184,8 @@ class TestContainer(base.TestCase):
                 'read_ACL': None,
                 'sync_key': None,
                 'sync_to': None,
+                'meta_temp_url_key': None,
+                'meta_temp_url_key_2': None,
                 'timestamp': None,
                 'versions_location': None,
                 'write_ACL': None,

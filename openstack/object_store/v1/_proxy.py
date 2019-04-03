@@ -9,10 +9,15 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 import collections
-import os
+from hashlib import sha1
+import hmac
 import json
+import os
+import time
+
+import six
+from six.moves.urllib import parse
 
 from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
@@ -639,3 +644,117 @@ class Proxy(proxy.Proxy):
         include metadata about maximum values and thresholds.
         """
         return self._get(_info.Info)
+
+    def set_account_temp_url_key(self, key, secondary=False):
+        """Set the temporary URL key for the account.
+
+        :param key:
+          Text of the key to use.
+        :param bool secondary:
+          Whether this should set the secondary key. (defaults to False)
+        """
+        header = 'Temp-URL-Key'
+        if secondary:
+            header += '-2'
+
+        return self.set_account_metadata(**{header: key})
+
+    def set_container_temp_url_key(self, container, key, secondary=False):
+        """Set the temporary URL key for a container.
+
+        :param container:
+          The value can be the name of a container or a
+          :class:`~openstack.object_store.v1.container.Container` instance.
+        :param key:
+          Text of the key to use.
+        :param bool secondary:
+          Whether this should set the secondary key. (defaults to False)
+        """
+        header = 'Temp-URL-Key'
+        if secondary:
+            header += '-2'
+
+        return self.set_container_metadata(container, **{header: key})
+
+    def get_temp_url_key(self, container=None):
+        """Get the best temporary url key for a given container.
+
+        Will first try to return Temp-URL-Key-2 then Temp-URL-Key for
+        the container, and if neither exist, will attempt to return
+        Temp-URL-Key-2 then Temp-URL-Key for the account. If neither
+        exist, will return None.
+
+        :param container:
+          The value can be the name of a container or a
+          :class:`~openstack.object_store.v1.container.Container` instance.
+        """
+        temp_url_key = None
+        if container:
+            container_meta = self.get_container_metadata(container)
+            temp_url_key = (container_meta.meta_temp_url_key_2
+                            or container_meta.meta_temp_url_key)
+        if not temp_url_key:
+            account_meta = self.get_account_metadata()
+            temp_url_key = (account_meta.meta_temp_url_key_2
+                            or account_meta.meta_temp_url_key)
+        if temp_url_key and not isinstance(temp_url_key, six.binary_type):
+            temp_url_key = temp_url_key.encode('utf8')
+        return temp_url_key
+
+    def generate_form_signature(
+            self, container, object_prefix, redirect_url, max_file_size,
+            max_upload_count, timeout, temp_url_key=None):
+        """Generate a signature for a FormPost upload.
+
+        :param container:
+          The value can be the name of a container or a
+          :class:`~openstack.object_store.v1.container.Container` instance.
+        :param object_prefix:
+          Prefix to apply to limit all object names created using this
+          signature.
+        :param redirect_url:
+          The URL to redirect the browser to after the uploads have
+          completed.
+        :param max_file_size:
+          The maximum file size per file uploaded.
+        :param max_upload_count:
+          The maximum number of uploaded files allowed.
+        :param timeout:
+          The number of seconds from now to allow the form post to begin.
+        :param temp_url_key:
+          The X-Account-Meta-Temp-URL-Key for the account. Optional, if
+          omitted, the key will be fetched from the container or the account.
+        """
+        max_file_size = int(max_file_size)
+        if max_file_size < 1:
+            raise exceptions.SDKException(
+                'Please use a positive max_file_size value.')
+        max_upload_count = int(max_upload_count)
+        if max_upload_count < 1:
+            raise exceptions.SDKException(
+                'Please use a positive max_upload_count value.')
+        if timeout < 1:
+            raise exceptions.SDKException(
+                'Please use a positive <timeout> value.')
+        expires = int(time.time() + int(timeout))
+        if temp_url_key:
+            if not isinstance(temp_url_key, six.binary_type):
+                temp_url_key = temp_url_key.encode('utf8')
+        else:
+            temp_url_key = self.get_temp_url_key(container)
+        if not temp_url_key:
+            raise exceptions.SDKException(
+                'temp_url_key was not given, nor was a temporary url key'
+                ' found for the account or the container.')
+
+        res = self._get_resource(_container.Container, container)
+        endpoint = parse.urlparse(self.get_endpoint())
+        path = '/'.join([endpoint.path, res.name, object_prefix])
+
+        data = '%s\n%s\n%s\n%s\n%s' % (path, redirect_url, max_file_size,
+                                       max_upload_count, expires)
+        if six.PY3:
+            data = data.encode('utf8')
+        sig = hmac.new(temp_url_key, data, sha1).hexdigest()
+
+        return (expires, sig)

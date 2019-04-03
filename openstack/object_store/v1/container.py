@@ -98,6 +98,12 @@ class Container(_base.BaseResource):
     #: "If-None-Match: \*" header to query whether the server already
     #: has a copy of the object before any data is sent.
     if_none_match = resource.Header("if-none-match")
+    #: The secret key value for temporary URLs. If not set,
+    #: this header is not returned by this operation.
+    meta_temp_url_key = resource.Header("x-container-meta-temp-url-key")
+    #: A second secret key value for temporary URLs. If not set,
+    #: this header is not returned by this operation.
+    meta_temp_url_key_2 = resource.Header("x-container-meta-temp-url-key-2")
 
     @classmethod
     def new(cls, **kwargs):
