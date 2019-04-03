@@ -137,6 +137,8 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     #: instance name template. Appears in the response for administrative users
     #: only.
     instance_name = resource.Body('OS-EXT-SRV-ATTR:instance_name')
+    # The locked status of the server
+    is_locked = resource.Body('locked', type=bool)
 
     def _prepare_request(self, requires_id=True, prepend_key=True,
                          base_path=None):

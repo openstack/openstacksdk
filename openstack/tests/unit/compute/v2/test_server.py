@@ -54,7 +54,8 @@ EXAMPLE = {
     'OS-EXT-SRV-ATTR:hypervisor_hostname': 'hypervisor.example.com',
     'OS-EXT-SRV-ATTR:instance_name': 'instance-00000001',
     'OS-SCH-HNT:scheduler_hints': {'key': '30'},
-    'OS-EXT-SRV-ATTR:user_data': '31'
+    'OS-EXT-SRV-ATTR:user_data': '31',
+    'locked': True
 }
 
 
@@ -148,6 +149,7 @@ class TestServer(base.TestCase):
         self.assertEqual(EXAMPLE['OS-SCH-HNT:scheduler_hints'],
                          sot.scheduler_hints)
         self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:user_data'], sot.user_data)
+        self.assertEqual(EXAMPLE['locked'], sot.is_locked)
 
     def test__prepare_server(self):
         zone = 1
