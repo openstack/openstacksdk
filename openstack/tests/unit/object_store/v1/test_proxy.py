@@ -11,7 +11,6 @@
 # under the License.
 
 import random
-import six
 import string
 import tempfile
 
@@ -172,173 +171,37 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
             self.container, key, secondary=True)
         self.assert_calls()
 
+    def test_copy_object(self):
+        self.assertRaises(NotImplementedError, self.proxy.copy_object)
 
-class Test_containers(TestObjectStoreProxy):
+    def test_file_segment(self):
+        file_size = 4200
+        content = ''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits)
+            for _ in range(file_size)).encode('latin-1')
+        self.imagefile = tempfile.NamedTemporaryFile(delete=False)
+        self.imagefile.write(content)
+        self.imagefile.close()
 
-    def setUp(self):
-        super(Test_containers, self).setUp()
-
-        self.containers_body = []
-        for i in range(3):
-            self.containers_body.append({six.text_type("name"):
-                                         six.text_type("container%d" % i)})
-
-#    @httpretty.activate
-#    def test_all_containers(self):
-#        self.stub_url(httpretty.GET,
-#                      path=[container.Container.base_path],
-#                      responses=[httpretty.Response(
-#                             body=json.dumps(self.containers_body),
-#                             status=200, content_type="application/json"),
-#                             httpretty.Response(body=json.dumps([]),
-#                             status=200, content_type="application/json")])
-#
-#        count = 0
-#        for actual, expected in zip(self.proxy.containers(),
-#                                    self.containers_body):
-#            self.assertEqual(expected, actual)
-#            count += 1
-#        self.assertEqual(len(self.containers_body), count)
-
-#    @httpretty.activate
-#    def test_containers_limited(self):
-#        limit = len(self.containers_body) + 1
-#        limit_param = "?limit=%d" % limit
-#
-#        self.stub_url(httpretty.GET,
-#                      path=[container.Container.base_path + limit_param],
-#                      json=self.containers_body)
-#
-#        count = 0
-#        for actual, expected in zip(self.proxy.containers(limit=limit),
-#                                    self.containers_body):
-#            self.assertEqual(actual, expected)
-#            count += 1
-#
-#        self.assertEqual(len(self.containers_body), count)
-#        # Since we've chosen a limit larger than the body, only one request
-#        # should be made, so it should be the last one.
-#        self.assertIn(limit_param, httpretty.last_request().path)
-
-#    @httpretty.activate
-#    def test_containers_with_marker(self):
-#        marker = six.text_type("container2")
-#        marker_param = "marker=%s" % marker
-#
-#        self.stub_url(httpretty.GET,
-#                      path=[container.Container.base_path + "?" +
-#                            marker_param],
-#                      json=self.containers_body)
-#
-#        count = 0
-#        for actual, expected in zip(self.proxy.containers(marker=marker),
-#                                    self.containers_body):
-#            # Make sure the marker made it into the actual request.
-#            self.assertIn(marker_param, httpretty.last_request().path)
-#            self.assertEqual(expected, actual)
-#            count += 1
-#
-#        self.assertEqual(len(self.containers_body), count)
-#
-#        # Since we have to make one request beyond the end, because no
-#        # limit was provided, make sure the last container appears as
-#        # the marker in this last request.
-#        self.assertIn(self.containers_body[-1]["name"],
-#                      httpretty.last_request().path)
+        segments = self.proxy._get_file_segments(
+            endpoint='test_container/test_image',
+            filename=self.imagefile.name,
+            file_size=file_size,
+            segment_size=1000)
+        self.assertEqual(len(segments), 5)
+        segment_content = b''
+        for (index, (name, segment)) in enumerate(segments.items()):
+            self.assertEqual(
+                'test_container/test_image/{index:0>6}'.format(index=index),
+                name)
+            segment_content += segment.read()
+        self.assertEqual(content, segment_content)
 
 
-class Test_objects(TestObjectStoreProxy):
+class TestDownloadObject(base_test_object.BaseTestObject):
 
     def setUp(self):
-        super(Test_objects, self).setUp()
-
-        self.container_name = six.text_type("my_container")
-
-        self.objects_body = []
-        for i in range(3):
-            self.objects_body.append({six.text_type("name"):
-                                      six.text_type("object%d" % i)})
-
-        # Returned object bodies have their container inserted.
-        self.returned_objects = []
-        for ob in self.objects_body:
-            ob[six.text_type("container")] = self.container_name
-            self.returned_objects.append(ob)
-        self.assertEqual(len(self.objects_body), len(self.returned_objects))
-
-#    @httpretty.activate
-#    def test_all_objects(self):
-#        self.stub_url(httpretty.GET,
-#                      path=[obj.Object.base_path %
-#                            {"container": self.container_name}],
-#                      responses=[httpretty.Response(
-#                             body=json.dumps(self.objects_body),
-#                             status=200, content_type="application/json"),
-#                             httpretty.Response(body=json.dumps([]),
-#                             status=200, content_type="application/json")])
-#
-#        count = 0
-#        for actual, expected in zip(self.proxy.objects(self.container_name),
-#                                    self.returned_objects):
-#            self.assertEqual(expected, actual)
-#            count += 1
-#        self.assertEqual(len(self.returned_objects), count)
-
-#    @httpretty.activate
-#    def test_objects_limited(self):
-#        limit = len(self.objects_body) + 1
-#        limit_param = "?limit=%d" % limit
-#
-#        self.stub_url(httpretty.GET,
-#                      path=[obj.Object.base_path %
-#                            {"container": self.container_name} + limit_param],
-#                      json=self.objects_body)
-#
-#        count = 0
-#        for actual, expected in zip(self.proxy.objects(self.container_name,
-#                                                       limit=limit),
-#                                    self.returned_objects):
-#            self.assertEqual(expected, actual)
-#            count += 1
-#
-#        self.assertEqual(len(self.returned_objects), count)
-#        # Since we've chosen a limit larger than the body, only one request
-#        # should be made, so it should be the last one.
-#        self.assertIn(limit_param, httpretty.last_request().path)
-
-#    @httpretty.activate
-#    def test_objects_with_marker(self):
-#        marker = six.text_type("object2")
-#       # marker_param = "marker=%s" % marker
-#
-#        self.stub_url(httpretty.GET,
-#                      path=[obj.Object.base_path %
-#                            {"container": self.container_name} + "?" +
-#                            marker_param],
-#                      json=self.objects_body)
-#
-#        count = 0
-#        for actual, expected in zip(self.proxy.objects(self.container_name,
-#                                                       marker=marker),
-#                                    self.returned_objects):
-#            # Make sure the marker made it into the actual request.
-#            self.assertIn(marker_param, httpretty.last_request().path)
-#            self.assertEqual(expected, actual)
-#            count += 1
-#
-#        self.assertEqual(len(self.returned_objects), count)
-#
-#        # Since we have to make one request beyond the end, because no
-#        # limit was provided, make sure the last container appears as
-#        # the marker in this last request.
-#        self.assertIn(self.returned_objects[-1]["name"],
-#                      httpretty.last_request().path)
-
-
-class Test_download_object(base_test_object.BaseTestObject):
-
-    def setUp(self):
-        super(Test_download_object, self).setUp()
+        super(TestDownloadObject, self).setUp()
         self.the_data = b'test body'
         self.register_uris([
             dict(method='GET', uri=self.object_endpoint,
@@ -374,34 +237,3 @@ class Test_download_object(base_test_object.BaseTestObject):
             self.assertLessEqual(chunk_len, chunk_size)
             self.assertEqual(chunk, self.the_data[start:end])
         self.assert_calls()
-
-
-class Test_copy_object(TestObjectStoreProxy):
-
-    def test_copy_object(self):
-        self.assertRaises(NotImplementedError, self.proxy.copy_object)
-
-
-class Test_utils(TestObjectStoreProxy):
-    def test_file_segment(self):
-        file_size = 4200
-        content = ''.join(random.SystemRandom().choice(
-            string.ascii_uppercase + string.digits)
-            for _ in range(file_size)).encode('latin-1')
-        self.imagefile = tempfile.NamedTemporaryFile(delete=False)
-        self.imagefile.write(content)
-        self.imagefile.close()
-
-        segments = self.proxy._get_file_segments(
-            endpoint='test_container/test_image',
-            filename=self.imagefile.name,
-            file_size=file_size,
-            segment_size=1000)
-        self.assertEqual(len(segments), 5)
-        segment_content = b''
-        for (index, (name, segment)) in enumerate(segments.items()):
-            self.assertEqual(
-                'test_container/test_image/{index:0>6}'.format(index=index),
-                name)
-            segment_content += segment.read()
-        self.assertEqual(content, segment_content)
