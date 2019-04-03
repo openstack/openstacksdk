@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import exceptions
 from openstack.orchestration.v1 import resource as _resource
 from openstack.orchestration.v1 import software_config as _sc
 from openstack.orchestration.v1 import software_deployment as _sd
@@ -19,11 +18,50 @@ from openstack.orchestration.v1 import stack_environment as _stack_environment
 from openstack.orchestration.v1 import stack_files as _stack_files
 from openstack.orchestration.v1 import stack_template as _stack_template
 from openstack.orchestration.v1 import template as _template
+from openstack.orchestration.util import template_utils
+from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+
+    def read_env_and_templates(self, template_file=None, template_url=None,
+                               template_object=None, files=None,
+                               environment_files=None):
+        """Read templates and environment content and prepares
+        corresponding stack attributes
+
+        :param string template_file: Path to the template.
+        :param string template_url: URL of template.
+        :param string template_object: URL to retrieve template object.
+        :param dict files: dict of additional file content to include.
+        :param environment_files: Paths to environment files to apply.
+
+        :returns: Attributes dict to be set on the
+            :class:`~openstack.orchestration.v1.stack.Stack`
+        :rtype: dict
+        """
+        stack_attrs = dict()
+        envfiles = None
+        tpl_files = None
+        if environment_files:
+            envfiles, env = \
+                template_utils.process_multiple_environments_and_files(
+                    env_paths=environment_files)
+            stack_attrs['environment'] = env
+        if template_file or template_url or template_object:
+            tpl_files, template = template_utils.get_template_contents(
+                template_file=template_file,
+                template_url=template_url,
+                template_object=template_object,
+                files=files)
+            stack_attrs['template'] = template
+            if tpl_files or envfiles:
+                stack_attrs['files'] = dict(
+                    list(tpl_files.items()) + list(envfiles.items())
+                )
+        return stack_attrs
 
     def create_stack(self, preview=False, **attrs):
         """Create a new stack from attributes
@@ -32,16 +70,18 @@ class Proxy(proxy.Proxy):
             verify the template
             *Default: ``False``*
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.orchestration.v1.stack.Stack`,
-                           comprised of the properties on the Stack class.
+            a :class:`~openstack.orchestration.v1.stack.Stack`,
+            comprised of the properties on the Stack class.
 
         :returns: The results of stack creation
         :rtype: :class:`~openstack.orchestration.v1.stack.Stack`
         """
+
         base_path = None if not preview else '/stacks/preview'
         return self._create(_stack.Stack, base_path=base_path, **attrs)
 
-    def find_stack(self, name_or_id, ignore_missing=True):
+    def find_stack(self, name_or_id,
+                   ignore_missing=True, resolve_outputs=True):
         """Find a single stack
 
         :param name_or_id: The name or ID of a stack.
@@ -53,7 +93,8 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.orchestration.v1.stack.Stack` or None
         """
         return self._find(_stack.Stack, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing,
+                          resolve_outputs=resolve_outputs)
 
     def stacks(self, **query):
         """Return a generator of stacks
@@ -66,17 +107,18 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_stack.Stack, **query)
 
-    def get_stack(self, stack):
+    def get_stack(self, stack, resolve_outputs=True):
         """Get a single stack
 
         :param stack: The value can be the ID of a stack or a
                :class:`~openstack.orchestration.v1.stack.Stack` instance.
+        :param resolve_outputs: Whether stack should contain outputs resolved.
 
         :returns: One :class:`~openstack.orchestration.v1.stack.Stack`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(_stack.Stack, stack)
+        return self._get(_stack.Stack, stack, resolve_outputs=resolve_outputs)
 
     def update_stack(self, stack, preview=False, **attrs):
         """Update a stack
@@ -411,3 +453,14 @@ class Proxy(proxy.Proxy):
                  to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
+
+    def get_template_contents(
+            self, template_file=None, template_url=None,
+            template_object=None, files=None):
+        try:
+            return template_utils.get_template_contents(
+                template_file=template_file, template_url=template_url,
+                template_object=template_object, files=files)
+        except Exception as e:
+            raise exceptions.SDKException(
+                "Error in processing template files: %s" % str(e))

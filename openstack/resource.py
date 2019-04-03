@@ -971,16 +971,21 @@ class Resource(dict):
             has_body = self.has_body
         exceptions.raise_from_response(response, error_message=error_message)
         if has_body:
-            body = response.json()
-            if self.resource_key and self.resource_key in body:
-                body = body[self.resource_key]
+            try:
+                body = response.json()
+                if self.resource_key and self.resource_key in body:
+                    body = body[self.resource_key]
 
-            body = self._consume_body_attrs(body)
-            self._body.attributes.update(body)
-            self._body.clean()
-            if self.commit_jsonpatch or self.allow_patch:
-                # We need the original body to compare against
-                self._original_body = body.copy()
+                body = self._consume_body_attrs(body)
+                self._body.attributes.update(body)
+                self._body.clean()
+                if self.commit_jsonpatch or self.allow_patch:
+                    # We need the original body to compare against
+                    self._original_body = body.copy()
+            except ValueError:
+                # Server returned not parse-able response (202, 204, etc)
+                # Do simply nothing
+                pass
 
         headers = self._consume_header_attrs(response.headers)
         self._header.attributes.update(headers)
@@ -1127,7 +1132,7 @@ class Resource(dict):
         return self
 
     def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None):
+              base_path=None, error_message=None, **params):
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1139,6 +1144,7 @@ class Resource(dict):
                               :data:`~openstack.resource.Resource.base_path`.
         :param str error_message: An Error message to be returned if
                                   requested object does not exist.
+        :param dict params: Additional parameters that can be consumed.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_fetch` is not set to ``True``.
@@ -1577,7 +1583,7 @@ class Resource(dict):
                 id=name_or_id,
                 connection=session._get_connection(),
                 **params)
-            return match.fetch(session)
+            return match.fetch(session, **params)
         except exceptions.NotFoundException:
             pass
 

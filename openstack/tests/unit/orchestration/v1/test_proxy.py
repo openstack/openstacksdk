@@ -40,13 +40,40 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                            method_kwargs=method_kwargs)
 
     def test_find_stack(self):
-        self.verify_find(self.proxy.find_stack, stack.Stack)
+        self.verify_find(self.proxy.find_stack, stack.Stack,
+                         expected_kwargs={'resolve_outputs': True})
+        # mock_method="openstack.proxy.Proxy._find"
+        # test_method=self.proxy.find_stack
+        # method_kwargs = {
+        #     'resolve_outputs': False,
+        #     'ignore_missing': False
+        # }
+        # method_args=["name_or_id"]
+        # self._verify2(mock_method, test_method,
+        #               method_args=method_args,
+        #               method_kwargs=method_kwargs,
+        #               expected_args=[stack.Stack, "name_or_id"],
+        #               expected_kwargs=method_kwargs,
+        #               expected_result="result")
+        #
+        # method_kwargs = {
+        #     'resolve_outputs': True,
+        #     'ignore_missing': True
+        # }
+        # self._verify2(mock_method, test_method,
+        #               method_args=method_args,
+        #               method_kwargs=method_kwargs,
+        #               expected_args=[stack.Stack, "name_or_id"],
+        #               expected_kwargs=method_kwargs,
+        #               expected_result="result")
 
     def test_stacks(self):
         self.verify_list(self.proxy.stacks, stack.Stack)
 
     def test_get_stack(self):
-        self.verify_get(self.proxy.get_stack, stack.Stack)
+        self.verify_get(self.proxy.get_stack, stack.Stack,
+                        method_kwargs={'resolve_outputs': False},
+                        expected_kwargs={'resolve_outputs': False})
         self.verify_get_overrided(
             self.proxy, stack.Stack,
             'openstack.orchestration.v1.stack.Stack')

@@ -21,7 +21,7 @@ import datetime
 import json
 import uuid
 
-from openstack.cloud._heat import template_format
+from openstack.orchestration.util import template_format
 from openstack.cloud import meta
 
 PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
