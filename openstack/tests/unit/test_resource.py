@@ -644,6 +644,24 @@ class TestResource(base.TestCase):
         self.assertEqual(sot.alt, value2)
         self.assertEqual(sot.id, value2)
 
+    def test__alternate_id_from_other_property(self):
+        class Test(resource.Resource):
+            foo = resource.Body("foo")
+            bar = resource.Body("bar", alternate_id=True)
+
+        # NOTE(redrobot): My expectation looking at the Test class defined
+        # in this test is that because the alternate_id parameter is
+        # is being set to True on the "bar" property of the Test class,
+        # then the _alternate_id() method should return the name of that "bar"
+        # property.
+        self.assertEqual("bar", Test._alternate_id())
+        sot = Test(bar='bunnies')
+        self.assertEqual(sot.id, 'bunnies')
+        self.assertEqual(sot.bar, 'bunnies')
+        sot = Test(id='chickens', bar='bunnies')
+        self.assertEqual(sot.id, 'chickens')
+        self.assertEqual(sot.bar, 'bunnies')
+
     def test__get_id_instance(self):
         class Test(resource.Resource):
             id = resource.Body("id")
