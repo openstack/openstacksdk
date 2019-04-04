@@ -406,8 +406,12 @@ class Resource(dict):
 
     #: Do calls for this resource require an id
     requires_id = True
+    #: Whether create requires an ID (determined from method if None).
+    create_requires_id = None
     #: Do responses for this resource have bodies
     has_body = True
+    #: Does create returns a body (if False requires ID), defaults to has_body
+    create_returns_body = None
 
     #: Maximum microversion to use for getting/creating/updating the Resource
     _max_microversion = None
@@ -1104,15 +1108,18 @@ class Resource(dict):
 
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'create')
+        requires_id = (self.create_requires_id
+                       if self.create_requires_id is not None
+                       else self.create_method == 'PUT')
         if self.create_method == 'PUT':
-            request = self._prepare_request(requires_id=True,
+            request = self._prepare_request(requires_id=requires_id,
                                             prepend_key=prepend_key,
                                             base_path=base_path)
             response = session.put(request.url,
                                    json=request.body, headers=request.headers,
                                    microversion=microversion)
         elif self.create_method == 'POST':
-            request = self._prepare_request(requires_id=False,
+            request = self._prepare_request(requires_id=requires_id,
                                             prepend_key=prepend_key,
                                             base_path=base_path)
             response = session.post(request.url,
@@ -1122,8 +1129,14 @@ class Resource(dict):
             raise exceptions.ResourceFailure(
                 msg="Invalid create method: %s" % self.create_method)
 
+        has_body = (self.has_body if self.create_returns_body is None
+                    else self.create_returns_body)
         self.microversion = microversion
-        self._translate_response(response)
+        self._translate_response(response, has_body=has_body)
+        # direct comparision to False since we need to rule out None
+        if self.has_body and self.create_returns_body is False:
+            # fetch the body if it's required but not returned by create
+            return self.fetch(session)
         return self
 
     def fetch(self, session, requires_id=True,

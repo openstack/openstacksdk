@@ -95,6 +95,7 @@ control which services can be used.
    :maxdepth: 1
 
    Baremetal <proxies/baremetal>
+   Baremetal Introspection <proxies/baremetal_introspection>
    Block Storage <proxies/block_storage>
    Clustering <proxies/clustering>
    Compute <proxies/compute>
@@ -128,6 +129,7 @@ The following services have exposed *Resource* classes.
    :maxdepth: 1
 
    Baremetal <resources/baremetal/index>
+   Baremetal Introspection <resources/baremetal_introspection/index>
    Block Storage <resources/block_storage/index>
    Clustering <resources/clustering/index>
    Compute <resources/compute/index>
