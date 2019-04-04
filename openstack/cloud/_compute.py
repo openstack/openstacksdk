@@ -1133,7 +1133,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
                     extra_data=dict(server=server))
 
             raise exc.OpenStackCloudException(
-                "Error in creating the server", extra_data=dict(server=server))
+                "Error in creating the server"
+                " (no further information available)",
+                extra_data=dict(server=server))
 
         if server['status'] == 'ACTIVE':
             if 'addresses' in server and server['addresses']:
