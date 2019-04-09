@@ -84,21 +84,32 @@ def pack(path):
     :return: configdrive contents as a base64-encoded string.
     """
     with tempfile.NamedTemporaryFile() as tmpfile:
-        try:
-            p = subprocess.Popen(['genisoimage',
-                                  '-o', tmpfile.name,
-                                  '-ldots', '-allow-lowercase',
-                                  '-allow-multidot', '-l',
-                                  '-publisher', 'metalsmith',
-                                  '-quiet', '-J',
-                                  '-r', '-V', 'config-2',
-                                  path],
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-        except OSError as e:
+        # NOTE(toabctl): Luckily, genisoimage, mkisofs and xorrisofs understand
+        # the same parameters which are currently used.
+        cmds = ['genisoimage', 'mkisofs', 'xorrisofs']
+        for c in cmds:
+            try:
+                p = subprocess.Popen([c,
+                                      '-o', tmpfile.name,
+                                      '-ldots', '-allow-lowercase',
+                                      '-allow-multidot', '-l',
+                                      '-publisher', 'metalsmith',
+                                      '-quiet', '-J',
+                                      '-r', '-V', 'config-2',
+                                      path],
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
+            except OSError as e:
+                error = e
+            else:
+                error = None
+                break
+
+        if error:
             raise RuntimeError(
                 'Error generating the configdrive. Make sure the '
-                '"genisoimage" tool is installed. Error: %s' % e)
+                '"genisoimage", "mkisofs" or "xorrisofs" tool is installed. '
+                'Error: %s' % error)
 
         stdout, stderr = p.communicate()
         if p.returncode != 0:

@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    When generating a config drive for baremetal, "mkisofs" and "xorrisofs"
+    are now supported beside the already available "genisoimage" binary.
+    This is useful on environment where the "genisoimage" binary is not
+    available but "mkisofs" and/or "xorrisofs" are available.
+
