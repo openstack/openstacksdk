@@ -1,0 +1,15 @@
+{
+  "versions": [
+    {
+      "status": "CURRENT",
+      "updated": "2013-07-23T11:33:21Z",
+      "links": [
+        {
+          "href": "https://example.com/image/v7/",
+          "rel": "self"
+        }
+      ],
+      "id": "v7"
+    }
+  ]
+}
