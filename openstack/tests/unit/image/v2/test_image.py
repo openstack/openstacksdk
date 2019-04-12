@@ -408,7 +408,7 @@ class TestImage(base.TestCase):
         self.sess.get.assert_has_calls([
             mock.call('images/' + EXAMPLE['name'], microversion=None),
             mock.call('/images', headers={'Accept': 'application/json'},
-                      microversion=None, params={}),
+                      microversion=None, params={'name': EXAMPLE['name']}),
             mock.call('/images', headers={'Accept': 'application/json'},
                       microversion=None, params={'os_hidden': True})
         ])

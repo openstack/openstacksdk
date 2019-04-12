@@ -1,0 +1,7 @@
+---
+other:
+  - |
+    ``openstack.resource.Resource.find`` now can use the database back-end to
+    filter by name. If the resource class has "name" in the query parameters,
+    this function will add this filter parameter in the "list" command, instead
+    of retrieving the whole list and then manually filtering.

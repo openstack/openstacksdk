@@ -90,7 +90,8 @@ class TestFirewallRule(FirewallTestCase):
                                          self.firewall_rule_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules',
+                                         name=self.firewall_rule_name),
                  json={'firewall_rules': [self.mock_firewall_rule]}),
             dict(method='DELETE',
                  uri=self._make_mock_url('firewall_rules',
@@ -109,7 +110,9 @@ class TestFirewallRule(FirewallTestCase):
                                          self.firewall_rule_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules', **filters),
+                 uri=self._make_mock_url(
+                     'firewall_rules',
+                     name=self.firewall_rule_name, **filters),
                  json={'firewall_rules': [self.mock_firewall_rule]}, ),
             dict(method='DELETE',
                  uri=self._make_mock_url('firewall_rules',
@@ -146,7 +149,8 @@ class TestFirewallRule(FirewallTestCase):
                                          self.firewall_rule_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules',
+                                         name=self.firewall_rule_name),
                  json={'firewall_rules': [self.mock_firewall_rule,
                                           self.mock_firewall_rule]})
         ])
@@ -162,7 +166,8 @@ class TestFirewallRule(FirewallTestCase):
                                          self.firewall_rule_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules',
+                                         name=self.firewall_rule_name),
                  json={'firewall_rules': [self.mock_firewall_rule]})
         ])
         r = self.cloud.get_firewall_rule(self.firewall_rule_name)
@@ -176,7 +181,7 @@ class TestFirewallRule(FirewallTestCase):
                  uri=self._make_mock_url('firewall_rules', name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules', name=name),
                  json={'firewall_rules': []})
         ])
         self.assertIsNone(self.cloud.get_firewall_rule(name))
@@ -202,7 +207,8 @@ class TestFirewallRule(FirewallTestCase):
                                          self.firewall_rule_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules',
+                                         name=self.firewall_rule_name),
                  json={'firewall_rules': [self.mock_firewall_rule]}),
             dict(method='PUT',
                  uri=self._make_mock_url('firewall_rules',
@@ -283,7 +289,9 @@ class TestFirewallPolicy(FirewallTestCase):
                                          TestFirewallRule.firewall_rule_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url(
+                     'firewall_rules',
+                     name=TestFirewallRule.firewall_rule_name),
                  json={'firewall_rules': [
                      TestFirewallRule._mock_firewall_rule_attrs]}),
             dict(method='POST',
@@ -305,7 +313,9 @@ class TestFirewallPolicy(FirewallTestCase):
                                          posted_policy['firewall_rules'][0]),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url(
+                     'firewall_rules',
+                     name=posted_policy['firewall_rules'][0]),
                  json={'firewall_rules': []})
         ])
 
@@ -323,7 +333,8 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.firewall_policy_name),
                  json={'firewall_policies': [self.mock_firewall_policy]}),
             dict(method='DELETE',
                  uri=self._make_mock_url('firewall_policies',
@@ -364,7 +375,8 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.firewall_policy_name),
                  json={'firewall_policies': []})
         ])
 
@@ -381,7 +393,8 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.firewall_policy_name),
                  json={'firewall_policies': [self.mock_firewall_policy]})
         ])
         self.assertDictEqual(self.mock_firewall_policy,
@@ -396,7 +409,7 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_policies', name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies', name=name),
                  json={'firewall_policies': []})
         ])
         self.assertIsNone(self.cloud.get_firewall_policy(name))
@@ -448,7 +461,8 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.firewall_policy_name),
                  json={'firewall_policies': [retrieved_policy]}),
             dict(method='GET',
                  uri=self._make_mock_url('firewall_rules', lookup_rule['id']),
@@ -474,7 +488,8 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.firewall_policy_name),
                  json={'firewall_policies': [
                      deepcopy(self.mock_firewall_policy)]}),
             dict(method='PUT',
@@ -539,28 +554,29 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_name),
                  status_code=404),
             dict(method='GET',  # get policy
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.firewall_policy_name),
                  json={'firewall_policies': [retrieved_policy]}),
 
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_rules', rule0['name']),
                  status_code=404),
             dict(method='GET',  # get rule to add
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules', name=rule0['name']),
                  json={'firewall_rules': [rule0]}),
 
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_rules', rule1['name']),
                  status_code=404),
             dict(method='GET',  # get after rule
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules', name=rule1['name']),
                  json={'firewall_rules': [rule1]}),
 
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_rules', rule2['name']),
                  status_code=404),
             dict(method='GET',  # get before rule
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules', name=rule2['name']),
                  json={'firewall_rules': [rule2]}),
 
             dict(method='PUT',  # add rule
@@ -595,14 +611,15 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.firewall_policy_name),
                  json={'firewall_policies': [retrieved_policy]}),
 
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_rules', rule['name']),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules', name=rule['name']),
                  json={'firewall_rules': [rule]}),
 
             dict(method='PUT',
@@ -626,7 +643,8 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_policies', policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=policy_name),
                  json={'firewall_policies': []})
         ])
 
@@ -648,7 +666,7 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_rules', rule_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules', name=rule_name),
                  json={'firewall_rules': []})
         ])
         self.assertRaises(exceptions.ResourceNotFound,
@@ -691,14 +709,15 @@ class TestFirewallPolicy(FirewallTestCase):
                  uri=self._make_mock_url('firewall_policies', policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=policy_name),
                  json={'firewall_policies': [retrieved_policy]}),
 
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_rules', rule['name']),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules', name=rule['name']),
                  json={'firewall_rules': [rule]}),
 
             dict(method='PUT',
@@ -719,7 +738,8 @@ class TestFirewallPolicy(FirewallTestCase):
                                          self.firewall_policy_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.firewall_policy_name),
                  json={'firewall_policies': []})
         ])
 
@@ -745,7 +765,7 @@ class TestFirewallPolicy(FirewallTestCase):
                                          rule['name']),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_rules'),
+                 uri=self._make_mock_url('firewall_rules', name=rule['name']),
                  json={'firewall_rules': []})
         ])
         r = self.cloud.remove_rule_from_policy(self.firewall_policy_id,
@@ -845,7 +865,8 @@ class TestFirewallGroup(FirewallTestCase):
                                          self.mock_egress_policy['name']),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.mock_egress_policy['name']),
                  json={'firewall_policies': [self.mock_egress_policy]}),
 
             dict(method='GET',  # short-circuit
@@ -853,7 +874,9 @@ class TestFirewallGroup(FirewallTestCase):
                                          self.mock_ingress_policy['name']),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url(
+                     'firewall_policies',
+                     name=self.mock_ingress_policy['name']),
                  json={'firewall_policies': [self.mock_ingress_policy]}),
 
             dict(method='GET',
@@ -904,7 +927,8 @@ class TestFirewallGroup(FirewallTestCase):
                                          self.firewall_group_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_groups'),
+                 uri=self._make_mock_url('firewall_groups',
+                                         name=self.firewall_group_name),
                  json={'firewall_groups': [
                      deepcopy(self.mock_returned_firewall_group)]}),
             dict(method='DELETE',
@@ -942,7 +966,8 @@ class TestFirewallGroup(FirewallTestCase):
                                          self.firewall_group_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_groups'),
+                 uri=self._make_mock_url('firewall_groups',
+                                         name=self.firewall_group_name),
                  json={'firewall_groups': []})
         ])
 
@@ -960,7 +985,8 @@ class TestFirewallGroup(FirewallTestCase):
                                          self.firewall_group_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_groups'),
+                 uri=self._make_mock_url('firewall_groups',
+                                         name=self.firewall_group_name),
                  json={'firewall_groups': [returned_group]})
         ])
         self.assertDictEqual(
@@ -975,7 +1001,7 @@ class TestFirewallGroup(FirewallTestCase):
                  uri=self._make_mock_url('firewall_groups', name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_groups'),
+                 uri=self._make_mock_url('firewall_groups', name=name),
                  json={'firewall_groups': []})
         ])
         self.assertIsNone(self.cloud.get_firewall_group(name))
@@ -1025,7 +1051,8 @@ class TestFirewallGroup(FirewallTestCase):
                                          self.firewall_group_name),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_groups'),
+                 uri=self._make_mock_url('firewall_groups',
+                                         name=self.firewall_group_name),
                  json={'firewall_groups': [returned_group]}),
 
             dict(method='GET',  # short-circuit
@@ -1033,7 +1060,8 @@ class TestFirewallGroup(FirewallTestCase):
                                          self.mock_egress_policy['name']),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url('firewall_policies',
+                                         name=self.mock_egress_policy['name']),
                  json={'firewall_policies': [
                      deepcopy(self.mock_egress_policy)]}),
 
@@ -1042,7 +1070,9 @@ class TestFirewallGroup(FirewallTestCase):
                                          self.mock_ingress_policy['name']),
                  status_code=404),
             dict(method='GET',
-                 uri=self._make_mock_url('firewall_policies'),
+                 uri=self._make_mock_url(
+                     'firewall_policies',
+                     name=self.mock_ingress_policy['name']),
                  json={'firewall_policies': [
                      deepcopy(self.mock_ingress_policy)]}),
 

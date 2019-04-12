@@ -2082,38 +2082,42 @@ class TestResourceActions(base.TestCase):
 
 class TestResourceFind(base.TestCase):
 
+    result = 1
+
+    class Base(resource.Resource):
+
+        @classmethod
+        def existing(cls, **kwargs):
+            response = mock.Mock()
+            response.status_code = 404
+            raise exceptions.ResourceNotFound(
+                'Not Found', response=response)
+
+        @classmethod
+        def list(cls, session, **params):
+            return None
+
+    class OneResult(Base):
+
+        @classmethod
+        def _get_one_match(cls, *args):
+            return TestResourceFind.result
+
+    class NoResults(Base):
+
+        @classmethod
+        def _get_one_match(cls, *args):
+            return None
+
+    class OneResultWithQueryParams(OneResult):
+
+        _query_mapping = resource.QueryParameters('name')
+
     def setUp(self):
         super(TestResourceFind, self).setUp()
-
-        self.result = 1
-
-        class Base(resource.Resource):
-
-            @classmethod
-            def existing(cls, **kwargs):
-                response = mock.Mock()
-                response.status_code = 404
-                raise exceptions.ResourceNotFound(
-                    'Not Found', response=response)
-
-            @classmethod
-            def list(cls, session):
-                return None
-
-        class OneResult(Base):
-
-            @classmethod
-            def _get_one_match(cls, *args):
-                return self.result
-
-        class NoResults(Base):
-
-            @classmethod
-            def _get_one_match(cls, *args):
-                return None
-
-        self.no_results = NoResults
-        self.one_result = OneResult
+        self.no_results = self.NoResults
+        self.one_result = self.OneResult
+        self.one_result_with_qparams = self.OneResultWithQueryParams
 
     def test_find_short_circuit(self):
         value = 1
@@ -2139,10 +2143,24 @@ class TestResourceFind(base.TestCase):
             self.no_results.find(
                 self.cloud.compute, "name", ignore_missing=True))
 
-    def test_find_result(self):
+    def test_find_result_name_not_in_query_parameters(self):
+        with mock.patch.object(self.one_result, 'existing',
+                               side_effect=self.OneResult.existing) \
+                as mock_existing, \
+                mock.patch.object(self.one_result, 'list',
+                                  side_effect=self.OneResult.list) \
+                as mock_list:
+            self.assertEqual(
+                self.result,
+                self.one_result.find(self.cloud.compute, "name"))
+            mock_existing.assert_called_once_with(id='name',
+                                                  connection=mock.ANY)
+            mock_list.assert_called_once_with(mock.ANY)
+
+    def test_find_result_name_in_query_parameters(self):
         self.assertEqual(
             self.result,
-            self.one_result.find(self.cloud.compute, "name"))
+            self.one_result_with_qparams.find(self.cloud.compute, "name"))
 
     def test_match_empty_results(self):
         self.assertIsNone(resource.Resource._get_one_match("name", []))
