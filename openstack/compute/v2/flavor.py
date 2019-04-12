@@ -29,6 +29,9 @@ class Flavor(resource.Resource):
         min_disk="minDisk",
         min_ram="minRam")
 
+    # extra_specs introduced in 2.61
+    _max_microversion = '2.61'
+
     # Properties
     #: Links pertaining to this flavor. This is a list of dictionaries,
     #: each including keys ``href`` and ``rel``.
@@ -54,6 +57,10 @@ class Flavor(resource.Resource):
     is_disabled = resource.Body('OS-FLV-DISABLED:disabled', type=bool)
     #: The bandwidth scaling factor this flavor receives on the network.
     rxtx_factor = resource.Body('rxtx_factor', type=float)
+    # TODO(mordred) extra_specs can historically also come from
+    #               OS-FLV-WITH-EXT-SPECS:extra_specs. Do we care?
+    #: A dictionary of the flavor's extra-specs key-and-value pairs.
+    extra_specs = resource.Body('extra_specs', type=dict)
 
 
 class FlavorDetail(Flavor):
