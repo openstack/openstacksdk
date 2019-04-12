@@ -36,6 +36,7 @@ from openstack.network.v2 import network_segment_range
 from openstack.network.v2 import pool
 from openstack.network.v2 import pool_member
 from openstack.network.v2 import port
+from openstack.network.v2 import port_forwarding
 from openstack.network.v2 import qos_bandwidth_limit_rule
 from openstack.network.v2 import qos_dscp_marking_rule
 from openstack.network.v2 import qos_minimum_bandwidth_rule
@@ -61,6 +62,7 @@ QOS_RULE_ID = 'qos-rule-id-' + uuid.uuid4().hex
 NETWORK_ID = 'network-id-' + uuid.uuid4().hex
 AGENT_ID = 'agent-id-' + uuid.uuid4().hex
 ROUTER_ID = 'router-id-' + uuid.uuid4().hex
+FIP_ID = 'fip-id-' + uuid.uuid4().hex
 
 
 class TestNetworkProxy(test_proxy_base.TestProxyBase):
@@ -1156,3 +1158,62 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           self.proxy.set_tags,
                           no_tag_resource, ['TAG1', 'TAG2'])
         self.assertEqual(0, mock_set_tags.call_count)
+
+    def test_create_floating_ip_port_forwarding(self):
+        self.verify_create(self.proxy.create_floating_ip_port_forwarding,
+                           port_forwarding.PortForwarding,
+                           method_kwargs={'floating_ip': FIP_ID},
+                           expected_kwargs={'floatingip_id': FIP_ID})
+
+    def test_delete_floating_ip_port_forwarding(self):
+        self.verify_delete(
+            self.proxy.delete_floating_ip_port_forwarding,
+            port_forwarding.PortForwarding,
+            False, input_path_args=[FIP_ID, "resource_or_id"],
+            expected_path_args={'floatingip_id': FIP_ID},)
+
+    def test_delete_floating_ip_port_forwarding_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_floating_ip_port_forwarding,
+            port_forwarding.PortForwarding,
+            True, input_path_args=[FIP_ID, "resource_or_id"],
+            expected_path_args={'floatingip_id': FIP_ID}, )
+
+    def test_find_floating_ip_port_forwarding(self):
+        fip = floating_ip.FloatingIP.new(id=FIP_ID)
+        self._verify2('openstack.proxy.Proxy._find',
+                      self.proxy.find_floating_ip_port_forwarding,
+                      method_args=[fip, 'port_forwarding_id'],
+                      expected_args=[
+                          port_forwarding.PortForwarding,
+                          'port_forwarding_id'],
+                      expected_kwargs={'ignore_missing': True,
+                                       'floatingip_id': FIP_ID})
+
+    def test_get_floating_ip_port_forwarding(self):
+        fip = floating_ip.FloatingIP.new(id=FIP_ID)
+        self._verify2('openstack.proxy.Proxy._get',
+                      self.proxy.get_floating_ip_port_forwarding,
+                      method_args=[fip, 'port_forwarding_id'],
+                      expected_args=[
+                          port_forwarding.PortForwarding,
+                          'port_forwarding_id'],
+                      expected_kwargs={'floatingip_id': FIP_ID})
+
+    def test_floating_ip_port_forwardings(self):
+        self.verify_list(self.proxy.floating_ip_port_forwardings,
+                         port_forwarding.PortForwarding,
+                         method_kwargs={'floating_ip': FIP_ID},
+                         expected_kwargs={'floatingip_id': FIP_ID})
+
+    def test_update_floating_ip_port_forwarding(self):
+        fip = floating_ip.FloatingIP.new(id=FIP_ID)
+        self._verify2('openstack.proxy.Proxy._update',
+                      self.proxy.update_floating_ip_port_forwarding,
+                      method_args=[fip, 'port_forwarding_id'],
+                      method_kwargs={'foo': 'bar'},
+                      expected_args=[
+                          port_forwarding.PortForwarding,
+                          'port_forwarding_id'],
+                      expected_kwargs={'floatingip_id': FIP_ID,
+                                       'foo': 'bar'})

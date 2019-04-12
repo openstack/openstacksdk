@@ -3780,3 +3780,120 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
         """
         return self._update(_vpn_service.VPNService, vpn_service, **attrs)
+
+    def create_floating_ip_port_forwarding(self, floating_ip, **attrs):
+        """Create a new floating ip port forwarding from attributes
+
+        :param floating_ip: The value can be either the ID of a floating ip
+                or a :class:`~openstack.network.v2.floating_ip.FloatingIP`
+                instance.
+        :param dict attrs:Keyword arguments which will be used to create
+            a:class:`~openstack.network.v2.port_forwarding.PortForwarding`,
+            comprised of the properties on the PortForwarding class.
+
+        :returns: The results of port forwarding creation
+        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
+        """
+        floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
+        return self._create(_port_forwarding.PortForwarding,
+                            floatingip_id=floatingip.id, **attrs)
+
+    def delete_floating_ip_port_forwarding(self, floating_ip, port_forwarding,
+                                           ignore_missing=True):
+        """Delete a floating IP port forwarding.
+
+        :param floating_ip: The value can be either the ID of a floating ip
+                    or a :class:`~openstack.network.v2.floating_ip.FloatingIP`
+                    instance.
+        :param port_forwarding: The value can be either the ID of a port
+                    forwarding or a :class:`~openstack.network.v2.
+                    port_forwarding.PortForwarding`instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the floating ip does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent ip.
+
+        :returns: ``None``
+        """
+        floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
+        self._delete(_port_forwarding.PortForwarding,
+                     port_forwarding, ignore_missing=ignore_missing,
+                     floatingip_id=floatingip.id)
+
+    def find_floating_ip_port_forwarding(self, floating_ip, port_forwarding_id,
+                                         ignore_missing=True, **args):
+        """Find a floating ip port forwarding
+
+        :param floating_ip: The value can be the ID of the Floating IP that the
+                            port forwarding  belongs or a :class:`~openstack.
+                            network.v2.floating_ip.FloatingIP` instance.
+        :param port_forwarding_id: The ID of a port forwarding.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                    underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.port_forwarding.
+                   PortForwarding` or None
+        """
+        floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
+        return self._find(_port_forwarding.PortForwarding,
+                          port_forwarding_id, ignore_missing=ignore_missing,
+                          floatingip_id=floatingip.id, **args)
+
+    def get_floating_ip_port_forwarding(self, floating_ip, port_forwarding):
+        """Get a floating ip port forwarding
+
+        :param floating_ip: The value can be the ID of the Floating IP that the
+                            port forwarding  belongs or a :class:`~openstack.
+                            network.v2.floating_ip.FloatingIP` instance.
+        :param port_forwarding: The value can be the ID of a port forwarding
+                           or a :class:`~openstack.network.v2.
+                           port_forwarding.PortForwarding` instance.
+        :returns: One :class:`~openstack.network.v2.port_forwarding.
+                        PortForwarding`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                       when no resource can be found.
+        """
+        floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
+        return self._get(_port_forwarding.PortForwarding, port_forwarding,
+                         floatingip_id=floatingip.id)
+
+    def floating_ip_port_forwardings(self, floating_ip, **query):
+        """Return a generator of floating ip port forwarding
+
+        :param floating_ip: The value can be the ID of the Floating IP that the
+                            port forwarding  belongs or a :class:`~openstack.
+                            network.v2.floating_ip.FloatingIP` instance.
+        :param kwargs \*\*query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+        :returns: A generator of floating ip port forwarding objects
+        :rtype: :class:`~openstack.network.v2.port_forwarding.
+                        PortForwarding`
+        """
+        floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
+        return self._list(_port_forwarding.PortForwarding,
+                          floatingip_id=floatingip.id, **query)
+
+    def update_floating_ip_port_forwarding(self, floating_ip, port_forwarding,
+                                           **attrs):
+        """Update a floating ip port forwarding
+
+        :param floating_ip: The value can be the ID of the Floating IP that the
+                            port forwarding  belongs or a :class:`~openstack.
+                            network.v2.floating_ip.FloatingIP` instance.
+        :param port_forwarding: Either the id of a floating ip port forwarding
+                            or a :class:`~openstack.network.v2.
+                            port_forwarding.PortForwarding`instance.
+        :attrs kwargs: The attributes to update on the floating ip port
+                       forwarding represented by ``value``.
+
+        :returns: The updated floating ip port forwarding
+        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
+        """
+        floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
+        return self._update(_port_forwarding.PortForwarding, port_forwarding,
+                            floatingip_id=floatingip.id, **attrs)
