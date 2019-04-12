@@ -19,6 +19,7 @@ from six.moves import urllib
 
 from keystoneauth1 import adapter
 
+from openstack import _log
 from openstack import exceptions
 from openstack import resource
 
@@ -135,6 +136,11 @@ class Proxy(adapter.Adapter):
         self._statsd_prefix = statsd_prefix
         self._prometheus_counter = prometheus_counter
         self._prometheus_histogram = prometheus_histogram
+        if self.service_type:
+            log_name = 'openstack.{0}'.format(self.service_type)
+        else:
+            log_name = 'openstack'
+        self.log = _log.setup_logging(log_name)
 
     def request(
             self, url, method, error_message=None,
