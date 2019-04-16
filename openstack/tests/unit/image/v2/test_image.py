@@ -92,6 +92,7 @@ class FakeResponse(object):
     def __init__(self, response, status_code=200, headers=None, reason=None):
         self.body = response
         self.content = response
+        self.text = response
         self.status_code = status_code
         headers = headers if headers else {'content-type': 'application/json'}
         self.headers = requests.structures.CaseInsensitiveDict(headers)
@@ -115,7 +116,7 @@ class TestImage(base.TestCase):
         self.sess.post = mock.Mock(return_value=self.resp)
         self.sess.put = mock.Mock(return_value=FakeResponse({}))
         self.sess.delete = mock.Mock(return_value=FakeResponse({}))
-        self.sess.fetch = mock.Mock(return_value=FakeResponse({}))
+        self.sess.get = mock.Mock(return_value=FakeResponse({}))
         self.sess.default_microversion = None
         self.sess.retriable_status_codes = None
         self.sess.log = _log.setup_logging('openstack')
@@ -259,11 +260,12 @@ class TestImage(base.TestCase):
 
     def test_import_image_with_uri_not_web_download(self):
         sot = image.Image(**EXAMPLE)
-        self.assertRaises(exceptions.InvalidRequest,
-                          sot.import_image,
-                          self.sess,
-                          "glance-direct",
-                          "such-a-good-uri")
+
+        sot.import_image(self.sess, "glance-direct")
+        self.sess.post.assert_called_with(
+            'images/IDENTIFIER/import',
+            json={"method": {"name": "glance-direct"}}
+        )
 
     def test_upload(self):
         sot = image.Image(**EXAMPLE)
@@ -274,6 +276,22 @@ class TestImage(base.TestCase):
                                          headers={"Content-Type":
                                                   "application/octet-stream",
                                                   "Accept": ""})
+
+    def test_stage(self):
+        sot = image.Image(**EXAMPLE)
+
+        self.assertIsNotNone(sot.stage(self.sess))
+        self.sess.put.assert_called_with('images/IDENTIFIER/stage',
+                                         data=sot.data,
+                                         headers={"Content-Type":
+                                                  "application/octet-stream",
+                                                  "Accept": ""})
+
+    def test_stage_error(self):
+        sot = image.Image(**EXAMPLE)
+
+        self.sess.put.return_value = FakeResponse("dummy", status_code=400)
+        self.assertRaises(exceptions.SDKException, sot.stage, self.sess)
 
     def test_download_checksum_match(self):
         sot = image.Image(**EXAMPLE)

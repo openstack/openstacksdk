@@ -94,6 +94,38 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                       'chunk_size': 1,
                                       'stream': True})
 
+    @mock.patch("openstack.image.v2.image.Image.fetch")
+    def test_image_stage(self, mock_fetch):
+        img = image.Image(id="id", status="queued")
+        img.stage = mock.Mock()
+
+        self.proxy.stage_image(image=img)
+        mock_fetch.assert_called()
+        img.stage.assert_called_with(self.proxy)
+
+    @mock.patch("openstack.image.v2.image.Image.fetch")
+    def test_image_stage_with_data(self, mock_fetch):
+        img = image.Image(id="id", status="queued")
+        img.stage = mock.Mock()
+        mock_fetch.return_value = img
+
+        rv = self.proxy.stage_image(image=img, data="data")
+
+        img.stage.assert_called_with(self.proxy)
+        mock_fetch.assert_called()
+        self.assertEqual(rv.data, "data")
+
+    def test_image_stage_wrong_status(self):
+        img = image.Image(id="id", status="active")
+        img.stage = mock.Mock()
+
+        self.assertRaises(
+            exceptions.SDKException,
+            self.proxy.stage_image,
+            img,
+            "data"
+        )
+
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)
 
