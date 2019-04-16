@@ -361,6 +361,7 @@
       Run openstacksdk functional tests against a master devstack with masakari
     required-projects:
       - openstack/masakari
+      - openstack/masakari-monitors
     vars:
       devstack_plugins:
         masakari: https://git.openstack.org/openstack/masakari
