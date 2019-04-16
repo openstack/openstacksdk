@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The ``get_server_by_id`` method is supposed to return ``None`` if the
+    server in question can't be found, but a regression was introduced
+    causing it to raise ``ResourceNotFound`` instead. This has been corrected
+    and ``get_server_by_id`` returns ``None`` correctly again.

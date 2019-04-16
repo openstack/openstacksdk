@@ -27,6 +27,7 @@ from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
+from openstack import exceptions
 from openstack import proxy
 from openstack import utils
 
@@ -568,10 +569,20 @@ class ComputeCloudMixin(_normalize.Normalizer):
             return meta.add_server_interfaces(self, server)
 
     def get_server_by_id(self, id):
-        data = proxy._json_response(
-            self.compute.get('/servers/{id}'.format(id=id)))
-        server = self._get_and_munchify('server', data)
-        return meta.add_server_interfaces(self, self._normalize_server(server))
+        """Get a server by ID.
+
+        :param id: ID of the server.
+
+        :returns: A server dict or None if no matching server is found.
+        """
+        try:
+            data = proxy._json_response(
+                self.compute.get('/servers/{id}'.format(id=id)))
+            server = self._get_and_munchify('server', data)
+            return meta.add_server_interfaces(
+                self, self._normalize_server(server))
+        except exceptions.ResourceNotFound:
+            return None
 
     def get_server_group(self, name_or_id=None, filters=None):
         """Get a server group by name or ID.
