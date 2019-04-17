@@ -71,7 +71,8 @@ def build(metadata, user_data=None, versions=None, network_data=None):
     :param dict network_data: Networking configuration.
     :return: configdrive contents as a base64-encoded string.
     """
-    with populate_directory(metadata, user_data, versions) as path:
+    with populate_directory(metadata, user_data, versions,
+                            network_data) as path:
         return pack(path)
 
 
