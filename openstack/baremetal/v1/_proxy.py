@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import _log
 from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import allocation as _allocation
 from openstack.baremetal.v1 import chassis as _chassis
@@ -20,9 +19,6 @@ from openstack.baremetal.v1 import port as _port
 from openstack.baremetal.v1 import port_group as _portgroup
 from openstack import proxy
 from openstack import utils
-
-
-_logger = _log.setup_logging('openstack')
 
 
 class Proxy(proxy.Proxy):
@@ -367,10 +363,11 @@ class Proxy(proxy.Proxy):
             if not remaining:
                 return finished
 
-            _logger.debug('Still waiting for nodes %(nodes)s to reach state '
-                          '"%(target)s"',
-                          {'nodes': ', '.join(n.id for n in remaining),
-                           'target': expected_state})
+            self.log.debug(
+                'Still waiting for nodes %(nodes)s to reach state '
+                '"%(target)s"',
+                {'nodes': ', '.join(n.id for n in remaining),
+                 'target': expected_state})
 
     def set_node_power_state(self, node, target):
         """Run an action modifying node's power state.

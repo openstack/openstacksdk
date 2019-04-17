@@ -10,14 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import _log
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
-
-
-_logger = _log.setup_logging('openstack')
 
 
 class Allocation(_common.ListMixin, resource.Resource):
@@ -93,6 +89,7 @@ class Allocation(_common.ListMixin, resource.Resource):
             elif self.state != 'allocating':
                 return self
 
-            _logger.debug('Still waiting for the allocation %(allocation)s '
-                          'to become active, the current state is %(state)s',
-                          {'allocation': self.id, 'state': self.state})
+            session.log.debug(
+                'Still waiting for the allocation %(allocation)s '
+                'to become active, the current state is %(state)s',
+                {'allocation': self.id, 'state': self.state})
