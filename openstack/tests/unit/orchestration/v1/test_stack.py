@@ -13,6 +13,7 @@
 import mock
 import six
 from openstack.tests.unit import base
+from openstack.tests.unit import test_resource
 
 from openstack import exceptions
 from openstack.orchestration.v1 import stack
@@ -24,8 +25,13 @@ FAKE_NAME = 'test_stack'
 FAKE = {
     'capabilities': '1',
     'creation_time': '2015-03-09T12:15:57.233772',
+    'deletion_time': '2015-03-09T12:15:57.233772',
     'description': '3',
     'disable_rollback': True,
+    'environment': {'var1': 'val1'},
+    'environment_files': [],
+    'files': {'file1': 'content'},
+    'files_container': 'dummy_container',
     'id': FAKE_ID,
     'links': [{
         'href': 'stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
@@ -135,7 +141,12 @@ class TestStack(base.TestCase):
         sot = stack.Stack(**FAKE)
         self.assertEqual(FAKE['capabilities'], sot.capabilities)
         self.assertEqual(FAKE['creation_time'], sot.created_at)
+        self.assertEqual(FAKE['deletion_time'], sot.deleted_at)
         self.assertEqual(FAKE['description'], sot.description)
+        self.assertEqual(FAKE['environment'], sot.environment)
+        self.assertEqual(FAKE['environment_files'], sot.environment_files)
+        self.assertEqual(FAKE['files'], sot.files)
+        self.assertEqual(FAKE['files_container'], sot.files_container)
         self.assertTrue(sot.is_rollback_disabled)
         self.assertEqual(FAKE['id'], sot.id)
         self.assertEqual(FAKE['links'], sot.links)
@@ -186,19 +197,31 @@ class TestStack(base.TestCase):
 
         sot._action.assert_called_with(sess, body)
 
-    @mock.patch.object(resource.Resource, 'fetch')
-    def test_fetch(self, mock_fetch):
+    def test_fetch(self):
+
         sess = mock.Mock()
+        sess.default_microversion = None
         sot = stack.Stack(**FAKE)
-        deleted_stack = mock.Mock(id=FAKE_ID, status='DELETE_COMPLETE')
-        normal_stack = mock.Mock(status='CREATE_COMPLETE')
-        mock_fetch.side_effect = [
-            normal_stack,
+
+        sess.get = mock.Mock()
+        sess.get.side_effect = [
+            test_resource.FakeResponse(
+                {'stack': {'stack_status': 'CREATE_COMPLETE'}}, 200),
+            test_resource.FakeResponse(
+                {'stack': {'stack_status': 'CREATE_COMPLETE'}}, 200),
             exceptions.ResourceNotFound(message='oops'),
-            deleted_stack,
+            test_resource.FakeResponse(
+                {'stack': {'stack_status': 'DELETE_COMPLETE'}}, 200)
         ]
 
-        self.assertEqual(normal_stack, sot.fetch(sess))
+        self.assertEqual(sot, sot.fetch(sess))
+        sess.get.assert_called_with(
+            'stacks/{id}'.format(id=sot.id),
+            microversion=None)
+        sot.fetch(sess, resolve_outputs=False)
+        sess.get.assert_called_with(
+            'stacks/{id}?resolve_outputs=False'.format(id=sot.id),
+            microversion=None)
         ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
         self.assertEqual('oops', six.text_type(ex))
         ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
@@ -238,7 +261,7 @@ class TestStack(base.TestCase):
         sot.update(sess)
 
         sess.put.assert_called_with(
-            'stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
+            '/stacks/%s/%s' % (FAKE_NAME, FAKE_ID),
             headers={},
             microversion=None,
             json=body

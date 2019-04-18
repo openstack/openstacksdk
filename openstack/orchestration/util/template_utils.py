@@ -18,10 +18,10 @@ import six
 from six.moves.urllib import parse
 from six.moves.urllib import request
 
-from openstack.cloud._heat import environment_format
-from openstack.cloud._heat import template_format
-from openstack.cloud._heat import utils
-from openstack.cloud import exc
+from openstack.orchestration.util import environment_format
+from openstack.orchestration.util import template_format
+from openstack.orchestration.util import utils
+from openstack import exceptions
 
 
 def get_template_contents(template_file=None, template_url=None,
@@ -46,12 +46,12 @@ def get_template_contents(template_file=None, template_url=None,
     elif existing:
         return {}, None
     else:
-        raise exc.OpenStackCloudException(
+        raise exceptions.SDKException(
             'Must provide one of template_file,'
             ' template_url or template_object')
 
     if not tpl:
-        raise exc.OpenStackCloudException(
+        raise exceptions.SDKException(
             'Could not fetch template from %s' % template_url)
 
     try:
@@ -59,7 +59,7 @@ def get_template_contents(template_file=None, template_url=None,
             tpl = tpl.decode('utf-8')
         template = template_format.parse(tpl)
     except ValueError as e:
-        raise exc.OpenStackCloudException(
+        raise exceptions.SDKException(
             'Error parsing template %(url)s %(error)s' %
             {'url': template_url, 'error': e})
 

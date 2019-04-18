@@ -16,8 +16,7 @@
 import types  # noqa
 
 from openstack.cloud import exc
-from openstack.cloud._heat import event_utils
-from openstack.cloud._heat import template_utils
+from openstack.orchestration.util import event_utils
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
 
@@ -43,13 +42,9 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
     def get_template_contents(
             self, template_file=None, template_url=None,
             template_object=None, files=None):
-        try:
-            return template_utils.get_template_contents(
-                template_file=template_file, template_url=template_url,
-                template_object=template_object, files=files)
-        except Exception as e:
-            raise exc.OpenStackCloudException(
-                "Error in processing template files: %s" % str(e))
+        return self.orchestration.get_template_contents(
+            template_file=template_file, template_url=template_url,
+            template_object=template_object, files=files)
 
     def create_stack(
             self, name, tags=None,
@@ -83,24 +78,18 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
-        envfiles, env = template_utils.process_multiple_environments_and_files(
-            env_paths=environment_files)
-        tpl_files, template = template_utils.get_template_contents(
-            template_file=template_file,
-            template_url=template_url,
-            template_object=template_object,
-            files=files)
         params = dict(
-            stack_name=name,
             tags=tags,
-            disable_rollback=not rollback,
-            parameters=parameters,
-            template=template,
-            files=dict(list(tpl_files.items()) + list(envfiles.items())),
-            environment=env,
+            is_rollback_disabled=not rollback,
             timeout_mins=timeout // 60,
+            parameters=parameters
         )
-        self._orchestration_client.post('/stacks', json=params)
+        params.update(self.orchestration.read_env_and_templates(
+            template_file=template_file, template_url=template_url,
+            template_object=template_object, files=files,
+            environment_files=environment_files
+        ))
+        self.orchestration.create_stack(name=name, **params)
         if wait:
             event_utils.poll_for_events(self, stack_name=name,
                                         action='CREATE')
@@ -137,30 +126,26 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API calls
         """
-        envfiles, env = template_utils.process_multiple_environments_and_files(
-            env_paths=environment_files)
-        tpl_files, template = template_utils.get_template_contents(
-            template_file=template_file,
-            template_url=template_url,
-            template_object=template_object,
-            files=files)
         params = dict(
-            disable_rollback=not rollback,
             tags=tags,
-            parameters=parameters,
-            template=template,
-            files=dict(list(tpl_files.items()) + list(envfiles.items())),
-            environment=env,
+            is_rollback_disabled=not rollback,
             timeout_mins=timeout // 60,
+            parameters=parameters
         )
+        params.update(self.orchestration.read_env_and_templates(
+            template_file=template_file, template_url=template_url,
+            template_object=template_object, files=files,
+            environment_files=environment_files
+        ))
         if wait:
             # find the last event to use as the marker
             events = event_utils.get_events(
                 self, name_or_id, event_args={'sort_dir': 'desc', 'limit': 1})
             marker = events[0].id if events else None
 
-        self._orchestration_client.put(
-            '/stacks/{name_or_id}'.format(name_or_id=name_or_id), json=params)
+        # Not to cause update of ID field pass stack as dict
+        self.orchestration.update_stack(stack={'id': name_or_id}, **params)
+
         if wait:
             event_utils.poll_for_events(self,
                                         name_or_id,
@@ -190,8 +175,7 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
                 self, name_or_id, event_args={'sort_dir': 'desc', 'limit': 1})
             marker = events[0].id if events else None
 
-        self._orchestration_client.delete(
-            '/stacks/{id}'.format(id=stack['id']))
+        self.orchestration.delete_stack(stack)
 
         if wait:
             try:
@@ -233,10 +217,8 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        data = self._orchestration_client.get(
-            '/stacks', error_message="Error fetching stack list")
-        return self._normalize_stacks(
-            self._get_and_munchify('stacks', data))
+        data = self.orchestration.stacks()
+        return self._normalize_stacks(data)
 
     def get_stack(self, name_or_id, filters=None, resolve_outputs=True):
         """Get exactly one stack.
@@ -257,15 +239,11 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
             # stack names are mandatory and enforced unique in the project
             # so a StackGet can always be used for name or ID.
             try:
-                url = '/stacks/{name_or_id}'.format(name_or_id=name_or_id)
-                if not resolve_outputs:
-                    url = '{url}?resolve_outputs=False'.format(url=url)
-                data = self._orchestration_client.get(
-                    url,
-                    error_message="Error fetching stack")
-                stack = self._get_and_munchify('stack', data)
-                # Treat DELETE_COMPLETE stacks as a NotFound
-                if stack['stack_status'] == 'DELETE_COMPLETE':
+                stack = self.orchestration.find_stack(
+                    name_or_id,
+                    ignore_missing=False,
+                    resolve_outputs=resolve_outputs)
+                if stack.status == 'DELETE_COMPLETE':
                     return []
             except exc.OpenStackCloudURINotFound:
                 return []

@@ -28,6 +28,10 @@ class Stack(resource.Resource):
     allow_commit = True
     allow_delete = True
 
+    _query_mapping = resource.QueryParameters(
+        'resolve_outputs'
+    )
+
     # Properties
     #: A list of resource objects that will be added if a stack update
     #  is performed.
@@ -42,6 +46,17 @@ class Stack(resource.Resource):
     #: A list of resource objects that will be deleted if a stack
     #: update is performed.
     deleted = resource.Body('deleted', type=list)
+    #: Timestamp of the stack deletion.
+    deleted_at = resource.Body('deletion_time')
+    #: A JSON environment for the stack.
+    environment = resource.Body('environment')
+    #: An ordered list of names for environment files found in the files dict.
+    environment_files = resource.Body('environment_files', type=list)
+    #: Additional files referenced in the template or the environment
+    files = resource.Body('files', type=dict)
+    #: Name of the container in swift that has child
+    #: templates and environment files.
+    files_container = resource.Body('files_container')
     #: Whether the stack will support a rollback operation on stack
     #: create/update failures. *Type: bool*
     is_rollback_disabled = resource.Body('disable_rollback', type=bool)
@@ -105,9 +120,20 @@ class Stack(resource.Resource):
     def update(self, session, preview=False):
         # This overrides the default behavior of resource update because
         # we need to use other endpoint for update preview.
+        base_path = None
+        if self.name and self.id:
+            base_path = '/stacks/%(stack_name)s/%(stack_id)s' % {
+                'stack_name': self.name,
+                'stack_id': self.id}
+        elif self.name or self.id:
+            # We have only one of name/id. Do not try to build a stacks/NAME/ID
+            # path
+            base_path = '/stacks/%(stack_identity)s' % {
+                'stack_identity': self.name or self.id}
         request = self._prepare_request(
             prepend_key=False,
-            base_path='/stacks/%(stack_name)s/' % {'stack_name': self.name})
+            requires_id=False,
+            base_path=base_path)
 
         microversion = self._get_microversion_for(session, 'commit')
 
@@ -139,16 +165,77 @@ class Stack(resource.Resource):
         return resp.json()
 
     def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None):
-        stk = super(Stack, self).fetch(
-            session,
-            requires_id=requires_id,
-            base_path=base_path,
-            error_message=error_message)
-        if stk and stk.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
+              base_path=None, error_message=None, resolve_outputs=True):
+
+        if not self.allow_fetch:
+            raise exceptions.MethodNotSupported(self, "fetch")
+
+        request = self._prepare_request(requires_id=requires_id,
+                                        base_path=base_path)
+        # session = self._get_session(session)
+        microversion = self._get_microversion_for(session, 'fetch')
+
+        # NOTE(gtema): would be nice to simply use QueryParameters, however
+        # Heat return 302 with parameters being set into URL and requests
+        # apply parameters again, what results in them being set doubled
+        if not resolve_outputs:
+            request.url = request.url + '?resolve_outputs=False'
+        response = session.get(request.url, microversion=microversion)
+        kwargs = {}
+        if error_message:
+            kwargs['error_message'] = error_message
+
+        self.microversion = microversion
+        self._translate_response(response, **kwargs)
+
+        if self and self.status in ['DELETE_COMPLETE', 'ADOPT_COMPLETE']:
             raise exceptions.ResourceNotFound(
-                "No stack found for %s" % stk.id)
-        return stk
+                "No stack found for %s" % self.id)
+        return self
+
+    @classmethod
+    def find(cls, session, name_or_id, ignore_missing=True, **params):
+        """Find a resource by its name or id.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param name_or_id: This resource's identifier, if needed by
+                           the request. The default is ``None``.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :param dict params: Any additional parameters to be passed into
+                            underlying methods, such as to
+                            :meth:`~openstack.resource.Resource.existing`
+                            in order to pass on URI parameters.
+
+        :return: The :class:`Resource` object matching the given name or id
+                 or None if nothing matches.
+        :raises: :class:`openstack.exceptions.DuplicateResource` if more
+                 than one resource is found for this request.
+        :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
+                 is found and ignore_missing is ``False``.
+        """
+        session = cls._get_session(session)
+        # Try to short-circuit by looking directly for a matching ID.
+        try:
+            match = cls.existing(
+                id=name_or_id,
+                connection=session._get_connection(),
+                **params)
+            return match.fetch(session, **params)
+        except exceptions.NotFoundException:
+            pass
+
+        # NOTE(gtema) we do not do list, since previous call has done this
+        # for us already
+
+        if ignore_missing:
+            return None
+        raise exceptions.ResourceNotFound(
+            "No %s found for %s" % (cls.__name__, name_or_id))
 
 
 StackPreview = Stack

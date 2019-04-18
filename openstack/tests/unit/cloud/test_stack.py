@@ -15,9 +15,10 @@ import tempfile
 import testtools
 
 import openstack.cloud
-from openstack.cloud import meta
 from openstack.tests import fakes
 from openstack.tests.unit import base
+
+from openstack.orchestration.v1 import stack
 
 
 class TestStack(base.TestCase):
@@ -44,7 +45,8 @@ class TestStack(base.TestCase):
         ])
         stacks = self.cloud.list_stacks()
         self.assertEqual(
-            [f.toDict() for f in self.cloud._normalize_stacks(fake_stacks)],
+            [f.toDict() for f in self.cloud._normalize_stacks(
+                stack.Stack(**st) for st in fake_stacks)],
             [f.toDict() for f in stacks])
 
         self.assert_calls()
@@ -76,7 +78,8 @@ class TestStack(base.TestCase):
         ])
         stacks = self.cloud.search_stacks()
         self.assertEqual(
-            self.cloud._normalize_stacks(meta.obj_list_to_munch(fake_stacks)),
+            self.cloud._normalize_stacks(
+                stack.Stack(**st) for st in fake_stacks),
             stacks)
         self.assert_calls()
 
@@ -98,7 +101,7 @@ class TestStack(base.TestCase):
         stacks = self.cloud.search_stacks(filters=filters)
         self.assertEqual(
             self.cloud._normalize_stacks(
-                meta.obj_list_to_munch(fake_stacks[1:])),
+                stack.Stack(**st) for st in fake_stacks[1:]),
             stacks)
         self.assert_calls()
 
@@ -316,8 +319,6 @@ class TestStack(base.TestCase):
                 validate=dict(
                     json={
                         'disable_rollback': False,
-                        'environment': {},
-                        'files': {},
                         'parameters': {},
                         'stack_name': self.stack_name,
                         'tags': self.stack_tag,
@@ -364,8 +365,6 @@ class TestStack(base.TestCase):
                 validate=dict(
                     json={
                         'disable_rollback': False,
-                        'environment': {},
-                        'files': {},
                         'parameters': {},
                         'stack_name': self.stack_name,
                         'tags': self.stack_tag,
@@ -422,12 +421,11 @@ class TestStack(base.TestCase):
                 validate=dict(
                     json={
                         'disable_rollback': False,
-                        'environment': {},
-                        'files': {},
                         'parameters': {},
                         'tags': self.stack_tag,
                         'template': fakes.FAKE_TEMPLATE_CONTENT,
-                        'timeout_mins': 60})),
+                        'timeout_mins': 60}),
+                json={}),
             dict(
                 method='GET',
                 uri='{endpoint}/stacks/{name}'.format(
@@ -478,12 +476,11 @@ class TestStack(base.TestCase):
                 validate=dict(
                     json={
                         'disable_rollback': False,
-                        'environment': {},
-                        'files': {},
                         'parameters': {},
                         'tags': self.stack_tag,
                         'template': fakes.FAKE_TEMPLATE_CONTENT,
-                        'timeout_mins': 60})),
+                        'timeout_mins': 60}),
+                json={}),
             dict(
                 method='GET',
                 uri='{endpoint}/stacks/{name}/events?{qs}'.format(

@@ -20,6 +20,8 @@ import datetime
 import munch
 import six
 
+from openstack import resource
+
 _IMAGE_FIELDS = (
     'checksum',
     'container_format',
@@ -1082,7 +1084,10 @@ class Normalizer(object):
 
     def _normalize_stack(self, stack):
         """Normalize Heat Stack"""
-        stack = stack.copy()
+        if isinstance(stack, resource.Resource):
+            stack = stack.to_dict(ignore_none=True, original_names=True)
+        else:
+            stack = stack.copy()
 
         # Discard noise
         self._remove_novaclient_artifacts(stack)
@@ -1092,7 +1097,10 @@ class Normalizer(object):
         stack.pop('status', None)
         stack.pop('identifier', None)
 
-        stack_status = stack.pop('stack_status')
+        stack_status = None
+
+        stack_status = stack.pop('stack_status', None) or \
+            stack.pop('status', None)
         (action, status) = stack_status.split('_', 1)
 
         ret = munch.Munch(
@@ -1121,13 +1129,13 @@ class Normalizer(object):
                 ('tempate_description', 'template_description'),
                 ('timeout_mins', 'timeout_mins'),
                 ('tags', 'tags')):
-            value = stack.pop(old_name, None)
+            value = stack.get(old_name, None)
             ret[new_name] = value
             if not self.strict_mode:
                 ret[old_name] = value
         ret['identifier'] = '{name}/{id}'.format(
             name=ret['name'], id=ret['id'])
-        ret['properties'] = stack
+        # ret['properties'] = stack
         return ret
 
     def _normalize_machines(self, machines):

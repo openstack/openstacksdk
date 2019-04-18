@@ -20,7 +20,7 @@ from six.moves.urllib import error
 from six.moves.urllib import parse
 from six.moves.urllib import request
 
-from openstack.cloud import exc
+from openstack import exceptions
 
 
 def base_url_for_url(url):
@@ -41,7 +41,7 @@ def read_url_content(url):
         # TODO(mordred) Use requests
         content = request.urlopen(url).read()
     except error.URLError:
-        raise exc.OpenStackCloudException(
+        raise exceptions.SDKException(
             'Could not fetch contents for %s' % url)
 
     if content:

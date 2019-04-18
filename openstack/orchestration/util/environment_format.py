@@ -12,7 +12,7 @@
 
 import yaml
 
-from openstack.cloud._heat import template_format
+from openstack.orchestration.util import template_format
 
 
 SECTIONS = (

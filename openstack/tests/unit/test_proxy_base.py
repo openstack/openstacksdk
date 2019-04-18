@@ -177,7 +177,7 @@ class TestProxyBase(base.TestCase):
                     mock_method="openstack.proxy.Proxy._find",
                     path_args=None, **kwargs):
         method_args = value or ["name_or_id"]
-        expected_kwargs = {}
+        expected_kwargs = kwargs.pop('expected_kwargs', {})
 
         self._add_path_args_for_verify(path_args, method_args, expected_kwargs,
                                        value=value)
