@@ -308,3 +308,29 @@ class TestNewService(base.TestCase):
             'openstack.tests.unit.fake.v2._proxy',
             conn.fake.__class__.__module__)
         self.assertFalse(conn.fake.dummy())
+
+    def test_replace_system_service(self):
+        self.use_keystone_v3(catalog='catalog-v3-fake-v2.json')
+        conn = self.cloud
+
+        # delete native dns service
+        delattr(conn, 'dns')
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://fake.example.com',
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://fake.example.com/v2/',
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url('fake'),
+                 status_code=404),
+        ])
+
+        # add fake service with alias 'DNS'
+        service = fake_service.FakeService('fake', aliases=['dns'])
+        conn.add_service(service)
+
+        # ensure dns service responds as we expect from replacement
+        self.assertFalse(conn.dns.dummy())
