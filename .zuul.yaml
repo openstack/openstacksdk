@@ -5,7 +5,7 @@
       Run tox python 36 unittests against master of important libs
     vars:
       tox_install_siblings: true
-      zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
+      zuul_work_dir: src/opendev.org/openstack/openstacksdk
     # openstacksdk in required-projects so that osc and keystoneauth
     # can add the job as well
     required-projects:
@@ -30,7 +30,7 @@
     post-run: playbooks/devstack/post.yaml
     roles:
       # NOTE: We pull in roles from the tempest repo for stackviz processing.
-      - zuul: git.openstack.org/openstack/tempest
+      - zuul: opendev.org/openstack/tempest
     required-projects:
       # These jobs will DTRT when openstacksdk triggers them, but we want to
       # make sure stable branches of openstacksdk never get cloned by other
@@ -65,7 +65,7 @@
       tox_envlist: functional
       zuul_copy_output:
           '{{ ansible_user_dir }}/stackviz': logs
-      zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
+      zuul_work_dir: src/opendev.org/openstack/openstacksdk
 
 - job:
     name: openstacksdk-functional-devstack-base
@@ -74,7 +74,7 @@
       Base job for devstack-based functional tests
     vars:
       devstack_plugins:
-        neutron: https://git.openstack.org/openstack/neutron
+        neutron: https://opendev.org/openstack/neutron
       devstack_local_conf:
         post-config:
           $CINDER_CONF:
@@ -109,7 +109,7 @@
         DISABLE_AMP_IMAGE_BUILD: true
         Q_SERVICE_PLUGIN_CLASSES: qos,trunk
       devstack_plugins:
-        heat: https://git.openstack.org/openstack/heat
+        heat: https://opendev.org/openstack/heat
       tox_environment:
         OPENSTACKSDK_HAS_HEAT: 1
       devstack_services:
@@ -148,9 +148,9 @@
       devstack_localrc:
         Q_SERVICE_PLUGIN_CLASSES: qos,trunk,firewall_v2
       devstack_plugins:
-        designate: https://git.openstack.org/openstack/designate
-        octavia: https://git.openstack.org/openstack/octavia
-        neutron-fwaas: https://git.openstack.org/openstack/neutron-fwaas
+        designate: https://opendev.org/openstack/designate
+        octavia: https://opendev.org/openstack/octavia
+        neutron-fwaas: https://opendev.org/openstack/neutron-fwaas
       devstack_services:
         designate: true
         octavia: true
@@ -214,7 +214,7 @@
       - openstack/python-magnumclient
     vars:
       devstack_plugins:
-        magnum: https://git.openstack.org/openstack/magnum
+        magnum: https://opendev.org/openstack/magnum
       devstack_localrc:
         MAGNUM_GUEST_IMAGE_URL: https://tarballs.openstack.org/magnum/images/fedora-atomic-f23-dib.qcow2
         MAGNUM_IMAGE_NAME: fedora-atomic-f23-dib
@@ -236,7 +236,7 @@
       - openstack/senlin
     vars:
       devstack_plugins:
-        senlin: https://git.openstack.org/openstack/senlin
+        senlin: https://opendev.org/openstack/senlin
       devstack_services:
         s-account: false
         s-container: false
@@ -265,7 +265,7 @@
         IRONIC_VM_LOG_DIR: '{{ devstack_base_dir }}/ironic-bm-logs'
         IRONIC_VM_SPECS_RAM: 384
       devstack_plugins:
-        ironic: https://git.openstack.org/openstack/ironic
+        ironic: https://opendev.org/openstack/ironic
       devstack_services:
         c-api: false
         c-bak: false
@@ -324,7 +324,7 @@
         override-checkout: devel
       - name: openstack/openstacksdk
         override-checkout: master
-      - name: openstack-dev/devstack
+      - name: openstack/devstack
         override-checkout: master
     vars:
       # test-matrix grabs branch from the zuul branch setting. If the job
@@ -345,7 +345,7 @@
         override-checkout: stable-2.6
       - name: openstack/openstacksdk
         override-checkout: master
-      - name: openstack-dev/devstack
+      - name: openstack/devstack
         override-checkout: master
     vars:
       # test-matrix grabs branch from the zuul branch setting. If the job
@@ -363,7 +363,7 @@
       - openstack/masakari
     vars:
       devstack_plugins:
-        masakari: https://git.openstack.org/openstack/masakari
+        masakari: https://opendev.org/openstack/masakari
       devstack_services:
         masakari-api: true
         masakari-engine: true
