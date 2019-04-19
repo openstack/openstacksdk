@@ -8,7 +8,7 @@
     # openstacksdk in required-projects so that os-client-config
     # and keystoneauth can add the job as well
     required-projects:
-      - openstack-infra/shade
+      - openstack/shade
       - openstack/keystoneauth
       - openstack/openstacksdk
       - openstack/os-client-config
@@ -23,7 +23,7 @@
     # openstacksdk in required-projects so that osc and keystoneauth
     # can add the job as well
     required-projects:
-      - openstack-infra/shade
+      - openstack/shade
       - openstack/keystoneauth
       - openstack/openstacksdk
       - openstack/os-client-config
@@ -45,7 +45,7 @@
     description: |
       Base job for devstack-based functional tests
     required-projects:
-      - name: openstack-infra/shade
+      - name: openstack/shade
         override-branch: master
       - name: openstack/openstacksdk
         override-branch: stable/queens
@@ -66,7 +66,7 @@
         s-object: true
         s-proxy: true
       devstack_plugins:
-        heat: https://git.openstack.org/openstack/heat
+        heat: https://opendev.org/openstack/heat
       tox_environment:
         # Do we really need to set this? It's cargo culted
         PYTHONUNBUFFERED: 'true'
@@ -79,7 +79,7 @@
         OPENSTACKSDK_HAS_SWIFT: 1
       tox_install_siblings: false
       tox_envlist: functional
-      zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
+      zuul_work_dir: src/opendev.org/openstack/openstacksdk
 
 - job:
     name: openstacksdk-functional-devstack-legacy
@@ -121,7 +121,7 @@
             certificates:
               cert_manager: local_cert_manager
       devstack_plugins:
-        octavia: https://git.openstack.org/openstack/octavia
+        octavia: https://opendev.org/openstack/octavia
       devstack_services:
         octavia: true
         o-api: true
@@ -148,7 +148,7 @@
       Run openstacksdk functional tests with tips of library dependencies
       against a master devstack.
     required-projects:
-      - openstack-infra/shade
+      - openstack/shade
       - openstack/keystoneauth
       - openstack/os-client-config
       - openstack/openstacksdk
@@ -175,7 +175,7 @@
       - openstack/python-magnumclient
     vars:
       devstack_plugins:
-        magnum: https://git.openstack.org/openstack/magnum
+        magnum: https://opendev.org/openstack/magnum
       devstack_localrc:
         MAGNUM_GUEST_IMAGE_URL: https://tarballs.openstack.org/magnum/images/fedora-atomic-f23-dib.qcow2
         MAGNUM_IMAGE_NAME: fedora-atomic-f23-dib
