@@ -8,7 +8,7 @@
     # openstacksdk in required-projects so that os-client-config
     # and keystoneauth can add the job as well
     required-projects:
-      - openstack-infra/shade
+      - openstack/shade
       - openstack/keystoneauth
       - openstack/openstacksdk
       - openstack/os-client-config
@@ -23,7 +23,7 @@
     # openstacksdk in required-projects so that osc and keystoneauth
     # can add the job as well
     required-projects:
-      - openstack-infra/shade
+      - openstack/shade
       - openstack/keystoneauth
       - openstack/openstacksdk
       - openstack/os-client-config
@@ -46,7 +46,7 @@
       Minimum job for devstack-based functional tests
     post-run: playbooks/devstack/post.yaml
     required-projects:
-      - name: openstack-infra/shade
+      - name: openstack/shade
         override-branch: master
       - name: openstack/openstacksdk
         override-branch: stable/rocky
@@ -68,7 +68,7 @@
         OPENSTACKSDK_HAS_SWIFT: 1
       tox_install_siblings: false
       tox_envlist: functional
-      zuul_work_dir: src/git.openstack.org/openstack/openstacksdk
+      zuul_work_dir: src/opendev.org/openstack/openstacksdk
 
 - job:
     name: openstacksdk-functional-devstack-base
@@ -90,7 +90,7 @@
         s-object: true
         s-proxy: true
       devstack_plugins:
-        heat: https://git.openstack.org/openstack/heat
+        heat: https://opendev.org/openstack/heat
       tox_environment:
         OPENSTACKSDK_HAS_HEAT: 1
 
@@ -133,9 +133,9 @@
             certificates:
               cert_manager: local_cert_manager
       devstack_plugins:
-        designate: https://git.openstack.org/openstack/designate
-        neutron: https://git.openstack.org/openstack/neutron
-        octavia: https://git.openstack.org/openstack/octavia
+        designate: https://opendev.org/openstack/designate
+        neutron: https://opendev.org/openstack/neutron
+        octavia: https://opendev.org/openstack/octavia
       devstack_services:
         designate: true
         octavia: true
@@ -166,7 +166,7 @@
       Run openstacksdk functional tests with tips of library dependencies
       against a master devstack.
     required-projects:
-      - openstack-infra/shade
+      - openstack/shade
       - openstack/keystoneauth
       - openstack/openstacksdk
       - openstack/os-client-config
@@ -193,7 +193,7 @@
       - openstack/python-magnumclient
     vars:
       devstack_plugins:
-        magnum: https://git.openstack.org/openstack/magnum
+        magnum: https://opendev.org/openstack/magnum
       devstack_localrc:
         MAGNUM_GUEST_IMAGE_URL: https://tarballs.openstack.org/magnum/images/fedora-atomic-f23-dib.qcow2
         MAGNUM_IMAGE_NAME: fedora-atomic-f23-dib
@@ -215,7 +215,7 @@
       - openstack/senlin
     vars:
       devstack_plugins:
-        senlin: https://git.openstack.org/openstack/senlin
+        senlin: https://opendev.org/openstack/senlin
       devstack_services:
         s-account: false
         s-container: false
@@ -244,7 +244,7 @@
         IRONIC_VM_LOG_DIR: '{{ devstack_base_dir }}/ironic-bm-logs'
         IRONIC_VM_SPECS_RAM: 384
       devstack_plugins:
-        ironic: https://git.openstack.org/openstack/ironic
+        ironic: https://opendev.org/openstack/ironic
       devstack_services:
         c-api: false
         c-bak: false
@@ -303,7 +303,7 @@
         override-checkout: devel
       - name: openstack/openstacksdk
         override-checkout: master
-      - name: openstack-dev/devstack
+      - name: openstack/devstack
         override-checkout: master
     vars:
       # test-matrix grabs branch from the zuul branch setting. If the job
@@ -324,7 +324,7 @@
         override-checkout: stable-2.6
       - name: openstack/openstacksdk
         override-checkout: master
-      - name: openstack-dev/devstack
+      - name: openstack/devstack
         override-checkout: master
     vars:
       # test-matrix grabs branch from the zuul branch setting. If the job
