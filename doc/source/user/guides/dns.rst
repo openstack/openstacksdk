@@ -15,4 +15,4 @@ List Zones
 
 Full example: `dns resource list`_
 
-.. _dns resource list: http://git.openstack.org/cgit/openstack/openstacksdk/tree/examples/dns/list.py
+.. _dns resource list: https://opendev.org/openstack/openstacksdk/src/branch/master/examples/dns/list.py

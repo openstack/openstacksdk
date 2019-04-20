@@ -42,4 +42,4 @@ Code Hosting
     https://opendev.org/openstack/openstacksdk
 
 Code Review
-    https://review.openstack.org/#/q/status:open+project:openstack/openstacksdk,n,z
+    https://review.opendev.org/#/q/status:open+project:openstack/openstacksdk,n,z
