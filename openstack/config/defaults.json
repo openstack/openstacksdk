@@ -1,6 +1,7 @@
 {
   "auth_type": "password",
   "baremetal_status_code_retries": 5,
+  "baremetal_introspection_status_code_retries": 5,
   "image_status_code_retries": 5,
   "disable_vendor_agent": {},
   "interface": "public",

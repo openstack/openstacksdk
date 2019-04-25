@@ -1120,7 +1120,8 @@ class TestResourceActions(base.TestCase):
                 microversion=microversion)
 
         self.assertEqual(sot.microversion, microversion)
-        sot._translate_response.assert_called_once_with(self.response)
+        sot._translate_response.assert_called_once_with(self.response,
+                                                        has_body=sot.has_body)
         self.assertEqual(result, sot)
 
     def test_put_create(self):
