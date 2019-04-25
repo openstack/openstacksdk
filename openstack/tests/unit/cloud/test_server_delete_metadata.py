@@ -38,6 +38,7 @@ class TestServerDeleteMetadata(base.TestCase):
         Test that a missing metadata throws an exception.
         """
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -58,6 +59,7 @@ class TestServerDeleteMetadata(base.TestCase):
 
     def test_server_delete_metadata(self):
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),

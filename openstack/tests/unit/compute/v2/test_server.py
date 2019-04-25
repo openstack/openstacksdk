@@ -14,48 +14,106 @@ import mock
 import six
 from openstack.tests.unit import base
 
+from openstack.image.v2 import image
 from openstack.compute.v2 import server
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    'accessIPv4': '1',
-    'accessIPv6': '2',
-    'addresses': {'region': '3'},
-    'config_drive': True,
-    'created': '2015-03-09T12:14:57.233772',
+    'OS-DCF:diskConfig': 'AUTO',
+    'OS-EXT-AZ:availability_zone': 'us-west',
+    'OS-EXT-SRV-ATTR:host': 'compute',
+    'OS-EXT-SRV-ATTR:hostname': 'new-server-test',
+    'OS-EXT-SRV-ATTR:hypervisor_hostname': 'fake-mini',
+    'OS-EXT-SRV-ATTR:instance_name': 'instance-00000001',
+    'OS-EXT-SRV-ATTR:kernel_id': '',
+    'OS-EXT-SRV-ATTR:launch_index': 0,
+    'OS-EXT-SRV-ATTR:ramdisk_id': '',
+    'OS-EXT-SRV-ATTR:reservation_id': 'r-ov3q80zj',
+    'OS-EXT-SRV-ATTR:root_device_name': '/dev/sda',
+    'OS-EXT-SRV-ATTR:user_data': 'IyEvYmluL2Jhc2gKL2Jpbi9IHlvdSEiCg==',
+    'OS-EXT-STS:power_state': 1,
+    'OS-EXT-STS:task_state': None,
+    'OS-EXT-STS:vm_state': 'active',
+    'OS-SRV-USG:launched_at': '2017-02-14T19:23:59.895661',
+    'OS-SRV-USG:terminated_at': '2015-03-09T12:15:57.233772',
+    'OS-SCH-HNT:scheduler_hints': {'key': '30'},
+    'accessIPv4': '1.2.3.4',
+    'accessIPv6': '80fe::',
+    'adminPass': '27',
+    'addresses': {
+        'private': [
+            {
+                'OS-EXT-IPS-MAC:mac_addr': 'aa:bb:cc:dd:ee:ff',
+                'OS-EXT-IPS:type': 'fixed',
+                'addr': '192.168.0.3',
+                'version': 4
+            }
+        ]
+    },
+    'block_device_mapping_v2': {'key': '29'},
+    'config_drive': '',
+    'created': '2017-02-14T19:23:58Z',
+    'description': 'dummy',
     'flavorRef': '5',
-    'flavor': {'id': 'FLAVOR_ID', 'links': {}},
-    'hostId': '6',
+    'flavor': {
+        'disk': 1,
+        'ephemeral': 0,
+        'extra_specs': {
+            'hw:cpu_policy': 'dedicated',
+            'hw:mem_page_size': '2048'
+        },
+        'original_name': 'm1.tiny.specs',
+        'ram': 512,
+        'swap': 0,
+        'vcpus': 1
+    },
+    'hostId': '2091634baaccdc4c5a1d57069c833e402921df696b7f970791b12ec6',
+    'host_status': 'UP',
     'id': IDENTIFIER,
     'imageRef': '8',
-    'image': {'id': 'IMAGE_ID', 'links': {}},
-    'links': '9',
-    'metadata': {'key': '10'},
+    'image': {
+        'id': '70a599e0-31e7-49b7-b260-868f441e862b',
+        'links': [
+            {
+                'href': 'http://openstack.example.com/images/70a599e0',
+                'rel': 'bookmark'
+            }
+        ]
+    },
+    'key_name': 'dummy',
+    'links': [
+        {
+            'href': 'http://openstack.example.com/v2.1/servers/9168b536',
+            'rel': 'self'
+        },
+        {
+            'href': 'http://openstack.example.com/servers/9168b536',
+            'rel': 'bookmark'
+        }
+    ],
+    'locked': True,
+    'metadata': {
+        'My Server Name': 'Apache1'
+    },
+    'name': 'new-server-test',
     'networks': 'auto',
-    'name': '11',
-    'progress': 12,
-    'tenant_id': '13',
-    'status': '14',
-    'updated': '2015-03-09T12:15:57.233772',
-    'user_id': '16',
-    'key_name': '17',
-    'OS-DCF:diskConfig': '18',
-    'OS-EXT-AZ:availability_zone': '19',
-    'OS-EXT-STS:power_state': '20',
-    'OS-EXT-STS:task_state': '21',
-    'OS-EXT-STS:vm_state': '22',
-    'os-extended-volumes:volumes_attached': '23',
-    'OS-SRV-USG:launched_at': '2015-03-09T12:15:57.233772',
-    'OS-SRV-USG:terminated_at': '2015-03-09T12:15:57.233772',
-    'security_groups': '26',
-    'adminPass': '27',
+    'os-extended-volumes:volumes_attached': [],
     'personality': '28',
-    'block_device_mapping_v2': {'key': '29'},
-    'OS-EXT-SRV-ATTR:hypervisor_hostname': 'hypervisor.example.com',
-    'OS-EXT-SRV-ATTR:instance_name': 'instance-00000001',
-    'OS-SCH-HNT:scheduler_hints': {'key': '30'},
-    'OS-EXT-SRV-ATTR:user_data': '31',
-    'locked': True
+    'progress': 0,
+    'security_groups': [
+        {
+            'name': 'default'
+        }
+    ],
+    'status': 'ACTIVE',
+    'tags': [],
+    'tenant_id': '6f70656e737461636b20342065766572',
+    'trusted_image_certificates': [
+        '0b5d2c72-12cc-4ba6-a8d7-3ff5cc1d8cb8',
+        '674736e3-f25c-405c-8362-bbf991e0ce0a'
+    ],
+    'updated': '2017-02-14T19:24:00Z',
+    'user_id': 'fake'
 }
 
 
@@ -80,26 +138,51 @@ class TestServer(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({"image": "image",
-                              "flavor": "flavor",
-                              "name": "name",
-                              "status": "status",
-                              "host": "host",
-                              "all_projects": "all_tenants",
+        self.assertDictEqual({"access_ipv4": "access_ip_v4",
+                              "access_ipv6": "access_ip_v6",
+                              "auto_disk_config": "auto_disk_config",
+                              "availability_zone": "availability_zone",
+                              "changes_before": "changes-before",
                               "changes_since": "changes-since",
+                              "compute_host": "host",
+                              "has_config_drive": "config_drive",
+                              "created_at": "created_at",
+                              "description": "description",
+                              "flavor": "flavor",
+                              "hostname": "hostname",
+                              "image": "image",
+                              "ipv4_address": "ip",
+                              "ipv6_address": "ip6",
+                              "id": "uuid",
+                              "deleted_only": "deleted",
+                              "is_soft_deleted": "soft_deleted",
+                              "kernel_id": "kernel_id",
+                              "key_name": "key_name",
+                              "launch_index": "launch_index",
+                              "launched_at": "launched_at",
                               "limit": "limit",
+                              "locked_by": "locked_by",
                               "marker": "marker",
-                              "sort_key": "sort_key",
-                              "sort_dir": "sort_dir",
-                              "reservation_id": "reservation_id",
+                              "name": "name",
+                              "node": "node",
+                              "power_state": "power_state",
+                              "progress": "progress",
                               "project_id": "project_id",
+                              "ramdisk_id": "ramdisk_id",
+                              "reservation_id": "reservation_id",
+                              "root_device_name": "root_device_name",
+                              "sort_dir": "sort_dir",
+                              "sort_key": "sort_key",
+                              "status": "status",
+                              "task_state": "task_state",
+                              "terminated_at": "terminated_at",
+                              "user_id": "user_id",
+                              "vm_state": "vm_state",
+                              "all_projects": "all_tenants",
                               "tags": "tags",
                               "any_tags": "tags-any",
                               "not_tags": "not-tags",
                               "not_any_tags": "not-tags-any",
-                              "is_deleted": "deleted",
-                              "ipv4_address": "ip",
-                              "ipv6_address": "ip6",
                               },
                              sot._query_mapping._mapping)
 
@@ -113,9 +196,10 @@ class TestServer(base.TestCase):
         self.assertEqual(EXAMPLE['flavorRef'], sot.flavor_id)
         self.assertEqual(EXAMPLE['flavor'], sot.flavor)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
+        self.assertEqual(EXAMPLE['host_status'], sot.host_status)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['imageRef'], sot.image_id)
-        self.assertEqual(EXAMPLE['image'], sot.image)
+        self.assertEqual(image.Image(**EXAMPLE['image']), sot.image)
         self.assertEqual(EXAMPLE['links'], sot.links)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['networks'], sot.networks)
@@ -142,14 +226,30 @@ class TestServer(base.TestCase):
         self.assertEqual(EXAMPLE['personality'], sot.personality)
         self.assertEqual(EXAMPLE['block_device_mapping_v2'],
                          sot.block_device_mapping)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:host'],
+                         sot.compute_host)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:hostname'],
+                         sot.hostname)
         self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:hypervisor_hostname'],
                          sot.hypervisor_hostname)
         self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:instance_name'],
                          sot.instance_name)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:kernel_id'],
+                         sot.kernel_id)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:launch_index'],
+                         sot.launch_index)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:ramdisk_id'],
+                         sot.ramdisk_id)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:reservation_id'],
+                         sot.reservation_id)
+        self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:root_device_name'],
+                         sot.root_device_name)
         self.assertEqual(EXAMPLE['OS-SCH-HNT:scheduler_hints'],
                          sot.scheduler_hints)
         self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:user_data'], sot.user_data)
         self.assertEqual(EXAMPLE['locked'], sot.is_locked)
+        self.assertEqual(EXAMPLE['trusted_image_certificates'],
+                         sot.trusted_image_certificates)
 
     def test__prepare_server(self):
         zone = 1

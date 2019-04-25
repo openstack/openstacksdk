@@ -209,6 +209,7 @@ class TestStats(base.TestCase):
         mock_uri = 'https://compute.example.com/v2.1/servers/detail'
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET', uri=mock_uri, status_code=200,
                  json={'servers': []})])
 

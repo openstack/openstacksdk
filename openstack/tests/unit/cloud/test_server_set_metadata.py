@@ -35,6 +35,7 @@ class TestServerSetMetadata(base.TestCase):
 
     def test_server_set_metadata_with_exception(self):
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -57,6 +58,7 @@ class TestServerSetMetadata(base.TestCase):
 
     def test_server_set_metadata(self):
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),

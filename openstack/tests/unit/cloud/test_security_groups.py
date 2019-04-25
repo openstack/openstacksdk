@@ -609,6 +609,7 @@ class TestSecurityGroups(base.TestCase):
         self.cloud.secgroup_source = 'neutron'
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -664,6 +665,7 @@ class TestSecurityGroups(base.TestCase):
 
         validate = {'removeSecurityGroup': {'name': 'neutron-sec-group'}}
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -691,6 +693,7 @@ class TestSecurityGroups(base.TestCase):
         self.has_neutron = False
         self.cloud.secgroup_source = 'nova'
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(
                 method='GET',
                 uri='{endpoint}/servers/detail'.format(
@@ -717,6 +720,7 @@ class TestSecurityGroups(base.TestCase):
         self.cloud.secgroup_source = 'neutron'
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -737,6 +741,7 @@ class TestSecurityGroups(base.TestCase):
         fake_server = fakes.make_fake_server('1234', 'server-name', 'ACTIVE')
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(
                 method='GET',
                 uri='{endpoint}/servers/detail'.format(

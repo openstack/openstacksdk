@@ -41,6 +41,7 @@ class TestFromSession(base.TestCase):
         server_name = self.getUniqueString('name')
         fake_server = fakes.make_fake_server(server_id, server_name)
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),

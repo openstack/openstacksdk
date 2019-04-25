@@ -38,6 +38,7 @@ _SERVER_FIELDS = (
     'addresses',
     'adminPass',
     'created',
+    'description',
     'key_name',
     'metadata',
     'networks',
@@ -45,6 +46,7 @@ _SERVER_FIELDS = (
     'private_v4',
     'public_v4',
     'public_v6',
+    'server_groups',
     'status',
     'updated',
     'user_id',
@@ -468,9 +470,11 @@ class Normalizer(object):
 
         # OpenStack can return image as a string when you've booted
         # from volume
-        if str(server['image']) != server['image']:
-            server['image'].pop('links', None)
-        ret['image'] = server.pop('image')
+        image = server.pop('image', None)
+        if str(image) != image:
+            image = munch.Munch(id=image['id'])
+
+        ret['image'] = image
         # From original_names from sdk
         server.pop('imageRef', None)
         # From original_names from sdk
@@ -515,6 +519,13 @@ class Normalizer(object):
                 'OS-EXT-SRV-ATTR:hypervisor_hostname',
                 'OS-EXT-SRV-ATTR:instance_name',
                 'OS-EXT-SRV-ATTR:user_data',
+                'OS-EXT-SRV-ATTR:host',
+                'OS-EXT-SRV-ATTR:hostname',
+                'OS-EXT-SRV-ATTR:kernel_id',
+                'OS-EXT-SRV-ATTR:launch_index',
+                'OS-EXT-SRV-ATTR:ramdisk_id',
+                'OS-EXT-SRV-ATTR:reservation_id',
+                'OS-EXT-SRV-ATTR:root_device_name',
                 'OS-SCH-HNT:scheduler_hints',
         ):
             short_key = key.split(':')[1]

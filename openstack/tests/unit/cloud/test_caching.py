@@ -183,6 +183,7 @@ class TestMemoryCache(base.TestCase):
         self.cloud._SERVER_AGE = 2
         fake_server = fakes.make_fake_server('1234', 'name')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
