@@ -3,7 +3,7 @@
 # To enable openstacksdk in devstack add an entry to local.conf that looks like
 #
 # [[local|localrc]]
-# enable_plugin openstacksdk https://git.openstack.org/openstack/openstacksdk
+# enable_plugin openstacksdk https://opendev.org/openstack/openstacksdk
 
 function preinstall_openstacksdk {
     :
