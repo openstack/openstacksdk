@@ -336,6 +336,7 @@ class CloudRegion(object):
                 verify=verify,
                 cert=cert,
                 timeout=self.config.get('api_timeout'),
+                collect_timing=self.config.get('timing'),
                 discovery_cache=self._discovery_cache)
             self.insert_user_agent()
             # Using old keystoneauth with new os-client-config fails if

@@ -204,7 +204,8 @@ class TestCloudRegion(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None, discovery_cache=None)
+            verify=True, cert=None, timeout=None, collect_timing=None,
+            discovery_cache=None)
         self.assertEqual(
             fake_session.additional_user_agent,
             [('openstacksdk', openstack_version.__version__)])
@@ -224,7 +225,8 @@ class TestCloudRegion(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=None, discovery_cache=None)
+            verify=True, cert=None, timeout=None, collect_timing=None,
+            discovery_cache=None)
         self.assertEqual(fake_session.app_name, "test_app")
         self.assertEqual(fake_session.app_version, "test_version")
         self.assertEqual(
@@ -244,7 +246,27 @@ class TestCloudRegion(base.TestCase):
         cc.get_session()
         mock_session.assert_called_with(
             auth=mock.ANY,
-            verify=True, cert=None, timeout=9, discovery_cache=None)
+            verify=True, cert=None, timeout=9,
+            collect_timing=None, discovery_cache=None)
+        self.assertEqual(
+            fake_session.additional_user_agent,
+            [('openstacksdk', openstack_version.__version__)])
+
+    @mock.patch.object(ksa_session, 'Session')
+    def test_get_session_with_timing(self, mock_session):
+        fake_session = mock.Mock()
+        fake_session.additional_user_agent = []
+        mock_session.return_value = fake_session
+        config_dict = defaults.get_defaults()
+        config_dict.update(fake_services_dict)
+        config_dict['timing'] = True
+        cc = cloud_region.CloudRegion(
+            "test1", "region-al", config_dict, auth_plugin=mock.Mock())
+        cc.get_session()
+        mock_session.assert_called_with(
+            auth=mock.ANY,
+            verify=True, cert=None, timeout=None,
+            collect_timing=True, discovery_cache=None)
         self.assertEqual(
             fake_session.additional_user_agent,
             [('openstacksdk', openstack_version.__version__)])
