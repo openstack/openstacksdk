@@ -691,6 +691,15 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         # Short circuit if we're asking to attach an IP that's already
         # attached
         ext_ip = meta.get_server_ip(server, ext_tag='floating', public=True)
+        if not ext_ip and floating_ip['port_id']:
+            # When we came here from reuse_fip and created FIP it might be
+            # already attached, but the server info might be also
+            # old to check whether it belongs to us now, thus refresh
+            # the server data and try again. There are some clouds, which
+            # explicitely forbids FIP assign call if it is already assigned.
+            server = self.get_server_by_id(server['id'])
+            ext_ip = meta.get_server_ip(server, ext_tag='floating',
+                                        public=True)
         if ext_ip == floating_ip['floating_ip_address']:
             return server
 
@@ -719,7 +728,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
                     timeout,
                     "Timeout waiting for the floating IP to be attached.",
                     wait=self._SERVER_AGE):
-                server = self.get_server(server_id)
+                server = self.get_server_by_id(server_id)
                 ext_ip = meta.get_server_ip(
                     server, ext_tag='floating', public=True)
                 if ext_ip == floating_ip['floating_ip_address']:

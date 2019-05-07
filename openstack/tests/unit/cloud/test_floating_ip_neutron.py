@@ -768,7 +768,8 @@ class TestFloatingIP(base.TestCase):
         self.assert_calls()
 
     def test_attach_ip_to_server(self):
-        fip = self.mock_floating_ip_list_rep['floatingips'][0]
+        fip = self.mock_floating_ip_list_rep['floatingips'][0].copy()
+        fip.update({'status': 'DOWN', 'port_id': None, 'router_id': None})
         device_id = self.fake_server['id']
 
         self.register_uris([
@@ -782,7 +783,8 @@ class TestFloatingIP(base.TestCase):
                      'network', 'public',
                      append=['v2.0', 'floatingips/{0}.json'.format(
                          fip['id'])]),
-                 json={'floatingip': fip},
+                 json={'floatingip':
+                       self.mock_floating_ip_list_rep['floatingips'][0]},
                  validate=dict(
                      json={'floatingip': {
                          'port_id': self.mock_search_ports_rep[0]['id'],
@@ -792,57 +794,7 @@ class TestFloatingIP(base.TestCase):
 
         self.cloud._attach_ip_to_server(
             server=self.fake_server,
-            floating_ip=self.floating_ip)
-        self.assert_calls()
-
-    def test_add_ip_refresh_timeout(self):
-        device_id = self.fake_server['id']
-
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'networks.json']),
-                 json={'networks': [self.mock_get_network_rep]}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
-                 json={'subnets': []}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
-                     qs_elements=["device_id={0}".format(device_id)]),
-                 json={'ports': self.mock_search_ports_rep}),
-            dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips.json',
-                 json={'floatingip': self.floating_ip},
-                 validate=dict(
-                     json={'floatingip': {
-                         'floating_network_id': 'my-network-id',
-                         'fixed_ip_address': self.mock_search_ports_rep[0][
-                             'fixed_ips'][0]['ip_address'],
-                         'port_id': self.mock_search_ports_rep[0]['id']}})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
-                 json={'floatingips': [self.floating_ip]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(
-                         self.floating_ip['id'])]),
-                 json={}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
-                 json={'floatingips': []}),
-        ])
-
-        self.assertRaises(
-            exc.OpenStackCloudTimeout,
-            self.cloud._add_auto_ip,
-            server=self.fake_server,
-            wait=True, timeout=0.01,
-            reuse=False)
+            floating_ip=self.cloud._normalize_floating_ip(fip))
         self.assert_calls()
 
     def test_detach_ip_from_server(self):
