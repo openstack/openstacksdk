@@ -477,6 +477,21 @@ class CloudRegion(object):
             self.get_interface(service_type), {})
         return interface_versions.get(service_type, [])
 
+    def _get_hardcoded_endpoint(self, service_type, constructor):
+        adapter = constructor(
+            session=self.get_session(),
+            service_type=self.get_service_type(service_type),
+            service_name=self.get_service_name(service_type),
+            interface=self.get_interface(service_type),
+            region_name=self.region_name,
+        )
+        endpoint = adapter.get_endpoint()
+        if not endpoint.rstrip().rsplit('/')[-1] == 'v2.0':
+            if not endpoint.endswith('/'):
+                endpoint += '/'
+            endpoint = urllib.parse.urljoin(endpoint, 'v2.0')
+        return endpoint
+
     def get_session_client(
             self, service_type, version=None,
             constructor=proxy.Proxy,
@@ -511,27 +526,17 @@ class CloudRegion(object):
             kwargs.pop('min_version', None) or version_request.min_api_version)
         max_api_version = (
             kwargs.pop('max_version', None) or version_request.max_api_version)
+
         # Older neutron has inaccessible discovery document. Nobody noticed
         # because neutronclient hard-codes an append of v2.0. YAY!
-        if service_type == 'network':
+        # Also, older octavia has a similar issue.
+        if service_type in ('network', 'load-balancer'):
             version = None
             min_api_version = None
             max_api_version = None
             if endpoint_override is None:
-                network_adapter = constructor(
-                    session=self.get_session(),
-                    service_type=self.get_service_type(service_type),
-                    service_name=self.get_service_name(service_type),
-                    interface=self.get_interface(service_type),
-                    region_name=self.region_name,
-                )
-                network_endpoint = network_adapter.get_endpoint()
-                if not network_endpoint.rstrip().rsplit('/')[-1] == 'v2.0':
-                    if not network_endpoint.endswith('/'):
-                        network_endpoint += '/'
-                    network_endpoint = urllib.parse.urljoin(
-                        network_endpoint, 'v2.0')
-                endpoint_override = network_endpoint
+                endpoint_override = self._get_hardcoded_endpoint(
+                    service_type, constructor)
 
         client = constructor(
             session=self.get_session(),
