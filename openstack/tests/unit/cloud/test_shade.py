@@ -81,6 +81,7 @@ class TestShade(base.TestCase):
         server2 = fakes.make_fake_server('345', 'mouse')
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -95,6 +96,7 @@ class TestShade(base.TestCase):
 
     def test_get_server_not_found(self):
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -108,6 +110,7 @@ class TestShade(base.TestCase):
 
     def test_list_servers_exception(self):
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -146,6 +149,7 @@ class TestShade(base.TestCase):
         server_name = self.getUniqueString('name')
         fake_server = fakes.make_fake_server(server_id, server_name)
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -329,6 +333,7 @@ class TestShade(base.TestCase):
                     "name": "private-subnet-ipv4"
                 }]}
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -353,6 +358,7 @@ class TestShade(base.TestCase):
         '''This test verifies that when list_servers is called with
         `all_projects=True` that it passes `all_tenants=True` to nova.'''
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail'],
@@ -369,6 +375,7 @@ class TestShade(base.TestCase):
         '''This test verifies that when list_servers is called with
         `filters` dict that it passes it to nova.'''
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail'],

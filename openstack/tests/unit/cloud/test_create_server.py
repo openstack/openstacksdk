@@ -118,6 +118,7 @@ class TestCreateServer(base.TestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'name': u'server-name'}})),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -157,6 +158,7 @@ class TestCreateServer(base.TestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'name': u'server-name'}})),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -509,6 +511,7 @@ class TestCreateServer(base.TestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'name': u'server-name'}})),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),

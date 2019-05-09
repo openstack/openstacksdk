@@ -46,6 +46,7 @@ class TestServerConsole(base.TestCase):
     def test_get_server_console_name_or_id(self):
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri='{endpoint}/servers/detail'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),

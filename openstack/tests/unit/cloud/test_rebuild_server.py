@@ -79,6 +79,7 @@ class TestRebuildServer(base.TestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -105,6 +106,7 @@ class TestRebuildServer(base.TestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -194,6 +196,7 @@ class TestRebuildServer(base.TestCase):
                          'rebuild': {
                              'imageRef': 'a',
                              'adminPass': password}})),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -231,6 +234,7 @@ class TestRebuildServer(base.TestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),

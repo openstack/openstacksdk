@@ -40,6 +40,7 @@ class TestUpdateServer(base.TestCase):
         update_server.
         """
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -65,6 +66,7 @@ class TestUpdateServer(base.TestCase):
             self.server_id, self.updated_server_name)
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),

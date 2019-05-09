@@ -482,6 +482,7 @@ class TestFloatingIP(base.TestCase):
                      "fixed_ip_address": "10.4.0.16",
                      "port_id": "a767944e-057a-47d1-a669-824a21b8fb7b",
                  }})),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri='{endpoint}/servers/detail'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),

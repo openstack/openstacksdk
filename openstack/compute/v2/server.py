@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.compute.v2 import metadata
+from openstack.image.v2 import image
 from openstack import resource
 from openstack import utils
 
@@ -28,18 +29,31 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        "image", "flavor", "name",
-        "status", "host",
+        "auto_disk_config", "availability_zone",
+        "created_at", "description", "flavor",
+        "hostname", "image", "kernel_id", "key_name",
+        "launch_index", "launched_at", "locked_by", "name",
+        "node", "power_state", "progress", "project_id", "ramdisk_id",
+        "reservation_id", "root_device_name",
+        "status", "task_state", "terminated_at", "user_id",
+        "vm_state",
         "sort_key", "sort_dir",
-        "reservation_id", "tags",
-        "project_id",
-        is_deleted="deleted",
+        access_ipv4="access_ip_v4",
+        access_ipv6="access_ip_v6",
+        has_config_drive="config_drive",
+        deleted_only="deleted",
+        compute_host="host",
+        is_soft_deleted="soft_deleted",
         ipv4_address="ip",
         ipv6_address="ip6",
         changes_since="changes-since",
+        changes_before="changes-before",
+        id="uuid",
         all_projects="all_tenants",
         **resource.TagMixin._tag_query_parameters
     )
+
+    _max_microversion = '2.72'
 
     #: A list of dictionaries holding links relevant to this server.
     links = resource.Body('links')
@@ -53,92 +67,131 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     #: and ``version``, which is either 4 or 6 depending on the protocol
     #: of the IP address. *Type: dict*
     addresses = resource.Body('addresses', type=dict)
-    #: Timestamp of when the server was created.
-    created_at = resource.Body('created')
-    #: The flavor reference, as a ID or full URL, for the flavor to use for
-    #: this server.
-    flavor_id = resource.Body('flavorRef')
-    #: The flavor property as returned from server.
-    flavor = resource.Body('flavor', type=dict)
-    #: An ID representing the host of this server.
-    host_id = resource.Body('hostId')
-    #: The image reference, as a ID or full URL, for the image to use for
-    #: this server.
-    image_id = resource.Body('imageRef')
-    #: The image property as returned from server.
-    image = resource.Body('image', type=dict)
-    #: Metadata stored for this server. *Type: dict*
-    metadata = resource.Body('metadata', type=dict)
-    #: While the server is building, this value represents the percentage
-    #: of completion. Once it is completed, it will be 100.  *Type: int*
-    progress = resource.Body('progress', type=int)
-    #: The ID of the project this server is associated with.
-    project_id = resource.Body('tenant_id')
-    #: The state this server is in. Valid values include ``ACTIVE``,
-    #: ``BUILDING``, ``DELETED``, ``ERROR``, ``HARD_REBOOT``, ``PASSWORD``,
-    #: ``PAUSED``, ``REBOOT``, ``REBUILD``, ``RESCUED``, ``RESIZED``,
-    #: ``REVERT_RESIZE``, ``SHUTOFF``, ``SOFT_DELETED``, ``STOPPED``,
-    #: ``SUSPENDED``, ``UNKNOWN``, or ``VERIFY_RESIZE``.
-    status = resource.Body('status')
-    #: Timestamp of when this server was last updated.
-    updated_at = resource.Body('updated')
-    #: The ID of the owners of this server.
-    user_id = resource.Body('user_id')
-    #: The name of an associated keypair
-    key_name = resource.Body('key_name')
-    #: The disk configuration. Either AUTO or MANUAL.
-    disk_config = resource.Body('OS-DCF:diskConfig')
-    #: Indicates whether a configuration drive enables metadata injection.
-    #: Not all cloud providers enable this feature.
-    has_config_drive = resource.Body('config_drive')
-    #: The name of the availability zone this server is a part of.
-    availability_zone = resource.Body('OS-EXT-AZ:availability_zone')
-    #: The power state of this server.
-    power_state = resource.Body('OS-EXT-STS:power_state')
-    #: The task state of this server.
-    task_state = resource.Body('OS-EXT-STS:task_state')
-    #: The VM state of this server.
-    vm_state = resource.Body('OS-EXT-STS:vm_state')
+    #: When a server is first created, it provides the administrator password.
+    admin_password = resource.Body('adminPass')
     #: A list of an attached volumes. Each item in the list contains at least
     #: an "id" key to identify the specific volumes.
     attached_volumes = resource.Body(
         'os-extended-volumes:volumes_attached')
-    #: The timestamp when the server was launched.
-    launched_at = resource.Body('OS-SRV-USG:launched_at')
-    #: The timestamp when the server was terminated (if it has been).
-    terminated_at = resource.Body('OS-SRV-USG:terminated_at')
-    #: A list of applicable security groups. Each group contains keys for
-    #: description, name, id, and rules.
-    security_groups = resource.Body('security_groups')
-    #: When a server is first created, it provides the administrator password.
-    admin_password = resource.Body('adminPass')
-    #: The file path and contents, text only, to inject into the server at
-    #: launch. The maximum size of the file path data is 255 bytes.
-    #: The maximum limit is The number of allowed bytes in the decoded,
-    #: rather than encoded, data.
-    personality = resource.Body('personality')
-    #: Configuration information or scripts to use upon launch.
-    #: Must be Base64 encoded.
-    user_data = resource.Body('OS-EXT-SRV-ATTR:user_data')
+    #: The name of the availability zone this server is a part of.
+    availability_zone = resource.Body('OS-EXT-AZ:availability_zone')
     #: Enables fine grained control of the block device mapping for an
     #: instance. This is typically used for booting servers from volumes.
     block_device_mapping = resource.Body('block_device_mapping_v2')
-    #: The dictionary of data to send to the scheduler.
-    scheduler_hints = resource.Body('OS-SCH-HNT:scheduler_hints', type=dict)
-    #: A networks object. Required parameter when there are multiple
-    #: networks defined for the tenant. When you do not specify the
-    #: networks parameter, the server attaches to the only network
-    #: created for the current tenant.
-    networks = resource.Body('networks')
+    #: Indicates whether or not a config drive was used for this server.
+    config_drive = resource.Body('config_drive')
+    #: The name of the compute host on which this instance is running.
+    #: Appears in the response for administrative users only.
+    compute_host = resource.Body('OS-EXT-SRV-ATTR:host')
+    #: Timestamp of when the server was created.
+    created_at = resource.Body('created')
+    #: The description of the server. Before microversion
+    #: 2.19 this was set to the server name.
+    description = resource.Body('description')
+    #: The disk configuration. Either AUTO or MANUAL.
+    disk_config = resource.Body('OS-DCF:diskConfig')
+    #: The flavor reference, as a ID or full URL, for the flavor to use for
+    #: this server.
+    flavor_id = resource.Body('flavorRef')
+    #: The flavor property as returned from server.
+    # TODO(gtema): replace with flavor.Flavor addressing flavor.original_name
+    flavor = resource.Body('flavor', type=dict)
+    #: Indicates whether a configuration drive enables metadata injection.
+    #: Not all cloud providers enable this feature.
+    has_config_drive = resource.Body('config_drive')
+    #: An ID representing the host of this server.
+    host_id = resource.Body('hostId')
+    #: The host status.
+    host_status = resource.Body('host_status')
+    #: The hostname set on the instance when it is booted.
+    #: By default, it appears in the response for administrative users only.
+    hostname = resource.Body('OS-EXT-SRV-ATTR:hostname')
     #: The hypervisor host name. Appears in the response for administrative
     #: users only.
     hypervisor_hostname = resource.Body('OS-EXT-SRV-ATTR:hypervisor_hostname')
+    #: The image reference, as a ID or full URL, for the image to use for
+    #: this server.
+    image_id = resource.Body('imageRef')
+    #: The image property as returned from server.
+    image = resource.Body('image', type=image.Image)
     #: The instance name. The Compute API generates the instance name from the
     #: instance name template. Appears in the response for administrative users
     #: only.
     instance_name = resource.Body('OS-EXT-SRV-ATTR:instance_name')
     # The locked status of the server
     is_locked = resource.Body('locked', type=bool)
+    #: The UUID of the kernel image when using an AMI. Will be null if not.
+    #: By default, it appears in the response for administrative users only.
+    kernel_id = resource.Body('OS-EXT-SRV-ATTR:kernel_id')
+    #: The name of an associated keypair
+    key_name = resource.Body('key_name')
+    #: When servers are launched via multiple create, this is the
+    #: sequence in which the servers were launched. By default, it
+    #: appears in the response for administrative users only.
+    launch_index = resource.Body('OS-EXT-SRV-ATTR:launch_index', type=int)
+    #: The timestamp when the server was launched.
+    launched_at = resource.Body('OS-SRV-USG:launched_at')
+    #: Metadata stored for this server. *Type: dict*
+    metadata = resource.Body('metadata', type=dict)
+    #: A networks object. Required parameter when there are multiple
+    #: networks defined for the tenant. When you do not specify the
+    #: networks parameter, the server attaches to the only network
+    #: created for the current tenant.
+    networks = resource.Body('networks')
+    #: The file path and contents, text only, to inject into the server at
+    #: launch. The maximum size of the file path data is 255 bytes.
+    #: The maximum limit is The number of allowed bytes in the decoded,
+    #: rather than encoded, data.
+    personality = resource.Body('personality')
+    #: The power state of this server.
+    power_state = resource.Body('OS-EXT-STS:power_state')
+    #: While the server is building, this value represents the percentage
+    #: of completion. Once it is completed, it will be 100.  *Type: int*
+    progress = resource.Body('progress', type=int)
+    #: The ID of the project this server is associated with.
+    project_id = resource.Body('tenant_id')
+    #: The UUID of the ramdisk image when using an AMI. Will be null if not.
+    #: By default, it appears in the response for administrative users only.
+    ramdisk_id = resource.Body('OS-EXT-SRV-ATTR:ramdisk_id')
+    #: The reservation id for the server. This is an id that can be
+    #: useful in tracking groups of servers created with multiple create,
+    #: that will all have the same reservation_id. By default, it appears
+    #: in the response for administrative users only.
+    reservation_id = resource.Body('OS-EXT-SRV-ATTR:reservation_id')
+    #: The root device name for the instance By default, it appears in the
+    #: response for administrative users only.
+    root_device_name = resource.Body('OS-EXT-SRV-ATTR:root_device_name')
+    #: The dictionary of data to send to the scheduler.
+    scheduler_hints = resource.Body('OS-SCH-HNT:scheduler_hints', type=dict)
+    #: A list of applicable security groups. Each group contains keys for
+    #: description, name, id, and rules.
+    security_groups = resource.Body('security_groups')
+    #: The UUIDs of the server groups to which the server belongs.
+    #: Currently this can contain at most one entry.
+    server_groups = resource.Body('server_groups', type=list, list_type=dict)
+    #: The state this server is in. Valid values include ``ACTIVE``,
+    #: ``BUILDING``, ``DELETED``, ``ERROR``, ``HARD_REBOOT``, ``PASSWORD``,
+    #: ``PAUSED``, ``REBOOT``, ``REBUILD``, ``RESCUED``, ``RESIZED``,
+    #: ``REVERT_RESIZE``, ``SHUTOFF``, ``SOFT_DELETED``, ``STOPPED``,
+    #: ``SUSPENDED``, ``UNKNOWN``, or ``VERIFY_RESIZE``.
+    status = resource.Body('status')
+    #: The task state of this server.
+    task_state = resource.Body('OS-EXT-STS:task_state')
+    #: The timestamp when the server was terminated (if it has been).
+    terminated_at = resource.Body('OS-SRV-USG:terminated_at')
+    #: A list of trusted certificate IDs, that were used during image
+    #: signature verification to verify the signing certificate.
+    trusted_image_certificates = resource.Body(
+        'trusted_image_certificates', type=list)
+    #: Timestamp of when this server was last updated.
+    updated_at = resource.Body('updated')
+    #: Configuration information or scripts to use upon launch.
+    #: Must be Base64 encoded.
+    user_data = resource.Body('OS-EXT-SRV-ATTR:user_data')
+    #: The ID of the owners of this server.
+    user_id = resource.Body('user_id')
+    #: The VM state of this server.
+    vm_state = resource.Body('OS-EXT-STS:vm_state')
 
     def _prepare_request(self, requires_id=True, prepend_key=True,
                          base_path=None):

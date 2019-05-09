@@ -31,6 +31,7 @@ class TestDeleteServer(base.TestCase):
         """
         server = fakes.make_fake_server('1234', 'daffy', 'ACTIVE')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -48,6 +49,7 @@ class TestDeleteServer(base.TestCase):
         Test that we return immediately when server is already gone
         """
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -59,6 +61,7 @@ class TestDeleteServer(base.TestCase):
 
     def test_delete_server_already_gone_wait(self):
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -73,6 +76,7 @@ class TestDeleteServer(base.TestCase):
         """
         server = fakes.make_fake_server('9999', 'wily', 'ACTIVE')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -99,6 +103,7 @@ class TestDeleteServer(base.TestCase):
         """
         server = fakes.make_fake_server('1212', 'speedy', 'ACTIVE')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -130,6 +135,7 @@ class TestDeleteServer(base.TestCase):
 
         server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -150,6 +156,7 @@ class TestDeleteServer(base.TestCase):
         fip_id = uuid.uuid4().hex
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -198,6 +205,7 @@ class TestDeleteServer(base.TestCase):
         server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -229,6 +237,7 @@ class TestDeleteServer(base.TestCase):
         server = fakes.make_fake_server('1234', 'porky', 'ACTIVE')
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),

@@ -487,33 +487,8 @@ class Proxy(proxy.Proxy):
             instances with only basic data will be returned. The default,
             ``True``, will cause instances with full data to be returned.
         :param kwargs query: Optional query parameters to be sent to limit
-            the servers being returned.  Available parameters include:
-
-            * changes_since: A time/date stamp for when the server last changed
-                             status.
-            * image: An image resource or ID.
-            * flavor: A flavor resource or ID.
-            * name: Name of the server as a string.  Can be queried with
-                    regular expressions. The regular expression
-                    ?name=bob returns both bob and bobb.  If you must match on
-                    only bob, you can use a regular expression that
-                    matches the syntax of the underlying database server that
-                    is implemented for Compute, such as MySQL or PostgreSQL.
-            * status: Value of the status of the server so that you can filter
-                    on "ACTIVE" for example.
-            * host: Name of the host as a string.
-            * all_projects: Flag to request servers be returned from all
-                            projects, not just the currently scoped one.
-            * limit: Requests a specified page size of returned items from the
-                     query.  Returns a number of items up to the specified
-                     limit value. Use the limit parameter to make an initial
-                     limited request and use the ID of the last-seen item from
-                     the response as the marker parameter value in a subsequent
-                     limited request.
-            * marker: Specifies the ID of the last-seen item. Use the limit
-                      parameter to make an initial limited request and use the
-                      ID of the last-seen item from the response as the marker
-                      parameter value in a subsequent limited request.
+            the servers being returned. Available parameters can be seen
+            under https://developer.openstack.org/api-ref/compute/#list-servers
 
         :returns: A generator of server instances.
         """
