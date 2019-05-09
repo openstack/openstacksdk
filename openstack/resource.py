@@ -1611,6 +1611,10 @@ class Resource(dict):
         except exceptions.NotFoundException:
             pass
 
+        if ('name' in cls._query_mapping._mapping.keys()
+                and 'name' not in params):
+            params['name'] = name_or_id
+
         data = cls.list(session, **params)
 
         result = cls._get_one_match(name_or_id, data)
