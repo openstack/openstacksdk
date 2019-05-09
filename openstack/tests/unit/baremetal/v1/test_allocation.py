@@ -79,6 +79,7 @@ class TestWaitForAllocation(base.TestCase):
         super(TestWaitForAllocation, self).setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.default_microversion = '1.52'
+        self.session.log = mock.Mock()
         self.fake = dict(FAKE, state='allocating', node_uuid=None)
         self.allocation = allocation.Allocation(**self.fake)
 

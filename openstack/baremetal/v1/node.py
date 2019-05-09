@@ -10,14 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import _log
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
-
-
-_logger = _log.setup_logging('openstack')
 
 
 class ValidationResult(object):
@@ -415,10 +411,11 @@ class Node(_common.ListMixin, resource.Resource):
                                          abort_on_failed_state):
                 return self
 
-            _logger.debug('Still waiting for node %(node)s to reach state '
-                          '"%(target)s", the current state is "%(state)s"',
-                          {'node': self.id, 'target': expected_state,
-                           'state': self.provision_state})
+            session.log.debug(
+                'Still waiting for node %(node)s to reach state '
+                '"%(target)s", the current state is "%(state)s"',
+                {'node': self.id, 'target': expected_state,
+                 'state': self.provision_state})
 
     def wait_for_reservation(self, session, timeout=None):
         """Wait for a lock on the node to be released.
@@ -454,9 +451,10 @@ class Node(_common.ListMixin, resource.Resource):
             if self.reservation is None:
                 return self
 
-            _logger.debug('Still waiting for the lock to be released on node '
-                          '%(node)s, currently locked by conductor %(host)s',
-                          {'node': self.id, 'host': self.reservation})
+            session.log.debug(
+                'Still waiting for the lock to be released on node '
+                '%(node)s, currently locked by conductor %(host)s',
+                {'node': self.id, 'host': self.reservation})
 
     def _check_state_reached(self, session, expected_state,
                              abort_on_failed_state=True):
@@ -602,8 +600,9 @@ class Node(_common.ListMixin, resource.Resource):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
         if ignore_missing and response.status_code == 400:
-            _logger.debug('VIF %(vif)s was already removed from node %(node)s',
-                          {'vif': vif_id, 'node': self.id})
+            session.log.debug(
+                'VIF %(vif)s was already removed from node %(node)s',
+                {'vif': vif_id, 'node': self.id})
             return False
 
         msg = ("Failed to detach VIF {vif} from bare metal node {node}"

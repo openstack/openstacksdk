@@ -380,6 +380,7 @@ class TestNodeVif(base.TestCase):
         super(TestNodeVif, self).setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.default_microversion = '1.28'
+        self.session.log = mock.Mock()
         self.node = node.Node(id='c29db401-b6a7-4530-af8e-20a720dee946',
                               driver=FAKE['driver'])
         self.vif_id = '714bdf6d-2386-4b5e-bd0d-bc036f04b1ef'
@@ -505,6 +506,7 @@ class TestNodeWaitForReservation(base.TestCase):
         super(TestNodeWaitForReservation, self).setUp()
         self.session = mock.Mock(spec=adapter.Adapter)
         self.session.default_microversion = '1.6'
+        self.session.log = mock.Mock()
         self.node = node.Node(**FAKE)
 
     def test_no_reservation(self, mock_fetch):
