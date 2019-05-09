@@ -57,13 +57,15 @@ class OpenStackInventory(object):
             for cloud in self.clouds:
                 cloud._cache.invalidate()
 
-    def list_hosts(self, expand=True, fail_on_cloud_config=True):
+    def list_hosts(self, expand=True, fail_on_cloud_config=True,
+                   all_projects=False):
         hostvars = []
 
         for cloud in self.clouds:
             try:
                 # Cycle on servers
-                for server in cloud.list_servers(detailed=expand):
+                for server in cloud.list_servers(detailed=expand,
+                                                 all_projects=all_projects):
                     hostvars.append(server)
             except exceptions.OpenStackCloudException:
                 # Don't fail on one particular cloud as others may work

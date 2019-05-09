@@ -68,7 +68,8 @@ class TestInventory(base.TestCase):
 
         ret = inv.list_hosts()
 
-        inv.clouds[0].list_servers.assert_called_once_with(detailed=True)
+        inv.clouds[0].list_servers.assert_called_once_with(detailed=True,
+                                                           all_projects=False)
         self.assertFalse(inv.clouds[0].get_openstack_vars.called)
         self.assertEqual([server], ret)
 
@@ -88,8 +89,29 @@ class TestInventory(base.TestCase):
 
         inv.list_hosts(expand=False)
 
-        inv.clouds[0].list_servers.assert_called_once_with(detailed=False)
+        inv.clouds[0].list_servers.assert_called_once_with(detailed=False,
+                                                           all_projects=False)
         self.assertFalse(inv.clouds[0].get_openstack_vars.called)
+
+    @mock.patch("openstack.config.loader.OpenStackConfig")
+    @mock.patch("openstack.connection.Connection")
+    def test_list_hosts_all_projects(self, mock_cloud, mock_config):
+        mock_config.return_value.get_all.return_value = [{}]
+
+        inv = inventory.OpenStackInventory()
+
+        server = dict(id='server_id', name='server_name')
+        self.assertIsInstance(inv.clouds, list)
+        self.assertEqual(1, len(inv.clouds))
+        inv.clouds[0].list_servers.return_value = [server]
+        inv.clouds[0].get_openstack_vars.return_value = server
+
+        ret = inv.list_hosts(all_projects=True)
+
+        inv.clouds[0].list_servers.assert_called_once_with(detailed=True,
+                                                           all_projects=True)
+        self.assertFalse(inv.clouds[0].get_openstack_vars.called)
+        self.assertEqual([server], ret)
 
     @mock.patch("openstack.config.loader.OpenStackConfig")
     @mock.patch("openstack.connection.Connection")
