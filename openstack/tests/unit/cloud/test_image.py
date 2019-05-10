@@ -83,7 +83,15 @@ class TestImage(BaseTestImage):
     def test_download_image_no_images_found(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri='https://image.example.com/v2/images/{name}'.format(
+                     name=self.image_name),
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images?name={name}'.format(
+                     name=self.image_name),
+                 json=dict(images=[])),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images?os_hidden=True',
                  json=dict(images=[]))])
         self.assertRaises(exc.OpenStackCloudResourceNotFound,
                           self.cloud.download_image, self.image_name,
@@ -93,13 +101,21 @@ class TestImage(BaseTestImage):
     def _register_image_mocks(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri='https://image.example.com/v2/images/{name}'.format(
+                     name=self.image_name),
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images?name={name}'.format(
+                     name=self.image_name),
                  json=self.fake_search_return),
             dict(method='GET',
                  uri='https://image.example.com/v2/images/{id}/file'.format(
                      id=self.image_id),
                  content=self.output,
-                 headers={'Content-Type': 'application/octet-stream'})
+                 headers={
+                     'Content-Type': 'application/octet-stream',
+                     'Content-MD5': self.fake_image_dict['checksum']
+                 })
         ])
 
     def test_download_image_with_fd(self):
@@ -147,7 +163,7 @@ class TestImage(BaseTestImage):
                      base_url_append='v2'),
                  json=self.fake_image_dict)
         ])
-        self.assertEqual(
+        self.assertDictEqual(
             self.cloud._normalize_image(self.fake_image_dict),
             self.cloud.get_image_by_id(self.image_id))
         self.assert_calls()
@@ -328,6 +344,12 @@ class TestImage(BaseTestImage):
                  request_headers={'Content-Type': 'application/octet-stream'}),
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'image', append=['images', self.fake_image_dict['id']],
+                     base_url_append='v2'
+                 ),
+                 json=self.fake_image_dict),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
@@ -411,7 +433,7 @@ class TestImage(BaseTestImage):
             dict(method='POST',
                  uri=self.get_mock_url(
                      'image', append=['tasks'], base_url_append='v2'),
-                 json=args,
+                 json={'id': task_id, 'status': 'processing'},
                  validate=dict(
                      json=dict(
                          type='import', input={
@@ -430,8 +452,9 @@ class TestImage(BaseTestImage):
                  json=args),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'image', append=['images'], base_url_append='v2'),
-                 json={'images': [image_no_checksums]}),
+                     'image', append=['images', self.image_id],
+                     base_url_append='v2'),
+                 json=image_no_checksums),
             dict(method='PATCH',
                  uri=self.get_mock_url(
                      'image', append=['images', self.image_id],
@@ -447,10 +470,11 @@ class TestImage(BaseTestImage):
                           u'path': u'/owner_specified.openstack.md5'},
                          {u'op': u'add', u'value': fakes.NO_SHA256,
                           u'path': u'/owner_specified.openstack.sha256'}],
-                         key=operator.itemgetter('value')),
+                         key=operator.itemgetter('path')),
                      headers={
                          'Content-Type':
-                             'application/openstack-images-v2.1-json-patch'})
+                             'application/openstack-images-v2.1-json-patch'}),
+                 json=self.fake_search_return
                  ),
             dict(method='HEAD',
                  uri='{endpoint}/{container}/{object}'.format(
@@ -471,14 +495,6 @@ class TestImage(BaseTestImage):
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=endpoint, container=self.container_name,
                      object=self.image_name)),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'image', append=['images'], base_url_append='v2'),
-                 json=self.fake_search_return),
-            # TODO(mordred) The task workflow results in an extra call
-            # in the upper level wait. We should be able to make this
-            # go away once we refactor a wait_for_image out in the next
-            # patch.
             dict(method='GET',
                  uri=self.get_mock_url(
                      'image', append=['images'], base_url_append='v2'),
@@ -634,7 +650,8 @@ class TestImage(BaseTestImage):
                     'owner_specified.openstack.sha256': fakes.NO_SHA256,
                     'owner_specified.openstack.object': 'images/{name}'.format(
                         name=self.image_name),
-                    'is_public': False}}
+                    'is_public': False},
+                'validate_checksum': True}
 
         ret = args.copy()
         ret['id'] = self.image_id
@@ -735,6 +752,52 @@ class TestImage(BaseTestImage):
 
         self.assert_calls()
 
+    def test_create_image_put_v2_wrong_checksum_delete(self):
+        self.cloud.image_api_use_tasks = False
+
+        args = {'name': self.image_name,
+                'container_format': 'bare', 'disk_format': 'qcow2',
+                'owner_specified.openstack.md5': fakes.NO_MD5,
+                'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                'owner_specified.openstack.object': 'images/{name}'.format(
+                    name=self.image_name),
+                'visibility': 'private'}
+
+        ret = args.copy()
+        ret['id'] = self.image_id
+        ret['status'] = 'success'
+        ret['checksum'] = 'fake'
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images',
+                 json={'images': []}),
+            dict(method='POST',
+                 uri='https://image.example.com/v2/images',
+                 json=ret,
+                 validate=dict(json=args)),
+            dict(method='PUT',
+                 uri='https://image.example.com/v2/images/{id}/file'.format(
+                     id=self.image_id),
+                 status_code=400,
+                 validate=dict(
+                     headers={
+                         'Content-Type': 'application/octet-stream',
+                     },
+                 )),
+            dict(method='DELETE',
+                 uri='https://image.example.com/v2/images/{id}'.format(
+                     id=self.image_id)),
+        ])
+
+        self.assertRaises(
+            exc.OpenStackCloudHTTPError,
+            self._call_create_image,
+            self.image_name,
+            md5='some_fake')
+
+        self.assert_calls()
+
     def test_create_image_put_bad_int(self):
         self.cloud.image_api_use_tasks = False
 
@@ -785,6 +848,11 @@ class TestImage(BaseTestImage):
                      },
                  )),
             dict(method='GET',
+                 uri='https://image.example.com/v2/images/{id}'.format(
+                     id=self.image_id
+                 ),
+                 json=ret),
+            dict(method='GET',
                  uri='https://image.example.com/v2/images',
                  json={'images': [ret]}),
         ])
@@ -810,6 +878,7 @@ class TestImage(BaseTestImage):
         ret = args.copy()
         ret['id'] = self.image_id
         ret['status'] = 'success'
+        ret['checksum'] = fakes.NO_MD5
 
         self.register_uris([
             dict(method='GET',
@@ -827,6 +896,11 @@ class TestImage(BaseTestImage):
                          'Content-Type': 'application/octet-stream',
                      },
                  )),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images/{id}'.format(
+                     id=self.image_id
+                 ),
+                 json=ret),
             dict(method='GET',
                  uri='https://image.example.com/v2/images',
                  json={'images': [ret]}),
@@ -854,6 +928,7 @@ class TestImage(BaseTestImage):
         ret = args.copy()
         ret['id'] = self.image_id
         ret['status'] = 'success'
+        ret['checksum'] = fakes.NO_MD5
 
         self.register_uris([
             dict(method='GET',
@@ -871,6 +946,11 @@ class TestImage(BaseTestImage):
                          'Content-Type': 'application/octet-stream',
                      },
                  )),
+            dict(method='GET',
+                 uri='https://image.example.com/v2/images/{id}'.format(
+                     id=self.image_id
+                 ),
+                 json=ret),
             dict(method='GET',
                  uri='https://image.example.com/v2/images',
                  json={'images': [ret]}),

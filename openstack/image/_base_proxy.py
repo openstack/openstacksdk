@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import abc
+import os
 
 import six
 
@@ -20,6 +21,17 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
 
     retriable_status_codes = [503]
 
+    _IMAGE_MD5_KEY = 'owner_specified.openstack.md5'
+    _IMAGE_SHA256_KEY = 'owner_specified.openstack.sha256'
+    _IMAGE_OBJECT_KEY = 'owner_specified.openstack.object'
+
+    # NOTE(shade) shade keys were owner_specified.shade.md5 - we need to add
+    #             those to freshness checks so that a shade->sdk transition
+    #             doesn't result in a re-upload
+    _SHADE_IMAGE_MD5_KEY = 'owner_specified.shade.md5'
+    _SHADE_IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
+    _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
+
     def create_image(
             self, name, filename=None,
             container=None,
@@ -28,42 +40,42 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
             disable_vendor_agent=True,
             allow_duplicates=False, meta=None,
             wait=False, timeout=3600,
+            validate_checksum=True,
             **kwargs):
         """Upload an image.
 
         :param str name: Name of the image to create. If it is a pathname
-                         of an image, the name will be constructed from the
-                         extensionless basename of the path.
+            of an image, the name will be constructed from the extensionless
+            basename of the path.
         :param str filename: The path to the file to upload, if needed.
-                             (optional, defaults to None)
+            (optional, defaults to None)
         :param str container: Name of the container in swift where images
-                              should be uploaded for import if the cloud
-                              requires such a thing. (optiona, defaults to
-                              'images')
+            should be uploaded for import if the cloud requires such a thing.
+            (optional, defaults to 'images')
         :param str md5: md5 sum of the image file. If not given, an md5 will
-                        be calculated.
+            be calculated.
         :param str sha256: sha256 sum of the image file. If not given, an md5
-                           will be calculated.
+            will be calculated.
         :param str disk_format: The disk format the image is in. (optional,
-                                defaults to the os-client-config config value
-                                for this cloud)
+            defaults to the os-client-config config value for this cloud)
         :param str container_format: The container format the image is in.
-                                     (optional, defaults to the
-                                     os-client-config config value for this
-                                     cloud)
+            (optional, defaults to the os-client-config config value for this
+            cloud)
         :param bool disable_vendor_agent: Whether or not to append metadata
-                                          flags to the image to inform the
-                                          cloud in question to not expect a
-                                          vendor agent to be runing.
-                                          (optional, defaults to True)
+            flags to the image to inform the cloud in question to not expect a
+            vendor agent to be runing. (optional, defaults to True)
         :param allow_duplicates: If true, skips checks that enforce unique
-                                 image name. (optional, defaults to False)
+            image name. (optional, defaults to False)
         :param meta: A dict of key/value pairs to use for metadata that
-                     bypasses automatic type conversion.
+            bypasses automatic type conversion.
         :param bool wait: If true, waits for image to be created. Defaults to
-                          true - however, be aware that one of the upload
-                          methods is always synchronous.
+            true - however, be aware that one of the upload methods is always
+            synchronous.
         :param timeout: Seconds to wait for image creation. None is forever.
+        :param bool validate_checksum: If true and cloud returns checksum,
+            compares return value with the one calculated or passed into this
+            call. If value does not match - raises exception. Default is
+            'false'
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image and will have all values converted to string
@@ -78,7 +90,7 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
 
         :returns: A ``munch.Munch`` of the Image object
 
-        :raises: OpenStackCloudException if there are problems uploading
+        :raises: SDKException if there are problems uploading
         """
         if container is None:
             container = self._connection._OBJECT_AUTOCREATE_CONTAINER
@@ -93,7 +105,8 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
 
         # If there is no filename, see if name is actually the filename
         if not filename:
-            name, filename = self._connection._get_name_and_filename(name)
+            name, filename = self._get_name_and_filename(
+                name, self._connection.config.config['image_format'])
         if not (md5 or sha256):
             (md5, sha256) = self._connection._get_file_hashes(filename)
         if allow_duplicates:
@@ -102,25 +115,19 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
             current_image = self._connection.get_image(name)
             if current_image:
                 md5_key = current_image.get(
-                    self._connection._IMAGE_MD5_KEY,
-                    current_image.get(
-                        self._connection._SHADE_IMAGE_MD5_KEY, ''))
+                    self._IMAGE_MD5_KEY,
+                    current_image.get(self._SHADE_IMAGE_MD5_KEY, ''))
                 sha256_key = current_image.get(
-                    self._connection._IMAGE_SHA256_KEY,
-                    current_image.get(
-                        self._connection._SHADE_IMAGE_SHA256_KEY, ''))
+                    self._IMAGE_SHA256_KEY,
+                    current_image.get(self._SHADE_IMAGE_SHA256_KEY, ''))
                 up_to_date = self._connection._hashes_up_to_date(
                     md5=md5, sha256=sha256,
                     md5_key=md5_key, sha256_key=sha256_key)
                 if up_to_date:
-                    self._connection.log.debug(
+                    self.log.debug(
                         "image %(name)s exists and is up to date",
                         {'name': name})
                     return current_image
-        kwargs[self._connection._IMAGE_MD5_KEY] = md5 or ''
-        kwargs[self._connection._IMAGE_SHA256_KEY] = sha256 or ''
-        kwargs[self._connection._IMAGE_OBJECT_KEY] = '/'.join(
-            [container, name])
 
         if disable_vendor_agent:
             kwargs.update(
@@ -129,6 +136,10 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
         # If a user used the v1 calling format, they will have
         # passed a dict called properties along
         properties = kwargs.pop('properties', {})
+        properties[self._IMAGE_MD5_KEY] = md5 or ''
+        properties[self._IMAGE_SHA256_KEY] = sha256 or ''
+        properties[self._IMAGE_OBJECT_KEY] = '/'.join(
+            [container, name])
         kwargs.update(properties)
         image_kwargs = dict(properties=kwargs)
         if disk_format:
@@ -136,15 +147,25 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
         if container_format:
             image_kwargs['container_format'] = container_format
 
-        image = self._upload_image(
-            name, filename,
-            wait=wait, timeout=timeout,
-            meta=meta, **image_kwargs)
+        if filename:
+            image = self._upload_image(
+                name, filename=filename, meta=meta,
+                wait=wait, timeout=timeout,
+                validate_checksum=validate_checksum,
+                **image_kwargs)
+        else:
+            image = self._create_image(**image_kwargs)
         self._connection._get_cache(None).invalidate()
         return image
 
     @abc.abstractmethod
-    def _upload_image(self, name, filename, meta, **image_kwargs):
+    def _create_image(self, name, **image_kwargs):
+        pass
+
+    @abc.abstractmethod
+    def _upload_image(self, name, filename, meta, wait, timeout,
+                      validate_checksum=True,
+                      **image_kwargs):
         pass
 
     @abc.abstractmethod
@@ -180,3 +201,16 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
             img_props[k] = v
 
         return self._update_image_properties(image, meta, img_props)
+
+    def _get_name_and_filename(self, name, image_format):
+        # See if name points to an existing file
+        if os.path.exists(name):
+            # Neat. Easy enough
+            return (os.path.splitext(os.path.basename(name))[0], name)
+
+        # Try appending the disk format
+        name_with_ext = '.'.join((name, image_format))
+        if os.path.exists(name_with_ext):
+            return (os.path.basename(name), name_with_ext)
+
+        return (name, None)

@@ -64,21 +64,12 @@ class _OpenStackCloudMixin(object):
     _OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-sdk-autocreated'
     _OBJECT_AUTOCREATE_CONTAINER = 'images'
 
-    _IMAGE_MD5_KEY = 'owner_specified.openstack.md5'
-    _IMAGE_SHA256_KEY = 'owner_specified.openstack.sha256'
-    _IMAGE_OBJECT_KEY = 'owner_specified.openstack.object'
     # NOTE(shade) shade keys were x-object-meta-x-shade-md5 - we need to check
     #             those in freshness checks so that a shade->sdk transition
     #             doesn't result in a re-upload
     _SHADE_OBJECT_MD5_KEY = 'x-object-meta-x-shade-md5'
     _SHADE_OBJECT_SHA256_KEY = 'x-object-meta-x-shade-sha256'
     _SHADE_OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-shade-autocreated'
-    # NOTE(shade) shade keys were owner_specified.shade.md5 - we need to add
-    #             those to freshness checks so that a shade->sdk transition
-    #             doesn't result in a re-upload
-    _SHADE_IMAGE_MD5_KEY = 'owner_specified.shade.md5'
-    _SHADE_IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
-    _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 
     def __init__(self):
 

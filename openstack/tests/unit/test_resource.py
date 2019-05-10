@@ -1045,6 +1045,154 @@ class TestResource(base.TestCase):
         sot._body.dirty = mock.Mock(return_value={"x": "y"})
         self.assertRaises(exceptions.MethodNotSupported, sot.commit, "")
 
+    def test_unknown_attrs_under_props_create(self):
+        class Test(resource.Resource):
+            properties = resource.Body("properties")
+            _store_unknown_attrs_as_properties = True
+
+        sot = Test.new(**{
+            'dummy': 'value',
+        })
+        self.assertDictEqual({'dummy': 'value'}, sot.properties)
+        self.assertDictEqual(
+            {'dummy': 'value'}, sot.to_dict()['properties']
+        )
+        self.assertDictEqual(
+            {'dummy': 'value'}, sot['properties']
+        )
+        self.assertEqual('value', sot['properties']['dummy'])
+
+        sot = Test.new(**{
+            'dummy': 'value',
+            'properties': 'a,b,c'
+        })
+        self.assertDictEqual(
+            {'dummy': 'value', 'properties': 'a,b,c'},
+            sot.properties
+        )
+        self.assertDictEqual(
+            {'dummy': 'value', 'properties': 'a,b,c'},
+            sot.to_dict()['properties']
+        )
+
+        sot = Test.new(**{'properties': None})
+        self.assertIsNone(sot.properties)
+        self.assertIsNone(sot.to_dict()['properties'])
+
+    def test_unknown_attrs_not_stored(self):
+        class Test(resource.Resource):
+            properties = resource.Body("properties")
+
+        sot = Test.new(**{
+            'dummy': 'value',
+        })
+        self.assertIsNone(sot.properties)
+
+    def test_unknown_attrs_not_stored1(self):
+        class Test(resource.Resource):
+            _store_unknown_attrs_as_properties = True
+
+        sot = Test.new(**{
+            'dummy': 'value',
+        })
+        self.assertRaises(KeyError, sot.__getitem__, 'properties')
+
+    def test_unknown_attrs_under_props_set(self):
+        class Test(resource.Resource):
+            properties = resource.Body("properties")
+            _store_unknown_attrs_as_properties = True
+
+        sot = Test.new(**{
+            'dummy': 'value',
+        })
+
+        sot['properties'] = {'dummy': 'new_value'}
+        self.assertEqual('new_value', sot['properties']['dummy'])
+        sot.properties = {'dummy': 'new_value1'}
+        self.assertEqual('new_value1', sot['properties']['dummy'])
+
+    def test_unknown_attrs_prepare_request_unpacked(self):
+        class Test(resource.Resource):
+            properties = resource.Body("properties")
+            _store_unknown_attrs_as_properties = True
+
+        # Unknown attribute given as root attribute
+        sot = Test.new(**{
+            'dummy': 'value',
+            'properties': 'a,b,c'
+        })
+
+        request_body = sot._prepare_request(requires_id=False).body
+        self.assertEqual('value', request_body['dummy'])
+        self.assertEqual('a,b,c', request_body['properties'])
+
+        # properties are already a dict
+        sot = Test.new(**{
+            'properties': {
+                'properties': 'a,b,c',
+                'dummy': 'value'
+            }
+        })
+
+        request_body = sot._prepare_request(requires_id=False).body
+        self.assertEqual('value', request_body['dummy'])
+        self.assertEqual('a,b,c', request_body['properties'])
+
+    def test_unknown_attrs_prepare_request_no_unpack_dict(self):
+        # if props type is not None - ensure no unpacking is done
+        class Test(resource.Resource):
+            properties = resource.Body("properties", type=dict)
+        sot = Test.new(**{
+            'properties': {
+                'properties': 'a,b,c',
+                'dummy': 'value'
+            }
+        })
+
+        request_body = sot._prepare_request(requires_id=False).body
+        self.assertDictEqual(
+            {'dummy': 'value', 'properties': 'a,b,c'},
+            request_body['properties'])
+
+    def test_unknown_attrs_prepare_request_patch_unpacked(self):
+        class Test(resource.Resource):
+            properties = resource.Body("properties")
+            _store_unknown_attrs_as_properties = True
+            commit_jsonpatch = True
+
+        sot = Test.existing(**{
+            'dummy': 'value',
+            'properties': 'a,b,c'
+        })
+
+        sot._update(**{'properties': {'dummy': 'new_value'}})
+
+        request_body = sot._prepare_request(requires_id=False, patch=True).body
+        self.assertDictEqual(
+            {
+                u'path': u'/dummy',
+                u'value': u'new_value',
+                u'op': u'replace'
+            },
+            request_body[0])
+
+    def test_unknown_attrs_under_props_translate_response(self):
+        class Test(resource.Resource):
+            properties = resource.Body("properties")
+            _store_unknown_attrs_as_properties = True
+
+        body = {'dummy': 'value', 'properties': 'a,b,c'}
+        response = FakeResponse(body)
+
+        sot = Test()
+
+        sot._translate_response(response, has_body=True)
+
+        self.assertDictEqual(
+            {'dummy': 'value', 'properties': 'a,b,c'},
+            sot.properties
+        )
+
 
 class TestResourceActions(base.TestCase):
 

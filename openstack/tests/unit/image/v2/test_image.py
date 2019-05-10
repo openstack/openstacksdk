@@ -11,12 +11,15 @@
 # under the License.
 
 import operator
+import six
+import tempfile
 
 from keystoneauth1 import adapter
 import mock
 import requests
 from openstack.tests.unit import base
 
+from openstack import _log
 from openstack import exceptions
 from openstack.image.v2 import image
 
@@ -50,7 +53,7 @@ EXAMPLE = {
     'url': '20',
     'metadata': {'21': '22'},
     'architecture': '23',
-    'hypervisor-type': '24',
+    'hypervisor_type': '24',
     'instance_type_rxtx_factor': 25.1,
     'instance_uuid': '26',
     'img_config_drive': '27',
@@ -115,6 +118,7 @@ class TestImage(base.TestCase):
         self.sess.fetch = mock.Mock(return_value=FakeResponse({}))
         self.sess.default_microversion = None
         self.sess.retriable_status_codes = None
+        self.sess.log = _log.setup_logging('openstack')
 
     def test_basic(self):
         sot = image.Image()
@@ -175,7 +179,7 @@ class TestImage(base.TestCase):
         self.assertEqual(EXAMPLE['url'], sot.url)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['architecture'], sot.architecture)
-        self.assertEqual(EXAMPLE['hypervisor-type'], sot.hypervisor_type)
+        self.assertEqual(EXAMPLE['hypervisor_type'], sot.hypervisor_type)
         self.assertEqual(EXAMPLE['instance_type_rxtx_factor'],
                          sot.instance_type_rxtx_factor)
         self.assertEqual(EXAMPLE['instance_uuid'], sot.instance_uuid)
@@ -264,7 +268,7 @@ class TestImage(base.TestCase):
     def test_upload(self):
         sot = image.Image(**EXAMPLE)
 
-        self.assertIsNone(sot.upload(self.sess))
+        self.assertIsNotNone(sot.upload(self.sess))
         self.sess.put.assert_called_with('images/IDENTIFIER/file',
                                          data=sot.data,
                                          headers={"Content-Type":
@@ -284,7 +288,7 @@ class TestImage(base.TestCase):
         self.sess.get.assert_called_with('images/IDENTIFIER/file',
                                          stream=False)
 
-        self.assertEqual(rv, resp.content)
+        self.assertEqual(rv, resp)
 
     def test_download_checksum_mismatch(self):
         sot = image.Image(**EXAMPLE)
@@ -314,7 +318,7 @@ class TestImage(base.TestCase):
                        stream=False),
              mock.call('images/IDENTIFIER', microversion=None)])
 
-        self.assertEqual(rv, resp1.content)
+        self.assertEqual(rv, resp1)
 
     def test_download_no_checksum_at_all2(self):
         sot = image.Image(**EXAMPLE)
@@ -340,7 +344,7 @@ class TestImage(base.TestCase):
                        stream=False),
              mock.call('images/IDENTIFIER', microversion=None)])
 
-        self.assertEqual(rv, resp1.content)
+        self.assertEqual(rv, resp1)
 
     def test_download_stream(self):
         sot = image.Image(**EXAMPLE)
@@ -355,6 +359,29 @@ class TestImage(base.TestCase):
         self.sess.get.assert_called_with('images/IDENTIFIER/file', stream=True)
 
         self.assertEqual(rv, resp)
+
+    def test_image_download_output_fd(self):
+        output_file = six.BytesIO()
+        sot = image.Image(**EXAMPLE)
+        response = mock.Mock()
+        response.status_code = 200
+        response.iter_content.return_value = [b'01', b'02']
+        self.sess.get = mock.Mock(return_value=response)
+        sot.download(self.sess, output=output_file)
+        output_file.seek(0)
+        self.assertEqual(b'0102', output_file.read())
+
+    def test_image_download_output_file(self):
+        sot = image.Image(**EXAMPLE)
+        response = mock.Mock()
+        response.status_code = 200
+        response.iter_content.return_value = [b'01', b'02']
+        self.sess.get = mock.Mock(return_value=response)
+
+        output_file = tempfile.NamedTemporaryFile()
+        sot.download(self.sess, output=output_file.name)
+        output_file.seek(0)
+        self.assertEqual(b'0102', output_file.read())
 
     def test_image_update(self):
         values = EXAMPLE.copy()

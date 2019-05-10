@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.compute.v2 import server as server_resource
+from openstack.image.v2 import image as image_resource
 from openstack.tests.unit import base
 
 RAW_SERVER_DICT = {
@@ -94,6 +95,9 @@ RAW_GLANCE_IMAGE_DICT = {
     u'name': u'Test Monty Ubuntu',
     u'org.openstack__1__architecture': u'x64',
     u'os_type': u'linux',
+    u'os_hash_algo': u'sha512',
+    u'os_hash_value': u'fake_hash',
+    u'os_hidden': False,
     u'owner': u'610275',
     u'protected': False,
     u'schema': u'/v2/schemas/image',
@@ -373,6 +377,9 @@ class TestNormalize(base.TestCase):
                 u'com.rackspace__1__visible_rackconnect': u'1',
                 u'image_type': u'import',
                 u'org.openstack__1__architecture': u'x64',
+                u'os_hash_algo': u'sha512',
+                u'os_hash_value': u'fake_hash',
+                u'os_hidden': False,
                 u'os_type': u'linux',
                 u'schema': u'/v2/schemas/image',
                 u'user_id': u'156284',
@@ -384,6 +391,9 @@ class TestNormalize(base.TestCase):
             'min_ram': 0,
             'name': u'Test Monty Ubuntu',
             u'org.openstack__1__architecture': u'x64',
+            u'os_hash_algo': u'sha512',
+            u'os_hash_value': u'fake_hash',
+            u'os_hidden': False,
             u'os_type': u'linux',
             'owner': u'610275',
             'properties': {
@@ -398,6 +408,9 @@ class TestNormalize(base.TestCase):
                 u'com.rackspace__1__visible_rackconnect': u'1',
                 u'image_type': u'import',
                 u'org.openstack__1__architecture': u'x64',
+                u'os_hash_algo': u'sha512',
+                u'os_hash_value': u'fake_hash',
+                u'os_hidden': False,
                 u'os_type': u'linux',
                 u'schema': u'/v2/schemas/image',
                 u'user_id': u'156284',
@@ -417,6 +430,12 @@ class TestNormalize(base.TestCase):
             u'xenapi_use_agent': u'False'}
         retval = self.cloud._normalize_image(raw_image)
         self.assertEqual(expected, retval)
+
+        # Check normalization from Image resource
+        image = image_resource.Image.existing(**RAW_GLANCE_IMAGE_DICT)
+
+        retval = self.cloud._normalize_image(image)
+        self.assertDictEqual(expected, retval)
 
     def test_normalize_servers_normal(self):
         res = server_resource.Server(
@@ -888,6 +907,9 @@ class TestStrictNormalize(base.TestCase):
                 u'image_type': u'import',
                 u'org.openstack__1__architecture': u'x64',
                 u'os_type': u'linux',
+                u'os_hash_algo': u'sha512',
+                u'os_hash_value': u'fake_hash',
+                u'os_hidden': False,
                 u'schema': u'/v2/schemas/image',
                 u'user_id': u'156284',
                 u'vm_mode': u'hvm',

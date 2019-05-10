@@ -11,13 +11,12 @@
 # under the License.
 
 import hashlib
+import io
+import six
 
-from openstack import _log
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
-
-_logger = _log.setup_logging('openstack')
 
 
 class Image(resource.Resource, resource.TagMixin):
@@ -32,6 +31,10 @@ class Image(resource.Resource, resource.TagMixin):
     allow_list = True
     commit_method = 'PATCH'
     commit_jsonpatch = True
+
+    # Store all unknown attributes under 'properties' in the object.
+    # Remotely they would be still in the resource root
+    _store_unknown_attrs_as_properties = True
 
     _query_mapping = resource.QueryParameters(
         "name", "visibility",
@@ -135,7 +138,7 @@ class Image(resource.Resource, resource.TagMixin):
     architecture = resource.Body("architecture")
     #: The hypervisor type. Note that qemu is used for both QEMU and
     #: KVM hypervisor types.
-    hypervisor_type = resource.Body("hypervisor-type")
+    hypervisor_type = resource.Body("hypervisor_type")
     #: Optional property allows created servers to have a different bandwidth
     #: cap than that defined in the network they are attached to.
     instance_type_rxtx_factor = resource.Body(
@@ -157,6 +160,8 @@ class Image(resource.Resource, resource.TagMixin):
     #: Secure Boot first examines software such as firmware and OS by
     #: their signature and only allows them to run if the signatures are valid.
     needs_secure_boot = resource.Body('os_secure_boot')
+    #: Time for graceful shutdown
+    os_shutdown_timeout = resource.Body('os_shutdown_timeout', type=int)
     #: The ID of image stored in the Image service that should be used as
     #: the ramdisk when booting an AMI-style image.
     ramdisk_id = resource.Body('ramdisk_id')
@@ -172,6 +177,12 @@ class Image(resource.Resource, resource.TagMixin):
     #: Specifies the type of disk controller to attach disk devices to.
     #: One of scsi, virtio, uml, xen, ide, or usb.
     hw_disk_bus = resource.Body('hw_disk_bus')
+    #: Used to pin the virtual CPUs (vCPUs) of instances to the
+    #: host's physical CPU cores (pCPUs).
+    hw_cpu_policy = resource.Body('hw_cpu_policy')
+    #: Defines how hardware CPU threads in a simultaneous
+    #: multithreading-based (SMT) architecture be used.
+    hw_cpu_thread_policy = resource.Body('hw_cpu_thread_policy')
     #: Adds a random-number generator device to the image's instances.
     hw_rng_model = resource.Body('hw_rng_model')
     #: For libvirt: Enables booting an ARM system using the specified
@@ -212,7 +223,7 @@ class Image(resource.Resource, resource.TagMixin):
     vmware_ostype = resource.Body('vmware_ostype')
     #: If true, the root partition on the disk is automatically resized
     #: before the instance boots.
-    has_auto_disk_config = resource.Body('auto_disk_config', type=bool)
+    has_auto_disk_config = resource.Body('auto_disk_config')
     #: The operating system installed on the image.
     os_type = resource.Body('os_type')
     #: The operating system admin username.
@@ -221,6 +232,8 @@ class Image(resource.Resource, resource.TagMixin):
     hw_qemu_guest_agent = resource.Body('hw_qemu_guest_agent', type=bool)
     #: If true, require quiesce on snapshot via QEMU guest agent.
     os_require_quiesce = resource.Body('os_require_quiesce', type=bool)
+    #: The URL for the schema describing a virtual machine image.
+    schema = resource.Body('schema')
 
     def _action(self, session, action):
         """Call an action on an image ID."""
@@ -245,9 +258,9 @@ class Image(resource.Resource, resource.TagMixin):
     def upload(self, session):
         """Upload data into an existing image"""
         url = utils.urljoin(self.base_path, self.id, 'file')
-        session.put(url, data=self.data,
-                    headers={"Content-Type": "application/octet-stream",
-                             "Accept": ""})
+        return session.put(url, data=self.data,
+                           headers={"Content-Type": "application/octet-stream",
+                                    "Accept": ""})
 
     def import_image(self, session, method='glance-direct', uri=None):
         """Import Image via interoperable image import process"""
@@ -261,7 +274,7 @@ class Image(resource.Resource, resource.TagMixin):
                                                 'method: "web-download"')
         session.post(url, json=json)
 
-    def download(self, session, stream=False):
+    def download(self, session, stream=False, output=None, chunk_size=1024):
         """Download the data contained in an image"""
         # TODO(briancurtin): This method should probably offload the get
         # operation into another thread or something of that nature.
@@ -271,7 +284,7 @@ class Image(resource.Resource, resource.TagMixin):
         # See the following bug report for details on why the checksum
         # code may sometimes depend on a second GET call.
         # https://storyboard.openstack.org/#!/story/1619675
-        checksum = resp.headers.get("Content-MD5")
+        checksum = resp.headers.get('Content-MD5')
 
         if checksum is None:
             # If we don't receive the Content-MD5 header with the download,
@@ -280,6 +293,23 @@ class Image(resource.Resource, resource.TagMixin):
             details = self.fetch(session)
             checksum = details.checksum
 
+        if output:
+            try:
+                # In python 2 we might get StringIO - delete it as soon as
+                # py2 support is dropped
+                if isinstance(output, io.IOBase) \
+                        or isinstance(output, six.StringIO):
+                    for chunk in resp.iter_content(chunk_size=chunk_size):
+                        output.write(chunk)
+                else:
+                    with open(output, 'wb') as fd:
+                        for chunk in resp.iter_content(
+                                chunk_size=chunk_size):
+                            fd.write(chunk)
+                return resp
+            except Exception as e:
+                raise exceptions.SDKException(
+                    'Unable to download image: %s' % e)
         # if we are returning the repsonse object, ensure that it
         # has the content-md5 header so that the caller doesn't
         # need to jump through the same hoops through which we
@@ -294,10 +324,10 @@ class Image(resource.Resource, resource.TagMixin):
                 raise exceptions.InvalidResponse(
                     "checksum mismatch: %s != %s" % (checksum, digest))
         else:
-            _logger.warn(
+            session.log.warn(
                 "Unable to verify the integrity of image %s" % (self.id))
 
-        return resp.content
+        return resp
 
     def _prepare_request(self, requires_id=None, prepend_key=False,
                          patch=False, base_path=None):

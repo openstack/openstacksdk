@@ -225,7 +225,7 @@ def make_fake_image(
         u'image_state': u'available',
         u'container_format': u'bare',
         u'min_ram': 0,
-        u'ramdisk_id': None,
+        u'ramdisk_id': 'fake_ramdisk_id',
         u'updated_at': u'2016-02-10T05:05:02Z',
         u'file': '/v2/images/' + image_id + '/file',
         u'size': 3402170368,

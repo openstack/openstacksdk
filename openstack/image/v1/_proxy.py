@@ -18,6 +18,11 @@ from openstack.image.v1 import image as _image
 
 class Proxy(_base_proxy.BaseImageProxy):
 
+    def _create_image(self, **kwargs):
+        """Create image resource from attributes
+        """
+        return self._create(_image.Image, **kwargs)
+
     def upload_image(self, **attrs):
         """Upload a new image from attributes
 
@@ -48,8 +53,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         image = self._connection._get_and_munchify(
             'image',
             self.post('/images', json=image_kwargs))
-        checksum = image_kwargs['properties'].get(
-            self._connection._IMAGE_MD5_KEY, '')
+        checksum = image_kwargs['properties'].get(self._IMAGE_MD5_KEY, '')
 
         try:
             # Let us all take a brief moment to be grateful that this
@@ -67,13 +71,13 @@ class Proxy(_base_proxy.BaseImageProxy):
                     headers=headers, data=image_data))
 
         except exc.OpenStackCloudHTTPError:
-            self._connection.log.debug(
+            self.log.debug(
                 "Deleting failed upload of image %s", name)
             try:
                 self.delete('/images/{id}'.format(id=image.id))
             except exc.OpenStackCloudHTTPError:
                 # We're just trying to clean up - if it doesn't work - shrug
-                self._connection.log.warning(
+                self.log.warning(
                     "Failed deleting image after we failed uploading it.",
                     exc_info=True)
             raise
@@ -145,7 +149,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         :returns: A generator of image objects
         :rtype: :class:`~openstack.image.v1.image.Image`
         """
-        return self._list(_image.Image, **query)
+        return self._list(_image.Image, base_path='/images/detail', **query)
 
     def update_image(self, image, **attrs):
         """Update a image
@@ -159,3 +163,44 @@ class Proxy(_base_proxy.BaseImageProxy):
         :rtype: :class:`~openstack.image.v1.image.Image`
         """
         return self._update(_image.Image, image, **attrs)
+
+    def download_image(self, image, stream=False, output=None,
+                       chunk_size=1024):
+        """Download an image
+
+        This will download an image to memory when ``stream=False``, or allow
+        streaming downloads using an iterator when ``stream=True``.
+        For examples of working with streamed responses, see
+        :ref:`download_image-stream-true`.
+
+        :param image: The value can be either the ID of an image or a
+                      :class:`~openstack.image.v2.image.Image` instance.
+
+        :param bool stream: When ``True``, return a :class:`requests.Response`
+                            instance allowing you to iterate over the
+                            response data stream instead of storing its entire
+                            contents in memory. See
+                            :meth:`requests.Response.iter_content` for more
+                            details. *NOTE*: If you do not consume
+                            the entirety of the response you must explicitly
+                            call :meth:`requests.Response.close` or otherwise
+                            risk inefficiencies with the ``requests``
+                            library's handling of connections.
+
+
+                            When ``False``, return the entire
+                            contents of the response.
+        :param output: Either a file object or a path to store data into.
+        :param int chunk_size: size in bytes to read from the wire and buffer
+            at one time. Defaults to 1024
+
+        :returns: When output is not given - the bytes comprising the given
+            Image when stream is False, otherwise a :class:`requests.Response`
+            instance. When output is given - a
+            :class:`~openstack.image.v2.image.Image` instance.
+        """
+
+        image = self._get_resource(_image.Image, image)
+
+        return image.download(
+            self, stream=stream, output=output, chunk_size=chunk_size)

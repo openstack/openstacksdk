@@ -15,13 +15,9 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
-import keystoneauth1.exceptions
-
 from openstack.cloud import exc
-from openstack.cloud import meta
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
-from openstack import proxy
 from openstack import utils
 
 
@@ -73,35 +69,10 @@ class ImageCloudMixin(_normalize.Normalizer):
         images = []
         params = {}
         image_list = []
-        try:
-            if self._is_client_version('image', 2):
-                endpoint = '/images'
-                if show_all:
-                    params['member_status'] = 'all'
-            else:
-                endpoint = '/images/detail'
-
-            response = self._image_client.get(endpoint, params=params)
-
-        except keystoneauth1.exceptions.catalog.EndpointNotFound:
-            # We didn't have glance, let's try nova
-            # If this doesn't work - we just let the exception propagate
-            response = proxy._json_response(
-                self.compute.get('/images/detail'))
-        while 'next' in response:
-            image_list.extend(meta.obj_list_to_munch(response['images']))
-            endpoint = response['next']
-            # next links from glance have the version prefix. If the catalog
-            # has a versioned endpoint, then we can't append the next link to
-            # it. Strip the absolute prefix (/v1/ or /v2/ to turn it into
-            # a proper relative link.
-            if endpoint.startswith('/v'):
-                endpoint = endpoint[4:]
-            response = self._image_client.get(endpoint)
-        if 'images' in response:
-            image_list.extend(meta.obj_list_to_munch(response['images']))
-        else:
-            image_list.extend(response)
+        if self._is_client_version('image', 2):
+            if show_all:
+                params['member_status'] = 'all'
+        image_list = list(self.image.images(**params))
 
         for image in image_list:
             # The cloud might return DELETED for invalid images.
@@ -143,13 +114,8 @@ class ImageCloudMixin(_normalize.Normalizer):
         :param id: ID of the image.
         :returns: An image ``munch.Munch``.
         """
-        data = self._image_client.get(
-            '/images/{id}'.format(id=id),
-            error_message="Error getting image with ID {id}".format(id=id)
-        )
-        key = 'image' if 'image' in data else None
         image = self._normalize_image(
-            self._get_and_munchify(key, data))
+            self.image.get_image(image={'id': id}))
 
         return image
 
@@ -181,27 +147,14 @@ class ImageCloudMixin(_normalize.Normalizer):
                 'Both an output path and file object were provided,'
                 ' however only one can be used at once')
 
-        image = self.search_images(name_or_id)
-        if len(image) == 0:
+        image = self.image.find_image(name_or_id)
+        if not image:
             raise exc.OpenStackCloudResourceNotFound(
                 "No images with name or ID %s were found" % name_or_id, None)
-        if self._is_client_version('image', 2):
-            endpoint = '/images/{id}/file'.format(id=image[0]['id'])
-        else:
-            endpoint = '/images/{id}'.format(id=image[0]['id'])
 
-        response = self._image_client.get(endpoint, stream=True)
-
-        with _utils.shade_exceptions("Unable to download image"):
-            if output_path:
-                with open(output_path, 'wb') as fd:
-                    for chunk in response.iter_content(chunk_size=chunk_size):
-                        fd.write(chunk)
-                return
-            elif output_file:
-                for chunk in response.iter_content(chunk_size=chunk_size):
-                    output_file.write(chunk)
-                return
+        return self.image.download_image(
+            image, output=output_file or output_path,
+            chunk_size=chunk_size)
 
     def get_image_exclude(self, name_or_id, exclude):
         for image in self.search_images(name_or_id):
@@ -254,12 +207,11 @@ class ImageCloudMixin(_normalize.Normalizer):
         image = self.get_image(name_or_id)
         if not image:
             return False
-        self._image_client.delete(
-            '/images/{id}'.format(id=image.id),
-            error_message="Error in deleting image")
+        self.image.delete_image(image)
         self.list_images.invalidate(self)
 
         # Task API means an image was uploaded to swift
+        # TODO(gtema) does it make sense to move this into proxy?
         if self.image_api_use_tasks and (
                 self._IMAGE_OBJECT_KEY in image
                 or self._SHADE_IMAGE_OBJECT_KEY in image):

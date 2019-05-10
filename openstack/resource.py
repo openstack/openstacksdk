@@ -35,6 +35,7 @@ import collections
 import itertools
 
 import jsonpatch
+import operator
 from keystoneauth1 import adapter
 from keystoneauth1 import discover
 import munch
@@ -425,6 +426,7 @@ class Resource(dict):
     _computed = None
     _original_body = None
     _delete_response_class = None
+    _store_unknown_attrs_as_properties = False
 
     def __init__(self, _synchronized=False, connection=None, **attrs):
         """The base resource
@@ -445,9 +447,6 @@ class Resource(dict):
         # items as they match up with any of the body, header,
         # or uri mappings.
         body, header, uri, computed = self._collect_attrs(attrs)
-        # TODO(briancurtin): at this point if attrs has anything left
-        # they're not being set anywhere. Log this? Raise exception?
-        # How strict should we be here? Should strict be an option?
 
         self._body = _ComponentManager(
             attributes=body,
@@ -472,6 +471,13 @@ class Resource(dict):
                 }
             else:
                 self._original_body = {}
+        if self._store_unknown_attrs_as_properties:
+            # When storing of unknown attributes is requested - ensure
+            # we have properties attribute (with type=None)
+            self._store_unknown_attrs_as_properties = (
+                hasattr(self.__class__, 'properties')
+                and self.__class__.properties.type is None
+            )
 
         self._update_location()
 
@@ -504,7 +510,7 @@ class Resource(dict):
             self._body.attributes == comparand._body.attributes,
             self._header.attributes == comparand._header.attributes,
             self._uri.attributes == comparand._uri.attributes,
-            self._computed.attributes == comparand._computed.attributes,
+            self._computed.attributes == comparand._computed.attributes
         ])
 
     def __getattribute__(self, name):
@@ -601,6 +607,10 @@ class Resource(dict):
         body = self._consume_body_attrs(attrs)
         header = self._consume_header_attrs(attrs)
         uri = self._consume_uri_attrs(attrs)
+
+        if attrs and self._store_unknown_attrs_as_properties:
+            # Keep also remaining (unknown) attributes
+            body = self._pack_attrs_under_properties(body, attrs)
 
         if any([body, header, uri]):
             attrs = self._compute_attributes(body, header, uri)
@@ -911,12 +921,55 @@ class Resource(dict):
             body=True, headers=False,
             original_names=original_names, _to_munch=True)
 
+    def _unpack_properties_to_resource_root(self, body):
+        if not body:
+            return
+        # We do not want to modify caller
+        body = body.copy()
+        props = body.pop('properties', {})
+        if props and isinstance(props, dict):
+            # unpack dict of properties back to the root of the resource
+            body.update(props)
+        elif props and isinstance(props, str):
+            # A string value only - bring it back
+            body['properties'] = props
+        return body
+
+    def _pack_attrs_under_properties(self, body, attrs):
+        props = body.get('properties', {})
+        if not isinstance(props, dict):
+            props = {'properties': props}
+        props.update(attrs)
+        body['properties'] = props
+        return body
+
     def _prepare_request_body(self, patch, prepend_key):
         if patch:
-            new = self._body.attributes
-            body = jsonpatch.make_patch(self._original_body, new).patch
+            if not self._store_unknown_attrs_as_properties:
+                # Default case
+                new = self._body.attributes
+                original_body = self._original_body
+            else:
+                new = self._unpack_properties_to_resource_root(
+                    self._body.attributes)
+                original_body = self._unpack_properties_to_resource_root(
+                    self._original_body)
+
+            # NOTE(gtema) sort result, since we might need validate it in tests
+            body = sorted(
+                list(jsonpatch.make_patch(
+                    original_body,
+                    new).patch),
+                key=operator.itemgetter('path')
+            )
         else:
-            body = self._body.dirty
+            if not self._store_unknown_attrs_as_properties:
+                # Default case
+                body = self._body.dirty
+            else:
+                body = self._unpack_properties_to_resource_root(
+                    self._body.dirty)
+
             if prepend_key and self.resource_key is not None:
                 body = {self.resource_key: body}
         return body
@@ -980,12 +1033,17 @@ class Resource(dict):
                 if self.resource_key and self.resource_key in body:
                     body = body[self.resource_key]
 
-                body = self._consume_body_attrs(body)
-                self._body.attributes.update(body)
+                body_attrs = self._consume_body_attrs(body)
+
+                if self._store_unknown_attrs_as_properties:
+                    body_attrs = self._pack_attrs_under_properties(
+                        body_attrs, body)
+
+                self._body.attributes.update(body_attrs)
                 self._body.clean()
                 if self.commit_jsonpatch or self.allow_patch:
                     # We need the original body to compare against
-                    self._original_body = body.copy()
+                    self._original_body = body_attrs.copy()
             except ValueError:
                 # Server returned not parse-able response (202, 204, etc)
                 # Do simply nothing

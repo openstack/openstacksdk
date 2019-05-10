@@ -11,6 +11,7 @@
 # under the License.
 
 import mock
+import requests
 
 from openstack import exceptions
 from openstack.image.v2 import _proxy
@@ -23,6 +24,17 @@ from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base
 
 EXAMPLE = fake_image.EXAMPLE
+
+
+class FakeResponse(object):
+    def __init__(self, response, status_code=200, headers=None):
+        self.body = response
+        self.status_code = status_code
+        headers = headers if headers else {'content-type': 'application/json'}
+        self.headers = requests.structures.CaseInsensitiveDict(headers)
+
+    def json(self):
+        return self.body
 
 
 class TestImageProxy(test_proxy_base.TestProxyBase):
@@ -67,6 +79,20 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                               name="z")
         created_image.upload.assert_called_with(self.proxy)
         self.assertEqual(rv, created_image)
+
+    def test_image_download(self):
+        original_image = image.Image(**EXAMPLE)
+        self._verify('openstack.image.v2.image.Image.download',
+                     self.proxy.download_image,
+                     method_args=[original_image],
+                     method_kwargs={
+                         'output': 'some_output',
+                         'chunk_size': 1,
+                         'stream': True
+                     },
+                     expected_kwargs={'output': 'some_output',
+                                      'chunk_size': 1,
+                                      'stream': True})
 
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)
@@ -210,12 +236,77 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
     def test_task_create(self):
         self.verify_create(self.proxy.create_task, task.Task)
 
-    def test_task_wait_for(self):
-        value = task.Task(id='1234')
-        self.verify_wait_for_status(
-            self.proxy.wait_for_task,
-            method_args=[value],
-            expected_args=[value, 'success', ['failure'], 2, 120])
+    def test_wait_for_task_immediate_status(self):
+        status = 'success'
+        res = task.Task(id='1234', status=status)
+
+        result = self.proxy.wait_for_task(
+            res, status, "failure", 0.01, 0.1)
+
+        self.assertTrue(result, res)
+
+    def test_wait_for_task_immediate_status_case(self):
+        status = "SUCcess"
+        res = task.Task(id='1234', status=status)
+
+        result = self.proxy.wait_for_task(
+            res, status, "failure", 0.01, 0.1)
+
+        self.assertTrue(result, res)
+
+    def test_wait_for_task_error_396(self):
+        # Ensure we create a new task when we get 396 error
+        res = task.Task(
+            id='id', status='waiting',
+            type='some_type', input='some_input', result='some_result'
+        )
+
+        mock_fetch = mock.Mock()
+        mock_fetch.side_effect = [
+            task.Task(
+                id='id', status='failure',
+                type='some_type', input='some_input', result='some_result',
+                message=_proxy._IMAGE_ERROR_396
+            ),
+            task.Task(id='fake', status='waiting'),
+            task.Task(id='fake', status='success'),
+        ]
+
+        self.proxy._create = mock.Mock()
+        self.proxy._create.side_effect = [
+            task.Task(id='fake', status='success')
+        ]
+
+        with mock.patch.object(task.Task,
+                               'fetch', mock_fetch):
+
+            result = self.proxy.wait_for_task(
+                res, interval=0.01, wait=0.1)
+
+            self.assertEqual('success', result.status)
+
+            self.proxy._create.assert_called_with(
+                mock.ANY,
+                input=res.input,
+                type=res.type)
+
+    def test_wait_for_task_wait(self):
+        res = task.Task(id='id', status='waiting')
+
+        mock_fetch = mock.Mock()
+        mock_fetch.side_effect = [
+            task.Task(id='id', status='waiting'),
+            task.Task(id='id', status='waiting'),
+            task.Task(id='id', status='success'),
+        ]
+
+        with mock.patch.object(task.Task,
+                               'fetch', mock_fetch):
+
+            result = self.proxy.wait_for_task(
+                res, interval=0.01, wait=0.1)
+
+            self.assertEqual('success', result.status)
 
     def test_tasks_schema_get(self):
         self._verify2("openstack.proxy.Proxy._get",

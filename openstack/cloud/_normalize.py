@@ -269,11 +269,18 @@ class Normalizer(object):
         return ret
 
     def _normalize_image(self, image):
-        new_image = munch.Munch(
-            location=self._get_current_location(project_id=image.get('owner')))
+        if isinstance(image, resource.Resource):
+            image = image.to_dict(ignore_none=True, original_names=True)
+            location = image.pop(
+                'location',
+                self._get_current_location(project_id=image.get('owner')))
+        else:
+            location = self._get_current_location(
+                project_id=image.get('owner'))
+            # This copy is to keep things from getting epically weird in tests
+            image = image.copy()
 
-        # This copy is to keep things from getting epically weird in tests
-        image = image.copy()
+        new_image = munch.Munch(location=location)
 
         # Discard noise
         self._remove_novaclient_artifacts(image)
@@ -321,7 +328,7 @@ class Normalizer(object):
         new_image['is_protected'] = protected
         new_image['locations'] = image.pop('locations', [])
 
-        metadata = image.pop('metadata', {})
+        metadata = image.pop('metadata', {}) or {}
         for key, val in metadata.items():
             properties.setdefault(key, val)
 
