@@ -11,7 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+import hashlib
 import operator
 import tempfile
 import uuid
@@ -37,10 +37,11 @@ class BaseTestImage(base.TestCase):
         self.imagefile = tempfile.NamedTemporaryFile(delete=False)
         self.imagefile.write(b'\0')
         self.imagefile.close()
-        self.fake_image_dict = fakes.make_fake_image(
-            image_id=self.image_id, image_name=self.image_name)
-        self.fake_search_return = {'images': [self.fake_image_dict]}
         self.output = uuid.uuid4().bytes
+        self.fake_image_dict = fakes.make_fake_image(
+            image_id=self.image_id, image_name=self.image_name,
+            checksum=hashlib.md5(self.output).hexdigest())
+        self.fake_search_return = {'images': [self.fake_image_dict]}
         self.container_name = self.getUniqueString('container')
 
 

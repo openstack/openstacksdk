@@ -9,7 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+import hashlib
 import operator
 import six
 import tempfile
@@ -86,6 +86,13 @@ EXAMPLE = {
     'hw_qemu_guest_agent': True,
     'os_require_quiesce': True,
 }
+
+
+def calculate_md5_checksum(data):
+    checksum = hashlib.md5()
+    for chunk in data:
+        checksum.update(chunk)
+    return checksum.hexdigest()
 
 
 class FakeResponse(object):
@@ -336,8 +343,11 @@ class TestImage(base.TestCase):
             self.assertEqual(len(log.records), 1,
                              "Too many warnings were logged")
             self.assertEqual(
-                "Unable to verify the integrity of image IDENTIFIER",
+                "Unable to verify the integrity of image %s",
                 log.records[0].msg)
+            self.assertEqual(
+                (sot.id,),
+                log.records[0].args)
 
         self.sess.get.assert_has_calls(
             [mock.call('images/IDENTIFIER/file',
@@ -366,6 +376,10 @@ class TestImage(base.TestCase):
         response = mock.Mock()
         response.status_code = 200
         response.iter_content.return_value = [b'01', b'02']
+        response.headers = {
+            'Content-MD5':
+            calculate_md5_checksum(response.iter_content.return_value)
+        }
         self.sess.get = mock.Mock(return_value=response)
         sot.download(self.sess, output=output_file)
         output_file.seek(0)
@@ -376,6 +390,10 @@ class TestImage(base.TestCase):
         response = mock.Mock()
         response.status_code = 200
         response.iter_content.return_value = [b'01', b'02']
+        response.headers = {
+            'Content-MD5':
+            calculate_md5_checksum(response.iter_content.return_value)
+        }
         self.sess.get = mock.Mock(return_value=response)
 
         output_file = tempfile.NamedTemporaryFile()
