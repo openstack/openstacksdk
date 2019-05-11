@@ -79,7 +79,7 @@ class DownloadMixin(object):
         if checksum is not None:
             _verify_checksum(hashlib.md5(resp.content), checksum)
         else:
-            session.log.warn(
+            session.log.warning(
                 "Unable to verify the integrity of image %s", (self.id))
 
         return resp

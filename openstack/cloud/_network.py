@@ -2069,7 +2069,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             if self._has_neutron_extension('extraroute'):
                 router['routes'] = routes
             else:
-                self.log.warn(
+                self.log.warning(
                     'extra routes extension is not available on target cloud')
 
         if not router:
