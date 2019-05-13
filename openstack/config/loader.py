@@ -481,7 +481,8 @@ class OpenStackConfig(object):
                 "'profile' keyword.".format(self.config_filename))
 
         vendor_filename, vendor_file = self._load_vendor_file()
-        if vendor_file and profile_name in vendor_file['public-clouds']:
+        if (vendor_file and 'public-clouds' in vendor_file
+                and profile_name in vendor_file['public-clouds']):
             _auth_update(cloud, vendor_file['public-clouds'][profile_name])
         else:
             profile_data = vendors.get_profile(profile_name)

@@ -104,6 +104,11 @@
       "description": "Volume API Version",
       "default": "2",
       "type": "string"
+    },
+    "vendor_hook": {
+      "name": "Hook for vendor customization",
+      "description": "A possibility for a vendor to alter connection object",
+      "type": "string"
     }
   },
   "required": [

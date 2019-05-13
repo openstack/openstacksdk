@@ -2,12 +2,14 @@
   "name": "otc",
   "profile": {
     "auth": {
-      "auth_url": "https://iam.%(region_name)s.otc.t-systems.com/v3"
+      "auth_url": "https://iam.{region_name}.otc.t-systems.com/v3"
     },
     "regions": [
       "eu-de"
     ],
     "identity_api_version": "3",
-    "image_format": "vhd"
+    "interface": "public",
+    "image_format": "vhd",
+    "vendor_hook": "otcextensions.sdk:load"
   }
 }
