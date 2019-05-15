@@ -45,7 +45,8 @@ class TestNetwork(base.TestCase):
         'admin_state_up': True,
         'tenant_id': '861808a93da0484ea1767967c4df8a23',
         'created_at': '2017-04-22T19:22:53Z',
-        'mtu': 0
+        'mtu': 0,
+        'dns_domain': 'sample.openstack.org.'
     }
 
     network_availability_zone_extension = {

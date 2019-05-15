@@ -448,7 +448,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                        external=False, provider=None, project_id=None,
                        availability_zone_hints=None,
                        port_security_enabled=None,
-                       mtu_size=None):
+                       mtu_size=None, dns_domain=None):
         """Create a network.
 
         :param string name: Name of the network being created.
@@ -465,6 +465,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :param bool port_security_enabled: Enable / Disable port security
         :param int mtu_size: maximum transmission unit value to address
             fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
+        :param string dns_domain: Specify the DNS domain associated with
+            this network.
 
         :returns: The network object.
         :raises: OpenStackCloudException on operation error.
@@ -523,6 +525,9 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
             network['mtu'] = mtu_size
 
+        if dns_domain:
+            network['dns_domain'] = dns_domain
+
         data = self.network.post("/networks.json", json={'network': network})
 
         # Reset cache so the new network is picked up
@@ -530,7 +535,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
         return self._get_and_munchify('network', data)
 
     @_utils.valid_kwargs("name", "shared", "admin_state_up", "external",
-                         "provider", "mtu_size", "port_security_enabled")
+                         "provider", "mtu_size", "port_security_enabled",
+                         "dns_domain")
     def update_network(self, name_or_id, **kwargs):
         """Update a network.
 
@@ -545,6 +551,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :param int mtu_size: New maximum transmission unit value to address
             fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
         :param bool port_security_enabled: Enable or disable port security.
+        :param string dns_domain: Specify the DNS domain associated with
+            this network.
 
         :returns: The updated network object.
         :raises: OpenStackCloudException on operation error.
