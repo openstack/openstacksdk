@@ -64,6 +64,36 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         image.import_image(self, method=method, uri=uri)
 
+    def stage_image(self, image, filename=None, data=None):
+        """Stage binary image data
+
+        :param image: The value can be the ID of a image or a
+            :class:`~openstack.image.v2.image.Image` instance.
+        :param filename: Optional name of the file to read data from.
+        :param data: Optional data to be uploaded as an image.
+
+        :returns: The results of image creation
+        :rtype: :class:`~openstack.image.v2.image.Image`
+        """
+        image = self._get_resource(_image.Image, image)
+
+        if 'queued' != image.status:
+            raise exceptions.SDKException('Image stage is only possible for '
+                                          'images in the queued state.'
+                                          ' Current state is {status}'
+                                          .format(status=image.status))
+
+        if filename:
+            image.data = open(filename, 'rb')
+        elif data:
+            image.data = data
+        image.stage(self)
+
+        # Stage does not return content, but updates the object
+        image.fetch(self)
+
+        return image
+
     def upload_image(self, container_format=None, disk_format=None,
                      data=None, **attrs):
         """Create and upload a new image from attributes

@@ -28,6 +28,7 @@ Image Operations
    .. automethod:: openstack.image.v2._proxy.Proxy.images
    .. automethod:: openstack.image.v2._proxy.Proxy.deactivate_image
    .. automethod:: openstack.image.v2._proxy.Proxy.reactivate_image
+   .. automethod:: openstack.image.v2._proxy.Proxy.stage_image
    .. automethod:: openstack.image.v2._proxy.Proxy.add_tag
    .. automethod:: openstack.image.v2._proxy.Proxy.remove_tag
 

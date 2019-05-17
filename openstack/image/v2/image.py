@@ -258,12 +258,24 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
                            headers={"Content-Type": "application/octet-stream",
                                     "Accept": ""})
 
+    def stage(self, session):
+        """Stage binary image data into an existing image"""
+        url = utils.urljoin(self.base_path, self.id, 'stage')
+        response = session.put(
+            url, data=self.data,
+            headers={"Content-Type": "application/octet-stream",
+                     "Accept": ""})
+        self._translate_response(response, has_body=False)
+        return self
+
     def import_image(self, session, method='glance-direct', uri=None):
         """Import Image via interoperable image import process"""
         url = utils.urljoin(self.base_path, self.id, 'import')
         json = {'method': {'name': method}}
         if uri:
             if method == 'web-download':
+                json['method']['uri'] = uri
+            elif method == 'glance-direct':
                 json['method']['uri'] = uri
             else:
                 raise exceptions.InvalidRequest('URI is only supported with '
