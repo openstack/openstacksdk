@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added dns_domain parameter into the create_network and update_network
+    methods.
