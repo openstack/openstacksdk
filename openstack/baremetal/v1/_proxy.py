@@ -838,6 +838,32 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_allocation.Allocation, allocation)
 
+    def update_allocation(self, allocation, **attrs):
+        """Update an allocation.
+
+        :param allocation: The value can be the name or ID of an allocation or
+            a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
+        :param dict attrs: The attributes to update on the allocation
+            represented by the ``allocation`` parameter.
+
+        :returns: The updated allocation.
+        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`
+        """
+        return self._update(_allocation.Allocation, allocation, **attrs)
+
+    def patch_allocation(self, allocation, patch):
+        """Apply a JSON patch to the allocation.
+
+        :param allocation: The value can be the name or ID of an allocation or
+            a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
+        :param patch: JSON patch to apply.
+
+        :returns: The updated allocation.
+        :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`
+        """
+        return self._get_resource(_allocation.Allocation,
+                                  allocation).patch(self, patch)
+
     def delete_allocation(self, allocation, ignore_missing=True):
         """Delete an allocation.
 

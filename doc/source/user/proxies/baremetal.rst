@@ -87,6 +87,8 @@ Allocation Operations
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
 
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_allocation
+   .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_allocation
+   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_allocation
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_allocation
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_allocation
    .. automethod:: openstack.baremetal.v1._proxy.Proxy.allocations

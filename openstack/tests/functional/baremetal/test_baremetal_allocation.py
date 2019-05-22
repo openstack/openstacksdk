@@ -16,12 +16,10 @@ from openstack import exceptions
 from openstack.tests.functional.baremetal import base
 
 
-class TestBareMetalAllocation(base.BaseBaremetalTest):
-
-    min_microversion = '1.52'
+class Base(base.BaseBaremetalTest):
 
     def setUp(self):
-        super(TestBareMetalAllocation, self).setUp()
+        super(Base, self).setUp()
         # NOTE(dtantsur): generate a unique resource class to prevent parallel
         # tests from clashing.
         self.resource_class = 'baremetal-%d' % random.randrange(1024)
@@ -39,6 +37,11 @@ class TestBareMetalAllocation(base.BaseBaremetalTest):
             lambda: self.conn.baremetal.update_node(node.id,
                                                     instance_id=None))
         return node
+
+
+class TestBareMetalAllocation(Base):
+
+    min_microversion = '1.52'
 
     def test_allocation_create_get_delete(self):
         allocation = self.create_allocation(resource_class=self.resource_class)
@@ -108,3 +111,65 @@ class TestBareMetalAllocation(base.BaseBaremetalTest):
         for item in result:
             self.assertIsNotNone(item.id)
             self.assertIsNone(item.resource_class)
+
+
+class TestBareMetalAllocationUpdate(Base):
+
+    min_microversion = '1.57'
+
+    def test_allocation_update(self):
+        name = 'ossdk-name1'
+
+        allocation = self.create_allocation(resource_class=self.resource_class)
+        allocation = self.conn.baremetal.wait_for_allocation(allocation)
+        self.assertEqual('active', allocation.state)
+        self.assertIsNone(allocation.last_error)
+        self.assertIsNone(allocation.name)
+        self.assertEqual({}, allocation.extra)
+
+        allocation = self.conn.baremetal.update_allocation(
+            allocation, name=name, extra={'answer': 42})
+        self.assertEqual(name, allocation.name)
+        self.assertEqual({'answer': 42}, allocation.extra)
+
+        allocation = self.conn.baremetal.get_allocation(name)
+        self.assertEqual(name, allocation.name)
+        self.assertEqual({'answer': 42}, allocation.extra)
+
+        self.conn.baremetal.delete_allocation(allocation, ignore_missing=False)
+        self.assertRaises(exceptions.ResourceNotFound,
+                          self.conn.baremetal.get_allocation, allocation.id)
+
+    def test_allocation_patch(self):
+        name = 'ossdk-name2'
+
+        allocation = self.create_allocation(resource_class=self.resource_class)
+        allocation = self.conn.baremetal.wait_for_allocation(allocation)
+        self.assertEqual('active', allocation.state)
+        self.assertIsNone(allocation.last_error)
+        self.assertIsNone(allocation.name)
+        self.assertEqual({}, allocation.extra)
+
+        allocation = self.conn.baremetal.patch_allocation(
+            allocation, [{'op': 'replace', 'path': '/name', 'value': name},
+                         {'op': 'add', 'path': '/extra/answer', 'value': 42}])
+        self.assertEqual(name, allocation.name)
+        self.assertEqual({'answer': 42}, allocation.extra)
+
+        allocation = self.conn.baremetal.get_allocation(name)
+        self.assertEqual(name, allocation.name)
+        self.assertEqual({'answer': 42}, allocation.extra)
+
+        allocation = self.conn.baremetal.patch_allocation(
+            allocation, [{'op': 'remove', 'path': '/name'},
+                         {'op': 'remove', 'path': '/extra/answer'}])
+        self.assertIsNone(allocation.name)
+        self.assertEqual({}, allocation.extra)
+
+        allocation = self.conn.baremetal.get_allocation(allocation.id)
+        self.assertIsNone(allocation.name)
+        self.assertEqual({}, allocation.extra)
+
+        self.conn.baremetal.delete_allocation(allocation, ignore_missing=False)
+        self.assertRaises(exceptions.ResourceNotFound,
+                          self.conn.baremetal.get_allocation, allocation.id)

@@ -51,7 +51,7 @@ class TestAllocation(base.TestCase):
         self.assertEqual('/allocations', sot.base_path)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 

@@ -24,17 +24,20 @@ class Allocation(_common.ListMixin, resource.Resource):
     # capabilities
     allow_create = True
     allow_fetch = True
-    allow_commit = False
+    allow_commit = True
     allow_delete = True
     allow_list = True
+    allow_patch = True
+    commit_method = 'PATCH'
+    commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
         'node', 'resource_class', 'state',
         fields={'name': 'fields', 'type': _common.comma_separated_list},
     )
 
-    # The allocation API introduced in 1.52.
-    _max_microversion = '1.52'
+    # Allocation update is available since 1.57
+    _max_microversion = '1.57'
 
     #: The candidate nodes for this allocation.
     candidate_nodes = resource.Body('candidate_nodes', type=list)
