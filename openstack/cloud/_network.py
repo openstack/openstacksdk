@@ -2383,7 +2383,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
                          'subnet_id', 'ip_address', 'security_groups',
                          'allowed_address_pairs', 'extra_dhcp_opts',
                          'device_owner', 'device_id', 'binding:vnic_type',
-                         'binding:profile', 'port_security_enabled')
+                         'binding:profile', 'port_security_enabled',
+                         'qos_policy_id')
     def create_port(self, network_id, **kwargs):
         """Create a port
 
@@ -2435,6 +2436,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :param binding vnic_type: The type of the created port. (Optional)
         :param port_security_enabled: The security port state created on
             the network. (Optional)
+        :param qos_policy_id: The ID of the QoS policy to apply for port.
 
         :returns: a ``munch.Munch`` describing the created port.
 
@@ -2452,7 +2454,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                          'security_groups', 'allowed_address_pairs',
                          'extra_dhcp_opts', 'device_owner', 'device_id',
                          'binding:vnic_type', 'binding:profile',
-                         'port_security_enabled')
+                         'port_security_enabled', 'qos_policy_id')
     def update_port(self, name_or_id, **kwargs):
         """Update a port
 
@@ -2501,6 +2503,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :param binding vnic_type: The type of the created port. (Optional)
         :param port_security_enabled: The security port state created on
             the network. (Optional)
+        :param qos_policy_id: The ID of the QoS policy to apply for port.
 
         :returns: a ``munch.Munch`` describing the updated port.
 
