@@ -57,4 +57,6 @@ def connect(
         load_yaml_config=load_yaml_config,
         load_envvars=load_envvars,
         options=options, **kwargs)
-    return openstack.connection.Connection(config=cloud_region)
+    return openstack.connection.Connection(
+        config=cloud_region,
+        vendor_hook=kwargs.get('vendor_hook'))

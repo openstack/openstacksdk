@@ -345,6 +345,32 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
         _orchestration.OrchestrationCloudMixin.__init__(self)
         _security_group.SecurityGroupCloudMixin.__init__(self)
 
+        # Allow vendors to provide hooks. They will normally only receive a
+        # connection object and a responsible to register additional services
+        vendor_hook = kwargs.get('vendor_hook')
+        if not vendor_hook and 'vendor_hook' in self.config.config:
+            # Get the one from profile
+            vendor_hook = self.config.config.get('vendor_hook')
+        if vendor_hook:
+            try:
+                # NOTE(gtema): no class name in the hook, plain module:function
+                # Split string hook into module and function
+                try:
+                    (package_name, function) = vendor_hook.rsplit(':')
+
+                    if package_name and function:
+                        import pkg_resources
+                        ep = pkg_resources.EntryPoint(
+                            'vendor_hook', package_name, attrs=(function,))
+                        hook = ep.resolve()
+                        hook(self)
+                except ValueError:
+                    self.log.warning('Hook should be in the entrypoint '
+                                     'module:attribute format')
+            except (ImportError, TypeError) as e:
+                self.log.warning('Configured hook %s cannot be executed: %s',
+                                 vendor_hook, e)
+
     @property
     def session(self):
         if not self._session:

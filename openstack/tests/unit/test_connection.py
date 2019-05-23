@@ -59,9 +59,36 @@ clouds:
       password: {password}
       project_name: {project}
     cacert: {cacert}
+  profiled-cloud:
+    profile: dummy
+    auth:
+      username: {username}
+      password: {password}
+      project_name: {project}
+    cacert: {cacert}
 """.format(auth_url=CONFIG_AUTH_URL, username=CONFIG_USERNAME,
            password=CONFIG_PASSWORD, project=CONFIG_PROJECT,
            cacert=CONFIG_CACERT)
+
+VENDOR_CONFIG = """
+{{
+  "name": "dummy",
+  "profile": {{
+    "auth": {{
+      "auth_url": "{auth_url}"
+    }},
+    "vendor_hook": "openstack.tests.unit.test_connection:vendor_hook"
+  }}
+}}
+""".format(auth_url=CONFIG_AUTH_URL)
+
+PUBLIC_CLOUDS_YAML = """
+public-clouds:
+  dummy:
+    auth:
+      auth_url: {auth_url}
+    vendor_hook: openstack.tests.unit.test_connection:vendor_hook
+""".format(auth_url=CONFIG_AUTH_URL)
 
 
 class TestConnection(base.TestCase):
@@ -334,3 +361,65 @@ class TestNewService(base.TestCase):
 
         # ensure dns service responds as we expect from replacement
         self.assertFalse(conn.dns.dummy())
+
+
+def vendor_hook(conn):
+    setattr(conn, 'test', 'test_val')
+
+
+class TestVendorProfile(base.TestCase):
+
+    def setUp(self):
+        super(TestVendorProfile, self).setUp()
+        # Create a temporary directory where our test config will live
+        # and insert it into the search path via OS_CLIENT_CONFIG_FILE.
+        config_dir = self.useFixture(fixtures.TempDir()).path
+        config_path = os.path.join(config_dir, "clouds.yaml")
+        public_clouds = os.path.join(config_dir, "clouds-public.yaml")
+
+        with open(config_path, "w") as conf:
+            conf.write(CLOUD_CONFIG)
+
+        with open(public_clouds, "w") as conf:
+            conf.write(PUBLIC_CLOUDS_YAML)
+
+        self.useFixture(fixtures.EnvironmentVariable(
+            "OS_CLIENT_CONFIG_FILE", config_path))
+        self.use_keystone_v2()
+
+        self.config = openstack.config.loader.OpenStackConfig(
+            vendor_files=[public_clouds])
+
+    def test_conn_from_profile(self):
+
+        self.cloud = self.config.get_one(cloud='profiled-cloud')
+
+        conn = connection.Connection(config=self.cloud)
+
+        self.assertIsNotNone(conn)
+
+    def test_hook_from_profile(self):
+
+        self.cloud = self.config.get_one(cloud='profiled-cloud')
+
+        conn = connection.Connection(config=self.cloud)
+
+        self.assertEqual('test_val', conn.test)
+
+    def test_hook_from_connection_param(self):
+
+        conn = connection.Connection(
+            cloud='sample-cloud',
+            vendor_hook='openstack.tests.unit.test_connection:vendor_hook'
+        )
+
+        self.assertEqual('test_val', conn.test)
+
+    def test_hook_from_connection_ignore_missing(self):
+
+        conn = connection.Connection(
+            cloud='sample-cloud',
+            vendor_hook='openstack.tests.unit.test_connection:missing'
+        )
+
+        self.assertIsNotNone(conn)

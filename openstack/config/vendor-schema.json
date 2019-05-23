@@ -217,6 +217,11 @@
           "name": "Baremetal API Version",
           "description": "Baremetal API Version",
           "type": "string"
+        },
+        "vendor_hook": {
+          "name": "Hook for vendor customization",
+          "description": "A possibility for a vendor to alter connection object",
+          "type": "string"
         }
       }
     }

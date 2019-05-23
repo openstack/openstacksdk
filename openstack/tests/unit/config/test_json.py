@@ -34,14 +34,16 @@ class TestConfig(base.TestCase):
         _schema_path = os.path.join(
             os.path.dirname(os.path.realpath(defaults.__file__)),
             'schema.json')
-        schema = json.load(open(_schema_path, 'r'))
+        with open(_schema_path, 'r') as f:
+            schema = json.load(f)
         self.validator = jsonschema.Draft4Validator(schema)
         self.addOnException(self.json_diagnostics)
 
         self.filename = os.path.join(
             os.path.dirname(os.path.realpath(defaults.__file__)),
             'defaults.json')
-        self.json_data = json.load(open(self.filename, 'r'))
+        with open(self.filename, 'r') as f:
+            self.json_data = json.load(f)
 
         self.assertTrue(self.validator.is_valid(self.json_data))
 
@@ -49,14 +51,17 @@ class TestConfig(base.TestCase):
         _schema_path = os.path.join(
             os.path.dirname(os.path.realpath(defaults.__file__)),
             'vendor-schema.json')
-        schema = json.load(open(_schema_path, 'r'))
-        self.validator = jsonschema.Draft4Validator(schema)
+        with open(_schema_path, 'r') as f:
+            schema = json.load(f)
+            self.validator = jsonschema.Draft4Validator(schema)
+
         self.addOnException(self.json_diagnostics)
 
         _vendors_path = os.path.join(
             os.path.dirname(os.path.realpath(defaults.__file__)),
             'vendors')
         for self.filename in glob.glob(os.path.join(_vendors_path, '*.json')):
-            self.json_data = json.load(open(self.filename, 'r'))
+            with open(self.filename, 'r') as f:
+                self.json_data = json.load(f)
 
-            self.assertTrue(self.validator.is_valid(self.json_data))
+                self.assertTrue(self.validator.is_valid(self.json_data))

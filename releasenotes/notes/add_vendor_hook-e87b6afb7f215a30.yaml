@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Add possibility to automatically invoke vendor hooks. This can be done
+    either through extending profile (vendor_hook), or passing `vendor_hook`
+    parameter to the connection. The format of the vendor_hook is the same as
+    in the setuptools (module.name:function_name). The hook will get connection
+    as the only parameter.
