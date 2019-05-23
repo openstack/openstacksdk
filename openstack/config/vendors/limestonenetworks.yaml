@@ -1,0 +1,36 @@
+---
+
+name: limestonenetworks
+profile:
+  auth:
+    auth_url: https://auth.cloud.lstn.net:5000/v3
+  regions:
+    - name: us-dfw-1
+      values:
+        networks:
+          - name: Public Internet
+            routes_externally: true
+            default_interface: true
+            nat_source: true
+          - name: DDoS Protected
+            routes_externally: true
+          - name: Private Network (10.0.0.0/8 only)
+            routes_externally: false
+          - name: Private Network (Floating Public)
+            routes_externally: false
+            nat_destination: true
+    - name: us-slc
+      values:
+        networks:
+          - name: Public Internet
+            routes_externally: true
+            default_interface: true
+            nat_source: true
+          - name: Private Network (10.0.0.0/8 only)
+            routes_externally: false
+          - name: Private Network (Floating Public)
+            routes_externally: false
+            nat_destination: true
+  identity_api_version: '3'
+  image_format: raw
+  volume_api_version: '3'
