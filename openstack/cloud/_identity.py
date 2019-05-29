@@ -1328,7 +1328,12 @@ class IdentityCloudMixin(_normalize.Normalizer):
             data['project'] = self.get_project(project, filters=filters)
 
         if not is_keystone_v2 and group:
-            data['group'] = self.get_group(group, filters=filters)
+            if domain:
+                data['group'] = self.get_group(group,
+                                            domain_id=filters['domain_id'],
+                                            filters=filters)
+            else:
+                data['group'] = self.get_group(group, filters=filters)
 
         return data
 
