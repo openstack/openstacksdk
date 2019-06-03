@@ -130,7 +130,7 @@ class TestOperatorCloud(base.TestCase):
         r = self.cloud.list_hypervisors()
 
         self.assertEqual(2, len(r))
-        self.assertEqual('testserver1', r[0]['hypervisor_hostname'])
-        self.assertEqual('testserver2', r[1]['hypervisor_hostname'])
+        self.assertEqual('testserver1', r[0]['name'])
+        self.assertEqual('testserver2', r[1]['name'])
 
         self.assert_calls()

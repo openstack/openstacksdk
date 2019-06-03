@@ -55,9 +55,4 @@ class Image(resource.Resource, metadata.MetadataMixin):
     size = resource.Body('OS-EXT-IMG-SIZE:size', type=int)
 
 
-class ImageDetail(Image):
-    base_path = '/images/detail'
-
-    allow_fetch = False
-    allow_delete = False
-    allow_list = True
+ImageDetail = Image

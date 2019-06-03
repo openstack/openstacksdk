@@ -15,13 +15,11 @@ from openstack.tests.unit import base
 from openstack.compute.v2 import image
 
 IDENTIFIER = 'IDENTIFIER'
-BASIC_EXAMPLE = {
+
+EXAMPLE = {
     'id': IDENTIFIER,
     'links': '2',
     'name': '3',
-}
-
-DETAILS = {
     'created': '2015-03-09T12:14:57.233772',
     'metadata': {'key': '2'},
     'minDisk': 3,
@@ -31,9 +29,6 @@ DETAILS = {
     'updated': '2015-03-09T12:15:57.233772',
     'OS-EXT-IMG-SIZE:size': 8
 }
-
-DETAIL_EXAMPLE = BASIC_EXAMPLE.copy()
-DETAIL_EXAMPLE.update(DETAILS)
 
 
 class TestImage(base.TestCase):
@@ -61,32 +56,18 @@ class TestImage(base.TestCase):
                              sot._query_mapping._mapping)
 
     def test_make_basic(self):
-        sot = image.Image(**BASIC_EXAMPLE)
-        self.assertEqual(BASIC_EXAMPLE['id'], sot.id)
-        self.assertEqual(BASIC_EXAMPLE['links'], sot.links)
-        self.assertEqual(BASIC_EXAMPLE['name'], sot.name)
-
-    def test_detail(self):
-        sot = image.ImageDetail()
-        self.assertEqual('image', sot.resource_key)
-        self.assertEqual('images', sot.resources_key)
-        self.assertEqual('/images/detail', sot.base_path)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
-
-    def test_make_detail(self):
-        sot = image.ImageDetail(**DETAIL_EXAMPLE)
-        self.assertEqual(DETAIL_EXAMPLE['created'], sot.created_at)
-        self.assertEqual(DETAIL_EXAMPLE['id'], sot.id)
-        self.assertEqual(DETAIL_EXAMPLE['links'], sot.links)
-        self.assertEqual(DETAIL_EXAMPLE['metadata'], sot.metadata)
-        self.assertEqual(DETAIL_EXAMPLE['minDisk'], sot.min_disk)
-        self.assertEqual(DETAIL_EXAMPLE['minRam'], sot.min_ram)
-        self.assertEqual(DETAIL_EXAMPLE['name'], sot.name)
-        self.assertEqual(DETAIL_EXAMPLE['progress'], sot.progress)
-        self.assertEqual(DETAIL_EXAMPLE['status'], sot.status)
-        self.assertEqual(DETAIL_EXAMPLE['updated'], sot.updated_at)
-        self.assertEqual(DETAIL_EXAMPLE['OS-EXT-IMG-SIZE:size'], sot.size)
+        sot = image.Image(**EXAMPLE)
+        self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['links'], sot.links)
+        self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['created'], sot.created_at)
+        self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['links'], sot.links)
+        self.assertEqual(EXAMPLE['metadata'], sot.metadata)
+        self.assertEqual(EXAMPLE['minDisk'], sot.min_disk)
+        self.assertEqual(EXAMPLE['minRam'], sot.min_ram)
+        self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['progress'], sot.progress)
+        self.assertEqual(EXAMPLE['status'], sot.status)
+        self.assertEqual(EXAMPLE['updated'], sot.updated_at)
+        self.assertEqual(EXAMPLE['OS-EXT-IMG-SIZE:size'], sot.size)

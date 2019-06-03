@@ -52,6 +52,13 @@ class TestHypervisor(base.TestCase):
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({'hypervisor_hostname_pattern':
+                              'hypervisor_hostname_pattern',
+                              'limit': 'limit',
+                              'marker': 'marker',
+                              'with_servers': 'with_servers'},
+                             sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = hypervisor.Hypervisor(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
@@ -75,11 +82,3 @@ class TestHypervisor(base.TestCase):
         self.assertEqual(EXAMPLE['disk_available_least'], sot.disk_available)
         self.assertEqual(EXAMPLE['local_gb'], sot.local_disk_size)
         self.assertEqual(EXAMPLE['free_ram_mb'], sot.memory_free)
-
-    def test_detail(self):
-        sot = hypervisor.HypervisorDetail()
-        self.assertEqual('hypervisor', sot.resource_key)
-        self.assertEqual('hypervisors', sot.resources_key)
-        self.assertEqual('/os-hypervisors/detail', sot.base_path)
-        self.assertFalse(sot.allow_fetch)
-        self.assertTrue(sot.allow_list)
