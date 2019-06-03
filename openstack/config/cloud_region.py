@@ -127,8 +127,6 @@ def from_conf(conf, session=None, **kwargs):
         raise exceptions.ConfigException("A Session must be supplied.")
     config_dict = kwargs.pop('config', config_defaults.get_defaults())
     stm = os_service_types.ServiceTypes()
-    # TODO(mordred) Think about region_name here
-    region_name = kwargs.pop('region_name', None)
     for st in stm.all_types_by_service_type:
         project_name = stm.get_project_name(st)
         if project_name not in conf:
@@ -143,14 +141,10 @@ def from_conf(conf, session=None, **kwargs):
             continue
         # Load them into config_dict under keys prefixed by ${service_type}_
         for raw_name, opt_val in opt_dict.items():
-            if raw_name == 'region_name':
-                region_name = opt_val
-                continue
             config_name = '_'.join([st, raw_name])
             config_dict[config_name] = opt_val
     return CloudRegion(
-        session=session, region_name=region_name, config=config_dict,
-        **kwargs)
+        session=session, config=config_dict, **kwargs)
 
 
 class CloudRegion(object):
@@ -158,6 +152,28 @@ class CloudRegion(object):
 
     A CloudRegion encapsulates the config information needed for connections
     to all of the services in a Region of a Cloud.
+
+    TODO(efried): Doc the rest of the kwargs
+
+    :param str region_name:
+        The default region name for all services in this CloudRegion. If
+        both ``region_name`` and ``config['region_name'] are specified, the
+        kwarg takes precedence. May be overridden for a given ${service}
+        via a ${service}_region_name key in the ``config`` dict.
+    :param dict config:
+        A dict of configuration values for the CloudRegion and its
+        services. The key for a ${config_option} for a specific ${service}
+        should be ${service}_${config_option}. For example, to configure
+        the endpoint_override for the block_storage service, the ``config``
+        dict should contain::
+
+            'block_storage_endpoint_override': 'http://...'
+
+        To provide a default to be used if no service-specific override is
+        present, just use the unprefixed ${config_option} as the service
+        key, e.g.::
+
+            'interface': 'public'
     """
     def __init__(self, name=None, region_name=None, config=None,
                  force_ipv4=False, auth_plugin=None,
@@ -170,8 +186,12 @@ class CloudRegion(object):
                  statsd_host=None, statsd_port=None, statsd_prefix=None,
                  collector_registry=None):
         self._name = name
-        self.region_name = region_name
         self.config = _util.normalize_keys(config)
+        # NOTE(efried): For backward compatibility: a) continue to accept the
+        # region_name kwarg; b) make it take precedence over (non-service_type-
+        # specific) region_name set in the config dict.
+        if region_name is not None:
+            self.config['region_name'] = region_name
         self._extra_config = extra_config or {}
         self.log = _log.setup_logging('openstack.config')
         self._force_ipv4 = force_ipv4
@@ -213,7 +233,8 @@ class CloudRegion(object):
     def __eq__(self, other):
         return (
             self.name == other.name
-            and self.region_name == other.region_name
+            # Ew
+            and self.get_region_name() == other.get_region_name()
             and self.config == other.config)
 
     def __ne__(self, other):
@@ -236,12 +257,13 @@ class CloudRegion(object):
         Always returns a valid string. It will have name and region_name
         or just one of the two if only one is set, or else 'unknown'.
         """
-        if self.name and self.region_name:
-            return ":".join([self.name, self.region_name])
-        elif self.name and not self.region_name:
+        region_name = self.get_region_name()
+        if self.name and region_name:
+            return ":".join([self.name, region_name])
+        elif self.name and not region_name:
             return self.name
-        elif not self.name and self.region_name:
-            return self.region_name
+        elif not self.name and region_name:
+            return region_name
         else:
             return 'unknown'
 
@@ -334,6 +356,12 @@ class CloudRegion(object):
         for st in self._service_type_manager.get_all_types(service_type):
             if st in config_dict:
                 return config_dict[st]
+
+    def get_region_name(self, service_type=None):
+        # If a region_name for the specific service_type is configured, use it;
+        # else use the one configured for the CloudRegion as a whole.
+        return self._get_config(
+            'region_name', service_type, fallback_to_unprefixed=True)
 
     def get_interface(self, service_type=None):
         return self._get_config(
@@ -523,12 +551,13 @@ class CloudRegion(object):
         # Seriously. Don't think about the existential crisis
         # that is the next line. You'll wind up in cthulhu's lair.
         service_type = self.get_service_type(service_type)
+        region_name = self.get_region_name(service_type)
         versions = self.get_session().get_all_version_data(
             service_type=service_type,
             interface=self.get_interface(service_type),
-            region_name=self.region_name,
+            region_name=region_name,
         )
-        region_versions = versions.get(self.region_name, {})
+        region_versions = versions.get(region_name, {})
         interface_versions = region_versions.get(
             self.get_interface(service_type), {})
         return interface_versions.get(service_type, [])
@@ -539,7 +568,7 @@ class CloudRegion(object):
             service_type=self.get_service_type(service_type),
             service_name=self.get_service_name(service_type),
             interface=self.get_interface(service_type),
-            region_name=self.region_name,
+            region_name=self.get_region_name(service_type),
         )
         endpoint = adapter.get_endpoint()
         if not endpoint.rstrip().rsplit('/')[-1] == 'v2.0':
@@ -567,6 +596,7 @@ class CloudRegion(object):
         """
         version_request = self._get_version_request(service_type, version)
 
+        kwargs.setdefault('region_name', self.get_region_name(service_type))
         kwargs.setdefault('connect_retries',
                           self.get_connect_retries(service_type))
         kwargs.setdefault('status_code_retries',
@@ -599,7 +629,6 @@ class CloudRegion(object):
             service_type=self.get_service_type(service_type),
             service_name=self.get_service_name(service_type),
             interface=self.get_interface(service_type),
-            region_name=self.region_name,
             version=version,
             min_version=min_api_version,
             max_version=max_api_version,
@@ -666,6 +695,7 @@ class CloudRegion(object):
         if override_endpoint:
             return override_endpoint
 
+        region_name = self.get_region_name(service_type)
         service_name = self.get_service_name(service_type)
         interface = self.get_interface(service_type)
         session = self.get_session()
@@ -680,7 +710,7 @@ class CloudRegion(object):
             # the request
             endpoint = session.get_endpoint(
                 service_type=service_type,
-                region_name=self.region_name,
+                region_name=region_name,
                 interface=interface,
                 service_name=service_name,
                 **version_kwargs
@@ -695,7 +725,7 @@ class CloudRegion(object):
                 service_type,
                 service_name,
                 interface,
-                self.region_name,
+                region_name,
             )
         return endpoint
 

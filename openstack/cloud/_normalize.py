@@ -563,7 +563,10 @@ class Normalizer(object):
             ret['config_drive'] = config_drive
             ret['project_id'] = project_id
             ret['tenant_id'] = project_id
-            ret['region'] = self.config.region_name
+            # TODO(efried): This is hardcoded to 'compute' because this method
+            # should only ever be used by the compute proxy. (That said, it
+            # doesn't appear to be used at all, so can we get rid of it?)
+            ret['region'] = self.config.get_region_name('compute')
             ret['cloud'] = self.config.name
             ret['az'] = az
             for key, val in ret['properties'].items():

@@ -178,20 +178,21 @@ class ServiceDescription(object):
         )
         found_version = temp_adapter.get_api_major_version()
         if found_version is None:
+            region_name = instance.config.get_region_name(self.service_type)
             if version_kwargs:
                 raise exceptions.NotSupported(
                     "The {service_type} service for {cloud}:{region_name}"
                     " exists but does not have any supported versions.".format(
                         service_type=self.service_type,
                         cloud=instance.name,
-                        region_name=instance.config.region_name))
+                        region_name=region_name))
             else:
                 raise exceptions.NotSupported(
                     "The {service_type} service for {cloud}:{region_name}"
                     " exists but no version was discoverable.".format(
                         service_type=self.service_type,
                         cloud=instance.name,
-                        region_name=instance.config.region_name))
+                        region_name=region_name))
         proxy_class = self.supported_versions.get(str(found_version[0]))
         if not proxy_class:
             # Maybe openstacksdk is being used for the passthrough

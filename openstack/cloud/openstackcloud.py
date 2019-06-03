@@ -358,7 +358,7 @@ class _OpenStackCloudMixin(object):
                 service_name=self.config.get_service_name(service_type),
                 interface=self.config.get_interface(service_type),
                 endpoint_override=self.config.get_endpoint(service_type),
-                region_name=self.config.region_name,
+                region_name=self.config.get_region_name(service_type),
                 statsd_prefix=self.config.get_statsd_prefix(),
                 statsd_client=self.config.get_statsd_client(),
                 prometheus_counter=self.config.get_prometheus_counter(),
@@ -374,7 +374,7 @@ class _OpenStackCloudMixin(object):
             service_name=self.config.get_service_name(service_type),
             interface=self.config.get_interface(service_type),
             endpoint_override=self.config.get_endpoint(service_type),
-            region_name=self.config.region_name,
+            region_name=self.config.get_region_name(service_type),
             min_version=min_version,
             max_version=max_version)
 
@@ -413,7 +413,7 @@ class _OpenStackCloudMixin(object):
             interface=self.config.get_interface(service_type),
             endpoint_override=self.config.get_endpoint(
                 service_type) or endpoint_override,
-            region_name=self.config.region_name)
+            region_name=self.config.get_region_name(service_type))
 
     def _is_client_version(self, client, version):
         client_name = '_{client}_client'.format(client=client)
@@ -529,7 +529,9 @@ class _OpenStackCloudMixin(object):
     def _get_current_location(self, project_id=None, zone=None):
         return munch.Munch(
             cloud=self.name,
-            region_name=self.config.region_name,
+            # TODO(efried): This is wrong, but it only seems to be used in a
+            # repr; can we get rid of it?
+            region_name=self.config.get_region_name(),
             zone=zone,
             project=self._get_project_info(project_id),
         )
@@ -649,7 +651,8 @@ class _OpenStackCloudMixin(object):
         return self.name
 
     def get_region(self):
-        return self.config.region_name
+        # TODO(efried): This seems to be unused. Can we get rid of it?
+        return self.config.get_region_name()
 
     def get_session_endpoint(self, service_key):
         try:
@@ -666,7 +669,7 @@ class _OpenStackCloudMixin(object):
                 " {error}".format(
                     service=service_key,
                     cloud=self.name,
-                    region=self.config.region_name,
+                    region=self.config.get_region_name(service_key),
                     error=str(e)))
         return endpoint
 

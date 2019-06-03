@@ -39,6 +39,11 @@ class ComputeCloudMixin(_normalize.Normalizer):
         self._servers_time = 0
         self._servers_lock = threading.Lock()
 
+    @property
+    def _compute_region(self):
+        # This is only used in exception messages. Can we get rid of it?
+        return self.config.get_region_name('compute')
+
     def get_flavor_name(self, flavor_id):
         flavor = self.get_flavor(flavor_id, get_extra=False)
         if flavor:
@@ -896,7 +901,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                         'Network {network} is not a valid network in'
                         ' {cloud}:{region}'.format(
                             network=network,
-                            cloud=self.name, region=self.config.region_name))
+                            cloud=self.name, region=self._compute_region))
                 nics.append({'net-id': network_obj['id']})
 
             kwargs['nics'] = nics
@@ -1025,7 +1030,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                     'Volume {boot_volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         boot_volume=boot_volume,
-                        cloud=self.name, region=self.config.region_name))
+                        cloud=self.name, region=self._compute_region))
             block_mapping = {
                 'boot_index': '0',
                 'delete_on_termination': terminate_volume,
@@ -1046,7 +1051,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                     'Image {image} is not a valid image in'
                     ' {cloud}:{region}'.format(
                         image=image,
-                        cloud=self.name, region=self.config.region_name))
+                        cloud=self.name, region=self._compute_region))
 
             block_mapping = {
                 'boot_index': '0',
@@ -1076,7 +1081,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                     'Volume {volume} is not a valid volume'
                     ' in {cloud}:{region}'.format(
                         volume=volume,
-                        cloud=self.name, region=self.config.region_name))
+                        cloud=self.name, region=self._compute_region))
             block_mapping = {
                 'boot_index': '-1',
                 'delete_on_termination': False,

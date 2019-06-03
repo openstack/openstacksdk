@@ -56,13 +56,6 @@ class TestFromConf(base.TestCase):
             oslocfg, session=self.cloud.session, name='from_conf.example.com')
         self.assertEqual('from_conf.example.com', config.name)
 
-        # TODO(efried): Currently region_name gets set to the last value seen
-        # in the config, which is nondeterministic and surely incorrect.
-        # Sometimes that's SpecialRegion, but some tests use the base fixtures
-        # which have no compute endpoint in SpecialRegion. Force override for
-        # now to make those tests work.
-        config.region_name = None
-
         return connection.Connection(config=config)
 
     def test_adapter_opts_set(self):
@@ -94,8 +87,7 @@ class TestFromConf(base.TestCase):
         ])
 
         adap = conn.orchestration
-        # TODO(efried): Fix this when region_name behaves correctly.
-        # self.assertEqual('SpecialRegion', adap.region_name)
+        self.assertEqual('SpecialRegion', adap.region_name)
         self.assertEqual('orchestration', adap.service_type)
         self.assertEqual('internal', adap.interface)
         self.assertEqual('https://example.org:8888/heat/v2',

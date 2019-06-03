@@ -25,7 +25,9 @@ PUBLIC_V6 = '2001:0db8:face:0da0:face::0b00:1c'  # rfc3849
 
 
 class FakeConfig(object):
-    region_name = 'test-region'
+    def get_region_name(self, service_type=None):
+        # TODO(efried): Validate service_type?
+        return 'test-region'
 
 
 class FakeCloud(object):
