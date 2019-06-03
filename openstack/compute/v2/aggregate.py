@@ -25,6 +25,7 @@ class Aggregate(resource.Resource):
     allow_fetch = True
     allow_delete = True
     allow_list = True
+    allow_commit = True
 
     # Properties
     #: Availability zone of aggregate

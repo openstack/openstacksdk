@@ -138,19 +138,17 @@ class ComputeCloudMixin(_normalize.Normalizer):
                   list could not be fetched.
         """
         try:
-            data = proxy._json_response(
-                self.compute.get('/os-availability-zone'))
-        except exc.OpenStackCloudHTTPError:
+            zones = self.compute.availability_zones()
+            ret = []
+            for zone in zones:
+                if zone.state['available'] or unavailable:
+                    ret.append(zone.name)
+            return ret
+        except exceptions.SDKException:
             self.log.debug(
                 "Availability zone list could not be fetched",
                 exc_info=True)
             return []
-        zones = self._get_and_munchify('availabilityZoneInfo', data)
-        ret = []
-        for zone in zones:
-            if zone['zoneState']['available'] or unavailable:
-                ret.append(zone['zoneName'])
-        return ret
 
     @_utils.cache_on_arguments()
     def list_flavors(self, get_extra=False):
@@ -1619,16 +1617,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         aggregates = self.list_aggregates()
         return _utils._filter_list(aggregates, name_or_id, filters)
 
-    def list_aggregates(self):
+    def list_aggregates(self, filters={}):
         """List all available host aggregates.
 
         :returns: A list of aggregate dicts.
 
         """
-        data = proxy._json_response(
-            self.compute.get('/os-aggregates'),
-            error_message="Error fetching aggregate list")
-        return self._get_and_munchify('aggregates', data)
+        return self.compute.aggregates(allow_unknown_params=True, **filters)
 
     def get_aggregate(self, name_or_id, filters=None):
         """Get an aggregate by name or ID.
@@ -1661,16 +1656,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = proxy._json_response(
-            self.compute.post(
-                '/os-aggregates',
-                json={'aggregate': {
-                    'name': name,
-                    'availability_zone': availability_zone
-                }}),
-            error_message="Unable to create host aggregate {name}".format(
-                name=name))
-        return self._get_and_munchify('aggregate', data)
+        return self.compute.create_aggregate(
+            name=name,
+            availability_zone=availability_zone
+        )
 
     @_utils.valid_kwargs('name', 'availability_zone')
     def update_aggregate(self, name_or_id, **kwargs):
@@ -1685,17 +1674,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         aggregate = self.get_aggregate(name_or_id)
-        if not aggregate:
-            raise exc.OpenStackCloudException(
-                "Host aggregate %s not found." % name_or_id)
-
-        data = proxy._json_response(
-            self.compute.put(
-                '/os-aggregates/{id}'.format(id=aggregate['id']),
-                json={'aggregate': kwargs}),
-            error_message="Error updating aggregate {name}".format(
-                name=name_or_id))
-        return self._get_and_munchify('aggregate', data)
+        return self.compute.update_aggregate(aggregate, **kwargs)
 
     def delete_aggregate(self, name_or_id):
         """Delete a host aggregate.
@@ -1706,18 +1685,12 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        aggregate = self.get_aggregate(name_or_id)
-        if not aggregate:
+        try:
+            self.compute.delete_aggregate(name_or_id, ignore_missing=False)
+            return True
+        except exceptions.ResourceNotFound:
             self.log.debug("Aggregate %s not found for deleting", name_or_id)
             return False
-
-        return proxy._json_response(
-            self.compute.delete(
-                '/os-aggregates/{id}'.format(id=aggregate['id'])),
-            error_message="Error deleting aggregate {name}".format(
-                name=name_or_id))
-
-        return True
 
     def set_aggregate_metadata(self, name_or_id, metadata):
         """Set aggregate metadata, replacing the existing metadata.
@@ -1735,15 +1708,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        err_msg = "Unable to set metadata for host aggregate {name}".format(
-            name=name_or_id)
-
-        data = proxy._json_response(
-            self.compute.post(
-                '/os-aggregates/{id}/action'.format(id=aggregate['id']),
-                json={'set_metadata': {'metadata': metadata}}),
-            error_message=err_msg)
-        return self._get_and_munchify('aggregate', data)
+        return self.compute.set_aggregate_metadata(aggregate, metadata)
 
     def add_host_to_aggregate(self, name_or_id, host_name):
         """Add a host to an aggregate.
@@ -1758,14 +1723,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        err_msg = "Unable to add host {host} to aggregate {name}".format(
-            host=host_name, name=name_or_id)
-
-        return proxy._json_response(
-            self.compute.post(
-                '/os-aggregates/{id}/action'.format(id=aggregate['id']),
-                json={'add_host': {'host': host_name}}),
-            error_message=err_msg)
+        return self.compute.add_host_to_aggregate(aggregate, host_name)
 
     def remove_host_from_aggregate(self, name_or_id, host_name):
         """Remove a host from an aggregate.
@@ -1780,14 +1738,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Host aggregate %s not found." % name_or_id)
 
-        err_msg = "Unable to remove host {host} to aggregate {name}".format(
-            host=host_name, name=name_or_id)
-
-        return proxy._json_response(
-            self.compute.post(
-                '/os-aggregates/{id}/action'.format(id=aggregate['id']),
-                json={'remove_host': {'host': host_name}}),
-            error_message=err_msg)
+        return self.compute.remove_host_from_aggregate(aggregate, host_name)
 
     def set_compute_quotas(self, name_or_id, **kwargs):
         """ Set a quota in a project
