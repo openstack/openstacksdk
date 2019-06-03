@@ -1927,6 +1927,33 @@ class TestResourceActions(base.TestCase):
         except exceptions.InvalidResourceQuery as err:
             self.assertEqual(str(err), 'Invalid query params: something_wrong')
 
+    def test_allow_invalid_list_params(self):
+        qp = "query param!"
+        qp_name = "query-param"
+        uri_param = "uri param!"
+
+        mock_empty = mock.Mock()
+        mock_empty.status_code = 200
+        mock_empty.links = {}
+        mock_empty.json.return_value = {"resources": []}
+
+        self.session.get.side_effect = [mock_empty]
+
+        class Test(self.test_class):
+            _query_mapping = resource.QueryParameters(query_param=qp_name)
+            base_path = "/%(something)s/blah"
+            something = resource.URI("something")
+
+        list(Test.list(self.session, paginated=True, query_param=qp,
+                       allow_unknown_params=True, something=uri_param,
+                       something_wrong=True))
+        self.session.get.assert_called_once_with(
+            "/{something}/blah".format(something=uri_param),
+            headers={'Accept': 'application/json'},
+            microversion=None,
+            params={qp_name: qp}
+        )
+
     def test_values_as_list_params(self):
         id = 1
         qp = "query param!"

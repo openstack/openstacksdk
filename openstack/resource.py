@@ -287,13 +287,17 @@ class QueryParameters(object):
         self._mapping.update({name: name for name in names})
         self._mapping.update(mappings)
 
-    def _validate(self, query, base_path=None):
+    def _validate(self, query, base_path=None, allow_unknown_params=False):
         """Check that supplied query keys match known query mappings
 
         :param dict query: Collection of key-value pairs where each key is the
-                           client-side parameter name or server side name.
+            client-side parameter name or server side name.
         :param base_path: Formatted python string of the base url path for
-                          the resource.
+            the resource.
+        : param allow_unknown_params: Exclude query params not known by the
+            resource.
+
+        :returns: Filtered collection of the supported QueryParameters
         """
         expected_params = list(self._mapping.keys())
         expected_params.extend(
@@ -304,10 +308,18 @@ class QueryParameters(object):
             expected_params += utils.get_string_format_keys(base_path)
 
         invalid_keys = set(query.keys()) - set(expected_params)
-        if invalid_keys:
-            raise exceptions.InvalidResourceQuery(
-                message="Invalid query params: %s" % ",".join(invalid_keys),
-                extra_data=invalid_keys)
+        if not invalid_keys:
+            return query
+        else:
+            if not allow_unknown_params:
+                raise exceptions.InvalidResourceQuery(
+                    message="Invalid query params: %s" %
+                    ",".join(invalid_keys),
+                    extra_data=invalid_keys)
+            else:
+                known_keys = set(query.keys()).intersection(
+                    set(expected_params))
+                return {k: query[k] for k in known_keys}
 
     def _transpose(self, query):
         """Transpose the keys in query based on the mapping
@@ -1456,7 +1468,8 @@ class Resource(dict):
             microversion=microversion)
 
     @classmethod
-    def list(cls, session, paginated=True, base_path=None, **params):
+    def list(cls, session, paginated=True, base_path=None,
+             allow_unknown_params=False, **params):
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query
@@ -1465,14 +1478,17 @@ class Resource(dict):
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param bool paginated: ``True`` if a GET to this resource returns
-                               a paginated series of responses, or ``False``
-                               if a GET returns only one page of data.
-                               **When paginated is False only one
-                               page of data will be returned regardless
-                               of the API's support of pagination.**
+            a paginated series of responses, or ``False``
+            if a GET returns only one page of data.
+            **When paginated is False only one
+            page of data will be returned regardless
+            of the API's support of pagination.**
         :param str base_path: Base part of the URI for listing resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from :data:`~openstack.resource.Resource.base_path`.
+        :param bool allow_unknown_params: ``True`` to accept, but discard
+            unknown query parameters. This allows getting list of 'filters' and
+            passing everything known to the server. ``False`` will result in
+            validation exception when unknown query parameters are passed.
         :param dict params: These keyword arguments are passed through the
             :meth:`~openstack.resource.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be
@@ -1496,7 +1512,9 @@ class Resource(dict):
 
         if base_path is None:
             base_path = cls.base_path
-        cls._query_mapping._validate(params, base_path=base_path)
+        params = cls._query_mapping._validate(
+            params, base_path=base_path,
+            allow_unknown_params=allow_unknown_params)
         query_params = cls._query_mapping._transpose(params)
         uri = base_path % params
 
