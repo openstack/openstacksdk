@@ -650,10 +650,6 @@ class _OpenStackCloudMixin(object):
     def get_name(self):
         return self.name
 
-    def get_region(self):
-        # TODO(efried): This seems to be unused. Can we get rid of it?
-        return self.config.get_region_name()
-
     def get_session_endpoint(self, service_key):
         try:
             return self.config.get_session_endpoint(service_key)
