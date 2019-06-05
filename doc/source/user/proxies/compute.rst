@@ -40,6 +40,7 @@ Network Actions
    .. automethod:: openstack.compute.v2._proxy.Proxy.remove_fixed_ip_from_server
    .. automethod:: openstack.compute.v2._proxy.Proxy.add_floating_ip_to_server
    .. automethod:: openstack.compute.v2._proxy.Proxy.remove_floating_ip_from_server
+   .. automethod:: openstack.compute.v2._proxy.Proxy.fetch_server_security_groups
    .. automethod:: openstack.compute.v2._proxy.Proxy.add_security_group_to_server
    .. automethod:: openstack.compute.v2._proxy.Proxy.remove_security_group_from_server
 

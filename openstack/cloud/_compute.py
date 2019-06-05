@@ -198,12 +198,11 @@ class ComputeCloudMixin(_normalize.Normalizer):
         if not self._has_secgroups():
             return []
 
-        data = proxy._json_response(
-            self.compute.get(
-                '/servers/{server_id}/os-security-groups'.format(
-                    server_id=server['id'])))
-        return self._normalize_secgroups(
-            self._get_and_munchify('security_groups', data))
+        server = self.compute.get_server(server)
+
+        server.fetch_security_groups(self.compute)
+
+        return self._normalize_secgroups(server.security_groups)
 
     def _get_server_security_groups(self, server, security_groups):
         if not self._has_secgroups():
@@ -255,9 +254,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             return False
 
         for sg in security_groups:
-            proxy._json_response(self.compute.post(
-                '/servers/%s/action' % server['id'],
-                json={'addSecurityGroup': {'name': sg.name}}))
+            self.compute.add_security_group_to_server(server, sg)
 
         return True
 
@@ -283,11 +280,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         for sg in security_groups:
             try:
-                proxy._json_response(self.compute.post(
-                    '/servers/%s/action' % server['id'],
-                    json={'removeSecurityGroup': {'name': sg.name}}))
+                self.compute.remove_security_group_from_server(server, sg)
 
-            except exc.OpenStackCloudURINotFound:
+            except exceptions.ResourceNotFound:
                 # NOTE(jamielennox): Is this ok? If we remove something that
                 # isn't present should we just conclude job done or is that an
                 # error? Nova returns ok if you try to add a group twice.

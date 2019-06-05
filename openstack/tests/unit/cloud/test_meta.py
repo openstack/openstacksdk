@@ -367,6 +367,20 @@ class TestMeta(base.TestCase):
         mock_get_volumes.return_value = []
         mock_has_service.return_value = True
 
+        fake_server = fakes.make_fake_server(
+            server_id='test-id', name='test-name', status='ACTIVE',
+            flavor={u'id': u'1'},
+            image={
+                'name': u'cirros-0.3.4-x86_64-uec',
+                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
+            addresses={u'test_pnztt_net': [{
+                u'OS-EXT-IPS:type': u'fixed',
+                u'addr': PRIVATE_V4,
+                u'version': 4,
+                u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:ae:7d:42'
+            }]}
+        )
+
         self.register_uris([
             dict(method='GET',
                  uri=('https://network.example.com/v2.0/ports.json?'
@@ -395,25 +409,19 @@ class TestMeta(base.TestCase):
                  uri='https://network.example.com/v2.0/subnets.json',
                  json={'subnets': SUBNETS_WITH_NAT}),
 
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', fake_server['id']]),
+                 json=fake_server),
             dict(method='GET',
                  uri='{endpoint}/servers/test-id/os-security-groups'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fakes.make_fake_server(
-            server_id='test-id', name='test-name', status='ACTIVE',
-            flavor={u'id': u'1'},
-            image={
-                'name': u'cirros-0.3.4-x86_64-uec',
-                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
-            addresses={u'test_pnztt_net': [{
-                u'OS-EXT-IPS:type': u'fixed',
-                u'addr': PRIVATE_V4,
-                u'version': 4,
-                u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:ae:7d:42'
-            }]}
-        ))
+        srv = self.cloud.get_openstack_vars(fake_server)
 
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
@@ -431,6 +439,20 @@ class TestMeta(base.TestCase):
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
 
+        fake_server = fakes.make_fake_server(
+            server_id='test-id', name='test-name', status='ACTIVE',
+            flavor={u'id': u'1'},
+            image={
+                'name': u'cirros-0.3.4-x86_64-uec',
+                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
+            addresses={u'test_pnztt_net': [{
+                u'OS-EXT-IPS:type': u'fixed',
+                u'addr': PRIVATE_V4,
+                u'version': 4,
+                u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:ae:7d:42'
+            }]}
+        )
+
         self.register_uris([
             dict(method='GET',
                  uri='https://network.example.com/v2.0/networks.json',
@@ -445,25 +467,19 @@ class TestMeta(base.TestCase):
             dict(method='GET',
                  uri='https://network.example.com/v2.0/subnets.json',
                  json={'subnets': SUBNETS_WITH_NAT}),
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', fake_server['id']]),
+                 json=fake_server),
             dict(method='GET',
                  uri='{endpoint}/servers/test-id/os-security-groups'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fakes.make_fake_server(
-            server_id='test-id', name='test-name', status='ACTIVE',
-            flavor={u'id': u'1'},
-            image={
-                'name': u'cirros-0.3.4-x86_64-uec',
-                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
-            addresses={u'test_pnztt_net': [{
-                u'OS-EXT-IPS:type': u'fixed',
-                u'addr': PRIVATE_V4,
-                u'version': 4,
-                u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:ae:7d:42'
-            }]}
-        ))
+        srv = self.cloud.get_openstack_vars(fake_server)
 
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
@@ -479,6 +495,19 @@ class TestMeta(base.TestCase):
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
+
+        fake_server = fakes.make_fake_server(
+            server_id='test-id', name='test-name', status='ACTIVE',
+            flavor={u'id': u'1'},
+            image={
+                'name': u'cirros-0.3.4-x86_64-uec',
+                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
+            addresses={u'test_pnztt_net': [{
+                u'addr': PRIVATE_V4,
+                u'version': 4,
+            }]}
+        )
+
         self.register_uris([
             dict(method='GET',
                  uri='https://network.example.com/v2.0/networks.json',
@@ -495,23 +524,19 @@ class TestMeta(base.TestCase):
             dict(method='GET',
                  uri='https://network.example.com/v2.0/subnets.json',
                  json={'subnets': SUBNETS_WITH_NAT}),
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', fake_server['id']]),
+                 json=fake_server),
             dict(method='GET',
                  uri='{endpoint}/servers/test-id/os-security-groups'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fakes.make_fake_server(
-            server_id='test-id', name='test-name', status='ACTIVE',
-            flavor={u'id': u'1'},
-            image={
-                'name': u'cirros-0.3.4-x86_64-uec',
-                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
-            addresses={u'test_pnztt_net': [{
-                u'addr': PRIVATE_V4,
-                u'version': 4,
-            }]}
-        ))
+        srv = self.cloud.get_openstack_vars(fake_server)
 
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
@@ -529,7 +554,21 @@ class TestMeta(base.TestCase):
         mock_get_volumes.return_value = []
         mock_has_service.return_value = True
 
+        fake_server = fakes.make_fake_server(
+            server_id='test-id', name='test-name', status='ACTIVE',
+            flavor={u'id': u'1'},
+            image={
+                'name': u'cirros-0.3.4-x86_64-uec',
+                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
+            addresses={u'test_pnztt_net': [{
+                u'addr': PRIVATE_V4,
+                u'version': 4,
+                'OS-EXT-IPS-MAC:mac_addr': 'fa:16:3e:ae:7d:42',
+            }]}
+        )
+
         self.register_uris([
+            # self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=('https://network.example.com/v2.0/ports.json?'
                       'device_id=test-id'),
@@ -563,24 +602,19 @@ class TestMeta(base.TestCase):
             dict(method='GET',
                  uri='https://network.example.com/v2.0/subnets.json',
                  json={'subnets': SUBNETS_WITH_NAT}),
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', fake_server['id']]),
+                 json=fake_server),
             dict(method='GET',
                  uri='{endpoint}/servers/test-id/os-security-groups'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fakes.make_fake_server(
-            server_id='test-id', name='test-name', status='ACTIVE',
-            flavor={u'id': u'1'},
-            image={
-                'name': u'cirros-0.3.4-x86_64-uec',
-                u'id': u'f93d000b-7c29-4489-b375-3641a1758fe1'},
-            addresses={u'test_pnztt_net': [{
-                u'addr': PRIVATE_V4,
-                u'version': 4,
-                'OS-EXT-IPS-MAC:mac_addr': 'fa:16:3e:ae:7d:42',
-            }]}
-        ))
+        srv = self.cloud.get_openstack_vars(fake_server)
 
         self.assertEqual(PUBLIC_V4, srv['public_v4'])
         self.assert_calls()
@@ -598,15 +632,7 @@ class TestMeta(base.TestCase):
         mock_get_image_name.return_value = 'cirros-0.3.4-x86_64-uec'
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
-
-        self.register_uris([
-            dict(method='GET',
-                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json={'security_groups': []})
-        ])
-
-        srv = self.cloud.get_openstack_vars(fakes.make_fake_server(
+        fake_server = fakes.make_fake_server(
             server_id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -625,7 +651,22 @@ class TestMeta(base.TestCase):
                     'version': 6
                 }]
             }
-        ))
+        )
+
+        self.register_uris([
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', fake_server['id']]),
+                 json=fake_server),
+            dict(method='GET',
+                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'security_groups': []})
+        ])
+
+        srv = self.cloud.get_openstack_vars(fake_server)
 
         self.assertEqual("10.223.160.141", srv['private_v4'])
         self.assertEqual("104.130.246.91", srv['public_v4'])
@@ -652,20 +693,7 @@ class TestMeta(base.TestCase):
         mock_get_flavor_name.return_value = 'm1.tiny'
         mock_get_volumes.return_value = []
 
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
-                 json={'networks': OSIC_NETWORKS}),
-            dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
-                 json={'subnets': OSIC_SUBNETS}),
-            dict(method='GET',
-                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
-                     endpoint=fakes.COMPUTE_ENDPOINT),
-                 json={'security_groups': []})
-        ])
-
-        srv = self.cloud.get_openstack_vars(fakes.make_fake_server(
+        fake_server = fakes.make_fake_server(
             server_id='test-id', name='test-name', status='ACTIVE',
             flavor={u'id': u'1'},
             image={
@@ -684,7 +712,28 @@ class TestMeta(base.TestCase):
                     'version': 6
                 }]
             }
-        ))
+        )
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks.json',
+                 json={'networks': OSIC_NETWORKS}),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/subnets.json',
+                 json={'subnets': OSIC_SUBNETS}),
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', fake_server['id']]),
+                 json=fake_server),
+            dict(method='GET',
+                 uri='{endpoint}/servers/test-id/os-security-groups'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json={'security_groups': []})
+        ])
+
+        srv = self.cloud.get_openstack_vars(fake_server)
 
         self.assertEqual("10.223.160.141", srv['private_v4'])
         self.assertEqual("104.130.246.91", srv['public_v4'])
