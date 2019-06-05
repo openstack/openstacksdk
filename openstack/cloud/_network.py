@@ -2050,7 +2050,9 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 }
               ]
         :param list routes:
-            A list of dictionaries with destination and nexthop parameters.
+            A list of dictionaries with destination and nexthop parameters. To
+            clear all routes pass an empty list ([]).
+
             Example::
 
               [
@@ -2073,7 +2075,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if ext_gw_info:
             router['external_gateway_info'] = ext_gw_info
 
-        if routes:
+        if routes is not None:
             if self._has_neutron_extension('extraroute'):
                 router['routes'] = routes
             else:
