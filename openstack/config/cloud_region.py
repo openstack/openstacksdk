@@ -39,6 +39,9 @@ from openstack.config import defaults as config_defaults
 from openstack import exceptions
 from openstack import proxy
 
+
+_logger = _log.setup_logging('openstack')
+
 SCOPE_KEYS = {
     'domain_id', 'domain_name',
     'project_id', 'project_name',
@@ -56,6 +59,15 @@ def _make_key(key, service_type):
     else:
         service_type = service_type.lower().replace('-', '_')
         return "_".join([service_type, key])
+
+
+def _disable_service(config, service_type, reason=None):
+    service_type = service_type.lower().replace('-', '_')
+    key = 'has_{service_type}'.format(service_type=service_type)
+    config[key] = False
+    if reason:
+        d_key = _make_key('disabled_reason', service_type)
+        config[d_key] = reason
 
 
 def _get_implied_microversion(version):
@@ -130,18 +142,38 @@ def from_conf(conf, session=None, **kwargs):
     for st in stm.all_types_by_service_type:
         project_name = stm.get_project_name(st)
         if project_name not in conf:
+            _disable_service(
+                config_dict, st,
+                reason="No section for project '{project}' (service type "
+                       "'{service_type}') was present in the config.".format(
+                           project=project_name, service_type=st))
             continue
         opt_dict = {}
         # Populate opt_dict with (appropriately processed) Adapter conf opts
         try:
             ks_load_adap.process_conf_options(conf[project_name], opt_dict)
-        except Exception:
-            # NOTE(efried): This is for oslo_config.cfg.NoSuchOptError, but we
-            # don't want to drag in oslo.config just for that.
+        except Exception as e:
+            # NOTE(efried): This is for (at least) a couple of scenarios:
+            # (1) oslo_config.cfg.NoSuchOptError when ksa adapter opts are not
+            #     registered in this section.
+            # (2) TypeError, when opts are registered but bogus (e.g.
+            #     'interface' and 'valid_interfaces' are both present).
+            # We may want to consider (providing a kwarg giving the caller the
+            # option of) blowing up right away for (2) rather than letting them
+            # get all the way to the point of trying the service and having
+            # *that* blow up.
+            reason = ("Encountered an exception attempting to process config "
+                      "for project '{project}' (service type "
+                      "'{service_type}'): {exception}".format(
+                          project=project_name, service_type=st, exception=e))
+            _logger.warn("Disabling service '{service_type}'.".format(
+                service_type=st))
+            _logger.warn(reason)
+            _disable_service(config_dict, st, reason=reason)
             continue
         # Load them into config_dict under keys prefixed by ${service_type}_
         for raw_name, opt_val in opt_dict.items():
-            config_name = '_'.join([st, raw_name])
+            config_name = _make_key(raw_name, st)
             config_dict[config_name] = opt_val
     return CloudRegion(
         session=session, config=config_dict, **kwargs)
@@ -929,3 +961,22 @@ class CloudRegion(object):
             )
             registry._openstacksdk_counter = counter
         return counter
+
+    def has_service(self, service_type):
+        service_type = service_type.lower().replace('-', '_')
+        key = 'has_{service_type}'.format(service_type=service_type)
+        return self.config.get(
+            key, self._service_type_manager.is_official(service_type))
+
+    def disable_service(self, service_type, reason=None):
+        _disable_service(self.config, service_type, reason=reason)
+
+    def enable_service(self, service_type):
+        service_type = service_type.lower().replace('-', '_')
+        key = 'has_{service_type}'.format(service_type=service_type)
+        self.config[key] = True
+
+    def get_disabled_reason(self, service_type):
+        service_type = service_type.lower().replace('-', '_')
+        d_key = _make_key('disabled_reason', service_type)
+        return self.config.get(d_key)

@@ -26,6 +26,18 @@ _logger = _log.setup_logging('openstack')
 _service_type_manager = os_service_types.ServiceTypes()
 
 
+class _ServiceDisabledProxyShim(object):
+    def __init__(self, service_type, reason):
+        self.service_type = service_type
+        self.reason = reason
+
+    def __getattr__(self, item):
+        raise exceptions.ServiceDisabledException(
+            "Service '{service_type}' is disabled because its configuration "
+            "could not be loaded. {reason}".format(
+                service_type=self.service_type, reason=self.reason or ''))
+
+
 class ServiceDescription(object):
 
     #: Dictionary of supported versions and proxy classes for that version
@@ -82,6 +94,11 @@ class ServiceDescription(object):
           The `openstack.connection.Connection` we're working with.
         """
         config = instance.config
+
+        if not config.has_service(self.service_type):
+            return _ServiceDisabledProxyShim(
+                self.service_type,
+                config.get_disabled_reason(self.service_type))
 
         # First, check to see if we've got config that matches what we
         # understand in the SDK.

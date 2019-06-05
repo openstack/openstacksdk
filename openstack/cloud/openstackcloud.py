@@ -670,7 +670,7 @@ class _OpenStackCloudMixin(object):
         return endpoint
 
     def has_service(self, service_key):
-        if not self.config.config.get('has_%s' % service_key, True):
+        if not self.config.has_service(service_key):
             # TODO(mordred) add a stamp here so that we only report this once
             if not (service_key in self._disable_warnings
                     and self._disable_warnings[service_key]):

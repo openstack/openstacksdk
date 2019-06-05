@@ -446,6 +446,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                 attr_name.replace('-', '_'),
                 property(fget=getter)
             )
+            self.config.enable_service(attr_name)
 
     def authorize(self):
         """Authorize this Connection
