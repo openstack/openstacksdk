@@ -182,25 +182,25 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual(3, cc.get_connect_retries('baremetal'))
 
     def test_get_region_name(self):
-        # TODO(efried): ddt this
+
+        def assert_region_name(default, compute):
+            self.assertEqual(default, cc.region_name)
+            self.assertEqual(default, cc.get_region_name())
+            self.assertEqual(default, cc.get_region_name(service_type=None))
+            self.assertEqual(
+                compute, cc.get_region_name(service_type='compute'))
+            self.assertEqual(
+                default, cc.get_region_name(service_type='placement'))
 
         # No region_name kwarg, no regions specified in services dict
         # (including the default).
         cc = cloud_region.CloudRegion(config=fake_services_dict)
-        self.assertIsNone(cc.region_name)
-        self.assertIsNone(cc.get_region_name())
-        self.assertIsNone(cc.get_region_name(service_type=None))
-        self.assertIsNone(cc.get_region_name(service_type='compute'))
-        self.assertIsNone(cc.get_region_name(service_type='placement'))
+        assert_region_name(None, None)
 
         # Only region_name kwarg; it's returned for everything
         cc = cloud_region.CloudRegion(
             region_name='foo', config=fake_services_dict)
-        self.assertEqual('foo', cc.region_name)
-        self.assertEqual('foo', cc.get_region_name())
-        self.assertEqual('foo', cc.get_region_name(service_type=None))
-        self.assertEqual('foo', cc.get_region_name(service_type='compute'))
-        self.assertEqual('foo', cc.get_region_name(service_type='placement'))
+        assert_region_name('foo', 'foo')
 
         # No region_name kwarg; values (including default) show through from
         # config dict
@@ -208,13 +208,7 @@ class TestCloudRegion(base.TestCase):
             fake_services_dict,
             region_name='the-default', compute_region_name='compute-region')
         cc = cloud_region.CloudRegion(config=services_dict)
-        self.assertEqual('the-default', cc.region_name)
-        self.assertEqual('the-default', cc.get_region_name())
-        self.assertEqual('the-default', cc.get_region_name(service_type=None))
-        self.assertEqual(
-            'compute-region', cc.get_region_name(service_type='compute'))
-        self.assertEqual(
-            'the-default', cc.get_region_name(service_type='placement'))
+        assert_region_name('the-default', 'compute-region')
 
         # region_name kwarg overrides config dict default (for backward
         # compatibility), but service-specific region_name takes precedence.
@@ -223,12 +217,7 @@ class TestCloudRegion(base.TestCase):
             region_name='dict', compute_region_name='compute-region')
         cc = cloud_region.CloudRegion(
             region_name='kwarg', config=services_dict)
-        self.assertEqual('kwarg', cc.region_name)
-        self.assertEqual('kwarg', cc.get_region_name())
-        self.assertEqual('kwarg', cc.get_region_name(service_type=None))
-        self.assertEqual(
-            'compute-region', cc.get_region_name(service_type='compute'))
-        self.assertEqual('kwarg', cc.get_region_name(service_type='placement'))
+        assert_region_name('kwarg', 'compute-region')
 
     def test_aliases(self):
         services_dict = fake_services_dict.copy()
