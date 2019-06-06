@@ -253,3 +253,7 @@ class ValidationException(SDKException):
 
 class TaskManagerStopped(SDKException):
     """Operations were attempted on a stopped TaskManager."""
+
+
+class ServiceDisabledException(ConfigException):
+    """This service is disabled for reasons."""

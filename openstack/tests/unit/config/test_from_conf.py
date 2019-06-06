@@ -30,8 +30,8 @@ class TestFromConf(base.TestCase):
         self.oslo_config_dict = {
             # All defaults for nova
             'nova': {},
-            # monasca not in the service catalog
-            'monasca': {},
+            # monasca-api not in the service catalog
+            'monasca-api': {},
             # Overrides for heat
             'heat': {
                 'region_name': 'SpecialRegion',
@@ -43,6 +43,7 @@ class TestFromConf(base.TestCase):
     def _load_ks_cfg_opts(self):
         conf = cfg.ConfigOpts()
         for group, opts in self.oslo_config_dict.items():
+            conf.register_group(cfg.OptGroup(group))
             if opts is not None:
                 ks_loading.register_adapter_conf_options(conf, group)
                 for name, val in opts.items():
@@ -122,27 +123,42 @@ class TestFromConf(base.TestCase):
         self.assertEqual(s.name, server_name)
         self.assert_calls()
 
-    def test_no_adapter_opts(self):
-        """Adapter opts for service type not registered."""
-        del self.oslo_config_dict['heat']
+    def _test_missing_invalid_permutations(self, expected_reason):
+        # Do special things to self.oslo_config_dict['heat'] before calling
+        # this method.
         conn = self._get_conn()
 
-        # TODO(efried): This works, even though adapter opts are not
-        # registered. Should it?
         adap = conn.orchestration
-        self.assertIsNone(adap.region_name)
-        self.assertEqual('orchestration', adap.service_type)
-        self.assertEqual('public', adap.interface)
-        self.assertIsNone(adap.endpoint_override)
+        ex = self.assertRaises(
+            exceptions.ServiceDisabledException, getattr, adap, 'get')
+        self.assertIn("Service 'orchestration' is disabled because its "
+                      "configuration could not be loaded.", ex.message)
+        self.assertIn(expected_reason, ex.message)
 
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'orchestration', append=['foo']),
-                 json={'foo': {}})
-        ])
-        adap.get('/foo')
-        self.assert_calls()
+    def test_no_such_conf_section(self):
+        """No conf section (therefore no adapter opts) for service type."""
+        del self.oslo_config_dict['heat']
+        self._test_missing_invalid_permutations(
+            "No section for project 'heat' (service type 'orchestration') was "
+            "present in the config.")
+
+    def test_no_adapter_opts(self):
+        """Conf section present, but opts for service type not registered."""
+        self.oslo_config_dict['heat'] = None
+        self._test_missing_invalid_permutations(
+            "Encountered an exception attempting to process config for "
+            "project 'heat' (service type 'orchestration'): no such option")
+
+    def test_invalid_adapter_opts(self):
+        """Adapter opts are bogus, in exception-raising ways."""
+        self.oslo_config_dict['heat'] = {
+            'interface': 'public',
+            'valid_interfaces': 'private',
+        }
+        self._test_missing_invalid_permutations(
+            "Encountered an exception attempting to process config for "
+            "project 'heat' (service type 'orchestration'): interface and "
+            "valid_interfaces are mutually exclusive.")
 
     def test_no_session(self):
         # TODO(efried): Currently calling without a Session is not implemented.
