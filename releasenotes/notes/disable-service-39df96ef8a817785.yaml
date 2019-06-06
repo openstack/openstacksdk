@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    ``has_{service_type}`` is a boolean config option that allows
+    asserting that a given service does not exist or should not be used
+    in a given cloud. Doing this will now cause the corresponding
+    service ``Proxy`` object to not be created and in its place is
+    an object that will throw exceptions if used.
+  - |
+    ``{service_type}_disabled_reason`` is a new string config option
+    that can be set to indicate a reason why a service has been disabled.
+    This string will be used in exceptions or log warnings emitted.
