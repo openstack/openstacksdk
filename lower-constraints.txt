@@ -21,7 +21,7 @@ mox3==0.20.0
 munch==2.1.0
 netifaces==0.10.4
 os-client-config==1.28.0
-os-service-types==1.6.0
+os-service-types==1.7.0
 oslo.config==6.1.0
 oslotest==3.2.0
 pbr==2.0.0

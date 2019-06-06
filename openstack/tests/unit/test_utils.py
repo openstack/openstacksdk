@@ -18,6 +18,7 @@ import sys
 from openstack.tests.unit import base
 
 import fixtures
+import os_service_types
 
 import openstack
 from openstack import utils
@@ -157,3 +158,13 @@ class TestMaximumSupportedMicroversion(base.TestCase):
         self.endpoint_data.min_microversion = '1.42'
         self.assertIsNone(utils.maximum_supported_microversion(self.adapter,
                                                                '1.2'))
+
+
+class TestOsServiceTypesVersion(base.TestCase):
+    def test_ost_version(self):
+        ost_version = '2019-05-01T19:53:21.498745'
+        self.assertEqual(
+            ost_version, os_service_types.ServiceTypes().version,
+            "This project must be pinned to the latest version of "
+            "os-service-types. Please bump requirements.txt and "
+            "lower-constraints.txt accordingly.")
