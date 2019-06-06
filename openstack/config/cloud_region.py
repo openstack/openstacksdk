@@ -166,9 +166,8 @@ def from_conf(conf, session=None, **kwargs):
                       "for project '{project}' (service type "
                       "'{service_type}'): {exception}".format(
                           project=project_name, service_type=st, exception=e))
-            _logger.warn("Disabling service '{service_type}'.".format(
-                service_type=st))
-            _logger.warn(reason)
+            _logger.warn("Disabling service '{service_type}': {reason}".format(
+                service_type=st, reason=reason))
             _disable_service(config_dict, st, reason=reason)
             continue
         # Load them into config_dict under keys prefixed by ${service_type}_
@@ -180,12 +179,11 @@ def from_conf(conf, session=None, **kwargs):
 
 
 class CloudRegion(object):
+    # TODO(efried): Doc the rest of the kwargs
     """The configuration for a Region of an OpenStack Cloud.
 
     A CloudRegion encapsulates the config information needed for connections
     to all of the services in a Region of a Cloud.
-
-    TODO(efried): Doc the rest of the kwargs
 
     :param str region_name:
         The default region name for all services in this CloudRegion. If
@@ -265,8 +263,6 @@ class CloudRegion(object):
     def __eq__(self, other):
         return (
             self.name == other.name
-            # Ew
-            and self.get_region_name() == other.get_region_name()
             and self.config == other.config)
 
     def __ne__(self, other):
