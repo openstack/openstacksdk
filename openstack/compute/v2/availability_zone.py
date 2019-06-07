@@ -29,5 +29,4 @@ class AvailabilityZone(resource.Resource):
     hosts = resource.Body('hosts')
 
 
-class AvailabilityZoneDetail(AvailabilityZone):
-    base_path = '/os-availability-zone/detail'
+AvailabilityZoneDetail = AvailabilityZone

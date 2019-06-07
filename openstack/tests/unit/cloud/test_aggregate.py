@@ -69,10 +69,6 @@ class TestAggregate(base.TestCase):
 
     def test_delete_aggregate(self):
         self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregates': [self.fake_aggregate]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['os-aggregates', '1'])),

@@ -122,15 +122,16 @@ class Proxy(proxy.Proxy):
         flv = _flavor.FlavorDetail if details else _flavor.Flavor
         return self._list(flv, **query)
 
-    def aggregates(self):
+    def aggregates(self, **query):
         """Return a generator of aggregate
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the aggregates being returned.
 
         :returns: A generator of aggregate
         :rtype: class: `~openstack.compute.v2.aggregate.Aggregate`
         """
-        aggregate = _aggregate.Aggregate
-
-        return self._list(aggregate)
+        return self._list(_aggregate.Aggregate, **query)
 
     def get_aggregate(self, aggregate):
         """Get a single host aggregate
@@ -1040,12 +1041,11 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.availability_zone.\
                         AvailabilityZone`
         """
-        if details:
-            az = availability_zone.AvailabilityZoneDetail
-        else:
-            az = availability_zone.AvailabilityZone
+        base_path = '/os-availability-zone/detail' if details else None
 
-        return self._list(az)
+        return self._list(
+            availability_zone.AvailabilityZone,
+            base_path=base_path)
 
     def get_server_metadata(self, server):
         """Return a dictionary of metadata for a server
