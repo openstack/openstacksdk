@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 import mock
 import six
@@ -312,3 +313,33 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                                 None, template_url=None)
         self.assertEqual("'template_url' must be specified when template is "
                          "None", six.text_type(err))
+
+
+class TestExtractName(TestOrchestrationProxy):
+
+    scenarios = [
+        ('stacks', dict(url='/stacks', parts=['stacks'])),
+        ('name_id', dict(url='/stacks/name/id', parts=['stack'])),
+        ('identity', dict(url='/stacks/id', parts=['stack'])),
+        ('preview', dict(url='/stacks/name/preview',
+                         parts=['stack', 'preview'])),
+        ('stack_act', dict(url='/stacks/name/id/preview',
+                           parts=['stack', 'preview'])),
+        ('stack_subres', dict(url='/stacks/name/id/resources',
+                              parts=['stack', 'resources'])),
+        ('stack_subres_id', dict(url='/stacks/name/id/resources/id',
+                                 parts=['stack', 'resource'])),
+        ('stack_subres_id_act',
+            dict(url='/stacks/name/id/resources/id/action',
+                 parts=['stack', 'resource', 'action'])),
+        ('event',
+         dict(url='/stacks/ignore/ignore/resources/ignore/events/id',
+              parts=['stack', 'resource', 'event'])),
+        ('sd_metadata', dict(url='/software_deployments/metadata/ignore',
+                             parts=['software_deployment', 'metadata']))
+    ]
+
+    def test_extract_name(self):
+
+        results = self.proxy._extract_name(self.url)
+        self.assertEqual(self.parts, results)

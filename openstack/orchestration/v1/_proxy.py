@@ -26,6 +26,21 @@ from openstack import resource
 
 class Proxy(proxy.Proxy):
 
+    def _extract_name_consume_url_parts(self, url_parts):
+        if (len(url_parts) == 3 and url_parts[0] == 'software_deployments'
+                and url_parts[1] == 'metadata'):
+            # Another nice example of totally different URL naming scheme,
+            # which we need to repair /software_deployment/metadata/server_id -
+            # just replace server_id with metadata to keep further logic
+            return ['software_deployment', 'metadata']
+        if (url_parts[0] == 'stacks' and len(url_parts) > 2
+                and not url_parts[2] in ['preview', 'resources']):
+            # orchestrate introduce having stack name and id part of the URL
+            # (/stacks/name/id/everything_else), so if on third position we
+            # have not a known part - discard it, not to brake further logic
+            del url_parts[2]
+        return super(Proxy, self)._extract_name_consume_url_parts(url_parts)
+
     def read_env_and_templates(self, template_file=None, template_url=None,
                                template_object=None, files=None,
                                environment_files=None):

@@ -363,6 +363,7 @@ class _OpenStackCloudMixin(object):
                 statsd_client=self.config.get_statsd_client(),
                 prometheus_counter=self.config.get_prometheus_counter(),
                 prometheus_histogram=self.config.get_prometheus_histogram(),
+                influxdb_client=self.config.get_influxdb_client(),
                 min_version=request_min_version,
                 max_version=request_max_version)
             if adapter.get_endpoint():

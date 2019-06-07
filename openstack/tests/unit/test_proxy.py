@@ -467,19 +467,20 @@ class TestExtractName(base.TestCase):
 
     scenarios = [
         ('slash_servers_bare', dict(url='/servers', parts=['servers'])),
-        ('slash_servers_arg', dict(url='/servers/1', parts=['servers'])),
+        ('slash_servers_arg', dict(url='/servers/1', parts=['server'])),
         ('servers_bare', dict(url='servers', parts=['servers'])),
-        ('servers_arg', dict(url='servers/1', parts=['servers'])),
+        ('servers_arg', dict(url='servers/1', parts=['server'])),
         ('networks_bare', dict(url='/v2.0/networks', parts=['networks'])),
-        ('networks_arg', dict(url='/v2.0/networks/1', parts=['networks'])),
+        ('networks_arg', dict(url='/v2.0/networks/1', parts=['network'])),
         ('tokens', dict(url='/v3/tokens', parts=['tokens'])),
         ('discovery', dict(url='/', parts=['discovery'])),
         ('secgroups', dict(
             url='/servers/1/os-security-groups',
-            parts=['servers', 'os-security-groups'])),
+            parts=['server', 'os-security-groups'])),
+        ('bm_chassis', dict(url='/v1/chassis/id', parts=['chassis']))
     ]
 
     def test_extract_name(self):
 
-        results = proxy._extract_name(self.url)
+        results = proxy.Proxy(mock.Mock())._extract_name(self.url)
         self.assertEqual(self.parts, results)

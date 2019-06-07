@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add possibility to report API metrics into InfluxDB.

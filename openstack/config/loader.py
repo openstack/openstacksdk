@@ -142,7 +142,7 @@ class OpenStackConfig(object):
                  app_name=None, app_version=None,
                  load_yaml_config=True, load_envvars=True,
                  statsd_host=None, statsd_port=None,
-                 statsd_prefix=None):
+                 statsd_prefix=None, influxdb_config=None):
         self.log = _log.setup_logging('openstack.config')
         self._session_constructor = session_constructor
         self._app_name = app_name
@@ -254,6 +254,7 @@ class OpenStackConfig(object):
         self._cache_class = 'dogpile.cache.null'
         self._cache_arguments = {}
         self._cache_expirations = {}
+        self._influxdb_config = {}
         if 'cache' in self.cloud_config:
             cache_settings = _util.normalize_keys(self.cloud_config['cache'])
 
@@ -279,10 +280,33 @@ class OpenStackConfig(object):
                 'expiration', self._cache_expirations)
 
         if load_yaml_config:
-            statsd_config = self.cloud_config.get('statsd', {})
+            metrics_config = self.cloud_config.get('metrics', {})
+            statsd_config = metrics_config.get('statsd', {})
             statsd_host = statsd_host or statsd_config.get('host')
             statsd_port = statsd_port or statsd_config.get('port')
             statsd_prefix = statsd_prefix or statsd_config.get('prefix')
+
+            influxdb_cfg = metrics_config.get('influxdb', {})
+            # Parse InfluxDB configuration
+            if influxdb_config:
+                influxdb_cfg.update(influxdb_config)
+            if influxdb_cfg:
+                config = {}
+                if 'use_udp' in influxdb_cfg:
+                    use_udp = influxdb_cfg['use_udp']
+                    if isinstance(use_udp, str):
+                        use_udp = use_udp.lower() in ('true', 'yes', '1')
+                    elif not isinstance(use_udp, bool):
+                        use_udp = False
+                        self.log.warning('InfluxDB.use_udp value type is not '
+                                         'supported. Use one of '
+                                         '[true|false|yes|no|1|0]')
+                    config['use_udp'] = use_udp
+                for key in ['host', 'port', 'username', 'password', 'database',
+                            'measurement', 'timeout']:
+                    if key in influxdb_cfg:
+                        config[key] = influxdb_cfg[key]
+                self._influxdb_config = config
 
         if load_envvars:
             statsd_host = statsd_host or os.environ.get('STATSD_HOST')
@@ -1112,6 +1136,7 @@ class OpenStackConfig(object):
             statsd_host=self._statsd_host,
             statsd_port=self._statsd_port,
             statsd_prefix=self._statsd_prefix,
+            influxdb_config=self._influxdb_config,
         )
     # TODO(mordred) Backwards compat for OSC transition
     get_one_cloud = get_one
