@@ -86,7 +86,7 @@ class TestWaitForIntrospection(base.TestCase):
             self.introspection.error = 'boom'
 
         mock_fetch.side_effect = _side_effect
-        self.assertRaisesRegex(exceptions.SDKException, 'boom',
+        self.assertRaisesRegex(exceptions.ResourceFailure, 'boom',
                                self.proxy.wait_for_introspection,
                                self.introspection)
         mock_fetch.assert_called_once_with(self.introspection, self.proxy)

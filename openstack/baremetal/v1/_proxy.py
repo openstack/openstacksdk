@@ -344,6 +344,9 @@ class Proxy(proxy.Proxy):
 
         :return: The list of :class:`~openstack.baremetal.v1.node.Node`
             instances that reached the requested state.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if a node
+            reaches an error state and ``abort_on_failed_state`` is ``True``.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
         log_nodes = ', '.join(n.id if isinstance(n, _node.Node) else n
                               for n in nodes)
@@ -895,6 +898,9 @@ class Proxy(proxy.Proxy):
 
         :returns: The instance of the allocation.
         :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if allocation
+            fails and ``ignore_error`` is ``False``.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
         res = self._get_resource(_allocation.Allocation, allocation)
         return res.wait(self, timeout=timeout, ignore_error=ignore_error)

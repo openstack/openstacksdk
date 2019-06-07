@@ -178,7 +178,7 @@ class TestNodeWaitForProvisionState(base.TestCase):
 
         mock_fetch.side_effect = _get_side_effect
 
-        self.assertRaisesRegex(exceptions.SDKException,
+        self.assertRaisesRegex(exceptions.ResourceFailure,
                                'failure state "deploy failed"',
                                self.node.wait_for_provision_state,
                                self.session, 'manageable')
@@ -191,7 +191,7 @@ class TestNodeWaitForProvisionState(base.TestCase):
 
         mock_fetch.side_effect = _get_side_effect
 
-        self.assertRaisesRegex(exceptions.SDKException,
+        self.assertRaisesRegex(exceptions.ResourceFailure,
                                'failed to verify management credentials',
                                self.node.wait_for_provision_state,
                                self.session, 'manageable')

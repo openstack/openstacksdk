@@ -76,6 +76,9 @@ class Allocation(_common.ListMixin, resource.Resource):
             state is considered successful and the call returns.
 
         :return: This :class:`Allocation` instance.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if allocation
+            fails and ``ignore_error`` is ``False``.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
         if self.state == 'active':
             return self
@@ -86,7 +89,7 @@ class Allocation(_common.ListMixin, resource.Resource):
             self.fetch(session)
 
             if self.state == 'error' and not ignore_error:
-                raise exceptions.SDKException(
+                raise exceptions.ResourceFailure(
                     "Allocation %(allocation)s failed: %(error)s" %
                     {'allocation': self.id, 'error': self.last_error})
             elif self.state != 'allocating':

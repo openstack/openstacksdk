@@ -125,6 +125,9 @@ class Proxy(proxy.Proxy):
             if the introspection reaches the ``error`` state. Otherwise the
             error state is considered successful and the call returns.
         :returns: :class:`~.introspection.Introspection` instance.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if
+            introspection fails and ``ignore_error`` is ``False``.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
         res = self._get_resource(_introspect.Introspection, introspection)
         return res.wait(self, timeout=timeout, ignore_error=ignore_error)

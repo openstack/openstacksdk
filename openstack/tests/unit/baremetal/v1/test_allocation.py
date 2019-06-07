@@ -104,6 +104,36 @@ class TestWaitForAllocation(base.TestCase):
         self.assertIs(allocation, self.allocation)
         self.assertEqual(2, mock_fetch.call_count)
 
+    def test_failure(self, mock_fetch):
+        marker = [False]  # mutable object to modify in the closure
+
+        def _side_effect(allocation, session):
+            if marker[0]:
+                self.allocation.state = 'error'
+                self.allocation.last_error = 'boom!'
+            else:
+                marker[0] = True
+
+        mock_fetch.side_effect = _side_effect
+        self.assertRaises(exceptions.ResourceFailure,
+                          self.allocation.wait, self.session)
+        self.assertEqual(2, mock_fetch.call_count)
+
+    def test_failure_ignored(self, mock_fetch):
+        marker = [False]  # mutable object to modify in the closure
+
+        def _side_effect(allocation, session):
+            if marker[0]:
+                self.allocation.state = 'error'
+                self.allocation.last_error = 'boom!'
+            else:
+                marker[0] = True
+
+        mock_fetch.side_effect = _side_effect
+        allocation = self.allocation.wait(self.session, ignore_error=True)
+        self.assertIs(allocation, self.allocation)
+        self.assertEqual(2, mock_fetch.call_count)
+
     def test_timeout(self, mock_fetch):
         self.assertRaises(exceptions.ResourceTimeout,
                           self.allocation.wait, self.session, timeout=0.001)

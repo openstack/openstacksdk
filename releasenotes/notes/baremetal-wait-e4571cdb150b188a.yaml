@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The baremetal calls ``wait_for_nodes_provision_state``,
+    ``wait_for_allocation`` and the baremetal introspection call
+    ``wait_for_introspection`` now raise ``ResourceFailure`` on reaching
+    an error state instead of a generic ``SDKException``.

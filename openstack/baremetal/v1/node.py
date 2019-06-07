@@ -323,6 +323,10 @@ class Node(_common.ListMixin, resource.Resource):
         :return: This :class:`Node` instance.
         :raises: ValueError if ``config_drive``, ``clean_steps`` or
             ``rescue_password`` are provided with an invalid ``target``.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the node
+            reaches an error state while waiting for the state.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if timeout
+            is reached while waiting for the state.
         """
         session = self._get_session(session)
 
@@ -400,6 +404,9 @@ class Node(_common.ListMixin, resource.Resource):
             ``manageable`` transition is ``enroll`` again.
 
         :return: This :class:`Node` instance.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the node
+            reaches an error state and ``abort_on_failed_state`` is ``True``.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
         for count in utils.iterate_timeout(
                 timeout,
@@ -469,8 +476,8 @@ class Node(_common.ListMixin, resource.Resource):
             ``manageable`` transition is ``enroll`` again.
 
         :return: ``True`` if the target state is reached
-        :raises: SDKException if ``abort_on_failed_state`` is ``True`` and
-            a failure state is reached.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the node
+            reaches an error state and ``abort_on_failed_state`` is ``True``.
         """
         # NOTE(dtantsur): microversion 1.2 changed None to available
         if (self.provision_state == expected_state
@@ -481,7 +488,7 @@ class Node(_common.ListMixin, resource.Resource):
             return False
 
         if self.provision_state.endswith(' failed'):
-            raise exceptions.SDKException(
+            raise exceptions.ResourceFailure(
                 "Node %(node)s reached failure state \"%(state)s\"; "
                 "the last error is %(error)s" %
                 {'node': self.id, 'state': self.provision_state,
@@ -490,7 +497,7 @@ class Node(_common.ListMixin, resource.Resource):
         # "enroll"
         elif (expected_state == 'manageable'
               and self.provision_state == 'enroll' and self.last_error):
-            raise exceptions.SDKException(
+            raise exceptions.ResourceFailure(
                 "Node %(node)s could not reach state manageable: "
                 "failed to verify management credentials; "
                 "the last error is %(error)s" %

@@ -107,6 +107,9 @@ class Introspection(resource.Resource):
             if the introspection reaches the ``error`` state. Otherwise the
             error state is considered successful and the call returns.
         :return: This :class:`Introspection` instance.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if
+            introspection fails and ``ignore_error`` is ``False``.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
         """
         if self._check_state(ignore_error):
             return self
@@ -124,7 +127,7 @@ class Introspection(resource.Resource):
 
     def _check_state(self, ignore_error):
         if self.state == 'error' and not ignore_error:
-            raise exceptions.SDKException(
+            raise exceptions.ResourceFailure(
                 "Introspection of node %(node)s failed: %(error)s" %
                 {'node': self.id, 'error': self.error})
         else:
