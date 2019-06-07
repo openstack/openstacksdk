@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import mock
 
 from openstack.compute.v2 import _proxy
 from openstack.compute.v2 import availability_zone as az
@@ -447,6 +448,33 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                       expected_result=None,
                       method_args=["value", "key"],
                       expected_args=[self.proxy, "key"])
+
+    def test_create_image(self):
+        metadata = {'k1': 'v1'}
+        with mock.patch('openstack.compute.v2.server.Server.create_image') \
+                as ci_mock:
+
+                ci_mock.return_value = 'image_id'
+                connection_mock = mock.Mock()
+                connection_mock.get_image = mock.Mock(return_value='image')
+                connection_mock.wait_for_image = mock.Mock()
+                self.proxy._connection = connection_mock
+
+                rsp = self.proxy.create_server_image(
+                    'server', 'image_name', metadata, wait=True, timeout=1)
+
+                ci_mock.assert_called_with(
+                    self.proxy,
+                    'image_name',
+                    metadata
+                )
+
+                self.proxy._connection.get_image.assert_called_with('image_id')
+                self.proxy._connection.wait_for_image.assert_called_with(
+                    'image',
+                    timeout=1)
+
+                self.assertEqual(connection_mock.wait_for_image(), rsp)
 
     def test_server_group_create(self):
         self.verify_create(self.proxy.create_server_group,

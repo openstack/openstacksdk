@@ -124,6 +124,7 @@ class TestServer(base.TestCase):
         self.resp = mock.Mock()
         self.resp.body = None
         self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.resp.status_code = 200
         self.sess = mock.Mock()
         self.sess.post = mock.Mock(return_value=self.resp)
 
@@ -395,30 +396,88 @@ class TestServer(base.TestCase):
         self.sess.post.assert_called_with(
             url, json=body, headers=headers, microversion=None)
 
-    def test_create_image(self):
+    def test_create_image_header(self):
         sot = server.Server(**EXAMPLE)
         name = 'noo'
         metadata = {'nu': 'image', 'created': 'today'}
 
-        self.assertIsNone(sot.create_image(self.sess, name, metadata))
+        url = 'servers/IDENTIFIER/action'
+        body = {"createImage": {'name': name, 'metadata': metadata}}
+        headers = {'Accept': ''}
+
+        rsp = mock.Mock()
+        rsp.json.return_value = None
+        rsp.headers = {'Location': 'dummy/dummy2'}
+        rsp.status_code = 200
+
+        self.sess.post.return_value = rsp
+
+        self.endpoint_data = mock.Mock(spec=['min_microversion',
+                                             'max_microversion'],
+                                       min_microversion=None,
+                                       max_microversion='2.44')
+        self.sess.get_endpoint_data.return_value = self.endpoint_data
+
+        image_id = sot.create_image(self.sess, name, metadata)
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=None)
+
+        self.assertEqual('dummy2', image_id)
+
+    def test_create_image_microver(self):
+        sot = server.Server(**EXAMPLE)
+        name = 'noo'
+        metadata = {'nu': 'image', 'created': 'today'}
 
         url = 'servers/IDENTIFIER/action'
         body = {"createImage": {'name': name, 'metadata': metadata}}
         headers = {'Accept': ''}
+
+        rsp = mock.Mock()
+        rsp.json.return_value = {'image_id': 'dummy3'}
+        rsp.headers = {'Location': 'dummy/dummy2'}
+        rsp.status_code = 200
+
+        self.sess.post.return_value = rsp
+
+        self.endpoint_data = mock.Mock(spec=['min_microversion',
+                                             'max_microversion'],
+                                       min_microversion='2.1',
+                                       max_microversion='2.56')
+        self.sess.get_endpoint_data.return_value = self.endpoint_data
+
+        image_id = sot.create_image(self.sess, name, metadata)
+
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers, microversion=None)
+            url, json=body, headers=headers, microversion='2.45')
+
+        self.assertEqual('dummy3', image_id)
 
     def test_create_image_minimal(self):
         sot = server.Server(**EXAMPLE)
         name = 'noo'
-
-        self.assertIsNone(self.resp.body, sot.create_image(self.sess, name))
-
         url = 'servers/IDENTIFIER/action'
         body = {"createImage": {'name': name}}
         headers = {'Accept': ''}
+
+        rsp = mock.Mock()
+        rsp.json.return_value = None
+        rsp.headers = {'Location': 'dummy/dummy2'}
+        rsp.status_code = 200
+
+        self.sess.post.return_value = rsp
+
+        self.endpoint_data = mock.Mock(spec=['min_microversion',
+                                             'max_microversion'],
+                                       min_microversion='2.1',
+                                       max_microversion='2.56')
+        self.sess.get_endpoint_data.return_value = self.endpoint_data
+
+        self.assertIsNone(self.resp.body, sot.create_image(self.sess, name))
+
         self.sess.post.assert_called_with(
-            url, json=body, headers=headers, microversion=None)
+            url, json=body, headers=headers, microversion='2.45')
 
     def test_add_security_group(self):
         sot = server.Server(**EXAMPLE)

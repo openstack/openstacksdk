@@ -12,6 +12,7 @@
 
 from openstack.compute.v2 import metadata
 from openstack.image.v2 import image
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -233,8 +234,10 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         # the URL used is sans any additional /detail/ part.
         url = utils.urljoin(Server.base_path, self.id, 'action')
         headers = {'Accept': ''}
-        return session.post(
+        response = session.post(
             url, json=body, headers=headers, microversion=microversion)
+        exceptions.raise_from_response(response)
+        return response
 
     def change_password(self, session, new_password):
         """Change the administrator password to the given password."""
@@ -303,7 +306,39 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         if metadata is not None:
             action['metadata'] = metadata
         body = {'createImage': action}
-        self._action(session, body)
+
+        # You won't believe it - wait, who am I kidding - of course you will!
+        # Nova returns the URL of the image created in the Location
+        # header of the response. (what?) But, even better, the URL it responds
+        # with has a very good chance of being wrong (it is built from
+        # nova.conf values that point to internal API servers in any cloud
+        # large enough to have both public and internal endpoints.
+        # However, nobody has ever noticed this because novaclient doesn't
+        # actually use that URL - it extracts the id from the end of
+        # the url, then returns the id. This leads us to question:
+        #   a) why Nova is going to return a value in a header
+        #   b) why it's going to return data that probably broken
+        #   c) indeed the very nature of the fabric of reality
+        # Although it fills us with existential dread, we have no choice but
+        # to follow suit like a lemming being forced over a cliff by evil
+        # producers from Disney.
+        microversion = None
+        if utils.supports_microversion(session, '2.45'):
+            microversion = '2.45'
+        response = self._action(session, body, microversion)
+
+        body = None
+        try:
+            # There might be body, might be not
+            body = response.json()
+        except Exception:
+            pass
+        if body and 'image_id' in body:
+            image_id = body['image_id']
+        else:
+            image_id = response.headers['Location'].rsplit('/', 1)[1]
+
+        return image_id
 
     def add_security_group(self, session, security_group):
         body = {"addSecurityGroup": {"name": security_group}}

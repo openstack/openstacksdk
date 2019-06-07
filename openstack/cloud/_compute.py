@@ -363,7 +363,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
             # and the to_munch call.
             self._normalize_server(server._to_munch())
             for server in self.compute.servers(
-                all_projects=all_projects, **filters)]
+                all_projects=all_projects, allow_unknown_params=True,
+                **filters)]
         return [
             self._expand_server(server, detailed, bare)
             for server in servers
@@ -375,10 +376,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :returns: A list of server group dicts.
 
         """
-        data = proxy._json_response(
-            self.compute.get('/os-server-groups'),
-            error_message="Error fetching server group list")
-        return self._get_and_munchify('server_groups', data)
+        return list(self.compute.server_groups())
 
     def get_compute_limits(self, name_or_id=None):
         """ Get compute limits for a project
@@ -521,10 +519,12 @@ class ComputeCloudMixin(_normalize.Normalizer):
             return ""
 
     def _get_server_console_output(self, server_id, length=None):
-        data = proxy._json_response(self.compute.post(
-            '/servers/{server_id}/action'.format(server_id=server_id),
-            json={'os-getConsoleOutput': {'length': length}}))
-        return self._get_and_munchify('output', data)
+        output = self.compute.get_server_console_output(
+            server=server_id,
+            length=length
+        )
+        if 'output' in output:
+            return output['output']
 
     def get_server(
             self, name_or_id=None, filters=None, detailed=False, bare=False,
@@ -678,40 +678,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
                     "Server {server} could not be found and therefore"
                     " could not be snapshotted.".format(server=server))
             server = server_obj
-        response = proxy._json_response(
-            self.compute.post(
-                '/servers/{server_id}/action'.format(server_id=server['id']),
-                json={
-                    "createImage": {
-                        "name": name,
-                        "metadata": metadata,
-                    }
-                }))
-        # You won't believe it - wait, who am I kidding - of course you will!
-        # Nova returns the URL of the image created in the Location
-        # header of the response. (what?) But, even better, the URL it responds
-        # with has a very good chance of being wrong (it is built from
-        # nova.conf values that point to internal API servers in any cloud
-        # large enough to have both public and internal endpoints.
-        # However, nobody has ever noticed this because novaclient doesn't
-        # actually use that URL - it extracts the id from the end of
-        # the url, then returns the id. This leads us to question:
-        #   a) why Nova is going to return a value in a header
-        #   b) why it's going to return data that probably broken
-        #   c) indeed the very nature of the fabric of reality
-        # Although it fills us with existential dread, we have no choice but
-        # to follow suit like a lemming being forced over a cliff by evil
-        # producers from Disney.
-        # TODO(mordred) Update this to consume json microversion when it is
-        #               available.
-        #               blueprint:remove-create-image-location-header-response
-        image_id = response.headers['Location'].rsplit('/', 1)[1]
-        self.list_images.invalidate(self)
-        image = self.get_image(image_id)
-
-        if not wait:
-            return image
-        return self.wait_for_image(image, timeout=timeout)
+        image = self.compute.create_server_image(
+            server, name=name, metadata=metadata, wait=wait, timeout=timeout)
+        return image
 
     def get_server_id(self, name_or_id):
         server = self.get_server(name_or_id, bare=True)
@@ -1100,6 +1069,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """
         Wait for a server to reach ACTIVE status.
         """
+        # server = self.compute.wait_for_server(
+        #     server=server, interval=self._SERVER_AGE or 2, wait=timeout
+        # )
         server_id = server['id']
         timeout_message = "Timeout waiting for the server to come up."
         start_time = time.time()
@@ -1238,11 +1210,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 'Invalid Server {server}'.format(server=name_or_id))
 
-        proxy._json_response(
-            self.compute.post(
-                '/servers/{server_id}/metadata'.format(server_id=server['id']),
-                json={'metadata': metadata}),
-            error_message='Error updating server metadata')
+        self.compute.set_server_metadata(server=server.id, **metadata)
 
     def delete_server_metadata(self, name_or_id, metadata_keys):
         """Delete metadata from a server instance.
@@ -1259,15 +1227,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 'Invalid Server {server}'.format(server=name_or_id))
 
-        for key in metadata_keys:
-            error_message = 'Error deleting metadata {key} on {server}'.format(
-                key=key, server=name_or_id)
-            proxy._json_response(
-                self.compute.delete(
-                    '/servers/{server_id}/metadata/{key}'.format(
-                        server_id=server['id'],
-                        key=key)),
-                error_message=error_message)
+        self.compute.delete_server_metadata(server=server.id,
+                                            keys=metadata_keys)
 
     def delete_server(
             self, name_or_id, wait=False, timeout=180, delete_ips=False,
@@ -1410,7 +1371,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             self._get_and_munchify('server', data))
         return self._expand_server(server, bare=bare, detailed=detailed)
 
-    def create_server_group(self, name, policies):
+    def create_server_group(self, name, policies=[], policy=None):
         """Create a new server group.
 
         :param name: Name of the server group being created
@@ -1420,16 +1381,16 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = proxy._json_response(
-            self.compute.post(
-                '/os-server-groups',
-                json={
-                    'server_group': {
-                        'name': name,
-                        'policies': policies}}),
-            error_message="Unable to create server group {name}".format(
-                name=name))
-        return self._get_and_munchify('server_group', data)
+        sg_attrs = {
+            'name': name
+        }
+        if policies:
+            sg_attrs['policies'] = policies
+        if policy:
+            sg_attrs['policy'] = policy
+        return self.compute.create_server_group(
+            **sg_attrs
+        )
 
     def delete_server_group(self, name_or_id):
         """Delete a server group.
@@ -1446,12 +1407,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                            name_or_id)
             return False
 
-        proxy._json_response(
-            self.compute.delete(
-                '/os-server-groups/{id}'.format(id=server_group['id'])),
-            error_message="Error deleting server group {name}".format(
-                name=name_or_id))
-
+        self.compute.delete_server_group(server_group, ignore_missing=False)
         return True
 
     def create_flavor(self, name, ram, vcpus, disk, flavorid="auto",
