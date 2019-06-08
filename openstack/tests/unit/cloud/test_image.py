@@ -11,13 +11,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import hashlib
 import operator
 import tempfile
 import uuid
 
 import six
 
+from openstack import exceptions
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.tests import fakes
@@ -35,12 +35,14 @@ class BaseTestImage(base.TestCase):
         self.image_name = self.getUniqueString('image')
         self.object_name = u'images/{name}'.format(name=self.image_name)
         self.imagefile = tempfile.NamedTemporaryFile(delete=False)
-        self.imagefile.write(b'\0')
+        data = b'\2\0'
+        self.imagefile.write(data)
         self.imagefile.close()
-        self.output = uuid.uuid4().bytes
+        self.output = data
         self.fake_image_dict = fakes.make_fake_image(
             image_id=self.image_id, image_name=self.image_name,
-            checksum=hashlib.md5(self.output).hexdigest())
+            data=self.imagefile.name
+        )
         self.fake_search_return = {'images': [self.fake_image_dict]}
         self.container_name = self.getUniqueString('container')
 
@@ -333,9 +335,13 @@ class TestImage(BaseTestImage):
                          u'container_format': u'bare',
                          u'disk_format': u'qcow2',
                          u'name': self.image_name,
-                         u'owner_specified.openstack.md5': fakes.NO_MD5,
+                         u'owner_specified.openstack.md5':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.md5'],
                          u'owner_specified.openstack.object': self.object_name,
-                         u'owner_specified.openstack.sha256': fakes.NO_SHA256,
+                         u'owner_specified.openstack.sha256':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.sha256'],
                          u'visibility': u'private'})
                  ),
             dict(method='PUT',
@@ -360,7 +366,8 @@ class TestImage(BaseTestImage):
             is_public=False)
 
         self.assert_calls()
-        self.assertEqual(self.adapter.request_history[5].text.read(), b'\x00')
+        self.assertEqual(self.adapter.request_history[5].text.read(),
+                         self.output)
 
     def test_create_image_task(self):
         self.cloud.image_api_use_tasks = True
@@ -428,8 +435,12 @@ class TestImage(BaseTestImage):
                      object=self.image_name),
                  status_code=201,
                  validate=dict(
-                     headers={'x-object-meta-x-sdk-md5': fakes.NO_MD5,
-                              'x-object-meta-x-sdk-sha256': fakes.NO_SHA256})
+                     headers={'x-object-meta-x-sdk-md5':
+                              self.fake_image_dict[
+                                  'owner_specified.openstack.md5'],
+                              'x-object-meta-x-sdk-sha256':
+                              self.fake_image_dict[
+                                  'owner_specified.openstack.sha256']})
                  ),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -467,9 +478,13 @@ class TestImage(BaseTestImage):
                               container=self.container_name,
                               object=self.image_name),
                           u'path': u'/owner_specified.openstack.object'},
-                         {u'op': u'add', u'value': fakes.NO_MD5,
+                         {u'op': u'add', u'value':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.md5'],
                           u'path': u'/owner_specified.openstack.md5'},
-                         {u'op': u'add', u'value': fakes.NO_SHA256,
+                         {u'op': u'add', u'value':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.sha256'],
                           u'path': u'/owner_specified.openstack.sha256'}],
                          key=operator.itemgetter('path')),
                      headers={
@@ -486,8 +501,12 @@ class TestImage(BaseTestImage):
                      'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
                      'Content-Length': '1290170880',
                      'Last-Modified': 'Tue, 14 Apr 2015 18:29:01 GMT',
-                     'X-Object-Meta-X-Sdk-Sha256': fakes.NO_SHA256,
-                     'X-Object-Meta-X-Sdk-Md5': fakes.NO_MD5,
+                     'X-Object-Meta-X-Sdk-Sha256':
+                     self.fake_image_dict[
+                         'owner_specified.openstack.sha256'],
+                     'X-Object-Meta-X-Sdk-Md5':
+                     self.fake_image_dict[
+                         'owner_specified.openstack.md5'],
                      'Date': 'Thu, 16 Nov 2017 15:24:30 GMT',
                      'Accept-Ranges': 'bytes',
                      'Content-Type': 'application/octet-stream',
@@ -756,46 +775,56 @@ class TestImage(BaseTestImage):
     def test_create_image_put_v2_wrong_checksum_delete(self):
         self.cloud.image_api_use_tasks = False
 
-        args = {'name': self.image_name,
-                'container_format': 'bare', 'disk_format': 'qcow2',
-                'owner_specified.openstack.md5': fakes.NO_MD5,
-                'owner_specified.openstack.sha256': fakes.NO_SHA256,
-                'owner_specified.openstack.object': 'images/{name}'.format(
-                    name=self.image_name),
-                'visibility': 'private'}
+        fake_image = self.fake_image_dict
 
-        ret = args.copy()
-        ret['id'] = self.image_id
-        ret['status'] = 'success'
-        ret['checksum'] = 'fake'
+        fake_image['owner_specified.openstack.md5'] = 'a'
+        fake_image['owner_specified.openstack.sha256'] = 'b'
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
                  json={'images': []}),
             dict(method='POST',
-                 uri='https://image.example.com/v2/images',
-                 json=ret,
-                 validate=dict(json=args)),
-            dict(method='PUT',
-                 uri='https://image.example.com/v2/images/{id}/file'.format(
-                     id=self.image_id),
-                 status_code=400,
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_image_dict,
                  validate=dict(
-                     headers={
-                         'Content-Type': 'application/octet-stream',
-                     },
-                 )),
+                     json={
+                         u'container_format': u'bare',
+                         u'disk_format': u'qcow2',
+                         u'name': self.image_name,
+                         u'owner_specified.openstack.md5':
+                             fake_image[
+                                 'owner_specified.openstack.md5'],
+                         u'owner_specified.openstack.object': self.object_name,
+                         u'owner_specified.openstack.sha256':
+                             fake_image[
+                                 'owner_specified.openstack.sha256'],
+                         u'visibility': u'private'})
+                 ),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id, 'file'],
+                     base_url_append='v2'),
+                 request_headers={'Content-Type': 'application/octet-stream'}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.fake_image_dict['id']],
+                     base_url_append='v2'
+                 ),
+                 json=fake_image),
             dict(method='DELETE',
                  uri='https://image.example.com/v2/images/{id}'.format(
-                     id=self.image_id)),
+                     id=self.image_id))
         ])
 
         self.assertRaises(
-            exc.OpenStackCloudHTTPError,
-            self._call_create_image,
-            self.image_name,
-            md5='some_fake')
+            exceptions.SDKException,
+            self.cloud.create_image,
+            self.image_name, self.imagefile.name,
+            is_public=False, md5='a', sha256='b'
+        )
 
         self.assert_calls()
 

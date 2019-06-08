@@ -301,7 +301,7 @@ class ImageCloudMixin(_normalize.Normalizer):
             image = self.image.create_image(
                 name, filename=filename,
                 container=container,
-                md5=sha256, sha256=sha256,
+                md5=md5, sha256=sha256,
                 disk_format=disk_format, container_format=container_format,
                 disable_vendor_agent=disable_vendor_agent,
                 wait=wait, timeout=timeout,
