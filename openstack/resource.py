@@ -88,7 +88,7 @@ class _BaseComponent(object):
     # The class to be used for mappings
     _map_cls = dict
 
-    def __init__(self, name, type=None, default=None, alias=None,
+    def __init__(self, name, type=None, default=None, alias=None, aka=None,
                  alternate_id=False, list_type=None, coerce_to_default=False,
                  **kwargs):
         """A typed descriptor for a component that makes up a Resource
@@ -101,6 +101,7 @@ class _BaseComponent(object):
             component to a string, __set__ will fail, for example.
         :param default: Typically None, but any other default can be set.
         :param alias: If set, alternative attribute on object to return.
+        :param aka: If set, additional name attribute would be available under.
         :param alternate_id:
             When `True`, this property is known internally as a value that
             can be sent with requests that require an ID but when `id` is
@@ -121,6 +122,7 @@ class _BaseComponent(object):
         else:
             self.default = default
         self.alias = alias
+        self.aka = aka
         self.alternate_id = alternate_id
         self.list_type = list_type
         self.coerce_to_default = coerce_to_default
@@ -440,6 +442,9 @@ class Resource(dict):
     _delete_response_class = None
     _store_unknown_attrs_as_properties = False
 
+    # Placeholder for aliases as dict of {__alias__:__original}
+    _attr_aliases = {}
+
     def __init__(self, _synchronized=False, connection=None, **attrs):
         """The base resource
 
@@ -493,12 +498,29 @@ class Resource(dict):
 
         self._update_location()
 
+        for attr, component in self._attributes_iterator():
+            if component.aka:
+                # Register alias for the attribute (local name)
+                self._attr_aliases[component.aka] = attr
+
         # TODO(mordred) This is terrible, but is a hack at the moment to ensure
         # json.dumps works. The json library does basically if not obj: and
         # obj.items() ... but I think the if not obj: is short-circuiting down
         # in the C code and thus since we don't store the data in self[] it's
         # always False even if we override __len__ or __bool__.
         dict.update(self, self.to_dict())
+
+    @classmethod
+    def _attributes_iterator(cls, components=tuple([Body, Header])):
+        """Iterator over all Resource attributes
+        """
+        # isinstance stricly requires this to be a tuple
+        # Since we're looking at class definitions we need to include
+        # subclasses, so check the whole MRO.
+        for klass in cls.__mro__:
+            for attr, component in klass.__dict__.items():
+                if isinstance(component, components):
+                    yield attr, component
 
     def __repr__(self):
         pairs = [
@@ -541,7 +563,14 @@ class Resource(dict):
                 except KeyError:
                     return None
         else:
-            return object.__getattribute__(self, name)
+            try:
+                return object.__getattribute__(self, name)
+            except AttributeError as e:
+                if name in self._attr_aliases:
+                    # Hmm - not found. But hey, the alias exists...
+                    return object.__getattribute__(
+                        self, self._attr_aliases[name])
+                raise e
 
     def __getitem__(self, name):
         """Provide dictionary access for elements of the data model."""
@@ -549,6 +578,10 @@ class Resource(dict):
         # behaves like its wrapped content. If we get it on the class,
         # it returns the BaseComponent itself, not the results of __get__.
         real_item = getattr(self.__class__, name, None)
+        if not real_item and name in self._attr_aliases:
+            # Not found? But we know an alias exists.
+            name = self._attr_aliases[name]
+            real_item = getattr(self.__class__, name, None)
         if isinstance(real_item, _BaseComponent):
             return getattr(self, name)
         raise KeyError(name)
@@ -569,6 +602,23 @@ class Resource(dict):
                     cls=self.__class__.__name__,
                     name=name))
 
+    def _attributes(self, remote_names=False, components=None,
+                    include_aliases=True):
+        """Generate list of supported attributes
+        """
+        attributes = []
+
+        if not components:
+            components = tuple([Body, Header, Computed, URI])
+
+        for attr, component in self._attributes_iterator(components):
+            key = attr if not remote_names else component.name
+            attributes.append(key)
+            if include_aliases and component.aka:
+                attributes.append(component.aka)
+
+        return attributes
+
     def keys(self):
         # NOTE(mordred) In python2, dict.keys returns a list. In python3 it
         # returns a dict_keys view. For 2, we can return a list from the
@@ -576,15 +626,9 @@ class Resource(dict):
         # It won't strictly speaking be an actual dict_keys, so it's possible
         # we may want to get more clever, but for now let's see how far this
         # will take us.
-        underlying_keys = itertools.chain(
-            self._body.attributes.keys(),
-            self._header.attributes.keys(),
-            self._uri.attributes.keys(),
-            self._computed.attributes.keys())
-        if six.PY2:
-            return list(underlying_keys)
-        else:
-            return underlying_keys
+        # NOTE(gtema) For now let's return list of 'public' attributes and not
+        # remotes or "unknown"
+        return self._attributes()
 
     def _update(self, **attrs):
         """Given attributes, update them on this instance
@@ -736,16 +780,12 @@ class Resource(dict):
         """Return a dict of attributes of a given component on the class"""
         mapping = component._map_cls()
         ret = component._map_cls()
-        # Since we're looking at class definitions we need to include
-        # subclasses, so check the whole MRO.
-        for klass in cls.__mro__:
-            for key, value in klass.__dict__.items():
-                if isinstance(value, component):
-                    # Make sure base classes don't end up overwriting
-                    # mappings we've found previously in subclasses.
-                    if key not in mapping:
-                        # Make it this way first, to get MRO stuff correct.
-                        mapping[key] = value.name
+        for key, value in cls._attributes_iterator(component):
+            # Make sure base classes don't end up overwriting
+            # mappings we've found previously in subclasses.
+            if key not in mapping:
+                # Make it this way first, to get MRO stuff correct.
+                mapping[key] = value.name
         for k, v in mapping.items():
             ret[v] = k
         return ret
@@ -888,38 +928,35 @@ class Resource(dict):
         # but is slightly different in that we're looking at an instance
         # and we're mapping names on this class to their actual stored
         # values.
-        # Since we're looking at class definitions we need to include
-        # subclasses, so check the whole MRO.
-        for klass in self.__class__.__mro__:
-            for attr, component in klass.__dict__.items():
-                if isinstance(component, components):
-                    if original_names:
-                        key = component.name
+        for attr, component in self._attributes_iterator(components):
+            if original_names:
+                key = component.name
+            else:
+                key = attr
+            for key in filter(None, (key, component.aka)):
+                # Make sure base classes don't end up overwriting
+                # mappings we've found previously in subclasses.
+                if key not in mapping:
+                    value = getattr(self, attr, None)
+                    if ignore_none and value is None:
+                        continue
+                    if isinstance(value, Resource):
+                        mapping[key] = value.to_dict(_to_munch=_to_munch)
+                    elif isinstance(value, dict) and _to_munch:
+                        mapping[key] = munch.Munch(value)
+                    elif value and isinstance(value, list):
+                        converted = []
+                        for raw in value:
+                            if isinstance(raw, Resource):
+                                converted.append(
+                                    raw.to_dict(_to_munch=_to_munch))
+                            elif isinstance(raw, dict) and _to_munch:
+                                converted.append(munch.Munch(raw))
+                            else:
+                                converted.append(raw)
+                        mapping[key] = converted
                     else:
-                        key = attr
-                    # Make sure base classes don't end up overwriting
-                    # mappings we've found previously in subclasses.
-                    if key not in mapping:
-                        value = getattr(self, attr, None)
-                        if ignore_none and value is None:
-                            continue
-                        if isinstance(value, Resource):
-                            mapping[key] = value.to_dict(_to_munch=_to_munch)
-                        elif isinstance(value, dict) and _to_munch:
-                            mapping[key] = munch.Munch(value)
-                        elif value and isinstance(value, list):
-                            converted = []
-                            for raw in value:
-                                if isinstance(raw, Resource):
-                                    converted.append(
-                                        raw.to_dict(_to_munch=_to_munch))
-                                elif isinstance(raw, dict) and _to_munch:
-                                    converted.append(munch.Munch(raw))
-                                else:
-                                    converted.append(raw)
-                            mapping[key] = converted
-                        else:
-                            mapping[key] = value
+                        mapping[key] = value
 
         return mapping
     # Compatibility with the munch.Munch.toDict method
@@ -1065,6 +1102,7 @@ class Resource(dict):
         self._header.attributes.update(headers)
         self._header.clean()
         self._update_location()
+        dict.update(self, self.to_dict())
 
     @classmethod
     def _get_session(cls, session):

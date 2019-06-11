@@ -11,6 +11,7 @@
 # under the License.
 
 import itertools
+import json
 
 from keystoneauth1 import adapter
 import mock
@@ -54,11 +55,12 @@ class TestComponent(base.TestCase):
 
     def test_creation(self):
         sot = resource._BaseComponent(
-            "name", type=int, default=1, alternate_id=True)
+            "name", type=int, default=1, alternate_id=True, aka="alias")
 
         self.assertEqual("name", sot.name)
         self.assertEqual(int, sot.type)
         self.assertEqual(1, sot.default)
+        self.assertEqual("alias", sot.aka)
         self.assertTrue(sot.alternate_id)
 
     def test_get_no_instance(self):
@@ -684,11 +686,73 @@ class TestResource(base.TestCase):
         value = "id"
         self.assertEqual(value, resource.Resource._get_id(value))
 
+    def test__attributes(self):
+        class Test(resource.Resource):
+            foo = resource.Header('foo')
+            bar = resource.Body('bar', aka='_bar')
+            bar_local = resource.Body('bar_remote')
+
+        sot = Test()
+
+        self.assertEqual(
+            sorted(['foo', 'bar', '_bar', 'bar_local',
+                    'id', 'name', 'location']),
+            sorted(sot._attributes())
+        )
+
+        self.assertEqual(
+            sorted(['foo', 'bar', 'bar_local', 'id', 'name', 'location']),
+            sorted(sot._attributes(include_aliases=False))
+        )
+
+        self.assertEqual(
+            sorted(['foo', 'bar', '_bar', 'bar_remote',
+                    'id', 'name', 'location']),
+            sorted(sot._attributes(remote_names=True))
+        )
+
+        self.assertEqual(
+            sorted(['bar', '_bar', 'bar_local', 'id', 'name', 'location']),
+            sorted(sot._attributes(
+                components=tuple([resource.Body, resource.Computed])))
+        )
+
+        self.assertEqual(
+            ('foo',),
+            tuple(sot._attributes(components=tuple([resource.Header])))
+        )
+
+    def test__attributes_iterator(self):
+        class Parent(resource.Resource):
+            foo = resource.Header('foo')
+            bar = resource.Body('bar', aka='_bar')
+
+        class Child(Parent):
+            foo1 = resource.Header('foo1')
+            bar1 = resource.Body('bar1')
+
+        sot = Child()
+        expected = ['foo', 'bar', 'foo1', 'bar1']
+
+        for attr, component in sot._attributes_iterator():
+            if attr in expected:
+                expected.remove(attr)
+        self.assertEqual([], expected)
+
+        expected = ['foo', 'foo1']
+
+        # Check we iterate only over headers
+        for attr, component in sot._attributes_iterator(
+                components=tuple([resource.Header])):
+            if attr in expected:
+                expected.remove(attr)
+        self.assertEqual([], expected)
+
     def test_to_dict(self):
 
         class Test(resource.Resource):
             foo = resource.Header('foo')
-            bar = resource.Body('bar')
+            bar = resource.Body('bar', aka='_bar')
 
         res = Test(id='FAKE_ID')
 
@@ -697,7 +761,8 @@ class TestResource(base.TestCase):
             'name': None,
             'location': None,
             'foo': None,
-            'bar': None
+            'bar': None,
+            '_bar': None
         }
         self.assertEqual(expected, res.to_dict())
 
@@ -791,17 +856,18 @@ class TestResource(base.TestCase):
 
         class Parent(resource.Resource):
             foo = resource.Header('foo')
-            bar = resource.Body('bar')
+            bar = resource.Body('bar', aka='_bar')
 
         class Child(Parent):
             foo_new = resource.Header('foo_baz_server')
             bar_new = resource.Body('bar_baz_server')
 
-        res = Child(id='FAKE_ID')
+        res = Child(id='FAKE_ID', bar='test')
 
         expected = {
             'foo': None,
-            'bar': None,
+            'bar': 'test',
+            '_bar': 'test',
             'foo_new': None,
             'bar_new': None,
             'id': 'FAKE_ID',
@@ -809,6 +875,50 @@ class TestResource(base.TestCase):
             'name': None
         }
         self.assertEqual(expected, res.to_dict())
+
+    def test_json_dumps_from_resource(self):
+        class Test(resource.Resource):
+            foo = resource.Body('foo_remote')
+
+        res = Test(foo='bar')
+
+        expected = '{"foo": "bar", "id": null, "location": null, "name": null}'
+
+        actual = json.dumps(res, sort_keys=True)
+        self.assertEqual(expected, actual)
+
+        response = FakeResponse({
+            'foo': 'new_bar'})
+        res._translate_response(response)
+
+        expected = ('{"foo": "new_bar", "id": null, '
+                    '"location": null, "name": null}')
+        actual = json.dumps(res, sort_keys=True)
+        self.assertEqual(expected, actual)
+
+    def test_access_by_aka(self):
+        class Test(resource.Resource):
+            foo = resource.Header('foo_remote', aka='foo_alias')
+
+        res = Test(foo='bar', name='test')
+
+        self.assertEqual('bar', res['foo_alias'])
+        self.assertEqual('bar', res.foo_alias)
+        self.assertTrue('foo' in res.keys())
+        self.assertTrue('foo_alias' in res.keys())
+        expected = munch.Munch({
+            'id': None,
+            'name': 'test',
+            'location': None,
+            'foo': 'bar',
+            'foo_alias': 'bar'
+        })
+        actual = munch.Munch(res)
+        self.assertEqual(expected, actual)
+        self.assertEqual(expected, res.toDict())
+        self.assertEqual(expected, res.to_dict())
+        self.assertDictEqual(expected, res)
+        self.assertDictEqual(expected, dict(res))
 
     def test_to_dict_value_error(self):
 
