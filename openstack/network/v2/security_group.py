@@ -26,8 +26,8 @@ class SecurityGroup(resource.Resource, resource.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'name',
-        project_id='tenant_id',
+        'description', 'name', 'project_id', 'tenant_id', 'revision_number',
+        'sort_dir', 'sort_key',
         **resource.TagMixin._tag_query_parameters
     )
 
@@ -39,12 +39,14 @@ class SecurityGroup(resource.Resource, resource.TagMixin):
     #: The security group name.
     name = resource.Body('name')
     #: The ID of the project this security group is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id')
     #: Revision number of the security group. *Type: int*
     revision_number = resource.Body('revision_number', type=int)
     #: A list of
     #: :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
     #: objects. *Type: list*
     security_group_rules = resource.Body('security_group_rules', type=list)
+    #: The ID of the project this security group is associated with.
+    tenant_id = resource.Body('tenant_id')
     #: Timestamp when the security group was last updated.
     updated_at = resource.Body('updated_at')

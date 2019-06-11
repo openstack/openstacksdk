@@ -28,8 +28,11 @@ class SecurityGroupRule(resource.Resource, resource.TagMixin):
     _query_mapping = resource.QueryParameters(
         'description', 'direction', 'protocol',
         'remote_group_id', 'security_group_id',
+        'port_range_max', 'port_range_min',
+        'remote_ip_prefix', 'revision_number',
+        'project_id', 'tenant_id',
+        'sort_dir', 'sort_key',
         ether_type='ethertype',
-        project_id='tenant_id',
         **resource.TagMixin._tag_query_parameters
 
     )
@@ -58,7 +61,7 @@ class SecurityGroupRule(resource.Resource, resource.TagMixin):
     #: attribute. If the protocol is ICMP, this value must be an ICMP type.
     port_range_min = resource.Body('port_range_min', type=int)
     #: The ID of the project this security group rule is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id')
     #: The protocol that is matched by the security group rule.
     #: Valid values are ``null``, ``tcp``, ``udp``, and ``icmp``.
     protocol = resource.Body('protocol')
@@ -75,5 +78,7 @@ class SecurityGroupRule(resource.Resource, resource.TagMixin):
     revision_number = resource.Body('revision_number', type=int)
     #: The security group ID to associate with this security group rule.
     security_group_id = resource.Body('security_group_id')
+    #: The ID of the project this security group rule is associated with.
+    tenant_id = resource.Body('tenant_id')
     #: Timestamp when the security group rule was last updated.
     updated_at = resource.Body('updated_at')

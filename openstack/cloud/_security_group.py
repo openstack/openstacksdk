@@ -28,6 +28,45 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
     def __init__(self):
         self.secgroup_source = self.config.config['secgroup_source']
 
+    def search_security_groups(self, name_or_id=None, filters=None):
+        # `filters` could be a dict or a jmespath (str)
+        groups = self.list_security_groups(
+            filters=filters if isinstance(filters, dict) else None
+        )
+        return _utils._filter_list(groups, name_or_id, filters)
+
+    def list_security_groups(self, filters=None):
+        """List all available security groups.
+
+        :param filters: (optional) dict of filter conditions to push down
+        :returns: A list of security group ``munch.Munch``.
+
+        """
+        # Security groups not supported
+        if not self._has_secgroups():
+            raise exc.OpenStackCloudUnavailableFeature(
+                "Unavailable feature: security groups"
+            )
+
+        if not filters:
+            filters = {}
+
+        data = []
+        # Handle neutron security groups
+        if self._use_neutron_secgroups():
+            # pass filters dict to the list to filter as much as possible on
+            # the server side
+            return list(
+                self.network.security_groups(allow_unknown_params=True,
+                                             **filters))
+
+        # Handle nova security groups
+        else:
+            data = proxy._json_response(self.compute.get(
+                '/os-security-groups', params=filters))
+        return self._normalize_secgroups(
+            self._get_and_munchify('security_groups', data))
+
     def get_security_group(self, name_or_id, filters=None):
         """Get a security group by name or ID.
 
@@ -67,8 +106,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
         error_message = ("Error getting security group with"
                          " ID {id}".format(id=id))
         if self._use_neutron_secgroups():
-            resp = self.network.get('/security-groups/{id}'.format(id=id))
-            data = proxy._json_response(resp, error_message=error_message)
+            return self.network.get_security_group(id)
         else:
             data = proxy._json_response(
                 self.compute.get(
@@ -101,20 +139,17 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
 
         data = []
         security_group_json = {
-            'security_group': {
-                'name': name, 'description': description
-            }}
+            'name': name, 'description': description
+        }
         if project_id is not None:
-            security_group_json['security_group']['tenant_id'] = project_id
+            security_group_json['tenant_id'] = project_id
         if self._use_neutron_secgroups():
-            data = proxy._json_response(
-                self.network.post(
-                    '/security-groups.json',
-                    json=security_group_json),
-                error_message="Error creating security group {0}".format(name))
+            return self.network.create_security_group(
+                **security_group_json)
         else:
             data = proxy._json_response(self.compute.post(
-                '/os-security-groups', json=security_group_json))
+                '/os-security-groups',
+                json={'security_group': security_group_json}))
         return self._normalize_secgroup(
             self._get_and_munchify('security_group', data))
 
@@ -144,13 +179,8 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
             return False
 
         if self._use_neutron_secgroups():
-            exceptions.raise_from_response(
-                self.network.delete(
-                    '/security-groups/{sg_id}.json'.format(
-                        sg_id=secgroup['id'])),
-                error_message="Error deleting security group {0}".format(
-                    name_or_id)
-            )
+            self.network.delete_security_group(
+                secgroup['id'], ignore_missing=False)
             return True
 
         else:
@@ -183,12 +213,10 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
                 "Security group %s not found." % name_or_id)
 
         if self._use_neutron_secgroups():
-            data = proxy._json_response(
-                self.network.put(
-                    '/security-groups/{sg_id}.json'.format(sg_id=group['id']),
-                    json={'security_group': kwargs}),
-                error_message="Error updating security group {0}".format(
-                    name_or_id))
+            return self.network.update_security_group(
+                group['id'],
+                **kwargs
+            )
         else:
             for key in ('name', 'description'):
                 kwargs.setdefault(key, group[key])
@@ -281,13 +309,12 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
                 'ethertype': ethertype
             }
             if project_id is not None:
+                rule_def['project_id'] = project_id
                 rule_def['tenant_id'] = project_id
 
-            data = proxy._json_response(
-                self.network.post(
-                    '/security-group-rules.json',
-                    json={'security_group_rule': rule_def}),
-                error_message="Error creating security group rule")
+            return self.network.create_security_group_rule(
+                **rule_def
+            )
         else:
             # NOTE: Neutron accepts None for protocol. Nova does not.
             if protocol is None:
@@ -355,15 +382,10 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
             )
 
         if self._use_neutron_secgroups():
-            try:
-                exceptions.raise_from_response(
-                    self.network.delete(
-                        '/security-group-rules/{sg_id}.json'.format(
-                            sg_id=rule_id)),
-                    error_message="Error deleting security group rule "
-                                  "{0}".format(rule_id))
-            except exc.OpenStackCloudResourceNotFound:
-                return False
+            self.network.delete_security_group_rule(
+                rule_id,
+                ignore_missing=False
+            )
             return True
 
         else:

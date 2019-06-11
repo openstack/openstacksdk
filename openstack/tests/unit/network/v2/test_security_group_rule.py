@@ -29,6 +29,7 @@ EXAMPLE = {
     'revision_number': 9,
     'security_group_id': '10',
     'tenant_id': '11',
+    'project_id': '11',
     'updated_at': '12'
 }
 
@@ -46,6 +47,29 @@ class TestSecurityGroupRule(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual({'any_tags': 'tags-any',
+                              'description': 'description',
+                              'direction': 'direction',
+                              'ether_type': 'ethertype',
+                              'limit': 'limit',
+                              'marker': 'marker',
+                              'not_any_tags': 'not-tags-any',
+                              'not_tags': 'not-tags',
+                              'port_range_max': 'port_range_max',
+                              'port_range_min': 'port_range_min',
+                              'project_id': 'project_id',
+                              'protocol': 'protocol',
+                              'remote_group_id': 'remote_group_id',
+                              'remote_ip_prefix': 'remote_ip_prefix',
+                              'revision_number': 'revision_number',
+                              'security_group_id': 'security_group_id',
+                              'sort_dir': 'sort_dir',
+                              'sort_key': 'sort_key',
+                              'tags': 'tags',
+                              'tenant_id': 'tenant_id'
+                              },
+                             sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = security_group_rule.SecurityGroupRule(**EXAMPLE)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
@@ -60,5 +84,6 @@ class TestSecurityGroupRule(base.TestCase):
         self.assertEqual(EXAMPLE['remote_ip_prefix'], sot.remote_ip_prefix)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_group_id'], sot.security_group_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['tenant_id'], sot.tenant_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
