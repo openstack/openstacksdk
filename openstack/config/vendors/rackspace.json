@@ -22,7 +22,7 @@
     "block_storage_api_version": "1",
     "disable_vendor_agent": {
       "vm_mode": "hvm",
-      "xenapi_use_agent": false
+      "xenapi_use_agent": "False"
     },
     "has_network": false
   }

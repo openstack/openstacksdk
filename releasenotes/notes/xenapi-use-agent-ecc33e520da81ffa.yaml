@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Updated the Rackspace vendor entry to use `"False"` for the value of
+    `xenapi_use_agent` instead of `false`, because that's what the remote
+    side expects. The recent update to use the Resource layer exposed
+    the incorrect setting causing image uploads to Rackspace to fail.
