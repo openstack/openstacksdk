@@ -38,7 +38,12 @@ class TestRouter(base.TestCase):
         'id': router_id,
         'name': router_name,
         'project_id': u'861808a93da0484ea1767967c4df8a23',
-        'routes': [],
+        'routes': [
+            {
+                "destination": "179.24.1.0/24",
+                "nexthop": "172.24.3.99"
+            }
+        ],
         'status': u'ACTIVE',
         'tenant_id': u'861808a93da0484ea1767967c4df8a23'
     }
@@ -61,7 +66,17 @@ class TestRouter(base.TestCase):
         "name": "Router Availability Zone"
     }
 
-    enabled_neutron_extensions = [router_availability_zone_extension]
+    router_extraroute_extension = {
+        "alias": "extraroute",
+        "updated": "2015-01-01T10:00:00-00:00",
+        "description": "extra routes extension for router.",
+        "links": [],
+        "name": "Extra Routes"
+    }
+
+    enabled_neutron_extensions = [
+        router_availability_zone_extension,
+        router_extraroute_extension]
 
     def test_get_router(self):
         self.register_uris([
@@ -240,9 +255,18 @@ class TestRouter(base.TestCase):
 
     def test_update_router(self):
         new_router_name = "mickey"
+        new_routes = []
         expected_router_rep = copy.copy(self.mock_router_rep)
         expected_router_rep['name'] = new_router_name
+        expected_router_rep['routes'] = new_routes
+        # validate_calls() asserts that these requests are done in order,
+        # but the extensions call is only called if a non-None value is
+        # passed in 'routes'
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'extensions.json']),
+                 json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'routers.json']),
@@ -254,10 +278,11 @@ class TestRouter(base.TestCase):
                  json={'router': expected_router_rep},
                  validate=dict(
                      json={'router': {
-                         'name': new_router_name}}))
+                         'name': new_router_name,
+                         'routes': new_routes}}))
         ])
         new_router = self.cloud.update_router(
-            self.router_id, name=new_router_name)
+            self.router_id, name=new_router_name, routes=new_routes)
         self.assertDictEqual(expected_router_rep, new_router)
         self.assert_calls()
 
