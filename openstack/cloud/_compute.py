@@ -92,13 +92,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
         flavors = self.list_flavors(get_extra=get_extra)
         return _utils._filter_list(flavors, name_or_id, filters)
 
-    def search_security_groups(self, name_or_id=None, filters=None):
-        # `filters` could be a dict or a jmespath (str)
-        groups = self.list_security_groups(
-            filters=filters if isinstance(filters, dict) else None
-        )
-        return _utils._filter_list(groups, name_or_id, filters)
-
     def search_servers(
             self, name_or_id=None, filters=None, detailed=False,
             all_projects=False, bare=False):

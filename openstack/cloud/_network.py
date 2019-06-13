@@ -1156,40 +1156,6 @@ class NetworkCloudMixin(_normalize.Normalizer):
             firewall_group[key + '_id'] = val
             del firewall_group[key]
 
-    def list_security_groups(self, filters=None):
-        """List all available security groups.
-
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of security group ``munch.Munch``.
-
-        """
-        # Security groups not supported
-        if not self._has_secgroups():
-            raise exc.OpenStackCloudUnavailableFeature(
-                "Unavailable feature: security groups"
-            )
-
-        if not filters:
-            filters = {}
-
-        data = []
-        # Handle neutron security groups
-        if self._use_neutron_secgroups():
-            # Neutron returns dicts, so no need to convert objects here.
-            resp = self.network.get('/security-groups.json', params=filters)
-            data = proxy._json_response(
-                resp,
-                error_message="Error fetching security group list")
-            return self._normalize_secgroups(
-                self._get_and_munchify('security_groups', data))
-
-        # Handle nova security groups
-        else:
-            data = proxy._json_response(self.compute.get(
-                '/os-security-groups', params=filters))
-        return self._normalize_secgroups(
-            self._get_and_munchify('security_groups', data))
-
     @_utils.valid_kwargs("name", "description", "shared", "default",
                          "project_id")
     def create_qos_policy(self, **kwargs):
