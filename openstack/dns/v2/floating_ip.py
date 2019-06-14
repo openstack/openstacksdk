@@ -9,11 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-# from openstack import exceptions
 from openstack import resource
 
+from openstack.dns.v2 import _base
 
-class FloatingIP(resource.Resource):
+
+class FloatingIP(_base.Resource):
     """DNS Floating IP Resource"""
     resource_key = ''
     resources_key = 'floatingips'
