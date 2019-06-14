@@ -80,7 +80,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return extension_name in self._nova_extensions()
 
     def search_keypairs(self, name_or_id=None, filters=None):
-        keypairs = self.list_keypairs()
+        keypairs = self.list_keypairs(
+            filters=filters if isinstance(filters, dict) else None
+        )
         return _utils._filter_list(keypairs, name_or_id, filters)
 
     def search_flavors(self, name_or_id=None, filters=None, get_extra=True):
@@ -115,17 +117,16 @@ class ComputeCloudMixin(_normalize.Normalizer):
         server_groups = self.list_server_groups()
         return _utils._filter_list(server_groups, name_or_id, filters)
 
-    def list_keypairs(self):
+    def list_keypairs(self, filters=None):
         """List all available keypairs.
 
         :returns: A list of ``munch.Munch`` containing keypair info.
 
         """
-        data = proxy._json_response(
-            self.compute.get('/os-keypairs'),
-            error_message="Error fetching keypair list")
-        return self._normalize_keypairs([
-            k['keypair'] for k in self._get_and_munchify('keypairs', data)])
+        if not filters:
+            filters = {}
+        return list(self.compute.keypairs(allow_unknown_params=True,
+                                          **filters))
 
     @_utils.cache_on_arguments()
     def list_availability_zone_names(self, unavailable=False):
@@ -620,13 +621,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         }
         if public_key:
             keypair['public_key'] = public_key
-        data = proxy._json_response(
-            self.compute.post(
-                '/os-keypairs',
-                json={'keypair': keypair}),
-            error_message="Unable to create keypair {name}".format(name=name))
-        return self._normalize_keypair(
-            self._get_and_munchify('keypair', data))
+        return self.compute.create_keypair(**keypair)
 
     def delete_keypair(self, name):
         """Delete a keypair.
@@ -638,9 +633,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            proxy._json_response(self.compute.delete(
-                '/os-keypairs/{name}'.format(name=name)))
-        except exc.OpenStackCloudURINotFound:
+            self.compute.delete_keypair(name, ignore_missing=False)
+        except exceptions.ResourceNotFound:
             self.log.debug("Keypair %s not found for deleting", name)
             return False
         return True
