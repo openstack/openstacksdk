@@ -142,12 +142,16 @@ def from_conf(conf, session=None, **kwargs):
     for st in stm.all_types_by_service_type:
         project_name = stm.get_project_name(st)
         if project_name not in conf:
-            _disable_service(
-                config_dict, st,
-                reason="No section for project '{project}' (service type "
-                       "'{service_type}') was present in the config.".format(
-                           project=project_name, service_type=st))
-            continue
+            if '-' in project_name:
+                project_name = project_name.replace('-', '_')
+
+            if project_name not in conf:
+                _disable_service(
+                    config_dict, st,
+                    reason="No section for project '{project}' (service type "
+                           "'{service_type}') was present in the config."
+                    .format(project=project_name, service_type=st))
+                continue
         opt_dict = {}
         # Populate opt_dict with (appropriately processed) Adapter conf opts
         try:

@@ -38,6 +38,10 @@ class TestFromConf(base.TestCase):
                 'interface': 'internal',
                 'endpoint_override': 'https://example.org:8888/heat/v2'
             },
+            # test a service with dashes
+            'ironic_inspector': {
+                'endpoint_override': 'https://example.org:5050',
+            },
         }
 
     def _load_ks_cfg_opts(self):
@@ -122,6 +126,31 @@ class TestFromConf(base.TestCase):
         self.assertEqual(s.id, server_id)
         self.assertEqual(s.name, server_name)
         self.assert_calls()
+
+    def test_name_with_dashes(self):
+        conn = self._get_conn()
+
+        discovery = {
+            "versions": {
+                "values": [
+                    {"status": "stable",
+                     "id": "v1",
+                     "links": [{
+                         "href": "https://example.org:5050/v1",
+                         "rel": "self"}]
+                     }]
+            }
+        }
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://example.org:5050',
+                 json=discovery),
+        ])
+
+        adap = conn.baremetal_introspection
+        self.assertEqual('baremetal-introspection', adap.service_type)
+        self.assertEqual('public', adap.interface)
+        self.assertEqual('https://example.org:5050', adap.endpoint_override)
 
     def _test_missing_invalid_permutations(self, expected_reason):
         # Do special things to self.oslo_config_dict['heat'] before calling
