@@ -35,7 +35,7 @@ class TestBackendPools(base.TestCase):
 
     def test_basic(self):
         sot = stats.Pools(POOLS)
-        self.assertEqual("pool", sot.resource_key)
+        self.assertEqual("", sot.resource_key)
         self.assertEqual("pools", sot.resources_key)
         self.assertEqual("/scheduler-stats/get_pools?detail=True",
                          sot.base_path)
