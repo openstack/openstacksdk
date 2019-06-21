@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import warnings
 
 from openstack.compute.v2 import aggregate as _aggregate
 from openstack.compute.v2 import availability_zone
@@ -275,16 +276,18 @@ class Proxy(proxy.Proxy):
         """Return a generator of images
 
         :param bool details: When ``True``, returns
-            :class:`~openstack.compute.v2.image.ImageDetail` objects,
-            otherwise :class:`~openstack.compute.v2.image.Image`.
+            :class:`~openstack.compute.v2.image.Image` objects with all
+            available properties, otherwise only basic properties are returned.
             *Default: ``True``*
         :param kwargs query: Optional query parameters to be sent to limit
                                  the resources being returned.
 
         :returns: A generator of image objects
         """
-        img = _image.ImageDetail if details else _image.Image
-        return self._list(img, **query)
+        warnings.warn('This API is deprecated and may disappear shortly',
+                      DeprecationWarning)
+        base_path = '/images/detail' if details else None
+        return self._list(_image.Image, base_path=base_path, **query)
 
     def _get_base_resource(self, res, base):
         # Metadata calls for Image and Server can work for both those
@@ -299,9 +302,7 @@ class Proxy(proxy.Proxy):
         """Return a dictionary of metadata for an image
 
         :param image: Either the ID of an image or a
-                       :class:`~openstack.compute.v2.image.Image` or
-                       :class:`~openstack.compute.v2.image.ImageDetail`
-                       instance.
+            :class:`~openstack.compute.v2.image.Image` instance.
 
         :returns: A :class:`~openstack.compute.v2.image.Image` with only the
                   image's metadata. All keys and values are Unicode text.
@@ -316,9 +317,7 @@ class Proxy(proxy.Proxy):
         """Update metadata for an image
 
         :param image: Either the ID of an image or a
-                       :class:`~openstack.compute.v2.image.Image` or
-                       :class:`~openstack.compute.v2.image.ImageDetail`
-                       instance.
+            :class:`~openstack.compute.v2.image.Image` instance.
         :param kwargs metadata: Key/value pairs to be updated in the image's
                                 metadata. No other metadata is modified
                                 by this call. All keys and values are stored
@@ -339,9 +338,7 @@ class Proxy(proxy.Proxy):
         Note: This method will do a HTTP DELETE request for every key in keys.
 
         :param image: Either the ID of an image or a
-                       :class:`~openstack.compute.v2.image.Image` or
-                       :class:`~openstack.compute.v2.image.ImageDetail`
-                       instance.
+            :class:`~openstack.compute.v2.image.Image` instance.
         :param keys: The keys to delete.
 
         :rtype: ``None``
@@ -1068,9 +1065,7 @@ class Proxy(proxy.Proxy):
         """Update metadata for a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` or
-                       :class:`~openstack.compute.v2.server.ServerDetail`
-                       instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param kwargs metadata: Key/value pairs to be updated in the server's
                                 metadata. No other metadata is modified
                                 by this call. All keys and values are stored
@@ -1091,9 +1086,7 @@ class Proxy(proxy.Proxy):
         Note: This method will do a HTTP DELETE request for every key in keys.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` or
-                       :class:`~openstack.compute.v2.server.ServerDetail`
-                       instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param keys: The keys to delete
 
         :rtype: ``None``
@@ -1171,23 +1164,19 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_server_group.ServerGroup, **query)
 
-    def hypervisors(self, details=False):
+    def hypervisors(self, details=False, **query):
         """Return a generator of hypervisor
 
         :param bool details: When set to the default, ``False``,
-                    :class:`~openstack.compute.v2.hypervisor.Hypervisor`
-                    instances will be returned. ``True`` will cause
-                    :class:`~openstack.compute.v2.hypervisor.HypervisorDetail`
-                    instances to be returned.
+            :class:`~openstack.compute.v2.hypervisor.Hypervisor`
+            instances will be returned with only basic information populated.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
         :returns: A generator of hypervisor
         :rtype: class: `~openstack.compute.v2.hypervisor.Hypervisor`
         """
-        if details:
-            hypervisor = _hypervisor.HypervisorDetail
-        else:
-            hypervisor = _hypervisor.Hypervisor
-
-        return self._list(hypervisor)
+        base_path = '/os-hypervisors/detail' if details else None
+        return self._list(_hypervisor.Hypervisor, base_path=base_path, **query)
 
     def find_hypervisor(self, name_or_id, ignore_missing=True):
         """Find a hypervisor from name or id to get the corresponding info

@@ -1590,16 +1590,16 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return _utils.normalize_flavor_accesses(
             self._get_and_munchify('flavor_access', data))
 
-    def list_hypervisors(self):
+    def list_hypervisors(self, filters={}):
         """List all hypervisors
 
         :returns: A list of hypervisor ``munch.Munch``.
         """
 
-        data = proxy._json_response(
-            self.compute.get('/os-hypervisors/detail'),
-            error_message="Error fetching hypervisor list")
-        return self._get_and_munchify('hypervisors', data)
+        return list(self.compute.hypervisors(
+            details=True,
+            allow_unknown_params=True,
+            **filters))
 
     def search_aggregates(self, name_or_id=None, filters=None):
         """Seach host aggregates.

@@ -23,6 +23,10 @@ class Hypervisor(resource.Resource):
     allow_fetch = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'hypervisor_hostname_pattern', 'with_servers'
+    )
+
     # Properties
     #: Status of hypervisor
     status = resource.Body('status')
@@ -64,9 +68,4 @@ class Hypervisor(resource.Resource):
     disk_available = resource.Body("disk_available_least")
 
 
-class HypervisorDetail(Hypervisor):
-    base_path = '/os-hypervisors/detail'
-
-    # capabilities
-    allow_fetch = False
-    allow_list = True
+HypervisorDetail = Hypervisor
