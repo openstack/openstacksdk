@@ -422,7 +422,7 @@
         - openstacksdk-functional-devstack-python2
         - osc-functional-devstack-tips:
             voting: false
-        - nodepool-functional-py35-src
+        - nodepool-functional-openstack-src
         - bifrost-integration-tinyipa-ubuntu-xenial
         - metalsmith-integration-openstacksdk-src:
             voting: false
@@ -432,5 +432,5 @@
         - openstacksdk-functional-devstack-python2
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
-        - nodepool-functional-py35-src
+        - nodepool-functional-openstack-src
         - bifrost-integration-tinyipa-ubuntu-xenial
