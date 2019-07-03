@@ -634,7 +634,7 @@ class TestResource(base.TestCase):
         class Test(resource.Resource):
             alt = resource.Body("the_alt", alternate_id=True)
 
-        self.assertTrue("the_alt", Test._alternate_id())
+        self.assertEqual("the_alt", Test._alternate_id())
 
         value1 = "lol"
         sot = Test(alt=value1)
