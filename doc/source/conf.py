@@ -112,5 +112,8 @@ latex_documents = [
      u'OpenStack Foundation', 'manual'),
 ]
 
+# Allow deeper levels of nesting for \begin...\end stanzas
+latex_elements = {'maxlistdepth': 10}
+
 # Include both the class and __init__ docstrings when describing the class
 autoclass_content = "both"
