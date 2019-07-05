@@ -27,7 +27,7 @@ class TestZone(base.BaseFunctionalTest):
         # chose a new zone name for a test
         # getUniqueString is not guaranteed to return unique string between
         # different tests of the same class.
-        self.ZONE_NAME = 'example-{0}.org.'.format(random.randint(1, 100))
+        self.ZONE_NAME = 'example-{0}.org.'.format(random.randint(1, 10000))
 
         self.zone = self.conn.dns.create_zone(
             name=self.ZONE_NAME,
@@ -37,11 +37,6 @@ class TestZone(base.BaseFunctionalTest):
             description='example zone'
         )
         self.addCleanup(self.conn.dns.delete_zone, self.zone)
-
-    def tearDown(self):
-        if self.zone:
-            self.conn.dns.delete_zone(self.zone)
-        super(TestZone, self).tearDown()
 
     def test_get_zone(self):
         zone = self.conn.dns.get_zone(self.zone)
