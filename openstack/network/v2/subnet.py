@@ -57,7 +57,7 @@ class Subnet(resource.Resource, resource.TagMixin):
     #: *Type: int*
     ip_version = resource.Body('ip_version', type=int)
     #: The IPv6 address modes which are 'dhcpv6-stateful', 'dhcpv6-stateless'
-    #: or 'slacc'.
+    #: or 'slaac'.
     ipv6_address_mode = resource.Body('ipv6_address_mode')
     #: The IPv6 router advertisements modes which can be 'slaac',
     #: 'dhcpv6-stateful', 'dhcpv6-stateless'.
