@@ -57,6 +57,7 @@ class TestServerSetMetadata(base.TestCase):
         self.assert_calls()
 
     def test_server_set_metadata(self):
+        metadata = {'meta': 'data'}
         self.register_uris([
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
@@ -67,10 +68,11 @@ class TestServerSetMetadata(base.TestCase):
                  uri=self.get_mock_url(
                      'compute', 'public',
                      append=['servers', self.fake_server['id'], 'metadata']),
-                 validate=dict(json={'metadata': {'meta': 'data'}}),
-                 status_code=200),
+                 validate=dict(json={'metadata': metadata}),
+                 status_code=200,
+                 json={'metadata': metadata}),
         ])
 
-        self.cloud.set_server_metadata(self.server_id, {'meta': 'data'})
+        self.cloud.set_server_metadata(self.server_id, metadata)
 
         self.assert_calls()

@@ -622,18 +622,26 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.revert_resize(self)
 
-    def create_server_image(self, server, name, metadata=None):
+    def create_server_image(self, server, name, metadata=None, wait=False,
+                            timeout=120):
         """Create an image from a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param str name: The name of the image to be created.
         :param dict metadata: A dictionary of metadata to be set on the image.
 
-        :returns: None
+        :returns: :class:`~openstack.image.v2.image.Image` object.
         """
         server = self._get_resource(_server.Server, server)
-        server.create_image(self, name, metadata)
+        image_id = server.create_image(self, name, metadata)
+
+        self._connection.list_images.invalidate(self)
+        image = self._connection.get_image(image_id)
+
+        if not wait:
+            return image
+        return self._connection.wait_for_image(image, timeout=timeout)
 
     def fetch_server_security_groups(self, server):
         """Fetch security groups with details for a server.

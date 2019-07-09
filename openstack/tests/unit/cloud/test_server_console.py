@@ -36,11 +36,11 @@ class TestServerConsole(base.TestCase):
                      id=self.server_id),
                  json={"output": self.output},
                  validate=dict(
-                     json={'os-getConsoleOutput': {'length': None}}))
+                     json={'os-getConsoleOutput': {'length': 5}}))
         ])
 
         self.assertEqual(
-            self.output, self.cloud.get_server_console(self.server))
+            self.output, self.cloud.get_server_console(self.server, 5))
         self.assert_calls()
 
     def test_get_server_console_name_or_id(self):
@@ -57,7 +57,7 @@ class TestServerConsole(base.TestCase):
                      id=self.server_id),
                  json={"output": self.output},
                  validate=dict(
-                     json={'os-getConsoleOutput': {'length': None}}))
+                     json={'os-getConsoleOutput': {}}))
         ])
 
         self.assertEqual(
@@ -74,7 +74,7 @@ class TestServerConsole(base.TestCase):
                      id=self.server_id),
                  status_code=400,
                  validate=dict(
-                     json={'os-getConsoleOutput': {'length': None}}))
+                     json={'os-getConsoleOutput': {}}))
         ])
 
         self.assertEqual('', self.cloud.get_server_console(self.server))

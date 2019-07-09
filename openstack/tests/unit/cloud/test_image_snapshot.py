@@ -33,6 +33,7 @@ class TestImageSnapshot(base.TestCase):
         snapshot_name = 'test-snapshot'
         fake_image = fakes.make_fake_image(self.image_id, status='pending')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(
                 method='POST',
                 uri='{endpoint}/servers/{server_id}/action'.format(
@@ -70,6 +71,7 @@ class TestImageSnapshot(base.TestCase):
         pending_image = fakes.make_fake_image(self.image_id, status='pending')
         fake_image = fakes.make_fake_image(self.image_id)
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(
                 method='POST',
                 uri='{endpoint}/servers/{server_id}/action'.format(
