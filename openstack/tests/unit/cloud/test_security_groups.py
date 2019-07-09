@@ -562,14 +562,20 @@ class TestSecurityGroups(base.TestCase):
     def test_list_server_security_groups_nova(self):
         self.has_neutron = False
 
-        server = dict(id='server_id')
+        server = fakes.make_fake_server('1234', 'server-name', 'ACTIVE')
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id']]),
+                 json=server),
             dict(
                 method='GET',
                 uri='{endpoint}/servers/{id}/os-security-groups'.format(
                     endpoint=fakes.COMPUTE_ENDPOINT,
-                    id='server_id'),
+                    id=server['id']),
                 json={'security_groups': [nova_grp_dict]}),
         ])
         groups = self.cloud.list_server_security_groups(server)

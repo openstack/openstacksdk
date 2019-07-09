@@ -12,6 +12,7 @@
 
 from openstack.compute.v2 import metadata
 from openstack.image.v2 import image
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -165,7 +166,8 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     scheduler_hints = resource.Body('OS-SCH-HNT:scheduler_hints', type=dict)
     #: A list of applicable security groups. Each group contains keys for
     #: description, name, id, and rules.
-    security_groups = resource.Body('security_groups')
+    security_groups = resource.Body('security_groups',
+                                    type=list, list_type=dict)
     #: The UUIDs of the server groups to which the server belongs.
     #: Currently this can contain at most one entry.
     server_groups = resource.Body('server_groups', type=list, list_type=dict)
@@ -305,12 +307,12 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         body = {'createImage': action}
         self._action(session, body)
 
-    def add_security_group(self, session, security_group):
-        body = {"addSecurityGroup": {"name": security_group}}
+    def add_security_group(self, session, security_group_name):
+        body = {"addSecurityGroup": {"name": security_group_name}}
         self._action(session, body)
 
-    def remove_security_group(self, session, security_group):
-        body = {"removeSecurityGroup": {"name": security_group}}
+    def remove_security_group(self, session, security_group_name):
+        body = {"removeSecurityGroup": {"name": security_group_name}}
         self._action(session, body)
 
     def reset_state(self, session, state):
@@ -493,6 +495,27 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
                     " is clear you understand the risks.")
         self._action(
             session, {'os-migrateLive': body}, microversion=microversion)
+
+    def fetch_security_groups(self, session):
+        """Fetch security groups of a server.
+
+        :returns: Updated Server instance.
+
+        """
+        url = utils.urljoin(Server.base_path, self.id, 'os-security-groups')
+
+        response = session.get(url)
+
+        exceptions.raise_from_response(response)
+
+        try:
+            data = response.json()
+            if 'security_groups' in data:
+                self.security_groups = data['security_groups']
+        except ValueError:
+            pass
+
+        return self
 
 
 ServerDetail = Server

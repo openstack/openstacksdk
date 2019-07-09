@@ -26,6 +26,7 @@ from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import volume_attachment as _volume_attachment
+from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
 
@@ -634,26 +635,37 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.create_image(self, name, metadata)
 
+    def fetch_server_security_groups(self, server):
+        """Fetch security groups with details for a server.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+
+        :returns: updated :class:`~openstack.compute.v2.server.Server` instance
+        """
+        server = self._get_resource(_server.Server, server)
+        return server.fetch_security_groups(self)
+
     def add_security_group_to_server(self, server, security_group):
         """Add a security group to a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
-        :param security_group: Either the ID of a security group or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param security_group: Either the ID, Name of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
 
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        security_group_id = resource.Resource._get_id(security_group)
-        server.add_security_group(self, security_group_id)
+        security_group = self._get_resource(_sg.SecurityGroup, security_group)
+        server.add_security_group(self, security_group.name)
 
     def remove_security_group_from_server(self, server, security_group):
         """Remove a security group from a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param security_group: Either the ID of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
@@ -661,8 +673,8 @@ class Proxy(proxy.Proxy):
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        security_group_id = resource.Resource._get_id(security_group)
-        server.remove_security_group(self, security_group_id)
+        security_group = self._get_resource(_sg.SecurityGroup, security_group)
+        server.remove_security_group(self, security_group.name)
 
     def add_fixed_ip_to_server(self, server, network_id):
         """Adds a fixed IP address to a server instance.

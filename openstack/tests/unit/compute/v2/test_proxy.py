@@ -515,3 +515,24 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
                      method_args=["value", "host1", False],
                      expected_args=["host1"],
                      expected_kwargs={'force': False, 'block_migration': None})
+
+    def test_fetch_security_groups(self):
+        self._verify(
+            'openstack.compute.v2.server.Server.fetch_security_groups',
+            self.proxy.fetch_server_security_groups,
+            method_args=["value"],
+            expected_args=[])
+
+    def test_add_security_groups(self):
+        self._verify(
+            'openstack.compute.v2.server.Server.add_security_group',
+            self.proxy.add_security_group_to_server,
+            method_args=["value", {'id': 'id', 'name': 'sg'}],
+            expected_args=['sg'])
+
+    def test_remove_security_groups(self):
+        self._verify(
+            'openstack.compute.v2.server.Server.remove_security_group',
+            self.proxy.remove_security_group_from_server,
+            method_args=["value", {'id': 'id', 'name': 'sg'}],
+            expected_args=['sg'])
