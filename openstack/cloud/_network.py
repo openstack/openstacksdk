@@ -123,6 +123,9 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :returns: A list of ``munch.Munch`` containing network info.
 
         """
+        # If the cloud is running nova-network, just return an empty list.
+        if not self.has_service('network'):
+            return []
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
@@ -136,6 +139,9 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :returns: A list of router ``munch.Munch``.
 
         """
+        # If the cloud is running nova-network, just return an empty list.
+        if not self.has_service('network'):
+            return []
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
@@ -152,6 +158,9 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :returns: A list of subnet ``munch.Munch``.
 
         """
+        # If the cloud is running nova-network, just return an empty list.
+        if not self.has_service('network'):
+            return []
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
@@ -192,6 +201,9 @@ class NetworkCloudMixin(_normalize.Normalizer):
         return _utils._filter_list(self._ports, None, filters or {})
 
     def _list_ports(self, filters):
+        # If the cloud is running nova-network, just return an empty list.
+        if not self.has_service('network'):
+            return []
         resp = self.network.get("/ports.json", params=filters)
         data = proxy._json_response(
             resp,

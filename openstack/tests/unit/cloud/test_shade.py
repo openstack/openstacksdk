@@ -122,26 +122,10 @@ class TestShade(base.TestCase):
 
         self.assert_calls()
 
-    def test__neutron_exceptions_resource_not_found(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
-                 status_code=404)
-        ])
-        self.assertRaises(exc.OpenStackCloudResourceNotFound,
-                          self.cloud.list_networks)
-        self.assert_calls()
-
-    def test__neutron_exceptions_url_not_found(self):
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
-                 status_code=404)
-        ])
-        self.assertRaises(exc.OpenStackCloudURINotFound,
-                          self.cloud.list_networks)
+    def test_neutron_not_found(self):
+        self.use_nothing()
+        self.cloud.has_service = mock.Mock(return_value=False)
+        self.assertEqual([], self.cloud.list_networks())
         self.assert_calls()
 
     def test_list_servers(self):
