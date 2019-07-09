@@ -15,6 +15,8 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
+from openstack import exceptions
+from openstack import resource
 from openstack.cloud import exc
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
@@ -22,24 +24,16 @@ from openstack.cloud import _utils
 
 class DnsCloudMixin(_normalize.Normalizer):
 
-    @property
-    def _dns_client(self):
-        if 'dns' not in self._raw_clients:
-            dns_client = self._get_versioned_client(
-                'dns', min_version=2, max_version='2.latest')
-            self._raw_clients['dns'] = dns_client
-        return self._raw_clients['dns']
-
-    def list_zones(self):
+    def list_zones(self, filters=None):
         """List all available zones.
 
         :returns: A list of zones dicts.
 
         """
-        data = self._dns_client.get(
-            "/zones",
-            error_message="Error fetching zones list")
-        return self._get_and_munchify('zones', data)
+        if not filters:
+            filters = {}
+        return list(self.dns.zones(allow_unknown_params=True,
+                                   **filters))
 
     def get_zone(self, name_or_id, filters=None):
         """Get a zone by name or ID.
@@ -47,17 +41,20 @@ class DnsCloudMixin(_normalize.Normalizer):
         :param name_or_id: Name or ID of the zone
         :param filters:
             A dictionary of meta data to use for further filtering
-            OR
-            A string containing a jmespath expression for further filtering.
-            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns:  A zone dict or None if no matching zone is found.
 
         """
-        return _utils._get_entity(self, 'zone', name_or_id, filters)
+        if not filters:
+            filters = {}
+        zone = self.dns.find_zone(
+            name_or_id=name_or_id, ignore_missing=True, **filters)
+        if not zone:
+            return False
+        return zone
 
     def search_zones(self, name_or_id=None, filters=None):
-        zones = self.list_zones()
+        zones = self.list_zones(filters)
         return _utils._filter_list(zones, name_or_id, filters)
 
     def create_zone(self, name, zone_type=None, email=None, description=None,
@@ -101,10 +98,12 @@ class DnsCloudMixin(_normalize.Normalizer):
         if masters is not None:
             zone["masters"] = masters
 
-        data = self._dns_client.post(
-            "/zones", json=zone,
-            error_message="Unable to create zone {name}".format(name=name))
-        return self._get_and_munchify(key=None, data=data)
+        try:
+            return self.dns.create_zone(**zone)
+        except exceptions.SDKException as e:
+            raise exc.OpenStackCloudException(
+                "Unable to create zone {name}".format(name=name)
+            )
 
     @_utils.valid_kwargs('email', 'description', 'ttl', 'masters')
     def update_zone(self, name_or_id, **kwargs):
@@ -127,10 +126,7 @@ class DnsCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Zone %s not found." % name_or_id)
 
-        data = self._dns_client.patch(
-            "/zones/{zone_id}".format(zone_id=zone['id']), json=kwargs,
-            error_message="Error updating zone {0}".format(name_or_id))
-        return self._get_and_munchify(key=None, data=data)
+        return self.dns.update_zone(zone['id'], **kwargs)
 
     def delete_zone(self, name_or_id):
         """Delete a zone.
@@ -142,54 +138,56 @@ class DnsCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
 
-        zone = self.get_zone(name_or_id)
-        if zone is None:
+        zone = self.dns.find_zone(name_or_id)
+        if not zone:
             self.log.debug("Zone %s not found for deleting", name_or_id)
             return False
 
-        return self._dns_client.delete(
-            "/zones/{zone_id}".format(zone_id=zone['id']),
-            error_message="Error deleting zone {0}".format(name_or_id))
+        self.dns.delete_zone(zone)
 
         return True
 
     def list_recordsets(self, zone):
         """List all available recordsets.
 
-        :param zone: Name or ID of the zone managing the recordset
+        :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
+            of the zone managing the recordset.
 
         :returns: A list of recordsets.
 
         """
-        zone_obj = self.get_zone(zone)
+        if isinstance(zone, resource.Resource):
+            zone_obj = zone
+        else:
+            zone_obj = self.get_zone(zone)
         if zone_obj is None:
             raise exc.OpenStackCloudException(
                 "Zone %s not found." % zone)
-        return self._dns_client.get(
-            "/zones/{zone_id}/recordsets".format(zone_id=zone_obj['id']),
-            error_message="Error fetching recordsets list")['recordsets']
+        return list(self.dns.recordsets(zone_obj))
 
     def get_recordset(self, zone, name_or_id):
         """Get a recordset by name or ID.
 
-        :param zone: Name or ID of the zone managing the recordset
+        :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
+            of the zone managing the recordset.
         :param name_or_id: Name or ID of the recordset
 
-        :returns:  A recordset dict or None if no matching recordset is
+        :returns:  A recordset dict or False if no matching recordset is
             found.
 
         """
-        zone_obj = self.get_zone(zone)
-        if zone_obj is None:
+        if isinstance(zone, resource.Resource):
+            zone_obj = zone
+        else:
+            zone_obj = self.get_zone(zone)
+        if not zone_obj:
             raise exc.OpenStackCloudException(
                 "Zone %s not found." % zone)
         try:
-            return self._dns_client.get(
-                "/zones/{zone_id}/recordsets/{recordset_id}".format(
-                    zone_id=zone_obj['id'], recordset_id=name_or_id),
-                error_message="Error fetching recordset")
+            return self.dns.find_recordset(
+                zone=zone_obj, name_or_id=name_or_id, ignore_missing=False)
         except Exception:
-            return None
+            return False
 
     def search_recordsets(self, zone, name_or_id=None, filters=None):
         recordsets = self.list_recordsets(zone=zone)
@@ -199,7 +197,8 @@ class DnsCloudMixin(_normalize.Normalizer):
                          description=None, ttl=None):
         """Create a recordset.
 
-        :param zone: Name or ID of the zone managing the recordset
+        :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
+            of the zone managing the recordset.
         :param name: Name of the recordset
         :param recordset_type: Type of the recordset
         :param records: List of the recordset definitions
@@ -211,8 +210,11 @@ class DnsCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
 
         """
-        zone_obj = self.get_zone(zone)
-        if zone_obj is None:
+        if isinstance(zone, resource.Resource):
+            zone_obj = zone
+        else:
+            zone_obj = self.get_zone(zone)
+        if not zone_obj:
             raise exc.OpenStackCloudException(
                 "Zone %s not found." % zone)
 
@@ -231,16 +233,14 @@ class DnsCloudMixin(_normalize.Normalizer):
         if ttl:
             body['ttl'] = ttl
 
-        return self._dns_client.post(
-            "/zones/{zone_id}/recordsets".format(zone_id=zone_obj['id']),
-            json=body,
-            error_message="Error creating recordset {name}".format(name=name))
+        return self.dns.create_recordset(zone=zone_obj, **body)
 
     @_utils.valid_kwargs('description', 'ttl', 'records')
     def update_recordset(self, zone, name_or_id, **kwargs):
         """Update a recordset.
 
-        :param zone: Name or ID of the zone managing the recordset
+        :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
+            of the zone managing the recordset.
         :param name_or_id: Name or ID of the recordset being updated.
         :param records: List of the recordset definitions
         :param description: Description of the recordset
@@ -250,27 +250,21 @@ class DnsCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        zone_obj = self.get_zone(zone)
-        if zone_obj is None:
-            raise exc.OpenStackCloudException(
-                "Zone %s not found." % zone)
 
-        recordset_obj = self.get_recordset(zone, name_or_id)
-        if recordset_obj is None:
+        rs = self.get_recordset(zone, name_or_id)
+        if not rs:
             raise exc.OpenStackCloudException(
                 "Recordset %s not found." % name_or_id)
 
-        new_recordset = self._dns_client.put(
-            "/zones/{zone_id}/recordsets/{recordset_id}".format(
-                zone_id=zone_obj['id'], recordset_id=name_or_id), json=kwargs,
-            error_message="Error updating recordset {0}".format(name_or_id))
+        rs = self.dns.update_recordset(recordset=rs, **kwargs)
 
-        return new_recordset
+        return rs
 
     def delete_recordset(self, zone, name_or_id):
         """Delete a recordset.
 
-        :param zone: Name or ID of the zone managing the recordset.
+        :param zone: Name, ID or :class:`openstack.dns.v2.zone.Zone` instance
+            of the zone managing the recordset.
         :param name_or_id: Name or ID of the recordset being deleted.
 
         :returns: True if delete succeeded, False otherwise.
@@ -278,19 +272,11 @@ class DnsCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
 
-        zone_obj = self.get_zone(zone)
-        if zone_obj is None:
-            self.log.debug("Zone %s not found for deleting", zone)
-            return False
-
-        recordset = self.get_recordset(zone_obj['id'], name_or_id)
-        if recordset is None:
+        recordset = self.get_recordset(zone, name_or_id)
+        if not recordset:
             self.log.debug("Recordset %s not found for deleting", name_or_id)
             return False
 
-        self._dns_client.delete(
-            "/zones/{zone_id}/recordsets/{recordset_id}".format(
-                zone_id=zone_obj['id'], recordset_id=name_or_id),
-            error_message="Error deleting recordset {0}".format(name_or_id))
+        self.dns.delete_recordset(recordset, ignore_missing=False)
 
         return True

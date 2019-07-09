@@ -12,8 +12,10 @@
 from openstack import exceptions
 from openstack import resource
 
+from openstack.dns.v2 import _base
 
-class ZoneImport(resource.Resource):
+
+class ZoneImport(_base.Resource):
     """DNS Zone Import Resource"""
     resource_key = ''
     resources_key = 'imports'

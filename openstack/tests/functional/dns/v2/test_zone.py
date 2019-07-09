@@ -45,3 +45,14 @@ class TestZone(base.BaseFunctionalTest):
     def test_list_zones(self):
         names = [f.name for f in self.conn.dns.zones()]
         self.assertIn(self.ZONE_NAME, names)
+
+    def test_create_rs(self):
+        zone = self.conn.dns.get_zone(self.zone)
+        self.assertIsNotNone(self.conn.dns.create_recordset(
+            zone=zone,
+            name='www.{zone}'.format(zone=zone.name),
+            type='A',
+            description='Example zone rec',
+            ttl=3600,
+            records=['192.168.1.1']
+        ))

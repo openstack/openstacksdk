@@ -12,8 +12,10 @@
 from openstack import exceptions
 from openstack import resource
 
+from openstack.dns.v2 import _base
 
-class ZoneExport(resource.Resource):
+
+class ZoneExport(_base.Resource):
     """DNS Zone Exports Resource"""
     resource_key = ''
     resources_key = 'exports'

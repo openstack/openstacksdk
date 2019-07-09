@@ -40,7 +40,7 @@ class TestRecordset(base.TestCase):
 
     def test_basic(self):
         sot = recordset.Recordset()
-        self.assertEqual('recordset', sot.resource_key)
+        self.assertIsNone(sot.resource_key)
         self.assertEqual('recordsets', sot.resources_key)
         self.assertEqual('/zones/%(zone_id)s/recordsets', sot.base_path)
         self.assertTrue(sot.allow_list)

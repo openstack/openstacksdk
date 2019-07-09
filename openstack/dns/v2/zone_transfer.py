@@ -11,8 +11,10 @@
 # under the License.
 from openstack import resource
 
+from openstack.dns.v2 import _base
 
-class ZoneTransferBase(resource.Resource):
+
+class ZoneTransferBase(_base.Resource):
     """DNS Zone Transfer Request/Accept Base Resource"""
 
     _query_mapping = resource.QueryParameters(
