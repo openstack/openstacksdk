@@ -46,7 +46,7 @@ class TestHost(base.BaseFunctionalTest):
             service_type='COMPUTE')
 
         # Create valid host
-        self.NAME = HYPERVISORS[0]['hypervisor_hostname']
+        self.NAME = HYPERVISORS[0].name
         self.host = self.conn.ha.create_host(
             segment_id=self.segment.uuid, name=self.NAME, type='COMPUTE',
             control_attributes='SSH')
