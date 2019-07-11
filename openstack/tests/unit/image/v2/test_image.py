@@ -262,6 +262,7 @@ class TestImage(base.TestCase):
         sot.import_image(self.sess, "web-download", "such-a-good-uri")
         self.sess.post.assert_called_with(
             'images/IDENTIFIER/import',
+            headers={},
             json=json
         )
 
@@ -271,7 +272,20 @@ class TestImage(base.TestCase):
         sot.import_image(self.sess, "glance-direct")
         self.sess.post.assert_called_with(
             'images/IDENTIFIER/import',
+            headers={},
             json={"method": {"name": "glance-direct"}}
+        )
+
+    def test_import_image_with_stores(self):
+        sot = image.Image(**EXAMPLE)
+        json = {"method": {"name": "web-download", "uri": "such-a-good-uri"}}
+        store = mock.MagicMock()
+        store.id = "ceph_1"
+        sot.import_image(self.sess, "web-download", "such-a-good-uri", store)
+        self.sess.post.assert_called_with(
+            'images/IDENTIFIER/import',
+            headers={'X-Image-Meta-Store': 'ceph_1'},
+            json=json
         )
 
     def test_upload(self):

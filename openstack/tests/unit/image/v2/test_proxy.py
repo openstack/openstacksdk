@@ -54,7 +54,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self._verify("openstack.image.v2.image.Image.import_image",
                      self.proxy.import_image,
                      method_args=[original_image, "method", "uri"],
-                     expected_kwargs={"method": "method",
+                     expected_kwargs={"method": "method", "store": None,
                                       "uri": "uri"})
 
     def test_image_upload_no_args(self):

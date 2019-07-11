@@ -268,7 +268,8 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
         self._translate_response(response, has_body=False)
         return self
 
-    def import_image(self, session, method='glance-direct', uri=None):
+    def import_image(self, session, method='glance-direct', uri=None,
+                     store=None):
         """Import Image via interoperable image import process"""
         url = utils.urljoin(self.base_path, self.id, 'import')
         json = {'method': {'name': method}}
@@ -280,7 +281,10 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
             else:
                 raise exceptions.InvalidRequest('URI is only supported with '
                                                 'method: "web-download"')
-        session.post(url, json=json)
+        headers = {}
+        if store is not None:
+            headers = {'X-Image-Meta-Store': store.id}
+        session.post(url, json=json, headers=headers)
 
     def _prepare_request(self, requires_id=None, prepend_key=False,
                          patch=False, base_path=None):
