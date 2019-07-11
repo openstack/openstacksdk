@@ -1,0 +1,4 @@
+---
+fixes:
+  - Fixed a bug related to metadata's key name. An exception was
+    raised when setting it to "delete"," clear" or "key"

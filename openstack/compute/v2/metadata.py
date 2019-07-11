@@ -19,7 +19,8 @@ from openstack import utils
 class MetadataMixin(object):
 
     def _metadata(self, method, key=None, clear=False, delete=False,
-                  **metadata):
+                  metadata=None):
+        metadata = metadata or {}
         for k, v in metadata.items():
             if not isinstance(v, six.string_types):
                 raise ValueError("The value for %s (%s) must be "
@@ -84,7 +85,7 @@ class MetadataMixin(object):
         if not metadata:
             return dict()
 
-        result = self._metadata(session.post, **metadata)
+        result = self._metadata(session.post, metadata=metadata)
         return result["metadata"]
 
     def delete_metadata(self, session, keys):
