@@ -141,16 +141,25 @@ class TestFromConf(base.TestCase):
                      }]
             }
         }
+        status = {
+            'finished': True,
+            'error': None
+        }
         self.register_uris([
             dict(method='GET',
                  uri='https://example.org:5050',
                  json=discovery),
+            dict(method='GET',
+                 uri='https://example.org:5050/v1/introspection/abcd',
+                 json=status),
         ])
 
         adap = conn.baremetal_introspection
         self.assertEqual('baremetal-introspection', adap.service_type)
         self.assertEqual('public', adap.interface)
-        self.assertEqual('https://example.org:5050', adap.endpoint_override)
+        self.assertEqual('https://example.org:5050/v1', adap.endpoint_override)
+
+        self.assertTrue(adap.get_introspection('abcd').is_finished)
 
     def _test_missing_invalid_permutations(self, expected_reason):
         # Do special things to self.oslo_config_dict['heat'] before calling

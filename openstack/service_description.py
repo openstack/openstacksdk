@@ -169,7 +169,7 @@ class ServiceDescription(object):
             # so that subsequent discovery calls don't get made incorrectly.
             if data.catalog_url != data.service_url:
                 ep_key = '{service_type}_endpoint_override'.format(
-                    service_type=self.service_type)
+                    service_type=self.service_type.replace('-', '_'))
                 config.config[ep_key] = data.service_url
                 proxy_obj = config.get_session_client(
                     self.service_type,
