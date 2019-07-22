@@ -281,7 +281,7 @@ class Proxy(proxy.Proxy):
             a normal code and should not be retried.
 
         See `Update Node
-        <https://developer.openstack.org/api-ref/baremetal/?expanded=update-node-detail#update-node>`_
+        <https://docs.openstack.org/api-ref/baremetal/?expanded=update-node-detail#update-node>`_
         for details.
 
         :returns: The updated node.

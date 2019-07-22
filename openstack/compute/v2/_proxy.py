@@ -487,7 +487,7 @@ class Proxy(proxy.Proxy):
             ``True``, will cause instances with full data to be returned.
         :param kwargs query: Optional query parameters to be sent to limit
             the servers being returned. Available parameters can be seen
-            under https://developer.openstack.org/api-ref/compute/#list-servers
+            under https://docs.openstack.org/api-ref/compute/#list-servers
 
         :returns: A generator of server instances.
         """

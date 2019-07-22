@@ -159,7 +159,7 @@ def make_fake_server(
 
 def make_fake_keypair(name):
     # Note: this is literally taken from:
-    # https://developer.openstack.org/api-ref/compute/
+    # https://docs.openstack.org/api-ref/compute/
     return {
         "fingerprint": "7e:eb:ab:24:ba:d1:e1:88:ae:9a:fb:66:53:df:d3:bd",
         "name": name,
