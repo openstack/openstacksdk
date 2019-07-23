@@ -720,5 +720,30 @@ class Node(_common.ListMixin, resource.Resource):
                .format(node=self.id))
         exceptions.raise_from_response(response, error_message=msg)
 
+    def set_boot_device(self, session, boot_device, persistent=False):
+        """Set node boot device
+
+        :param session: The session to use for making this request.
+        :param boot_device: Boot device to assign to the node.
+        :param persistent: If the boot device change is maintained after node
+            reboot
+        :return: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        session = self._get_session(session)
+        version = self._get_microversion_for(session, 'commit')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'management', 'boot_device')
+
+        body = {'boot_device': boot_device, 'persistent': persistent}
+
+        response = session.put(
+            request.url, json=body,
+            headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to set boot device for node {node}"
+               .format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+
 
 NodeDetail = Node
