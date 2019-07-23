@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Implements add/remove/set traits API for bare metal nodes.

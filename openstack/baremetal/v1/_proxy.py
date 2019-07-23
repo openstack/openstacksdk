@@ -917,3 +917,44 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_allocation.Allocation, allocation)
         return res.wait(self, timeout=timeout, ignore_error=ignore_error)
+
+    def add_node_trait(self, node, trait):
+        """Add a trait to a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param trait: trait to remove from the node.
+        :returns: The updated node
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.add_trait(self, trait)
+
+    def remove_node_trait(self, node, trait, ignore_missing=True):
+        """Remove a trait from a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param trait: trait to remove from the node.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the trait could not be found. When set to ``True``, no
+            exception will be raised when attempting to delete a non-existent
+            trait.
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.remove_trait(self, trait, ignore_missing=ignore_missing)
+
+    def set_node_traits(self, node, traits):
+        """Set traits for a node.
+
+        Removes any existing traits and adds the traits passed in to this
+        method.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param traits: list of traits to add to the node.
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_traits(self, traits)

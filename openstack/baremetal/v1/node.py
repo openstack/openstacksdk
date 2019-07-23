@@ -745,5 +745,89 @@ class Node(_common.ListMixin, resource.Resource):
                .format(node=self.id))
         exceptions.raise_from_response(response, error_message=msg)
 
+    def add_trait(self, session, trait):
+        """Add a trait to a node.
+
+        :param session: The session to use for making this request.
+        :param trait: The trait to add to the node.
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        session = self._get_session(session)
+        version = utils.pick_microversion(session, '1.37')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'traits', trait)
+        response = session.put(
+            request.url, json=None,
+            headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to add trait {trait} for node {node}"
+               .format(trait=trait, node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+
+        self.traits = list(set(self.traits or ()) | {trait})
+
+    def remove_trait(self, session, trait, ignore_missing=True):
+        """Remove a trait from a node.
+
+        :param session: The session to use for making this request.
+        :param trait: The trait to remove from the node.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the trait does not exist.
+            Otherwise, ``False`` is returned.
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        session = self._get_session(session)
+        version = utils.pick_microversion(session, '1.37')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'traits', trait)
+
+        response = session.delete(
+            request.url, headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        if ignore_missing or response.status_code == 400:
+            session.log.debug(
+                'Trait %(trait)s was already removed from node %(node)s',
+                {'trait': trait, 'node': self.id})
+            return False
+
+        msg = ("Failed to remove trait {trait} from bare metal node {node}"
+               .format(node=self.id, trait=trait))
+        exceptions.raise_from_response(response, error_message=msg)
+
+        self.traits = list(set(self.traits) - {trait})
+
+        return True
+
+    def set_traits(self, session, traits):
+        """Set traits for a node.
+
+        Removes any existing traits and adds the traits passed in to this
+        method.
+
+        :param session: The session to use for making this request.
+        :param traits: list of traits to add to the node.
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        session = self._get_session(session)
+        version = utils.pick_microversion(session, '1.37')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'traits')
+
+        body = {'traits': traits}
+
+        response = session.put(
+            request.url, json=body,
+            headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to set traits for node {node}"
+               .format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+
+        self.traits = traits
+
 
 NodeDetail = Node
