@@ -213,11 +213,11 @@ class ImageCloudMixin(_normalize.Normalizer):
         # Task API means an image was uploaded to swift
         # TODO(gtema) does it make sense to move this into proxy?
         if self.image_api_use_tasks and (
-                self._IMAGE_OBJECT_KEY in image
-                or self._SHADE_IMAGE_OBJECT_KEY in image):
+                self.image._IMAGE_OBJECT_KEY in image
+                or self.image._SHADE_IMAGE_OBJECT_KEY in image):
             (container, objname) = image.get(
-                self._IMAGE_OBJECT_KEY, image.get(
-                    self._SHADE_IMAGE_OBJECT_KEY)).split('/', 1)
+                self.image._IMAGE_OBJECT_KEY, image.get(
+                    self.image._SHADE_IMAGE_OBJECT_KEY)).split('/', 1)
             self.delete_object(container=container, name=objname)
 
         if wait:
