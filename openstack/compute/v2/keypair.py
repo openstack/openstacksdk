@@ -18,6 +18,9 @@ class Keypair(resource.Resource):
     resources_key = 'keypairs'
     base_path = '/os-keypairs'
 
+    _query_mapping = resource.QueryParameters(
+        'user_id')
+
     # capabilities
     allow_create = True
     allow_fetch = True
@@ -25,6 +28,10 @@ class Keypair(resource.Resource):
     allow_list = True
 
     # Properties
+    #: The date and time when the resource was created.
+    created_at = resource.Body('created_at')
+    #: A boolean indicates whether this keypair is deleted or not.
+    is_deleted = resource.Body('deleted', type=bool)
     #: The short fingerprint associated with the ``public_key`` for
     #: this keypair.
     fingerprint = resource.Body('fingerprint')
@@ -42,6 +49,10 @@ class Keypair(resource.Resource):
     private_key = resource.Body('private_key')
     #: The SSH public key that is paired with the server.
     public_key = resource.Body('public_key')
+    #: The type of the keypair.
+    type = resource.Body('type', default='ssh')
+    #: The user_id for a keypair.
+    user_id = resource.Body('user_id')
 
     def _consume_attrs(self, mapping, attrs):
         # TODO(mordred) This should not be required. However, without doing
@@ -51,16 +62,22 @@ class Keypair(resource.Resource):
         return super(Keypair, self)._consume_attrs(mapping, attrs)
 
     @classmethod
-    def list(cls, session, paginated=False, base_path=None):
+    def existing(cls, connection=None, **kwargs):
+        """Create an instance of an existing remote resource.
 
-        if base_path is None:
-            base_path = cls.base_path
+        When creating the instance set the ``_synchronized`` parameter
+        of :class:`Resource` to ``True`` to indicate that it represents the
+        state of an existing server-side resource. As such, all attributes
+        passed in ``**kwargs`` are considered "clean", such that an immediate
+        :meth:`update` call would not generate a body of attributes to be
+        modified on the server.
 
-        resp = session.get(base_path,
-                           headers={"Accept": "application/json"})
-        resp = resp.json()
-        resp = resp[cls.resources_key]
-
-        for data in resp:
-            value = cls.existing(**data[cls.resource_key])
-            yield value
+        :param dict kwargs: Each of the named arguments will be set as
+                            attributes on the resulting Resource object.
+        """
+        # Listing KPs return list with resource_key structure. Instead of
+        # overriding whole list just try to create object smart.
+        if cls.resource_key in kwargs:
+            args = kwargs.pop(cls.resource_key)
+            kwargs.update(**args)
+        return cls(_synchronized=True, connection=connection, **kwargs)

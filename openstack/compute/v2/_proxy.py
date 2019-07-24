@@ -402,13 +402,15 @@ class Proxy(proxy.Proxy):
         return self._find(_keypair.Keypair, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def keypairs(self):
+    def keypairs(self, **query):
         """Return a generator of keypairs
 
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
         :returns: A generator of keypair objects
         :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
         """
-        return self._list(_keypair.Keypair)
+        return self._list(_keypair.Keypair, **query)
 
     def get_limits(self):
         """Retrieve limits that are applied to the project's account

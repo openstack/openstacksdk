@@ -38,7 +38,10 @@ class TestKeypair(base.TestCase):
 
         new_key = self.cloud.create_keypair(
             self.keyname, self.key['public_key'])
-        self.assertEqual(new_key, self.cloud._normalize_keypair(self.key))
+        new_key_cmp = new_key.to_dict(ignore_none=True)
+        new_key_cmp.pop('location')
+        new_key_cmp.pop('id')
+        self.assertEqual(new_key_cmp, self.key)
 
         self.assert_calls()
 
@@ -94,7 +97,36 @@ class TestKeypair(base.TestCase):
 
         ])
         keypairs = self.cloud.list_keypairs()
-        self.assertEqual(keypairs, self.cloud._normalize_keypairs([self.key]))
+        self.assertEqual(len(keypairs), 1)
+        self.assertEqual(keypairs[0].name, self.key['name'])
+        self.assert_calls()
+
+    def test_list_keypairs_empty_filters(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-keypairs']),
+                 json={'keypairs': [{'keypair': self.key}]}),
+
+        ])
+        keypairs = self.cloud.list_keypairs(filters=None)
+        self.assertEqual(len(keypairs), 1)
+        self.assertEqual(keypairs[0].name, self.key['name'])
+        self.assert_calls()
+
+    def test_list_keypairs_notempty_filters(self):
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-keypairs'],
+                     qs_elements=['user_id=b']),
+                 json={'keypairs': [{'keypair': self.key}]}),
+
+        ])
+        keypairs = self.cloud.list_keypairs(
+            filters={'user_id': 'b', 'fake': 'dummy'})
+        self.assertEqual(len(keypairs), 1)
+        self.assertEqual(keypairs[0].name, self.key['name'])
         self.assert_calls()
 
     def test_list_keypairs_exception(self):
