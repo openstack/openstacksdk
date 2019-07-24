@@ -35,7 +35,8 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         return self._create(_image.Image, **kwargs)
 
-    def import_image(self, image, method='glance-direct', uri=None):
+    def import_image(self, image, method='glance-direct', uri=None,
+                     store=None):
         """Import data to an existing image
 
         Interoperable image import process are introduced in the Image API
@@ -50,10 +51,16 @@ class Proxy(_base_proxy.BaseImageProxy):
         :param uri: Required only if using the web-download import method.
                     This url is where the data is made available to the Image
                     service.
+        :param store: Used when enabled_backends is activated in glance
+                      The value can be the id of a store or a
+                      :class:`~openstack.image.v2.service_info.Store`
+                      instance.
 
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
+        if store is not None:
+            store = self._get_resource(_si.Store, store)
 
         # as for the standard image upload function, container_format and
         # disk_format are required for using image import process
@@ -62,7 +69,7 @@ class Proxy(_base_proxy.BaseImageProxy):
                 "Both container_format and disk_format are required for"
                 " importing an image")
 
-        image.import_image(self, method=method, uri=uri)
+        image.import_image(self, method=method, uri=uri, store=store)
 
     def stage_image(self, image, filename=None, data=None):
         """Stage binary image data
