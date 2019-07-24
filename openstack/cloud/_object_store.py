@@ -21,7 +21,7 @@ import os
 import six
 import types  # noqa
 
-from six.moves import urllib
+from six.moves import urllib_parse
 
 import keystoneauth1.exceptions
 
@@ -106,7 +106,9 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         """
         if skip_cache or name not in self._container_cache:
             try:
-                response = self.object_store.head(name)
+                response = self.object_store.head(
+                    self._get_object_endpoint(name)
+                )
                 exceptions.raise_from_response(response)
                 self._container_cache[name] = response.headers
             except exc.OpenStackCloudHTTPError as e:
@@ -126,7 +128,9 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         container = self.get_container(name)
         if container:
             return container
-        exceptions.raise_from_response(self.object_store.put(name))
+        exceptions.raise_from_response(self.object_store.put(
+            self._get_object_endpoint(name)
+        ))
         if public:
             self.set_container_access(name, 'public')
         return self.get_container(name, skip_cache=True)
@@ -137,7 +141,9 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         :param str name: Name of the container to delete.
         """
         try:
-            exceptions.raise_from_response(self.object_store.delete(name))
+            exceptions.raise_from_response(self.object_store.delete(
+                self._get_object_endpoint(name)
+            ))
             self._container_cache.pop(name, None)
             return True
         except exc.OpenStackCloudHTTPError as e:
@@ -167,7 +173,9 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             Key/Value headers to set on the container.
         """
         exceptions.raise_from_response(
-            self.object_store.post(name, headers=headers))
+            self.object_store.post(
+                self._get_object_endpoint(name), headers=headers)
+        )
 
     def set_container_access(self, name, access):
         """Set the access control list on a container.
@@ -237,7 +245,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         # The endpoint in the catalog has version and project-id in it
         # To get capabilities, we have to disassemble and reassemble the URL
         # This logic is taken from swiftclient
-        endpoint = urllib.parse.urlparse(self.object_store.get_endpoint())
+        endpoint = urllib_parse.urlparse(self.object_store.get_endpoint())
         url = "{scheme}://{netloc}/info".format(
             scheme=endpoint.scheme, netloc=endpoint.netloc)
 
@@ -414,7 +422,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         for (k, v) in metadata.items():
             headers['x-object-meta-' + k] = v
 
-        endpoint = '{container}/{name}'.format(container=container, name=name)
+        endpoint = self._get_object_endpoint(container, name)
 
         if data is not None:
             self.log.debug(
@@ -585,8 +593,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         headers = dict(headers, **metadata_headers)
 
         return self._object_store_client.post(
-            '{container}/{object}'.format(
-                container=container, object=name),
+            self._get_object_endpoint(container, name),
             headers=headers)
 
     def list_objects(self, container, full_listing=True, prefix=None):
@@ -652,8 +659,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             if meta.get('X-Static-Large-Object', None) == 'True':
                 params['multipart-manifest'] = 'delete'
             self._object_store_client.delete(
-                '{container}/{object}'.format(
-                    container=container, object=name),
+                self._get_object_endpoint(container, name),
                 params=params)
             return True
         except exc.OpenStackCloudHTTPError:
@@ -687,8 +693,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
     def get_object_metadata(self, container, name):
         try:
             return self._object_store_client.head(
-                '{container}/{object}'.format(
-                    container=container, object=name)).headers
+                self._get_object_endpoint(container, name)).headers
         except exc.OpenStackCloudException as e:
             if e.response.status_code == 404:
                 return None
@@ -710,9 +715,13 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         endpoint = self._get_object_endpoint(container, obj, query_string)
         return self._object_store_client.get(endpoint, stream=stream)
 
-    def _get_object_endpoint(self, container, obj, query_string):
-        endpoint = '{container}/{object}'.format(
-            container=container, object=obj)
+    def _get_object_endpoint(self, container, obj=None, query_string=None):
+        endpoint = urllib_parse.quote(container)
+        if obj:
+            endpoint = '{endpoint}/{object}'.format(
+                endpoint=endpoint,
+                object=urllib_parse.quote(obj)
+            )
         if query_string:
             endpoint = '{endpoint}?{query_string}'.format(
                 endpoint=endpoint, query_string=query_string)
