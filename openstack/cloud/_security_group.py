@@ -309,7 +309,6 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
                 'ethertype': ethertype
             }
             if project_id is not None:
-                rule_def['project_id'] = project_id
                 rule_def['tenant_id'] = project_id
 
             return self.network.create_security_group_rule(

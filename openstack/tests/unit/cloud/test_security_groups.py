@@ -372,9 +372,11 @@ class TestSecurityGroups(base.TestCase):
         expected_args['port_range_min'] = None
         expected_args['security_group_id'] = neutron_grp_dict['id']
         expected_args['tenant_id'] = expected_args['project_id']
+        expected_args.pop('project_id')
 
         expected_new_rule = copy.copy(expected_args)
         expected_new_rule['id'] = '1234'
+        expected_new_rule['project_id'] = expected_new_rule['tenant_id']
 
         self.register_uris([
             dict(method='GET',
