@@ -683,3 +683,22 @@ class TestNodeMaintenance(base.TestCase):
             json=None,
             headers=mock.ANY,
             microversion=mock.ANY)
+
+
+@mock.patch.object(node.Node, 'fetch', lambda self, session: self)
+@mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+class TestNodeSetBootDevice(base.TestCase):
+
+    def setUp(self):
+        super(TestNodeSetBootDevice, self).setUp()
+        self.node = node.Node(**FAKE)
+        self.session = mock.Mock(spec=adapter.Adapter,
+                                 default_microversion='1.1')
+
+    def test_node_set_boot_device(self):
+        self.node.set_boot_device(self.session, 'pxe', persistent=False)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/management/boot_device' % self.node.id,
+            json={'boot_device': 'pxe', 'persistent': False},
+            headers=mock.ANY, microversion=mock.ANY,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
