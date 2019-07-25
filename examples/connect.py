@@ -18,10 +18,10 @@ For a full guide see TODO(etoews):link to docs on developer.openstack.org
 
 import argparse
 import os
+import sys
 
 import openstack
 from openstack.config import loader
-import sys
 
 openstack.enable_logging(True, stream=sys.stdout)
 
@@ -69,14 +69,16 @@ def create_connection_from_args():
     return openstack.connect(options=parser)
 
 
-def create_connection(auth_url, region, project_name, username, password):
-
+def create_connection(auth_url, region, project_name, username, password,
+                      user_domain, project_domain):
     return openstack.connect(
         auth_url=auth_url,
         project_name=project_name,
         username=username,
         password=password,
         region_name=region,
+        user_domain_name=user_domain,
+        project_domain_name=project_domain,
         app_name='examples',
         app_version='1.0',
     )
