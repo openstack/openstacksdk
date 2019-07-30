@@ -24,7 +24,8 @@ from examples.connect import SSH_DIR
 """
 Create resources with the Compute service.
 
-For a full guide see TODO(etoews):link to docs on developer.openstack.org
+For a full guide see
+https://docs.openstack.org/openstacksdk/latest/user/guides/compute.html
 """
 
 
