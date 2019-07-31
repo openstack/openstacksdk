@@ -63,6 +63,8 @@ Router Operations
    .. automethod:: openstack.network.v2._proxy.Proxy.remove_gateway_from_router
    .. automethod:: openstack.network.v2._proxy.Proxy.add_interface_to_router
    .. automethod:: openstack.network.v2._proxy.Proxy.remove_interface_from_router
+   .. automethod:: openstack.network.v2._proxy.Proxy.add_extra_routes_to_router
+   .. automethod:: openstack.network.v2._proxy.Proxy.remove_extra_routes_from_router
 
 Floating IP Operations
 ^^^^^^^^^^^^^^^^^^^^^^

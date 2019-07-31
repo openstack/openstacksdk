@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add support for methods of Neutron extension: ``extraroute-atomic``.
