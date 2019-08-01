@@ -13,7 +13,8 @@
 """
 List resources from the DNS service.
 
-For a full guide see TODO(gtema):link to docs on developer.openstack.org
+For a full guide see
+https://docs.openstack.org/openstacksdk/latest/user/guides/dns.html
 """
 
 

@@ -14,7 +14,7 @@
 Managing policies in the Cluster service.
 
 For a full guide see
-https://developer.openstack.org/sdks/python/openstacksdk/user/guides/cluster.html
+https://docs.openstack.org/openstacksdk/latest/user/guides/clustering.html
 """
 
 EVENT_ID = "5d982071-76c5-4733-bf35-b9e38a563c99"

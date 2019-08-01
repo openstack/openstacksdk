@@ -13,7 +13,8 @@
 """
 Connect to an OpenStack cloud.
 
-For a full guide see TODO(etoews):link to docs on developer.openstack.org
+For a full guide see
+https://docs.openstack.org/openstacksdk/latest/user/guides/connect_from_config.html
 """
 
 import argparse

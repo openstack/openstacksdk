@@ -15,7 +15,8 @@ import examples.connect
 """
 Find a resource from the Network service.
 
-For a full guide see TODO(etoews):link to docs on developer.openstack.org
+For a full guide see
+https://docs.openstack.org/openstacksdk/latest/user/guides/network.html
 """
 
 

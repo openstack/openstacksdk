@@ -14,7 +14,7 @@
 Managing policies in the Cluster service.
 
 For a full guide see
-https://developer.openstack.org/sdks/python/openstacksdk/user/guides/cluster.html
+https://docs.openstack.org/openstacksdk/latest/user/guides/clustering.html
 """
 
 ACTION_ID = "06ad259b-d6ab-4eb2-a0fa-fb144437eab1"
