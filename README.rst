@@ -88,6 +88,47 @@ List servers using objects configured with the ``clouds.yaml`` file:
     for server in conn.compute.servers():
         print(server.to_dict())
 
+Cloud Layer
+===========
+
+``openstacksdk`` contains a higher-level layer based on logical operations.
+
+.. code-block:: python
+
+    import openstack
+
+    # Initialize and turn on debug logging
+    openstack.enable_logging(debug=True)
+
+    for server in conn.list_servers():
+        print(server.to_dict())
+
+The benefit is mostly seen in more complicated operations that take multiple
+steps and where the steps vary across providers:
+
+.. code-block:: python
+
+    import openstack
+
+    # Initialize and turn on debug logging
+    openstack.enable_logging(debug=True)
+
+    # Initialize connection
+    # Cloud configs are read with openstack.config
+    conn = openstack.connect(cloud='mordred')
+
+    # Upload an image to the cloud
+    image = conn.create_image(
+        'ubuntu-trusty', filename='ubuntu-trusty.qcow2', wait=True)
+
+    # Find a flavor with at least 512M of RAM
+    flavor = conn.get_flavor_by_ram(512)
+
+    # Boot a server, wait for it to boot, and then do whatever is needed
+    # to get a public ip for it.
+    conn.create_server(
+        'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
+
 openstack.config
 ================
 
@@ -123,34 +164,6 @@ in the following locations:
 * ``/etc/openstack``
 
 More information at https://docs.openstack.org/openstacksdk/latest/user/config/configuration.html
-
-openstack.cloud
-===============
-
-Create a server using objects configured with the ``clouds.yaml`` file:
-
-.. code-block:: python
-
-    import openstack.cloud
-
-    # Initialize and turn on debug logging
-    openstack.enable_logging(debug=True)
-
-    # Initialize connection
-    # Cloud configs are read with openstack.config
-    conn = openstack.connect(cloud='mordred')
-
-    # Upload an image to the cloud
-    image = conn.create_image(
-        'ubuntu-trusty', filename='ubuntu-trusty.qcow2', wait=True)
-
-    # Find a flavor with at least 512M of RAM
-    flavor = conn.get_flavor_by_ram(512)
-
-    # Boot a server, wait for it to boot, and then do whatever is needed
-    # to get a public ip for it.
-    conn.create_server(
-        'my-server', image=image, flavor=flavor, wait=True, auto_ip=True)
 
 Links
 =====
