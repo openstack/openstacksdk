@@ -451,6 +451,14 @@ class CloudRegion(object):
             value = auth.get('auth_url')
         return value
 
+    def get_endpoint_from_catalog(self, service_type):
+        session = self.get_session()
+        return session.auth.get_endpoint(
+            session,
+            service_type=service_type,
+            region_name=self.get_region_name(service_type),
+            interface=self.get_interface(service_type))
+
     def get_connect_retries(self, service_type):
         return self._get_config('connect_retries', service_type,
                                 fallback_to_unprefixed=True,
