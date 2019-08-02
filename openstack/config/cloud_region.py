@@ -170,8 +170,8 @@ def from_conf(conf, session=None, **kwargs):
                       "for project '{project}' (service type "
                       "'{service_type}'): {exception}".format(
                           project=project_name, service_type=st, exception=e))
-            _logger.warn("Disabling service '{service_type}': {reason}".format(
-                service_type=st, reason=reason))
+            _logger.warning("Disabling service '{service_type}': "
+                            "{reason}".format(service_type=st, reason=reason))
             _disable_service(config_dict, st, reason=reason)
             continue
         # Load them into config_dict under keys prefixed by ${service_type}_
