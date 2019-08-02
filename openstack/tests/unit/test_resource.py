@@ -896,6 +896,24 @@ class TestResource(base.TestCase):
         actual = json.dumps(res, sort_keys=True)
         self.assertEqual(expected, actual)
 
+    def test_items(self):
+        class Test(resource.Resource):
+            foo = resource.Body('foo')
+            bar = resource.Body('bar')
+            foot = resource.Body('foot')
+
+        data = {
+            'foo': 'bar',
+            'bar': 'foo\n',
+            'foot': 'a:b:c:d'
+        }
+
+        res = Test(**data)
+        for k, v in res.items():
+            expected = data.get(k)
+            if expected:
+                self.assertEqual(v, expected)
+
     def test_access_by_aka(self):
         class Test(resource.Resource):
             foo = resource.Header('foo_remote', aka='foo_alias')
