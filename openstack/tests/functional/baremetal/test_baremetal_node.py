@@ -323,9 +323,11 @@ class TestTraits(base.BaseBaremetalTest):
         self.assertEqual(['CUSTOM_FAKE'], node.traits)
 
         self.conn.baremetal.add_node_trait(self.node, 'CUSTOM_REAL')
-        self.assertEqual(['CUSTOM_FAKE', 'CUSTOM_REAL'], self.node.traits)
+        self.assertEqual(sorted(['CUSTOM_FAKE', 'CUSTOM_REAL']),
+                         sorted(self.node.traits))
         node = self.conn.baremetal.get_node(self.node)
-        self.assertEqual(['CUSTOM_FAKE', 'CUSTOM_REAL'], node.traits)
+        self.assertEqual(sorted(['CUSTOM_FAKE', 'CUSTOM_REAL']),
+                         sorted(node.traits))
 
         self.conn.baremetal.remove_node_trait(node, 'CUSTOM_FAKE',
                                               ignore_missing=False)
@@ -341,9 +343,9 @@ class TestTraits(base.BaseBaremetalTest):
         traits2 = ['CUSTOM_FOOBAR']
 
         self.conn.baremetal.set_node_traits(self.node, traits1)
-        self.assertEqual(['CUSTOM_FAKE', 'CUSTOM_REAL'], self.node.traits)
+        self.assertEqual(sorted(traits1), sorted(self.node.traits))
         node = self.conn.baremetal.get_node(self.node)
-        self.assertEqual(['CUSTOM_FAKE', 'CUSTOM_REAL'], node.traits)
+        self.assertEqual(sorted(traits1), sorted(node.traits))
 
         self.conn.baremetal.set_node_traits(self.node, traits2)
         self.assertEqual(['CUSTOM_FOOBAR'], self.node.traits)
