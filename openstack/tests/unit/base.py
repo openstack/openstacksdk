@@ -14,12 +14,14 @@
 # under the License.
 
 import collections
+import os
 import time
 import uuid
 
 import fixtures
-import os
+from keystoneauth1 import loading as ks_loading
 import openstack.config as occ
+from oslo_config import cfg
 from requests import structures
 from requests_mock.contrib import fixture as rm_fixture
 from six.moves import urllib
@@ -118,6 +120,23 @@ class TestCase(base.TestCase):
             vendor_files=[vendor.name],
             secure_files=['non-existant'])
 
+        self.oslo_config_dict = {
+            # All defaults for nova
+            'nova': {},
+            # monasca-api not in the service catalog
+            'monasca-api': {},
+            # Overrides for heat
+            'heat': {
+                'region_name': 'SpecialRegion',
+                'interface': 'internal',
+                'endpoint_override': 'https://example.org:8888/heat/v2'
+            },
+            # test a service with dashes
+            'ironic_inspector': {
+                'endpoint_override': 'https://example.org:5050',
+            },
+        }
+
         # FIXME(notmorgan): Convert the uri_registry, discovery.json, and
         # use of keystone_v3/v2 to a proper fixtures.Fixture. For now this
         # is acceptable, but eventually this should become it's own fixture
@@ -138,6 +157,16 @@ class TestCase(base.TestCase):
             self.fixtures_directory, 'discovery.json')
         self.use_keystone_v3()
         self.__register_uris_called = False
+
+    def _load_ks_cfg_opts(self):
+        conf = cfg.ConfigOpts()
+        for group, opts in self.oslo_config_dict.items():
+            conf.register_group(cfg.OptGroup(group))
+            if opts is not None:
+                ks_loading.register_adapter_conf_options(conf, group)
+                for name, val in opts.items():
+                    conf.set_override(name, val, group=group)
+        return conf
 
     # TODO(shade) Update this to handle service type aliases
     def get_mock_url(self, service_type, interface='public', resource=None,

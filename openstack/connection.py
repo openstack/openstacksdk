@@ -271,6 +271,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                  task_manager=None,
                  rate_limit=None,
                  oslo_conf=None,
+                 service_types=None,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -322,6 +323,11 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             An oslo.config ``CONF`` object that has been populated with
             ``keystoneauth1.loading.register_adapter_conf_options`` in
             groups named by the OpenStack service's project name.
+        :param service_types:
+            A list/set of service types this Connection should support. All
+            other service types will be disabled (will error if used).
+            **Currently only supported in conjunction with the ``oslo_conf``
+            kwarg.**
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion constructor.
@@ -336,7 +342,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             if oslo_conf:
                 self.config = cloud_region.from_conf(
                     oslo_conf, session=session, app_name=app_name,
-                    app_version=app_version)
+                    app_version=app_version, service_types=service_types)
             elif session:
                 self.config = cloud_region.from_session(
                     session=session,

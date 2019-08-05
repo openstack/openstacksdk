@@ -18,6 +18,7 @@ import mock
 
 from openstack import connection
 import openstack.config
+from openstack import service_description
 from openstack.tests.unit import base
 from openstack.tests.unit.fake import fake_service
 
@@ -238,6 +239,31 @@ class TestConnection(base.TestCase):
         # Ensure that the "insecure=True" flag implies "verify=False"
         sot = connection.from_config("insecure-cloud-alternative-format")
         self.assertFalse(sot.session.verify)
+
+
+class TestOsloConfig(TestConnection):
+    def test_from_conf(self):
+        c1 = connection.Connection(cloud='sample-cloud')
+        conn = connection.Connection(
+            session=c1.session, oslo_conf=self._load_ks_cfg_opts())
+        # There was no config for keystone
+        self.assertIsInstance(
+            conn.identity, service_description._ServiceDisabledProxyShim)
+        # But nova was in there
+        self.assertEqual('openstack.compute.v2._proxy',
+                         conn.compute.__class__.__module__)
+
+    def test_from_conf_filter_service_types(self):
+        c1 = connection.Connection(cloud='sample-cloud')
+        conn = connection.Connection(
+            session=c1.session, oslo_conf=self._load_ks_cfg_opts(),
+            service_types={'orchestration', 'i-am-ignored'})
+        # There was no config for keystone
+        self.assertIsInstance(
+            conn.identity, service_description._ServiceDisabledProxyShim)
+        # Nova was in there, but disabled because not requested
+        self.assertIsInstance(
+            conn.compute, service_description._ServiceDisabledProxyShim)
 
 
 class TestNetworkConnection(base.TestCase):
