@@ -4,6 +4,14 @@
      cloud: "{{ cloud }}"
      name: "{{ keypair_name }}"
      state: present
+  register:
+    keypair
+
+# This assert verifies that Ansible is capable serializing data returned by SDK
+- name: Ensure private key is returned
+  assert:
+    that:
+      - keypair.key.public_key is defined and keypair.key.public_key
 
 - name: Delete keypair (non-existing)
   os_keypair:

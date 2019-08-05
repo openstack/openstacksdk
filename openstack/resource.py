@@ -630,6 +630,22 @@ class Resource(dict):
         # remotes or "unknown"
         return self._attributes()
 
+    def items(self):
+        # This method is critically required for Ansible "jsonify"
+        # NOTE(gtema) For some reason when running from SDK itself the native
+        # implementation of the method is absolutely sifficient, when called
+        # from Ansible - the values are often empty. Even integrating all
+        # Ansible internal methods did not help to find the root cause. Another
+        # fact is that under Py2 everything is fine, while under Py3 it fails.
+        # There is currently no direct test for Ansible-SDK issue. It is tested
+        # implicitely in the keypair role for ansible module, where an assert
+        # verifies presence of attributes.
+        res = []
+        for attr in self._attributes():
+            # Append key, value tuple to result list
+            res.append((attr, self[attr]))
+        return res
+
     def _update(self, **attrs):
         """Given attributes, update them on this instance
 
