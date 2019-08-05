@@ -43,12 +43,12 @@ van1           Vancouver, BC
 Betacloud
 ---------
 
-https://api-1.betacloud.io:5000
+https://api-1.betacloud.de:5000
 
 ============== ==================
 Region Name    Location
 ============== ==================
-betacloud-1    Nuremberg, Germany
+betacloud-1    Karlsruhe, Germany
 ============== ==================
 
 * Identity API Version is 3

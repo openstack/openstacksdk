@@ -2,7 +2,7 @@
   "name": "betacloud",
   "profile": {
     "auth": {
-      "auth_url": "https://api-1.betacloud.io:5000"
+      "auth_url": "https://api-1.betacloud.de:5000"
     },
     "regions": [
       "betacloud-1"
