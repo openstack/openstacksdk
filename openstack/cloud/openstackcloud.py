@@ -33,6 +33,7 @@ from openstack.cloud import _object_store
 from openstack.cloud import meta
 from openstack.cloud import _utils
 import openstack.config
+from openstack.config import cloud_region as cloud_region_mod
 from openstack import proxy
 
 DEFAULT_SERVER_AGE = 5
@@ -226,16 +227,16 @@ class _OpenStackCloudMixin(object):
         for key, value in kwargs.items():
             params['auth'][key] = value
 
-        cloud_config = config.get_one(**params)
+        cloud_region = config.get_one(**params)
         # Attach the discovery cache from the old session so we won't
         # double discover.
-        cloud_config._discovery_cache = self.session._discovery_cache
+        cloud_region._discovery_cache = self.session._discovery_cache
         # Override the cloud name so that logging/location work right
-        cloud_config._name = self.name
-        cloud_config.config['profile'] = self.name
+        cloud_region._name = self.name
+        cloud_region.config['profile'] = self.name
         # Use self.__class__ so that we return whatever this if, like if it's
         # a subclass in the case of shade wrapping sdk.
-        return self.__class__(config=cloud_config)
+        return self.__class__(config=cloud_region)
 
     def connect_as_project(self, project):
         """Make a new OpenStackCloud object with a new project.
@@ -266,6 +267,53 @@ class _OpenStackCloudMixin(object):
         else:
             auth['project_name'] = project
         return self.connect_as(**auth)
+
+    def global_request(self, global_request_id):
+        """Make a new Connection object with a global request id set.
+
+        Take the existing settings from the current Connection and construct a
+        new Connection object with the global_request_id overridden.
+
+        .. code-block:: python
+
+          from oslo_context import context
+          cloud = openstack.connect(cloud='example')
+          # Work normally
+          servers = cloud.list_servers()
+          cloud2 = cloud.global_request(context.generate_request_id())
+          # cloud2 sends all requests with global_request_id set
+          servers = cloud2.list_servers()
+
+        Additionally, this can be used as a context manager:
+
+        .. code-block:: python
+
+          from oslo_context import context
+          c = openstack.connect(cloud='example')
+          # Work normally
+          servers = c.list_servers()
+          with c.global_request(context.generate_request_id()) as c2:
+              # c2 sends all requests with global_request_id set
+              servers = c2.list_servers()
+
+        :param global_request_id: The `global_request_id` to send.
+        """
+        params = copy.deepcopy(self.config.config)
+        cloud_region = cloud_region_mod.from_session(
+            session=self.session,
+            app_name=self.config._app_name,
+            app_version=self.config._app_version,
+            discovery_cache=self.session._discovery_cache,
+            **params)
+
+        # Override the cloud name so that logging/location work right
+        cloud_region._name = self.name
+        cloud_region.config['profile'] = self.name
+        # Use self.__class__ so that we return whatever this is, like if it's
+        # a subclass in the case of shade wrapping sdk.
+        new_conn = self.__class__(config=cloud_region)
+        new_conn.set_global_request_id(global_request_id)
+        return new_conn
 
     def _make_cache(self, cache_class, expiration_time, arguments):
         return dogpile.cache.make_region(
