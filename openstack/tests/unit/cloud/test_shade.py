@@ -54,6 +54,21 @@ class TestShade(base.TestCase):
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, connection.Connection)
 
+    def test_endpoint_for(self):
+        dns_override = 'https://override.dns.example.com'
+        self.cloud.config.config['dns_endpoint_override'] = dns_override
+        self.assertEqual(
+            'https://compute.example.com/v2.1/',
+            self.cloud.endpoint_for('compute'))
+        self.assertEqual(
+            'https://internal.compute.example.com/v2.1/',
+            self.cloud.endpoint_for('compute', interface='internal'))
+        self.assertIsNone(
+            self.cloud.endpoint_for('compute', region_name='unknown-region'))
+        self.assertEqual(
+            dns_override,
+            self.cloud.endpoint_for('dns'))
+
     def test_connect_as(self):
         # Do initial auth/catalog steps
         # This should authenticate a second time, but should not
