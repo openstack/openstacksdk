@@ -56,20 +56,41 @@ class TestShade(base.TestCase):
 
     def test_connect_as(self):
         # Do initial auth/catalog steps
-        # TODO(mordred) This only tests the constructor steps. Discovery
-        # cache sharing is broken. We need to get discovery_cache option
-        # plumbed through
-        # keystoneauth1.loading.base.BaseLoader.load_from_options
-        self.cloud.connect_as(project_name='test_project')
+        # This should authenticate a second time, but should not
+        # need a second identity discovery
+        self.register_uris([
+            self.get_keystone_v3_token(),
+            self.get_nova_discovery_mock_dict(),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    'compute', 'public', append=['servers', 'detail']),
+                json={'servers': []},
+            ),
+        ])
+
+        c2 = self.cloud.connect_as(project_name='test_project')
+        self.assertEqual(c2.list_servers(), [])
+        self.assert_calls()
 
     def test_connect_as_context(self):
         # Do initial auth/catalog steps
-        # TODO(mordred) This only tests the constructor steps. Discovery
-        # cache sharing is broken. We need to get discovery_cache option
-        # plumbed through
-        # keystoneauth1.loading.base.BaseLoader.load_from_options
-        with self.cloud.connect_as(project_name='test_project'):
-            pass
+        # This should authenticate a second time, but should not
+        # need a second identity discovery
+        self.register_uris([
+            self.get_keystone_v3_token(),
+            self.get_nova_discovery_mock_dict(),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    'compute', 'public', append=['servers', 'detail']),
+                json={'servers': []},
+            ),
+        ])
+
+        with self.cloud.connect_as(project_name='test_project') as c2:
+            self.assertEqual(c2.list_servers(), [])
+        self.assert_calls()
 
     @mock.patch.object(connection.Connection, 'search_images')
     def test_get_images(self, mock_search):

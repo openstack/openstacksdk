@@ -226,21 +226,10 @@ class _OpenStackCloudMixin(object):
         for key, value in kwargs.items():
             params['auth'][key] = value
 
-        # TODO(mordred) Replace this chunk with the next patch that allows
-        # passing a Session to CloudRegion.
-        # Closure to pass to OpenStackConfig to ensure the new cloud shares
-        # the Session with the current cloud. This will ensure that version
-        # discovery cache will be re-used.
-        def session_constructor(*args, **kwargs):
-            # We need to pass our current keystone session to the Session
-            # Constructor, otherwise the new auth plugin doesn't get used.
-            return keystoneauth1.session.Session(
-                session=self.session,
-                discovery_cache=self.config._discovery_cache)
-
-        cloud_config = config.get_one(
-            session_constructor=session_constructor,
-            **params)
+        cloud_config = config.get_one(**params)
+        # Attach the discovery cache from the old session so we won't
+        # double discover.
+        cloud_config._discovery_cache = self.session._discovery_cache
         # Override the cloud name so that logging/location work right
         cloud_config._name = self.name
         cloud_config.config['profile'] = self.name
