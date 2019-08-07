@@ -109,6 +109,7 @@ class TestQuotas(base.TestCase):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
@@ -125,6 +126,7 @@ class TestQuotas(base.TestCase):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
@@ -137,6 +139,7 @@ class TestQuotas(base.TestCase):
         project = self.mock_for_keystone_projects(project_count=1,
                                                   list_get=True)[0]
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'volumev2', 'public',

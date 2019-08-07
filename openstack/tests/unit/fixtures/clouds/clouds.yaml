@@ -7,6 +7,7 @@ clouds:
       username: admin
       user_domain_name: default
       project_domain_name: default
+    block_storage_api_version: 2
     region_name: RegionOne
   _test_cloud_v2_:
     auth:

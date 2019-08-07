@@ -991,7 +991,8 @@ class TestMeta(base.TestCase):
         self.assertIn('location', hostvars)
         self.assertEqual('_test_cloud_', hostvars['location']['cloud'])
         self.assertEqual('RegionOne', hostvars['location']['region_name'])
-        self.assertEqual('admin', hostvars['location']['project']['name'])
+        self.assertEqual(
+            fakes.PROJECT_ID, hostvars['location']['project']['id'])
         self.assertEqual("test-image-name", hostvars['image']['name'])
         self.assertEqual(
             standard_fake_server['image']['id'], hostvars['image']['id'])

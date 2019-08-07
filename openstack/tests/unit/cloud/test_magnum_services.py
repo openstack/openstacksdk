@@ -31,7 +31,9 @@ class TestMagnumServices(base.TestCase):
     def test_list_magnum_services(self):
         self.register_uris([dict(
             method='GET',
-            uri='https://container-infra.example.com/v1/mservices',
+            uri=self.get_mock_url(
+                service_type='container-infrastructure-management',
+                resource='mservices'),
             json=dict(mservices=[magnum_service_obj]))])
         mservices_list = self.cloud.list_magnum_services()
         self.assertEqual(

@@ -20,6 +20,10 @@ from openstack.tests.unit import base
 
 
 class TestVolumeAccess(base.TestCase):
+    def setUp(self):
+        super(TestVolumeAccess, self).setUp()
+        self.use_cinder()
+
     def test_list_volume_types(self):
         volume_type = dict(
             id='voltype01', description='volume type description',

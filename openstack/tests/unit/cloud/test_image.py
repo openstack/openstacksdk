@@ -24,9 +24,6 @@ from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
-CINDER_URL = 'https://volume.example.com/v2/1c36b64c840a42cd9e9b931a369337f0'
-
-
 class BaseTestImage(base.TestCase):
 
     def setUp(self):
@@ -1045,7 +1042,9 @@ class TestImageSuburl(BaseTestImage):
 
     def setUp(self):
         super(TestImageSuburl, self).setUp()
-        self.use_keystone_v3(catalog='catalog-v3-suburl.json')
+        self.os_fixture.use_suburl()
+        self.os_fixture.build_tokens()
+        self.use_keystone_v3()
         self.use_glance(
             image_version_json='image-version-suburl.json',
             image_discovery_url='https://example.com/image')
@@ -1142,7 +1141,6 @@ class TestImageVolume(BaseTestImage):
         self.volume_id = str(uuid.uuid4())
 
     def test_create_image_volume(self):
-
         self.register_uris([
             self.get_cinder_discovery_mock_dict(),
             dict(method='POST',

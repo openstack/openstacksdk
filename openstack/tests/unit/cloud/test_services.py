@@ -30,7 +30,7 @@ class CloudServices(base.TestCase):
     def setUp(self, cloud_config_fixture='clouds.yaml'):
         super(CloudServices, self).setUp(cloud_config_fixture)
 
-    def get_mock_url(self, service_type='identity', interface='admin',
+    def get_mock_url(self, service_type='identity', interface='public',
                      resource='services', append=None, base_url_append='v3'):
 
         return super(CloudServices, self).get_mock_url(

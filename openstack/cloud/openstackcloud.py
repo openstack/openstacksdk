@@ -453,7 +453,8 @@ class _OpenStackCloudMixin(object):
             region_name=self.config.get_region_name(service_type))
 
     def _is_client_version(self, client, version):
-        client_name = '_{client}_client'.format(client=client)
+        client_name = '_{client}_client'.format(
+            client=client.replace('-', '_'))
         client = getattr(self, client_name)
         return client._version_matches(version)
 

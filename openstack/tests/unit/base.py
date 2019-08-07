@@ -29,6 +29,8 @@ import tempfile
 
 import openstack.cloud
 import openstack.connection
+from openstack.tests import fakes
+from openstack.fixture import connection as os_fixture
 from openstack.tests import base
 
 
@@ -101,6 +103,8 @@ class TestCase(base.TestCase):
                                              'time.sleep',
                                              _nosleep))
         self.fixtures_directory = 'openstack/tests/unit/fixtures'
+        self.os_fixture = self.useFixture(
+            os_fixture.ConnectionFixture(project_id=fakes.PROJECT_ID))
 
         # Isolate openstack.config from test environment
         config = tempfile.NamedTemporaryFile(delete=False)
@@ -422,45 +426,42 @@ class TestCase(base.TestCase):
 
     def get_keystone_v3_token(
             self,
-            catalog='catalog-v3.json',
             project_name='admin',
     ):
-        catalog_file = os.path.join(self.fixtures_directory, catalog)
-        with open(catalog_file, 'r') as tokens_file:
-            return dict(
-                method='POST',
-                uri='https://identity.example.com/v3/auth/tokens',
-                headers={
-                    'X-Subject-Token': self.getUniqueString('KeystoneToken')
-                },
-                text=tokens_file.read(),
-                validate=dict(json={
-                    'auth': {
-                        'identity': {
-                            'methods': ['password'],
-                            'password': {
-                                'user': {
-                                    'domain': {
-                                        'name': 'default',
-                                    },
-                                    'name': 'admin',
-                                    'password': 'password'
-                                }
-                            }
-                        },
-                        'scope': {
-                            'project': {
+        return dict(
+            method='POST',
+            uri='https://identity.example.com/v3/auth/tokens',
+            headers={
+                'X-Subject-Token': self.getUniqueString('KeystoneToken')
+            },
+            json=self.os_fixture.v3_token,
+            validate=dict(json={
+                'auth': {
+                    'identity': {
+                        'methods': ['password'],
+                        'password': {
+                            'user': {
                                 'domain': {
-                                    'name': 'default'
+                                    'name': 'default',
                                 },
-                                'name': project_name
+                                'name': 'admin',
+                                'password': 'password'
                             }
                         }
+                    },
+                    'scope': {
+                        'project': {
+                            'domain': {
+                                'name': 'default'
+                            },
+                            'name': project_name
+                        }
                     }
-                }),
-            )
+                }
+            }),
+        )
 
-    def get_keystone_v3_discovery(self):
+    def get_keystone_discovery(self):
         with open(self.discovery_json, 'r') as discovery_file:
             return dict(
                 method='GET',
@@ -468,13 +469,13 @@ class TestCase(base.TestCase):
                 text=discovery_file.read(),
             )
 
-    def use_keystone_v3(self, catalog='catalog-v3.json'):
+    def use_keystone_v3(self):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
         self.__do_register_uris([
-            self.get_keystone_v3_discovery(),
-            self.get_keystone_v3_token(catalog),
+            self.get_keystone_discovery(),
+            self.get_keystone_v3_token(),
         ])
         self._make_test_cloud(identity_api_version='3')
 
@@ -483,18 +484,13 @@ class TestCase(base.TestCase):
         self.calls = []
         self._uri_registry.clear()
 
-        with open(self.discovery_json, 'r') as discovery_file, \
-            open(os.path.join(
-                self.fixtures_directory,
-                'catalog-v2.json'), 'r') as tokens_file:
-            self.__do_register_uris([
-                dict(method='GET', uri='https://identity.example.com/',
-                     text=discovery_file.read()),
-                dict(method='POST',
-                     uri='https://identity.example.com/v2.0/tokens',
-                     text=tokens_file.read()
-                     ),
-            ])
+        self.__do_register_uris([
+            self.get_keystone_discovery(),
+            dict(method='POST',
+                 uri='https://identity.example.com/v2.0/tokens',
+                 json=self.os_fixture.v2_token,
+                 ),
+        ])
 
         self._make_test_cloud(cloud_name='_test_cloud_v2_',
                               identity_api_version='2.0')
@@ -509,7 +505,7 @@ class TestCase(base.TestCase):
     def get_cinder_discovery_mock_dict(
             self,
             block_storage_version_json='block-storage-version.json',
-            block_storage_discovery_url='https://volume.example.com/'):
+            block_storage_discovery_url='https://block-storage.example.com/'):
         discovery_fixture = os.path.join(
             self.fixtures_directory, block_storage_version_json)
         return dict(method='GET', uri=block_storage_discovery_url,
@@ -551,7 +547,7 @@ class TestCase(base.TestCase):
     def get_ironic_discovery_mock_dict(self):
         discovery_fixture = os.path.join(
             self.fixtures_directory, "baremetal.json")
-        return dict(method='GET', uri="https://bare-metal.example.com/",
+        return dict(method='GET', uri="https://baremetal.example.com/",
                     text=open(discovery_fixture, 'r').read())
 
     def get_senlin_discovery_mock_dict(self):
@@ -579,6 +575,10 @@ class TestCase(base.TestCase):
         self.__do_register_uris([
             self.get_glance_discovery_mock_dict(
                 image_version_json, image_discovery_url)])
+
+    def use_cinder(self):
+        self.__do_register_uris([
+            self.get_cinder_discovery_mock_dict()])
 
     def use_placement(self):
         self.__do_register_uris([

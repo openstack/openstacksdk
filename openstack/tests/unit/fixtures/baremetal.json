@@ -3,7 +3,7 @@
     "id": "v1",
     "links": [
       {
-        "href": "https://bare-metal.example.com/v1/",
+        "href": "https://baremetal.example.com/v1/",
         "rel": "self"
       }
     ],
@@ -18,7 +18,7 @@
       "id": "v1",
       "links": [
         {
-          "href": "https://bare-metal.example.com/v1/",
+          "href": "https://baremetal.example.com/v1/",
           "rel": "self"
         }
       ],

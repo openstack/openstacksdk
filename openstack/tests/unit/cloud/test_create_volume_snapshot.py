@@ -25,6 +25,10 @@ from openstack.tests.unit import base
 
 class TestCreateVolumeSnapshot(base.TestCase):
 
+    def setUp(self):
+        super(TestCreateVolumeSnapshot, self).setUp()
+        self.use_cinder()
+
     def test_create_volume_snapshot_wait(self):
         """
         Test that create_volume_snapshot with a wait returns the volume

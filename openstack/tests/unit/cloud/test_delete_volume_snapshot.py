@@ -25,6 +25,10 @@ from openstack.tests.unit import base
 
 class TestDeleteVolumeSnapshot(base.TestCase):
 
+    def setUp(self):
+        super(TestDeleteVolumeSnapshot, self).setUp()
+        self.use_cinder()
+
     def test_delete_volume_snapshot(self):
         """
         Test that delete_volume_snapshot without a wait returns True instance

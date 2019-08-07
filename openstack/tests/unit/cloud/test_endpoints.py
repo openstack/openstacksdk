@@ -29,7 +29,7 @@ from testtools import matchers
 
 class TestCloudEndpoints(base.TestCase):
 
-    def get_mock_url(self, service_type='identity', interface='admin',
+    def get_mock_url(self, service_type='identity', interface='public',
                      resource='endpoints', append=None, base_url_append='v3'):
         return super(TestCloudEndpoints, self).get_mock_url(
             service_type, interface, resource, append, base_url_append)

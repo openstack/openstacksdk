@@ -667,12 +667,6 @@ class TestNormalize(base.TestCase):
             status='in-use',
             created_at='2015-08-27T09:49:58-05:00',
         )
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'block-storage', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [vol]}),
-        ])
         expected = {
             'attachments': [],
             'availability_zone': None,
@@ -712,7 +706,7 @@ class TestNormalize(base.TestCase):
             'updated_at': None,
             'volume_type': None,
         }
-        retval = self.cloud.list_volumes(vol)[0]
+        retval = self.cloud._normalize_volume(vol)
         self.assertEqual(expected, retval)
 
     def test_normalize_volumes_v2(self):

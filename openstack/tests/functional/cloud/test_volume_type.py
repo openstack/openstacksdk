@@ -38,13 +38,13 @@ class TestVolumeType(base.BaseFunctionalTest):
             "name": 'test-volume-type',
             "description": None,
             "os-volume-type-access:is_public": False}
-        self.operator_cloud._volume_client.post(
+        self.operator_cloud.block_storage.post(
             '/types', json={'volume_type': volume_type})
 
     def tearDown(self):
         ret = self.operator_cloud.get_volume_type('test-volume-type')
         if ret.get('id'):
-            self.operator_cloud._volume_client.delete(
+            self.operator_cloud.block_storage.delete(
                 '/types/{volume_type_id}'.format(volume_type_id=ret.id))
         super(TestVolumeType, self).tearDown()
 

@@ -33,13 +33,6 @@ def _no_pending_volumes(volumes):
 
 class BlockStorageCloudMixin(_normalize.Normalizer):
 
-    @property
-    def _volume_client(self):
-        if 'block-storage' not in self._raw_clients:
-            client = self._get_raw_client('block-storage')
-            self._raw_clients['block-storage'] = client
-        return self._raw_clients['block-storage']
-
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
         """List all available volumes.
@@ -56,7 +49,8 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
                     break
             if endpoint:
                 try:
-                    _list(self._volume_client.get(endpoint))
+                    _list(proxy._json_response(
+                        self.block_storage.get(endpoint)))
                 except exc.OpenStackCloudURINotFound:
                     # Catch and re-raise here because we are making recursive
                     # calls and we just have context for the log here
@@ -75,7 +69,8 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         attempts = 5
         for _ in range(attempts):
             volumes = []
-            data = self._volume_client.get('/volumes/detail')
+            data = proxy._json_response(
+                self.block_storage.get('/volumes/detail'))
             if 'volumes_links' not in data:
                 # no pagination needed
                 volumes.extend(data.get('volumes', []))
@@ -103,9 +98,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :returns: A list of volume ``munch.Munch``.
 
         """
-        data = self._volume_client.get(
+        resp = self.block_storage.get(
             '/types',
-            params=dict(is_public='None'),
+            params=dict(is_public='None'))
+        data = proxy._json_response(
+            resp,
             error_message='Error fetching volume_type list')
         return self._normalize_volume_types(
             self._get_and_munchify('volume_types', data))
@@ -141,8 +138,9 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :param id: ID of the volume.
         :returns: A volume ``munch.Munch``.
         """
-        data = self._volume_client.get(
-            '/volumes/{id}'.format(id=id),
+        resp = self.block_storage.get('/volumes/{id}'.format(id=id))
+        data = proxy._json_response(
+            resp,
             error_message="Error getting volume with ID {id}".format(id=id)
         )
         volume = self._normalize_volume(
@@ -214,9 +212,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         if 'scheduler_hints' in kwargs:
             payload['OS-SCH-HNT:scheduler_hints'] = kwargs.pop(
                 'scheduler_hints', None)
-        data = self._volume_client.post(
+        resp = self.block_storage.post(
             '/volumes',
-            json=dict(payload),
+            json=dict(payload))
+        data = proxy._json_response(
+            resp,
             error_message='Error in creating volume')
         volume = self._get_and_munchify('volume', data)
         self.list_volumes.invalidate(self)
@@ -254,9 +254,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Volume %s not found." % name_or_id)
 
-        data = self._volume_client.put(
+        resp = self.block_storage.put(
             '/volumes/{volume_id}'.format(volume_id=volume.id),
-            json=dict({'volume': kwargs}),
+            json=dict({'volume': kwargs}))
+        data = proxy._json_response(
+            resp,
             error_message='Error updating volume')
 
         self.list_volumes.invalidate(self)
@@ -281,9 +283,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
                 "Volume {name_or_id} does not exist".format(
                     name_or_id=name_or_id))
 
-        self._volume_client.post(
+        resp = self.block_storage.post(
             'volumes/{id}/action'.format(id=volume['id']),
-            json={'os-set_bootable': {'bootable': bootable}},
+            json={'os-set_bootable': {'bootable': bootable}})
+        proxy._json_response(
+            resp,
             error_message="Error setting bootable on volume {volume}".format(
                 volume=volume['id'])
         )
@@ -315,12 +319,12 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         with _utils.shade_exceptions("Error in deleting volume"):
             try:
                 if force:
-                    self._volume_client.post(
+                    proxy._json_response(self.block_storage.post(
                         'volumes/{id}/action'.format(id=volume['id']),
-                        json={'os-force_delete': None})
+                        json={'os-force_delete': None}))
                 else:
-                    self._volume_client.delete(
-                        'volumes/{id}'.format(id=volume['id']))
+                    proxy._json_response(self.block_storage.delete(
+                        'volumes/{id}'.format(id=volume['id'])))
             except exc.OpenStackCloudURINotFound:
                 self.log.debug(
                     "Volume {id} not found when deleting. Ignoring.".format(
@@ -368,7 +372,8 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             error_msg = "{msg} for the project: {project} ".format(
                 msg=error_msg, project=name_or_id)
 
-        data = self._volume_client.get('/limits', params=params)
+        data = proxy._json_response(
+            self.block_storage.get('/limits', params=params))
         limits = self._get_and_munchify('limits', data)
         return limits
 
@@ -516,12 +521,12 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         description = kwargs.pop('description',
                                  kwargs.pop('display_description', None))
         if name:
-            if self._is_client_version('volume', 2):
+            if self.block_storage._version_matches(2):
                 kwargs['name'] = name
             else:
                 kwargs['display_name'] = name
         if description:
-            if self._is_client_version('volume', 2):
+            if self.block_storage._version_matches(2):
                 kwargs['description'] = description
             else:
                 kwargs['display_description'] = description
@@ -553,9 +558,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         kwargs = self._get_volume_kwargs(kwargs)
         payload = {'volume_id': volume_id, 'force': force}
         payload.update(kwargs)
-        data = self._volume_client.post(
+        resp = self.block_storage.post(
             '/snapshots',
-            json=dict(snapshot=payload),
+            json=dict(snapshot=payload))
+        data = proxy._json_response(
+            resp,
             error_message="Error creating snapshot of volume "
                           "{volume_id}".format(volume_id=volume_id))
         snapshot = self._get_and_munchify('snapshot', data)
@@ -588,8 +595,10 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         param: snapshot_id: ID of the volume snapshot.
 
         """
-        data = self._volume_client.get(
-            '/snapshots/{snapshot_id}'.format(snapshot_id=snapshot_id),
+        resp = self.block_storage.get(
+            '/snapshots/{snapshot_id}'.format(snapshot_id=snapshot_id))
+        data = proxy._json_response(
+            resp,
             error_message="Error getting snapshot "
                           "{snapshot_id}".format(snapshot_id=snapshot_id))
         return self._normalize_volume(
@@ -647,8 +656,10 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             'force': force,
         }
 
-        data = self._volume_client.post(
-            '/backups', json=dict(backup=payload),
+        resp = self.block_storage.post(
+            '/backups', json=dict(backup=payload))
+        data = proxy._json_response(
+            resp,
             error_message="Error creating backup of volume "
                           "{volume_id}".format(volume_id=volume_id))
         backup = self._get_and_munchify('backup', data)
@@ -686,9 +697,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
 
         """
         endpoint = '/snapshots/detail' if detailed else '/snapshots'
-        data = self._volume_client.get(
+        resp = self.block_storage.get(
             endpoint,
-            params=search_opts,
+            params=search_opts)
+        data = proxy._json_response(
+            resp,
             error_message="Error getting a list of snapshots")
         return self._get_and_munchify('snapshots', data)
 
@@ -710,8 +723,10 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :returns: A list of volume backups ``munch.Munch``.
         """
         endpoint = '/backups/detail' if detailed else '/backups'
-        data = self._volume_client.get(
-            endpoint, params=search_opts,
+        resp = self.block_storage.get(
+            endpoint, params=search_opts)
+        data = proxy._json_response(
+            resp,
             error_message="Error getting a list of backups")
         return self._get_and_munchify('backups', data)
 
@@ -736,16 +751,15 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
 
         msg = "Error in deleting volume backup"
         if force:
-            self._volume_client.post(
+            resp = self.block_storage.post(
                 '/backups/{backup_id}/action'.format(
                     backup_id=volume_backup['id']),
-                json={'os-force_delete': None},
-                error_message=msg)
+                json={'os-force_delete': None})
         else:
-            self._volume_client.delete(
+            resp = self.block_storage.delete(
                 '/backups/{backup_id}'.format(
-                    backup_id=volume_backup['id']),
-                error_message=msg)
+                    backup_id=volume_backup['id']))
+        proxy._json_response(resp, error_message=msg)
         if wait:
             msg = "Timeout waiting for the volume backup to be deleted."
             for count in utils.iterate_timeout(timeout, msg):
@@ -772,9 +786,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         if not volumesnapshot:
             return False
 
-        self._volume_client.delete(
+        resp = self.block_storage.delete(
             '/snapshots/{snapshot_id}'.format(
-                snapshot_id=volumesnapshot['id']),
+                snapshot_id=volumesnapshot['id']))
+        proxy._json_response(
+            resp,
             error_message="Error in deleting volume snapshot")
 
         if wait:
@@ -818,8 +834,10 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
 
-        data = self._volume_client.get(
-            '/types/{id}/os-volume-type-access'.format(id=volume_type.id),
+        resp = self.block_storage.get(
+            '/types/{id}/os-volume-type-access'.format(id=volume_type.id))
+        data = proxy._json_response(
+            resp,
             error_message="Unable to get volume type access"
                           " {name}".format(name=name_or_id))
         return self._normalize_volume_type_accesses(
@@ -839,14 +857,15 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         if not volume_type:
             raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
-        with _utils.shade_exceptions():
-            payload = {'project': project_id}
-            self._volume_client.post(
-                '/types/{id}/action'.format(id=volume_type.id),
-                json=dict(addProjectAccess=payload),
-                error_message="Unable to authorize {project} "
-                              "to use volume type {name}".format(
-                    name=name_or_id, project=project_id))
+        payload = {'project': project_id}
+        resp = self.block_storage.post(
+            '/types/{id}/action'.format(id=volume_type.id),
+            json=dict(addProjectAccess=payload))
+        proxy._json_response(
+            resp,
+            error_message="Unable to authorize {project} "
+                          "to use volume type {name}".format(
+                              name=name_or_id, project=project_id))
 
     def remove_volume_type_access(self, name_or_id, project_id):
         """Revoke access on a volume_type to a project.
@@ -860,11 +879,72 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         if not volume_type:
             raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
-        with _utils.shade_exceptions():
-            payload = {'project': project_id}
-            self._volume_client.post(
-                '/types/{id}/action'.format(id=volume_type.id),
-                json=dict(removeProjectAccess=payload),
-                error_message="Unable to revoke {project} "
-                              "to use volume type {name}".format(
-                    name=name_or_id, project=project_id))
+        payload = {'project': project_id}
+        resp = self.block_storage.post(
+            '/types/{id}/action'.format(id=volume_type.id),
+            json=dict(removeProjectAccess=payload))
+        proxy._json_response(
+            resp,
+            error_message="Unable to revoke {project} "
+                          "to use volume type {name}".format(
+                              name=name_or_id, project=project_id))
+
+    def set_volume_quotas(self, name_or_id, **kwargs):
+        """ Set a volume quota in a project
+
+        :param name_or_id: project name or id
+        :param kwargs: key/value pairs of quota name and quota value
+
+        :raises: OpenStackCloudException if the resource to set the
+            quota does not exist.
+        """
+
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise exc.OpenStackCloudException("project does not exist")
+
+        kwargs['tenant_id'] = proj.id
+        resp = self.block_storage.put(
+            '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id),
+            json={'quota_set': kwargs})
+        proxy._json_response(
+            resp,
+            error_message="No valid quota or resource")
+
+    def get_volume_quotas(self, name_or_id):
+        """ Get volume quotas for a project
+
+        :param name_or_id: project name or id
+        :raises: OpenStackCloudException if it's not a valid project
+
+        :returns: Munch object with the quotas
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise exc.OpenStackCloudException("project does not exist")
+
+        resp = self.block_storage.get(
+            '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id))
+        data = proxy._json_response(
+            resp,
+            error_message="cinder client call failed")
+        return self._get_and_munchify('quota_set', data)
+
+    def delete_volume_quotas(self, name_or_id):
+        """ Delete volume quotas for a project
+
+        :param name_or_id: project name or id
+        :raises: OpenStackCloudException if it's not a valid project or the
+                 cinder client call failed
+
+        :returns: dict with the quotas
+        """
+        proj = self.get_project(name_or_id)
+        if not proj:
+            raise exc.OpenStackCloudException("project does not exist")
+
+        resp = self.block_storage.delete(
+            '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id))
+        return proxy._json_response(
+            resp,
+            error_message="cinder client call failed")
