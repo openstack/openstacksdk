@@ -15,8 +15,10 @@ import os
 import fixtures
 from keystoneauth1 import session
 import mock
+from testtools import matchers
 
 from openstack import connection
+from openstack import proxy
 import openstack.config
 from openstack.tests.unit import base
 from openstack.tests.unit.fake import fake_service
@@ -144,6 +146,24 @@ class TestConnection(base.TestCase):
         #                  conn.orchestration.__class__.__module__)
         # self.assertEqual('openstack.workflow.v2._proxy',
         #                  conn.workflow.__class__.__module__)
+
+    def test_create_unknown_proxy(self):
+        self.register_uris([
+            self.get_placement_discovery_mock_dict(),
+        ])
+
+        def closure():
+            return self.cloud.placement
+
+        self.assertThat(
+            closure,
+            matchers.Warnings(matchers.HasLength(0)))
+
+        self.assertIsInstance(
+            self.cloud.placement,
+            proxy.Proxy)
+
+        self.assert_calls()
 
     def test_create_connection_version_param_default(self):
         c1 = connection.Connection(cloud='sample-cloud')

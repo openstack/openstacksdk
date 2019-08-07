@@ -100,7 +100,19 @@ class ServiceDescription(object):
                 self.service_type,
                 config.get_disabled_reason(self.service_type))
 
-        # First, check to see if we've got config that matches what we
+        # We don't know anything about this service, so the user is
+        # explicitly just using us for a passthrough REST adapter.
+        # Skip all the lower logic.
+        if not self.supported_versions:
+            temp_client = config.get_session_client(
+                self.service_type,
+                allow_version_hack=True,
+            )
+            # trigger EndpointNotFound exception if this is bogus
+            temp_client.get_endpoint()
+            return temp_client
+
+        # Check to see if we've got config that matches what we
         # understand in the SDK.
         version_string = config.get_api_version(self.service_type)
         endpoint_override = config.get_endpoint(self.service_type)
@@ -111,7 +123,7 @@ class ServiceDescription(object):
             version_string = list(self.supported_versions)[0]
 
         proxy_obj = None
-        if endpoint_override and version_string and self.supported_versions:
+        if endpoint_override and version_string:
             # Both endpoint override and version_string are set, we don't
             # need to do discovery - just trust the user.
             proxy_class = self.supported_versions.get(version_string[0])
@@ -129,7 +141,7 @@ class ServiceDescription(object):
                         version=version_string,
                         service_type=self.service_type),
                     category=exceptions.UnsupportedServiceVersion)
-        elif endpoint_override and self.supported_versions:
+        elif endpoint_override:
             temp_adapter = config.get_session_client(
                 self.service_type
             )
@@ -181,7 +193,7 @@ class ServiceDescription(object):
         version_kwargs = {}
         if version_string:
             version_kwargs['version'] = version_string
-        elif self.supported_versions:
+        else:
             supported_versions = sorted([
                 int(f) for f in self.supported_versions])
             version_kwargs['min_version'] = str(supported_versions[0])
