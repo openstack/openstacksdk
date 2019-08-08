@@ -50,7 +50,7 @@ class DnsCloudMixin(_normalize.Normalizer):
         zone = self.dns.find_zone(
             name_or_id=name_or_id, ignore_missing=True, **filters)
         if not zone:
-            return False
+            return None
         return zone
 
     def search_zones(self, name_or_id=None, filters=None):
@@ -172,7 +172,7 @@ class DnsCloudMixin(_normalize.Normalizer):
             of the zone managing the recordset.
         :param name_or_id: Name or ID of the recordset
 
-        :returns:  A recordset dict or False if no matching recordset is
+        :returns:  A recordset dict or None if no matching recordset is
             found.
 
         """
@@ -187,7 +187,7 @@ class DnsCloudMixin(_normalize.Normalizer):
             return self.dns.find_recordset(
                 zone=zone_obj, name_or_id=name_or_id, ignore_missing=False)
         except Exception:
-            return False
+            return None
 
     def search_recordsets(self, zone, name_or_id=None, filters=None):
         recordsets = self.list_recordsets(zone=zone)

@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixed issue where the dns methods were returning False instead of None
+    when resources were not found.
+  - |
+    Fixed jsonification under python3.
