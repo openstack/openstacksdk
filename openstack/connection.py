@@ -356,6 +356,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
 
         self._session = None
         self._proxies = {}
+        self.__pool_executor = None
         self.use_direct_get = use_direct_get
         self.strict_mode = strict
         # Call the _*CloudMixin constructors while we work on
