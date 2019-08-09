@@ -115,7 +115,7 @@ def from_session(session, name=None, region_name=None,
         app_name=app_name, app_version=app_version)
 
 
-def from_conf(conf, session=None, **kwargs):
+def from_conf(conf, session=None, service_types=None, **kwargs):
     """Create a CloudRegion from oslo.config ConfigOpts.
 
     :param oslo_config.cfg.ConfigOpts conf:
@@ -126,6 +126,16 @@ def from_conf(conf, session=None, **kwargs):
     :param keystoneauth1.session.Session session:
         An existing authenticated Session to use. This is currently required.
         TODO: Load this (and auth) from the conf.
+    :param service_types:
+        A list/set of service types for which to look for and process config
+        opts. If None, all known service types are processed. Note that we will
+        not error if a supplied service type can not be processed successfully
+        (unless you try to use the proxy, of course). This tolerates uses where
+        the consuming code has paths for a given service, but those paths are
+        not exercised for given end user setups, and we do not want to generate
+        errors for e.g. missing/invalid conf sections in those cases. We also
+        don't check to make sure your service types are spelled correctly -
+        caveat implementor.
     :param kwargs:
         Additional keyword arguments to be passed directly to the CloudRegion
         constructor.
@@ -140,6 +150,11 @@ def from_conf(conf, session=None, **kwargs):
     config_dict = kwargs.pop('config', config_defaults.get_defaults())
     stm = os_service_types.ServiceTypes()
     for st in stm.all_types_by_service_type:
+        if service_types is not None and st not in service_types:
+            _disable_service(
+                config_dict, st,
+                reason="Not in the list of requested service_types.")
+            continue
         project_name = stm.get_project_name(st)
         if project_name not in conf:
             if '-' in project_name:

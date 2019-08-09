@@ -13,8 +13,6 @@
 import uuid
 
 from keystoneauth1 import exceptions as ks_exc
-from keystoneauth1 import loading as ks_loading
-from oslo_config import cfg
 
 from openstack.config import cloud_region
 from openstack import connection
@@ -25,40 +23,12 @@ from openstack.tests.unit import base
 
 class TestFromConf(base.TestCase):
 
-    def setUp(self):
-        super(TestFromConf, self).setUp()
-        self.oslo_config_dict = {
-            # All defaults for nova
-            'nova': {},
-            # monasca-api not in the service catalog
-            'monasca-api': {},
-            # Overrides for heat
-            'heat': {
-                'region_name': 'SpecialRegion',
-                'interface': 'internal',
-                'endpoint_override': 'https://example.org:8888/heat/v2'
-            },
-            # test a service with dashes
-            'ironic_inspector': {
-                'endpoint_override': 'https://example.org:5050',
-            },
-        }
-
-    def _load_ks_cfg_opts(self):
-        conf = cfg.ConfigOpts()
-        for group, opts in self.oslo_config_dict.items():
-            conf.register_group(cfg.OptGroup(group))
-            if opts is not None:
-                ks_loading.register_adapter_conf_options(conf, group)
-                for name, val in opts.items():
-                    conf.set_override(name, val, group=group)
-        return conf
-
-    def _get_conn(self):
+    def _get_conn(self, **from_conf_kwargs):
         oslocfg = self._load_ks_cfg_opts()
         # Throw name in here to prove **kwargs is working
         config = cloud_region.from_conf(
-            oslocfg, session=self.cloud.session, name='from_conf.example.com')
+            oslocfg, session=self.cloud.session, name='from_conf.example.com',
+            **from_conf_kwargs)
         self.assertEqual('from_conf.example.com', config.name)
 
         return connection.Connection(config=config)
@@ -161,31 +131,49 @@ class TestFromConf(base.TestCase):
 
         self.assertTrue(adap.get_introspection('abcd').is_finished)
 
-    def _test_missing_invalid_permutations(self, expected_reason):
-        # Do special things to self.oslo_config_dict['heat'] before calling
-        # this method.
-        conn = self._get_conn()
-
-        adap = conn.orchestration
+    def assert_service_disabled(self, service_type, expected_reason,
+                                **from_conf_kwargs):
+        conn = self._get_conn(**from_conf_kwargs)
+        # The _ServiceDisabledProxyShim loads up okay...
+        adap = getattr(conn, service_type)
+        # ...but freaks out if you try to use it.
         ex = self.assertRaises(
             exceptions.ServiceDisabledException, getattr, adap, 'get')
-        self.assertIn("Service 'orchestration' is disabled because its "
-                      "configuration could not be loaded.", ex.message)
+        self.assertIn("Service '%s' is disabled because its configuration "
+                      "could not be loaded." % service_type, ex.message)
         self.assertIn(expected_reason, ex.message)
 
     def test_no_such_conf_section(self):
         """No conf section (therefore no adapter opts) for service type."""
         del self.oslo_config_dict['heat']
-        self._test_missing_invalid_permutations(
+        self.assert_service_disabled(
+            'orchestration',
             "No section for project 'heat' (service type 'orchestration') was "
             "present in the config.")
+
+    def test_no_such_conf_section_ignore_service_type(self):
+        """Ignore absent conf section if service type not requested."""
+        del self.oslo_config_dict['heat']
+        self.assert_service_disabled(
+            'orchestration', "Not in the list of requested service_types.",
+            # 'orchestration' absent from this list
+            service_types=['compute'])
 
     def test_no_adapter_opts(self):
         """Conf section present, but opts for service type not registered."""
         self.oslo_config_dict['heat'] = None
-        self._test_missing_invalid_permutations(
+        self.assert_service_disabled(
+            'orchestration',
             "Encountered an exception attempting to process config for "
             "project 'heat' (service type 'orchestration'): no such option")
+
+    def test_no_adapter_opts_ignore_service_type(self):
+        """Ignore unregistered conf section if service type not requested."""
+        self.oslo_config_dict['heat'] = None
+        self.assert_service_disabled(
+            'orchestration', "Not in the list of requested service_types.",
+            # 'orchestration' absent from this list
+            service_types=['compute'])
 
     def test_invalid_adapter_opts(self):
         """Adapter opts are bogus, in exception-raising ways."""
@@ -193,7 +181,8 @@ class TestFromConf(base.TestCase):
             'interface': 'public',
             'valid_interfaces': 'private',
         }
-        self._test_missing_invalid_permutations(
+        self.assert_service_disabled(
+            'orchestration',
             "Encountered an exception attempting to process config for "
             "project 'heat' (service type 'orchestration'): interface and "
             "valid_interfaces are mutually exclusive.")
@@ -209,3 +198,10 @@ class TestFromConf(base.TestCase):
         # Monasca is not in the service catalog
         self.assertRaises(ks_exc.catalog.EndpointNotFound,
                           getattr, conn, 'monitoring')
+
+    def test_no_endpoint_ignore_service_type(self):
+        """Bogus service type disabled if not in requested service_types."""
+        self.assert_service_disabled(
+            'monitoring', "Not in the list of requested service_types.",
+            # 'monitoring' absent from this list
+            service_types={'compute', 'orchestration', 'bogus'})
