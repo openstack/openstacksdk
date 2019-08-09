@@ -420,7 +420,10 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         if sha256:
             headers[self._OBJECT_SHA256_KEY] = sha256 or ''
         for (k, v) in metadata.items():
-            headers['x-object-meta-' + k] = v
+            if not k.lower().startswith('x-object-meta-'):
+                headers['x-object-meta-' + k] = v
+            else:
+                headers[k] = v
 
         endpoint = self._get_object_endpoint(container, name)
 
