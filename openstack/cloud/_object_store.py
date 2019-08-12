@@ -554,24 +554,55 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
 
         self._add_etag_to_manifest(segment_results, manifest)
 
-        if use_slo:
-            return self._finish_large_object_slo(endpoint, headers, manifest)
-        else:
-            return self._finish_large_object_dlo(endpoint, headers)
+        # If the final manifest upload fails, remove the segments we've
+        # already uploaded.
+        try:
+            if use_slo:
+                return self._finish_large_object_slo(endpoint, headers,
+                                                     manifest)
+            else:
+                return self._finish_large_object_dlo(endpoint, headers)
+        except Exception:
+            try:
+                segment_prefix = endpoint.split('/')[-1]
+                self.log.debug(
+                    "Failed to upload large object manifest for %s. "
+                    "Removing segment uploads.", segment_prefix)
+                self.delete_autocreated_image_objects(
+                    segment_prefix=segment_prefix)
+            except Exception:
+                self.log.exception(
+                    "Failed to cleanup image objects for %s:",
+                    segment_prefix)
+            raise
 
     def _finish_large_object_slo(self, endpoint, headers, manifest):
         # TODO(mordred) send an etag of the manifest, which is the md5sum
         # of the concatenation of the etags of the results
         headers = headers.copy()
-        return self._object_store_client.put(
-            endpoint,
-            params={'multipart-manifest': 'put'},
-            headers=headers, data=json.dumps(manifest))
+        retries = 3
+        while True:
+            try:
+                return self._object_store_client.put(
+                    endpoint,
+                    params={'multipart-manifest': 'put'},
+                    headers=headers, data=json.dumps(manifest))
+            except Exception:
+                retries -= 1
+                if retries == 0:
+                    raise
 
     def _finish_large_object_dlo(self, endpoint, headers):
         headers = headers.copy()
         headers['X-Object-Manifest'] = endpoint
-        return self._object_store_client.put(endpoint, headers=headers)
+        retries = 3
+        while True:
+            try:
+                return self._object_store_client.put(endpoint, headers=headers)
+            except Exception:
+                retries -= 1
+                if retries == 0:
+                    raise
 
     def update_object(self, container, name, metadata=None, **headers):
         """Update the metadata of an object
@@ -668,7 +699,8 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         except exc.OpenStackCloudHTTPError:
             return False
 
-    def delete_autocreated_image_objects(self, container=None):
+    def delete_autocreated_image_objects(self, container=None,
+                                         segment_prefix=None):
         """Delete all objects autocreated for image uploads.
 
         This method should generally not be needed, as shade should clean up
@@ -676,6 +708,11 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         goes wrong and it is found that there are leaked objects, this method
         can be used to delete any objects that shade has created on the user's
         behalf in service of image uploads.
+
+        :param str container: Name of the container. Defaults to 'images'.
+        :param str segment_prefix: Prefix for the image segment names to
+            delete. If not given, all image upload segments present are
+            deleted.
         """
         if container is None:
             container = self._OBJECT_AUTOCREATE_CONTAINER
@@ -684,7 +721,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             return False
 
         deleted = False
-        for obj in self.list_objects(container):
+        for obj in self.list_objects(container, prefix=segment_prefix):
             meta = self.get_object_metadata(container, obj['name'])
             if meta.get(
                     self._OBJECT_AUTOCREATE_KEY, meta.get(
