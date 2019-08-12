@@ -94,10 +94,10 @@ public-clouds:
 """.format(auth_url=CONFIG_AUTH_URL)
 
 
-class TestConnection(base.TestCase):
+class _TestConnectionBase(base.TestCase):
 
     def setUp(self):
-        super(TestConnection, self).setUp()
+        super(_TestConnectionBase, self).setUp()
         # Create a temporary directory where our test config will live
         # and insert it into the search path via OS_CLIENT_CONFIG_FILE.
         config_dir = self.useFixture(fixtures.TempDir()).path
@@ -110,6 +110,8 @@ class TestConnection(base.TestCase):
             "OS_CLIENT_CONFIG_FILE", config_path))
         self.use_keystone_v2()
 
+
+class TestConnection(_TestConnectionBase):
     def test_other_parameters(self):
         conn = connection.Connection(cloud='sample-cloud', cert='cert')
         self.assertEqual(conn.session.cert, 'cert')
@@ -261,7 +263,7 @@ class TestConnection(base.TestCase):
         self.assertFalse(sot.session.verify)
 
 
-class TestOsloConfig(TestConnection):
+class TestOsloConfig(_TestConnectionBase):
     def test_from_conf(self):
         c1 = connection.Connection(cloud='sample-cloud')
         conn = connection.Connection(
