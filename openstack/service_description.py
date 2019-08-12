@@ -223,26 +223,26 @@ class ServiceDescription(object):
                         cloud=instance.name,
                         region_name=region_name))
         proxy_class = self.supported_versions.get(str(found_version[0]))
-        if not proxy_class:
-            # Maybe openstacksdk is being used for the passthrough
-            # REST API proxy layer for an unknown service in the
-            # service catalog that also doesn't have any useful
-            # version discovery?
-            warnings.warn(
-                "Service {service_type} has no discoverable version."
-                " The resulting Proxy object will only have direct"
-                " passthrough REST capabilities.".format(
-                    service_type=self.service_type),
-                category=exceptions.UnsupportedServiceVersion)
-            return temp_adapter
-        proxy_class = self.supported_versions.get(str(found_version[0]))
         if proxy_class:
-            version_kwargs['constructor'] = proxy_class
-        return config.get_session_client(
-            self.service_type,
-            allow_version_hack=True,
-            **version_kwargs
-        )
+            return config.get_session_client(
+                self.service_type,
+                allow_version_hack=True,
+                constructor=proxy_class,
+                **version_kwargs
+            )
+
+        # No proxy_class
+        # Maybe openstacksdk is being used for the passthrough
+        # REST API proxy layer for an unknown service in the
+        # service catalog that also doesn't have any useful
+        # version discovery?
+        warnings.warn(
+            "Service {service_type} has no discoverable version."
+            " The resulting Proxy object will only have direct"
+            " passthrough REST capabilities.".format(
+                service_type=self.service_type),
+            category=exceptions.UnsupportedServiceVersion)
+        return temp_adapter
 
     def __set__(self, instance, value):
         raise AttributeError('Service Descriptors cannot be set')
