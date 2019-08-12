@@ -52,7 +52,11 @@ def populate_directory(metadata, user_data=None, versions=None,
                     json.dump(network_data, fp)
 
             if user_data:
-                with open(os.path.join(subdir, 'user_data'), 'wb') as fp:
+                # Strictly speaking, user data is binary, but in many cases
+                # it's actually a text (cloud-init, ignition, etc).
+                flag = 't' if isinstance(user_data, six.text_type) else 'b'
+                with open(os.path.join(subdir, 'user_data'),
+                          'w%s' % flag) as fp:
                     fp.write(user_data)
 
         yield d

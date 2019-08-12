@@ -48,6 +48,8 @@ class TestPopulateDirectory(testtools.TestCase):
                 if user_data is None:
                     self.assertFalse(os.path.exists(user_data_file))
                 else:
+                    if isinstance(user_data, six.text_type):
+                        user_data = user_data.encode()
                     with open(user_data_file, 'rb') as fp:
                         self.assertEqual(user_data, fp.read())
 
@@ -59,6 +61,9 @@ class TestPopulateDirectory(testtools.TestCase):
 
     def test_with_user_data(self):
         self._check({'foo': 42}, b'I am user data')
+
+    def test_with_user_data_as_string(self):
+        self._check({'foo': 42}, u'I am user data')
 
     def test_with_network_data(self):
         self._check({'foo': 42}, network_data={'networks': {}})
