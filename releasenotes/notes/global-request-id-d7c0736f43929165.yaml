@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Added support for setting ``global_request_id`` on a ``Connection``.
+    If done, this will cause all requests sent to send the request id
+    header to the OpenStack services. Since ``Connection`` can otherwise
+    be used multi-threaded, add a method ``global_request`` that returns
+    a new ``Connection`` based on the old ``Connection`` but on which
+    the new ``global_request_id`` has been set. Since a ``Connection``
+    can be used as a context manager, this also means the ``global_request``
+    method can be used in ``with`` statements.

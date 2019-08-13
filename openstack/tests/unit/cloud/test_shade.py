@@ -106,6 +106,44 @@ class TestShade(base.TestCase):
         r = self.cloud.get_image('doesNotExist')
         self.assertIsNone(r)
 
+    def test_global_request_id(self):
+        request_id = uuid.uuid4().hex
+        self.register_uris([
+            self.get_nova_discovery_mock_dict(),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    'compute', 'public', append=['servers', 'detail']),
+                json={'servers': []},
+                validate=dict(
+                    headers={'X-Openstack-Request-Id': request_id}),
+            ),
+        ])
+
+        cloud2 = self.cloud.global_request(request_id)
+        self.assertEqual([], cloud2.list_servers())
+
+        self.assert_calls()
+
+    def test_global_request_id_context(self):
+        request_id = uuid.uuid4().hex
+        self.register_uris([
+            self.get_nova_discovery_mock_dict(),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    'compute', 'public', append=['servers', 'detail']),
+                json={'servers': []},
+                validate=dict(
+                    headers={'X-Openstack-Request-Id': request_id}),
+            ),
+        ])
+
+        with self.cloud.global_request(request_id) as c2:
+            self.assertEqual([], c2.list_servers())
+
+        self.assert_calls()
+
     def test_get_server(self):
         server1 = fakes.make_fake_server('123', 'mickey')
         server2 = fakes.make_fake_server('345', 'mouse')

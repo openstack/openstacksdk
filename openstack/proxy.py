@@ -144,10 +144,17 @@ class Proxy(adapter.Adapter):
 
     def request(
             self, url, method, error_message=None,
-            raise_exc=False, connect_retries=1, *args, **kwargs):
+            raise_exc=False, connect_retries=1,
+            global_request_id=None, *args, **kwargs):
+        if not global_request_id:
+            conn = self._get_connection()
+            if conn:
+                # Per-request setting should take precedence
+                global_request_id = conn._global_request_id
         response = super(Proxy, self).request(
             url, method,
             connect_retries=connect_retries, raise_exc=False,
+            global_request_id=global_request_id,
             **kwargs)
         for h in response.history:
             self._report_stats(h)

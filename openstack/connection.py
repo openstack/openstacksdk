@@ -272,6 +272,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                  rate_limit=None,
                  oslo_conf=None,
                  service_types=None,
+                 global_request_id=None,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -328,6 +329,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             other service types will be disabled (will error if used).
             **Currently only supported in conjunction with the ``oslo_conf``
             kwarg.**
+        :param global_request_id: A Request-id to send with all interactions.
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion constructor.
@@ -363,6 +365,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
         self._session = None
         self._proxies = {}
         self.__pool_executor = None
+        self._global_request_id = global_request_id
         self.use_direct_get = use_direct_get
         self.strict_mode = strict
         # Call the _*CloudMixin constructors while we work on
@@ -478,6 +481,9 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
         """Release any resources held open."""
         if self.__pool_executor:
             self.__pool_executor.shutdown()
+
+    def set_global_request_id(self, global_request_id):
+        self._global_request_id = global_request_id
 
     def __enter__(self):
         return self
