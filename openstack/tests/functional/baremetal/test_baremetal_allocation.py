@@ -55,6 +55,11 @@ class TestBareMetalAllocation(Base):
         self.assertEqual(self.node.id, allocation.node_id)
         self.assertIsNone(allocation.last_error)
 
+        with_fields = self.conn.baremetal.get_allocation(
+            allocation.id, fields=['uuid', 'node_uuid'])
+        self.assertEqual(allocation.id, with_fields.id)
+        self.assertIsNone(with_fields.state)
+
         node = self.conn.baremetal.get_node(self.node.id)
         self.assertEqual(allocation.id, node.allocation_id)
 

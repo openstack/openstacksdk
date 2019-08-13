@@ -1445,7 +1445,19 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with(
             requires_id=True, base_path=None)
         self.session.get.assert_called_once_with(
-            self.request.url, microversion=None)
+            self.request.url, microversion=None, params={})
+
+        self.assertIsNone(self.sot.microversion)
+        self.sot._translate_response.assert_called_once_with(self.response)
+        self.assertEqual(result, self.sot)
+
+    def test_fetch_with_params(self):
+        result = self.sot.fetch(self.session, fields='a,b')
+
+        self.sot._prepare_request.assert_called_once_with(
+            requires_id=True, base_path=None)
+        self.session.get.assert_called_once_with(
+            self.request.url, microversion=None, params={'fields': 'a,b'})
 
         self.assertIsNone(self.sot.microversion)
         self.sot._translate_response.assert_called_once_with(self.response)
@@ -1467,7 +1479,7 @@ class TestResourceActions(base.TestCase):
         sot._prepare_request.assert_called_once_with(
             requires_id=True, base_path=None)
         self.session.get.assert_called_once_with(
-            self.request.url, microversion='1.42')
+            self.request.url, microversion='1.42', params={})
 
         self.assertEqual(sot.microversion, '1.42')
         sot._translate_response.assert_called_once_with(self.response)
@@ -1479,7 +1491,7 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with(
             requires_id=False, base_path=None)
         self.session.get.assert_called_once_with(
-            self.request.url, microversion=None)
+            self.request.url, microversion=None, params={})
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)
@@ -1491,7 +1503,7 @@ class TestResourceActions(base.TestCase):
             requires_id=False,
             base_path='dummy')
         self.session.get.assert_called_once_with(
-            self.request.url, microversion=None)
+            self.request.url, microversion=None, params={})
 
         self.sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, self.sot)

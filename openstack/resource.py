@@ -1295,7 +1295,8 @@ class Resource(dict):
                                         base_path=base_path)
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'fetch')
-        response = session.get(request.url, microversion=microversion)
+        response = session.get(request.url, microversion=microversion,
+                               params=params)
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message

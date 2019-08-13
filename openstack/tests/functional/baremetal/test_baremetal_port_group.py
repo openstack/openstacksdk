@@ -28,6 +28,12 @@ class TestBareMetalPortGroup(base.BaseBaremetalTest):
 
         loaded = self.conn.baremetal.get_port_group(port_group.id)
         self.assertEqual(loaded.id, port_group.id)
+        self.assertIsNotNone(loaded.node_id)
+
+        with_fields = self.conn.baremetal.get_port_group(
+            port_group.id, fields=['uuid', 'extra'])
+        self.assertEqual(port_group.id, with_fields.id)
+        self.assertIsNone(with_fields.node_id)
 
         self.conn.baremetal.delete_port_group(port_group,
                                               ignore_missing=False)

@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds support for fetching specific fields when getting bare metal
+    `Node`, `Port`, `PortGroup`, `Chassis` and `Allocation` resources.
