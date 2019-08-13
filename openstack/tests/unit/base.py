@@ -420,24 +420,34 @@ class TestCase(base.TestCase):
         self.calls = []
         self._uri_registry.clear()
 
+    def get_keystone_v3_token(self, catalog='catalog-v3.json'):
+        catalog_file = os.path.join(self.fixtures_directory, catalog)
+        with open(catalog_file, 'r') as tokens_file:
+            return dict(
+                method='POST',
+                uri='https://identity.example.com/v3/auth/tokens',
+                headers={
+                    'X-Subject-Token': self.getUniqueString('KeystoneToken')
+                },
+                text=tokens_file.read()
+            )
+
+    def get_keystone_v3_discovery(self):
+        with open(self.discovery_json, 'r') as discovery_file:
+            return dict(
+                method='GET',
+                uri='https://identity.example.com/',
+                text=discovery_file.read(),
+            )
+
     def use_keystone_v3(self, catalog='catalog-v3.json'):
         self.adapter = self.useFixture(rm_fixture.Fixture())
         self.calls = []
         self._uri_registry.clear()
-        with open(self.discovery_json, 'r') as discovery_file, \
-            open(os.path.join(
-                self.fixtures_directory, catalog), 'r') as tokens_file:
-            self.__do_register_uris([
-                dict(method='GET', uri='https://identity.example.com/',
-                     text=discovery_file.read()),
-                dict(method='POST',
-                     uri='https://identity.example.com/v3/auth/tokens',
-                     headers={
-                         'X-Subject-Token':
-                         self.getUniqueString('KeystoneToken')},
-                     text=tokens_file.read()
-                     ),
-            ])
+        self.__do_register_uris([
+            self.get_keystone_v3_discovery(),
+            self.get_keystone_v3_token(catalog),
+        ])
         self._make_test_cloud(identity_api_version='3')
 
     def use_keystone_v2(self):
