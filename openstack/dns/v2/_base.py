@@ -49,7 +49,7 @@ class Resource(resource.Resource):
                 id=name_or_id,
                 connection=session._get_connection(),
                 **params)
-            return match.fetch(session, **params)
+            return match.fetch(session)
         except exceptions.SDKException:
             # DNS may return 400 when we try to do GET with name
             pass

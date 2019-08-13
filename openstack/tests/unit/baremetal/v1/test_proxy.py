@@ -24,6 +24,9 @@ from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
 
 
+_MOCK_METHOD = 'openstack.baremetal.v1._proxy.Proxy._get_with_fields'
+
+
 class TestBaremetalProxy(test_proxy_base.TestProxyBase):
 
     def setUp(self):
@@ -55,7 +58,9 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_chassis, chassis.Chassis)
 
     def test_get_chassis(self):
-        self.verify_get(self.proxy.get_chassis, chassis.Chassis)
+        self.verify_get(self.proxy.get_chassis, chassis.Chassis,
+                        mock_method=_MOCK_METHOD,
+                        expected_kwargs={'fields': None})
 
     def test_update_chassis(self):
         self.verify_update(self.proxy.update_chassis, chassis.Chassis)
@@ -85,7 +90,9 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_node, node.Node)
 
     def test_get_node(self):
-        self.verify_get(self.proxy.get_node, node.Node)
+        self.verify_get(self.proxy.get_node, node.Node,
+                        mock_method=_MOCK_METHOD,
+                        expected_kwargs={'fields': None})
 
     @mock.patch.object(node.Node, 'commit', autospec=True)
     def test_update_node(self, mock_commit):
@@ -127,7 +134,9 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_port, port.Port)
 
     def test_get_port(self):
-        self.verify_get(self.proxy.get_port, port.Port)
+        self.verify_get(self.proxy.get_port, port.Port,
+                        mock_method=_MOCK_METHOD,
+                        expected_kwargs={'fields': None})
 
     def test_update_port(self):
         self.verify_update(self.proxy.update_port, port.Port)
@@ -150,11 +159,18 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
         self.assertIs(result, mock_list.return_value)
         mock_list.assert_called_once_with(self.proxy, details=False, query=1)
 
+    def test_get_port_group(self):
+        self.verify_get(self.proxy.get_port_group, port_group.PortGroup,
+                        mock_method=_MOCK_METHOD,
+                        expected_kwargs={'fields': None})
+
     def test_create_allocation(self):
         self.verify_create(self.proxy.create_allocation, allocation.Allocation)
 
     def test_get_allocation(self):
-        self.verify_get(self.proxy.get_allocation, allocation.Allocation)
+        self.verify_get(self.proxy.get_allocation, allocation.Allocation,
+                        mock_method=_MOCK_METHOD,
+                        expected_kwargs={'fields': None})
 
     def test_delete_allocation(self):
         self.verify_delete(self.proxy.delete_allocation, allocation.Allocation,
@@ -163,6 +179,22 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_delete_allocation_ignore(self):
         self.verify_delete(self.proxy.delete_allocation, allocation.Allocation,
                            True)
+
+    @mock.patch.object(node.Node, 'fetch', autospec=True)
+    def test__get_with_fields_none(self, mock_fetch):
+        result = self.proxy._get_with_fields(node.Node, 'value')
+        self.assertIs(result, mock_fetch.return_value)
+        mock_fetch.assert_called_once_with(mock.ANY, self.proxy,
+                                           error_message=mock.ANY)
+
+    @mock.patch.object(node.Node, 'fetch', autospec=True)
+    def test__get_with_fields(self, mock_fetch):
+        result = self.proxy._get_with_fields(node.Node, 'value',
+                                             fields=['a', 'b'])
+        self.assertIs(result, mock_fetch.return_value)
+        mock_fetch.assert_called_once_with(mock.ANY, self.proxy,
+                                           error_message=mock.ANY,
+                                           fields='a,b')
 
 
 @mock.patch('time.sleep', lambda _sec: None)

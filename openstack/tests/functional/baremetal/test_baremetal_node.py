@@ -34,6 +34,13 @@ class TestBareMetalNode(base.BaseBaremetalTest):
             self.assertEqual(node.id, found.id)
             self.assertEqual(node.name, found.name)
 
+        with_fields = self.conn.baremetal.get_node('node-name',
+                                                   fields=['uuid', 'driver'])
+        self.assertEqual(node.id, with_fields.id)
+        self.assertEqual(node.driver, with_fields.driver)
+        self.assertIsNone(with_fields.name)
+        self.assertIsNone(with_fields.provision_state)
+
         nodes = self.conn.baremetal.nodes()
         self.assertIn(node.id, [n.id for n in nodes])
 

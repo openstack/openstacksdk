@@ -25,6 +25,29 @@ class Proxy(proxy.Proxy):
 
     retriable_status_codes = _common.RETRIABLE_STATUS_CODES
 
+    def _get_with_fields(self, resource_type, value, fields=None):
+        """Fetch a bare metal resource.
+
+        :param resource_type: The type of resource to get.
+        :type resource_type: :class:`~openstack.resource.Resource`
+        :param value: The value to get. Can be either the ID of a
+                      resource or a :class:`~openstack.resource.Resource`
+                      subclass.
+        :param fields: Limit the resource fields to fetch.
+
+        :returns: The result of the ``fetch``
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        res = self._get_resource(resource_type, value)
+        kwargs = {}
+        if fields:
+            kwargs['fields'] = _common.comma_separated_list(fields)
+        return res.fetch(
+            self,
+            error_message="No {resource_type} found for {value}".format(
+                resource_type=resource_type.__name__, value=value),
+            **kwargs)
+
     def chassis(self, details=False, **query):
         """Retrieve a generator of chassis.
 
@@ -85,17 +108,18 @@ class Proxy(proxy.Proxy):
         return self._find(_chassis.Chassis, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_chassis(self, chassis):
+    def get_chassis(self, chassis, fields=None):
         """Get a specific chassis.
 
         :param chassis: The value can be the ID of a chassis or a
             :class:`~openstack.baremetal.v1.chassis.Chassis` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.chassis.Chassis`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             chassis matching the name or ID could be found.
         """
-        return self._get(_chassis.Chassis, chassis)
+        return self._get_with_fields(_chassis.Chassis, chassis, fields=fields)
 
     def update_chassis(self, chassis, **attrs):
         """Update a chassis.
@@ -239,17 +263,18 @@ class Proxy(proxy.Proxy):
         return self._find(_node.Node, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_node(self, node):
+    def get_node(self, node, fields=None):
         """Get a specific node.
 
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.node.Node`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             node matching the name or ID could be found.
         """
-        return self._get(_node.Node, node)
+        return self._get_with_fields(_node.Node, node, fields=fields)
 
     def update_node(self, node, retry_on_conflict=True, **attrs):
         """Update a node.
@@ -552,23 +577,18 @@ class Proxy(proxy.Proxy):
         return self._find(_port.Port, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_port(self, port, **query):
+    def get_port(self, port, fields=None):
         """Get a specific port.
 
         :param port: The value can be the ID of a port or a
             :class:`~openstack.baremetal.v1.port.Port` instance.
-        :param dict query: Optional query parameters to be sent to restrict
-            the port properties returned. Available parameters include:
-
-            * ``fields``: A list containing one or more fields to be returned
-              in the response. This may lead to some performance gain
-              because other fields of the resource are not refreshed.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.port.Port`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             port matching the name or ID could be found.
         """
-        return self._get(_port.Port, port, **query)
+        return self._get_with_fields(_port.Port, port, fields=fields)
 
     def update_port(self, port, **attrs):
         """Update a port.
@@ -675,23 +695,19 @@ class Proxy(proxy.Proxy):
         return self._find(_portgroup.PortGroup, name_or_id,
                           ignore_missing=ignore_missing)
 
-    def get_port_group(self, port_group, **query):
+    def get_port_group(self, port_group, fields=None):
         """Get a specific port group.
 
         :param port_group: The value can be the name or ID of a chassis or a
             :class:`~openstack.baremetal.v1.port_group.PortGroup` instance.
-        :param dict query: Optional query parameters to be sent to restrict
-            the port group properties returned. Available parameters include:
-
-            * ``fields``: A list containing one or more fields to be returned
-              in the response. This may lead to some performance gain
-              because other fields of the resource are not refreshed.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.port_group.PortGroup`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             port group matching the name or ID could be found.
         """
-        return self._get(_portgroup.PortGroup, port_group, **query)
+        return self._get_with_fields(_portgroup.PortGroup, port_group,
+                                     fields=fields)
 
     def update_port_group(self, port_group, **attrs):
         """Update a port group.
@@ -842,17 +858,19 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_allocation.Allocation, **attrs)
 
-    def get_allocation(self, allocation):
+    def get_allocation(self, allocation, fields=None):
         """Get a specific allocation.
 
         :param allocation: The value can be the name or ID of an allocation or
             a :class:`~openstack.baremetal.v1.allocation.Allocation` instance.
+        :param fields: Limit the resource fields to fetch.
 
         :returns: One :class:`~openstack.baremetal.v1.allocation.Allocation`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             allocation matching the name or ID could be found.
         """
-        return self._get(_allocation.Allocation, allocation)
+        return self._get_with_fields(_allocation.Allocation, allocation,
+                                     fields=fields)
 
     def update_allocation(self, allocation, **attrs):
         """Update an allocation.

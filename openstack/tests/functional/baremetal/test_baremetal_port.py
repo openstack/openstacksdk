@@ -31,6 +31,12 @@ class TestBareMetalPort(base.BaseBaremetalTest):
 
         loaded = self.conn.baremetal.get_port(port.id)
         self.assertEqual(loaded.id, port.id)
+        self.assertIsNotNone(loaded.address)
+
+        with_fields = self.conn.baremetal.get_port(port.id,
+                                                   fields=['uuid', 'extra'])
+        self.assertEqual(port.id, with_fields.id)
+        self.assertIsNone(with_fields.address)
 
         self.conn.baremetal.delete_port(port, ignore_missing=False)
         self.assertRaises(exceptions.ResourceNotFound,

@@ -107,7 +107,8 @@ class TestFirewallRule(FirewallTestCase):
         self.register_uris([
             dict(method='GET',  # short-circuit
                  uri=self._make_mock_url('firewall_rules',
-                                         self.firewall_rule_name),
+                                         self.firewall_rule_name,
+                                         **filters),
                  status_code=404),
             dict(method='GET',
                  uri=self._make_mock_url(
@@ -232,7 +233,7 @@ class TestFirewallRule(FirewallTestCase):
             dict(
                 method='GET',
                 uri=self._make_mock_url(
-                    'firewall_rules', self.firewall_rule_name),
+                    'firewall_rules', self.firewall_rule_name, **filters),
                 json={'firewall_rule': self._mock_firewall_rule_attrs}),
             dict(
                 method='PUT',
