@@ -37,7 +37,8 @@ class Allocation(_common.ListMixin, resource.Resource):
     )
 
     # Allocation update is available since 1.57
-    _max_microversion = '1.57'
+    # Backfilling allocations is available since 1.58
+    _max_microversion = '1.58'
 
     #: The candidate nodes for this allocation.
     candidate_nodes = resource.Body('candidate_nodes', type=list)
@@ -53,6 +54,9 @@ class Allocation(_common.ListMixin, resource.Resource):
     links = resource.Body('links', type=list)
     #: The name of the allocation.
     name = resource.Body('name')
+    #: The node UUID or name to create the allocation against,
+    #: bypassing the normal allocation process.
+    node = resource.Body('node')
     #: UUID of the node this allocation belongs to.
     node_id = resource.Body('node_uuid')
     #: The requested resource class.
