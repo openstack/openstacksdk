@@ -318,7 +318,10 @@ class Proxy(proxy.Proxy):
         if sha256:
             headers[self._connection._OBJECT_SHA256_KEY] = sha256 or ''
         for (k, v) in metadata.items():
-            headers['x-object-meta-' + k] = v
+            if not k.lower().startswith('x-object-meta-'):
+                headers['x-object-meta-' + k] = v
+            else:
+                headers[k] = v
 
         container_name = self._get_container_name(container=container)
         endpoint = '{container}/{name}'.format(container=container_name,
