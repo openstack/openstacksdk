@@ -420,7 +420,11 @@ class TestCase(base.TestCase):
         self.calls = []
         self._uri_registry.clear()
 
-    def get_keystone_v3_token(self, catalog='catalog-v3.json'):
+    def get_keystone_v3_token(
+            self,
+            catalog='catalog-v3.json',
+            project_name='admin',
+    ):
         catalog_file = os.path.join(self.fixtures_directory, catalog)
         with open(catalog_file, 'r') as tokens_file:
             return dict(
@@ -429,7 +433,31 @@ class TestCase(base.TestCase):
                 headers={
                     'X-Subject-Token': self.getUniqueString('KeystoneToken')
                 },
-                text=tokens_file.read()
+                text=tokens_file.read(),
+                validate=dict(json={
+                    'auth': {
+                        'identity': {
+                            'methods': ['password'],
+                            'password': {
+                                'user': {
+                                    'domain': {
+                                        'name': 'default',
+                                    },
+                                    'name': 'admin',
+                                    'password': 'password'
+                                }
+                            }
+                        },
+                        'scope': {
+                            'project': {
+                                'domain': {
+                                    'name': 'default'
+                                },
+                                'name': project_name
+                            }
+                        }
+                    }
+                }),
             )
 
     def get_keystone_v3_discovery(self):

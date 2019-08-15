@@ -58,8 +58,9 @@ class TestShade(base.TestCase):
         # Do initial auth/catalog steps
         # This should authenticate a second time, but should not
         # need a second identity discovery
+        project_name = 'test_project'
         self.register_uris([
-            self.get_keystone_v3_token(),
+            self.get_keystone_v3_token(project_name=project_name),
             self.get_nova_discovery_mock_dict(),
             dict(
                 method='GET',
@@ -69,7 +70,7 @@ class TestShade(base.TestCase):
             ),
         ])
 
-        c2 = self.cloud.connect_as(project_name='test_project')
+        c2 = self.cloud.connect_as(project_name=project_name)
         self.assertEqual(c2.list_servers(), [])
         self.assert_calls()
 
@@ -77,8 +78,9 @@ class TestShade(base.TestCase):
         # Do initial auth/catalog steps
         # This should authenticate a second time, but should not
         # need a second identity discovery
+        project_name = 'test_project'
         self.register_uris([
-            self.get_keystone_v3_token(),
+            self.get_keystone_v3_token(project_name=project_name),
             self.get_nova_discovery_mock_dict(),
             dict(
                 method='GET',
@@ -88,7 +90,7 @@ class TestShade(base.TestCase):
             ),
         ])
 
-        with self.cloud.connect_as(project_name='test_project') as c2:
+        with self.cloud.connect_as(project_name=project_name) as c2:
             self.assertEqual(c2.list_servers(), [])
         self.assert_calls()
 
