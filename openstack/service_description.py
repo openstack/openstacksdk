@@ -17,6 +17,7 @@ import os_service_types
 
 from openstack import _log
 from openstack import exceptions
+from openstack import proxy as proxy_mod
 
 __all__ = [
     'ServiceDescription',
@@ -83,9 +84,33 @@ class ServiceDescription(object):
         if instance is None:
             return self
         if self.service_type not in instance._proxies:
-            instance._proxies[self.service_type] = self._make_proxy(instance)
-            instance._proxies[self.service_type]._connection = instance
+            proxy = self._make_proxy(instance)
+            if not isinstance(proxy, _ServiceDisabledProxyShim):
+                # The keystone proxy has a method called get_endpoint
+                # that is about managing keystone endpoints. This is
+                # unfortunate.
+                endpoint = proxy_mod.Proxy.get_endpoint(proxy)
+                if instance._strict_proxies:
+                    self._validate_proxy(proxy, endpoint)
+                proxy._connection = instance
+            instance._proxies[self.service_type] = proxy
         return instance._proxies[self.service_type]
+
+    def _validate_proxy(self, proxy, endpoint):
+        exc = None
+        service_url = getattr(proxy, 'skip_discovery', None)
+        try:
+            # Don't go too wild for e.g. swift
+            if service_url is None:
+                service_url = proxy.get_endpoint_data().service_url
+        except Exception as e:
+            exc = e
+        if exc or not endpoint or not service_url:
+            raise exceptions.ServiceDiscoveryException(
+                "Failed to create a working proxy for service {service_type}: "
+                "{message}".format(
+                    service_type=self.service_type,
+                    message=exc or "No valid endpoint was discoverable."))
 
     def _make_proxy(self, instance):
         """Create a Proxy for the service in question.
@@ -108,8 +133,6 @@ class ServiceDescription(object):
                 self.service_type,
                 allow_version_hack=True,
             )
-            # trigger EndpointNotFound exception if this is bogus
-            temp_client.get_endpoint()
             return temp_client
 
         # Check to see if we've got config that matches what we
@@ -173,6 +196,12 @@ class ServiceDescription(object):
                 return proxy_obj
 
             data = proxy_obj.get_endpoint_data()
+            if not data and instance._strict_proxies:
+                raise exceptions.ServiceDiscoveryException(
+                    "Failed to create a working proxy for service "
+                    "{service_type}: No endpoint data found.".format(
+                        service_type=self.service_type))
+
             # If we've gotten here with a proxy object it means we have
             # an endpoint_override in place. If the catalog_url and
             # service_url don't match, which can happen if there is a

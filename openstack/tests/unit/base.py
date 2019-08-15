@@ -673,7 +673,8 @@ class TestCase(base.TestCase):
             if 'content-type' not in headers:
                 headers[u'content-type'] = 'application/json'
 
-            to_mock['headers'] = headers
+            if 'exc' not in to_mock:
+                to_mock['headers'] = headers
 
             self.calls += [
                 dict(

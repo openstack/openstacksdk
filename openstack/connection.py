@@ -273,6 +273,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
                  oslo_conf=None,
                  service_types=None,
                  global_request_id=None,
+                 strict_proxies=False,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -330,12 +331,23 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             **Currently only supported in conjunction with the ``oslo_conf``
             kwarg.**
         :param global_request_id: A Request-id to send with all interactions.
+        :param strict_proxies:
+            If True, check proxies on creation and raise
+            ServiceDiscoveryException if the service is unavailable.
+        :type strict_proxies: bool
+            Throw an ``openstack.exceptions.ServiceDiscoveryException`` if the
+            endpoint for a given service doesn't work. This is useful for
+            OpenStack services using sdk to talk to other OpenStack services
+            where it can be expected that the deployer config is correct and
+            errors should be reported immediately.
+            Default false.
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion constructor.
         """
         self.config = config
         self._extra_services = {}
+        self._strict_proxies = strict_proxies
         if extra_services:
             for service in extra_services:
                 self._extra_services[service.service_type] = service
