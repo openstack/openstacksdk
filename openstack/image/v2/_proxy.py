@@ -251,7 +251,8 @@ class Proxy(_base_proxy.BaseImageProxy):
             container, name, filename,
             md5=md5, sha256=sha256,
             metadata={self._connection._OBJECT_AUTOCREATE_KEY: 'true'},
-            **{'content-type': 'application/octet-stream'})
+            **{'content-type': 'application/octet-stream',
+               'x-delete-after': str(24 * 60 * 60)})
         # TODO(mordred): Can we do something similar to what nodepool does
         # using glance properties to not delete then upload but instead make a
         # new "good" image and then mark the old one as "bad"
