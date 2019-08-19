@@ -997,6 +997,10 @@ class Proxy(proxy.Proxy):
             a :class:`~openstack.image.v2.member.Member`,
             comprised of the properties on the Member class.
 
+        See `Image Sharing Reference
+        <https://docs.openstack.org/api-ref/image/v2/index.html?expanded=create-image-member-detail#create-image-member>`__
+        for details.
+
         :returns: The results of member creation
         :rtype: :class:`~openstack.image.v2.member.Member`
         """
@@ -1092,6 +1096,10 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.image.v2.image.Image` instance.
         :param attrs: The attributes to update on the member represented
             by ``member``.
+
+        See `Image Sharing Reference
+        <https://docs.openstack.org/api-ref/image/v2/index.html?expanded=update-image-member-detail#update-image-member>`__
+        for details.
 
         :returns: The updated member
         :rtype: :class:`~openstack.image.v2.member.Member`
