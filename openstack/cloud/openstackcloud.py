@@ -499,9 +499,32 @@ class _OpenStackCloudMixin(object):
     def service_catalog(self):
         return self._keystone_catalog.catalog
 
-    def endpoint_for(self, service_type, interface='public'):
-        return self._keystone_catalog.url_for(
-            service_type=service_type, interface=interface)
+    def endpoint_for(self, service_type, interface=None, region_name=None):
+        """Return the endpoint for a given service.
+
+        Respects config values for Connection, including
+        ``*_endpoint_override``. For direct values from the catalog
+        regardless of overrides, see
+        :meth:`~openstack.config.cloud_region.CloudRegion.get_endpoint_from_catalog`
+
+        :param service_type: Service Type of the endpoint to search for.
+        :param interface:
+            Interface of the endpoint to search for. Optional, defaults to
+            the configured value for interface for this Connection.
+        :param region_name:
+            Region Name of the endpoint to search for. Optional, defaults to
+            the configured value for region_name for this Connection.
+
+        :returns: The endpoint of the service, or None if not found.
+        """
+
+        endpoint_override = self.config.get_endpoint(service_type)
+        if endpoint_override:
+            return endpoint_override
+        return self.config.get_endpoint_from_catalog(
+            service_type=service_type,
+            interface=interface,
+            region_name=region_name)
 
     @property
     def auth_token(self):

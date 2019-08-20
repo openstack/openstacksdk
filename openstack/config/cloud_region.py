@@ -466,13 +466,34 @@ class CloudRegion(object):
             value = auth.get('auth_url')
         return value
 
-    def get_endpoint_from_catalog(self, service_type):
+    def get_endpoint_from_catalog(
+            self, service_type, interface=None, region_name=None):
+        """Return the endpoint for a given service as found in the catalog.
+
+        For values respecting endpoint overrides, see
+        :meth:`~openstack.connection.Connection.endpoint_for`
+
+        :param service_type: Service Type of the endpoint to search for.
+        :param interface:
+            Interface of the endpoint to search for. Optional, defaults to
+            the configured value for interface for this Connection.
+        :param region_name:
+            Region Name of the endpoint to search for. Optional, defaults to
+            the configured value for region_name for this Connection.
+
+        :returns: The endpoint of the service, or None if not found.
+        """
+        interface = interface or self.get_interface(service_type)
+        region_name = region_name or self.get_region_name(service_type)
         session = self.get_session()
-        return session.auth.get_endpoint(
-            session,
-            service_type=service_type,
-            region_name=self.get_region_name(service_type),
-            interface=self.get_interface(service_type))
+        catalog = session.auth.get_access(session).service_catalog
+        try:
+            return catalog.url_for(
+                service_type=service_type,
+                interface=interface,
+                region_name=region_name)
+        except keystoneauth1.exceptions.catalog.EndpointNotFound:
+            return None
 
     def get_connect_retries(self, service_type):
         return self._get_config('connect_retries', service_type,
