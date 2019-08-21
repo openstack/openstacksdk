@@ -43,7 +43,7 @@ class Proxy(proxy.Proxy):
         :rtype: dict
         """
         stack_attrs = dict()
-        envfiles = None
+        envfiles = dict()
         tpl_files = None
         if environment_files:
             envfiles, env = \
