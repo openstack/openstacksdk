@@ -25,7 +25,7 @@ class TestUsers(base.TestCase):
         if v3:
             base_url_append = 'v3'
         return self.get_mock_url(
-            service_type='identity', interface='admin', resource=resource,
+            service_type='identity', resource=resource,
             append=append, base_url_append=base_url_append)
 
     def _get_user_list(self, user_data):

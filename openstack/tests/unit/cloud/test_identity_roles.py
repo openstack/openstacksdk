@@ -36,7 +36,7 @@ RAW_ROLE_ASSIGNMENTS = [
 
 class TestIdentityRoles(base.TestCase):
 
-    def get_mock_url(self, service_type='identity', interface='admin',
+    def get_mock_url(self, service_type='identity', interface='public',
                      resource='roles', append=None, base_url_append='v3',
                      qs_elements=None):
         return super(TestIdentityRoles, self).get_mock_url(

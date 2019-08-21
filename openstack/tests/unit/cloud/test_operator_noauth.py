@@ -37,7 +37,7 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
                  uri=self.get_mock_url(
                      service_type='baremetal', base_url_append='v1'),
                  json={'id': 'v1',
-                       'links': [{"href": "https://bare-metal.example.com/v1",
+                       'links': [{"href": "https://baremetal.example.com/v1",
                                   "rel": "self"}]}),
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -58,7 +58,7 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
         # client library.
         self.cloud_noauth = openstack.connect(
             auth_type='none',
-            baremetal_endpoint_override="https://bare-metal.example.com/v1")
+            baremetal_endpoint_override="https://baremetal.example.com/v1")
 
         self.cloud_noauth.list_machines()
 
@@ -73,11 +73,11 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
           clouds:
             bifrost:
               auth_type: "none"
-              endpoint: https://bare-metal.example.com
+              endpoint: https://baremetal.example.com
         """
         self.cloud_noauth = openstack.connect(
             auth_type='none',
-            endpoint='https://bare-metal.example.com/v1',
+            endpoint='https://baremetal.example.com/v1',
         )
 
         self.cloud_noauth.list_machines()
@@ -92,7 +92,7 @@ class TestOpenStackCloudOperatorNoAuth(base.TestCase):
         self.cloud_noauth = openstack.connect(
             auth_type='admin_token',
             auth=dict(
-                endpoint='https://bare-metal.example.com/v1',
+                endpoint='https://baremetal.example.com/v1',
                 token='ignored'))
 
         self.cloud_noauth.list_machines()
@@ -118,7 +118,7 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
         self._uri_registry.clear()
         self.register_uris([
             dict(method='GET',
-                 uri='https://bare-metal.example.com/',
+                 uri='https://baremetal.example.com/',
                  json={
                      "default_version": {
                          "status": "CURRENT",
@@ -126,7 +126,7 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
                          "version": "1.46",
                          "id": "v1",
                          "links": [{
-                             "href": "https://bare-metal.example.com/v1",
+                             "href": "https://baremetal.example.com/v1",
                              "rel": "self"
                          }]},
                      "versions": [{
@@ -135,7 +135,7 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
                          "version": "1.46",
                          "id": "v1",
                          "links": [{
-                             "href": "https://bare-metal.example.com/v1",
+                             "href": "https://baremetal.example.com/v1",
                              "rel": "self"
                          }]}],
                      "name": "OpenStack Ironic API",
@@ -150,21 +150,21 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
                          "type": "application/vnd.openstack.ironic.v1+json"
                      }],
                      "links": [{
-                         "href": "https://bare-metal.example.com/v1",
+                         "href": "https://baremetal.example.com/v1",
                          "rel": "self"
                      }],
                      "ports": [{
-                         "href": "https://bare-metal.example.com/v1/ports/",
+                         "href": "https://baremetal.example.com/v1/ports/",
                          "rel": "self"
                      }, {
-                         "href": "https://bare-metal.example.com/ports/",
+                         "href": "https://baremetal.example.com/ports/",
                          "rel": "bookmark"
                      }],
                      "nodes": [{
-                         "href": "https://bare-metal.example.com/v1/nodes/",
+                         "href": "https://baremetal.example.com/v1/nodes/",
                          "rel": "self"
                      }, {
-                         "href": "https://bare-metal.example.com/nodes/",
+                         "href": "https://baremetal.example.com/nodes/",
                          "rel": "bookmark"
                      }],
                      "id": "v1"
@@ -188,7 +188,7 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
         # client library.
         self.cloud_noauth = openstack.connect(
             auth_type='none',
-            baremetal_endpoint_override="https://bare-metal.example.com")
+            baremetal_endpoint_override="https://baremetal.example.com")
 
         self.cloud_noauth.list_machines()
 
@@ -203,11 +203,11 @@ class TestOpenStackCloudOperatorNoAuthUnversioned(base.TestCase):
           clouds:
             bifrost:
               auth_type: "none"
-              endpoint: https://bare-metal.example.com
+              endpoint: https://baremetal.example.com
         """
         self.cloud_noauth = openstack.connect(
             auth_type='none',
-            endpoint='https://bare-metal.example.com/',
+            endpoint='https://baremetal.example.com/',
         )
 
         self.cloud_noauth.list_machines()

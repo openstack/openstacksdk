@@ -117,7 +117,7 @@ class TestMemoryCache(base.TestCase):
                                         for p in project_list]}
 
         mock_uri = self.get_mock_url(
-            service_type='identity', interface='admin', resource='projects',
+            service_type='identity', resource='projects',
             base_url_append='v3')
 
         self.register_uris([
@@ -206,6 +206,7 @@ class TestMemoryCache(base.TestCase):
                                         'Volume 2 Display Name')
         fake_volume2_dict = meta.obj_to_munch(fake_volume2)
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -236,6 +237,7 @@ class TestMemoryCache(base.TestCase):
                                         'Volume 2 Display Name')
         fake_volume2_dict = meta.obj_to_munch(fake_volume2)
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -266,6 +268,7 @@ class TestMemoryCache(base.TestCase):
             fake_vol_avail['status'] = 'deleting'
 
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -323,7 +326,6 @@ class TestMemoryCache(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      service_type='identity',
-                     interface='admin',
                      resource='users',
                      base_url_append='v3'),
                  status_code=200,

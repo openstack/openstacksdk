@@ -14,6 +14,10 @@ from openstack.tests.unit import base
 
 
 class TestVolumeBackups(base.TestCase):
+    def setUp(self):
+        super(TestVolumeBackups, self).setUp()
+        self.use_cinder()
+
     def test_search_volume_backups(self):
         name = 'Volume1'
         vol1 = {'name': name, 'availability_zone': 'az1'}

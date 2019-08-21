@@ -20,10 +20,10 @@ class TestGroups(base.TestCase):
             cloud_config_fixture=cloud_config_fixture)
         self.addCleanup(self.assert_calls)
 
-    def get_mock_url(self, service_type='identity', interface='admin',
+    def get_mock_url(self, service_type='identity', interface='public',
                      resource='groups', append=None, base_url_append='v3'):
         return super(TestGroups, self).get_mock_url(
-            service_type='identity', interface='admin', resource=resource,
+            service_type='identity', interface=interface, resource=resource,
             append=append, base_url_append=base_url_append)
 
     def test_list_groups(self):

@@ -194,6 +194,7 @@ class TestFromConf(base.TestCase):
 
     def test_no_endpoint(self):
         """Conf contains adapter opts, but service type not in catalog."""
+        self.os_fixture.v3_token.remove_service('monitoring')
         conn = self._get_conn()
         # Monasca is not in the service catalog
         self.assertRaises(ks_exc.catalog.EndpointNotFound,

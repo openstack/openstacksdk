@@ -25,10 +25,10 @@ from openstack.tests.unit import base
 class TestDomains(base.TestCase):
 
     def get_mock_url(self, service_type='identity',
-                     interface='admin', resource='domains',
+                     resource='domains',
                      append=None, base_url_append='v3'):
         return super(TestDomains, self).get_mock_url(
-            service_type=service_type, interface=interface, resource=resource,
+            service_type=service_type, resource=resource,
             append=append, base_url_append=base_url_append)
 
     def test_list_domains(self):

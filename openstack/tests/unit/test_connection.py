@@ -21,6 +21,7 @@ from openstack import connection
 from openstack import proxy
 import openstack.config
 from openstack import service_description
+from openstack.tests import fakes
 from openstack.tests.unit import base
 from openstack.tests.unit.fake import fake_service
 
@@ -292,7 +293,13 @@ class TestNetworkConnection(base.TestCase):
 
     # Verify that if the catalog has the suffix we don't mess things up.
     def test_network_proxy(self):
-        self.use_keystone_v3(catalog='catalog-v3-suffix.json')
+        self.os_fixture.v3_token.remove_service('network')
+        svc = self.os_fixture.v3_token.add_service('network')
+        svc.add_endpoint(
+            interface='public',
+            url='https://network.example.com/v2.0',
+            region='RegionOne')
+        self.use_keystone_v3()
         self.assertEqual(
             'openstack.network.v2._proxy',
             self.cloud.network.__class__.__module__)
@@ -332,7 +339,13 @@ class TestAuthorize(base.TestCase):
 class TestNewService(base.TestCase):
 
     def test_add_service_v1(self):
-        self.use_keystone_v3(catalog='catalog-v3-fake-v1.json')
+        svc = self.os_fixture.v3_token.add_service('fake')
+        svc.add_endpoint(
+            interface='public',
+            region='RegionOne',
+            url='https://fake.example.com/v1/{0}'.format(fakes.PROJECT_ID),
+        )
+        self.use_keystone_v3()
         conn = self.cloud
 
         service = fake_service.FakeService('fake')
@@ -360,7 +373,13 @@ class TestNewService(base.TestCase):
         self.assertTrue(conn.fake.dummy())
 
     def test_add_service_v2(self):
-        self.use_keystone_v3(catalog='catalog-v3-fake-v2.json')
+        svc = self.os_fixture.v3_token.add_service('fake')
+        svc.add_endpoint(
+            interface='public',
+            region='RegionOne',
+            url='https://fake.example.com/v2/{0}'.format(fakes.PROJECT_ID),
+        )
+        self.use_keystone_v3()
         conn = self.cloud
 
         self.register_uris([
@@ -385,7 +404,13 @@ class TestNewService(base.TestCase):
         self.assertFalse(conn.fake.dummy())
 
     def test_replace_system_service(self):
-        self.use_keystone_v3(catalog='catalog-v3-fake-v2.json')
+        svc = self.os_fixture.v3_token.add_service('fake')
+        svc.add_endpoint(
+            interface='public',
+            region='RegionOne',
+            url='https://fake.example.com/v2/{0}'.format(fakes.PROJECT_ID),
+        )
+        self.use_keystone_v3()
         conn = self.cloud
 
         # delete native dns service

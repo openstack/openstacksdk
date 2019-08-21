@@ -34,11 +34,20 @@ coe_cluster_signed_cert_obj = munch.Munch(
 
 class TestCOEClusters(base.TestCase):
 
+    def get_mock_url(
+            self,
+            service_type='container-infrastructure-management',
+            base_url_append=None, append=None, resource=None):
+        return super(TestCOEClusters, self).get_mock_url(
+            service_type=service_type, resource=resource,
+            append=append, base_url_append=base_url_append)
+
     def test_get_coe_cluster_certificate(self):
         self.register_uris([dict(
             method='GET',
-            uri=('https://container-infra.example.com/v1/certificates/%s' %
-                 coe_cluster_ca_obj.cluster_uuid),
+            uri=self.get_mock_url(
+                resource='certificates',
+                append=[coe_cluster_ca_obj.cluster_uuid]),
             json=coe_cluster_ca_obj)
         ])
         ca_cert = self.cloud.get_coe_cluster_certificate(
@@ -51,7 +60,7 @@ class TestCOEClusters(base.TestCase):
     def test_sign_coe_cluster_certificate(self):
         self.register_uris([dict(
             method='POST',
-            uri='https://container-infra.example.com/v1/certificates',
+            uri=self.get_mock_url(resource='certificates'),
             json={"cluster_uuid": coe_cluster_signed_cert_obj.cluster_uuid,
                   "csr": coe_cluster_signed_cert_obj.csr}
         )])

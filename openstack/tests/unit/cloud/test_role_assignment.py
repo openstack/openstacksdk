@@ -84,7 +84,7 @@ class TestRoleAssignment(base.TestCase):
         self.addCleanup(delattr, self, 'user_domain_assignment')
         self.addCleanup(delattr, self, 'group_domain_assignment')
 
-    def get_mock_url(self, service_type='identity', interface='admin',
+    def get_mock_url(self, service_type='identity', interface='public',
                      resource='role_assignments', append=None,
                      base_url_append='v3', qs_elements=None):
         return super(TestRoleAssignment, self).get_mock_url(

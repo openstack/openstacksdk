@@ -51,16 +51,24 @@ cluster_template_obj = munch.Munch(
 
 class TestClusterTemplates(base.TestCase):
 
+    def get_mock_url(
+            self,
+            service_type='container-infrastructure-management',
+            base_url_append=None, append=None, resource=None):
+        return super(TestClusterTemplates, self).get_mock_url(
+            service_type=service_type, resource=resource,
+            append=append, base_url_append=base_url_append)
+
     def test_list_cluster_templates_without_detail(self):
 
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/baymodels/detail',
+                uri=self.get_mock_url(resource='baymodels/detail'),
                 json=dict(baymodels=[cluster_template_obj.toDict()]))])
         cluster_templates_list = self.cloud.list_cluster_templates()
         self.assertEqual(
@@ -72,11 +80,11 @@ class TestClusterTemplates(base.TestCase):
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/baymodels/detail',
+                uri=self.get_mock_url(resource='baymodels/detail'),
                 json=dict(baymodels=[cluster_template_obj.toDict()]))])
         cluster_templates_list = self.cloud.list_cluster_templates(detail=True)
         self.assertEqual(
@@ -88,11 +96,11 @@ class TestClusterTemplates(base.TestCase):
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/baymodels/detail',
+                uri=self.get_mock_url(resource='baymodels/detail'),
                 json=dict(baymodels=[cluster_template_obj.toDict()]))])
 
         cluster_templates = self.cloud.search_cluster_templates(
@@ -107,11 +115,11 @@ class TestClusterTemplates(base.TestCase):
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/baymodels/detail',
+                uri=self.get_mock_url(resource='baymodels/detail'),
                 json=dict(baymodels=[cluster_template_obj.toDict()]))])
 
         cluster_templates = self.cloud.search_cluster_templates(
@@ -124,11 +132,11 @@ class TestClusterTemplates(base.TestCase):
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/baymodels/detail',
+                uri=self.get_mock_url(resource='baymodels/detail'),
                 json=dict(baymodels=[cluster_template_obj.toDict()]))])
 
         r = self.cloud.get_cluster_template('fake-cluster-template')
@@ -141,11 +149,11 @@ class TestClusterTemplates(base.TestCase):
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/baymodels/detail',
+                uri=self.get_mock_url(resource='baymodels/detail'),
                 json=dict(baymodels=[]))])
         r = self.cloud.get_cluster_template('doesNotExist')
         self.assertIsNone(r)
@@ -155,11 +163,11 @@ class TestClusterTemplates(base.TestCase):
         self.register_uris([
             dict(
                 method='POST',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='POST',
-                uri='https://container-infra.example.com/v1/baymodels',
+                uri=self.get_mock_url(resource='baymodels'),
                 json=dict(baymodels=[cluster_template_obj.toDict()]),
                 validate=dict(json={
                     'coe': 'fake-coe',
@@ -177,11 +185,11 @@ class TestClusterTemplates(base.TestCase):
         self.register_uris([
             dict(
                 method='POST',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='POST',
-                uri='https://container-infra.example.com/v1/baymodels',
+                uri=self.get_mock_url(resource='baymodels'),
                 status_code=403)])
         # TODO(mordred) requests here doens't give us a great story
         # for matching the old error message text. Investigate plumbing
@@ -196,37 +204,35 @@ class TestClusterTemplates(base.TestCase):
         self.assert_calls()
 
     def test_delete_cluster_template(self):
-        uri = 'https://container-infra.example.com/v1/baymodels/fake-uuid'
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/baymodels/detail',
+                uri=self.get_mock_url(resource='baymodels/detail'),
                 json=dict(baymodels=[cluster_template_obj.toDict()])),
             dict(
                 method='DELETE',
-                uri=uri),
+                uri=self.get_mock_url(resource='baymodels/fake-uuid')),
         ])
         self.cloud.delete_cluster_template('fake-uuid')
         self.assert_calls()
 
     def test_update_cluster_template(self):
-        uri = 'https://container-infra.example.com/v1/baymodels/fake-uuid'
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 status_code=404),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/baymodels/detail',
+                uri=self.get_mock_url(resource='baymodels/detail'),
                 json=dict(baymodels=[cluster_template_obj.toDict()])),
             dict(
                 method='PATCH',
-                uri=uri,
+                uri=self.get_mock_url(resource='baymodels/fake-uuid'),
                 status_code=200,
                 validate=dict(
                     json=[{
@@ -237,7 +243,7 @@ class TestClusterTemplates(base.TestCase):
                 )),
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 # This json value is not meaningful to the test - it just has
                 # to be valid.
                 json=dict(baymodels=[cluster_template_obj.toDict()])),
@@ -251,7 +257,7 @@ class TestClusterTemplates(base.TestCase):
         self.register_uris([
             dict(
                 method='GET',
-                uri='https://container-infra.example.com/v1/clustertemplates',
+                uri=self.get_mock_url(resource='clustertemplates'),
                 json=dict(clustertemplates=[cluster_template_obj.toDict()]))])
 
         r = self.cloud.get_coe_cluster_template('fake-cluster-template')

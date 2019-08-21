@@ -20,7 +20,7 @@ from openstack.tests.unit import base
 
 class TestProject(base.TestCase):
 
-    def get_mock_url(self, service_type='identity', interface='admin',
+    def get_mock_url(self, service_type='identity', interface='public',
                      resource=None, append=None, base_url_append=None,
                      v3=True):
         if v3 and resource is None:

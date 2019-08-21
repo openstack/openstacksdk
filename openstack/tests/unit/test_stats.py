@@ -164,7 +164,7 @@ class TestStats(base.TestCase):
     def test_list_projects(self):
 
         mock_uri = self.get_mock_url(
-            service_type='identity', interface='admin', resource='projects',
+            service_type='identity', resource='projects',
             base_url_append='v3')
 
         self.register_uris([
@@ -185,7 +185,7 @@ class TestStats(base.TestCase):
 
     def test_projects(self):
         mock_uri = self.get_mock_url(
-            service_type='identity', interface='admin', resource='projects',
+            service_type='identity', resource='projects',
             base_url_append='v3')
 
         self.register_uris([
@@ -256,7 +256,7 @@ class TestNoStats(base.TestCase):
     def test_no_stats(self):
 
         mock_uri = self.get_mock_url(
-            service_type='identity', interface='admin', resource='projects',
+            service_type='identity', resource='projects',
             base_url_append='v3')
 
         self.register_uris([

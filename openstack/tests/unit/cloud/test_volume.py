@@ -88,6 +88,7 @@ class TestVolume(base.TestCase):
                  validate=dict(json={
                      'volumeAttachment': {
                          'volumeId': vol['id']}})),
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -120,6 +121,7 @@ class TestVolume(base.TestCase):
                  validate=dict(json={
                      'volumeAttachment': {
                          'volumeId': vol['id']}})),
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -211,6 +213,7 @@ class TestVolume(base.TestCase):
                      'compute', 'public',
                      append=['servers', server['id'],
                              'os-volume_attachments', volume.id])),
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -233,6 +236,7 @@ class TestVolume(base.TestCase):
                      'compute', 'public',
                      append=['servers', server['id'],
                              'os-volume_attachments', volume.id])),
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -249,6 +253,7 @@ class TestVolume(base.TestCase):
                'name': '', 'attachments': []}
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -268,6 +273,7 @@ class TestVolume(base.TestCase):
                'name': '', 'attachments': []}
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -284,6 +290,7 @@ class TestVolume(base.TestCase):
                'name': '', 'attachments': []}
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -306,6 +313,7 @@ class TestVolume(base.TestCase):
                'name': '', 'attachments': []}
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -324,6 +332,7 @@ class TestVolume(base.TestCase):
                'name': '', 'attachments': []}
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
@@ -341,6 +350,7 @@ class TestVolume(base.TestCase):
         vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
         vol2 = meta.obj_to_munch(fakes.FakeVolume('02', 'available', 'vol2'))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
@@ -382,6 +392,7 @@ class TestVolume(base.TestCase):
         vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
         vol2 = meta.obj_to_munch(fakes.FakeVolume('02', 'available', 'vol2'))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
@@ -440,7 +451,7 @@ class TestVolume(base.TestCase):
 
     def test_list_volumes_with_pagination_next_link_fails_all_attempts(self):
         vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
-        uris = []
+        uris = [self.get_cinder_discovery_mock_dict()]
         attempts = 5
         for i in range(attempts):
             uris.extend([
@@ -474,6 +485,7 @@ class TestVolume(base.TestCase):
     def test_get_volume_by_id(self):
         vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
@@ -489,6 +501,7 @@ class TestVolume(base.TestCase):
     def test_create_volume(self):
         vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes']),
@@ -511,6 +524,7 @@ class TestVolume(base.TestCase):
     def test_create_bootable_volume(self):
         vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
         self.register_uris([
+            self.get_cinder_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes']),
