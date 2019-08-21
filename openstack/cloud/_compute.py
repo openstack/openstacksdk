@@ -790,6 +790,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             raise TypeError(
                 "create_server() requires either 'image' or 'boot_volume'")
 
+        microversion = None
         server_json = {'server': kwargs}
 
         # TODO(mordred) Add support for description starting in 2.19
@@ -883,11 +884,14 @@ class ComputeCloudMixin(_normalize.Normalizer):
                         " may be given")
                 if fixed_ip:
                     net['fixed_ip'] = fixed_ip
-            # TODO(mordred) Add support for tag if server supports microversion
-            # 2.32-2.36 or >= 2.42
             for key in ('port', 'port-id'):
                 if key in nic:
                     net['port'] = nic.pop(key)
+            # A tag supported only in server microversion 2.32-2.36 or >= 2.42
+            # Bumping the version to 2.42 to support the 'tag' implementation
+            if 'tag' in nic:
+                microversion = utils.pick_microversion(self.compute, '2.42')
+                net['tag'] = nic.pop('tag')
             if nic:
                 raise exc.OpenStackCloudException(
                     "Additional unsupported keys given for server network"
@@ -927,7 +931,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
             endpoint = '/os-volumes_boot'
         with _utils.shade_exceptions("Error in creating instance"):
             data = proxy._json_response(
-                self.compute.post(endpoint, json=server_json))
+                self.compute.post(endpoint, json=server_json,
+                                  microversion=microversion))
             server = self._get_and_munchify('server', data)
             admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
             if not wait:
