@@ -306,6 +306,14 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
             ignore_errors=ignore_errors)
         self.assertEqual(mock_validate.return_value, res)
 
+    def test_validate_template_no_env(self):
+        tmpl = "openstack/tests/unit/orchestration/v1/hello_world.yaml"
+
+        res = self.proxy.read_env_and_templates(tmpl)
+
+        self.assertIsInstance(res, dict)
+        self.assertIsInstance(res["files"], dict)
+
     def test_validate_template_invalid_request(self):
         err = self.assertRaises(exceptions.InvalidRequest,
                                 self.proxy.validate_template,
