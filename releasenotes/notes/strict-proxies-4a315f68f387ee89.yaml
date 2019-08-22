@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added new option for Connection, ``strict_proxies``. When set to ``True``,
+    Connection will throw a ``ServiceDiscoveryException`` if the endpoint for
+    a given service doesn't work. This is useful for OpenStack services using
+    sdk to talk to other OpenStack services where it can be expected that the
+    deployer config is correct and errors should be reported immediately.

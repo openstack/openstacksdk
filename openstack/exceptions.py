@@ -257,3 +257,7 @@ class TaskManagerStopped(SDKException):
 
 class ServiceDisabledException(ConfigException):
     """This service is disabled for reasons."""
+
+
+class ServiceDiscoveryException(SDKException):
+    """The service cannot be discovered."""

@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import requests.exceptions
 import uuid
 
 from keystoneauth1 import exceptions as ks_exc
@@ -31,7 +32,7 @@ class TestFromConf(base.TestCase):
             **from_conf_kwargs)
         self.assertEqual('from_conf.example.com', config.name)
 
-        return connection.Connection(config=config)
+        return connection.Connection(config=config, strict_proxies=True)
 
     def test_adapter_opts_set(self):
         """Adapter opts specified in the conf."""
@@ -75,16 +76,10 @@ class TestFromConf(base.TestCase):
         """Adapter opts are registered, but all defaulting in conf."""
         conn = self._get_conn()
 
-        # Nova has empty adapter config, so these default
-        adap = conn.compute
-        self.assertIsNone(adap.region_name)
-        self.assertEqual('compute', adap.service_type)
-        self.assertEqual('public', adap.interface)
-        self.assertIsNone(adap.endpoint_override)
-
         server_id = str(uuid.uuid4())
         server_name = self.getUniqueString('name')
         fake_server = fakes.make_fake_server(server_id, server_name)
+
         self.register_uris([
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
@@ -92,6 +87,49 @@ class TestFromConf(base.TestCase):
                      'compute', 'public', append=['servers', 'detail']),
                  json={'servers': [fake_server]}),
         ])
+
+        # Nova has empty adapter config, so these default
+        adap = conn.compute
+        self.assertIsNone(adap.region_name)
+        self.assertEqual('compute', adap.service_type)
+        self.assertEqual('public', adap.interface)
+        self.assertIsNone(adap.endpoint_override)
+
+        s = next(adap.servers())
+        self.assertEqual(s.id, server_id)
+        self.assertEqual(s.name, server_name)
+        self.assert_calls()
+
+    def test_service_not_ready_catalog(self):
+        """Adapter opts are registered, but all defaulting in conf."""
+        conn = self._get_conn()
+
+        server_id = str(uuid.uuid4())
+        server_name = self.getUniqueString('name')
+        fake_server = fakes.make_fake_server(server_id, server_name)
+
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://compute.example.com/v2.1/',
+                 exc=requests.exceptions.ConnectionError),
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', 'detail']),
+                 json={'servers': [fake_server]}),
+        ])
+
+        self.assertRaises(
+            exceptions.ServiceDiscoveryException,
+            getattr, conn, 'compute')
+
+        # Nova has empty adapter config, so these default
+        adap = conn.compute
+        self.assertIsNone(adap.region_name)
+        self.assertEqual('compute', adap.service_type)
+        self.assertEqual('public', adap.interface)
+        self.assertIsNone(adap.endpoint_override)
+
         s = next(adap.servers())
         self.assertEqual(s.id, server_id)
         self.assertEqual(s.name, server_name)
@@ -119,10 +157,61 @@ class TestFromConf(base.TestCase):
             dict(method='GET',
                  uri='https://example.org:5050',
                  json=discovery),
+            # strict-proxies means we're going to fetch the discovery
+            # doc from the versioned endpoint to verify it works.
+            dict(method='GET',
+                 uri='https://example.org:5050/v1',
+                 json=discovery),
             dict(method='GET',
                  uri='https://example.org:5050/v1/introspection/abcd',
                  json=status),
         ])
+
+        adap = conn.baremetal_introspection
+        self.assertEqual('baremetal-introspection', adap.service_type)
+        self.assertEqual('public', adap.interface)
+        self.assertEqual('https://example.org:5050/v1', adap.endpoint_override)
+
+        self.assertTrue(adap.get_introspection('abcd').is_finished)
+
+    def test_service_not_ready_endpoint_override(self):
+        conn = self._get_conn()
+
+        discovery = {
+            "versions": {
+                "values": [
+                    {"status": "stable",
+                     "id": "v1",
+                     "links": [{
+                         "href": "https://example.org:5050/v1",
+                         "rel": "self"}]
+                     }]
+            }
+        }
+        status = {
+            'finished': True,
+            'error': None
+        }
+        self.register_uris([
+            dict(method='GET',
+                 uri='https://example.org:5050',
+                 exc=requests.exceptions.ConnectTimeout),
+            dict(method='GET',
+                 uri='https://example.org:5050',
+                 json=discovery),
+            # strict-proxies means we're going to fetch the discovery
+            # doc from the versioned endpoint to verify it works.
+            dict(method='GET',
+                 uri='https://example.org:5050/v1',
+                 json=discovery),
+            dict(method='GET',
+                 uri='https://example.org:5050/v1/introspection/abcd',
+                 json=status),
+        ])
+
+        self.assertRaises(
+            exceptions.ServiceDiscoveryException,
+            getattr, conn, 'baremetal_introspection')
 
         adap = conn.baremetal_introspection
         self.assertEqual('baremetal-introspection', adap.service_type)
