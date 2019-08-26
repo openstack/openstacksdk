@@ -52,3 +52,5 @@ class Event(resource.Resource):
     #: A string description of the reason that brought the object into its
     #: current status.
     status_reason = resource.Body('status_reason')
+    #: The metadata of an event object.
+    meta_data = resource.Body('meta_data')
