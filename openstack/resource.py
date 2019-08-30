@@ -1328,7 +1328,6 @@ class Resource(dict):
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'fetch')
         response = session.head(request.url,
-                                headers={"Accept": ""},
                                 microversion=microversion)
 
         self.microversion = microversion
@@ -1519,7 +1518,6 @@ class Resource(dict):
 
         return session.delete(
             request.url,
-            headers={"Accept": ""},
             microversion=microversion)
 
     @classmethod

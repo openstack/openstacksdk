@@ -131,7 +131,7 @@ class TestObject(base_test_object.BaseTestObject):
         sot = obj.Object.new(container=self.container, name=self.object,
                              data=data)
         sot.is_newest = True
-        sent_headers = {"x-newest": 'True', "Accept": ""}
+        sent_headers = {"x-newest": 'True'}
         self.register_uris([
             dict(method=method, uri=self.object_endpoint,
                  headers=self.headers,
