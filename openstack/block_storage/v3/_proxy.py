@@ -228,6 +228,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             * sort_dir: Sorts by one or more sets of attribute and sort
                 direction combinations. If you omit the sort direction
                 in a set, default is desc.
+            * project_id: Project ID to query backups for.
 
         :returns: A generator of backup objects.
         """
@@ -290,7 +291,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         self._delete(_backup.Backup, backup,
                      ignore_missing=ignore_missing)
 
-    def restore_backup(self, backup, volume_id, name):
+    def restore_backup(self, backup, volume_id=None, name=None):
         """Restore a Backup to volume
 
         :param backup: The value can be the ID of a backup or a

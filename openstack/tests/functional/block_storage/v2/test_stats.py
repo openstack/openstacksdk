@@ -12,14 +12,15 @@
 
 
 from openstack.block_storage.v2 import stats as _stats
-from openstack.tests.functional import base
+from openstack.tests.functional.block_storage.v2 import base
 
 
-class TestStats(base.BaseFunctionalTest):
+class TestStats(base.BaseBlockStorageTest):
 
     def setUp(self):
         super(TestStats, self).setUp()
-        sot = self.conn.block_storage.backend_pools()
+
+        sot = self.operator_cloud.block_storage.backend_pools()
         for pool in sot:
             self.assertIsInstance(pool, _stats.Pools)
 
@@ -35,10 +36,11 @@ class TestStats(base.BaseFunctionalTest):
                    'allocated_capacity_gb', 'reserved_percentage',
                    'location_info']
         capList.sort()
-        pools = self.conn.block_storage.backend_pools()
+        pools = self.operator_cloud.block_storage.backend_pools()
         for pool in pools:
             caps = pool.capabilities
-            keys = caps.keys()
-            keys.sort()
+            keys = list(caps.keys())
             assert isinstance(caps, dict)
-            self.assertListEqual(keys, capList)
+            # Check that we have at minimum listed capabilities
+            for cap in sorted(capList):
+                self.assertIn(cap, keys)

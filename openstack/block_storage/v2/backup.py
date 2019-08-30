@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -20,7 +21,8 @@ class Backup(resource.Resource):
     base_path = "/backups"
 
     _query_mapping = resource.QueryParameters(
-        'all_tenants', 'limit', 'marker',
+        'all_tenants', 'limit', 'marker', 'project_id',
+        'name', 'status', 'volume_id',
         'sort_key', 'sort_dir')
 
     # capabilities
@@ -80,13 +82,20 @@ class Backup(resource.Resource):
         :param session: openstack session
         :param volume_id: The ID of the volume to restore the backup to.
         :param name: The name for new volume creation to restore.
-        :return:
+        :return: Updated backup instance
         """
         url = utils.urljoin(self.base_path, self.id, "restore")
-        body = {"restore": {"volume_id": volume_id, "name": name}}
+        body = {'restore': {}}
+        if volume_id:
+            body['restore']['volume_id'] = volume_id
+        if name:
+            body['restore']['name'] = name
+        if not (volume_id or name):
+            raise exceptions.SDKException('Either of `name` or `volume_id`'
+                                          ' must be specified.')
         response = session.post(url,
                                 json=body)
-        self._translate_response(response)
+        self._translate_response(response, has_body=False)
         return self
 
 
