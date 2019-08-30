@@ -42,6 +42,38 @@ class Proxy(proxy.Proxy):
 
     log = _log.setup_logging('openstack')
 
+    def _extract_name(self, url, service_type=None, project_id=None):
+        url_path = parse.urlparse(url).path.strip()
+        # Remove / from the beginning to keep the list indexes of interesting
+        # things consistent
+        if url_path.startswith('/'):
+            url_path = url_path[1:]
+
+        # Split url into parts and exclude potential project_id in some urls
+        url_parts = [
+            x for x in url_path.split('/') if (
+                x != project_id
+                and (
+                    not project_id
+                    or (project_id and x != 'AUTH_' + project_id)
+                ))
+        ]
+        # Strip leading version piece so that
+        # GET /v1/AUTH_xxx
+        # returns ['AUTH_xxx']
+        if (url_parts[0]
+                and url_parts[0][0] == 'v'
+                and url_parts[0][1] and url_parts[0][1].isdigit()):
+            url_parts = url_parts[1:]
+        name_parts = self._extract_name_consume_url_parts(url_parts)
+
+        # Getting the root of an endpoint is doing version discovery
+        if not name_parts:
+            name_parts = ['account']
+
+        # Strip out anything that's empty or None
+        return [part for part in name_parts if part]
+
     def get_account_metadata(self):
         """Get metadata for this account.
 

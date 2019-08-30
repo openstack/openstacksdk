@@ -24,69 +24,6 @@ from openstack import exceptions
 from openstack import resource
 
 
-def _extract_name(url, service_type=None):
-    '''Produce a key name to use in logging/metrics from the URL path.
-
-    We want to be able to logic/metric sane general things, so we pull
-    the url apart to generate names. The function returns a list because
-    there are two different ways in which the elements want to be combined
-    below (one for logging, one for statsd)
-
-    Some examples are likely useful:
-
-    /servers -> ['servers']
-    /servers/{id} -> ['servers']
-    /servers/{id}/os-security-groups -> ['servers', 'os-security-groups']
-    /v2.0/networks.json -> ['networks']
-    '''
-
-    url_path = urllib.parse.urlparse(url).path.strip()
-    # Remove / from the beginning to keep the list indexes of interesting
-    # things consistent
-    if url_path.startswith('/'):
-        url_path = url_path[1:]
-
-    # Special case for neutron, which puts .json on the end of urls
-    if url_path.endswith('.json'):
-        url_path = url_path[:-len('.json')]
-
-    url_parts = url_path.split('/')
-    if url_parts[-1] == 'detail':
-        # Special case detail calls
-        # GET /servers/detail
-        # returns ['servers', 'detail']
-        name_parts = url_parts[-2:]
-    else:
-        # Strip leading version piece so that
-        # GET /v2.0/networks
-        # returns ['networks']
-        if (url_parts[0]
-                and url_parts[0][0] == 'v'
-                and url_parts[0][1] and url_parts[0][1].isdigit()):
-            url_parts = url_parts[1:]
-        name_parts = []
-        # Pull out every other URL portion - so that
-        # GET /servers/{id}/os-security-groups
-        # returns ['servers', 'os-security-groups']
-        for idx in range(0, len(url_parts)):
-            if not idx % 2 and url_parts[idx]:
-                name_parts.append(url_parts[idx])
-
-    # Keystone Token fetching is a special case, so we name it "tokens"
-    if url_path.endswith('tokens'):
-        name_parts = ['tokens']
-
-    # Getting the root of an endpoint is doing version discovery
-    if not name_parts:
-        if service_type == 'object-store':
-            name_parts = ['account']
-        else:
-            name_parts = ['discovery']
-
-    # Strip out anything that's empty or None
-    return [part for part in name_parts if part]
-
-
 # The _check_resource decorator is used on Proxy methods to ensure that
 # the `actual` argument is in fact the type of the `expected` argument.
 # It does so under two cases:
@@ -126,6 +63,7 @@ class Proxy(adapter.Adapter):
             session,
             statsd_client=None, statsd_prefix=None,
             prometheus_counter=None, prometheus_histogram=None,
+            influxdb_config=None, influxdb_client=None,
             *args, **kwargs):
         # NOTE(dtantsur): keystoneauth defaults retriable_status_codes to None,
         # override it with a class-level value.
@@ -136,6 +74,8 @@ class Proxy(adapter.Adapter):
         self._statsd_prefix = statsd_prefix
         self._prometheus_counter = prometheus_counter
         self._prometheus_histogram = prometheus_histogram
+        self._influxdb_client = influxdb_client
+        self._influxdb_config = influxdb_config
         if self.service_type:
             log_name = 'openstack.{0}'.format(self.service_type)
         else:
@@ -161,18 +101,107 @@ class Proxy(adapter.Adapter):
         self._report_stats(response)
         return response
 
+    def _extract_name(self, url, service_type=None, project_id=None):
+        '''Produce a key name to use in logging/metrics from the URL path.
+
+        We want to be able to logic/metric sane general things, so we pull
+        the url apart to generate names. The function returns a list because
+        there are two different ways in which the elements want to be combined
+        below (one for logging, one for statsd)
+
+        Some examples are likely useful:
+
+        /servers -> ['servers']
+        /servers/{id} -> ['server']
+        /servers/{id}/os-security-groups -> ['server', 'os-security-groups']
+        /v2.0/networks.json -> ['networks']
+        '''
+
+        url_path = urllib.parse.urlparse(url).path.strip()
+        # Remove / from the beginning to keep the list indexes of interesting
+        # things consistent
+        if url_path.startswith('/'):
+            url_path = url_path[1:]
+
+        # Special case for neutron, which puts .json on the end of urls
+        if url_path.endswith('.json'):
+            url_path = url_path[:-len('.json')]
+
+        # Split url into parts and exclude potential project_id in some urls
+        url_parts = [
+            x for x in url_path.split('/') if (
+                x != project_id
+                and (
+                    not project_id
+                    or (project_id and x != 'AUTH_' + project_id)
+                ))
+        ]
+        if url_parts[-1] == 'detail':
+            # Special case detail calls
+            # GET /servers/detail
+            # returns ['servers', 'detail']
+            name_parts = url_parts[-2:]
+        else:
+            # Strip leading version piece so that
+            # GET /v2.0/networks
+            # returns ['networks']
+            if (url_parts[0]
+                    and url_parts[0][0] == 'v'
+                    and url_parts[0][1] and url_parts[0][1].isdigit()):
+                url_parts = url_parts[1:]
+            name_parts = self._extract_name_consume_url_parts(url_parts)
+
+        # Keystone Token fetching is a special case, so we name it "tokens"
+        # NOTE(gtema): there is no metric triggered for regular authorization
+        # with openstack.connect(), since it bypassed SDK and goes directly to
+        # keystoneauth1. If you need to measure performance of the token
+        # fetching - trigger a separate call.
+        if url_path.endswith('tokens'):
+            name_parts = ['tokens']
+
+        if not name_parts:
+            name_parts = ['discovery']
+
+        # Strip out anything that's empty or None
+        return [part for part in name_parts if part]
+
+    def _extract_name_consume_url_parts(self, url_parts):
+        """Pull out every other URL portion - so that
+        GET /servers/{id}/os-security-groups
+        returns ['server', 'os-security-groups']
+
+        """
+        name_parts = []
+        for idx in range(0, len(url_parts)):
+            if not idx % 2 and url_parts[idx]:
+                # If we are on first segment and it end with 's' stip this 's'
+                # to differentiate LIST and GET_BY_ID
+                if (len(url_parts) > idx + 1
+                        and url_parts[idx][-1] == 's'
+                        and url_parts[idx][-2:] != 'is'):
+                    name_parts.append(url_parts[idx][:-1])
+                else:
+                    name_parts.append(url_parts[idx])
+
+        return name_parts
+
     def _report_stats(self, response):
         if self._statsd_client:
             self._report_stats_statsd(response)
         if self._prometheus_counter and self._prometheus_histogram:
             self._report_stats_prometheus(response)
+        if self._influxdb_client:
+            self._report_stats_influxdb(response)
 
     def _report_stats_statsd(self, response):
-        name_parts = _extract_name(response.request.url, self.service_type)
+        name_parts = self._extract_name(response.request.url,
+                                        self.service_type,
+                                        self.session.get_project_id())
         key = '.'.join(
             [self._statsd_prefix, self.service_type, response.request.method]
             + name_parts)
-        self._statsd_client.timing(key, int(response.elapsed.seconds * 1000))
+        self._statsd_client.timing(key, int(
+            response.elapsed.microseconds / 1000))
         self._statsd_client.incr(key)
 
     def _report_stats_prometheus(self, response):
@@ -184,7 +213,35 @@ class Proxy(adapter.Adapter):
         )
         self._prometheus_counter.labels(**labels).inc()
         self._prometheus_histogram.labels(**labels).observe(
-            response.elapsed.seconds)
+            response.elapsed.microseconds / 1000)
+
+    def _report_stats_influxdb(self, response):
+        # NOTE(gtema): status_code is saved both as tag and field to give
+        # ability showing it as a value and not only as a legend.
+        # However Influx is not ok with having same name in tags and fields,
+        # therefore use different names.
+        data = [dict(
+            measurement=(self._influxdb_config.get('measurement',
+                                                   'openstack_api')
+                         if self._influxdb_config else 'openstack_api'),
+            tags=dict(
+                method=response.request.method,
+                service_type=self.service_type,
+                status_code=response.status_code,
+                name='_'.join(self._extract_name(
+                    response.request.url, self.service_type,
+                    self.session.get_project_id())
+                )
+            ),
+            fields=dict(
+                duration=int(response.elapsed.microseconds / 1000),
+                status_code_val=int(response.status_code)
+            )
+        )]
+        try:
+            self._influxdb_client.write_points(data)
+        except Exception:
+            self.log.exception('Error writing statistics to InfluxDB')
 
     def _version_matches(self, version):
         api_version = self.get_api_major_version()

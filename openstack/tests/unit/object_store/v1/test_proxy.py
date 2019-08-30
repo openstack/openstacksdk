@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 import random
 import string
@@ -237,3 +238,15 @@ class TestDownloadObject(base_test_object.BaseTestObject):
             self.assertLessEqual(chunk_len, chunk_size)
             self.assertEqual(chunk, self.the_data[start:end])
         self.assert_calls()
+
+
+class TestExtractName(TestObjectStoreProxy):
+
+    scenarios = [
+        ('discovery', dict(url='/', parts=['account']))
+    ]
+
+    def test_extract_name(self):
+
+        results = self.proxy._extract_name(self.url)
+        self.assertEqual(self.parts, results)

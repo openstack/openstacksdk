@@ -30,6 +30,10 @@ try:
     import prometheus_client
 except ImportError:
     prometheus_client = None
+try:
+    import influxdb
+except ImportError:
+    influxdb = None
 
 
 from openstack import version as openstack_version
@@ -233,6 +237,7 @@ class CloudRegion(object):
                  cache_path=None, cache_class='dogpile.cache.null',
                  cache_arguments=None, password_callback=None,
                  statsd_host=None, statsd_port=None, statsd_prefix=None,
+                 influxdb_config=None,
                  collector_registry=None):
         self._name = name
         self.config = _util.normalize_keys(config)
@@ -261,6 +266,8 @@ class CloudRegion(object):
         self._statsd_port = statsd_port
         self._statsd_prefix = statsd_prefix
         self._statsd_client = None
+        self._influxdb_config = influxdb_config
+        self._influxdb_client = None
         self._collector_registry = collector_registry
 
         self._service_type_manager = os_service_types.ServiceTypes()
@@ -682,6 +689,8 @@ class CloudRegion(object):
         kwargs.setdefault('prometheus_counter', self.get_prometheus_counter())
         kwargs.setdefault(
             'prometheus_histogram', self.get_prometheus_histogram())
+        kwargs.setdefault('influxdb_config', self._influxdb_config)
+        kwargs.setdefault('influxdb_client', self.get_influxdb_client())
         endpoint_override = self.get_endpoint(service_type)
         version = version_request.version
         min_api_version = (
@@ -957,7 +966,11 @@ class CloudRegion(object):
         if self._statsd_port:
             statsd_args['port'] = self._statsd_port
         if statsd_args:
-            return statsd.StatsClient(**statsd_args)
+            try:
+                return statsd.StatsClient(**statsd_args)
+            except Exception:
+                self.log.warning('Cannot establish connection to statsd')
+                return None
         else:
             return None
 
@@ -1024,3 +1037,29 @@ class CloudRegion(object):
         service_type = service_type.lower().replace('-', '_')
         d_key = _make_key('disabled_reason', service_type)
         return self.config.get(d_key)
+
+    def get_influxdb_client(self):
+        influx_args = {}
+        if not self._influxdb_config:
+            return None
+        use_udp = bool(self._influxdb_config.get('use_udp', False))
+        port = self._influxdb_config.get('port')
+        if use_udp:
+            influx_args['use_udp'] = True
+        if 'port' in self._influxdb_config:
+            if use_udp:
+                influx_args['udp_port'] = port
+            else:
+                influx_args['port'] = port
+        for key in ['host', 'username', 'password', 'database', 'timeout']:
+            if key in self._influxdb_config:
+                influx_args[key] = self._influxdb_config[key]
+        if influxdb and influx_args:
+            try:
+                return influxdb.InfluxDBClient(**influx_args)
+            except Exception:
+                self.log.warning('Cannot establish connection to InfluxDB')
+        else:
+            self.log.warning('InfluxDB configuration is present, '
+                             'but no client library is found.')
+        return None
