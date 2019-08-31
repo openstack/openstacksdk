@@ -269,7 +269,6 @@ class Object(_base.BaseResource):
 
     def _download(self, session, error_message=None, stream=False):
         request = self._prepare_request()
-        request.headers['Accept'] = 'bytes'
 
         response = session.get(
             request.url, headers=request.headers, stream=stream)
@@ -307,9 +306,8 @@ class Object(_base.BaseResource):
             # Fetch metadata to determine SLO flag
             self.head(session)
 
-        headers = {
-            'Accept': ""
-        }
+        headers = {}
+
         if self.is_static_large_object:
             headers['multipart-manifest'] = 'delete'
 
