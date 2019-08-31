@@ -287,7 +287,6 @@ class Object(_base.BaseResource):
 
     def create(self, session, base_path=None):
         request = self._prepare_request(base_path=base_path)
-        request.headers['Accept'] = ''
 
         response = session.put(
             request.url,

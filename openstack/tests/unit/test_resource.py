@@ -1514,7 +1514,6 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with(base_path=None)
         self.session.head.assert_called_once_with(
             self.request.url,
-            headers={"Accept": ""},
             microversion=None)
 
         self.assertIsNone(self.sot.microversion)
@@ -1528,7 +1527,6 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with(base_path='dummy')
         self.session.head.assert_called_once_with(
             self.request.url,
-            headers={"Accept": ""},
             microversion=None)
 
         self.assertIsNone(self.sot.microversion)
@@ -1552,7 +1550,6 @@ class TestResourceActions(base.TestCase):
         sot._prepare_request.assert_called_once_with(base_path=None)
         self.session.head.assert_called_once_with(
             self.request.url,
-            headers={"Accept": ""},
             microversion='1.42')
 
         self.assertEqual(sot.microversion, '1.42')
@@ -1703,7 +1700,6 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
             self.request.url,
-            headers={"Accept": ""},
             microversion=None)
 
         self.sot._translate_response.assert_called_once_with(
@@ -1726,7 +1722,6 @@ class TestResourceActions(base.TestCase):
         sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
             self.request.url,
-            headers={"Accept": ""},
             microversion='1.42')
 
         sot._translate_response.assert_called_once_with(
