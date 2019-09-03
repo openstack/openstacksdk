@@ -27,7 +27,13 @@ FAKE = {
     'status': 'START',
     'status_reason': 'The action was abandoned.',
     'timestamp': '2016-10-10T12:46:36.000000',
-    'user': '5e5bf8027826429c96af157f68dc9072'
+    'user': '5e5bf8027826429c96af157f68dc9072',
+    'meta_data': {
+        "action": {
+            "created_at": "2019-07-13T13:18:18Z",
+            "outputs": {}
+        }
+    }
 }
 
 
@@ -58,3 +64,4 @@ class TestEvent(base.TestCase):
         self.assertEqual(FAKE['status_reason'], sot.status_reason)
         self.assertEqual(FAKE['timestamp'], sot.generated_at)
         self.assertEqual(FAKE['user'], sot.user_id)
+        self.assertEqual(FAKE['meta_data'], sot.meta_data)
