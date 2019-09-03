@@ -29,7 +29,7 @@ class Subnet(resource.Resource, resource.TagMixin):
     _query_mapping = resource.QueryParameters(
         'cidr', 'description', 'gateway_ip', 'ip_version',
         'ipv6_address_mode', 'ipv6_ra_mode', 'name', 'network_id',
-        'segment_id',
+        'segment_id', 'dns_publish_fixed_ip',
         is_dhcp_enabled='enable_dhcp',
         project_id='tenant_id',
         subnet_pool_id='subnetpool_id',
@@ -49,6 +49,8 @@ class Subnet(resource.Resource, resource.TagMixin):
     description = resource.Body('description')
     #: A list of DNS nameservers.
     dns_nameservers = resource.Body('dns_nameservers', type=list)
+    #: Whether to publish DNS records for fixed IPs
+    dns_publish_fixed_ip = resource.Body('dns_publish_fixed_ip', type=bool)
     #: The gateway IP address.
     gateway_ip = resource.Body('gateway_ip')
     #: A list of host routes.
