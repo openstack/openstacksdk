@@ -377,21 +377,28 @@ class TestQueryParameters(base.TestCase):
                          sot._mapping)
 
     def test_transpose_unmapped(self):
+        def _type(value, rtype):
+            self.assertIs(rtype, mock.sentinel.resource_type)
+            return value * 10
+
         location = "location"
         mapping = {"first_name": "first-name",
                    "pet_name": {"name": "pet"},
-                   "answer": {"name": "answer", "type": int}}
+                   "answer": {"name": "answer", "type": int},
+                   "complex": {"type": _type}}
 
         sot = resource.QueryParameters(location, **mapping)
         result = sot._transpose({"location": "Brooklyn",
                                  "first_name": "Brian",
                                  "pet_name": "Meow",
                                  "answer": "42",
-                                 "last_name": "Curtin"})
+                                 "last_name": "Curtin",
+                                 "complex": 1},
+                                mock.sentinel.resource_type)
 
         # last_name isn't mapped and shouldn't be included
         self.assertEqual({"location": "Brooklyn", "first-name": "Brian",
-                          "pet": "Meow", "answer": 42},
+                          "pet": "Meow", "answer": 42, "complex": 10},
                          result)
 
     def test_transpose_not_in_query(self):
@@ -401,7 +408,8 @@ class TestQueryParameters(base.TestCase):
                    "answer": {"name": "answer", "type": int}}
 
         sot = resource.QueryParameters(location, **mapping)
-        result = sot._transpose({"location": "Brooklyn"})
+        result = sot._transpose({"location": "Brooklyn"},
+                                mock.sentinel.resource_type)
 
         # first_name not being in the query shouldn't affect results
         self.assertEqual({"location": "Brooklyn"},

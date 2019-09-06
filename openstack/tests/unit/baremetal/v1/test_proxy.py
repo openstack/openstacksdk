@@ -188,13 +188,25 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
                                            error_message=mock.ANY)
 
     @mock.patch.object(node.Node, 'fetch', autospec=True)
-    def test__get_with_fields(self, mock_fetch):
-        result = self.proxy._get_with_fields(node.Node, 'value',
-                                             fields=['a', 'b'])
+    def test__get_with_fields_node(self, mock_fetch):
+        result = self.proxy._get_with_fields(
+            # Mix of server-side and client-side fields
+            node.Node, 'value', fields=['maintenance', 'id', 'instance_id'])
         self.assertIs(result, mock_fetch.return_value)
-        mock_fetch.assert_called_once_with(mock.ANY, self.proxy,
-                                           error_message=mock.ANY,
-                                           fields='a,b')
+        mock_fetch.assert_called_once_with(
+            mock.ANY, self.proxy, error_message=mock.ANY,
+            # instance_id converted to server-side instance_uuid
+            fields='maintenance,uuid,instance_uuid')
+
+    @mock.patch.object(port.Port, 'fetch', autospec=True)
+    def test__get_with_fields_port(self, mock_fetch):
+        result = self.proxy._get_with_fields(
+            port.Port, 'value', fields=['address', 'id', 'node_id'])
+        self.assertIs(result, mock_fetch.return_value)
+        mock_fetch.assert_called_once_with(
+            mock.ANY, self.proxy, error_message=mock.ANY,
+            # node_id converted to server-side node_uuid
+            fields='address,uuid,node_uuid')
 
 
 @mock.patch('time.sleep', lambda _sec: None)

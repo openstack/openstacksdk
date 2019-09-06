@@ -33,7 +33,7 @@ class Chassis(_common.ListMixin, resource.Resource):
     commit_jsonpatch = True
 
     _query_mapping = resource.QueryParameters(
-        fields={'name': 'fields', 'type': _common.comma_separated_list},
+        fields={'type': _common.fields_type},
     )
 
     #: Timestamp at which the chassis was created.

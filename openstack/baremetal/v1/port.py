@@ -31,7 +31,7 @@ class Port(_common.ListMixin, resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'address', 'node', 'portgroup',
-        fields={'name': 'fields', 'type': _common.comma_separated_list},
+        fields={'type': _common.fields_type},
         node_id='node_uuid',
     )
 

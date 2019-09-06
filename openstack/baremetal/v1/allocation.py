@@ -33,7 +33,7 @@ class Allocation(_common.ListMixin, resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'node', 'resource_class', 'state',
-        fields={'name': 'fields', 'type': _common.comma_separated_list},
+        fields={'type': _common.fields_type},
     )
 
     # Allocation update is available since 1.57

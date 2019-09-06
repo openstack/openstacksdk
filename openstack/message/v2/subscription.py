@@ -93,7 +93,7 @@ class Subscription(resource.Resource):
                                        ) or session.get_project_id()
         }
 
-        query_params = cls._query_mapping._transpose(params)
+        query_params = cls._query_mapping._transpose(params, cls)
         while more_data:
             resp = session.get(uri,
                                headers=headers, params=query_params)

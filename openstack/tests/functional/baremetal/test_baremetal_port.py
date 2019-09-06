@@ -33,8 +33,8 @@ class TestBareMetalPort(base.BaseBaremetalTest):
         self.assertEqual(loaded.id, port.id)
         self.assertIsNotNone(loaded.address)
 
-        with_fields = self.conn.baremetal.get_port(port.id,
-                                                   fields=['uuid', 'extra'])
+        with_fields = self.conn.baremetal.get_port(
+            port.id, fields=['uuid', 'extra', 'node_id'])
         self.assertEqual(port.id, with_fields.id)
         self.assertIsNone(with_fields.address)
 
@@ -120,7 +120,7 @@ class TestBareMetalPortFields(base.BaseBaremetalTest):
     def test_port_fields(self):
         self.create_node()
         self.create_port(address='11:22:33:44:55:66')
-        result = self.conn.baremetal.ports(fields=['uuid'])
+        result = self.conn.baremetal.ports(fields=['uuid', 'node_id'])
         for item in result:
             self.assertIsNotNone(item.id)
             self.assertIsNone(item.address)

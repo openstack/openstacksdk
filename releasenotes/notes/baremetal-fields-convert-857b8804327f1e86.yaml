@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes conversion of the bare metal ``fields`` argument from SDK to
+    server-side field names (e.g. ``instance_id`` to ``instance_uuid``).
