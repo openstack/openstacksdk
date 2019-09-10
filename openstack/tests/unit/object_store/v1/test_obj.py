@@ -105,7 +105,7 @@ class TestObject(base_test_object.BaseTestObject):
         headers = {
             'X-Newest': 'True',
             'If-Match': self.headers['Etag'],
-            'Accept': 'bytes'
+            'Accept': '*/*'
         }
         self.register_uris([
             dict(method='GET', uri=self.object_endpoint,
