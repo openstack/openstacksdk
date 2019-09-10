@@ -96,7 +96,7 @@ class TestProxyBase(base.TestCase):
                       expected_result="result", **kwargs):
         the_kwargs = {"x": 1, "y": 2, "z": 3}
         method_kwargs = kwargs.pop("method_kwargs", the_kwargs)
-        expected_args = [resource_type]
+        expected_args = kwargs.pop('expected_args', [resource_type])
         # Default the_kwargs should be copied, since we might need to extend it
         expected_kwargs = kwargs.pop("expected_kwargs", the_kwargs.copy())
         expected_kwargs["base_path"] = kwargs.pop("base_path", None)
