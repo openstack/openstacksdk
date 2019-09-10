@@ -14,6 +14,7 @@ import mock
 
 from keystoneauth1 import adapter
 
+from openstack.baremetal.v1 import node as _node
 from openstack.baremetal_introspection.v1 import _proxy
 from openstack.baremetal_introspection.v1 import introspection
 from openstack import exceptions
@@ -31,6 +32,12 @@ class TestBaremetalIntrospectionProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.start_introspection,
                            introspection.Introspection,
                            method_kwargs={'node': 'abcd'},
+                           expected_kwargs={'id': 'abcd'})
+
+    def test_create_introspection_with_node(self):
+        self.verify_create(self.proxy.start_introspection,
+                           introspection.Introspection,
+                           method_kwargs={'node': _node.Node(id='abcd')},
                            expected_kwargs={'id': 'abcd'})
 
     def test_get_introspection(self):

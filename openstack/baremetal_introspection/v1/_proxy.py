@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import _log
+from openstack.baremetal.v1 import node as _node
 from openstack.baremetal_introspection.v1 import introspection as _introspect
 from openstack import exceptions
 from openstack import proxy
@@ -63,7 +64,8 @@ class Proxy(proxy.Proxy):
 
         :returns: :class:`~.introspection.Introspection` instance.
         """
-        return self._create(_introspect.Introspection, id=node)
+        node = self._get_resource(_node.Node, node)
+        return self._create(_introspect.Introspection, id=node.id)
 
     def get_introspection(self, introspection):
         """Get a specific introspection.
