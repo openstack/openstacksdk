@@ -339,7 +339,8 @@ class TestImage(BaseTestImage):
                          u'owner_specified.openstack.sha256':
                              self.fake_image_dict[
                                  'owner_specified.openstack.sha256'],
-                         u'visibility': u'private'})
+                         u'visibility': u'private',
+                         u'tags': [u'tag1', u'tag2']})
                  ),
             dict(method='PUT',
                  uri=self.get_mock_url(
@@ -360,6 +361,7 @@ class TestImage(BaseTestImage):
 
         self.cloud.create_image(
             self.image_name, self.imagefile.name, wait=True, timeout=1,
+            tags=['tag1', 'tag2'],
             is_public=False)
 
         self.assert_calls()
