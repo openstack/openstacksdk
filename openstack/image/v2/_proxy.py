@@ -26,6 +26,7 @@ from openstack import utils
 # Rackspace returns this for intermittent import errors
 _IMAGE_ERROR_396 = "Image cannot be imported. Error code: '396'"
 _INT_PROPERTIES = ('min_disk', 'min_ram', 'size', 'virtual_size')
+_RAW_PROPERTIES = ('protected', 'tags')
 
 
 class Proxy(_base_proxy.BaseImageProxy):
@@ -184,7 +185,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         for k, v in iter(properties.items()):
             if k in _INT_PROPERTIES:
                 ret[k] = int(v)
-            elif k == 'protected':
+            elif k in _RAW_PROPERTIES:
                 ret[k] = v
             else:
                 if v is None:

@@ -104,8 +104,6 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
     store = resource.Body('store')
     #: The image status.
     status = resource.Body('status')
-    #: Tags, if any, that are associated with the image.
-    tags = resource.Body('tags')
     #: The date and time when the image was updated.
     updated_at = resource.Body('updated_at')
     #: The virtual size of the image.
