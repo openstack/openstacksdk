@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixes using a full `Node` object as an argument to `start_introspection`.
