@@ -31,7 +31,7 @@ class PortGroup(_common.ListMixin, resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'node', 'address',
-        fields={'name': 'fields', 'type': _common.comma_separated_list},
+        fields={'type': _common.fields_type},
     )
 
     # The mode and properties field introduced in 1.26.

@@ -48,7 +48,7 @@ class Node(_common.ListMixin, resource.Resource):
     _query_mapping = resource.QueryParameters(
         'associated', 'conductor_group', 'driver', 'fault',
         'provision_state', 'resource_class',
-        fields={'name': 'fields', 'type': _common.comma_separated_list},
+        fields={'type': _common.fields_type},
         instance_id='instance_uuid',
         is_maintenance='maintenance',
     )

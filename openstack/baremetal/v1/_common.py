@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import resource
+
 
 RETRIABLE_STATUS_CODES = [
     # HTTP Conflict - happens if a node is locked
@@ -91,3 +93,16 @@ def comma_separated_list(value):
         return None
     else:
         return ','.join(value)
+
+
+def fields_type(value, resource_type):
+    if value is None:
+        return None
+
+    resource_mapping = {
+        key: value.name
+        for key, value in resource_type.__dict__.items()
+        if isinstance(value, resource.Body)
+    }
+
+    return comma_separated_list(resource_mapping.get(x, x) for x in value)

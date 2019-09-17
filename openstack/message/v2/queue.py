@@ -74,7 +74,7 @@ class Queue(resource.Resource):
         and `X-PROJECT-ID` fields which are required by Zaqar v2 API.
         """
         more_data = True
-        query_params = cls._query_mapping._transpose(params)
+        query_params = cls._query_mapping._transpose(params, cls)
 
         if base_path is None:
             base_path = cls.base_path

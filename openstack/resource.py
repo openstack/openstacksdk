@@ -32,6 +32,7 @@ and then returned to the caller.
 """
 
 import collections
+import inspect
 import itertools
 
 import jsonpatch
@@ -303,8 +304,8 @@ class QueryParameters(object):
         """
         expected_params = list(self._mapping.keys())
         expected_params.extend(
-            value['name'] if isinstance(value, dict) else value
-            for value in self._mapping.values())
+            value.get('name', key) if isinstance(value, dict) else value
+            for key, value in self._mapping.items())
 
         if base_path:
             expected_params += utils.get_string_format_keys(base_path)
@@ -323,7 +324,7 @@ class QueryParameters(object):
                     set(expected_params))
                 return {k: query[k] for k in known_keys}
 
-    def _transpose(self, query):
+    def _transpose(self, query, resource_type):
         """Transpose the keys in query based on the mapping
 
         If a query is supplied with its server side name, we will still use
@@ -332,15 +333,24 @@ class QueryParameters(object):
         :param dict query: Collection of key-value pairs where each key is the
                            client-side parameter name to be transposed to its
                            server side name.
+        :param resource_type: Class of a resource.
         """
         result = {}
         for client_side, server_side in self._mapping.items():
             if isinstance(server_side, dict):
-                name = server_side['name']
+                name = server_side.get('name', client_side)
                 type_ = server_side.get('type')
             else:
                 name = server_side
                 type_ = None
+
+            # NOTE(dtantsur): a small hack to be compatible with both
+            # single-argument (like int) and double-argument type functions.
+            try:
+                provide_resource_type = (
+                    len(inspect.getargspec(type_).args) > 1)
+            except TypeError:
+                provide_resource_type = False
 
             if client_side in query:
                 value = query[client_side]
@@ -350,7 +360,10 @@ class QueryParameters(object):
                 continue
 
             if type_ is not None:
-                result[name] = type_(value)
+                if provide_resource_type:
+                    result[name] = type_(value, resource_type)
+                else:
+                    result[name] = type_(value)
             else:
                 result[name] = value
         return result
@@ -1568,7 +1581,7 @@ class Resource(dict):
         params = cls._query_mapping._validate(
             params, base_path=base_path,
             allow_unknown_params=allow_unknown_params)
-        query_params = cls._query_mapping._transpose(params)
+        query_params = cls._query_mapping._transpose(params, cls)
         uri = base_path % params
 
         limit = query_params.get('limit')

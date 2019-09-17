@@ -41,7 +41,7 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(resource_type, value)
         kwargs = {}
         if fields:
-            kwargs['fields'] = _common.comma_separated_list(fields)
+            kwargs['fields'] = _common.fields_type(fields, resource_type)
         return res.fetch(
             self,
             error_message="No {resource_type} found for {value}".format(
