@@ -297,7 +297,8 @@ class TestNodeCreate(base.TestCase):
         self.assertIs(result, self.node)
         self.session.post.assert_called_once_with(
             mock.ANY, json={'driver': FAKE['driver']},
-            headers=mock.ANY, microversion=self.session.default_microversion)
+            headers=mock.ANY, microversion=self.session.default_microversion,
+            params={})
         self.assertFalse(mock_prov.called)
 
     def test_available_new_version(self, mock_prov):
@@ -313,7 +314,8 @@ class TestNodeCreate(base.TestCase):
         self.assertIs(result, self.node)
         self.session.post.assert_called_once_with(
             mock.ANY, json={'driver': FAKE['driver']},
-            headers=mock.ANY, microversion=self.session.default_microversion)
+            headers=mock.ANY, microversion=self.session.default_microversion,
+            params={})
         mock_prov.assert_has_calls([
             mock.call(self.node, self.session, 'manage', wait=True),
             mock.call(self.node, self.session, 'provide', wait=True)
@@ -335,7 +337,8 @@ class TestNodeCreate(base.TestCase):
         self.assertIs(result, self.node)
         self.session.post.assert_called_once_with(
             mock.ANY, json={'driver': FAKE['driver']},
-            headers=mock.ANY, microversion=self.session.default_microversion)
+            headers=mock.ANY, microversion=self.session.default_microversion,
+            params={})
         self.assertFalse(mock_prov.called)
 
     def test_no_manageable_in_old_version(self, mock_prov):
@@ -354,7 +357,8 @@ class TestNodeCreate(base.TestCase):
         self.assertIs(result, self.node)
         self.session.post.assert_called_once_with(
             mock.ANY, json={'driver': FAKE['driver']},
-            headers=mock.ANY, microversion=self.session.default_microversion)
+            headers=mock.ANY, microversion=self.session.default_microversion,
+            params={})
         mock_prov.assert_called_once_with(self.node, self.session, 'manage',
                                           wait=True)
 
@@ -367,7 +371,8 @@ class TestNodeCreate(base.TestCase):
         self.assertIs(result, self.node)
         self.session.post.assert_called_once_with(
             mock.ANY, json={'driver': FAKE['driver']},
-            headers=mock.ANY, microversion=self.session.default_microversion)
+            headers=mock.ANY, microversion=self.session.default_microversion,
+            params={})
         mock_prov.assert_called_once_with(self.node, self.session, 'manage',
                                           wait=True)
 

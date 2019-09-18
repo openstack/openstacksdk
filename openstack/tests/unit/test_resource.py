@@ -1380,14 +1380,15 @@ class TestResourceActions(base.TestCase):
         self.session.get_endpoint_data.return_value = self.endpoint_data
 
     def _test_create(self, cls, requires_id=False, prepend_key=False,
-                     microversion=None, base_path=None):
+                     microversion=None, base_path=None, params=None):
         id = "id" if requires_id else None
         sot = cls(id=id)
         sot._prepare_request = mock.Mock(return_value=self.request)
         sot._translate_response = mock.Mock()
 
+        params = params or {}
         result = sot.create(self.session, prepend_key=prepend_key,
-                            base_path=base_path)
+                            base_path=base_path, **params)
 
         sot._prepare_request.assert_called_once_with(
             requires_id=requires_id, prepend_key=prepend_key,
@@ -1396,12 +1397,12 @@ class TestResourceActions(base.TestCase):
             self.session.put.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers,
-                microversion=microversion)
+                microversion=microversion, params=params)
         else:
             self.session.post.assert_called_once_with(
                 self.request.url,
                 json=self.request.body, headers=self.request.headers,
-                microversion=microversion)
+                microversion=microversion, params=params)
 
         self.assertEqual(sot.microversion, microversion)
         sot._translate_response.assert_called_once_with(self.response,
@@ -1428,6 +1429,16 @@ class TestResourceActions(base.TestCase):
         self._test_create(Test, requires_id=True, prepend_key=True,
                           microversion='1.42')
 
+    def test_put_create_with_params(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'PUT'
+
+        self._test_create(Test, requires_id=True, prepend_key=True,
+                          params={'answer': 42})
+
     def test_post_create(self):
         class Test(resource.Resource):
             service = self.service_name
@@ -1446,6 +1457,16 @@ class TestResourceActions(base.TestCase):
 
         self._test_create(Test, requires_id=False, prepend_key=True,
                           base_path='dummy')
+
+    def test_post_create_with_params(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'POST'
+
+        self._test_create(Test, requires_id=False, prepend_key=True,
+                          params={'answer': 42})
 
     def test_fetch(self):
         result = self.sot.fetch(self.session)

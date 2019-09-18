@@ -1230,7 +1230,7 @@ class Resource(dict):
 
         return actual
 
-    def create(self, session, prepend_key=True, base_path=None):
+    def create(self, session, prepend_key=True, base_path=None, **params):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1241,6 +1241,7 @@ class Resource(dict):
         :param str base_path: Base part of the URI for creating resources, if
                               different from
                               :data:`~openstack.resource.Resource.base_path`.
+        :param dict params: Additional params to pass.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
                  :data:`Resource.allow_create` is not set to ``True``.
@@ -1259,14 +1260,14 @@ class Resource(dict):
                                             base_path=base_path)
             response = session.put(request.url,
                                    json=request.body, headers=request.headers,
-                                   microversion=microversion)
+                                   microversion=microversion, params=params)
         elif self.create_method == 'POST':
             request = self._prepare_request(requires_id=requires_id,
                                             prepend_key=prepend_key,
                                             base_path=base_path)
             response = session.post(request.url,
                                     json=request.body, headers=request.headers,
-                                    microversion=microversion)
+                                    microversion=microversion, params=params)
         else:
             raise exceptions.ResourceFailure(
                 msg="Invalid create method: %s" % self.create_method)
