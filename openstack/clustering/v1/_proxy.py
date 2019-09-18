@@ -913,6 +913,19 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_action.Action, **query)
 
+    def update_action(self, action, **attrs):
+        """Update a profile.
+
+        :param action: Either the ID of the action, or an
+            instance of :class:`~openstack.clustering.v1.action.Action`.
+        :param attrs: The attributes to update on the action represented by
+            the ``value`` parameter.
+
+        :returns: The updated action.
+        :rtype: :class:`~openstack.clustering.v1.action.Action`
+        """
+        return self._update(_action.Action, action, **attrs)
+
     def get_event(self, event):
         """Get a single event.
 

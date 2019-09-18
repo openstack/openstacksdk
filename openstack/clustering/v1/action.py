@@ -22,6 +22,9 @@ class Action(resource.Resource):
     # Capabilities
     allow_list = True
     allow_fetch = True
+    allow_commit = True
+
+    commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
         'name', 'action', 'status', 'sort', 'global_project',
