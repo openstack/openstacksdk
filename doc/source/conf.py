@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.abspath('.'))
 extensions = [
     'sphinx.ext.autodoc',
     'openstackdocstheme',
+    'sphinxcontrib.rsvgconverter',
     'enforcer'
 ]
 
@@ -107,13 +108,16 @@ htmlhelp_basename = '%sdoc' % project
 # [howto/manual]).
 latex_documents = [
     ('index',
-     '%s.tex' % project,
-     u'%s Documentation' % project,
+     'doc-openstacksdk.tex',
+     u'OpenStackSDK Documentation',
      u'OpenStack Foundation', 'manual'),
 ]
 
 # Allow deeper levels of nesting for \begin...\end stanzas
 latex_elements = {'maxlistdepth': 10}
+
+# Disable usage of xindy https://bugzilla.redhat.com/show_bug.cgi?id=1643664
+latex_use_xindy = False
 
 # Include both the class and __init__ docstrings when describing the class
 autoclass_content = "both"
