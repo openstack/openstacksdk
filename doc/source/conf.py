@@ -15,8 +15,6 @@ import os
 import sys
 import warnings
 
-import openstackdocstheme
-
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('.'))
 
@@ -35,7 +33,6 @@ extensions = [
 repository_name = 'openstack/openstacksdk'
 bug_project = '972'
 bug_tag = ''
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 html_theme = 'openstackdocs'
 
 # TODO(shade) Set this to true once the build-openstack-sphinx-docs job is
@@ -57,28 +54,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'openstacksdk'
 copyright = u'2017, Various members of the OpenStack Foundation'
-
-# A few variables have to be set for the log-a-bug feature.
-#   gitsha: The SHA checksum of the bug description. Extracted from git log.
-#   bug_tag: Tag for categorizing the bug. Must be set manually.
-#   bug_project: Launchpad project to file bugs against.
-# These variables are passed to the logabug code via html_context.
-git_cmd = "/usr/bin/git log | head -n1 | cut -f2 -d' '"
-try:
-    gitsha = os.popen(git_cmd).read().strip('\n')
-except Exception:
-    warnings.warn("Can not get git sha.")
-    gitsha = "unknown"
-
-bug_tag = "docs"
-pwd = os.getcwd()
-# html_context allows us to pass arbitrary values into the html template
-html_context = {"pwd": pwd,
-                "gitsha": gitsha,
-                "bug_tag": bug_tag,
-                "bug_project": bug_project}
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
@@ -101,7 +77,7 @@ exclude_patterns = []
 theme_include_auto_toc = False
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%sdoc' % project
+htmlhelp_basename = 'openstacksdkdoc'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
