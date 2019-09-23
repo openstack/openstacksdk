@@ -26,13 +26,14 @@ import six
 
 @contextlib.contextmanager
 def populate_directory(metadata, user_data=None, versions=None,
-                       network_data=None):
+                       network_data=None, vendor_data=None):
     """Populate a directory with configdrive files.
 
     :param dict metadata: Metadata.
     :param bytes user_data: Vendor-specific user data.
     :param versions: List of metadata versions to support.
     :param dict network_data: Networking configuration.
+    :param dict vendor_data: Extra supplied vendor data.
     :return: a context manager yielding a directory with files
     """
     d = tempfile.mkdtemp()
@@ -51,6 +52,11 @@ def populate_directory(metadata, user_data=None, versions=None,
                           'w') as fp:
                     json.dump(network_data, fp)
 
+            if vendor_data:
+                with open(os.path.join(subdir, 'vendor_data2.json'),
+                          'w') as fp:
+                    json.dump(vendor_data, fp)
+
             if user_data:
                 # Strictly speaking, user data is binary, but in many cases
                 # it's actually a text (cloud-init, ignition, etc).
@@ -64,7 +70,8 @@ def populate_directory(metadata, user_data=None, versions=None,
         shutil.rmtree(d)
 
 
-def build(metadata, user_data=None, versions=None, network_data=None):
+def build(metadata, user_data=None, versions=None, network_data=None,
+          vendor_data=None):
     """Make a configdrive compatible with the Bare Metal service.
 
     Requires the genisoimage utility to be available.
@@ -73,10 +80,11 @@ def build(metadata, user_data=None, versions=None, network_data=None):
     :param user_data: Vendor-specific user data.
     :param versions: List of metadata versions to support.
     :param dict network_data: Networking configuration.
+    :param dict vendor_data: Extra supplied vendor data.
     :return: configdrive contents as a base64-encoded string.
     """
     with populate_directory(metadata, user_data, versions,
-                            network_data) as path:
+                            network_data, vendor_data) as path:
         return pack(path)
 
 
