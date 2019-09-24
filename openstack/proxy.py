@@ -93,7 +93,7 @@ class Proxy(adapter.Adapter):
                 global_request_id = conn._global_request_id
         response = super(Proxy, self).request(
             url, method,
-            connect_retries=connect_retries, raise_exc=False,
+            connect_retries=connect_retries, raise_exc=raise_exc,
             global_request_id=global_request_id,
             **kwargs)
         for h in response.history:
