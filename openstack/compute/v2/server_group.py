@@ -70,7 +70,7 @@ class ServerGroup(resource.Resource):
                 if self.policies:
                     if not self.policy and isinstance(self.policies, list):
                         self.policy = self.policies[0]
-                    self.policies = None
+                    self._body.clean(only={'policies'})
                 microversion = self._max_microversion
             else:
                 if self.rules:
@@ -80,6 +80,6 @@ class ServerGroup(resource.Resource):
                 if self.policy:
                     if not self.policies:
                         self.policies = [self.policy]
-                    self.policy = None
+                    self._body.clean(only={'policy'})
 
         return microversion

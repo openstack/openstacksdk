@@ -484,10 +484,17 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     """
     server_vars = add_server_interfaces(cloud, server)
 
-    flavor_id = server['flavor']['id']
-    flavor_name = cloud.get_flavor_name(flavor_id)
-    if flavor_name:
-        server_vars['flavor']['name'] = flavor_name
+    flavor_id = server['flavor'].get('id')
+    if flavor_id:
+        # In newer nova, the flavor record can be kept around for flavors
+        # that no longer exist. The id and name are not there.
+        flavor_name = cloud.get_flavor_name(flavor_id)
+        if flavor_name:
+            server_vars['flavor']['name'] = flavor_name
+    elif 'original_name' in server['flavor']:
+        # Users might be have code still expecting name. That name is in
+        # original_name.
+        server_vars['flavor']['name'] = server['flavor']['original_name']
 
     expand_server_security_groups(cloud, server)
 
