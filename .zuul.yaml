@@ -380,6 +380,12 @@
     required-projects:
       - openstack/openstacksdk
 
+- job:
+    name: ironic-inspector-tempest-openstacksdk-src
+    parent: ironic-inspector-tempest
+    required-projects:
+      - openstack/openstacksdk
+
 - project-template:
     name: openstacksdk-functional-tips
     check:
@@ -422,6 +428,9 @@
         - osc-functional-devstack-tips:
             voting: false
         - nodepool-functional-openstack-src
+        # Ironic jobs, non-voting to avoid tight coupling
+        - ironic-inspector-tempest-openstacksdk-src:
+            voting: false
         - bifrost-integration-tinyipa-ubuntu-xenial:
             voting: false
         - metalsmith-integration-openstacksdk-src:
