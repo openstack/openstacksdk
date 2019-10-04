@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    In April 2019 the microversion support for the Server resource was increased
+    to ``2.72``. Unfortunately, due to an issue with version discovery documents,
+    this increase never actually became effective. A fix is coming in ``3.17.2`` of
+    ``keystoneauth`` which will unbreak version discovery and cause the microversion
+    support to start working.
+upgrade:
+  - |
+    Due to the fix in microversion support in `keystoneauth`, Servers will be
+    fetched using microversion ``2.72``. Code that assumes the existence of a
+    ``flavor.id`` field in the Server record should be removed, as it does not exist
+    in new microversions and cannot be filled in behind the scenes.
