@@ -49,15 +49,13 @@ class TestInventory(base.BaseFunctionalTest):
     def _test_host_content(self, host):
         self.assertEqual(host['image']['id'], self.image.id)
         self.assertNotIn('links', host['image'])
-        # TODO(mordred) Add this back wnen ksa releases
-        # self.assertNotIn('id', host['flavor'])
+        self.assertNotIn('id', host['flavor'])
         self.assertNotIn('links', host['flavor'])
         self.assertNotIn('links', host)
         self.assertIsInstance(host['volumes'], list)
         self.assertIsInstance(host['metadata'], dict)
         self.assertIn('interface_ip', host)
-        # TODO(mordred) Add this back wnen ksa releases
-        # self.assertIn('ram', host['flavor'])
+        self.assertIn('ram', host['flavor'])
 
     def _test_expanded_host_content(self, host):
         self.assertEqual(host['image']['name'], self.image.name)
@@ -84,12 +82,10 @@ class TestInventory(base.BaseFunctionalTest):
         self.assertEqual(host['image']['id'], self.image.id)
         self.assertNotIn('links', host['image'])
         self.assertNotIn('name', host['name'])
-        # TODO(mordred) Add this back wnen ksa releases
-        # self.assertNotIn('id', host['flavor'])
+        self.assertNotIn('id', host['flavor'])
         self.assertNotIn('links', host['flavor'])
         self.assertNotIn('name', host['flavor'])
-        # TODO(mordred) Add this back wnen ksa releases
-        # self.assertIn('ram', host['flavor'])
+        self.assertIn('ram', host['flavor'])
 
         host_found = False
         for host in self.inventory.list_hosts(expand=False):
