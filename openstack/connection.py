@@ -183,7 +183,7 @@ import requestsexceptions
 import six
 
 from openstack import _log
-from openstack._meta import connection as _meta
+from openstack import _services_mixin
 from openstack.cloud import openstackcloud as _cloud
 from openstack.cloud import _baremetal
 from openstack.cloud import _block_storage
@@ -245,23 +245,24 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
     return Connection(config=config)
 
 
-class Connection(six.with_metaclass(_meta.ConnectionMeta,
-                                    _cloud._OpenStackCloudMixin,
-                                    _baremetal.BaremetalCloudMixin,
-                                    _block_storage.BlockStorageCloudMixin,
-                                    _compute.ComputeCloudMixin,
-                                    _clustering.ClusteringCloudMixin,
-                                    _coe.CoeCloudMixin,
-                                    _dns.DnsCloudMixin,
-                                    _floating_ip.FloatingIPCloudMixin,
-                                    _identity.IdentityCloudMixin,
-                                    _image.ImageCloudMixin,
-                                    _network.NetworkCloudMixin,
-                                    _network_common.NetworkCommonCloudMixin,
-                                    _object_store.ObjectStoreCloudMixin,
-                                    _orchestration.OrchestrationCloudMixin,
-                                    _security_group.SecurityGroupCloudMixin
-                                    )):
+class Connection(
+    _services_mixin.ServicesMixin,
+    _cloud._OpenStackCloudMixin,
+    _baremetal.BaremetalCloudMixin,
+    _block_storage.BlockStorageCloudMixin,
+    _compute.ComputeCloudMixin,
+    _clustering.ClusteringCloudMixin,
+    _coe.CoeCloudMixin,
+    _dns.DnsCloudMixin,
+    _floating_ip.FloatingIPCloudMixin,
+    _identity.IdentityCloudMixin,
+    _image.ImageCloudMixin,
+    _network.NetworkCloudMixin,
+    _network_common.NetworkCommonCloudMixin,
+    _object_store.ObjectStoreCloudMixin,
+    _orchestration.OrchestrationCloudMixin,
+    _security_group.SecurityGroupCloudMixin
+):
 
     def __init__(self, cloud=None, config=None, session=None,
                  app_name=None, app_version=None,
