@@ -24,10 +24,13 @@ __all__ = [
 
 def connect(
         cloud=None,
-        app_name=None, app_version=None,
+        app_name=None,  # type: Optional[str]
+        app_version=None,  # type: Optional[str]
         options=None,
-        load_yaml_config=True, load_envvars=True,
+        load_yaml_config=True,  # type: bool
+        load_envvars=True,  # type: bool
         **kwargs):
+    # type: (...) -> openstack.connection.Connection
     """Create a :class:`~openstack.connection.Connection`
 
     :param string cloud:
