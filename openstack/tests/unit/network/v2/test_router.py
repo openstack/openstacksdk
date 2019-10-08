@@ -11,6 +11,9 @@
 # under the License.
 
 import mock
+import testtools
+
+from openstack.exceptions import SDKException
 from openstack.tests.unit import base
 
 from openstack.network.v2 import router
@@ -172,6 +175,37 @@ class TestRouter(base.TestCase):
         url = 'routers/IDENTIFIER/remove_router_interface'
         sess.put.assert_called_with(url,
                                     json=body)
+
+    def test_add_interface_4xx(self):
+        # Neutron may return 4xx, we have to raise if that happens
+        sot = router.Router(**EXAMPLE)
+        response = mock.Mock()
+        msg = 'borked'
+        response.body = {'NeutronError': {'message': msg}}
+        response.json = mock.Mock(return_value=response.body)
+        response.ok = False
+        response.status_code = 409
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        body = {'subnet_id': '3'}
+        with testtools.ExpectedException(SDKException, msg):
+            sot.add_interface(sess, **body)
+
+    def test_remove_interface_4xx(self):
+        # Neutron may return 4xx for example if a router interface has
+        # extra routes referring to it as a nexthop
+        sot = router.Router(**EXAMPLE)
+        response = mock.Mock()
+        msg = 'borked'
+        response.body = {'NeutronError': {'message': msg}}
+        response.json = mock.Mock(return_value=response.body)
+        response.ok = False
+        response.status_code = 409
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        body = {'subnet_id': '3'}
+        with testtools.ExpectedException(SDKException, msg):
+            sot.remove_interface(sess, **body)
 
     def test_add_router_gateway(self):
         # Add gateway to a router

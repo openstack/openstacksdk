@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.exceptions import SDKException
 from openstack import resource
 from openstack import utils
 
@@ -74,6 +75,16 @@ class Router(resource.Resource, resource.TagMixin):
     #: Timestamp when the router was created.
     updated_at = resource.Body('updated_at')
 
+    def _put(self, session, url, body):
+        resp = session.put(url, json=body)
+        if not resp.ok:
+            resp_body = resp.json()
+            message = None
+            if 'NeutronError' in resp_body:
+                message = resp_body['NeutronError']['message']
+            raise SDKException(message=message)
+        return resp
+
     def add_interface(self, session, **body):
         """Add an internal interface to a logical router.
 
@@ -82,9 +93,11 @@ class Router(resource.Resource, resource.TagMixin):
         :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
+
+        :raises: :class:`~openstack.exceptions.SDKException` on error.
         """
         url = utils.urljoin(self.base_path, self.id, 'add_router_interface')
-        resp = session.put(url, json=body)
+        resp = self._put(session, url, body)
         return resp.json()
 
     def remove_interface(self, session, **body):
@@ -95,9 +108,11 @@ class Router(resource.Resource, resource.TagMixin):
         :param dict body: The body requested to be updated on the router
 
         :returns: The body of the response as a dictionary.
+
+        :raises: :class:`~openstack.exceptions.SDKException` on error.
         """
         url = utils.urljoin(self.base_path, self.id, 'remove_router_interface')
-        resp = session.put(url, json=body)
+        resp = self._put(session, url, body)
         return resp.json()
 
     def add_gateway(self, session, **body):
