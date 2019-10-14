@@ -21,7 +21,7 @@ Pull requests submitted through GitHub will be ignored.
 
 .. seealso::
 
-   * https://wiki.openstack.org/wiki/HowToContribute
+   * https://wiki.openstack.org/wiki/How_To_Contribute
    * https://wiki.openstack.org/wiki/CLA
 
 .. _DeveloperWorkflow: https://docs.openstack.org/infra/manual/developers.html#development-workflow
