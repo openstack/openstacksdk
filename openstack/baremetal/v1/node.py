@@ -833,5 +833,39 @@ class Node(_common.ListMixin, resource.Resource):
 
         self.traits = traits
 
+    def patch(self, session, patch=None, prepend_key=True, has_body=True,
+              retry_on_conflict=None, base_path=None, reset_interfaces=None):
+
+        if reset_interfaces is not None:
+            # The id cannot be dirty for an commit
+            self._body._dirty.discard("id")
+
+            # Only try to update if we actually have anything to commit.
+            if not patch and not self.requires_commit:
+                return self
+
+            if not self.allow_patch:
+                raise exceptions.MethodNotSupported(self, "patch")
+
+            session = self._get_session(session)
+            microversion = utils.pick_microversion(session, '1.45')
+            params = [('reset_interfaces', reset_interfaces)]
+
+            request = self._prepare_request(requires_id=True,
+                                            prepend_key=prepend_key,
+                                            base_path=base_path, patch=True,
+                                            params=params)
+
+            if patch:
+                request.body += self._convert_patch(patch)
+
+            return self._commit(session, request, 'PATCH', microversion,
+                                has_body=has_body,
+                                retry_on_conflict=retry_on_conflict)
+
+        else:
+            return super(Node, self).patch(session, patch=patch,
+                                           retry_on_conflict=retry_on_conflict)
+
 
 NodeDetail = Node

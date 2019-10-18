@@ -294,12 +294,16 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node, **attrs)
         return res.commit(self, retry_on_conflict=retry_on_conflict)
 
-    def patch_node(self, node, patch, retry_on_conflict=True):
+    def patch_node(self, node, patch, reset_interfaces=None,
+                   retry_on_conflict=True):
         """Apply a JSON patch to the node.
 
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
         :param patch: JSON patch to apply.
+        :param bool reset_interfaces: whether to reset the node hardware
+            interfaces to their defaults. This works only when changing
+            drivers. Added in API microversion 1.45.
         :param bool retry_on_conflict: Whether to retry HTTP CONFLICT error.
             Most of the time it can be retried, since it is caused by the node
             being locked. However, when setting ``instance_id``, this is
@@ -313,7 +317,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.baremetal.v1.node.Node`
         """
         res = self._get_resource(_node.Node, node)
-        return res.patch(self, patch, retry_on_conflict=retry_on_conflict)
+        return res.patch(self, patch, retry_on_conflict=retry_on_conflict,
+                         reset_interfaces=reset_interfaces)
 
     def set_node_provision_state(self, node, target, config_drive=None,
                                  clean_steps=None, rescue_password=None,

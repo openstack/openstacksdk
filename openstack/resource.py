@@ -1053,7 +1053,7 @@ class Resource(dict):
         return body
 
     def _prepare_request(self, requires_id=None, prepend_key=False,
-                         patch=False, base_path=None):
+                         patch=False, base_path=None, params=None):
         """Prepare a request to be sent to the server
 
         Create operations don't require an ID, but all others do,
@@ -1090,6 +1090,10 @@ class Resource(dict):
                     "Request requires an ID but none was found")
 
             uri = utils.urljoin(uri, self.id)
+
+        if params:
+            query_params = six.moves.urllib.parse.urlencode(params)
+            uri += '?' + query_params
 
         return _Request(uri, body, headers)
 

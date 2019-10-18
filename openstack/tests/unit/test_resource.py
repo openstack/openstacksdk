@@ -1104,6 +1104,27 @@ class TestResource(base.TestCase):
         self.assertEqual([{'op': 'add', 'path': '/x', 'value': 1}],
                          result.body)
 
+    def test__prepare_request_with_patch_params(self):
+        class Test(resource.Resource):
+            commit_jsonpatch = True
+            base_path = "/something"
+            x = resource.Body("x")
+            y = resource.Body("y")
+
+        the_id = "id"
+        sot = Test.existing(id=the_id, x=1, y=2)
+        sot.x = 3
+
+        params = [('foo', 'bar'),
+                  ('life', 42)]
+
+        result = sot._prepare_request(requires_id=True, patch=True,
+                                      params=params)
+
+        self.assertEqual("something/id?foo=bar&life=42", result.url)
+        self.assertEqual([{'op': 'replace', 'path': '/x', 'value': 3}],
+                         result.body)
+
     def test__translate_response_no_body(self):
         class Test(resource.Resource):
             attr = resource.Header("attr")
