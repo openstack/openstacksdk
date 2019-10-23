@@ -34,6 +34,7 @@ FAKE = {
     'created_at': '2015-10-10T12:46:36.000000',
     'updated_at': '2016-10-10T12:46:36.000000',
     'init_at': '2015-10-10T12:46:36.000000',
+    'tainted': True
 }
 
 
@@ -66,6 +67,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
         self.assertEqual(FAKE['dependents'], sot.dependents)
+        self.assertEqual(FAKE['tainted'], sot.tainted)
 
     def test_check(self):
         sot = node.Node(**FAKE)

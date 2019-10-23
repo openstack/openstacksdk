@@ -80,6 +80,8 @@ class Node(_async_resource.AsyncResource):
     details = resource.Body('details', type=dict)
     #: A map containing the dependency of nodes
     dependents = resource.Body('dependents', type=dict)
+    #: Whether the node is tainted. *Type: bool*
+    tainted = resource.Body('tainted', type=bool)
 
     def _action(self, session, body):
         """Procedure the invoke an action API.
