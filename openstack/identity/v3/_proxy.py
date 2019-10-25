@@ -11,6 +11,8 @@
 # under the License.
 
 import openstack.exceptions as exception
+from openstack.identity.v3 import application_credential as \
+    _application_credential
 from openstack.identity.v3 import credential as _credential
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import endpoint as _endpoint
@@ -1212,3 +1214,108 @@ class Proxy(proxy.Proxy):
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
         return project.validate_group_has_role(self, group, role)
+
+    def application_credentials(self, user, **query):
+        """Retrieve a generator of application credentials
+
+        :param user: Either the ID of a user or a
+                   :class:`~openstack.identity.v3.user.User` instance.
+
+        :param kwargs query: Optional query parameters to be sent to
+            application credential the resources being returned.
+
+        :returns: A generator of application credentials instances.
+        :rtype: :class:`~openstack.identity.v3.application_credential.
+             ApplicationCredential`
+        """
+        user = self._get_resource(_user.User, user)
+        return self._list(_application_credential.ApplicationCredential,
+                          user_id=user.id, **query)
+
+    def get_application_credential(self, user, application_credential):
+        """Get a single application credential
+
+        :param user: Either the ID of a user or a
+                   :class:`~openstack.identity.v3.user.User` instance.
+
+        :param application_credential: The value can be the ID of a
+             application credential or a :class:
+             `~openstack.identity.v3.application_credential.
+             ApplicationCredential` instance.
+
+        :returns: One :class:`~openstack.identity.v3.application_credential.
+             ApplicationCredential`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+             resource can be found.
+        """
+        user = self._get_resource(_user.User, user)
+        return self._get(_application_credential.ApplicationCredential,
+                         application_credential,
+                         user_id=user.id)
+
+    def create_application_credential(self, user, name, **attrs):
+        """Create a new application credential from attributes
+
+        :param user: Either the ID of a user or a
+                   :class:`~openstack.identity.v3.user.User` instance.
+        :param name: The name of the application credential which is
+                    unique to the user.
+        :param dict attrs: Keyword arguments which will be used to create
+             a :class:`~openstack.identity.v3.application_credential.
+             ApplicationCredential`, comprised of the properties on the
+             ApplicationCredential class.
+
+
+        :returns: The results of application credential creation.
+        :rtype: :class:`~openstack.identity.v3.application_credential.
+             ApplicationCredential`
+        """
+
+        user = self._get_resource(_user.User, user)
+        return self._create(_application_credential.ApplicationCredential,
+                            name=name,
+                            user_id=user.id, **attrs)
+
+    def find_application_credential(self, user, name_or_id,
+                                    ignore_missing=True, **args):
+        """Find a single application credential
+
+        :param user: Either the ID of a user or a
+                   :class:`~openstack.identity.v3.user.User` instance.
+        :param name_or_id: The name or ID of a application credential.
+        :param bool ignore_missing: When set to ``False``
+             :class:`~openstack.exceptions.ResourceNotFound` will be
+             raised when the resource does not exist.
+             When set to ``True``, None will be returned when
+             attempting to find a nonexistent resource.
+
+        :returns: One :class:`~openstack.identity.v3.application_credential.
+             ApplicationCredential` or None
+        """
+        user = self._get_resource(_user.User, user)
+        return self._find(_application_credential.ApplicationCredential,
+                          user_id=user.id, name_or_id=name_or_id,
+                          ignore_missing=ignore_missing, **args)
+
+    def delete_application_credential(self, user, application_credential,
+                                      ignore_missing=True):
+        """Delete a application credential
+
+        :param user: Either the ID of a user or a
+                   :class:`~openstack.identity.v3.user.User` instance.
+        :param application credential: The value can be either the ID of a
+             application credential or a :class: `~openstack.identity.v3.
+             application_credential.ApplicationCredential` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+             when the application credential does not exist. When set to
+             ``True``, no exception will be thrown when attempting to delete
+             a nonexistent application credential.
+
+        :returns: ``None``
+        """
+        user = self._get_resource(_user.User, user)
+        self._delete(_application_credential.ApplicationCredential,
+                     application_credential,
+                     user_id=user.id,
+                     ignore_missing=ignore_missing)
