@@ -253,6 +253,7 @@
       Run openstacksdk functional tests against a master devstack with ironic
     required-projects:
       - openstack/ironic
+      - openstack/ironic-python-agent-builder
     vars:
       devstack_localrc:
         OVERRIDE_PUBLIC_BRIDGE_MTU: 1400
