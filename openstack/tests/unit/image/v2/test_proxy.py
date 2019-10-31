@@ -313,7 +313,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                'fetch', mock_fetch):
 
             result = self.proxy.wait_for_task(
-                res, interval=0.01, wait=0.1)
+                res, interval=0.01, wait=0.5)
 
             self.assertEqual('success', result.status)
 
@@ -336,7 +336,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                'fetch', mock_fetch):
 
             result = self.proxy.wait_for_task(
-                res, interval=0.01, wait=0.1)
+                res, interval=0.01, wait=0.5)
 
             self.assertEqual('success', result.status)
 
