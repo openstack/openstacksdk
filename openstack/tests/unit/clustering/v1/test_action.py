@@ -55,6 +55,7 @@ class TestAction(base.TestCase):
         self.assertEqual('/actions', sot.base_path)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.allow_commit)
 
     def test_instantiate(self):
         sot = action.Action(**FAKE)

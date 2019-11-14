@@ -328,6 +328,9 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
                          method_kwargs={'limit': 2},
                          expected_kwargs={'limit': 2})
 
+    def test_action_update(self):
+        self.verify_update(self.proxy.update_action, action.Action)
+
     def test_event_get(self):
         self.verify_get(self.proxy.get_event, event.Event)
 
