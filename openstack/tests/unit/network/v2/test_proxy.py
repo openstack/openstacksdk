@@ -815,6 +815,34 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    @mock.patch.object(router.Router, 'add_extra_routes')
+    def test_add_extra_routes_to_router(
+            self, mock_add_extra_routes, mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify("openstack.network.v2.router.Router.add_extra_routes",
+                     self.proxy.add_extra_routes_to_router,
+                     method_args=["FAKE_ROUTER"],
+                     method_kwargs={"body": {"router": {"routes": []}}},
+                     expected_kwargs={"body": {"router": {"routes": []}}})
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    @mock.patch.object(router.Router, 'remove_extra_routes')
+    def test_remove_extra_routes_from_router(
+            self, mock_remove_extra_routes, mock_get):
+        x_router = router.Router.new(id="ROUTER_ID")
+        mock_get.return_value = x_router
+
+        self._verify("openstack.network.v2.router.Router.remove_extra_routes",
+                     self.proxy.remove_extra_routes_from_router,
+                     method_args=["FAKE_ROUTER"],
+                     method_kwargs={"body": {"router": {"routes": []}}},
+                     expected_kwargs={"body": {"router": {"routes": []}}})
+        mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
+
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'add_gateway')
     def test_add_gateway_to_router(self, mock_add, mock_get):
         x_router = router.Router.new(id="ROUTER_ID")

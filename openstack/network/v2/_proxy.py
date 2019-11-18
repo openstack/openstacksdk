@@ -2585,6 +2585,30 @@ class Proxy(proxy.Proxy):
         router = self._get_resource(_router.Router, router)
         return router.remove_interface(self, **body)
 
+    def add_extra_routes_to_router(self, router, body):
+        """Add extra routes to a router
+
+        :param router: Either the router ID or an instance of
+                       :class:`~openstack.network.v2.router.Router`
+        :param body: The request body as documented in the api-ref.
+        :returns: Router with updated extra routes
+        :rtype: :class: `~openstack.network.v2.router.Router`
+        """
+        router = self._get_resource(_router.Router, router)
+        return router.add_extra_routes(self, body=body)
+
+    def remove_extra_routes_from_router(self, router, body):
+        """Remove extra routes from a router
+
+        :param router: Either the router ID or an instance of
+                       :class:`~openstack.network.v2.router.Router`
+        :param body: The request body as documented in the api-ref.
+        :returns: Router with updated extra routes
+        :rtype: :class: `~openstack.network.v2.router.Router`
+        """
+        router = self._get_resource(_router.Router, router)
+        return router.remove_extra_routes(self, body=body)
+
     def add_gateway_to_router(self, router, **body):
         """Add Gateway to a router
 

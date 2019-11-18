@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.exceptions import SDKException
 from openstack import resource
 from openstack import utils
 
@@ -99,6 +100,48 @@ class Router(resource.Resource, resource.TagMixin):
         url = utils.urljoin(self.base_path, self.id, 'remove_router_interface')
         resp = session.put(url, json=body)
         return resp.json()
+
+    def _put(self, session, url, body):
+        resp = session.put(url, json=body)
+        if not resp.ok:
+            resp_body = resp.json()
+            message = None
+            if 'NeutronError' in resp_body:
+                message = resp_body['NeutronError']['message']
+            raise SDKException(message=message)
+        return resp
+
+    def add_extra_routes(self, session, body):
+        """Add extra routes to a logical router.
+
+        :param session: The session to communicate through.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param dict body: The request body as documented in the api-ref.
+
+        :returns: The response as a Router object with the added extra routes.
+
+        :raises: :class:`~openstack.exceptions.SDKException` on error.
+        """
+        url = utils.urljoin(self.base_path, self.id, 'add_extraroutes')
+        resp = self._put(session, url, body)
+        self._translate_response(resp)
+        return self
+
+    def remove_extra_routes(self, session, body):
+        """Remove extra routes from a logical router.
+
+        :param session: The session to communicate through.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param dict body: The request body as documented in the api-ref.
+
+        :returns: The response as a Router object with the extra routes left.
+
+        :raises: :class:`~openstack.exceptions.SDKException` on error.
+        """
+        url = utils.urljoin(self.base_path, self.id, 'remove_extraroutes')
+        resp = self._put(session, url, body)
+        self._translate_response(resp)
+        return self
 
     def add_gateway(self, session, **body):
         """Add an external gateway to a logical router.
