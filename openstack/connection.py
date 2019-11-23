@@ -161,6 +161,7 @@ __all__ = [
 ]
 
 import warnings
+import weakref
 
 import keystoneauth1.exceptions
 import requestsexceptions
@@ -308,7 +309,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta)):
         # Hide a reference to the connection on the session to help with
         # backwards compatibility for folks trying to just pass conn.session
         # to a Resource method's session argument.
-        self.session._sdk_connection = self
+        self.session._sdk_connection = weakref.proxy(self)
 
         self._proxies = {}
 
