@@ -156,6 +156,7 @@ Additional information about the services can be found in the
 :ref:`service-proxies` documentation.
 """
 import warnings
+import weakref
 
 import keystoneauth1.exceptions
 import requestsexceptions
@@ -313,7 +314,7 @@ class Connection(six.with_metaclass(_meta.ConnectionMeta,
             # Hide a reference to the connection on the session to help with
             # backwards compatibility for folks trying to just pass
             # conn.session to a Resource method's session argument.
-            self.session._sdk_connection = self
+            self.session._sdk_connection = weakref.proxy(self)
         return self._session
 
     def add_service(self, service):
