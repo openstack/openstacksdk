@@ -90,7 +90,7 @@ with the following rules in mind:
   model for those fields/features. It is ok for openstacksdk to not have
   something.
 
-  ..note::
+  .. note::
     openstacksdk does not currently have any sort of "experimental" opt-in API
     that would allow exposing things to a user that may not be supportable
     under the normal compatibility contract. If a conflict arises in the
