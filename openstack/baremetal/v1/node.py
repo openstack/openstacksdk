@@ -60,6 +60,9 @@ class Node(_common.ListMixin, resource.Resource):
     #: The UUID of the allocation associated with this node. Added in API
     #: microversion 1.52.
     allocation_id = resource.Body("allocation_uuid")
+    #: A string or UUID of the tenant who owns the baremetal node. Added in API
+    #: microversion 1.50.
+    owner = resource.Body("owner")
     #: The UUID of the chassis associated wit this node. Can be empty or None.
     chassis_id = resource.Body("chassis_uuid")
     #: The current clean step.

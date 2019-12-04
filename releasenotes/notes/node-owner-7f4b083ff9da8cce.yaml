@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The ``openstack.baremetal.v1.Node`` resource now has an ``owner`` property
+    which was added in the baremetal API `microversion 1.50`_.
+
+    .. _microversion 1.50: https://docs.openstack.org/ironic/latest/contributor/webapi-version-history.html#id7
