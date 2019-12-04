@@ -2,13 +2,13 @@
  openstacksdk Release Notes
 ============================
 
- .. toctree::
-    :maxdepth: 1
+.. toctree::
+   :maxdepth: 1
 
-    unreleased
-    train
-    stein
-    rocky
-    queens
-    pike
-    ocata
+   unreleased
+   train
+   stein
+   rocky
+   queens
+   pike
+   ocata
