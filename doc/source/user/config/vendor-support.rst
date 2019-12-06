@@ -217,7 +217,7 @@ us-slc         Salt Lake City, UT
 OVH
 ---
 
-https://auth.cloud.ovh.net/v2.0
+https://auth.cloud.ovh.net/v3
 
 ============== ================
 Region Name    Location

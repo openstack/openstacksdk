@@ -5,9 +5,21 @@
       "auth_url": "https://auth.cloud.ovh.net/"
     },
     "regions": [
+      "BHS",
       "BHS1",
+      "BHS3",
+      "DE",
+      "DE1",
+      "GRA",
       "GRA1",
-      "SBG1"
+      "GRA5",
+      "SBG",
+      "SBG1",
+      "SBG5",
+      "UK",
+      "UK1",
+      "WAW",
+      "WAW1"
     ],
     "identity_api_version": "3",
     "floating_ip_source": "None"
