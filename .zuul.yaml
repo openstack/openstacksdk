@@ -305,15 +305,6 @@
       tox_envlist: ansible
 
 - job:
-    name: openstacksdk-ansible-functional-devstack
-    parent: openstacksdk-functional-devstack
-    description: |
-      Run openstacksdk ansible functional tests against a master devstack
-      using released version of ansible.
-    vars:
-      tox_envlist: ansible
-
-- job:
     name: openstacksdk-ansible-devel-functional-devstack
     parent: openstacksdk-ansible-functional-devstack
     description: |
