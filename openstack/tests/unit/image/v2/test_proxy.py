@@ -11,6 +11,7 @@
 # under the License.
 
 import mock
+import io
 import requests
 
 from openstack import exceptions
@@ -41,6 +42,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super(TestImageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
+        self.proxy._connection = self.cloud
 
     def test_image_import_no_required_attrs(self):
         # container_format and disk_format are required attrs of the image
@@ -56,6 +58,110 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                      method_args=[original_image, "method", "uri"],
                      expected_kwargs={"method": "method", "store": None,
                                       "uri": "uri"})
+
+    def test_image_create_conflict(self):
+        self.assertRaises(
+            exceptions.SDKException, self.proxy.create_image,
+            name='fake', filename='fake', data='fake',
+            container='bare', disk_format='raw'
+        )
+
+    def test_image_create_checksum_match(self):
+        fake_image = image.Image(
+            id="fake", properties={
+                self.proxy._IMAGE_MD5_KEY: 'fake_md5',
+                self.proxy._IMAGE_SHA256_KEY: 'fake_sha256'
+            })
+        self.proxy.find_image = mock.Mock(return_value=fake_image)
+
+        self.proxy._upload_image = mock.Mock()
+
+        res = self.proxy.create_image(
+            name='fake',
+            md5='fake_md5', sha256='fake_sha256'
+        )
+        self.assertEqual(fake_image, res)
+        self.proxy._upload_image.assert_not_called()
+
+    def test_image_create_checksum_mismatch(self):
+        fake_image = image.Image(
+            id="fake", properties={
+                self.proxy._IMAGE_MD5_KEY: 'fake_md5',
+                self.proxy._IMAGE_SHA256_KEY: 'fake_sha256'
+            })
+        self.proxy.find_image = mock.Mock(return_value=fake_image)
+
+        self.proxy._upload_image = mock.Mock()
+
+        self.proxy.create_image(
+            name='fake', data=b'fake',
+            md5='fake2_md5', sha256='fake2_sha256'
+        )
+        self.proxy._upload_image.assert_called()
+
+    def test_image_create_allow_duplicates_find_not_called(self):
+        self.proxy.find_image = mock.Mock()
+
+        self.proxy._upload_image = mock.Mock()
+
+        self.proxy.create_image(
+            name='fake', data=b'fake', allow_duplicates=True,
+        )
+
+        self.proxy.find_image.assert_not_called()
+
+    def test_image_create_validate_checksum_data_binary(self):
+        """ Pass real data as binary"""
+        self.proxy.find_image = mock.Mock()
+
+        self.proxy._upload_image = mock.Mock()
+
+        self.proxy.create_image(
+            name='fake', data=b'fake', validate_checksum=True,
+            container='bare', disk_format='raw'
+        )
+
+        self.proxy.find_image.assert_called_with('fake')
+
+        self.proxy._upload_image.assert_called_with(
+            'fake', container_format='bare', disk_format='raw',
+            filename=None, data=b'fake', meta={},
+            properties={
+                self.proxy._IMAGE_MD5_KEY: '144c9defac04969c7bfad8efaa8ea194',
+                self.proxy._IMAGE_SHA256_KEY: 'b5d54c39e66671c9731b9f471e585'
+                                              'd8262cd4f54963f0c93082d8dcf33'
+                                              '4d4c78',
+                self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
+            timeout=3600, validate_checksum=True, wait=False)
+
+    def test_image_create_validate_checksum_data_not_binary(self):
+        self.assertRaises(
+            exceptions.SDKException, self.proxy.create_image,
+            name='fake', data=io.StringIO(), validate_checksum=True,
+            container='bare', disk_format='raw'
+        )
+
+    def test_image_create_data_binary(self):
+        """Pass binary file-like object"""
+        self.proxy.find_image = mock.Mock()
+
+        self.proxy._upload_image = mock.Mock()
+
+        data = io.BytesIO(b'\0\0')
+
+        self.proxy.create_image(
+            name='fake', data=data, validate_checksum=False,
+            container='bare', disk_format='raw'
+        )
+
+        self.proxy._upload_image.assert_called_with(
+            'fake', container_format='bare', disk_format='raw',
+            filename=None, data=data, meta={},
+            properties={
+                self.proxy._IMAGE_MD5_KEY: '',
+                self.proxy._IMAGE_SHA256_KEY: '',
+                self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
+            timeout=3600, validate_checksum=False, wait=False)
 
     def test_image_upload_no_args(self):
         # container_format and disk_format are required args

@@ -42,10 +42,13 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._create(_image.Image, **attrs)
 
     def _upload_image(
-            self, name, filename, meta, wait, timeout, **image_kwargs):
+            self, name, filename, data, meta, wait, timeout, **image_kwargs):
         # NOTE(mordred) wait and timeout parameters are unused, but
         # are present for ease at calling site.
-        image_data = open(filename, 'rb')
+        if filename and not data:
+            image_data = open(filename, 'rb')
+        else:
+            image_data = data
         image_kwargs['properties'].update(meta)
         image_kwargs['name'] = name
 
