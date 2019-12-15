@@ -391,7 +391,6 @@
     templates:
       - check-requirements
       - openstack-lower-constraints-jobs
-      - openstack-python-jobs
       - openstack-python3-ussuri-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
@@ -414,7 +413,6 @@
             voting: false
         - openstacksdk-functional-devstack-ironic:
             voting: false
-        - openstacksdk-functional-devstack-python2
         - osc-functional-devstack-tips:
             voting: false
         - nodepool-functional-openstack-src
@@ -428,7 +426,6 @@
     gate:
       jobs:
         - openstacksdk-functional-devstack
-        - openstacksdk-functional-devstack-python2
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
         - nodepool-functional-openstack-src
