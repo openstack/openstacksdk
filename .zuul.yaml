@@ -383,11 +383,9 @@
     check:
       jobs:
         - openstacksdk-functional-devstack-tips
-        - openstacksdk-functional-devstack-tips-python2
     gate:
       jobs:
         - openstacksdk-functional-devstack-tips
-        - openstacksdk-functional-devstack-tips-python2
 
 - project:
     templates:
