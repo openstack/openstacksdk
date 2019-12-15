@@ -173,15 +173,6 @@
         OPENSTACKSDK_HAS_HEAT: 0
 
 - job:
-    name: openstacksdk-functional-devstack-python2
-    parent: openstacksdk-functional-devstack
-    description: |
-      Run openstacksdk functional tests using python2 against a master devstack
-    vars:
-      tox_environment:
-        OPENSTACKSDK_TOX_PYTHON: python2
-
-- job:
     name: openstacksdk-functional-devstack-tips
     parent: openstacksdk-functional-devstack
     description: |
@@ -193,16 +184,6 @@
       - openstack/os-client-config
     vars:
       tox_install_siblings: true
-
-- job:
-    name: openstacksdk-functional-devstack-tips-python2
-    parent: openstacksdk-functional-devstack-tips
-    description: |
-      Run openstacksdk functional tests with tips of library dependencies using
-      python2 against a master devstack.
-    vars:
-      tox_environment:
-        OPENSTACKSDK_TOX_PYTHON: python2
 
 - job:
     name: openstacksdk-functional-devstack-magnum
