@@ -321,7 +321,21 @@ class TestImage(BaseTestImage):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'image', append=['images'], base_url_append='v2'),
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
                  json={'images': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -356,6 +370,7 @@ class TestImage(BaseTestImage):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'image', append=['images'], base_url_append='v2'),
+                 complete_qs=True,
                  json=self.fake_search_return)
         ])
 
@@ -365,7 +380,7 @@ class TestImage(BaseTestImage):
             is_public=False)
 
         self.assert_calls()
-        self.assertEqual(self.adapter.request_history[5].text.read(),
+        self.assertEqual(self.adapter.request_history[7].text.read(),
                          self.output)
 
     def test_create_image_task(self):
@@ -390,7 +405,21 @@ class TestImage(BaseTestImage):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'image', append=['images'], base_url_append='v2'),
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
                  json={'images': []}),
             dict(method='HEAD',
                  uri='{endpoint}/{container}'.format(
@@ -517,6 +546,7 @@ class TestImage(BaseTestImage):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'image', append=['images'], base_url_append='v2'),
+                 complete_qs=True,
                  json=self.fake_search_return)
         ])
 
@@ -686,7 +716,11 @@ class TestImage(BaseTestImage):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v1/images/detail',
+                 uri='https://image.example.com/v1/images/' + self.image_name,
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://image.example.com/v1/images/detail?name='
+                 + self.image_name,
                  json={'images': []}),
             dict(method='POST',
                  uri='https://image.example.com/v1/images',
@@ -726,7 +760,11 @@ class TestImage(BaseTestImage):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v1/images/detail',
+                 uri='https://image.example.com/v1/images/' + self.image_name,
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://image.example.com/v1/images/detail?name='
+                 + self.image_name,
                  json={'images': []}),
             dict(method='POST',
                  uri='https://image.example.com/v1/images',
@@ -792,7 +830,22 @@ class TestImage(BaseTestImage):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
                  json={'images': []}),
             dict(method='POST',
                  uri='https://image.example.com/v2/images',
@@ -828,10 +881,6 @@ class TestImage(BaseTestImage):
         fake_image['owner_specified.openstack.sha256'] = 'b'
 
         self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'image', append=['images'], base_url_append='v2'),
-                 json={'images': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'image', append=['images'], base_url_append='v2'),
@@ -870,7 +919,8 @@ class TestImage(BaseTestImage):
             exceptions.SDKException,
             self.cloud.create_image,
             self.image_name, self.imagefile.name,
-            is_public=False, md5='a', sha256='b'
+            is_public=False, md5='a', sha256='b',
+            allow_duplicates=True
         )
 
         self.assert_calls()
@@ -878,15 +928,10 @@ class TestImage(BaseTestImage):
     def test_create_image_put_bad_int(self):
         self.cloud.image_api_use_tasks = False
 
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://image.example.com/v2/images',
-                 json={'images': []}),
-        ])
-
         self.assertRaises(
             exc.OpenStackCloudException,
             self._call_create_image, self.image_name,
+            allow_duplicates=True,
             min_disk='fish', min_ram=0)
 
         self.assert_calls()
@@ -910,7 +955,22 @@ class TestImage(BaseTestImage):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
                  json={'images': []}),
             dict(method='POST',
                  uri='https://image.example.com/v2/images',
@@ -931,6 +991,7 @@ class TestImage(BaseTestImage):
                  json=ret),
             dict(method='GET',
                  uri='https://image.example.com/v2/images',
+                 complete_qs=True,
                  json={'images': [ret]}),
         ])
 
@@ -959,7 +1020,22 @@ class TestImage(BaseTestImage):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
                  json={'images': []}),
             dict(method='POST',
                  uri='https://image.example.com/v2/images',
@@ -980,6 +1056,7 @@ class TestImage(BaseTestImage):
                  json=ret),
             dict(method='GET',
                  uri='https://image.example.com/v2/images',
+                 complete_qs=True,
                  json={'images': [ret]}),
         ])
 
@@ -1009,7 +1086,22 @@ class TestImage(BaseTestImage):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://image.example.com/v2/images',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
                  json={'images': []}),
             dict(method='POST',
                  uri='https://image.example.com/v2/images',
@@ -1030,6 +1122,7 @@ class TestImage(BaseTestImage):
                  json=ret),
             dict(method='GET',
                  uri='https://image.example.com/v2/images',
+                 complete_qs=True,
                  json={'images': [ret]}),
         ])
 

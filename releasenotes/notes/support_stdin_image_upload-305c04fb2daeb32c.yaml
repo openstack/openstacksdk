@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add support for creating image from STDIN (i.e. from OSC). When creating from STDIN however, no checksum verification is possible, and thus validate_checksum must be also set to False.

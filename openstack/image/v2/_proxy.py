@@ -148,7 +148,7 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         return img
 
-    def _upload_image(self, name, filename=None, meta=None,
+    def _upload_image(self, name, filename=None, data=None, meta=None,
                       wait=False, timeout=None, validate_checksum=True,
                       **kwargs):
         # We can never have nice things. Glance v1 took "is_public" as a
@@ -166,11 +166,11 @@ class Proxy(_base_proxy.BaseImageProxy):
             # This makes me want to die inside
             if self._connection.image_api_use_tasks:
                 return self._upload_image_task(
-                    name, filename, meta=meta,
+                    name, filename, data=data, meta=meta,
                     wait=wait, timeout=timeout, **kwargs)
             else:
                 return self._upload_image_put(
-                    name, filename, meta=meta,
+                    name, filename, data=data, meta=meta,
                     validate_checksum=validate_checksum,
                     **kwargs)
         except exceptions.SDKException:
@@ -196,8 +196,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         return ret
 
     def _upload_image_put(
-            self, name, filename, meta, validate_checksum, **image_kwargs):
-        image_data = open(filename, 'rb')
+            self, name, filename, data, meta,
+            validate_checksum, **image_kwargs):
+        if filename and not data:
+            image_data = open(filename, 'rb')
+        else:
+            image_data = data
 
         properties = image_kwargs.pop('properties', {})
 
@@ -232,7 +236,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         return image
 
     def _upload_image_task(
-            self, name, filename,
+            self, name, filename, data,
             wait, timeout, meta, **image_kwargs):
 
         if not self._connection.has_service('object-store'):
@@ -251,6 +255,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         self._connection.create_object(
             container, name, filename,
             md5=md5, sha256=sha256,
+            data=data,
             metadata={self._connection._OBJECT_AUTOCREATE_KEY: 'true'},
             **{'content-type': 'application/octet-stream',
                'x-delete-after': str(24 * 60 * 60)})

@@ -14,6 +14,7 @@ import os
 
 import six
 
+from openstack import exceptions
 from openstack import proxy
 
 
@@ -40,7 +41,7 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
             disable_vendor_agent=True,
             allow_duplicates=False, meta=None,
             wait=False, timeout=3600,
-            validate_checksum=True,
+            data=None, validate_checksum=True,
             **kwargs):
         """Upload an image.
 
@@ -49,6 +50,8 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
             basename of the path.
         :param str filename: The path to the file to upload, if needed.
             (optional, defaults to None)
+        :param data: Image data (string or file-like object). It is mutually
+            exclusive with filename
         :param str container: Name of the container in swift where images
             should be uploaded for import if the cloud requires such a thing.
             (optional, defaults to 'images')
@@ -103,23 +106,34 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
             # https://docs.openstack.org/image-guide/image-formats.html
             container_format = 'bare'
 
+        if data and filename:
+            raise exceptions.SDKException(
+                'Passing filename and data simultaneously is not supported')
         # If there is no filename, see if name is actually the filename
-        if not filename:
+        if not filename and not data:
             name, filename = self._get_name_and_filename(
                 name, self._connection.config.config['image_format'])
-        if not (md5 or sha256):
-            (md5, sha256) = self._connection._get_file_hashes(filename)
+        if validate_checksum and data and not isinstance(data, bytes):
+            raise exceptions.SDKException(
+                'Validating checksum is not possible when data is not a '
+                'direct binary object')
+        if not (md5 or sha256) and validate_checksum:
+            if filename:
+                (md5, sha256) = self._connection._get_file_hashes(filename)
+            elif data and isinstance(data, bytes):
+                (md5, sha256) = self._connection._calculate_data_hashes(data)
         if allow_duplicates:
             current_image = None
         else:
-            current_image = self._connection.get_image(name)
+            current_image = self.find_image(name)
             if current_image:
-                md5_key = current_image.get(
+                props = current_image.get('properties', {})
+                md5_key = props.get(
                     self._IMAGE_MD5_KEY,
-                    current_image.get(self._SHADE_IMAGE_MD5_KEY, ''))
-                sha256_key = current_image.get(
+                    props.get(self._SHADE_IMAGE_MD5_KEY, ''))
+                sha256_key = props.get(
                     self._IMAGE_SHA256_KEY,
-                    current_image.get(self._SHADE_IMAGE_SHA256_KEY, ''))
+                    props.get(self._SHADE_IMAGE_SHA256_KEY, ''))
                 up_to_date = self._connection._hashes_up_to_date(
                     md5=md5, sha256=sha256,
                     md5_key=md5_key, sha256_key=sha256_key)
@@ -128,6 +142,11 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
                         "image %(name)s exists and is up to date",
                         {'name': name})
                     return current_image
+                else:
+                    self.log.debug(
+                        "image %(name)s exists, but contains different "
+                        "checksums. Updating.",
+                        {'name': name})
 
         if disable_vendor_agent:
             kwargs.update(
@@ -147,9 +166,9 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
         if container_format:
             image_kwargs['container_format'] = container_format
 
-        if filename:
+        if filename or data:
             image = self._upload_image(
-                name, filename=filename, meta=meta,
+                name, filename=filename, data=data, meta=meta,
                 wait=wait, timeout=timeout,
                 validate_checksum=validate_checksum,
                 **image_kwargs)
@@ -163,7 +182,7 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
         pass
 
     @abc.abstractmethod
-    def _upload_image(self, name, filename, meta, wait, timeout,
+    def _upload_image(self, name, filename, data, meta, wait, timeout,
                       validate_checksum=True,
                       **image_kwargs):
         pass

@@ -219,14 +219,11 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         if file_key not in self._file_hash_cache:
             self.log.debug(
                 'Calculating hashes for %(filename)s', {'filename': filename})
-            md5 = hashlib.md5()
-            sha256 = hashlib.sha256()
+            (md5, sha256) = (None, None)
             with open(filename, 'rb') as file_obj:
-                for chunk in iter(lambda: file_obj.read(8192), b''):
-                    md5.update(chunk)
-                    sha256.update(chunk)
+                (md5, sha256) = self._calculate_data_hashes(file_obj)
             self._file_hash_cache[file_key] = dict(
-                md5=md5.hexdigest(), sha256=sha256.hexdigest())
+                md5=md5, sha256=sha256)
             self.log.debug(
                 "Image file %(filename)s md5:%(md5)s sha256:%(sha256)s",
                 {'filename': filename,
@@ -234,6 +231,19 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
                  'sha256': self._file_hash_cache[file_key]['sha256']})
         return (self._file_hash_cache[file_key]['md5'],
                 self._file_hash_cache[file_key]['sha256'])
+
+    def _calculate_data_hashes(self, data):
+        md5 = hashlib.md5()
+        sha256 = hashlib.sha256()
+
+        if hasattr(data, 'read'):
+            for chunk in iter(lambda: data.read(8192), b''):
+                md5.update(chunk)
+                sha256.update(chunk)
+        else:
+            md5.update(data)
+            sha256.update(data)
+        return (md5.hexdigest(), sha256.hexdigest())
 
     @_utils.cache_on_arguments()
     def get_object_capabilities(self):
