@@ -21,6 +21,7 @@ EXAMPLE = {
     'created_at': '3',
     'description': '4',
     'dns_nameservers': ['5'],
+    'dns_publish_fixed_ip': True,
     'enable_dhcp': True,
     'gateway_ip': '6',
     'host_routes': ['7'],
@@ -60,6 +61,7 @@ class TestSubnet(base.TestCase):
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['dns_nameservers'], sot.dns_nameservers)
+        self.assertTrue(sot.dns_publish_fixed_ip)
         self.assertTrue(sot.is_dhcp_enabled)
         self.assertEqual(EXAMPLE['gateway_ip'], sot.gateway_ip)
         self.assertEqual(EXAMPLE['host_routes'], sot.host_routes)
