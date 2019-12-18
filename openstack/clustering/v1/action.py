@@ -72,3 +72,5 @@ class Action(resource.Resource):
     created_at = resource.Body('created_at')
     #: Timestamp when the action was last updated.
     updated_at = resource.Body('updated_at')
+    #: The ID of cluster which this action runs on.
+    cluster_id = resource.Body('cluster_id')
