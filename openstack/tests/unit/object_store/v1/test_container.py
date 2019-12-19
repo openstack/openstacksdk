@@ -193,13 +193,9 @@ class TestContainer(base.TestCase):
 
     def _test_no_headers(self, sot, sot_call, sess_method):
         headers = {}
-        data = {}
         self.register_uris([
             dict(method=sess_method, uri=self.container_endpoint,
-                 json=self.body,
-                 validate=dict(
-                     headers=headers,
-                     json=data))
+                 validate=dict(headers=headers))
         ])
         sot_call(self.cloud.object_store)
 
@@ -211,7 +207,7 @@ class TestContainer(base.TestCase):
     def test_commit_no_headers(self):
         sot = container.Container.new(name=self.container)
         self._test_no_headers(sot, sot.commit, 'POST')
-        self.assert_no_calls()
+        self.assert_calls()
 
     def test_set_temp_url_key(self):
         sot = container.Container.new(name=self.container)
