@@ -511,3 +511,14 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`
         """
         return self._create(_zone_transfer.ZoneTransferAccept, **attrs)
+
+    def _get_cleanup_dependencies(self):
+        # DNS may depend on floating ip
+        return {
+            'dns': {
+                'before': ['network']
+            }
+        }
+
+    def _service_cleanup(self, dry_run=True, status_queue=False):
+        pass

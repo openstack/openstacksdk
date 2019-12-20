@@ -479,3 +479,21 @@ class Proxy(proxy.Proxy):
         except Exception as e:
             raise exceptions.SDKException(
                 "Error in processing template files: %s" % str(e))
+
+    def _get_cleanup_dependencies(self):
+        return {
+            'orchestration': {
+                'before': ['compute', 'network', 'identity']
+            }
+        }
+
+    def _service_cleanup(self, dry_run=True, status_queue=None):
+        stacks = []
+        for obj in self.stacks():
+            stacks.append(obj)
+            self._project_cleanup_del_res(
+                self.delete_stack, obj,
+                dry_run, status_queue)
+
+        for stack in stacks:
+            self.wait_for_delete(stack)

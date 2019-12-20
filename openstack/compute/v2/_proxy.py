@@ -1472,3 +1472,23 @@ class Proxy(proxy.Proxy):
         server_id = self._get_resource(_server.Server, server).id
         return self._get(_server_diagnostics.ServerDiagnostics,
                          server_id=server_id, requires_id=False)
+
+    def _get_cleanup_dependencies(self):
+        return {
+            'compute': {
+                'before': ['block_storage', 'network', 'identity']
+            }
+        }
+
+    def _service_cleanup(self, dry_run=True, status_queue=None):
+        for obj in self.servers(details=False):
+            self._service_cleanup_del_res(self.delete_server,
+                                          obj,
+                                          dry_run,
+                                          status_queue)
+
+        for obj in self.keypairs():
+            self._service_cleanup_del_res(self.delete_keypair,
+                                          obj,
+                                          dry_run,
+                                          status_queue)

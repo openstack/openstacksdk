@@ -480,7 +480,7 @@ class Connection(
                 attr_name.replace('-', '_'),
                 property(fget=getter)
             )
-            self.config.enable_service(attr_name)
+        self.config.enable_service(service.service_type)
 
     def authorize(self):
         """Authorize this Connection

@@ -11,6 +11,7 @@
 # limitations under the License.
 import copy
 import functools
+import queue
 import six
 # import types so that we can reference ListType in sphinx param declarations.
 # We can't just use list, because sphinx gets confused by
@@ -35,6 +36,7 @@ from openstack.cloud import _utils
 import openstack.config
 from openstack.config import cloud_region as cloud_region_mod
 from openstack import proxy
+from openstack import utils
 
 DEFAULT_SERVER_AGE = 5
 DEFAULT_PORT_AGE = 5
@@ -749,3 +751,55 @@ class _OpenStackCloudMixin(object):
             return True
         else:
             return False
+
+    def project_cleanup(self, dry_run=True,
+                        wait_timeout=120, status_queue=None):
+        """Cleanup the project resources.
+
+        Cleanup all resources in all services, which provide cleanup methods.
+
+        :param bool dry_run: Cleanup or only list identified resources.
+        :param int wait_timeout: Maximum amount of time given to each service
+            to comlete the cleanup.
+        :param queue status_queue: a threading queue object used to get current
+            process status. The queue contain processed resources.
+        """
+        dependencies = {}
+        get_dep_fn_name = '_get_cleanup_dependencies'
+        cleanup_fn_name = '_service_cleanup'
+        if not status_queue:
+            status_queue = queue.Queue()
+        for service in self.config.get_enabled_services():
+            if hasattr(self, service):
+                proxy = getattr(self, service)
+                if (proxy
+                        and hasattr(proxy, get_dep_fn_name)
+                        and hasattr(proxy, cleanup_fn_name)):
+                    deps = getattr(proxy, get_dep_fn_name)()
+                    if deps:
+                        dependencies.update(deps)
+        dep_graph = utils.TinyDAG()
+        for k, v in dependencies.items():
+            dep_graph.add_node(k)
+            for dep in v['before']:
+                dep_graph.add_node(dep)
+                dep_graph.add_edge(k, dep)
+
+        for service in dep_graph.walk(timeout=wait_timeout):
+            fn = None
+            if hasattr(self, service):
+                proxy = getattr(self, service)
+                cleanup_fn = getattr(proxy, cleanup_fn_name, None)
+                if cleanup_fn:
+                    fn = functools.partial(cleanup_fn, dry_run=dry_run,
+                                           status_queue=status_queue)
+            if fn:
+                self._pool_executor.submit(cleanup_task, dep_graph,
+                                           service, fn)
+            else:
+                dep_graph.node_done(service)
+
+
+def cleanup_task(graph, service, fn):
+    fn()
+    graph.node_done(service)

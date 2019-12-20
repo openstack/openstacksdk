@@ -521,6 +521,22 @@ class Proxy(adapter.Adapter):
         res = self._get_resource(resource_type, value, **attrs)
         return res.head(self, base_path=base_path)
 
+    def _get_cleanup_dependencies(self):
+        return None
+
+    def _service_cleanup(self, dry_run=True, status_queue=None):
+        return None
+
+    def _service_cleanup_del_res(self, del_fn, obj, dry_run=True,
+                                 status_queue=None):
+        if status_queue:
+            status_queue.put(obj)
+        if not dry_run:
+            try:
+                del_fn(obj)
+            except exceptions.SDKException as e:
+                self.log.error('Cannot delete resource %s: %s', obj, str(e))
+
 
 def _json_response(response, result_key=None, error_message=None):
     """Temporary method to use to bridge from ShadeAdapter to SDK calls."""

@@ -363,6 +363,21 @@ class CloudRegion(object):
                 services.append("_".join(key.split('_')[:-2]))
         return list(set(services))
 
+    def get_enabled_services(self):
+        services = set()
+
+        all_services = [k['service_type'] for k in
+                        self._service_type_manager.services]
+        all_services.extend(k[4:] for k in
+                            self.config.keys() if k.startswith('has_'))
+
+        for srv in all_services:
+            ep = self.get_endpoint_from_catalog(srv)
+            if ep:
+                services.add(srv.replace('-', '_'))
+
+        return services
+
     def get_auth_args(self):
         return self.config.get('auth', {})
 

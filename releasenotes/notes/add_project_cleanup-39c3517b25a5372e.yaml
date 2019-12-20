@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Project cleanup functionality. It provides a single method in the
+    connection object, which calls cleanup method in all supported services
+    (both part of the SDK itself and all "imported" in the runtime or through
+    the vendor_hook functionality). Cleanup is working in multiple threads
+    where possible (no dependencies between services).

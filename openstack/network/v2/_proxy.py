@@ -3990,3 +3990,49 @@ class Proxy(proxy.Proxy):
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
         return self._update(_port_forwarding.PortForwarding, port_forwarding,
                             floatingip_id=floatingip.id, **attrs)
+
+    def _get_cleanup_dependencies(self):
+        return {
+            'network': {
+                'before': ['identity']
+            }
+        }
+
+    def _service_cleanup(self, dry_run=True, status_queue=None):
+        for obj in self.ips():
+            self._service_cleanup_del_res(self.delete_ip, obj, dry_run,
+                                          status_queue)
+
+        for obj in self.security_groups():
+            if obj.name != 'default':
+                self._service_cleanup_del_res(
+                    self.delete_security_group, obj,
+                    dry_run, status_queue)
+
+        for port in self.ports():
+            if port.device_owner in ['network:router_interface',
+                                     'network:router_interface_distributed']:
+                if status_queue:
+                    status_queue.put(obj)
+                if not dry_run:
+                    try:
+                        self.remove_interface_from_router(
+                            router=port.device_id,
+                            port_id=port.id)
+                    except exceptions.SDKException:
+                        self.log.error('Cannot delete object %s' % obj)
+
+        for obj in self.routers():
+            self._service_cleanup_del_res(
+                self.delete_router, obj,
+                dry_run, status_queue)
+
+        for obj in self.subnets():
+            self._service_cleanup_del_res(
+                self.delete_subnet, obj,
+                dry_run, status_queue)
+
+        for obj in self.networks():
+            self._service_cleanup_del_res(
+                self.delete_network, obj,
+                dry_run, status_queue)

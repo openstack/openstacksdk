@@ -51,6 +51,8 @@ class BaseFunctionalTest(base.TestCase):
         _disable_keep_alive(self.conn)
 
         self._demo_name = os.environ.get('OPENSTACKSDK_DEMO_CLOUD', 'devstack')
+        self._demo_name_alt = os.environ.get('OPENSTACKSDK_DEMO_CLOUD_ALT',
+                                             'devstack-alt')
         self._op_name = os.environ.get(
             'OPENSTACKSDK_OPERATOR_CLOUD', 'devstack-admin')
 
@@ -72,6 +74,13 @@ class BaseFunctionalTest(base.TestCase):
             cloud=self._demo_name, **kwargs)
         self.user_cloud = connection.Connection(config=user_config)
         _disable_keep_alive(self.user_cloud)
+
+        # This cloud is used by the project_cleanup test, so you can't rely on
+        # it
+        user_config_alt = self.config.get_one(
+            cloud=self._demo_name_alt, **kwargs)
+        self.user_cloud_alt = connection.Connection(config=user_config_alt)
+        _disable_keep_alive(self.user_cloud_alt)
 
     def _set_operator_cloud(self, **kwargs):
         operator_config = self.config.get_one(

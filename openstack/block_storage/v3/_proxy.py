@@ -349,3 +349,42 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                  to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
+
+    def _get_cleanup_dependencies(self):
+        return {
+            'block_storage': {
+                'before': []
+            }
+        }
+
+    def _service_cleanup(self, dry_run=True, status_queue=None):
+        if self._connection.has_service('object-store'):
+            # Volume backups require object-store to be available, even for
+            # listing
+            for obj in self.backups(details=False):
+                if status_queue:
+                    status_queue.put(obj)
+                if not dry_run:
+                    self.delete_backup(obj)
+
+        snapshots = []
+        for obj in self.snapshots(details=False):
+            if status_queue:
+                snapshots.append(obj)
+                status_queue.put(obj)
+            if not dry_run:
+                self.delete_snapshot(obj)
+
+        # Before deleting volumes need to wait for snapshots to be deleted
+        for obj in snapshots:
+            try:
+                self.wait_for_delete(obj)
+            except exceptions.SDKException:
+                # Well, did our best, still try further
+                pass
+
+        for obj in self.volumes(details=False):
+            if status_queue:
+                status_queue.put(obj)
+            if not dry_run:
+                self.delete_volume(obj)
