@@ -15,6 +15,7 @@ from openstack.tests.unit import base
 from openstack.clustering.v1 import action
 
 
+FAKE_CLUSTER_ID = 'ffaed25e-46f5-4089-8e20-b3b4722fd597'
 FAKE_ID = '633bd3c6-520b-420f-8e6a-dc2a47022b53'
 FAKE_NAME = 'node_create_c3783474'
 
@@ -40,6 +41,7 @@ FAKE = {
     'depended_by': [],
     'created_at': '2015-10-10T12:46:36.000000',
     'updated_at': '2016-10-10T12:46:36.000000',
+    'cluster_id': FAKE_CLUSTER_ID,
 }
 
 
@@ -80,3 +82,4 @@ class TestAction(base.TestCase):
         self.assertEqual(FAKE['depended_by'], sot.depended_by)
         self.assertEqual(FAKE['created_at'], sot.created_at)
         self.assertEqual(FAKE['updated_at'], sot.updated_at)
+        self.assertEqual(FAKE['cluster_id'], sot.cluster_id)
