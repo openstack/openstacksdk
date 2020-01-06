@@ -150,8 +150,7 @@ built-in property objects, but they share only the name - they're not the same.
 
 Properties are set based on the contents of a response body or headers.
 Based on what your resource returns, you should set ``prop``\s to map
-those those values to ones on your :class:`~openstack.resource.Resource`
-object.
+those values to ones on your :class:`~openstack.resource.Resource` object.
 
 *Line 22* sets a prop for ``timestamp`` , which will cause the
 ``Fake.timestamp`` attribute to contain the value returned in an
