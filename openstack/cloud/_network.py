@@ -949,7 +949,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         Short-circuits and returns the firewall policy early if the firewall
         rule id is already present in the firewall_rules list.
         This method doesn't do re-ordering. If you want to move a firewall rule
-        or or down the list, you have to remove and re-add it.
+        or down the list, you have to remove and re-add it.
 
         :param name_or_id: firewall policy name or id
         :param rule_name_or_id: firewall rule name or id

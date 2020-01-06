@@ -619,7 +619,7 @@ class Proxy(proxy.Proxy):
                 ``os.nova.sever-1.0``.
             * identity: (Required) A string including the name or ID of an
                 OpenStack resource to be adopted as a Senlin node.
-            * name: (Optional) The name of of node to be created. Omitting
+            * name: (Optional) The name of node to be created. Omitting
                 this parameter will have the node named automatically.
             * snapshot: (Optional) A boolean indicating whether a snapshot
                 of the target resource should be created if possible. Default

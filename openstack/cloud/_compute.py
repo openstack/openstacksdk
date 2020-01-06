@@ -762,7 +762,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                                      needed (defaults to True)
         :param network: (optional) Network dict or name or ID to attach the
                         server to.  Mutually exclusive with the nics parameter.
-                        Can also be be a list of network names or IDs or
+                        Can also be a list of network names or IDs or
                         network dicts.
         :param boot_from_volume: Whether to boot from volume. 'boot_volume'
                                  implies True, but boot_from_volume=True with

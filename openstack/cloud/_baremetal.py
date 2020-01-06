@@ -126,7 +126,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
         node = self.baremetal.get_node(name_or_id)
 
         # NOTE(TheJulia): If in available state, we can do this. However,
-        # we need to to move the machine back to manageable first.
+        # we need to move the machine back to manageable first.
         if node.provision_state == 'available':
             if node.instance_id:
                 raise exc.OpenStackCloudException(

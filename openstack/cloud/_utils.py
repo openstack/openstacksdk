@@ -452,7 +452,7 @@ def safe_dict_min(key, data):
     :param string key: The dictionary key to search for the minimum value.
     :param list data: List of dicts to use for the data set.
 
-    :returns: None if the field was not not found in any elements, or
+    :returns: None if the field was not found in any elements, or
         the minimum value for the field otherwise.
     """
     min_value = None
@@ -484,7 +484,7 @@ def safe_dict_max(key, data):
     :param string key: The dictionary key to search for the maximum value.
     :param list data: List of dicts to use for the data set.
 
-    :returns: None if the field was not not found in any elements, or
+    :returns: None if the field was not found in any elements, or
         the maximum value for the field otherwise.
     """
     max_value = None
