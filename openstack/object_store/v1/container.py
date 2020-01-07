@@ -113,7 +113,7 @@ class Container(_base.BaseResource):
         name = kwargs.pop('id', None)
         if name:
             kwargs.setdefault('name', name)
-        return Container(_synchronized=True, **kwargs)
+        return cls(_synchronized=False, **kwargs)
 
     def create(self, session, prepend_key=True, base_path=None):
         """Create a remote resource based on this instance.
@@ -131,7 +131,7 @@ class Container(_base.BaseResource):
         request = self._prepare_request(
             requires_id=True, prepend_key=prepend_key, base_path=base_path)
         response = session.put(
-            request.url, json=request.body, headers=request.headers)
+            request.url, headers=request.headers)
 
         self._translate_response(response, has_body=False)
         return self
