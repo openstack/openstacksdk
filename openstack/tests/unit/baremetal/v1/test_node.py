@@ -183,6 +183,18 @@ class TestNodeWaitForProvisionState(base.TestCase):
                                self.node.wait_for_provision_state,
                                self.session, 'manageable')
 
+    def test_failure_error(self, mock_fetch):
+        def _get_side_effect(_self, session):
+            self.node.provision_state = 'error'
+            self.assertIs(session, self.session)
+
+        mock_fetch.side_effect = _get_side_effect
+
+        self.assertRaisesRegex(exceptions.ResourceFailure,
+                               'failure state "error"',
+                               self.node.wait_for_provision_state,
+                               self.session, 'manageable')
+
     def test_enroll_as_failure(self, mock_fetch):
         def _get_side_effect(_self, session):
             self.node.provision_state = 'enroll'
