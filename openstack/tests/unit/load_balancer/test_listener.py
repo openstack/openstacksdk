@@ -18,6 +18,7 @@ from openstack.load_balancer.v2 import listener
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
+    'allowed_cidrs': ['192.168.1.0/24'],
     'connection_limit': '2',
     'default_pool_id': uuid.uuid4(),
     'description': 'test description',
@@ -67,6 +68,7 @@ class TestListener(base.TestCase):
     def test_make_it(self):
         test_listener = listener.Listener(**EXAMPLE)
         self.assertTrue(test_listener.is_admin_state_up)
+        self.assertEqual(EXAMPLE['allowed_cidrs'], test_listener.allowed_cidrs)
         self.assertEqual(EXAMPLE['connection_limit'],
                          test_listener.connection_limit)
         self.assertEqual(EXAMPLE['default_pool_id'],
@@ -118,6 +120,7 @@ class TestListener(base.TestCase):
              'provisioning_status': 'provisioning_status',
              'is_admin_state_up': 'admin_state_up',
 
+             'allowed_cidrs': 'allowed_cidrs',
              'connection_limit': 'connection_limit',
              'default_pool_id': 'default_pool_id',
              'default_tls_container_ref': 'default_tls_container_ref',

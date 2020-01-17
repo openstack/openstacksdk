@@ -31,12 +31,14 @@ class Listener(resource.Resource, resource.TagMixin):
         'created_at', 'updated_at', 'provisioning_status', 'operating_status',
         'sni_container_refs', 'insert_headers', 'load_balancer_id',
         'timeout_client_data', 'timeout_member_connect',
-        'timeout_member_data', 'timeout_tcp_inspect',
+        'timeout_member_data', 'timeout_tcp_inspect', 'allowed_cidrs',
         is_admin_state_up='admin_state_up',
         **resource.TagMixin._tag_query_parameters
     )
 
     # Properties
+    #: List of IPv4 or IPv6 CIDRs.
+    allowed_cidrs = resource.Body('allowed_cidrs', type=list)
     #: The maximum number of connections permitted for this load balancer.
     #: Default is infinite.
     connection_limit = resource.Body('connection_limit')
