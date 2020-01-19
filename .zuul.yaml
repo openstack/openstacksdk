@@ -402,10 +402,6 @@
       - release-notes-jobs-python3
     check:
       jobs:
-        - openstacksdk-ansible-devel-functional-devstack:
-            voting: false
-        - openstacksdk-ansible-stable-2.8-functional-devstack:
-            voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
@@ -424,6 +420,8 @@
         - bifrost-integration-tinyipa-ubuntu-xenial:
             voting: false
         - metalsmith-integration-openstacksdk-src:
+            voting: false
+        - ansible-collections-openstack-functional-devstack:
             voting: false
     gate:
       jobs:
