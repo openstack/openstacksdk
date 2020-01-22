@@ -105,6 +105,9 @@ class Port(resource.Resource, resource.TagMixin):
     #: Whether to propagate uplink status of the port. *Type: bool*
     propagate_uplink_status = resource.Body('propagate_uplink_status',
                                             type=bool)
+    #: Read-only. The ID of the QoS policy attached to the network where the
+    # port is bound.
+    qos_network_policy_id = resource.Body('qos_network_policy_id')
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.Body('qos_policy_id')
     #: Read-only. The port-resource-request exposes Placement resources

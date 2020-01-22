@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    ``qos_network_policy_id`` attribute support has been added to the network
+    port resource

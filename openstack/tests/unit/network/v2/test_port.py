@@ -38,6 +38,7 @@ EXAMPLE = {
     'name': '17',
     'network_id': '18',
     'port_security_enabled': True,
+    'qos_network_policy_id': '32',
     'qos_policy_id': '21',
     'propagate_uplink_status': False,
     'resource_request': {
@@ -127,6 +128,8 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
         self.assertTrue(sot.is_port_security_enabled)
+        self.assertEqual(EXAMPLE['qos_network_policy_id'],
+                         sot.qos_network_policy_id)
         self.assertEqual(EXAMPLE['qos_policy_id'], sot.qos_policy_id)
         self.assertEqual(EXAMPLE['propagate_uplink_status'],
                          sot.propagate_uplink_status)
