@@ -421,7 +421,7 @@
         # Ironic jobs, non-voting to avoid tight coupling
         - ironic-inspector-tempest-openstacksdk-src:
             voting: false
-        - bifrost-integration-tinyipa-ubuntu-xenial:
+        - bifrost-integration-tinyipa-ubuntu-bionic:
             voting: false
         - metalsmith-integration-openstacksdk-src:
             voting: false
