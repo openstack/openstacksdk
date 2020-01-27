@@ -56,16 +56,6 @@ class Proxy(_adapter.OpenStackSDKAdapter):
                           self.retriable_status_codes)
         super(Proxy, self).__init__(*args, **kwargs)
 
-    def request(
-            self, url, method, error_message=None,
-            raise_exc=False, connect_retries=1,
-            global_request_id=None, *args, **kwargs):
-        response = super(Proxy, self).request(
-            url, method,
-            connect_retries=connect_retries, raise_exc=False,
-            **kwargs)
-        return response
-
     def _get_connection(self):
         """Get the Connection object associated with this Proxy.
 
