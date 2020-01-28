@@ -1,6 +1,0 @@
----
-- name: Authenticate to the cloud
-  os_auth:
-    cloud={{ cloud }}
-
-- debug: var=service_catalog
