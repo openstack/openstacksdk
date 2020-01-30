@@ -10,9 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
+import mock
+import testtools
 
+from openstack import exceptions
 from openstack.network.v2 import trunk
+from openstack.tests.unit import base
 
 EXAMPLE = {
     'id': 'IDENTIFIER',
@@ -31,7 +34,7 @@ EXAMPLE = {
 }
 
 
-class TestQoSPolicy(base.TestCase):
+class TestTrunk(base.TestCase):
 
     def test_basic(self):
         sot = trunk.Trunk()
@@ -54,3 +57,37 @@ class TestQoSPolicy(base.TestCase):
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['sub_ports'], sot.sub_ports)
+
+    def test_add_subports_4xx(self):
+        # Neutron may return 4xx for example if a port does not exist
+        sot = trunk.Trunk(**EXAMPLE)
+        response = mock.Mock()
+        msg = '.*borked'
+        response.body = {'NeutronError': {'message': msg}}
+        response.json = mock.Mock(return_value=response.body)
+        response.ok = False
+        response.status_code = 404
+        response.headers = {'content-type': 'application/json'}
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        subports = [{'port_id': 'abc', 'segmentation_id': '123',
+                     'segmentation_type': 'vlan'}]
+        with testtools.ExpectedException(exceptions.ResourceNotFound, msg):
+            sot.add_subports(sess, subports)
+
+    def test_delete_subports_4xx(self):
+        # Neutron may return 4xx for example if a port does not exist
+        sot = trunk.Trunk(**EXAMPLE)
+        response = mock.Mock()
+        msg = '.*borked'
+        response.body = {'NeutronError': {'message': msg}}
+        response.json = mock.Mock(return_value=response.body)
+        response.ok = False
+        response.status_code = 404
+        response.headers = {'content-type': 'application/json'}
+        sess = mock.Mock()
+        sess.put = mock.Mock(return_value=response)
+        subports = [{'port_id': 'abc', 'segmentation_id': '123',
+                     'segmentation_type': 'vlan'}]
+        with testtools.ExpectedException(exceptions.ResourceNotFound, msg):
+            sot.delete_subports(sess, subports)
