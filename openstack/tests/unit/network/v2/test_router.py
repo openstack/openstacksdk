@@ -13,7 +13,7 @@
 import mock
 import testtools
 
-from openstack.exceptions import SDKException
+from openstack import exceptions
 from openstack.tests.unit import base
 
 from openstack.network.v2 import router
@@ -121,6 +121,7 @@ class TestRouter(base.TestCase):
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "2"}
         response.json = mock.Mock(return_value=response.body)
+        response.status_code = 200
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
         body = {"subnet_id": "3"}
@@ -136,6 +137,7 @@ class TestRouter(base.TestCase):
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "3"}
         response.json = mock.Mock(return_value=response.body)
+        response.status_code = 200
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
 
@@ -152,6 +154,7 @@ class TestRouter(base.TestCase):
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "2"}
         response.json = mock.Mock(return_value=response.body)
+        response.status_code = 200
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
         body = {"subnet_id": "3"}
@@ -167,6 +170,7 @@ class TestRouter(base.TestCase):
         response = mock.Mock()
         response.body = {"subnet_id": "3", "port_id": "3"}
         response.json = mock.Mock(return_value=response.body)
+        response.status_code = 200
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
         body = {"network_id": 3, "enable_snat": True}
@@ -180,15 +184,16 @@ class TestRouter(base.TestCase):
         # Neutron may return 4xx, we have to raise if that happens
         sot = router.Router(**EXAMPLE)
         response = mock.Mock()
-        msg = 'borked'
+        msg = '.*borked'
         response.body = {'NeutronError': {'message': msg}}
         response.json = mock.Mock(return_value=response.body)
         response.ok = False
         response.status_code = 409
+        response.headers = {'content-type': 'application/json'}
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
         body = {'subnet_id': '3'}
-        with testtools.ExpectedException(SDKException, msg):
+        with testtools.ExpectedException(exceptions.ConflictException, msg):
             sot.add_interface(sess, **body)
 
     def test_remove_interface_4xx(self):
@@ -196,15 +201,16 @@ class TestRouter(base.TestCase):
         # extra routes referring to it as a nexthop
         sot = router.Router(**EXAMPLE)
         response = mock.Mock()
-        msg = 'borked'
+        msg = '.*borked'
         response.body = {'NeutronError': {'message': msg}}
         response.json = mock.Mock(return_value=response.body)
         response.ok = False
         response.status_code = 409
+        response.headers = {'content-type': 'application/json'}
         sess = mock.Mock()
         sess.put = mock.Mock(return_value=response)
         body = {'subnet_id': '3'}
-        with testtools.ExpectedException(SDKException, msg):
+        with testtools.ExpectedException(exceptions.ConflictException, msg):
             sot.remove_interface(sess, **body)
 
     def test_add_router_gateway(self):
