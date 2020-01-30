@@ -22,6 +22,7 @@ EXAMPLE = {
     'internal_port': 80,
     'internal_port_id': 'internal-port-uuid',
     'external_port': 8080,
+    'description': 'description'
 }
 
 
@@ -57,3 +58,4 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(EXAMPLE['internal_port'], sot.internal_port)
         self.assertEqual(EXAMPLE['internal_port_id'], sot.internal_port_id)
         self.assertEqual(EXAMPLE['external_port'], sot.external_port)
+        self.assertEqual(EXAMPLE['description'], sot.description)

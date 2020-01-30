@@ -44,3 +44,5 @@ class PortForwarding(resource.Resource):
     external_port = resource.Body('external_port', type=int)
     #: The protocol
     protocol = resource.Body('protocol')
+    #: The description
+    description = resource.Body('description')
