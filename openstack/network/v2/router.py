@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.exceptions import SDKException
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -77,12 +77,7 @@ class Router(resource.Resource, resource.TagMixin):
 
     def _put(self, session, url, body):
         resp = session.put(url, json=body)
-        if not resp.ok:
-            resp_body = resp.json()
-            message = None
-            if 'NeutronError' in resp_body:
-                message = resp_body['NeutronError']['message']
-            raise SDKException(message=message)
+        exceptions.raise_from_response(resp)
         return resp
 
     def add_interface(self, session, **body):
