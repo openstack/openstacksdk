@@ -33,7 +33,8 @@ class EnforcementError(errors.SphinxError):
 
 def get_proxy_methods():
     """Return a set of public names on all proxies"""
-    names = ["openstack.baremetal.v1._proxy",
+    names = ["openstack.accelerator.v2._proxy",
+             "openstack.baremetal.v1._proxy",
              "openstack.clustering.v1._proxy",
              "openstack.block_storage.v2._proxy",
              "openstack.compute.v2._proxy",

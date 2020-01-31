@@ -564,6 +564,12 @@ class TestCase(base.TestCase):
                 compute_version_json, compute_discovery_url),
         ])
 
+    def get_cyborg_discovery_mock_dict(self):
+        discovery_fixture = os.path.join(
+            self.fixtures_directory, "accelerator.json")
+        return dict(method='GET', uri="https://accelerator.example.com/",
+                    text=open(discovery_fixture, 'r').read())
+
     def use_glance(
             self, image_version_json='image-version.json',
             image_discovery_url='https://image.example.com/'):
@@ -610,6 +616,15 @@ class TestCase(base.TestCase):
         # right location in the mock_uris when calling .register_uris
         self.__do_register_uris([
             self.get_senlin_discovery_mock_dict()])
+
+    def use_cyborg(self):
+        # NOTE(s_shogo): This method is only meant to be used in "setUp"
+        # where the ordering of the url being registered is tightly controlled
+        # if the functionality of .use_cyborg is meant to be used during an
+        # actual test case, use .get_cyborg_discovery_mock and apply to the
+        # right location in the mock_uris when calling .register_uris
+        self.__do_register_uris([
+            self.get_cyborg_discovery_mock_dict()])
 
     def register_uris(self, uri_mock_list=None):
         """Mock a list of URIs and responses via requests mock.

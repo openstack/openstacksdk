@@ -1,5 +1,6 @@
 # Generated file, to change, run tools/print-services.py
 from openstack import service_description
+from openstack.accelerator import accelerator_service
 from openstack.baremetal import baremetal_service
 from openstack.baremetal_introspection import baremetal_introspection_service
 from openstack.block_storage import block_storage_service
@@ -124,7 +125,7 @@ class ServicesMixin(object):
 
     function_engine = service_description.ServiceDescription(service_type='function-engine')
 
-    accelerator = service_description.ServiceDescription(service_type='accelerator')
+    accelerator = accelerator_service.AcceleratorService(service_type='accelerator')
 
     admin_logic = service_description.ServiceDescription(service_type='admin-logic')
     registration = admin_logic
