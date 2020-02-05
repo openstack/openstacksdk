@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -54,18 +55,21 @@ class Trunk(resource.Resource, resource.TagMixin):
 
     def add_subports(self, session, subports):
         url = utils.urljoin('/trunks', self.id, 'add_subports')
-        session.put(url, json={'sub_ports': subports})
-        self._body.attributes.update({'sub_ports': subports})
+        resp = session.put(url, json={'sub_ports': subports})
+        exceptions.raise_from_response(resp)
+        self._body.attributes.update(resp.json())
         return self
 
     def delete_subports(self, session, subports):
         url = utils.urljoin('/trunks', self.id, 'remove_subports')
-        session.put(url, json={'sub_ports': subports})
-        self._body.attributes.update({'sub_ports': subports})
+        resp = session.put(url, json={'sub_ports': subports})
+        exceptions.raise_from_response(resp)
+        self._body.attributes.update(resp.json())
         return self
 
     def get_subports(self, session):
         url = utils.urljoin('/trunks', self.id, 'get_subports')
         resp = session.get(url)
+        exceptions.raise_from_response(resp)
         self._body.attributes.update(resp.json())
         return resp.json()
