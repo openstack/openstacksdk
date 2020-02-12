@@ -76,17 +76,18 @@ nz_wlg_2       Wellington, NZ
 City Cloud
 ----------
 
-https://identity1.citycloud.com:5000/v3/
+https://%(region_name)s.citycloud.com:5000/v3/
 
 ============== ================
 Region Name    Location
 ============== ================
 Buf1           Buffalo, NY
+dx1            Dubai, UAE
 Fra1           Frankfurt, DE
 Kna1           Karlskrona, SE
-La1            Los Angeles, CA
 Lon1           London, UK
 Sto2           Stockholm, SE
+tky1           Tokyo, JP
 ============== ================
 
 * Identity API Version is 3
