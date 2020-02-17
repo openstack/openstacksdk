@@ -1286,6 +1286,83 @@ class Resource(dict):
             return self.fetch(session)
         return self
 
+    @classmethod
+    def bulk_create(cls, session, data, prepend_key=True, base_path=None,
+                    **params):
+        """Create multiple remote resources based on this class and data.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param data: list of dicts, which represent resources to create.
+        :param prepend_key: A boolean indicating whether the resource_key
+                            should be prepended in a resource creation
+                            request. Default to True.
+        :param str base_path: Base part of the URI for creating resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
+        :param dict params: Additional params to pass.
+
+        :return: A generator of :class:`Resource` objects.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_create` is not set to ``True``.
+        """
+        if not cls.allow_create:
+            raise exceptions.MethodNotSupported(cls, "create")
+
+        if not (data and isinstance(data, list)
+                and all([isinstance(x, dict) for x in data])):
+            raise ValueError('Invalid data passed: %s' % data)
+
+        session = cls._get_session(session)
+        microversion = cls._get_microversion_for(cls, session, 'create')
+        requires_id = (cls.create_requires_id
+                       if cls.create_requires_id is not None
+                       else cls.create_method == 'PUT')
+        if cls.create_method == 'PUT':
+            method = session.put
+        elif cls.create_method == 'POST':
+            method = session.post
+        else:
+            raise exceptions.ResourceFailure(
+                msg="Invalid create method: %s" % cls.create_method)
+
+        body = []
+        resources = []
+        for attrs in data:
+            # NOTE(gryf): we need to create resource objects, since
+            # _prepare_request only works on instances, not classes.
+            # Those objects will be used in case where request doesn't return
+            # JSON data representing created resource, and yet it's required
+            # to return newly created resource objects.
+            resource = cls.new(connection=session._get_connection(), **attrs)
+            resources.append(resource)
+            request = resource._prepare_request(requires_id=requires_id,
+                                                base_path=base_path)
+            body.append(request.body)
+
+        if prepend_key:
+            body = {cls.resources_key: body}
+
+        response = method(request.url, json=body, headers=request.headers,
+                          microversion=microversion, params=params)
+        exceptions.raise_from_response(response)
+        data = response.json()
+
+        if cls.resources_key:
+            data = data[cls.resources_key]
+
+        if not isinstance(data, list):
+            data = [data]
+
+        has_body = (cls.has_body if cls.create_returns_body is None
+                    else cls.create_returns_body)
+        if has_body and cls.create_returns_body is False:
+            return (r.fetch(session) for r in resources)
+        else:
+            return (cls.existing(microversion=microversion,
+                                 connection=session._get_connection(),
+                                 **res_dict) for res_dict in data)
+
     def fetch(self, session, requires_id=True,
               base_path=None, error_message=None, **params):
         """Get a remote resource based on this instance.

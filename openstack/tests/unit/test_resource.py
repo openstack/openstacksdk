@@ -2487,6 +2487,136 @@ class TestResourceActions(base.TestCase):
         # Ensure we only made two calls to get this done
         self.assertEqual(2, len(self.session.get.call_args_list))
 
+    def test_bulk_create_invalid_data_passed(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_method = 'POST'
+            allow_create = True
+
+        Test._prepare_request = mock.Mock()
+        self.assertRaises(ValueError, Test.bulk_create, self.session, [])
+        self.assertRaises(ValueError, Test.bulk_create, self.session, None)
+        self.assertRaises(ValueError, Test.bulk_create, self.session, object)
+        self.assertRaises(ValueError, Test.bulk_create, self.session, {})
+        self.assertRaises(ValueError, Test.bulk_create, self.session, "hi!")
+        self.assertRaises(ValueError, Test.bulk_create, self.session, ["hi!"])
+
+    def _test_bulk_create(self, cls, http_method, microversion=None,
+                          base_path=None, **params):
+        req1 = mock.Mock()
+        req2 = mock.Mock()
+        req1.body = {'name': 'resource1'}
+        req2.body = {'name': 'resource2'}
+        req1.url = 'uri'
+        req2.url = 'uri'
+        req1.headers = 'headers'
+        req2.headers = 'headers'
+
+        request_body = {"tests": [{'name': 'resource1', 'id': 'id1'},
+                                  {'name': 'resource2', 'id': 'id2'}]}
+
+        cls._prepare_request = mock.Mock(side_effect=[req1, req2])
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.return_value = request_body
+        http_method.return_value = mock_response
+
+        res = list(cls.bulk_create(self.session, [{'name': 'resource1'},
+                                                  {'name': 'resource2'}],
+                                   base_path=base_path, **params))
+
+        self.assertEqual(len(res), 2)
+        self.assertEqual(res[0].id, 'id1')
+        self.assertEqual(res[1].id, 'id2')
+        http_method.assert_called_once_with(self.request.url,
+                                            json={'tests': [req1.body,
+                                                            req2.body]},
+                                            headers=self.request.headers,
+                                            microversion=microversion,
+                                            params=params)
+
+    def test_bulk_create_post(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_method = 'POST'
+            allow_create = True
+            resources_key = 'tests'
+
+        self._test_bulk_create(Test, self.session.post)
+
+    def test_bulk_create_put(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_method = 'PUT'
+            allow_create = True
+            resources_key = 'tests'
+
+        self._test_bulk_create(Test, self.session.put)
+
+    def test_bulk_create_with_params(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_method = 'POST'
+            allow_create = True
+            resources_key = 'tests'
+
+        self._test_bulk_create(Test, self.session.post, answer=42)
+
+    def test_bulk_create_with_microversion(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_method = 'POST'
+            allow_create = True
+            resources_key = 'tests'
+            _max_microversion = '1.42'
+
+        self._test_bulk_create(Test, self.session.post, microversion='1.42')
+
+    def test_bulk_create_with_base_path(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_method = 'POST'
+            allow_create = True
+            resources_key = 'tests'
+
+        self._test_bulk_create(Test, self.session.post, base_path='dummy')
+
+    def test_bulk_create_fail(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_method = 'POST'
+            allow_create = False
+            resources_key = 'tests'
+
+        self.assertRaises(exceptions.MethodNotSupported, Test.bulk_create,
+                          self.session, [{'name': 'name'}])
+
+    def test_bulk_create_fail_on_request(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            create_method = 'POST'
+            allow_create = True
+            resources_key = 'tests'
+
+        response = FakeResponse({}, status_code=409)
+        response.content = ('{"TestError": {"message": "Failed to parse '
+                            'request. Required attribute \'foo\' not '
+                            'specified", "type": "HTTPBadRequest", '
+                            '"detail": ""}}')
+        response.reason = 'Bad Request'
+        self.session.post.return_value = response
+        self.assertRaises(exceptions.ConflictException, Test.bulk_create,
+                          self.session, [{'name': 'name'}])
+
 
 class TestResourceFind(base.TestCase):
 
