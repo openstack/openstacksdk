@@ -163,6 +163,18 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                 self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
             timeout=3600, validate_checksum=False, wait=False)
 
+    def test_image_create_without_filename(self):
+        self.proxy._create_image = mock.Mock()
+
+        self.proxy.create_image(
+            allow_duplicates=True,
+            name='fake', disk_format="fake_dformat",
+            container_format="fake_cformat"
+        )
+        self.proxy._create_image.assert_called_with(
+            container_format='fake_cformat', disk_format='fake_dformat',
+            name='fake', properties=mock.ANY)
+
     def test_image_upload_no_args(self):
         # container_format and disk_format are required args
         self.assertRaises(exceptions.InvalidRequest, self.proxy.upload_image)
