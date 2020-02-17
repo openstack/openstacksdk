@@ -38,6 +38,7 @@ Port Operations
 .. autoclass:: openstack.network.v2._proxy.Proxy
 
    .. automethod:: openstack.network.v2._proxy.Proxy.create_port
+   .. automethod:: openstack.network.v2._proxy.Proxy.create_ports
    .. automethod:: openstack.network.v2._proxy.Proxy.update_port
    .. automethod:: openstack.network.v2._proxy.Proxy.delete_port
    .. automethod:: openstack.network.v2._proxy.Proxy.get_port

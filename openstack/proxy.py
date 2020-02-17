@@ -416,6 +416,26 @@ class Proxy(adapter.Adapter):
         res = resource_type.new(connection=conn, **attrs)
         return res.create(self, base_path=base_path)
 
+    def _bulk_create(self, resource_type, data, base_path=None):
+        """Create a resource from attributes
+
+        :param resource_type: The type of resource to create.
+        :type resource_type: :class:`~openstack.resource.Resource`
+        :param list data: List of attributes dicts to be passed onto the
+                          :meth:`~openstack.resource.Resource.create`
+                          method to be created. These should correspond
+                          to either :class:`~openstack.resource.Body`
+                          or :class:`~openstack.resource.Header`
+                          values on this resource.
+        :param str base_path: Base part of the URI for creating resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
+
+        :returns: A generator of Resource objects.
+        :rtype: :class:`~openstack.resource.Resource`
+        """
+        return resource_type.bulk_create(self, data, base_path=base_path)
+
     @_check_resource(strict=False)
     def _get(self, resource_type, value=None, requires_id=True,
              base_path=None, **attrs):

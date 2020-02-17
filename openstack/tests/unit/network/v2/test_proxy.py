@@ -465,6 +465,14 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_port_update(self):
         self.verify_update(self.proxy.update_port, port.Port)
 
+    @mock.patch('openstack.network.v2._proxy.Proxy._bulk_create')
+    def test_ports_create(self, bc):
+        data = mock.sentinel
+
+        self.proxy.create_ports(data)
+
+        bc.assert_called_once_with(port.Port, data)
+
     def test_qos_bandwidth_limit_rule_create_attrs(self):
         self.verify_create(
             self.proxy.create_qos_bandwidth_limit_rule,

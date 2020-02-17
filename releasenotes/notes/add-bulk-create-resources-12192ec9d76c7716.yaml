@@ -1,0 +1,5 @@
+---
+features:
+  - Enabling Resource class for being able to create objects in bulk way. Add
+    first objects using that feature - Port, which now expose a proxy method
+    `create_ports` for creating multiple port objects at once.

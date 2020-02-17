@@ -1687,6 +1687,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_port.Port, **attrs)
 
+    def create_ports(self, data):
+        """Create ports from the list of attributes
+
+        :param list data: List of dicts of attributes which will be used to
+                          create a :class:`~openstack.network.v2.port.Port`,
+                          comprised of the properties on the Port class.
+
+        :returns: A generator of port objects
+        :rtype: :class:`~openstack.network.v2.port.Port`
+        """
+        return self._bulk_create(_port.Port, data)
+
     def delete_port(self, port, ignore_missing=True):
         """Delete a port
 
