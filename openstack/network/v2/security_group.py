@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import _base
 from openstack import resource
 
 
-class SecurityGroup(resource.Resource, resource.TagMixin):
+class SecurityGroup(_base.NetworkResource, resource.TagMixin):
     resource_key = 'security_group'
     resources_key = 'security_groups'
     base_path = '/security-groups'
@@ -40,8 +41,6 @@ class SecurityGroup(resource.Resource, resource.TagMixin):
     name = resource.Body('name')
     #: The ID of the project this security group is associated with.
     project_id = resource.Body('project_id')
-    #: Revision number of the security group. *Type: int*
-    revision_number = resource.Body('revision_number', type=int)
     #: A list of
     #: :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`
     #: objects. *Type: list*

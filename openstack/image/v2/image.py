@@ -285,7 +285,7 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
         session.post(url, json=json, headers=headers)
 
     def _prepare_request(self, requires_id=None, prepend_key=False,
-                         patch=False, base_path=None):
+                         patch=False, base_path=None, **kwargs):
         request = super(Image, self)._prepare_request(requires_id=requires_id,
                                                       prepend_key=prepend_key,
                                                       patch=patch,

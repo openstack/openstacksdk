@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import _base
 from openstack import resource
 
 
-class Network(resource.Resource, resource.TagMixin):
+class Network(_base.NetworkResource, resource.TagMixin):
     resource_key = 'network'
     resources_key = 'networks'
     base_path = '/networks'
@@ -97,8 +98,6 @@ class Network(resource.Resource, resource.TagMixin):
     provider_segmentation_id = resource.Body('provider:segmentation_id')
     #: The ID of the QoS policy attached to the port.
     qos_policy_id = resource.Body('qos_policy_id')
-    #: Revision number of the network. *Type: int*
-    revision_number = resource.Body('revision_number', type=int)
     #: A list of provider segment objects.
     #: Available for multiple provider extensions.
     segments = resource.Body('segments')

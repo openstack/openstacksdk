@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import _base
 from openstack import resource
 
 
-class SecurityGroupRule(resource.Resource, resource.TagMixin):
+class SecurityGroupRule(_base.NetworkResource, resource.TagMixin):
     resource_key = 'security_group_rule'
     resources_key = 'security_group_rules'
     base_path = '/security-group-rules'
@@ -74,8 +75,6 @@ class SecurityGroupRule(resource.Resource, resource.TagMixin):
     #: in the request body. This attribute matches the specified IP prefix
     #: as the source IP address of the IP packet.
     remote_ip_prefix = resource.Body('remote_ip_prefix')
-    #: Revision number of the security group rule. *Type: int*
-    revision_number = resource.Body('revision_number', type=int)
     #: The security group ID to associate with this security group rule.
     security_group_id = resource.Body('security_group_id')
     #: The ID of the project this security group rule is associated with.

@@ -1053,7 +1053,7 @@ class Resource(dict):
         return body
 
     def _prepare_request(self, requires_id=None, prepend_key=False,
-                         patch=False, base_path=None, params=None):
+                         patch=False, base_path=None, params=None, **kwargs):
         """Prepare a request to be sent to the server
 
         Create operations don't require an ID, but all others do,
@@ -1436,7 +1436,7 @@ class Resource(dict):
                 or self.allow_empty_commit)
 
     def commit(self, session, prepend_key=True, has_body=True,
-               retry_on_conflict=None, base_path=None):
+               retry_on_conflict=None, base_path=None, **kwargs):
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
@@ -1450,6 +1450,8 @@ class Resource(dict):
         :param str base_path: Base part of the URI for modifying resources, if
                               different from
                               :data:`~openstack.resource.Resource.base_path`.
+        :param dict kwargs: Parameters that will be passed to
+                            _prepare_request()
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1467,7 +1469,6 @@ class Resource(dict):
 
         # Avoid providing patch unconditionally to avoid breaking subclasses
         # without it.
-        kwargs = {}
         if self.commit_jsonpatch:
             kwargs['patch'] = True
 
@@ -1582,11 +1583,13 @@ class Resource(dict):
                             has_body=has_body,
                             retry_on_conflict=retry_on_conflict)
 
-    def delete(self, session, error_message=None):
+    def delete(self, session, error_message=None, **kwargs):
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param dict kwargs: Parameters that will be passed to
+                            _prepare_request()
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1595,7 +1598,7 @@ class Resource(dict):
                  the resource was not found.
         """
 
-        response = self._raw_delete(session)
+        response = self._raw_delete(session, **kwargs)
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
@@ -1603,16 +1606,16 @@ class Resource(dict):
         self._translate_response(response, has_body=False, **kwargs)
         return self
 
-    def _raw_delete(self, session):
+    def _raw_delete(self, session, **kwargs):
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, "delete")
 
-        request = self._prepare_request()
+        request = self._prepare_request(**kwargs)
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'delete')
 
         return session.delete(
-            request.url,
+            request.url, headers=request.headers,
             microversion=microversion)
 
     @classmethod

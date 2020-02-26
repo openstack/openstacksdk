@@ -11,11 +11,12 @@
 # under the License.
 
 from openstack import exceptions
+from openstack.network.v2 import _base
 from openstack import resource
 from openstack import utils
 
 
-class Router(resource.Resource, resource.TagMixin):
+class Router(_base.NetworkResource, resource.TagMixin):
     resource_key = 'router'
     resources_key = 'routers'
     base_path = '/routers'

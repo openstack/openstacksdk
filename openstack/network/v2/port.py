@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import _base
 from openstack import resource
 
 
-class Port(resource.Resource, resource.TagMixin):
+class Port(_base.NetworkResource, resource.TagMixin):
     resource_key = 'port'
     resources_key = 'ports'
     base_path = '/ports'
@@ -114,8 +115,6 @@ class Port(resource.Resource, resource.TagMixin):
     # (i.e.: minimum-bandwidth) and traits (i.e.: vnic-type, physnet)
     # requested by a port to Nova and Placement.
     resource_request = resource.Body('resource_request', type=dict)
-    #: Revision number of the port. *Type: int*
-    revision_number = resource.Body('revision_number', type=int)
     #: The IDs of any attached security groups.
     #: *Type: list of strs of the security group IDs*
     security_group_ids = resource.Body('security_groups', type=list)
