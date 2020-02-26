@@ -1,0 +1,27 @@
+{
+    "versions": [
+        {
+            "id": "2.0",
+            "links": [
+                {
+                    "href": "/v2/",
+                    "rel": "self"
+                },
+                {
+                    "href": "https://accelerator.example.com/api-ref/accelerator",
+                    "rel": "help"
+                }
+            ],
+            "max_version": "2.0",
+            "media-types": [
+                {
+                    "base": "application/json",
+                    "type": "application/vnd.openstack.accelerator-v1+json"
+                }
+            ],
+            "min_version": "2.0",
+            "status": "CURRENT",
+            "updated": "2019-09-01T00:00:00Z"
+        }
+    ]
+}

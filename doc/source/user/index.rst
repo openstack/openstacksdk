@@ -95,6 +95,7 @@ control which services can be used.
 .. toctree::
    :maxdepth: 1
 
+   Accelerator <proxies/accelerator>
    Baremetal <proxies/baremetal>
    Baremetal Introspection <proxies/baremetal_introspection>
    Block Storage <proxies/block_storage>
@@ -129,6 +130,7 @@ The following services have exposed *Resource* classes.
 .. toctree::
    :maxdepth: 1
 
+   Accelerator <resources/accelerator/index>
    Baremetal <resources/baremetal/index>
    Baremetal Introspection <resources/baremetal_introspection/index>
    Block Storage <resources/block_storage/index>

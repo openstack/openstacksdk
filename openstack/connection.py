@@ -186,6 +186,7 @@ import six
 from openstack import _log
 from openstack import _services_mixin
 from openstack.cloud import openstackcloud as _cloud
+from openstack.cloud import _accelerator
 from openstack.cloud import _baremetal
 from openstack.cloud import _block_storage
 from openstack.cloud import _compute
@@ -249,6 +250,7 @@ def from_config(cloud=None, config=None, options=None, **kwargs):
 class Connection(
     _services_mixin.ServicesMixin,
     _cloud._OpenStackCloudMixin,
+    _accelerator.AcceleratorCloudMixin,
     _baremetal.BaremetalCloudMixin,
     _block_storage.BlockStorageCloudMixin,
     _compute.ComputeCloudMixin,
@@ -385,6 +387,7 @@ class Connection(
         # Call the _*CloudMixin constructors while we work on
         # integrating things better.
         _cloud._OpenStackCloudMixin.__init__(self)
+        _accelerator.AcceleratorCloudMixin.__init__(self)
         _baremetal.BaremetalCloudMixin.__init__(self)
         _block_storage.BlockStorageCloudMixin.__init__(self)
         _clustering.ClusteringCloudMixin.__init__(self)
