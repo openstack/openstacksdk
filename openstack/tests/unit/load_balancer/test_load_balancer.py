@@ -19,6 +19,7 @@ from openstack.load_balancer.v2 import load_balancer
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
     'admin_state_up': True,
+    'availability_zone': 'my_fake_az',
     'created_at': '2017-07-17T12:14:57.233772',
     'description': 'fake_description',
     'flavor_id': uuid.uuid4(),
@@ -64,6 +65,8 @@ class TestLoadBalancer(base.TestCase):
     def test_make_it(self):
         test_load_balancer = load_balancer.LoadBalancer(**EXAMPLE)
         self.assertTrue(test_load_balancer.is_admin_state_up)
+        self.assertEqual(EXAMPLE['availability_zone'],
+                         test_load_balancer.availability_zone)
         self.assertEqual(EXAMPLE['created_at'], test_load_balancer.created_at)
         self.assertEqual(EXAMPLE['description'],
                          test_load_balancer.description)
@@ -93,6 +96,7 @@ class TestLoadBalancer(base.TestCase):
         self.assertDictEqual(
             {'limit': 'limit',
              'marker': 'marker',
+             'availability_zone': 'availability_zone',
              'description': 'description',
              'flavor_id': 'flavor_id',
              'name': 'name',

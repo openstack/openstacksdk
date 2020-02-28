@@ -29,13 +29,15 @@ class LoadBalancer(resource.Resource, resource.TagMixin):
         'description', 'flavor_id', 'name', 'project_id', 'provider',
         'vip_address', 'vip_network_id', 'vip_port_id', 'vip_subnet_id',
         'vip_qos_policy_id', 'provisioning_status', 'operating_status',
-        is_admin_state_up='admin_state_up',
+        'availability_zone', is_admin_state_up='admin_state_up',
         **resource.TagMixin._tag_query_parameters
     )
 
     # Properties
     #: The administrative state of the load balancer *Type: bool*
     is_admin_state_up = resource.Body('admin_state_up', type=bool)
+    #: Name of the target Octavia availability zone
+    availability_zone = resource.Body('availability_zone')
     #: Timestamp when the load balancer was created
     created_at = resource.Body('created_at')
     #: The load balancer description
