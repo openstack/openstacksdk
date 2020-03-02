@@ -79,6 +79,8 @@ class Volume(resource.Resource):
     host = resource.Body("os-vol-host-attr:host")
     #: The project ID associated with current back-end.
     project_id = resource.Body("os-vol-tenant-attr:tenant_id")
+    #: The user ID associated with the volume
+    user_id = resource.Body("user_id")
     #: The status of this volume's migration (None means that a migration
     #: is not currently in progress).
     migration_status = resource.Body("os-vol-mig-status-attr:migstat")
