@@ -78,6 +78,7 @@ class TestSecurityGroup(base.TestCase):
 
         self.assertDictEqual({'any_tags': 'tags-any',
                               'description': 'description',
+                              'fields': 'fields',
                               'limit': 'limit',
                               'marker': 'marker',
                               'name': 'name',
