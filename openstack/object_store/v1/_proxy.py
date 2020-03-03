@@ -730,6 +730,18 @@ class Proxy(proxy.Proxy):
             temp_url_key = temp_url_key.encode('utf8')
         return temp_url_key
 
+    def _check_temp_url_key(self, container=None, temp_url_key=None):
+        if temp_url_key:
+            if not isinstance(temp_url_key, six.binary_type):
+                temp_url_key = temp_url_key.encode('utf8')
+        else:
+            temp_url_key = self.get_temp_url_key(container)
+        if not temp_url_key:
+            raise exceptions.SDKException(
+                'temp_url_key was not given, nor was a temporary url key'
+                ' found for the account or the container.')
+        return temp_url_key
+
     def generate_form_signature(
             self, container, object_prefix, redirect_url, max_file_size,
             max_upload_count, timeout, temp_url_key=None):
@@ -766,15 +778,9 @@ class Proxy(proxy.Proxy):
             raise exceptions.SDKException(
                 'Please use a positive <timeout> value.')
         expires = int(time.time() + int(timeout))
-        if temp_url_key:
-            if not isinstance(temp_url_key, six.binary_type):
-                temp_url_key = temp_url_key.encode('utf8')
-        else:
-            temp_url_key = self.get_temp_url_key(container)
-        if not temp_url_key:
-            raise exceptions.SDKException(
-                'temp_url_key was not given, nor was a temporary url key'
-                ' found for the account or the container.')
+
+        temp_url_key = self._check_temp_url_key(container=container,
+                                                temp_url_key=temp_url_key)
 
         res = self._get_resource(_container.Container, container)
         endpoint = parse.urlparse(self.get_endpoint())
