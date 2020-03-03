@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Adds ``is_retired`` and ``retired_reason`` to the baremetal Node schema.

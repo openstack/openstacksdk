@@ -269,6 +269,62 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertTrue(node.is_maintenance)
         self.assertEqual(reason, node.maintenance_reason)
 
+    def test_retired(self):
+        reason = "I'm too old for this s...tuff!"
+
+        node = self.create_node()
+
+        # Set retired when node state available should fail!
+        self.assertRaises(
+            exceptions.ConflictException,
+            self.conn.baremetal.update_node, node, is_retired=True)
+
+        # Set node state to manageable
+        self.conn.baremetal.set_node_provision_state(node, 'manage',
+                                                     wait=True)
+        self.assertEqual(node.provision_state, 'manageable')
+
+        # Set retired without reason
+        node = self.conn.baremetal.update_node(node, is_retired=True)
+        self.assertTrue(node.is_retired)
+        self.assertIsNone(node.retired_reason)
+
+        # Verify set retired on server side
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertTrue(node.is_retired)
+        self.assertIsNone(node.retired_reason)
+
+        # Add the reason
+        node = self.conn.baremetal.update_node(node, retired_reason=reason)
+        self.assertTrue(node.is_retired)
+        self.assertEqual(reason, node.retired_reason)
+
+        # Verify the reason on server side
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertTrue(node.is_retired)
+        self.assertEqual(reason, node.retired_reason)
+
+        # Unset retired
+        node = self.conn.baremetal.update_node(node, is_retired=False)
+        self.assertFalse(node.is_retired)
+        self.assertIsNone(node.retired_reason)
+
+        # Verify on server side
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertFalse(node.is_retired)
+        self.assertIsNone(node.retired_reason)
+
+        # Set retired with reason
+        node = self.conn.baremetal.update_node(node, is_retired=True,
+                                               retired_reason=reason)
+        self.assertTrue(node.is_retired)
+        self.assertEqual(reason, node.retired_reason)
+
+        # Verify on server side
+        node = self.conn.baremetal.get_node(node.id)
+        self.assertTrue(node.is_retired)
+        self.assertEqual(reason, node.retired_reason)
+
 
 class TestBareMetalNodeFields(base.BaseBaremetalTest):
 
