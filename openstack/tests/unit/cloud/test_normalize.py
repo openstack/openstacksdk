@@ -698,8 +698,11 @@ class TestNormalize(base.TestCase):
                          cloud='_test_cloud_'))
             ]
         )
-
+        # Set secgroup source to nova for this test as stateful parameter
+        # is only valid for neutron security groups.
+        self.cloud.secgroup_source = 'nova'
         retval = self.cloud._normalize_secgroup(nova_secgroup)
+        self.cloud.secgroup_source = 'neutron'
         self.assertEqual(expected, retval)
 
     def test_normalize_secgroups_negone_port(self):
@@ -1239,7 +1242,11 @@ class TestStrictNormalize(base.TestCase):
             ]
         )
 
+        # Set secgroup source to nova for this test as stateful parameter
+        # is only valid for neutron security groups.
+        self.cloud.secgroup_source = 'nova'
         retval = self.cloud._normalize_secgroup(nova_secgroup)
+        self.cloud.secgroup_source = 'neutron'
         self.assertEqual(expected, retval)
 
     def test_normalize_volumes_v1(self):

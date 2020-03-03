@@ -402,7 +402,7 @@ class FakeMachinePort(object):
 
 
 def make_fake_neutron_security_group(
-        id, name, description, rules, project_id=None):
+        id, name, description, rules, stateful=True, project_id=None):
     if not rules:
         rules = []
     if not project_id:
@@ -411,6 +411,7 @@ def make_fake_neutron_security_group(
         'id': id,
         'name': name,
         'description': description,
+        'stateful': stateful,
         'project_id': project_id,
         'tenant_id': project_id,
         'security_group_rules': rules,

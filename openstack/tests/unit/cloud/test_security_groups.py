@@ -176,6 +176,7 @@ class TestSecurityGroups(base.TestCase):
         r = self.cloud.create_security_group(group_name, group_desc)
         self.assertEqual(group_name, r['name'])
         self.assertEqual(group_desc, r['description'])
+        self.assertEqual(True, r['stateful'])
 
         self.assert_calls()
 
@@ -214,6 +215,37 @@ class TestSecurityGroups(base.TestCase):
         self.assertEqual(group_desc, r['description'])
         self.assertEqual(project_id, r['tenant_id'])
 
+        self.assert_calls()
+
+    def test_create_security_group_stateless_neutron(self):
+        self.cloud.secgroup_source = 'neutron'
+        group_name = self.getUniqueString()
+        group_desc = self.getUniqueString('description')
+        new_group = fakes.make_fake_neutron_security_group(
+            id='2',
+            name=group_name,
+            description=group_desc,
+            stateful=False,
+            rules=[])
+        self.register_uris([
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'security-groups']),
+                 json={'security_group': new_group},
+                 validate=dict(
+                     json={'security_group': {
+                         'name': group_name,
+                         'description': group_desc,
+                         'stateful': False
+                     }}))
+        ])
+
+        r = self.cloud.create_security_group(group_name, group_desc,
+                                             stateful=False)
+        self.assertEqual(group_name, r['name'])
+        self.assertEqual(group_desc, r['description'])
+        self.assertEqual(False, r['stateful'])
         self.assert_calls()
 
     def test_create_security_group_nova(self):
@@ -257,6 +289,7 @@ class TestSecurityGroups(base.TestCase):
         sg_id = neutron_grp_dict['id']
         update_return = neutron_grp_dict.copy()
         update_return['name'] = new_name
+        update_return['stateful'] = False
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -269,10 +302,12 @@ class TestSecurityGroups(base.TestCase):
                      append=['v2.0', 'security-groups', '%s' % sg_id]),
                  json={'security_group': update_return},
                  validate=dict(json={
-                     'security_group': {'name': new_name}}))
+                     'security_group': {'name': new_name, 'stateful': False}}))
         ])
-        r = self.cloud.update_security_group(sg_id, name=new_name)
+        r = self.cloud.update_security_group(sg_id, name=new_name,
+                                             stateful=False)
         self.assertEqual(r['name'], new_name)
+        self.assertEqual(r['stateful'], False)
         self.assert_calls()
 
     def test_update_security_group_nova(self):
@@ -793,6 +828,7 @@ class TestSecurityGroups(base.TestCase):
         self.assertEqual(neutron_grp_dict['name'], ret_sg['name'])
         self.assertEqual(neutron_grp_dict['description'],
                          ret_sg['description'])
+        self.assertEqual(neutron_grp_dict['stateful'], ret_sg['stateful'])
         self.assert_calls()
 
     def test_get_security_group_by_id_nova(self):
