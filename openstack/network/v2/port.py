@@ -86,6 +86,9 @@ class Port(resource.Resource, resource.TagMixin):
     extra_dhcp_opts = resource.Body('extra_dhcp_opts', type=list)
     #: IP addresses for the port. Includes the IP address and subnet ID.
     fixed_ips = resource.Body('fixed_ips', type=list)
+    #: Read-only. The ip_allocation indicates when ports use deferred,
+    # immediate or no IP allocation.
+    ip_allocation = resource.Body('ip_allocation')
     #: The administrative state of the port, which is up ``True`` or
     #: down ``False``. *Type: bool*
     is_admin_state_up = resource.Body('admin_state_up', type=bool)

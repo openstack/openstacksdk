@@ -34,6 +34,7 @@ EXAMPLE = {
     'extra_dhcp_opts': [{'13': 13}],
     'fixed_ips': [{'14': '14'}],
     'id': IDENTIFIER,
+    'ip_allocation': 'immediate',
     'mac_address': '16',
     'name': '17',
     'network_id': '18',
@@ -124,6 +125,7 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['extra_dhcp_opts'], sot.extra_dhcp_opts)
         self.assertEqual(EXAMPLE['fixed_ips'], sot.fixed_ips)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['ip_allocation'], sot.ip_allocation)
         self.assertEqual(EXAMPLE['mac_address'], sot.mac_address)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
