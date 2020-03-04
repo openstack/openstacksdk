@@ -45,25 +45,12 @@ OBJECT_CONTAINER_ACLS = {
 
 class ObjectStoreCloudMixin(_normalize.Normalizer):
 
-    def __init__(self):
-        self.__pool_executor = None
-
     @property
     def _object_store_client(self):
         if 'object-store' not in self._raw_clients:
             raw_client = self._get_raw_client('object-store')
             self._raw_clients['object-store'] = raw_client
         return self._raw_clients['object-store']
-
-    @property
-    def _pool_executor(self):
-        if not self.__pool_executor:
-            # TODO(mordred) Make this configurable - and probably use Futurist
-            # instead of concurrent.futures so that people using Eventlet will
-            # be happier.
-            self.__pool_executor = concurrent.futures.ThreadPoolExecutor(
-                max_workers=5)
-        return self.__pool_executor
 
     def list_containers(self, full_listing=True, prefix=None):
         """List containers.

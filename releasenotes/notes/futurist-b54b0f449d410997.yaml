@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Switched to the ``futurist`` library for managing background
+    concurrent tasks. Introduced a new ``pool_executor`` parameter
+    to `Connection` that allows passing any any futurist Executor
+    for cases where the default ``ThreadPoolExecutor`` would not
+    be appropriate.

@@ -179,6 +179,7 @@ Additional information about the services can be found in the
 import warnings
 import weakref
 
+import futurist
 import keystoneauth1.exceptions
 import requestsexceptions
 import six
@@ -276,6 +277,7 @@ class Connection(
                  service_types=None,
                  global_request_id=None,
                  strict_proxies=False,
+                 pool_executor=None,
                  **kwargs):
         """Create a connection to a cloud.
 
@@ -343,6 +345,11 @@ class Connection(
             where it can be expected that the deployer config is correct and
             errors should be reported immediately.
             Default false.
+        :param pool_executor:
+        :type pool_executor: :class:`~futurist.Executor`
+            A futurist ``Executor`` object to be used for concurrent background
+            activities. Defaults to None in which case a ThreadPoolExecutor
+            will be created if needed.
         :param kwargs: If a config is not provided, the rest of the parameters
             provided are assumed to be arguments to be passed to the
             CloudRegion constructor.
@@ -378,7 +385,7 @@ class Connection(
 
         self._session = None
         self._proxies = {}
-        self.__pool_executor = None
+        self.__pool_executor = pool_executor
         self._global_request_id = global_request_id
         self.use_direct_get = use_direct_get
         self.strict_mode = strict
@@ -490,6 +497,13 @@ class Connection(
             return self.session.get_token()
         except keystoneauth1.exceptions.ClientException as e:
             raise exceptions.raise_from_response(e.response)
+
+    @property
+    def _pool_executor(self):
+        if not self.__pool_executor:
+            self.__pool_executor = futurist.ThreadPoolExecutor(
+                max_workers=5)
+        return self.__pool_executor
 
     def close(self):
         """Release any resources held open."""
