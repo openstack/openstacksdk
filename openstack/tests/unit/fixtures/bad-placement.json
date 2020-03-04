@@ -1,0 +1,10 @@
+{
+    "versions": [
+        {
+            "id": "v1.0",
+            "links": [{"href": "", "rel": "self"}],
+            "max_version": "1.17",
+            "min_version": "1.0"
+        }
+    ]
+}
