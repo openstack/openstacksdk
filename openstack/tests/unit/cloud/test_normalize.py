@@ -181,6 +181,90 @@ RAW_FLAVOR_DICT = {
     'swap': u'',
     'vcpus': 8}
 
+RAW_COE_CLUSTER_TEMPLATE_DICT = {
+    "insecure_registry": "",
+    "labels": {},
+    "updated_at": "",
+    "floating_ip_enabled": True,
+    "fixed_subnet": "",
+    "master_flavor_id": "ds2G",
+    "uuid": "7d4935d3-2bdc-4fb0-9e6d-ee4ac201d7f6",
+    "no_proxy": "",
+    "https_proxy": "",
+    "tls_disabled": False,
+    "keypair_id": "",
+    "public": False,
+    "http_proxy": "",
+    "docker_volume_size": "",
+    "server_type": "vm",
+    "external_network_id": "67ecffec-ba11-4698-b7a7-9b3cfd81054f",
+    "cluster_distro": "fedora-atomic",
+    "image_id": "Fedora-AtomicHost-29-20191126.0.x86_64",
+    "volume_driver": "cinder",
+    "registry_enabled": False,
+    "docker_storage_driver": "overlay2",
+    "apiserver_port": "",
+    "name": "k8s-fedora-atomic-flannel",
+    "created_at": "2020-02-27T17:16:55+00:00",
+    "network_driver": "flannel",
+    "fixed_network": "",
+    "coe": "kubernetes",
+    "flavor_id": "ds4G",
+    "master_lb_enabled": True,
+    "dns_nameserver": "",
+    "hidden": False
+}
+
+RAW_COE_CLUSTER_DICT = {
+    "status": "CREATE_COMPLETE",
+    "health_status": "HEALTHY",
+    "cluster_template_id": "697e4b1a-33de-47cf-9181-d93bdfbe6aff",
+    "node_addresses": [
+        "172.24.4.58"
+    ],
+    "uuid": "028f8287-5c12-4dae-bbf0-7b76b4d3612d",
+    "stack_id": "ce2e5b48-dfc9-4981-9fc5-36959ff08d12",
+    "status_reason": None,
+    "created_at": "2020-03-02T15:29:28+00:00",
+    "updated_at": "2020-03-02T15:34:58+00:00",
+    "coe_version": "v1.17.3",
+    "labels": {
+        "auto_healing_enabled": "true",
+        "auto_scaling_enabled": "true",
+        "autoscaler_tag": "v1.15.2",
+        "cloud_provider_tag": "v1.17.0",
+        "etcd_tag": "3.4.3",
+        "heat_container_agent_tag": "ussuri-dev",
+        "ingress_controller": "nginx",
+        "kube_tag": "v1.17.3",
+        "master_lb_floating_ip_enabled": "true",
+        "monitoring_enabled": "true",
+        "tiller_enabled": "true",
+        "tiller_tag": "v2.16.3",
+        "use_podman": "true"
+    },
+    "faults": "",
+    "keypair": "default",
+    "api_address": "https://172.24.4.164:6443",
+    "master_addresses": [
+        "172.24.4.70"
+    ],
+    "create_timeout": None,
+    "node_count": 1,
+    "discovery_url": "https://discovery.etcd.io/abc",
+    "master_count": 1,
+    "container_version": "1.12.6",
+    "name": "k8s",
+    "master_flavor_id": "ds2G",
+    "flavor_id": "ds4G",
+    "health_status_reason": {
+        "api": "ok",
+        "k8s-l36u5jjz5kvk-master-0.Ready": "True",
+        "k8s-l36u5jjz5kvk-node-0.Ready": "True",
+    },
+    "project_id": "4e016477e7394decaf2cc158a7d9c75f"
+}
+
 
 def _assert_server_munch_attributes(testcase, raw, server):
     testcase.assertEqual(server.flavor.id, raw['flavor']['id'])
@@ -767,6 +851,111 @@ class TestNormalize(base.TestCase):
         retval = self.cloud._normalize_volume(vol)
         self.assertEqual(expected, retval)
 
+    def test_normalize_coe_cluster_template(self):
+        coe_cluster_template = RAW_COE_CLUSTER_TEMPLATE_DICT.copy()
+        expected = {
+            'apiserver_port': '',
+            'cluster_distro': 'fedora-atomic',
+            'coe': 'kubernetes',
+            'created_at': '2020-02-27T17:16:55+00:00',
+            'dns_nameserver': '',
+            'docker_volume_size': '',
+            'external_network_id': '67ecffec-ba11-4698-b7a7-9b3cfd81054f',
+            'fixed_network': '',
+            'fixed_subnet': '',
+            'flavor_id': 'ds4G',
+            'floating_ip_enabled': True,
+            'http_proxy': '',
+            'https_proxy': '',
+            'id': '7d4935d3-2bdc-4fb0-9e6d-ee4ac201d7f6',
+            'image_id': 'Fedora-AtomicHost-29-20191126.0.x86_64',
+            'insecure_registry': '',
+            'is_public': False,
+            'is_registry_enabled': False,
+            'is_tls_disabled': False,
+            'keypair_id': '',
+            'labels': {},
+            'location': {'cloud': '_test_cloud_',
+                         'project': {'domain_id': None,
+                                     'domain_name': 'default',
+                                     'id': '1c36b64c840a42cd9e9b931a369337f0',
+                                     'name': 'admin'},
+                         'region_name': 'RegionOne',
+                         'zone': None},
+            'master_flavor_id': 'ds2G',
+            'name': 'k8s-fedora-atomic-flannel',
+            'network_driver': 'flannel',
+            'no_proxy': '',
+            'properties': {'docker_storage_driver': 'overlay2',
+                           'hidden': False,
+                           'master_lb_enabled': True},
+            'public': False,
+            'registry_enabled': False,
+            'server_type': 'vm',
+            'tls_disabled': False,
+            'updated_at': '',
+            'uuid': '7d4935d3-2bdc-4fb0-9e6d-ee4ac201d7f6',
+            'volume_driver': 'cinder',
+        }
+        retval = self.cloud._normalize_cluster_template(coe_cluster_template)
+        self.assertEqual(expected, retval)
+
+    def test_normalize_coe_cluster(self):
+        coe_cluster = RAW_COE_CLUSTER_DICT.copy()
+        expected = {
+            'cluster_template_id': '697e4b1a-33de-47cf-9181-d93bdfbe6aff',
+            'create_timeout': None,
+            'id': '028f8287-5c12-4dae-bbf0-7b76b4d3612d',
+            'keypair': 'default',
+            'location': {'cloud': '_test_cloud_',
+                         'project': {'domain_id': None,
+                                     'domain_name': 'default',
+                                     'id': '1c36b64c840a42cd9e9b931a369337f0',
+                                     'name': 'admin'},
+                         'region_name': 'RegionOne',
+                         'zone': None},
+            'master_count': 1,
+            'name': 'k8s',
+            'node_count': 1,
+            'properties': {'api_address': 'https://172.24.4.164:6443',
+                           'coe_version': 'v1.17.3',
+                           'container_version': '1.12.6',
+                           'created_at': '2020-03-02T15:29:28+00:00',
+                           'discovery_url': 'https://discovery.etcd.io/abc',
+                           'faults': '',
+                           'flavor_id': 'ds4G',
+                           'health_status': 'HEALTHY',
+                           'health_status_reason': {
+                               'api': 'ok',
+                               'k8s-l36u5jjz5kvk-master-0.Ready': 'True',
+                               'k8s-l36u5jjz5kvk-node-0.Ready': 'True'},
+                           'labels': {
+                               'auto_healing_enabled': 'true',
+                               'auto_scaling_enabled': 'true',
+                               'autoscaler_tag': 'v1.15.2',
+                               'cloud_provider_tag': 'v1.17.0',
+                               'etcd_tag': '3.4.3',
+                               'heat_container_agent_tag': 'ussuri-dev',
+                               'ingress_controller': 'nginx',
+                               'kube_tag': 'v1.17.3',
+                               'master_lb_floating_ip_enabled': 'true',
+                               'monitoring_enabled': 'true',
+                               'tiller_enabled': 'true',
+                               'tiller_tag': 'v2.16.3',
+                               'use_podman': 'true'},
+                           'master_addresses': ['172.24.4.70'],
+                           'master_flavor_id': 'ds2G',
+                           'node_addresses': ['172.24.4.58'],
+                           'project_id': '4e016477e7394decaf2cc158a7d9c75f',
+                           'status_reason': None,
+                           'updated_at': '2020-03-02T15:34:58+00:00'},
+            'stack_id': 'ce2e5b48-dfc9-4981-9fc5-36959ff08d12',
+            'status': 'CREATE_COMPLETE',
+            'uuid': '028f8287-5c12-4dae-bbf0-7b76b4d3612d',
+        }
+        retval = self.cloud._normalize_coe_cluster(coe_cluster)
+        self.assertEqual(expected, retval)
+
 
 class TestStrictNormalize(base.TestCase):
 
@@ -1145,4 +1334,104 @@ class TestStrictNormalize(base.TestCase):
             'volume_type': None,
         }
         retval = self.cloud._normalize_volume(vol)
+        self.assertEqual(expected, retval)
+
+    def test_normalize_coe_cluster_template(self):
+        coe_cluster_template = RAW_COE_CLUSTER_TEMPLATE_DICT.copy()
+        expected = {
+            'apiserver_port': '',
+            'cluster_distro': 'fedora-atomic',
+            'coe': 'kubernetes',
+            'created_at': '2020-02-27T17:16:55+00:00',
+            'dns_nameserver': '',
+            'docker_volume_size': '',
+            'external_network_id': '67ecffec-ba11-4698-b7a7-9b3cfd81054f',
+            'fixed_network': '',
+            'fixed_subnet': '',
+            'flavor_id': 'ds4G',
+            'http_proxy': '',
+            'https_proxy': '',
+            'id': '7d4935d3-2bdc-4fb0-9e6d-ee4ac201d7f6',
+            'image_id': 'Fedora-AtomicHost-29-20191126.0.x86_64',
+            'insecure_registry': '',
+            'is_public': False,
+            'is_registry_enabled': False,
+            'is_tls_disabled': False,
+            'keypair_id': '',
+            'labels': {},
+            'location': {'cloud': '_test_cloud_',
+                         'project': {'domain_id': None,
+                                     'domain_name': 'default',
+                                     'id': '1c36b64c840a42cd9e9b931a369337f0',
+                                     'name': 'admin'},
+                         'region_name': 'RegionOne',
+                         'zone': None},
+            'master_flavor_id': 'ds2G',
+            'name': 'k8s-fedora-atomic-flannel',
+            'network_driver': 'flannel',
+            'no_proxy': '',
+            'properties': {'docker_storage_driver': 'overlay2',
+                           'hidden': False,
+                           'master_lb_enabled': True},
+            'server_type': 'vm',
+            'updated_at': '',
+            'volume_driver': 'cinder',
+        }
+
+        retval = self.cloud._normalize_cluster_template(coe_cluster_template)
+        self.assertEqual(expected, retval)
+
+    def test_normalize_coe_cluster(self):
+        coe_cluster = RAW_COE_CLUSTER_DICT.copy()
+        expected = {
+            'cluster_template_id': '697e4b1a-33de-47cf-9181-d93bdfbe6aff',
+            'create_timeout': None,
+            'id': '028f8287-5c12-4dae-bbf0-7b76b4d3612d',
+            'keypair': 'default',
+            'location': {'cloud': '_test_cloud_',
+                         'project': {'domain_id': None,
+                                     'domain_name': 'default',
+                                     'id': '1c36b64c840a42cd9e9b931a369337f0',
+                                     'name': 'admin'},
+                         'region_name': 'RegionOne',
+                         'zone': None},
+            'master_count': 1,
+            'name': 'k8s',
+            'node_count': 1,
+            'properties': {'api_address': 'https://172.24.4.164:6443',
+                           'coe_version': 'v1.17.3',
+                           'container_version': '1.12.6',
+                           'created_at': '2020-03-02T15:29:28+00:00',
+                           'discovery_url': 'https://discovery.etcd.io/abc',
+                           'faults': '',
+                           'flavor_id': 'ds4G',
+                           'health_status': 'HEALTHY',
+                           'health_status_reason': {
+                               'api': 'ok',
+                               'k8s-l36u5jjz5kvk-master-0.Ready': 'True',
+                               'k8s-l36u5jjz5kvk-node-0.Ready': 'True'},
+                           'labels': {
+                               'auto_healing_enabled': 'true',
+                               'auto_scaling_enabled': 'true',
+                               'autoscaler_tag': 'v1.15.2',
+                               'cloud_provider_tag': 'v1.17.0',
+                               'etcd_tag': '3.4.3',
+                               'heat_container_agent_tag': 'ussuri-dev',
+                               'ingress_controller': 'nginx',
+                               'kube_tag': 'v1.17.3',
+                               'master_lb_floating_ip_enabled': 'true',
+                               'monitoring_enabled': 'true',
+                               'tiller_enabled': 'true',
+                               'tiller_tag': 'v2.16.3',
+                               'use_podman': 'true'},
+                           'master_addresses': ['172.24.4.70'],
+                           'master_flavor_id': 'ds2G',
+                           'node_addresses': ['172.24.4.58'],
+                           'project_id': '4e016477e7394decaf2cc158a7d9c75f',
+                           'status_reason': None,
+                           'updated_at': '2020-03-02T15:34:58+00:00'},
+            'stack_id': 'ce2e5b48-dfc9-4981-9fc5-36959ff08d12',
+            'status': 'CREATE_COMPLETE',
+        }
+        retval = self.cloud._normalize_coe_cluster(coe_cluster)
         self.assertEqual(expected, retval)

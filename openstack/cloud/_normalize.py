@@ -982,6 +982,9 @@ class Normalizer(object):
             location=self._get_current_location(),
         )
 
+        if not self.strict_mode:
+            ret['uuid'] = c_id
+
         for key in (
                 'status',
                 'cluster_template_id',
