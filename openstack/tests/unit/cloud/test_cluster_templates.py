@@ -160,6 +160,11 @@ class TestClusterTemplates(base.TestCase):
         self.assert_calls()
 
     def test_create_cluster_template(self):
+        json_response = cluster_template_obj.toDict()
+        kwargs = dict(name=cluster_template_obj.name,
+                      image_id=cluster_template_obj.image_id,
+                      keypair_id=cluster_template_obj.keypair_id,
+                      coe=cluster_template_obj.coe)
         self.register_uris([
             dict(
                 method='POST',
@@ -168,17 +173,12 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='POST',
                 uri=self.get_mock_url(resource='baymodels'),
-                json=dict(baymodels=[cluster_template_obj.toDict()]),
-                validate=dict(json={
-                    'coe': 'fake-coe',
-                    'image_id': 'fake-image',
-                    'keypair_id': 'fake-key',
-                    'name': 'fake-cluster-template'}),)])
-        self.cloud.create_cluster_template(
-            name=cluster_template_obj.name,
-            image_id=cluster_template_obj.image_id,
-            keypair_id=cluster_template_obj.keypair_id,
-            coe=cluster_template_obj.coe)
+                json=json_response,
+                validate=dict(json=kwargs)),
+        ])
+        expected = self.cloud._normalize_cluster_template(json_response)
+        response = self.cloud.create_cluster_template(**kwargs)
+        self.assertEqual(response, expected)
         self.assert_calls()
 
     def test_create_cluster_template_exception(self):

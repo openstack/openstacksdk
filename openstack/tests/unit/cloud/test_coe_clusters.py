@@ -48,7 +48,6 @@ class TestCOEClusters(base.TestCase):
             append=append, base_url_append=base_url_append)
 
     def test_list_coe_clusters(self):
-
         self.register_uris([dict(
             method='GET',
             uri=self.get_mock_url(resource='clusters'),
@@ -60,21 +59,20 @@ class TestCOEClusters(base.TestCase):
         self.assert_calls()
 
     def test_create_coe_cluster(self):
+        json_response = dict(uuid=coe_cluster_obj.get('uuid'))
+        kwargs = dict(name=coe_cluster_obj.name,
+                      cluster_template_id=coe_cluster_obj.cluster_template_id,
+                      master_count=coe_cluster_obj.master_count,
+                      node_count=coe_cluster_obj.node_count)
         self.register_uris([dict(
             method='POST',
             uri=self.get_mock_url(resource='clusters'),
-            json=dict(baymodels=[coe_cluster_obj.toDict()]),
-            validate=dict(json={
-                'name': 'k8s',
-                'cluster_template_id': '0562d357-8641-4759-8fed-8173f02c9633',
-                'master_count': 3,
-                'node_count': 10}),
-        )])
-        self.cloud.create_coe_cluster(
-            name=coe_cluster_obj.name,
-            cluster_template_id=coe_cluster_obj.cluster_template_id,
-            master_count=coe_cluster_obj.master_count,
-            node_count=coe_cluster_obj.node_count)
+            json=json_response,
+            validate=dict(json=kwargs)),
+        ])
+        expected = self.cloud._normalize_coe_cluster(json_response)
+        response = self.cloud.create_coe_cluster(**kwargs)
+        self.assertEqual(response, expected)
         self.assert_calls()
 
     def test_search_coe_cluster_by_name(self):
@@ -91,7 +89,6 @@ class TestCOEClusters(base.TestCase):
         self.assert_calls()
 
     def test_search_coe_cluster_not_found(self):
-
         self.register_uris([dict(
             method='GET',
             uri=self.get_mock_url(resource='clusters'),
