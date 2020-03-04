@@ -173,6 +173,7 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
                 validate_checksum=validate_checksum,
                 **image_kwargs)
         else:
+            image_kwargs['name'] = name
             image = self._create_image(**image_kwargs)
         self._connection._get_cache(None).invalidate()
         return image
