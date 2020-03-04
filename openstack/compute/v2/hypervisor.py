@@ -27,6 +27,9 @@ class Hypervisor(resource.Resource):
         'hypervisor_hostname_pattern', 'with_servers'
     )
 
+    # Hypervisor id is a UUID starting with 2.53
+    _max_microversion = '2.53'
+
     # Properties
     #: Status of hypervisor
     status = resource.Body('status')
