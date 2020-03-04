@@ -46,7 +46,7 @@ class TestConfig(base.TestCase):
             cloud for cloud in base.USER_CONF['clouds'].keys()
         ] + ['_test_cloud_regions', '_test_cloud_regions']
         configured_clouds = [cloud.name for cloud in clouds]
-        self.assertItemsEqual(user_clouds, configured_clouds)
+        self.assertCountEqual(user_clouds, configured_clouds)
 
     def test_get_all_clouds(self):
         # Ensure the alias is in place
@@ -60,7 +60,7 @@ class TestConfig(base.TestCase):
             cloud for cloud in base.USER_CONF['clouds'].keys()
         ] + ['_test_cloud_regions', '_test_cloud_regions']
         configured_clouds = [cloud.name for cloud in clouds]
-        self.assertItemsEqual(user_clouds, configured_clouds)
+        self.assertCountEqual(user_clouds, configured_clouds)
 
     def test_get_one(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],

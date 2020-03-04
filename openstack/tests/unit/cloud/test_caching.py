@@ -554,7 +554,7 @@ class TestMemoryCache(base.TestCase):
                  ]}),
         ])
         ports = self.cloud.list_ports(filters={'status': 'DOWN'})
-        self.assertItemsEqual([down_port], ports)
+        self.assertCountEqual([down_port], ports)
         self.assert_calls()
 
 

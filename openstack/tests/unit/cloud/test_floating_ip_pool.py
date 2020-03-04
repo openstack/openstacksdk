@@ -49,7 +49,7 @@ class TestFloatingIPPool(base.TestCase):
 
         floating_ip_pools = self.cloud.list_floating_ip_pools()
 
-        self.assertItemsEqual(floating_ip_pools, self.pools)
+        self.assertCountEqual(floating_ip_pools, self.pools)
 
         self.assert_calls()
 

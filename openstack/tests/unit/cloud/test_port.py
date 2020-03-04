@@ -238,7 +238,7 @@ class TestPort(base.TestCase):
                  json=self.mock_neutron_port_list_rep)
         ])
         ports = self.cloud.list_ports()
-        self.assertItemsEqual(self.mock_neutron_port_list_rep['ports'], ports)
+        self.assertCountEqual(self.mock_neutron_port_list_rep['ports'], ports)
         self.assert_calls()
 
     def test_list_ports_filtered(self):
@@ -250,7 +250,7 @@ class TestPort(base.TestCase):
                  json=self.mock_neutron_port_list_rep)
         ])
         ports = self.cloud.list_ports(filters={'status': 'DOWN'})
-        self.assertItemsEqual(self.mock_neutron_port_list_rep['ports'], ports)
+        self.assertCountEqual(self.mock_neutron_port_list_rep['ports'], ports)
         self.assert_calls()
 
     def test_list_ports_exception(self):

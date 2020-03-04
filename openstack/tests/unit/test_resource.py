@@ -314,7 +314,7 @@ class TestComponentManager(base.TestCase):
     def test_iter(self):
         attrs = {"key": "value"}
         sot = resource._ComponentManager(attributes=attrs)
-        self.assertItemsEqual(iter(attrs), sot.__iter__())
+        self.assertCountEqual(iter(attrs), sot.__iter__())
 
     def test_len(self):
         attrs = {"key": "value"}
