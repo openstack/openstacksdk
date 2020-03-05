@@ -30,12 +30,71 @@
 #    run-ansible-tests.sh -e ansible -c cloudX auth keypair network
 #############################################################################
 
-echo "
-    Thanks for submitting patch for Openstack Ansible modules!
-    We moved Openstack Ansible modules to Openstack repositories.
-    Next patches should be submitted not with Ansible Github but with
-    Openstack Gerrit: https://review.opendev.org/#/q/project:openstack/ansible-collections-openstack
-    Please submit your code there from now.
-    Thanks for your contribution and sorry for inconvienience.
-"
-exit 1
+
+CLOUD="devstack-admin"
+ENVDIR=
+USE_DEV=0
+
+while getopts "c:de:" opt
+do
+    case $opt in
+    d) USE_DEV=1 ;;
+    c) CLOUD=${OPTARG} ;;
+    e) ENVDIR=${OPTARG} ;;
+    ?) echo "Invalid option: -${OPTARG}"
+       exit 1;;
+    esac
+done
+
+if [ -z ${ENVDIR} ]
+then
+    echo "Option -e is required"
+    exit 1
+fi
+
+shift $((OPTIND-1))
+TAGS=$( echo "$*" | tr ' ' , )
+
+# We need to source the current tox environment so that Ansible will
+# be setup for the correct python environment.
+source $ENVDIR/bin/activate
+
+if [ ${USE_DEV} -eq 1 ]
+then
+    if [ -d ${ENVDIR}/ansible ]
+    then
+        echo "Using existing Ansible source repo"
+    else
+        echo "Installing Ansible source repo at $ENVDIR"
+        git clone --recursive https://github.com/ansible/ansible.git ${ENVDIR}/ansible
+    fi
+    source $ENVDIR/ansible/hacking/env-setup
+fi
+
+# Run the shade Ansible tests
+tag_opt=""
+if [ ! -z ${TAGS} ]
+then
+    tag_opt="--tags ${TAGS}"
+fi
+
+# Loop through all ANSIBLE_VAR_ environment variables to allow passing the further
+for var in $(env | grep -e '^ANSIBLE_VAR_'); do
+  VAR_NAME=${var%%=*} # split variable name from value
+  ANSIBLE_VAR_NAME=${VAR_NAME#ANSIBLE_VAR_} # cut ANSIBLE_VAR_ prefix from variable name
+  ANSIBLE_VAR_NAME=${ANSIBLE_VAR_NAME,,} # lowercase ansible variable
+  ANSIBLE_VAR_VALUE=${!VAR_NAME} # Get the variable value
+  ANSIBLE_VARS+="${ANSIBLE_VAR_NAME}=${ANSIBLE_VAR_VALUE} " # concat variables
+done
+
+# Until we have a module that lets us determine the image we want from
+# within a playbook, we have to find the image here and pass it in.
+# We use the openstack client instead of nova client since it can use clouds.yaml.
+IMAGE=`openstack --os-cloud=${CLOUD} image list -f value -c Name | grep cirros | grep -v -e ramdisk -e kernel`
+if [ $? -ne 0 ]
+then
+  echo "Failed to find Cirros image"
+  exit 1
+fi
+
+ansible-playbook -vvv ./openstack/tests/ansible/run.yml -e "cloud=${CLOUD} image=${IMAGE} ${ANSIBLE_VARS}" ${tag_opt}

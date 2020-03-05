@@ -1,0 +1,19 @@
+---
+- name: Create keystone domain
+  os_keystone_domain:
+     cloud: "{{ cloud }}"
+     state: present
+     name: "{{ domain_name }}"
+     description: "test description"
+
+- name: Update keystone domain
+  os_keystone_domain:
+     cloud: "{{ cloud }}"
+     name: "{{ domain_name }}"
+     description: "updated description"
+
+- name: Delete keystone domain
+  os_keystone_domain:
+     cloud: "{{ cloud }}"
+     state: absent
+     name: "{{ domain_name }}"
