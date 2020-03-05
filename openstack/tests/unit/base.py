@@ -532,9 +532,10 @@ class TestCase(base.TestCase):
             uri=compute_discovery_url,
             text=open(discovery_fixture, 'r').read())
 
-    def get_placement_discovery_mock_dict(self):
+    def get_placement_discovery_mock_dict(
+            self, discovery_fixture='placement.json'):
         discovery_fixture = os.path.join(
-            self.fixtures_directory, "placement.json")
+            self.fixtures_directory, discovery_fixture)
         return dict(method='GET', uri="https://placement.example.com/",
                     text=open(discovery_fixture, 'r').read())
 
@@ -586,9 +587,9 @@ class TestCase(base.TestCase):
         self.__do_register_uris([
             self.get_cinder_discovery_mock_dict()])
 
-    def use_placement(self):
+    def use_placement(self, **kwargs):
         self.__do_register_uris([
-            self.get_placement_discovery_mock_dict()])
+            self.get_placement_discovery_mock_dict(**kwargs)])
 
     def use_designate(self):
         # NOTE(slaweq): This method is only meant to be used in "setUp"

@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Workaround an issue using openstacksdk with older versions of
+    the placement service that are missing a status field in
+    their version discovery doc.

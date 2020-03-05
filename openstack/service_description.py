@@ -89,12 +89,37 @@ class ServiceDescription(object):
                 # The keystone proxy has a method called get_endpoint
                 # that is about managing keystone endpoints. This is
                 # unfortunate.
-                endpoint = proxy_mod.Proxy.get_endpoint(proxy)
+                try:
+                    endpoint = proxy_mod.Proxy.get_endpoint(proxy)
+                except IndexError:
+                    # It's best not to look to closely here. This is
+                    # to support old placement.
+                    # There was a time when it had no status entry
+                    # in its version discovery doc (OY) In this case,
+                    # no endpoints get through version discovery
+                    # filtering. In order to deal with that, catch
+                    # the IndexError thrown by keystoneauth and
+                    # set an endpoint_override for the user to the
+                    # url in the catalog and try again.
+                    self._set_override_from_catalog(instance.config)
+                    proxy = self._make_proxy(instance)
+                    endpoint = proxy_mod.Proxy.get_endpoint(proxy)
                 if instance._strict_proxies:
                     self._validate_proxy(proxy, endpoint)
                 proxy._connection = instance
             instance._proxies[self.service_type] = proxy
         return instance._proxies[self.service_type]
+
+    def _set_override_from_catalog(self, config):
+        override = config._get_endpoint_from_catalog(
+            self.service_type,
+            proxy_mod.Proxy,
+        )
+        config.set_service_value(
+            'endpoint_override',
+            self.service_type,
+            override,
+        )
 
     def _validate_proxy(self, proxy, endpoint):
         exc = None

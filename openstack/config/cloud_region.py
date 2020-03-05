@@ -321,6 +321,10 @@ class CloudRegion(object):
         else:
             return 'unknown'
 
+    def set_service_value(self, key, service_type, value):
+        key = _make_key(key, service_type)
+        self.config[key] = value
+
     def set_session_constructor(self, session_constructor):
         """Sets the Session constructor."""
         self._session_constructor = session_constructor
@@ -645,7 +649,7 @@ class CloudRegion(object):
             self.get_interface(service_type), {})
         return interface_versions.get(service_type, [])
 
-    def _get_hardcoded_endpoint(self, service_type, constructor):
+    def _get_endpoint_from_catalog(self, service_type, constructor):
         adapter = constructor(
             session=self.get_session(),
             service_type=self.get_service_type(service_type),
@@ -653,7 +657,11 @@ class CloudRegion(object):
             interface=self.get_interface(service_type),
             region_name=self.get_region_name(service_type),
         )
-        endpoint = adapter.get_endpoint()
+        return adapter.get_endpoint()
+
+    def _get_hardcoded_endpoint(self, service_type, constructor):
+        endpoint = self._get_endpoint_from_catalog(
+            service_type, constructor)
         if not endpoint.rstrip().rsplit('/')[-1] == 'v2.0':
             if not endpoint.endswith('/'):
                 endpoint += '/'
