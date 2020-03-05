@@ -1750,6 +1750,7 @@ class TestResourceActions(base.TestCase):
         self.sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
             self.request.url,
+            headers='headers',
             microversion=None)
 
         self.sot._translate_response.assert_called_once_with(
@@ -1772,6 +1773,7 @@ class TestResourceActions(base.TestCase):
         sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(
             self.request.url,
+            headers='headers',
             microversion='1.42')
 
         sot._translate_response.assert_called_once_with(

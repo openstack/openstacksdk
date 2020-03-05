@@ -121,6 +121,11 @@ class ConflictException(HttpException):
     pass
 
 
+class PreconditionFailedException(HttpException):
+    """HTTP 412 Precondition Failed."""
+    pass
+
+
 class MethodNotSupported(SDKException):
     """The resource does not support this operation type."""
     def __init__(self, resource, method):
@@ -192,6 +197,8 @@ def raise_from_response(response, error_message=None):
         cls = NotFoundException
     elif response.status_code == 400:
         cls = BadRequestException
+    elif response.status_code == 412:
+        cls = PreconditionFailedException
     else:
         cls = HttpException
 

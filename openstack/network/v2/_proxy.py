@@ -60,6 +60,26 @@ from openstack import proxy
 
 class Proxy(proxy.Proxy):
 
+    @proxy._check_resource(strict=False)
+    def _update(self, resource_type, value, base_path=None,
+                if_revision=None, **attrs):
+        res = self._get_resource(resource_type, value, **attrs)
+        return res.commit(self, base_path=base_path, if_revision=if_revision)
+
+    @proxy._check_resource(strict=False)
+    def _delete(self, resource_type, value, ignore_missing=True,
+                if_revision=None, **attrs):
+        res = self._get_resource(resource_type, value, **attrs)
+
+        try:
+            rv = res.delete(self, if_revision=if_revision)
+        except exceptions.ResourceNotFound:
+            if ignore_missing:
+                return None
+            raise
+
+        return rv
+
     def create_address_scope(self, **attrs):
         """Create a new address scope from attributes
 
@@ -497,7 +517,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_floating_ip.FloatingIP, **attrs)
 
-    def delete_ip(self, floating_ip, ignore_missing=True):
+    def delete_ip(self, floating_ip, ignore_missing=True, if_revision=None):
         """Delete a floating ip
 
         :param floating_ip: The value can be either the ID of a floating ip
@@ -508,11 +528,13 @@ class Proxy(proxy.Proxy):
                     raised when the floating ip does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent ip.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
 
         :returns: ``None``
         """
         self._delete(_floating_ip.FloatingIP, floating_ip,
-                     ignore_missing=ignore_missing)
+                     ignore_missing=ignore_missing, if_revision=if_revision)
 
     def find_available_ip(self):
         """Find an available IP
@@ -577,19 +599,22 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_floating_ip.FloatingIP, **query)
 
-    def update_ip(self, floating_ip, **attrs):
+    def update_ip(self, floating_ip, if_revision=None, **attrs):
         """Update a ip
 
         :param floating_ip: Either the id of a ip or a
                       :class:`~openstack.network.v2.floating_ip.FloatingIP`
                       instance.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
         :param dict attrs: The attributes to update on the ip represented
                            by ``value``.
 
         :returns: The updated ip
         :rtype: :class:`~openstack.network.v2.floating_ip.FloatingIP`
         """
-        return self._update(_floating_ip.FloatingIP, floating_ip, **attrs)
+        return self._update(_floating_ip.FloatingIP, floating_ip,
+                            if_revision=if_revision, **attrs)
 
     def create_port_forwarding(self, **attrs):
         """Create a new floating ip port forwarding from attributes
@@ -1203,7 +1228,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_network.Network, **attrs)
 
-    def delete_network(self, network, ignore_missing=True):
+    def delete_network(self, network, ignore_missing=True, if_revision=None):
         """Delete a network
 
         :param network:
@@ -1214,10 +1239,13 @@ class Proxy(proxy.Proxy):
                     raised when the network does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent network.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
 
         :returns: ``None``
         """
-        self._delete(_network.Network, network, ignore_missing=ignore_missing)
+        self._delete(_network.Network, network, ignore_missing=ignore_missing,
+                     if_revision=if_revision)
 
     def find_network(self, name_or_id, ignore_missing=True, **args):
         """Find a single network
@@ -1276,18 +1304,21 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_network.Network, **query)
 
-    def update_network(self, network, **attrs):
+    def update_network(self, network, if_revision=None, **attrs):
         """Update a network
 
         :param network: Either the id of a network or an instance of type
                         :class:`~openstack.network.v2.network.Network`.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
         :param dict attrs: The attributes to update on the network represented
                            by ``network``.
 
         :returns: The updated network
         :rtype: :class:`~openstack.network.v2.network.Network`
         """
-        return self._update(_network.Network, network, **attrs)
+        return self._update(_network.Network, network, if_revision=if_revision,
+                            **attrs)
 
     def find_network_ip_availability(self, name_or_id, ignore_missing=True,
                                      **args):
@@ -1699,7 +1730,7 @@ class Proxy(proxy.Proxy):
         """
         return self._bulk_create(_port.Port, data)
 
-    def delete_port(self, port, ignore_missing=True):
+    def delete_port(self, port, ignore_missing=True, if_revision=None):
         """Delete a port
 
         :param port: The value can be either the ID of a port or a
@@ -1709,10 +1740,13 @@ class Proxy(proxy.Proxy):
                     raised when the port does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent port.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
 
         :returns: ``None``
         """
-        self._delete(_port.Port, port, ignore_missing=ignore_missing)
+        self._delete(_port.Port, port, ignore_missing=ignore_missing,
+                     if_revision=if_revision)
 
     def find_port(self, name_or_id, ignore_missing=True, **args):
         """Find a single port
@@ -1766,18 +1800,21 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_port.Port, **query)
 
-    def update_port(self, port, **attrs):
+    def update_port(self, port, if_revision=None, **attrs):
         """Update a port
 
         :param port: Either the id of a port or a
                      :class:`~openstack.network.v2.port.Port` instance.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
         :param dict attrs: The attributes to update on the port represented
                            by ``port``.
 
         :returns: The updated port
         :rtype: :class:`~openstack.network.v2.port.Port`
         """
-        return self._update(_port.Port, port, **attrs)
+        return self._update(_port.Port, port, if_revision=if_revision,
+                            **attrs)
 
     def add_ip_to_port(self, port, ip):
         ip.port_id = port.id
@@ -2482,7 +2519,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_router.Router, **attrs)
 
-    def delete_router(self, router, ignore_missing=True):
+    def delete_router(self, router, ignore_missing=True, if_revision=None):
         """Delete a router
 
         :param router: The value can be either the ID of a router or a
@@ -2492,10 +2529,13 @@ class Proxy(proxy.Proxy):
                     raised when the router does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent router.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
 
         :returns: ``None``
         """
-        self._delete(_router.Router, router, ignore_missing=ignore_missing)
+        self._delete(_router.Router, router, ignore_missing=ignore_missing,
+                     if_revision=if_revision)
 
     def find_router(self, name_or_id, ignore_missing=True, **args):
         """Find a single router
@@ -2546,18 +2586,21 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_router.Router, **query)
 
-    def update_router(self, router, **attrs):
+    def update_router(self, router, if_revision=None, **attrs):
         """Update a router
 
         :param router: Either the id of a router or a
                        :class:`~openstack.network.v2.router.Router` instance.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
         :param dict attrs: The attributes to update on the router represented
                            by ``router``.
 
         :returns: The updated router
         :rtype: :class:`~openstack.network.v2.router.Router`
         """
-        return self._update(_router.Router, router, **attrs)
+        return self._update(_router.Router, router, if_revision=if_revision,
+                            **attrs)
 
     def add_interface_to_router(self, router, subnet_id=None, port_id=None):
         """Add Interface to a router
@@ -3048,7 +3091,8 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_security_group.SecurityGroup, **attrs)
 
-    def delete_security_group(self, security_group, ignore_missing=True):
+    def delete_security_group(self, security_group, ignore_missing=True,
+                              if_revision=None):
         """Delete a security group
 
         :param security_group:
@@ -3060,11 +3104,13 @@ class Proxy(proxy.Proxy):
                     raised when the security group does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent security group.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
 
         :returns: ``None``
         """
         self._delete(_security_group.SecurityGroup, security_group,
-                     ignore_missing=ignore_missing)
+                     ignore_missing=ignore_missing, if_revision=if_revision)
 
     def find_security_group(self, name_or_id, ignore_missing=True, **args):
         """Find a single security group
@@ -3113,12 +3159,14 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_security_group.SecurityGroup, **query)
 
-    def update_security_group(self, security_group, **attrs):
+    def update_security_group(self, security_group, if_revision=None, **attrs):
         """Update a security group
 
         :param security_group: Either the id of a security group or a
             :class:`~openstack.network.v2.security_group.SecurityGroup`
             instance.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
         :param dict attrs: The attributes to update on the security group
                            represented by ``security_group``.
 
@@ -3126,7 +3174,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.network.v2.security_group.SecurityGroup`
         """
         return self._update(_security_group.SecurityGroup, security_group,
-                            **attrs)
+                            if_revision=if_revision, **attrs)
 
     def create_security_group_rule(self, **attrs):
         """Create a new security group rule from attributes
@@ -3143,7 +3191,7 @@ class Proxy(proxy.Proxy):
         return self._create(_security_group_rule.SecurityGroupRule, **attrs)
 
     def delete_security_group_rule(self, security_group_rule,
-                                   ignore_missing=True):
+                                   ignore_missing=True, if_revision=None):
         """Delete a security group rule
 
         :param security_group_rule:
@@ -3155,11 +3203,14 @@ class Proxy(proxy.Proxy):
                     raised when the security group rule does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent security group rule.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
 
         :returns: ``None``
         """
         self._delete(_security_group_rule.SecurityGroupRule,
-                     security_group_rule, ignore_missing=ignore_missing)
+                     security_group_rule, ignore_missing=ignore_missing,
+                     if_revision=if_revision)
 
     def find_security_group_rule(self, name_or_id, ignore_missing=True,
                                  **args):
@@ -3424,7 +3475,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_subnet.Subnet, **attrs)
 
-    def delete_subnet(self, subnet, ignore_missing=True):
+    def delete_subnet(self, subnet, ignore_missing=True, if_revision=None):
         """Delete a subnet
 
         :param subnet: The value can be either the ID of a subnet or a
@@ -3434,10 +3485,13 @@ class Proxy(proxy.Proxy):
                     raised when the subnet does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent subnet.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
 
         :returns: ``None``
         """
-        self._delete(_subnet.Subnet, subnet, ignore_missing=ignore_missing)
+        self._delete(_subnet.Subnet, subnet, ignore_missing=ignore_missing,
+                     if_revision=if_revision)
 
     def find_subnet(self, name_or_id, ignore_missing=True, **args):
         """Find a single subnet
@@ -3491,18 +3545,21 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_subnet.Subnet, **query)
 
-    def update_subnet(self, subnet, **attrs):
+    def update_subnet(self, subnet, if_revision=None, **attrs):
         """Update a subnet
 
         :param subnet: Either the id of a subnet or a
                        :class:`~openstack.network.v2.subnet.Subnet` instance.
+        :param int if_revision: Revision to put in If-Match header of update
+                                request to perform compare-and-swap update.
         :param dict attrs: The attributes to update on the subnet represented
                            by ``subnet``.
 
         :returns: The updated subnet
         :rtype: :class:`~openstack.network.v2.subnet.Subnet`
         """
-        return self._update(_subnet.Subnet, subnet, **attrs)
+        return self._update(_subnet.Subnet, subnet, if_revision=if_revision,
+                            **attrs)
 
     def create_subnet_pool(self, **attrs):
         """Create a new subnet pool from attributes

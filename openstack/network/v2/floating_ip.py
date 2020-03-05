@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import _base
 from openstack import resource
 
 
-class FloatingIP(resource.Resource, resource.TagMixin):
+class FloatingIP(_base.NetworkResource, resource.TagMixin):
     name_attribute = "floating_ip_address"
     resource_name = "floating ip"
     resource_key = 'floatingip'
@@ -68,8 +69,6 @@ class FloatingIP(resource.Resource, resource.TagMixin):
     qos_policy_id = resource.Body('qos_policy_id')
     #: The ID of the project this floating IP is associated with.
     project_id = resource.Body('tenant_id')
-    #: Revision number of the floating IP. *Type: int*
-    revision_number = resource.Body('revision_number', type=int)
     #: The ID of an associated router.
     router_id = resource.Body('router_id')
     #: The floating IP status. Value is ``ACTIVE`` or ``DOWN``.

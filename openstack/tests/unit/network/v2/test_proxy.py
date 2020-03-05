@@ -70,6 +70,25 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         super(TestNetworkProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+    def verify_update(self, test_method, resource_type, value=None,
+                      mock_method="openstack.network.v2._proxy.Proxy._update",
+                      expected_result="result", path_args=None, **kwargs):
+        super(TestNetworkProxy, self).verify_update(
+            test_method, resource_type, value=value, mock_method=mock_method,
+            expected_result=expected_result, path_args=path_args, **kwargs)
+
+    def verify_delete(self, test_method, resource_type, ignore,
+                      input_path_args=None, expected_path_args=None,
+                      method_kwargs=None, expected_args=None,
+                      expected_kwargs=None,
+                      mock_method="openstack.network.v2._proxy.Proxy._delete"):
+        super(TestNetworkProxy, self).verify_delete(
+            test_method, resource_type, ignore,
+            input_path_args=input_path_args,
+            expected_path_args=expected_path_args, method_kwargs=method_kwargs,
+            expected_args=expected_args, expected_kwargs=expected_kwargs,
+            mock_method=mock_method)
+
     def test_address_scope_create_attrs(self):
         self.verify_create(self.proxy.create_address_scope,
                            address_scope.AddressScope)
@@ -143,11 +162,16 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_floating_ip_delete(self):
         self.verify_delete(self.proxy.delete_ip, floating_ip.FloatingIP,
-                           False)
+                           False, expected_kwargs={'if_revision': None})
 
     def test_floating_ip_delete_ignore(self):
         self.verify_delete(self.proxy.delete_ip, floating_ip.FloatingIP,
-                           True)
+                           True, expected_kwargs={'if_revision': None})
+
+    def test_floating_ip_delete_if_revision(self):
+        self.verify_delete(self.proxy.delete_ip, floating_ip.FloatingIP,
+                           True, method_kwargs={'if_revision': 42},
+                           expected_kwargs={'if_revision': 42})
 
     def test_floating_ip_find(self):
         self.verify_find(self.proxy.find_ip, floating_ip.FloatingIP)
@@ -159,7 +183,16 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.ips, floating_ip.FloatingIP)
 
     def test_floating_ip_update(self):
-        self.verify_update(self.proxy.update_ip, floating_ip.FloatingIP)
+        self.verify_update(self.proxy.update_ip, floating_ip.FloatingIP,
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': None})
+
+    def test_floating_ip_update_if_revision(self):
+        self.verify_update(self.proxy.update_ip, floating_ip.FloatingIP,
+                           method_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                          'if_revision': 42},
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': 42})
 
     def test_health_monitor_create_attrs(self):
         self.verify_create(self.proxy.create_health_monitor,
@@ -300,10 +333,17 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_network, network.Network)
 
     def test_network_delete(self):
-        self.verify_delete(self.proxy.delete_network, network.Network, False)
+        self.verify_delete(self.proxy.delete_network, network.Network, False,
+                           expected_kwargs={'if_revision': None})
 
     def test_network_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_network, network.Network, True)
+        self.verify_delete(self.proxy.delete_network, network.Network, True,
+                           expected_kwargs={'if_revision': None})
+
+    def test_network_delete_if_revision(self):
+        self.verify_delete(self.proxy.delete_network, network.Network, True,
+                           method_kwargs={'if_revision': 42},
+                           expected_kwargs={'if_revision': 42})
 
     def test_network_find(self):
         self.verify_find(self.proxy.find_network, network.Network)
@@ -324,7 +364,16 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.networks, network.Network)
 
     def test_network_update(self):
-        self.verify_update(self.proxy.update_network, network.Network)
+        self.verify_update(self.proxy.update_network, network.Network,
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': None})
+
+    def test_network_update_if_revision(self):
+        self.verify_update(self.proxy.update_network, network.Network,
+                           method_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                          'if_revision': 42},
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': 42})
 
     def test_flavor_create_attrs(self):
         self.verify_create(self.proxy.create_flavor, flavor.Flavor)
@@ -417,7 +466,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                          expected_kwargs={"pool_id": "test_id"})
 
     def test_pool_member_update(self):
-        self._verify2("openstack.proxy.Proxy._update",
+        self._verify2("openstack.network.v2._proxy.Proxy._update",
                       self.proxy.update_pool_member,
                       method_args=["MEMBER", "POOL"],
                       expected_args=[pool_member.PoolMember, "MEMBER"],
@@ -448,10 +497,17 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_port, port.Port)
 
     def test_port_delete(self):
-        self.verify_delete(self.proxy.delete_port, port.Port, False)
+        self.verify_delete(self.proxy.delete_port, port.Port, False,
+                           expected_kwargs={'if_revision': None})
 
     def test_port_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_port, port.Port, True)
+        self.verify_delete(self.proxy.delete_port, port.Port, True,
+                           expected_kwargs={'if_revision': None})
+
+    def test_port_delete_if_revision(self):
+        self.verify_delete(self.proxy.delete_port, port.Port, True,
+                           method_kwargs={'if_revision': 42},
+                           expected_kwargs={'if_revision': 42})
 
     def test_port_find(self):
         self.verify_find(self.proxy.find_port, port.Port)
@@ -463,7 +519,16 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.ports, port.Port)
 
     def test_port_update(self):
-        self.verify_update(self.proxy.update_port, port.Port)
+        self.verify_update(self.proxy.update_port, port.Port,
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': None})
+
+    def test_port_update_if_revision(self):
+        self.verify_update(self.proxy.update_port, port.Port,
+                           method_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                          'if_revision': 42},
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': 42})
 
     @mock.patch('openstack.network.v2._proxy.Proxy._bulk_create')
     def test_ports_create(self, bc):
@@ -521,7 +586,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_bandwidth_limit_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.Proxy._update',
+        self._verify2('openstack.network.v2._proxy.Proxy._update',
                       self.proxy.update_qos_bandwidth_limit_rule,
                       method_args=['rule_id', policy],
                       method_kwargs={'foo': 'bar'},
@@ -578,7 +643,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_dscp_marking_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.Proxy._update',
+        self._verify2('openstack.network.v2._proxy.Proxy._update',
                       self.proxy.update_qos_dscp_marking_rule,
                       method_args=['rule_id', policy],
                       method_kwargs={'foo': 'bar'},
@@ -636,7 +701,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_minimum_bandwidth_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.Proxy._update',
+        self._verify2('openstack.network.v2._proxy.Proxy._update',
                       self.proxy.update_qos_minimum_bandwidth_rule,
                       method_args=['rule_id', policy],
                       method_kwargs={'foo': 'bar'},
@@ -749,10 +814,17 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_router, router.Router)
 
     def test_router_delete(self):
-        self.verify_delete(self.proxy.delete_router, router.Router, False)
+        self.verify_delete(self.proxy.delete_router, router.Router, False,
+                           expected_kwargs={'if_revision': None})
 
     def test_router_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_router, router.Router, True)
+        self.verify_delete(self.proxy.delete_router, router.Router, True,
+                           expected_kwargs={'if_revision': None})
+
+    def test_router_delete_if_revision(self):
+        self.verify_delete(self.proxy.delete_router, router.Router, True,
+                           method_kwargs={'if_revision': 42},
+                           expected_kwargs={'if_revision': 42})
 
     def test_router_find(self):
         self.verify_find(self.proxy.find_router, router.Router)
@@ -764,7 +836,16 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.routers, router.Router)
 
     def test_router_update(self):
-        self.verify_update(self.proxy.update_router, router.Router)
+        self.verify_update(self.proxy.update_router, router.Router,
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': None})
+
+    def test_router_update_if_revision(self):
+        self.verify_update(self.proxy.update_router, router.Router,
+                           method_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                          'if_revision': 42},
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': 42})
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
     @mock.patch.object(router.Router, 'add_interface')
@@ -1010,11 +1091,19 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_security_group_delete(self):
         self.verify_delete(self.proxy.delete_security_group,
-                           security_group.SecurityGroup, False)
+                           security_group.SecurityGroup, False,
+                           expected_kwargs={'if_revision': None})
 
     def test_security_group_delete_ignore(self):
         self.verify_delete(self.proxy.delete_security_group,
-                           security_group.SecurityGroup, True)
+                           security_group.SecurityGroup, True,
+                           expected_kwargs={'if_revision': None})
+
+    def test_security_group_delete_if_revision(self):
+        self.verify_delete(self.proxy.delete_security_group,
+                           security_group.SecurityGroup, True,
+                           method_kwargs={'if_revision': 42},
+                           expected_kwargs={'if_revision': 42})
 
     def test_security_group_find(self):
         self.verify_find(self.proxy.find_security_group,
@@ -1030,7 +1119,17 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_security_group_update(self):
         self.verify_update(self.proxy.update_security_group,
-                           security_group.SecurityGroup)
+                           security_group.SecurityGroup,
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': None})
+
+    def test_security_group_update_if_revision(self):
+        self.verify_update(self.proxy.update_security_group,
+                           security_group.SecurityGroup,
+                           method_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                          'if_revision': 42},
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': 42})
 
     def test_security_group_rule_create_attrs(self):
         self.verify_create(self.proxy.create_security_group_rule,
@@ -1038,11 +1137,19 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_security_group_rule_delete(self):
         self.verify_delete(self.proxy.delete_security_group_rule,
-                           security_group_rule.SecurityGroupRule, False)
+                           security_group_rule.SecurityGroupRule, False,
+                           expected_kwargs={'if_revision': None})
 
     def test_security_group_rule_delete_ignore(self):
         self.verify_delete(self.proxy.delete_security_group_rule,
-                           security_group_rule.SecurityGroupRule, True)
+                           security_group_rule.SecurityGroupRule, True,
+                           expected_kwargs={'if_revision': None})
+
+    def test_security_group_rule_delete_if_revision(self):
+        self.verify_delete(self.proxy.delete_security_group_rule,
+                           security_group_rule.SecurityGroupRule, True,
+                           method_kwargs={'if_revision': 42},
+                           expected_kwargs={'if_revision': 42})
 
     def test_security_group_rule_find(self):
         self.verify_find(self.proxy.find_security_group_rule,
@@ -1081,10 +1188,17 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_subnet, subnet.Subnet)
 
     def test_subnet_delete(self):
-        self.verify_delete(self.proxy.delete_subnet, subnet.Subnet, False)
+        self.verify_delete(self.proxy.delete_subnet, subnet.Subnet, False,
+                           expected_kwargs={'if_revision': None})
 
     def test_subnet_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_subnet, subnet.Subnet, True)
+        self.verify_delete(self.proxy.delete_subnet, subnet.Subnet, True,
+                           expected_kwargs={'if_revision': None})
+
+    def test_subnet_delete_if_revision(self):
+        self.verify_delete(self.proxy.delete_subnet, subnet.Subnet, True,
+                           method_kwargs={'if_revision': 42},
+                           expected_kwargs={'if_revision': 42})
 
     def test_subnet_find(self):
         self.verify_find(self.proxy.find_subnet, subnet.Subnet)
@@ -1096,7 +1210,9 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.subnets, subnet.Subnet)
 
     def test_subnet_update(self):
-        self.verify_update(self.proxy.update_subnet, subnet.Subnet)
+        self.verify_update(self.proxy.update_subnet, subnet.Subnet,
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': None})
 
     def test_subnet_pool_create_attrs(self):
         self.verify_create(self.proxy.create_subnet_pool,
@@ -1244,7 +1360,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_update_floating_ip_port_forwarding(self):
         fip = floating_ip.FloatingIP.new(id=FIP_ID)
-        self._verify2('openstack.proxy.Proxy._update',
+        self._verify2('openstack.network.v2._proxy.Proxy._update',
                       self.proxy.update_floating_ip_port_forwarding,
                       method_args=[fip, 'port_forwarding_id'],
                       method_kwargs={'foo': 'bar'},

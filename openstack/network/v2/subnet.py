@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import _base
 from openstack import resource
 
 
-class Subnet(resource.Resource, resource.TagMixin):
+class Subnet(_base.NetworkResource, resource.TagMixin):
     resource_key = 'subnet'
     resources_key = 'subnets'
     base_path = '/subnets'
@@ -75,8 +76,6 @@ class Subnet(resource.Resource, resource.TagMixin):
     prefix_length = resource.Body('prefixlen')
     #: The ID of the project this subnet is associated with.
     project_id = resource.Body('tenant_id')
-    #: Revision number of the subnet. *Type: int*
-    revision_number = resource.Body('revision_number', type=int)
     #: The ID of the segment this subnet is associated with.
     segment_id = resource.Body('segment_id')
     #: Service types for this subnet
