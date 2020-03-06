@@ -9,6 +9,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+from calendar import timegm
 import collections
 from hashlib import sha1
 import hmac
@@ -30,6 +32,8 @@ from openstack.cloud import _utils
 
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
+EXPIRES_ISO8601_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+SHORT_EXPIRES_ISO8601_FORMAT = '%Y-%m-%d'
 
 
 class Proxy(proxy.Proxy):
@@ -793,3 +797,134 @@ class Proxy(proxy.Proxy):
         sig = hmac.new(temp_url_key, data, sha1).hexdigest()
 
         return (expires, sig)
+
+    def generate_temp_url(
+            self, path, seconds, method, absolute=False, prefix=False,
+            iso8601=False, ip_range=None, temp_url_key=None):
+        """Generates a temporary URL that gives unauthenticated access to the
+        Swift object.
+
+        :param path: The full path to the Swift object or prefix if
+            a prefix-based temporary URL should be generated. Example:
+            /v1/AUTH_account/c/o or /v1/AUTH_account/c/prefix.
+        :param seconds: time in seconds or ISO 8601 timestamp.
+            If absolute is False and this is the string representation of an
+            integer, then this specifies the amount of time in seconds for
+            which the temporary URL will be valid.
+            If absolute is True then this specifies an absolute time at which
+            the temporary URL will expire.
+        :param method: A HTTP method, typically either GET or PUT, to allow
+            for this temporary URL.
+        :param absolute: if True then the seconds parameter is interpreted as a
+            Unix timestamp, if seconds represents an integer.
+        :param prefix: if True then a prefix-based temporary URL will be
+            generated.
+        :param iso8601: if True, a URL containing an ISO 8601 UTC timestamp
+            instead of a UNIX timestamp will be created.
+        :param ip_range: if a valid ip range, restricts the temporary URL to
+            the range of ips.
+        :param temp_url_key:
+          The X-Account-Meta-Temp-URL-Key for the account. Optional, if
+          omitted, the key will be fetched from the container or the account.
+        :raises ValueError: if timestamp or path is not in valid format.
+        :return: the path portion of a temporary URL
+        """
+        try:
+            try:
+                timestamp = float(seconds)
+            except ValueError:
+                formats = (
+                    EXPIRES_ISO8601_FORMAT,
+                    EXPIRES_ISO8601_FORMAT[:-1],
+                    SHORT_EXPIRES_ISO8601_FORMAT)
+                for f in formats:
+                    try:
+                        t = time.strptime(seconds, f)
+                    except ValueError:
+                        t = None
+                    else:
+                        if f == EXPIRES_ISO8601_FORMAT:
+                            timestamp = timegm(t)
+                        else:
+                            # Use local time if UTC designator is missing.
+                            timestamp = int(time.mktime(t))
+
+                        absolute = True
+                        break
+
+                if t is None:
+                    raise ValueError()
+            else:
+                if not timestamp.is_integer():
+                    raise ValueError()
+                timestamp = int(timestamp)
+                if timestamp < 0:
+                    raise ValueError()
+        except ValueError:
+            raise ValueError('time must either be a whole number '
+                             'or in specific ISO 8601 format.')
+
+        if isinstance(path, six.binary_type):
+            try:
+                path_for_body = path.decode('utf-8')
+            except UnicodeDecodeError:
+                raise ValueError('path must be representable as UTF-8')
+        else:
+            path_for_body = path
+
+        parts = path_for_body.split('/', 4)
+        if len(parts) != 5 or parts[0] or not all(
+                parts[1:(4 if prefix else 5)]):
+            if prefix:
+                raise ValueError('path must at least contain /v1/a/c/')
+            else:
+                raise ValueError('path must be full path to an object'
+                                 ' e.g. /v1/a/c/o')
+
+        standard_methods = ['GET', 'PUT', 'HEAD', 'POST', 'DELETE']
+        if method.upper() not in standard_methods:
+            self.log.warning('Non default HTTP method %s for tempurl '
+                             'specified, possibly an error', method.upper())
+
+        if not absolute:
+            expiration = int(time.time() + timestamp)
+        else:
+            expiration = timestamp
+
+        hmac_parts = [method.upper(), str(expiration),
+                      ('prefix:' if prefix else '') + path_for_body]
+
+        if ip_range:
+            if isinstance(ip_range, six.binary_type):
+                try:
+                    ip_range = ip_range.decode('utf-8')
+                except UnicodeDecodeError:
+                    raise ValueError(
+                        'ip_range must be representable as UTF-8'
+                    )
+            hmac_parts.insert(0, "ip=%s" % ip_range)
+
+        hmac_body = u'\n'.join(hmac_parts)
+
+        temp_url_key = self._check_temp_url_key(temp_url_key=temp_url_key)
+
+        sig = hmac.new(temp_url_key, hmac_body.encode('utf-8'),
+                       sha1).hexdigest()
+
+        if iso8601:
+            expiration = time.strftime(
+                EXPIRES_ISO8601_FORMAT, time.gmtime(expiration))
+
+        temp_url = u'{path}?temp_url_sig={sig}&temp_url_expires={exp}'.format(
+            path=path_for_body, sig=sig, exp=expiration)
+
+        if ip_range:
+            temp_url += u'&temp_url_ip_range={}'.format(ip_range)
+
+        if prefix:
+            temp_url += u'&temp_url_prefix={}'.format(parts[4])
+        # Have return type match path from caller
+        if isinstance(path, six.binary_type):
+            return temp_url.encode('utf-8')
+        else:
+            return temp_url
