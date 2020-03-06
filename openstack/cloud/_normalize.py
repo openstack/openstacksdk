@@ -994,7 +994,8 @@ class Normalizer(object):
                 'create_timeout',
                 'node_count',
                 'name'):
-            ret[key] = coe_cluster.pop(key)
+            if key in coe_cluster:
+                ret[key] = coe_cluster.pop(key)
 
         ret['properties'] = coe_cluster
         return ret

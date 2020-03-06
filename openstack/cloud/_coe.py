@@ -110,7 +110,7 @@ class CoeCloudMixin(_normalize.Normalizer):
                 '/clusters', json=body)
 
         self.list_coe_clusters.invalidate(self)
-        return cluster
+        return self._normalize_coe_cluster(cluster)
 
     def delete_coe_cluster(self, name_or_id):
         """Delete a COE cluster.
@@ -326,7 +326,7 @@ class CoeCloudMixin(_normalize.Normalizer):
                     '/baymodels', json=body)
 
         self.list_cluster_templates.invalidate(self)
-        return cluster_template
+        return self._normalize_cluster_template(cluster_template)
     create_baymodel = create_cluster_template
     create_coe_cluster_template = create_cluster_template
 
