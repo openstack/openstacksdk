@@ -29,7 +29,9 @@ class TestClusterTemplate(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestClusterTemplate, self).setUp()
-        if not self.user_cloud.has_service('container-infra'):
+        if not self.user_cloud.has_service(
+            'container-infrastructure-management'
+        ):
             self.skipTest('Container service not supported by cloud')
         self.ct = None
         self.ssh_directory = self.useFixture(fixtures.TempDir()).path

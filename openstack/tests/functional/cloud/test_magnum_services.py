@@ -24,7 +24,9 @@ class TestMagnumServices(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestMagnumServices, self).setUp()
-        if not self.operator_cloud.has_service('container-infra'):
+        if not self.operator_cloud.has_service(
+            'container-infrastructure-management'
+        ):
             self.skipTest('Container service not supported by cloud')
 
     def test_magnum_services(self):
