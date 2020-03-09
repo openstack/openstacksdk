@@ -53,8 +53,8 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # The allocation_uuid field introduced in 1.52 (Stein).
-    _max_microversion = '1.52'
+    # The retired and retired_reason fields introduced in 1.61 (Ussuri).
+    _max_microversion = '1.61'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -107,6 +107,9 @@ class Node(_common.ListMixin, resource.Resource):
     # Whether the node is protected from undeploying. Added in API microversion
     # 1.48.
     is_protected = resource.Body("protected", type=bool)
+    #: Whether the node is marked for retirement. Added in API microversion
+    #: 1.61.
+    is_retired = resource.Body("retired", type=bool)
     #: Any error from the most recent transaction that started but failed to
     #: finish.
     last_error = resource.Body("last_error")
@@ -133,6 +136,9 @@ class Node(_common.ListMixin, resource.Resource):
     protected_reason = resource.Body("protected_reason")
     #: The current provisioning state of the node.
     provision_state = resource.Body("provision_state")
+    #: The reason why the node is marked for retirement. Added in API
+    #: microversion 1.61.
+    retired_reason = resource.Body("retired_reason")
     #: The current RAID configuration of the node.
     raid_config = resource.Body("raid_config")
     #: The name of an service conductor host which is holding a lock on this
