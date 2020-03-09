@@ -269,6 +269,11 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.assertTrue(node.is_maintenance)
         self.assertEqual(reason, node.maintenance_reason)
 
+
+class TestNodeRetired(base.BaseBaremetalTest):
+
+    min_microversion = '1.61'
+
     def test_retired(self):
         reason = "I'm too old for this s...tuff!"
 
