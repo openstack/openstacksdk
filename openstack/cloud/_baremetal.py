@@ -68,7 +68,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
 
         :returns: list of ``munch.Munch`` representing machines.
         """
-        return [self._normalize_machine(node._to_munch())
+        return [self._normalize_machine(node)
                 for node in self.baremetal.nodes()]
 
     def get_machine(self, name_or_id):
@@ -83,8 +83,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
                   nodes are found.
         """
         try:
-            return self._normalize_machine(
-                self.baremetal.get_node(name_or_id)._to_munch())
+            return self._normalize_machine(self.baremetal.get_node(name_or_id))
         except exc.OpenStackCloudResourceNotFound:
             return None
 
@@ -159,7 +158,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
                                                            wait=True,
                                                            timeout=timeout)
 
-        return node._to_munch()
+        return self._normalize_machine(node)
 
     def register_machine(self, nics, wait=False, timeout=3600,
                          lock_timeout=600, **kwargs):
@@ -477,7 +476,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
         change_list = [change['path'] for change in patch]
         node = self.baremetal.update_node(machine, **attrs)
         return dict(
-            node=self._normalize_machine(node._to_munch()),
+            node=self._normalize_machine(node),
             changes=change_list
         )
 
@@ -573,7 +572,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
         node = self.baremetal.set_node_provision_state(
             name_or_id, target=state, config_drive=configdrive,
             wait=wait, timeout=timeout)
-        return node._to_munch()
+        return self._normalize_machine(node)
 
     def set_machine_maintenance_state(
             self,

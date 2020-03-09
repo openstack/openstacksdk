@@ -213,8 +213,9 @@ class TestBaremetalNode(base.IronicTestCase):
                  json=self.fake_baremetal_node,
                  validate=dict(json=test_patch)),
         ])
-        self.cloud.patch_machine(
+        result = self.cloud.patch_machine(
             self.fake_baremetal_node['uuid'], test_patch)
+        self.assertEqual(self.fake_baremetal_node['uuid'], result['uuid'])
 
         self.assert_calls()
 
@@ -759,10 +760,11 @@ class TestBaremetalNode(base.IronicTestCase):
                      append=[self.fake_baremetal_node['uuid']]),
                  json=self.fake_baremetal_node),
         ])
-        self.cloud.node_set_provision_state(
+        result = self.cloud.node_set_provision_state(
             self.fake_baremetal_node['uuid'],
             'active',
             configdrive='http://host/file')
+        self.assertEqual(self.fake_baremetal_node['uuid'], result['uuid'])
 
         self.assert_calls()
 
