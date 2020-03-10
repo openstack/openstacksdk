@@ -78,6 +78,24 @@ class TestAggregate(base.TestCase):
 
         self.assert_calls()
 
+    def test_delete_aggregate_by_name(self):
+        self.register_uris([
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    'compute', 'public', append=['os-aggregates']
+                ),
+                json={'aggregates': [self.fake_aggregate]},
+            ),
+            dict(method='DELETE',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates', '1'])),
+        ])
+
+        self.assertTrue(self.cloud.delete_aggregate(self.aggregate_name))
+
+        self.assert_calls()
+
     def test_update_aggregate_set_az(self):
         self.register_uris([
             dict(method='GET',

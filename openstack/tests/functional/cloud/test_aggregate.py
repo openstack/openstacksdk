@@ -50,9 +50,11 @@ class TestAggregate(base.BaseFunctionalTest):
         )
         self.assertNotIn('key', aggregate['metadata'])
 
-        self.operator_cloud.delete_aggregate(aggregate_name)
+        # Validate that we can delete by name
+        self.assertTrue(
+            self.operator_cloud.delete_aggregate(aggregate_name))
 
     def cleanup(self, aggregate_name):
         aggregate = self.operator_cloud.get_aggregate(aggregate_name)
         if aggregate:
-            self.operator_cloud.delete_aggregate(aggregate_name)
+            self.operator_cloud.delete_aggregate(aggregate['id'])
