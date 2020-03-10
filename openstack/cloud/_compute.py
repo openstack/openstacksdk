@@ -1633,6 +1633,16 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
+        if (
+            isinstance(name_or_id, six.string_types + (six.binary_type,))
+            and not name_or_id.isdigit()
+        ):
+            aggregate = self.get_aggregate(name_or_id)
+            if not aggregate:
+                self.log.debug(
+                    "Aggregate %s not found for deleting", name_or_id)
+                return False
+            name_or_id = aggregate.id
         try:
             self.compute.delete_aggregate(name_or_id, ignore_missing=False)
             return True
