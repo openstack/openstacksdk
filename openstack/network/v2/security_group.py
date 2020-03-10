@@ -27,7 +27,7 @@ class SecurityGroup(_base.NetworkResource, resource.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'fields', 'name', 'project_id', 'tenant_id',
+        'description', 'fields', 'name', 'stateful', 'project_id', 'tenant_id',
         'revision_number', 'sort_dir', 'sort_key',
         **resource.TagMixin._tag_query_parameters
     )
@@ -39,6 +39,8 @@ class SecurityGroup(_base.NetworkResource, resource.TagMixin):
     description = resource.Body('description')
     #: The security group name.
     name = resource.Body('name')
+    #: Whether the security group is stateful or not.
+    stateful = resource.Body('stateful')
     #: The ID of the project this security group is associated with.
     project_id = resource.Body('project_id')
     #: A list of

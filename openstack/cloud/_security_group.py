@@ -115,7 +115,8 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
         return self._normalize_secgroup(
             self._get_and_munchify('security_group', data))
 
-    def create_security_group(self, name, description, project_id=None):
+    def create_security_group(self, name, description,
+                              project_id=None, stateful=None):
         """Create a new security group
 
         :param string name: A name for the security group.
@@ -123,6 +124,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
         :param string project_id:
             Specify the project ID this security group will be created
             on (admin-only).
+        :param string stateful: Whether the security group is stateful or not.
 
         :returns: A ``munch.Munch`` representing the new security group.
 
@@ -141,6 +143,8 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
         security_group_json = {
             'name': name, 'description': description
         }
+        if stateful is not None:
+            security_group_json['stateful'] = stateful
         if project_id is not None:
             security_group_json['tenant_id'] = project_id
         if self._use_neutron_secgroups():
@@ -188,7 +192,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
                 '/os-security-groups/{id}'.format(id=secgroup['id'])))
             return True
 
-    @_utils.valid_kwargs('name', 'description')
+    @_utils.valid_kwargs('name', 'description', 'stateful')
     def update_security_group(self, name_or_id, **kwargs):
         """Update a security group
 

@@ -388,6 +388,9 @@ class Normalizer(object):
         ret['description'] = group.pop('description')
         ret['properties'] = group
 
+        if self._use_neutron_secgroups():
+            ret['stateful'] = group.pop('stateful', True)
+
         # Backwards compat with Neutron
         if not self.strict_mode:
             ret['tenant_id'] = project_id

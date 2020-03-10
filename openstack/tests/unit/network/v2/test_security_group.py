@@ -54,6 +54,7 @@ EXAMPLE = {
     'description': '1',
     'id': IDENTIFIER,
     'name': '2',
+    'stateful': True,
     'revision_number': 3,
     'security_group_rules': RULES,
     'tenant_id': '4',
@@ -89,7 +90,8 @@ class TestSecurityGroup(base.TestCase):
                               'sort_dir': 'sort_dir',
                               'sort_key': 'sort_key',
                               'tags': 'tags',
-                              'tenant_id': 'tenant_id'
+                              'tenant_id': 'tenant_id',
+                              'stateful': 'stateful',
                               },
                              sot._query_mapping._mapping)
 
