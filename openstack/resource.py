@@ -1215,7 +1215,10 @@ class Resource(dict):
             raise exceptions.NotSupported(message)
 
         actual = self._get_microversion_for(session, action)
-        if actual is None:
+
+        if expected is None:
+            return actual
+        elif actual is None:
             message = ("API version %s is required, but the default "
                        "version will be used.") % expected
             _raise(message)
