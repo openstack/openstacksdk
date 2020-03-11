@@ -58,6 +58,15 @@ STATE_VERSIONS = {
 VIF_VERSION = '1.28'
 """API version in which the VIF operations were introduced."""
 
+CONFIG_DRIVE_REBUILD_VERSION = '1.35'
+"""API version in which rebuild accepts a configdrive."""
+
+RESET_INTERFACES_VERSION = '1.45'
+"""API version in which the reset_interfaces parameter was introduced."""
+
+CONFIG_DRIVE_DICT_VERSION = '1.56'
+"""API version in which configdrive can be a dictionary."""
+
 
 class ListMixin(object):
 

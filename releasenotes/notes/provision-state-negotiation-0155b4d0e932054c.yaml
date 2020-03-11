@@ -1,0 +1,12 @@
+---
+fixes:
+  - |
+    Fixes API version negotiation in the following bare metal node calls:
+
+    * ``set_node_provision_state``
+    * ``set_node_power_state``
+    * ``patch_node``
+
+    Previously an unexpectingly low version could be negotiated, breaking
+    certain features, for example calling the ``provide`` provisioning action
+    with a node name.
