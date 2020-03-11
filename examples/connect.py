@@ -31,6 +31,7 @@ openstack.enable_logging(True, stream=sys.stdout)
 #: will determine where the examples will be run and what resource defaults
 #: will be used to run the examples.
 TEST_CLOUD = os.getenv('OS_TEST_CLOUD', 'devstack-admin')
+EXAMPLE_CONFIG_KEY = os.getenv('OPENSTACKSDK_EXAMPLE_CONFIG_KEY', 'example')
 config = loader.OpenStackConfig()
 cloud = openstack.connect(cloud=TEST_CLOUD)
 
@@ -44,7 +45,8 @@ class Opts(object):
 
 
 def _get_resource_value(resource_key, default):
-    return config.get_extra_config('example').get(resource_key, default)
+    return config.get_extra_config(
+        EXAMPLE_CONFIG_KEY).get(resource_key, default)
 
 
 SERVER_NAME = 'openstacksdk-example'

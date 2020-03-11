@@ -6,10 +6,6 @@ clouds:
       username: demo
       password: secrete
       project_name: demo
-    example:
-      image_name: fedora-20.x86_64
-      flavor_name: m1.small
-      network_name: private
   rackspace:
     cloud: rackspace
     auth:
@@ -17,3 +13,7 @@ clouds:
       password: joes-password
       project_name: 123123
     region_name: IAD
+example:
+  image_name: fedora-20.x86_64
+  flavor_name: m1.small
+  network_name: private
