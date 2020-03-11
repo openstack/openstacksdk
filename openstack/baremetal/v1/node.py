@@ -346,11 +346,11 @@ class Node(_common.ListMixin, resource.Resource):
         if config_drive:
             # Some config drive actions require a higher version.
             if isinstance(config_drive, dict):
-                version = '1.56'
+                version = _common.CONFIG_DRIVE_DICT_VERSION
             elif target == 'rebuild':
-                version = '1.35'
+                version = _common.CONFIG_DRIVE_REBUILD_VERSION
 
-        version = utils.pick_microversion(session, version)
+        version = self._assert_microversion_for(session, 'commit', version)
 
         body = {'target': target}
         if config_drive:
@@ -532,7 +532,7 @@ class Node(_common.ListMixin, resource.Resource):
         else:
             version = None
 
-        version = utils.pick_microversion(session, version)
+        version = self._assert_microversion_for(session, 'commit', version)
 
         # TODO(dtantsur): server timeout support
         body = {'target': target}
@@ -854,7 +854,8 @@ class Node(_common.ListMixin, resource.Resource):
                 raise exceptions.MethodNotSupported(self, "patch")
 
             session = self._get_session(session)
-            microversion = utils.pick_microversion(session, '1.45')
+            microversion = self._assert_microversion_for(
+                session, 'commit', _common.RESET_INTERFACES_VERSION)
             params = [('reset_interfaces', reset_interfaces)]
 
             request = self._prepare_request(requires_id=True,

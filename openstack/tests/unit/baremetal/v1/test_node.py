@@ -229,6 +229,11 @@ class TestNodeWaitForProvisionState(base.TestCase):
                           abort_on_failed_state=False)
 
 
+def _fake_assert(self, session, action, expected, error_message=None):
+    return expected
+
+
+@mock.patch.object(node.Node, '_assert_microversion_for', _fake_assert)
 @mock.patch.object(node.Node, 'fetch', lambda self, session: self)
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeSetProvisionState(base.TestCase):
@@ -558,6 +563,7 @@ class TestNodeWaitForReservation(base.TestCase):
         mock_fetch.assert_called_with(self.node, self.session)
 
 
+@mock.patch.object(node.Node, '_assert_microversion_for', _fake_assert)
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeSetPowerState(base.TestCase):
 
@@ -769,6 +775,7 @@ class TestNodeTraits(base.TestCase):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
 
+@mock.patch.object(node.Node, '_assert_microversion_for', _fake_assert)
 @mock.patch.object(resource.Resource, 'patch', autospec=True)
 class TestNodePatch(base.TestCase):
 
