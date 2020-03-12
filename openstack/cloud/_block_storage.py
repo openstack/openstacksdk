@@ -630,7 +630,9 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
                                   filters)
 
     def create_volume_backup(self, volume_id, name=None, description=None,
-                             force=False, wait=True, timeout=None):
+                             force=False, wait=True, timeout=None,
+                             incremental=False, snapshot_id=None):
+
         """Create a volume backup.
 
         :param volume_id: the ID of the volume to backup.
@@ -643,6 +645,8 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :param wait: If true, waits for volume backup to be created.
         :param timeout: Seconds to wait for volume backup creation. None is
                         forever.
+        :param incremental: If set to true, the backup will be incremental.
+        :param snapshot_id: The UUID of the source snapshot to back up.
 
         :returns: The created volume backup object.
 
@@ -654,6 +658,8 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             'volume_id': volume_id,
             'description': description,
             'force': force,
+            'incremental': incremental,
+            'snapshot_id': snapshot_id,
         }
 
         resp = self.block_storage.post(
