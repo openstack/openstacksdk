@@ -116,7 +116,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -146,7 +146,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -190,7 +190,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -233,7 +233,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -319,7 +319,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -393,7 +393,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -475,7 +475,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -568,7 +568,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -657,7 +657,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -714,7 +714,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -776,7 +776,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -864,7 +864,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -915,7 +915,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -1019,7 +1019,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -1057,7 +1057,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -1095,7 +1095,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -1131,7 +1131,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -1298,7 +1298,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"
@@ -1357,7 +1357,7 @@ class TestClustering(base.BaseFunctionalTest):
         spec = {
             "properties": {
                 "flavor": "m1.tiny",
-                "image": "cirros-0.4.0-x86_64-disk",
+                "image": base.IMAGE_NAME,
                 "networks": [
                     {
                         "network": "private"

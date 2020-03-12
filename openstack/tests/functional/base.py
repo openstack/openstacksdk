@@ -22,15 +22,14 @@ from openstack.tests import base
 #: file, typically in $HOME/.config/openstack/clouds.yaml. That configuration
 #: will determine where the functional tests will be run and what resource
 #: defaults will be used to run the functional tests.
+TEST_CONFIG = openstack.config.OpenStackConfig()
 TEST_CLOUD_NAME = os.getenv('OS_CLOUD', 'devstack-admin')
 TEST_CLOUD_REGION = openstack.config.get_cloud_region(cloud=TEST_CLOUD_NAME)
 
 
 def _get_resource_value(resource_key, default):
-    try:
-        return TEST_CLOUD_REGION.config['functional'][resource_key]
-    except KeyError:
-        return default
+    return TEST_CONFIG.get_extra_config(
+        'functional').get(resource_key, default)
 
 
 def _disable_keep_alive(conn):
