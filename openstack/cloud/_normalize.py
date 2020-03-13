@@ -1168,12 +1168,13 @@ class Normalizer(object):
 
     def _normalize_machine(self, machine):
         """Normalize Ironic Machine"""
-        machine = machine.copy()
+        if isinstance(machine, resource.Resource):
+            machine = machine._to_munch()
+        else:
+            machine = machine.copy()
 
         # Discard noise
         self._remove_novaclient_artifacts(machine)
-
-        # TODO(mordred) Normalize this resource
 
         return machine
 
