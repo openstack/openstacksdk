@@ -94,13 +94,17 @@ class TestRoleAssignment(base.TestCase):
     def test_grant_role_user_v2(self):
         self.use_keystone_v2()
         self.register_uris([
+            # user name
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -126,13 +130,15 @@ class TestRoleAssignment(base.TestCase):
                      append=[self.project_data_v2.project_id,
                              'users', self.user_data.user_id, 'roles',
                              'OS-KSADM', self.role_data.role_id])),
+            # user id
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users'),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -159,11 +165,13 @@ class TestRoleAssignment(base.TestCase):
                              'OS-KSADM', self.role_data.role_id]),
                  status_code=201)
         ])
+        # user name
         self.assertTrue(
             self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id))
+        # user id
         self.assertTrue(
             self.cloud.grant_role(
                 self.role_data.role_name,
@@ -174,13 +182,17 @@ class TestRoleAssignment(base.TestCase):
     def test_grant_role_user_project_v2(self):
         self.use_keystone_v2()
         self.register_uris([
+            # role name and user name
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -206,13 +218,15 @@ class TestRoleAssignment(base.TestCase):
                              'users', self.user_data.user_id, 'roles',
                              'OS-KSADM', self.role_data.role_id]),
                  status_code=201),
+            # role name and user id
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users'),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -238,13 +252,17 @@ class TestRoleAssignment(base.TestCase):
                              'users', self.user_data.user_id, 'roles',
                              'OS-KSADM', self.role_data.role_id]),
                  status_code=201),
+            # role id and user name
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -271,13 +289,15 @@ class TestRoleAssignment(base.TestCase):
                              'OS-KSADM', self.role_data.role_id]),
                  status_code=201,
                  ),
+            # role id and user id
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users'),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -304,21 +324,25 @@ class TestRoleAssignment(base.TestCase):
                              'OS-KSADM', self.role_data.role_id]),
                  status_code=201)
         ])
+        # role name and user name
         self.assertTrue(
             self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data_v2.project_id))
+        # role name and user id
         self.assertTrue(
             self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.user_id,
                 project=self.project_data_v2.project_id))
+        # role id and user name
         self.assertTrue(
             self.cloud.grant_role(
                 self.role_data.role_id,
                 user=self.user_data.name,
                 project=self.project_data_v2.project_id))
+        # role id and user id
         self.assertTrue(
             self.cloud.grant_role(
                 self.role_data.role_id,
@@ -335,7 +359,10 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -362,12 +389,15 @@ class TestRoleAssignment(base.TestCase):
 
     def test_grant_role_user_project(self):
         self.register_uris([
+            # user name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -392,6 +422,7 @@ class TestRoleAssignment(base.TestCase):
                              self.user_data.user_id, 'roles',
                              self.role_data.role_id]),
                  status_code=204),
+            # user id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -423,11 +454,13 @@ class TestRoleAssignment(base.TestCase):
                              self.role_data.role_id]),
                  status_code=204),
         ])
+        # user name
         self.assertTrue(
             self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
                 project=self.project_data.project_id))
+        # user id
         self.assertTrue(
             self.cloud.grant_role(
                 self.role_data.role_name,
@@ -437,12 +470,15 @@ class TestRoleAssignment(base.TestCase):
 
     def test_grant_role_user_project_exists(self):
         self.register_uris([
+            # user name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -466,6 +502,7 @@ class TestRoleAssignment(base.TestCase):
                          scope_id=self.project_data.project_id,
                          entity_type='user',
                          entity_id=self.user_data.user_id)}),
+            # user id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -496,10 +533,12 @@ class TestRoleAssignment(base.TestCase):
                          entity_type='user',
                          entity_id=self.user_data.user_id)}),
         ])
+        # user name
         self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
+        # user id
         self.assertFalse(self.cloud.grant_role(
             self.role_data.role_id,
             user=self.user_data.user_id,
@@ -652,6 +691,45 @@ class TestRoleAssignment(base.TestCase):
 
     def test_grant_role_user_domain(self):
         self.register_uris([
+            # user name and domain id
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='roles'),
+                 status_code=200,
+                 json={'roles': [self.role_data.json_response['role']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='domains',
+                                       append=[self.domain_data.domain_id]),
+                 status_code=200,
+                 json=self.domain_data.json_response),
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
+                 complete_qs=True,
+                 status_code=200,
+                 json={'users': [self.user_data.json_response['user']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='role_assignments',
+                     qs_elements=[
+                         'role.id=%s' % self.role_data.role_id,
+                         'scope.domain.id=%s' % self.domain_data.domain_id,
+                         'user.id=%s' % self.user_data.user_id]),
+                 complete_qs=True,
+                 status_code=200,
+                 json={'role_assignments': []}),
+            dict(method='PUT',
+                 uri=self.get_mock_url(resource='domains',
+                                       append=[self.domain_data.domain_id,
+                                               'users',
+                                               self.user_data.user_id,
+                                               'roles',
+                                               self.role_data.role_id]),
+                 status_code=204),
+            # user id and domain id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -687,41 +765,7 @@ class TestRoleAssignment(base.TestCase):
                                                'roles',
                                                self.role_data.role_id]),
                  status_code=204),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='domains',
-                                       append=[self.domain_data.domain_id]),
-                 status_code=200,
-                 json=self.domain_data.json_response),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='users',
-                                       qs_elements=['domain_id=%s' %
-                                                    self.domain_data.
-                                                    domain_id]),
-                 complete_qs=True,
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='role_assignments',
-                     qs_elements=[
-                         'role.id=%s' % self.role_data.role_id,
-                         'scope.domain.id=%s' % self.domain_data.domain_id,
-                         'user.id=%s' % self.user_data.user_id]),
-                 complete_qs=True,
-                 status_code=200,
-                 json={'role_assignments': []}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(resource='domains',
-                                       append=[self.domain_data.domain_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles',
-                                               self.role_data.role_id]),
-                 status_code=204),
+            # user name and domain name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -735,7 +779,9 @@ class TestRoleAssignment(base.TestCase):
                  uri=self.get_mock_url(resource='users',
                                        qs_elements=['domain_id=%s' %
                                                     self.domain_data.
-                                                    domain_id]),
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
                  complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
@@ -757,6 +803,7 @@ class TestRoleAssignment(base.TestCase):
                                                'roles',
                                                self.role_data.role_id]),
                  status_code=204),
+            # user id and domain name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -793,18 +840,22 @@ class TestRoleAssignment(base.TestCase):
                                                self.role_data.role_id]),
                  status_code=204),
         ])
+        # user name and domain id
         self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_id))
+        # user id and domain id
         self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_id))
+        # user name and domain name
         self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_name))
+        # user id and domain name
         self.assertTrue(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
@@ -813,6 +864,43 @@ class TestRoleAssignment(base.TestCase):
 
     def test_grant_role_user_domain_exists(self):
         self.register_uris([
+            # user name and domain id
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='roles'),
+                 status_code=200,
+                 json={'roles': [self.role_data.json_response['role']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='domains',
+                                       append=[self.domain_data.domain_id]),
+                 status_code=200,
+                 json=self.domain_data.json_response),
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
+                 complete_qs=True,
+                 status_code=200,
+                 json={'users': [self.user_data.json_response['user']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='role_assignments',
+                     qs_elements=[
+                         'role.id=%s' % self.role_data.role_id,
+                         'scope.domain.id=%s' % self.domain_data.domain_id,
+                         'user.id=%s' % self.user_data.user_id]),
+                 complete_qs=True,
+                 status_code=200,
+                 json={
+                     'role_assignments': self._build_role_assignment_response(
+                         role_id=self.role_data.role_id,
+                         scope_type='domain',
+                         scope_id=self.domain_data.domain_id,
+                         entity_type='user',
+                         entity_id=self.user_data.user_id)}),
+            # user id and domain id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -846,39 +934,7 @@ class TestRoleAssignment(base.TestCase):
                          scope_id=self.domain_data.domain_id,
                          entity_type='user',
                          entity_id=self.user_data.user_id)}),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='domains',
-                                       append=[self.domain_data.domain_id]),
-                 status_code=200,
-                 json=self.domain_data.json_response),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='users',
-                                       qs_elements=['domain_id=%s' %
-                                                    self.domain_data.
-                                                    domain_id]),
-                 complete_qs=True,
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='role_assignments',
-                     qs_elements=[
-                         'role.id=%s' % self.role_data.role_id,
-                         'scope.domain.id=%s' % self.domain_data.domain_id,
-                         'user.id=%s' % self.user_data.user_id]),
-                 complete_qs=True,
-                 status_code=200,
-                 json={
-                     'role_assignments': self._build_role_assignment_response(
-                         role_id=self.role_data.role_id,
-                         scope_type='domain',
-                         scope_id=self.domain_data.domain_id,
-                         entity_type='user',
-                         entity_id=self.user_data.user_id)}),
+            # user name and domain name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -892,7 +948,9 @@ class TestRoleAssignment(base.TestCase):
                  uri=self.get_mock_url(resource='users',
                                        qs_elements=['domain_id=%s' %
                                                     self.domain_data.
-                                                    domain_id]),
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
                  complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
@@ -912,6 +970,7 @@ class TestRoleAssignment(base.TestCase):
                          scope_id=self.domain_data.domain_id,
                          entity_type='user',
                          entity_id=self.user_data.user_id)}),
+            # user id and domain name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -946,18 +1005,22 @@ class TestRoleAssignment(base.TestCase):
                          entity_type='user',
                          entity_id=self.user_data.user_id)}),
         ])
+        # user name and domain id
         self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_id))
+        # user id and domain id
         self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_id))
+        # user name and domain name
         self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_name))
+        # user id and domain name
         self.assertFalse(self.cloud.grant_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
@@ -1249,6 +1312,7 @@ class TestRoleAssignment(base.TestCase):
     def test_revoke_role_user_v2(self):
         self.use_keystone_v2()
         self.register_uris([
+            # user name
             dict(method='GET',
                  uri=self.get_mock_url(
                      base_url_append='OS-KSADM',
@@ -1258,7 +1322,8 @@ class TestRoleAssignment(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      base_url_append=None,
-                     resource='users'),
+                     resource='users', qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1286,6 +1351,7 @@ class TestRoleAssignment(base.TestCase):
                                                'roles', 'OS-KSADM',
                                                self.role_data.role_id]),
                  status_code=204),
+            # user id
             dict(method='GET',
                  uri=self.get_mock_url(
                      base_url_append='OS-KSADM',
@@ -1324,10 +1390,12 @@ class TestRoleAssignment(base.TestCase):
                                                self.role_data.role_id]),
                  status_code=204),
         ])
+        # user name
         self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
+        # user id
         self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
@@ -1337,13 +1405,17 @@ class TestRoleAssignment(base.TestCase):
     def test_revoke_role_user_project_v2(self):
         self.use_keystone_v2()
         self.register_uris([
+            # role name and user name
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1362,13 +1434,15 @@ class TestRoleAssignment(base.TestCase):
                                                'roles']),
                  status_code=200,
                  json={'roles': []}),
+            # role name and user id
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users'),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1387,13 +1461,17 @@ class TestRoleAssignment(base.TestCase):
                                                'roles']),
                  status_code=200,
                  json={'roles': []}),
+            # role id and user name
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1412,13 +1490,15 @@ class TestRoleAssignment(base.TestCase):
                                                'roles']),
                  status_code=200,
                  json={'roles': []}),
+            # role id and user id
             dict(method='GET',
                  uri=self.get_mock_url(base_url_append='OS-KSADM',
                                        resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users'),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1438,18 +1518,22 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': []})
         ])
+        # role name and user name
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
+        # role name and user id
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             project=self.project_data.project_id))
+        # role id and user name
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_id,
             user=self.user_data.name,
             project=self.project_data.project_id))
+        # role id and user id
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_id,
             user=self.user_data.user_id,
@@ -1465,7 +1549,10 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1502,12 +1589,15 @@ class TestRoleAssignment(base.TestCase):
 
     def test_revoke_role_user_project(self):
         self.register_uris([
+            # user name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1525,6 +1615,7 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  complete_qs=True,
                  json={'role_assignments': []}),
+            # user id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -1549,10 +1640,12 @@ class TestRoleAssignment(base.TestCase):
                  complete_qs=True,
                  json={'role_assignments': []}),
         ])
+        # user name
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
+        # user id
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
@@ -1561,12 +1654,15 @@ class TestRoleAssignment(base.TestCase):
 
     def test_revoke_role_user_project_exists(self):
         self.register_uris([
+            # role name and user name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -1597,6 +1693,7 @@ class TestRoleAssignment(base.TestCase):
                                                self.user_data.user_id,
                                                'roles',
                                                self.role_data.role_id])),
+            # role id and user id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -1634,10 +1731,12 @@ class TestRoleAssignment(base.TestCase):
                                                'roles',
                                                self.role_data.role_id])),
         ])
+        # role name and user name
         self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             project=self.project_data.project_id))
+        # role id and user id
         self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_id,
             user=self.user_data.user_id,
@@ -1790,6 +1889,37 @@ class TestRoleAssignment(base.TestCase):
 
     def test_revoke_role_user_domain(self):
         self.register_uris([
+            # user name and domain id
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='roles'),
+                 status_code=200,
+                 json={'roles': [self.role_data.json_response['role']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='domains',
+                                       append=[self.domain_data.domain_id]),
+                 status_code=200,
+                 json=self.domain_data.json_response),
+            dict(method='GET',
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['domain_id=%s' %
+                                                    self.domain_data.
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
+                 complete_qs=True,
+                 status_code=200,
+                 json={'users': [self.user_data.json_response['user']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     resource='role_assignments',
+                     qs_elements=[
+                         'user.id=%s' % self.user_data.user_id,
+                         'scope.domain.id=%s' % self.domain_data.domain_id,
+                         'role.id=%s' % self.role_data.role_id]),
+                 status_code=200,
+                 complete_qs=True,
+                 json={'role_assignments': []}),
+            # user id and domain id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -1817,33 +1947,7 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  complete_qs=True,
                  json={'role_assignments': []}),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='domains',
-                                       append=[self.domain_data.domain_id]),
-                 status_code=200,
-                 json=self.domain_data.json_response),
-            dict(method='GET',
-                 uri=self.get_mock_url(resource='users',
-                                       qs_elements=['domain_id=%s' %
-                                                    self.domain_data.
-                                                    domain_id]),
-                 complete_qs=True,
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='role_assignments',
-                     qs_elements=[
-                         'user.id=%s' % self.user_data.user_id,
-                         'scope.domain.id=%s' % self.domain_data.domain_id,
-                         'role.id=%s' % self.role_data.role_id]),
-                 status_code=200,
-                 complete_qs=True,
-                 json={'role_assignments': []}),
+            # user name and domain name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -1857,7 +1961,9 @@ class TestRoleAssignment(base.TestCase):
                  uri=self.get_mock_url(resource='users',
                                        qs_elements=['domain_id=%s' %
                                                     self.domain_data.
-                                                    domain_id]),
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
                  complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
@@ -1871,6 +1977,7 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  complete_qs=True,
                  json={'role_assignments': []}),
+            # user id and domain name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -1899,18 +2006,22 @@ class TestRoleAssignment(base.TestCase):
                  complete_qs=True,
                  json={'role_assignments': []}),
         ])
+        # user name and domain id
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_id))
+        # user id and domain id
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_id))
+        # user name and domain name
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_name))
+        # user id and domain name
         self.assertFalse(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
@@ -1919,6 +2030,7 @@ class TestRoleAssignment(base.TestCase):
 
     def test_revoke_role_user_domain_exists(self):
         self.register_uris([
+            # user name and domain name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -1932,7 +2044,9 @@ class TestRoleAssignment(base.TestCase):
                  uri=self.get_mock_url(resource='users',
                                        qs_elements=['domain_id=%s' %
                                                     self.domain_data.
-                                                    domain_id]),
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
                  complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
@@ -1959,6 +2073,7 @@ class TestRoleAssignment(base.TestCase):
                                                self.user_data.user_id,
                                                'roles',
                                                self.role_data.role_id])),
+            # user id and domain name
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -1999,6 +2114,7 @@ class TestRoleAssignment(base.TestCase):
                                                self.user_data.user_id,
                                                'roles',
                                                self.role_data.role_id])),
+            # user name and domain id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -2012,7 +2128,9 @@ class TestRoleAssignment(base.TestCase):
                  uri=self.get_mock_url(resource='users',
                                        qs_elements=['domain_id=%s' %
                                                     self.domain_data.
-                                                    domain_id]),
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
                  complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
@@ -2039,6 +2157,7 @@ class TestRoleAssignment(base.TestCase):
                                                self.user_data.user_id,
                                                'roles',
                                                self.role_data.role_id])),
+            # user id and domain id
             dict(method='GET',
                  uri=self.get_mock_url(resource='roles'),
                  status_code=200,
@@ -2080,18 +2199,22 @@ class TestRoleAssignment(base.TestCase):
                                                'roles',
                                                self.role_data.role_id])),
         ])
+        # user name and domain name
         self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_name))
+        # user id and domain name
         self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
             domain=self.domain_data.domain_name))
+        # user name and domain id
         self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.name,
             domain=self.domain_data.domain_id))
+        # user id and domain id
         self.assertTrue(self.cloud.revoke_role(
             self.role_data.role_name,
             user=self.user_data.user_id,
@@ -2447,7 +2570,9 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': []})
         ])
@@ -2467,7 +2592,9 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': []})
         ])
@@ -2487,7 +2614,9 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2512,7 +2641,9 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2545,7 +2676,9 @@ class TestRoleAssignment(base.TestCase):
                  uri=self.get_mock_url(resource='users',
                                        qs_elements=['domain_id=%s' %
                                                     self.domain_data.
-                                                    domain_id]),
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
                  complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
@@ -2598,7 +2731,9 @@ class TestRoleAssignment(base.TestCase):
                  uri=self.get_mock_url(resource='users',
                                        qs_elements=['domain_id=%s' %
                                                     self.domain_data.
-                                                    domain_id]),
+                                                    domain_id,
+                                                    'name=%s' %
+                                                    self.user_data.name]),
                  complete_qs=True,
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
@@ -2648,7 +2783,9 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2676,7 +2813,9 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='users'),
+                 uri=self.get_mock_url(resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2758,7 +2897,10 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2817,7 +2959,9 @@ class TestRoleAssignment(base.TestCase):
                      json={'roles': [self.role_data.json_response['role']]}),
                 dict(method='GET',
                      uri=self.get_mock_url(base_url_append=None,
-                                           resource='users'),
+                                           resource='users',
+                                           qs_elements=['name=%s' %
+                                                        self.user_data.name]),
                      status_code=200,
                      json={'users': [self.user_data.json_response['user']]}),
                 dict(method='GET',
@@ -2872,7 +3016,10 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2927,7 +3074,10 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None, resource='users'),
+                 uri=self.get_mock_url(base_url_append=None,
+                                       resource='users',
+                                       qs_elements=['name=%s' %
+                                                    self.user_data.name]),
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
@@ -2970,6 +3120,8 @@ class TestRoleAssignment(base.TestCase):
             'Timeout waiting for role to be revoked'
         ):
             self.assertTrue(self.cloud.revoke_role(
-                self.role_data.role_name, user=self.user_data.name,
-                project=self.project_data.project_id, wait=True, timeout=0.01))
+                self.role_data.role_name,
+                user=self.user_data.name,
+                project=self.project_data.project_id,
+                wait=True, timeout=0.01))
         self.assert_calls(do_count=False)

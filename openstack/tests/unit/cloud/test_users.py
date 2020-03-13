@@ -20,13 +20,15 @@ from openstack.tests.unit import base
 
 class TestUsers(base.TestCase):
 
-    def _get_keystone_mock_url(self, resource, append=None, v3=True):
+    def _get_keystone_mock_url(self, resource, append=None, v3=True,
+                               qs_elements=None):
         base_url_append = None
         if v3:
             base_url_append = 'v3'
         return self.get_mock_url(
             service_type='identity', resource=resource,
-            append=append, base_url_append=base_url_append)
+            append=append, base_url_append=base_url_append,
+            qs_elements=qs_elements)
 
     def _get_user_list(self, user_data):
         uri = self._get_keystone_mock_url(resource='users')
@@ -139,7 +141,10 @@ class TestUsers(base.TestCase):
 
         self.register_uris([
             dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='users'),
+                 uri=self._get_keystone_mock_url(resource='users',
+                                                 qs_elements=['name=%s' %
+                                                              user_data.
+                                                              name]),
                  status_code=200,
                  json=self._get_user_list(user_data)),
             dict(method='GET', uri=user_resource_uri, status_code=200,

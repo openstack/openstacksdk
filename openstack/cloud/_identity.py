@@ -173,7 +173,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
         return True
 
-    @_utils.valid_kwargs('domain_id')
+    @_utils.valid_kwargs('domain_id', 'name')
     @_utils.cache_on_arguments()
     def list_users(self, **kwargs):
         """List users.
@@ -189,7 +189,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         return _utils.normalize_users(
             self._get_and_munchify('users', data))
 
-    @_utils.valid_kwargs('domain_id')
+    @_utils.valid_kwargs('domain_id', 'name')
     def search_users(self, name_or_id=None, filters=None, **kwargs):
         """Search users.
 
@@ -205,6 +205,11 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
+        # NOTE(jdwidari) if name_or_id isn't UUID like then make use of server-
+        # side filter for user name https://bit.ly/2qh0Ijk
+        # especially important when using LDAP and using page to limit results
+        if name_or_id and not _utils._is_uuid_like(name_or_id):
+                kwargs['name'] = name_or_id
         users = self.list_users(**kwargs)
         return _utils._filter_list(users, name_or_id, filters)
 
@@ -224,6 +229,9 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
+        if not _utils._is_uuid_like(name_or_id):
+            kwargs['name'] = name_or_id
+
         return _utils._get_entity(self, 'user', name_or_id, filters, **kwargs)
 
     def get_user_by_id(self, user_id, normalize=True):
