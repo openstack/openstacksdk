@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds an ability for the bare metal ``wait_for_nodes_provision_state`` call
+    to return an object with nodes that succeeded, failed or timed out instead
+    of raising an exception.

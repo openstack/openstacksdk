@@ -235,6 +235,25 @@ class TestWaitForNodesProvisionState(base.TestCase):
             n._check_state_reached.assert_called_once_with(
                 self.proxy, 'fake state', True)
 
+    def test_success_no_fail(self, mock_get):
+        # two attempts, one node succeeds after the 1st
+        nodes = [mock.Mock(spec=node.Node, id=str(i))
+                 for i in range(3)]
+        for i, n in enumerate(nodes):
+            # 1st attempt on 1st node, 2nd attempt on 2nd node
+            n._check_state_reached.return_value = not (i % 2)
+        mock_get.side_effect = nodes
+
+        result = self.proxy.wait_for_nodes_provision_state(
+            ['abcd', node.Node(id='1234')], 'fake state', fail=False)
+        self.assertEqual([nodes[0], nodes[2]], result.success)
+        self.assertEqual([], result.failure)
+        self.assertEqual([], result.timeout)
+
+        for n in nodes:
+            n._check_state_reached.assert_called_once_with(
+                self.proxy, 'fake state', True)
+
     def test_timeout(self, mock_get):
         mock_get.return_value._check_state_reached.return_value = False
         mock_get.return_value.id = '1234'
@@ -245,3 +264,38 @@ class TestWaitForNodesProvisionState(base.TestCase):
                           timeout=0.001)
         mock_get.return_value._check_state_reached.assert_called_with(
             self.proxy, 'fake state', True)
+
+    def test_timeout_no_fail(self, mock_get):
+        mock_get.return_value._check_state_reached.return_value = False
+        mock_get.return_value.id = '1234'
+
+        result = self.proxy.wait_for_nodes_provision_state(
+            ['abcd'], 'fake state', timeout=0.001, fail=False)
+        mock_get.return_value._check_state_reached.assert_called_with(
+            self.proxy, 'fake state', True)
+
+        self.assertEqual([], result.success)
+        self.assertEqual([mock_get.return_value], result.timeout)
+        self.assertEqual([], result.failure)
+
+    def test_timeout_and_failures_not_fail(self, mock_get):
+        def _fake_get(_self, uuid):
+            result = mock.Mock()
+            result.id = uuid
+            if uuid == '1':
+                result._check_state_reached.return_value = True
+            elif uuid == '2':
+                result._check_state_reached.side_effect = \
+                    exceptions.ResourceFailure("boom")
+            else:
+                result._check_state_reached.return_value = False
+            return result
+
+        mock_get.side_effect = _fake_get
+
+        result = self.proxy.wait_for_nodes_provision_state(
+            ['1', '2', '3'], 'fake state', timeout=0.001, fail=False)
+
+        self.assertEqual(['1'], [x.id for x in result.success])
+        self.assertEqual(['3'], [x.id for x in result.timeout])
+        self.assertEqual(['2'], [x.id for x in result.failure])
