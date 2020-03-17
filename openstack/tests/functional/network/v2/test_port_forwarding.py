@@ -37,6 +37,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
     INTERNAL_PORT = 8080
     EXTERNAL_PORT = 80
     PROTOCOL = "tcp"
+    DESCRIPTION = 'description'
 
     def setUp(self):
         super(TestPortForwarding, self).setUp()
@@ -90,7 +91,8 @@ class TestPortForwarding(base.BaseFunctionalTest):
             internal_ip_address=self.INTERNAL_IP_ADDRESS,
             internal_port=self.INTERNAL_PORT,
             external_port=self.EXTERNAL_PORT,
-            protocol=self.PROTOCOL)
+            protocol=self.PROTOCOL,
+            description=self.DESCRIPTION)
         assert isinstance(pf, _port_forwarding.PortForwarding)
         self.PF = pf
 
@@ -151,6 +153,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
         self.assertEqual(self.INTERNAL_PORT, sot.internal_port)
         self.assertEqual(self.EXTERNAL_PORT, sot.external_port)
         self.assertEqual(self.PROTOCOL, sot.protocol)
+        self.assertEqual(self.DESCRIPTION, sot.description)
 
     def test_get(self):
         sot = self.conn.network.get_port_forwarding(
@@ -160,6 +163,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
         self.assertEqual(self.INTERNAL_PORT, sot.internal_port)
         self.assertEqual(self.EXTERNAL_PORT, sot.external_port)
         self.assertEqual(self.PROTOCOL, sot.protocol)
+        self.assertEqual(self.DESCRIPTION, sot.description)
 
     def test_list(self):
         pf_ids = [o.id for o in
