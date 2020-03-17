@@ -18,6 +18,7 @@ from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import endpoint as _endpoint
 from openstack.identity.v3 import group as _group
 from openstack.identity.v3 import limit as _limit
+from openstack.identity.v3 import mapping as _mapping
 from openstack.identity.v3 import policy as _policy
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import region as _region
@@ -1319,3 +1320,83 @@ class Proxy(proxy.Proxy):
                      application_credential,
                      user_id=user.id,
                      ignore_missing=ignore_missing)
+
+    def create_mapping(self, **attrs):
+        """Create a new mapping from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.identity.v3.mapping.Mapping`,
+                           comprised of the properties on the Mapping class.
+
+        :returns: The results of mapping creation
+        :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
+        """
+        return self._create(_mapping.Mapping, **attrs)
+
+    def delete_mapping(self, mapping, ignore_missing=True):
+        """Delete a mapping
+
+        :param mapping: The ID of a mapping or a
+                        :class:`~openstack.identity.v3.mapping.Mapping`
+                        instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the mapping does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent mapping.
+
+        :returns: ``None``
+        """
+        self._delete(_mapping.Mapping, mapping, ignore_missing=ignore_missing)
+
+    def find_mapping(self, name_or_id, ignore_missing=True):
+        """Find a single mapping
+
+        :param name_or_id: The name or ID of a mapping.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.identity.v3.mapping.Mapping` or None
+        """
+        return self._find(_mapping.Mapping, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_mapping(self, mapping):
+        """Get a single mapping
+
+        :param mapping: The value can be the ID of a mapping or a
+                        :class:`~openstack.identity.v3.mapping.Mapping`
+                        instance.
+
+        :returns: One :class:`~openstack.identity.v3.mapping.Mapping`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_mapping.Mapping, mapping)
+
+    def mappings(self, **query):
+        """Retrieve a generator of mappings
+
+        :param kwargs query: Optional query parameters to be sent to limit
+                                 the resources being returned.
+
+        :returns: A generator of mapping instances.
+        :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
+        """
+        return self._list(_mapping.Mapping, **query)
+
+    def update_mapping(self, mapping, **attrs):
+        """Update a mapping
+
+        :param mapping: Either the ID of a mapping or a
+                        :class:`~openstack.identity.v3.mapping.Mapping`
+                        instance.
+        :attrs kwargs: The attributes to update on the mapping represented
+                       by ``value``.
+
+        :returns: The updated mapping
+        :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
+        """
+        return self._update(_mapping.Mapping, mapping, **attrs)
