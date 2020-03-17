@@ -129,6 +129,17 @@ Flavor Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_flavor
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_flavor
 
+Quota Operations
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_quota
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_quota
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.quotas
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_quota
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_quota_default
+
 Amphora Operations
 ^^^^^^^^^^^^^^^^^^
 
