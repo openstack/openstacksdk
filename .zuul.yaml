@@ -421,6 +421,8 @@
         - bifrost-integration-tinyipa-ubuntu-xenial
         - metalsmith-integration-openstacksdk-src:
             voting: false
+        - ansible-collections-openstack-functional-devstack:
+            voting: false
     gate:
       jobs:
         - openstacksdk-functional-devstack
