@@ -1,0 +1,5 @@
+---
+features:
+  - Added bulk create securtiy groups rules. With new proxy method
+    `create_security_group_rules` now it's possible to create multiple rules
+    for certain security group.

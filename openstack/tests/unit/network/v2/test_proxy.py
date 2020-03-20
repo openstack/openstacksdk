@@ -1163,6 +1163,14 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.security_group_rules,
                          security_group_rule.SecurityGroupRule)
 
+    @mock.patch('openstack.network.v2._proxy.Proxy._bulk_create')
+    def test_security_group_rules_create(self, bc):
+        data = mock.sentinel
+
+        self.proxy.create_security_group_rules(data)
+
+        bc.assert_called_once_with(security_group_rule.SecurityGroupRule, data)
+
     def test_segment_create_attrs(self):
         self.verify_create(self.proxy.create_segment, segment.Segment)
 

@@ -3190,6 +3190,21 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_security_group_rule.SecurityGroupRule, **attrs)
 
+    def create_security_group_rules(self, data):
+        """Create new security group rules from the list of attributes
+
+        :param list data: List of dicts of attributes which will be used to
+                          create a :class:`~openstack.network.v2.\
+                                  security_group_rule.SecurityGroupRule`,
+                          comprised of the properties on the SecurityGroupRule
+                          class.
+
+        :returns: A generator of security group rule objects
+        :rtype: :class:`~openstack.network.v2.security_group_rule.\
+            SecurityGroupRule`
+        """
+        return self._bulk_create(_security_group_rule.SecurityGroupRule, data)
+
     def delete_security_group_rule(self, security_group_rule,
                                    ignore_missing=True, if_revision=None):
         """Delete a security group rule
