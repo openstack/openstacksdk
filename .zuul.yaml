@@ -374,6 +374,44 @@
     required-projects:
       - openstack/openstacksdk
 
+- job:
+    name: openstacksdk-ansible-functional-devstack
+    parent: openstacksdk-functional-devstack
+    description: |
+      Run openstacksdk ansible functional tests against a master devstack
+      using released version of ansible.
+    vars:
+      tox_envlist: ansible
+
+- job:
+    name: openstacksdk-ansible-stable-2.9-functional-devstack
+    parent: openstacksdk-ansible-functional-devstack
+    description: |
+      Run openstacksdk ansible functional tests against a train devstack
+      using git stable-2.9 branch version of ansible.
+    required-projects:
+      - name: github.com/ansible/ansible
+        override-checkout: stable-2.9
+      - name: openstack/openstacksdk
+        override-checkout: train
+      - name: openstack/devstack
+        override-checkout: train
+
+- job:
+    name: openstacksdk-ansible-stable-2.8-functional-devstack
+    parent: openstacksdk-ansible-functional-devstack
+    description: |
+      Run openstacksdk ansible functional tests against a train devstack
+      using git stable-2.8 branch version of ansible.
+    required-projects:
+      - name: github.com/ansible/ansible
+        override-checkout: stable-2.8
+      - name: openstack/openstacksdk
+        override-checkout: train
+      - name: openstack/devstack
+        override-checkout: train
+
+
 - project-template:
     name: openstacksdk-functional-tips
     check:
@@ -421,6 +459,9 @@
             voting: false
         - ansible-collections-openstack-functional-devstack:
             voting: false
+        - openstacksdk-ansible-stable-2.8-functional-devstack
+        - openstacksdk-ansible-stable-2.9-functional-devstack
+
     gate:
       jobs:
         - openstacksdk-functional-devstack
