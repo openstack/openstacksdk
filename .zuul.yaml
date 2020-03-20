@@ -378,6 +378,8 @@
             voting: false
         - neutron-grenade
         - openstack-tox-lower-constraints
+        - ansible-collections-openstack-functional-devstack:
+            voting: false
     gate:
       jobs:
         - build-openstack-sphinx-docs:
