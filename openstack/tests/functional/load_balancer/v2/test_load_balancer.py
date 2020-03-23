@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.load_balancer.v2 import availability_zone
+from openstack.load_balancer.v2 import availability_zone_profile
 from openstack.load_balancer.v2 import flavor
 from openstack.load_balancer.v2 import flavor_profile
 from openstack.load_balancer.v2 import health_monitor
@@ -35,6 +37,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     PROJECT_ID = None
     FLAVOR_PROFILE_ID = None
     FLAVOR_ID = None
+    AVAILABILITY_ZONE_PROFILE_ID = None
     AMPHORA_ID = None
     PROTOCOL = 'HTTP'
     PROTOCOL_PORT = 80
@@ -52,6 +55,7 @@ class TestLoadBalancer(base.BaseFunctionalTest):
     L7RULE_VALUE = 'example'
     AMPHORA = 'amphora'
     FLAVOR_DATA = '{"loadbalancer_topology": "SINGLE"}'
+    AVAILABILITY_ZONE_DATA = '{"compute_zone": "nova"}'
     DESCRIPTION = 'Test description'
 
     _wait_for_timeout_key = 'OPENSTACKSDK_FUNC_TEST_TIMEOUT_LOAD_BALANCER'
@@ -71,8 +75,11 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.MEMBER_NAME = self.getUniqueString()
         self.POOL_NAME = self.getUniqueString()
         self.UPDATE_NAME = self.getUniqueString()
+        self.UPDATE_DESCRIPTION = self.getUniqueString()
         self.FLAVOR_PROFILE_NAME = self.getUniqueString()
         self.FLAVOR_NAME = self.getUniqueString()
+        self.AVAILABILITY_ZONE_PROFILE_NAME = self.getUniqueString()
+        self.AVAILABILITY_ZONE_NAME = self.getUniqueString()
         subnets = list(self.conn.network.subnets())
         self.VIP_SUBNET_ID = subnets[0].id
         self.PROJECT_ID = self.conn.session.get_project_id()
@@ -85,12 +92,12 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         assert isinstance(test_quota, quota.Quota)
         self.assertEqual(self.PROJECT_ID, test_quota.id)
 
-        test_profile = self.conn.load_balancer.create_flavor_profile(
+        test_flavor_profile = self.conn.load_balancer.create_flavor_profile(
             name=self.FLAVOR_PROFILE_NAME, provider_name=self.AMPHORA,
             flavor_data=self.FLAVOR_DATA)
-        assert isinstance(test_profile, flavor_profile.FlavorProfile)
-        self.assertEqual(self.FLAVOR_PROFILE_NAME, test_profile.name)
-        self.FLAVOR_PROFILE_ID = test_profile.id
+        assert isinstance(test_flavor_profile, flavor_profile.FlavorProfile)
+        self.assertEqual(self.FLAVOR_PROFILE_NAME, test_flavor_profile.name)
+        self.FLAVOR_PROFILE_ID = test_flavor_profile.id
 
         test_flavor = self.conn.load_balancer.create_flavor(
             name=self.FLAVOR_NAME, flavor_profile_id=self.FLAVOR_PROFILE_ID,
@@ -98,6 +105,24 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         assert isinstance(test_flavor, flavor.Flavor)
         self.assertEqual(self.FLAVOR_NAME, test_flavor.name)
         self.FLAVOR_ID = test_flavor.id
+
+        test_az_profile = \
+            self.conn.load_balancer.create_availability_zone_profile(
+                name=self.AVAILABILITY_ZONE_PROFILE_NAME,
+                provider_name=self.AMPHORA,
+                availability_zone_data=self.AVAILABILITY_ZONE_DATA)
+        assert isinstance(test_az_profile,
+                          availability_zone_profile.AvailabilityZoneProfile)
+        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_NAME,
+                         test_az_profile.name)
+        self.AVAILABILITY_ZONE_PROFILE_ID = test_az_profile.id
+
+        test_az = self.conn.load_balancer.create_availability_zone(
+            name=self.AVAILABILITY_ZONE_NAME,
+            availability_zone_profile_id=self.AVAILABILITY_ZONE_PROFILE_ID,
+            is_enabled=True, description=self.DESCRIPTION)
+        assert isinstance(test_az, availability_zone.AvailabilityZone)
+        self.assertEqual(self.AVAILABILITY_ZONE_NAME, test_az.name)
 
         test_lb = self.conn.load_balancer.create_load_balancer(
             name=self.LB_NAME, vip_subnet_id=self.VIP_SUBNET_ID,
@@ -217,6 +242,12 @@ class TestLoadBalancer(base.BaseFunctionalTest):
 
         self.conn.load_balancer.delete_flavor_profile(self.FLAVOR_PROFILE_ID,
                                                       ignore_missing=False)
+
+        self.conn.load_balancer.delete_availability_zone(
+            self.AVAILABILITY_ZONE_NAME, ignore_missing=False)
+
+        self.conn.load_balancer.delete_availability_zone_profile(
+            self.AVAILABILITY_ZONE_PROFILE_ID, ignore_missing=False)
 
     def test_lb_find(self):
         test_lb = self.conn.load_balancer.find_load_balancer(self.LB_NAME)
@@ -593,3 +624,78 @@ class TestLoadBalancer(base.BaseFunctionalTest):
         self.conn.load_balancer.failover_amphora(self.AMPHORA_ID)
         test_amp = self.conn.load_balancer.get_amphora(self.AMPHORA_ID)
         self.assertEqual(self.AMPHORA_ID, test_amp.id)
+
+    def test_availability_zone_profile_find(self):
+        test_profile = self.conn.load_balancer.find_availability_zone_profile(
+            self.AVAILABILITY_ZONE_PROFILE_NAME)
+        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_ID, test_profile.id)
+
+    def test_availability_zone_profile_get(self):
+        test_availability_zone_profile = \
+            self.conn.load_balancer.get_availability_zone_profile(
+                self.AVAILABILITY_ZONE_PROFILE_ID)
+        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_NAME,
+                         test_availability_zone_profile.name)
+        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_ID,
+                         test_availability_zone_profile.id)
+        self.assertEqual(self.AMPHORA,
+                         test_availability_zone_profile.provider_name)
+        self.assertEqual(self.AVAILABILITY_ZONE_DATA,
+                         test_availability_zone_profile.availability_zone_data)
+
+    def test_availability_zone_profile_list(self):
+        names = [az.name for az in
+                 self.conn.load_balancer.availability_zone_profiles()]
+        self.assertIn(self.AVAILABILITY_ZONE_PROFILE_NAME, names)
+
+    def test_availability_zone_profile_update(self):
+        self.conn.load_balancer.update_availability_zone_profile(
+            self.AVAILABILITY_ZONE_PROFILE_ID, name=self.UPDATE_NAME)
+        test_availability_zone_profile = \
+            self.conn.load_balancer.get_availability_zone_profile(
+                self.AVAILABILITY_ZONE_PROFILE_ID)
+        self.assertEqual(self.UPDATE_NAME, test_availability_zone_profile.name)
+
+        self.conn.load_balancer.update_availability_zone_profile(
+            self.AVAILABILITY_ZONE_PROFILE_ID,
+            name=self.AVAILABILITY_ZONE_PROFILE_NAME)
+        test_availability_zone_profile = \
+            self.conn.load_balancer.get_availability_zone_profile(
+                self.AVAILABILITY_ZONE_PROFILE_ID)
+        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_NAME,
+                         test_availability_zone_profile.name)
+
+    def test_availability_zone_find(self):
+        test_availability_zone = \
+            self.conn.load_balancer.find_availability_zone(
+                self.AVAILABILITY_ZONE_NAME)
+        self.assertEqual(self.AVAILABILITY_ZONE_NAME,
+                         test_availability_zone.name)
+
+    def test_availability_zone_get(self):
+        test_availability_zone = self.conn.load_balancer.get_availability_zone(
+            self.AVAILABILITY_ZONE_NAME)
+        self.assertEqual(self.AVAILABILITY_ZONE_NAME,
+                         test_availability_zone.name)
+        self.assertEqual(self.DESCRIPTION, test_availability_zone.description)
+        self.assertEqual(self.AVAILABILITY_ZONE_PROFILE_ID,
+                         test_availability_zone.availability_zone_profile_id)
+
+    def test_availability_zone_list(self):
+        names = [az.name for az in
+                 self.conn.load_balancer.availability_zones()]
+        self.assertIn(self.AVAILABILITY_ZONE_NAME, names)
+
+    def test_availability_zone_update(self):
+        self.conn.load_balancer.update_availability_zone(
+            self.AVAILABILITY_ZONE_NAME, description=self.UPDATE_DESCRIPTION)
+        test_availability_zone = self.conn.load_balancer.get_availability_zone(
+            self.AVAILABILITY_ZONE_NAME)
+        self.assertEqual(self.UPDATE_DESCRIPTION,
+                         test_availability_zone.description)
+
+        self.conn.load_balancer.update_availability_zone(
+            self.AVAILABILITY_ZONE_NAME, description=self.DESCRIPTION)
+        test_availability_zone = self.conn.load_balancer.get_availability_zone(
+            self.AVAILABILITY_ZONE_NAME)
+        self.assertEqual(self.DESCRIPTION, test_availability_zone.description)
