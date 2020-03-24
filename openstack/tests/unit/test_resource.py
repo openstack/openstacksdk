@@ -1045,6 +1045,25 @@ class TestResource(base.TestCase):
         self.assertEqual({"x": body_value, "id": the_id}, result.body)
         self.assertEqual({"y": header_value}, result.headers)
 
+    def test__prepare_request_with_id_marked_clean(self):
+        class Test(resource.Resource):
+            base_path = "/something"
+            body_attr = resource.Body("x")
+            header_attr = resource.Header("y")
+
+        the_id = "id"
+        body_value = "body"
+        header_value = "header"
+        sot = Test(id=the_id, body_attr=body_value, header_attr=header_value,
+                   _synchronized=False)
+        sot._body._dirty.discard("id")
+
+        result = sot._prepare_request(requires_id=True)
+
+        self.assertEqual("something/id", result.url)
+        self.assertEqual({"x": body_value}, result.body)
+        self.assertEqual({"y": header_value}, result.headers)
+
     def test__prepare_request_missing_id(self):
         sot = resource.Resource(id=None)
 
@@ -1401,7 +1420,8 @@ class TestResourceActions(base.TestCase):
         self.session.get_endpoint_data.return_value = self.endpoint_data
 
     def _test_create(self, cls, requires_id=False, prepend_key=False,
-                     microversion=None, base_path=None, params=None):
+                     microversion=None, base_path=None, params=None,
+                     id_marked_dirty=True):
         id = "id" if requires_id else None
         sot = cls(id=id)
         sot._prepare_request = mock.Mock(return_value=self.request)
@@ -1410,6 +1430,9 @@ class TestResourceActions(base.TestCase):
         params = params or {}
         result = sot.create(self.session, prepend_key=prepend_key,
                             base_path=base_path, **params)
+
+        id_is_dirty = ('id' in sot._body._dirty)
+        self.assertEqual(id_marked_dirty, id_is_dirty)
 
         sot._prepare_request.assert_called_once_with(
             requires_id=requires_id, prepend_key=prepend_key,
@@ -1438,6 +1461,17 @@ class TestResourceActions(base.TestCase):
             create_method = 'PUT'
 
         self._test_create(Test, requires_id=True, prepend_key=True)
+
+    def test_put_create_exclude_id(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'PUT'
+            create_exclude_id_from_body = True
+
+        self._test_create(Test, requires_id=True, prepend_key=True,
+                          id_marked_dirty=False)
 
     def test_put_create_with_microversion(self):
         class Test(resource.Resource):
