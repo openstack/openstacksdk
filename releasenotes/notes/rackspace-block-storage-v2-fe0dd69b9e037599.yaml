@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    Rackspace Cloud's vendor profile has been updated to use v2
+    of the Block Storage API. This introduces an endpoint override
+    for the service based on ``region_name`` and ``project_id``.
