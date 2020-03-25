@@ -258,7 +258,10 @@ SYD            Sydney, NSW
 * Uploaded Images need properties to not use vendor agent::
   :vm_mode: hvm
   :xenapi_use_agent: False
-* Volume API Version is 1
+* Block Storage API Version is 2
+* The Block Storage API supports version 2 but only version 1 is in
+  the catalog. The Block Storage endpoint is
+  https://{region_name}.blockstorage.api.rackspacecloud.com/v2/{project_id}
 * While passwords are recommended for use, API keys do work as well.
   The `rackspaceauth` python package must be installed, and then the following
   can be added to clouds.yaml::

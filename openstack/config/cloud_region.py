@@ -490,6 +490,18 @@ class CloudRegion(object):
             # Specifically, looking up a list of projects/domains/system to
             # scope to.
             value = auth.get('auth_url')
+        # Because of course. Seriously.
+        # We have to override the Rackspace block-storage endpoint because
+        # only v1 is in the catalog but the service actually does support
+        # v2. But the endpoint needs the project_id.
+        service_type = self._service_type_manager.get_service_type(
+            service_type)
+        if (
+            value
+            and self.config.get('profile') == 'rackspace'
+            and service_type == 'block-storage'
+        ):
+                value = value + auth.get('project_id')
         return value
 
     def get_endpoint_from_catalog(
