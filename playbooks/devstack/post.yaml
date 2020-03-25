@@ -1,6 +1,9 @@
 - hosts: all
-  roles:
-    - fetch-tox-output
-    - role: fetch-subunit-output
+  tasks:
+    - include_role:
+        name: fetch-tox-output
+    - include_role:
+        name: fetch-subunit-output
       when: fetch_subunit|default(true)|bool
-    - process-stackviz
+    - include_role:
+        name: process-stackviz
