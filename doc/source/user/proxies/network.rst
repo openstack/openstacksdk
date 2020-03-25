@@ -124,6 +124,7 @@ Security Group Operations
    .. automethod:: openstack.network.v2._proxy.Proxy.security_groups
 
    .. automethod:: openstack.network.v2._proxy.Proxy.create_security_group_rule
+   .. automethod:: openstack.network.v2._proxy.Proxy.create_security_group_rules
    .. automethod:: openstack.network.v2._proxy.Proxy.delete_security_group_rule
 
 Availability Zone Operations
