@@ -17,6 +17,7 @@ from openstack.identity.v3 import credential as _credential
 from openstack.identity.v3 import domain as _domain
 from openstack.identity.v3 import endpoint as _endpoint
 from openstack.identity.v3 import group as _group
+from openstack.identity.v3 import identity_provider as _identity_provider
 from openstack.identity.v3 import limit as _limit
 from openstack.identity.v3 import mapping as _mapping
 from openstack.identity.v3 import policy as _policy
@@ -1400,3 +1401,93 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
         """
         return self._update(_mapping.Mapping, mapping, **attrs)
+
+    def create_identity_provider(self, **attrs):
+        """Create a new identity provider from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+            comprised of the properties on the IdentityProvider class.
+
+        :returns: The results of identity provider creation
+        :rtype:
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+        """
+        return self._create(_identity_provider.IdentityProvider, **attrs)
+
+    def delete_identity_provider(self, identity_provider, ignore_missing=True):
+        """Delete an identity provider
+
+        :param mapping: The ID of an identity provoder or a
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the identity provider does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent identity provider.
+
+        :returns: ``None``
+        """
+        self._delete(_identity_provider.IdentityProvider, identity_provider,
+                     ignore_missing=ignore_missing)
+
+    def find_identity_provider(self, name_or_id, ignore_missing=True):
+        """Find a single identity provider
+
+        :param name_or_id: The name or ID of an identity provider
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :returns: The details of an identity provider or None.
+        :rtype:
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+        """
+        return self._find(_identity_provider.IdentityProvider, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def get_identity_provider(self, identity_provider):
+        """Get a single mapping
+
+        :param mapping: The value can be the ID of an identity provider or a
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+            instance.
+
+        :returns: The details of an identity provider.
+        :rtype:
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_identity_provider.IdentityProvider,
+                         identity_provider)
+
+    def identity_providers(self, **query):
+        """Retrieve a generator of identity providers
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of identity provider instances.
+        :rtype:
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+        """
+        return self._list(_identity_provider.IdentityProvider, **query)
+
+    def update_identity_provider(self, identity_provider, **attrs):
+        """Update a mapping
+
+        :param mapping: Either the ID of an identity provider or a
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+            instance.
+        :attrs kwargs: The attributes to update on the identity_provider
+            represented by ``value``.
+
+        :returns: The updated identity provider.
+        :rtype:
+            :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
+        """
+        return self._update(_identity_provider.IdentityProvider,
+                            identity_provider, **attrs)
