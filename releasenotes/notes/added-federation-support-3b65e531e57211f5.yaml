@@ -1,0 +1,5 @@
+---
+features:
+    - |
+      Adds support to create and manage Identity v3 Federation resources -
+      Specifically, Identity Providers, Mappings and Federation Protocols.
