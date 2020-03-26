@@ -179,7 +179,7 @@ Additional information about the services can be found in the
 import warnings
 import weakref
 
-import futurist
+import concurrent.futures
 import keystoneauth1.exceptions
 import requestsexceptions
 import six
@@ -504,7 +504,7 @@ class Connection(
     @property
     def _pool_executor(self):
         if not self.__pool_executor:
-            self.__pool_executor = futurist.ThreadPoolExecutor(
+            self.__pool_executor = concurrent.futures.ThreadPoolExecutor(
                 max_workers=5)
         return self.__pool_executor
 

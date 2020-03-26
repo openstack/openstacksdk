@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    Removed the dependency on futurist, which isn't necessary.
+    Users can still pass futurist executors if they want, as
+    the API is the same, but if nothing is passed,
+    ``concurrent.futures.ThreadPoolExecutor`` will be used as
+    the default.

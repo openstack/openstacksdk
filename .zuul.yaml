@@ -413,7 +413,6 @@
             voting: false
         - osc-functional-devstack-tips:
             voting: false
-        - nodepool-functional-openstack-src
         # Ironic jobs, non-voting to avoid tight coupling
         - ironic-inspector-tempest-openstacksdk-src:
             voting: false
@@ -428,4 +427,3 @@
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
-        - nodepool-functional-openstack-src
