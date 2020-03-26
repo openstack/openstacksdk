@@ -100,7 +100,7 @@ class DnsCloudMixin(_normalize.Normalizer):
 
         try:
             return self.dns.create_zone(**zone)
-        except exceptions.SDKException as e:
+        except exceptions.SDKException:
             raise exc.OpenStackCloudException(
                 "Unable to create zone {name}".format(name=name)
             )

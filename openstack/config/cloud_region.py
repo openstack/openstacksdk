@@ -501,7 +501,7 @@ class CloudRegion(object):
             and self.config.get('profile') == 'rackspace'
             and service_type == 'block-storage'
         ):
-                value = value + auth.get('project_id')
+            value = value + auth.get('project_id')
         return value
 
     def get_endpoint_from_catalog(

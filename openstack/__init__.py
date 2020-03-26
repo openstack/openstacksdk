@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import typing
 
 from openstack._log import enable_logging  # noqa
 import openstack.config
@@ -24,8 +25,8 @@ __all__ = [
 
 def connect(
         cloud=None,
-        app_name=None,  # type: Optional[str]
-        app_version=None,  # type: Optional[str]
+        app_name=None,  # type: typing.Optional[str]
+        app_version=None,  # type: typing.Optional[str]
         options=None,
         load_yaml_config=True,  # type: bool
         load_envvars=True,  # type: bool
