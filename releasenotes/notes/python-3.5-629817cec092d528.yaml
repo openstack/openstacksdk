@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    openstacksdk does not test or support python2 as of 0.40,
+    but the releases have still accidentally worked (except for
+    0.44 which was broken for python2). We're now explicitly
+    marking releases as requiring >= 3.5 so that things don't
+    attempt to install something that's bound to be broken.
