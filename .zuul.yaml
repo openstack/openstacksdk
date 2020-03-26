@@ -403,6 +403,7 @@
       - release-notes-jobs-python3
     check:
       jobs:
+        - nodepool-functional-openstack-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
@@ -425,6 +426,7 @@
             voting: false
     gate:
       jobs:
+        - nodepool-functional-openstack-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
