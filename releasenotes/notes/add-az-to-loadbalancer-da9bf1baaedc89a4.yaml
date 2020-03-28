@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds Octavia (load_balancer) support for the availability zone and
+    availability zone profile APIs.

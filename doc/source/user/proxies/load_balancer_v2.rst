@@ -150,3 +150,28 @@ Amphora Operations
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_amphora
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.configure_amphora
    .. automethod:: openstack.load_balancer.v2._proxy.Proxy.failover_amphora
+
+Availability Zone Profile Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_availability_zone_profile
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_availability_zone_profile
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.availability_zone_profiles
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_availability_zone_profile
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_availability_zone_profile
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_availability_zone_profile
+
+Availability Zone Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.load_balancer.v2._proxy.Proxy
+
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.create_availability_zone
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.get_availability_zone
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.availability_zones
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.delete_availability_zone
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.find_availability_zone
+   .. automethod:: openstack.load_balancer.v2._proxy.Proxy.update_availability_zone
+

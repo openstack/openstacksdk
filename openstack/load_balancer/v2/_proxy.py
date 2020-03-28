@@ -11,6 +11,9 @@
 # under the License.
 
 from openstack.load_balancer.v2 import amphora as _amphora
+from openstack.load_balancer.v2 import availability_zone as _availability_zone
+from openstack.load_balancer.v2 import availability_zone_profile as \
+    _availability_zone_profile
 from openstack.load_balancer.v2 import flavor as _flavor
 from openstack.load_balancer.v2 import flavor_profile as _flavor_profile
 from openstack.load_balancer.v2 import health_monitor as _hm
@@ -1005,3 +1008,178 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         return self._update(_amphora.AmphoraFailover, amphora_id=amphora_id)
+
+    def create_availability_zone_profile(self, **attrs):
+        """Create a new availability zone profile from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.load_balancer.v2.
+                           availability_zone_profile.AvailabilityZoneProfile`,
+                           comprised of the properties on the
+                           AvailabilityZoneProfile class.
+
+        :returns: The results of profile creation creation
+        :rtype: :class:`~openstack.load_balancer.v2.availability_zone_profile.
+                        AvailabilityZoneProfile`
+        """
+        return self._create(_availability_zone_profile.AvailabilityZoneProfile,
+                            **attrs)
+
+    def get_availability_zone_profile(self, *attrs):
+        """Get an availability zone profile
+
+        :param availability_zone_profile: The value can be the name of an
+             availability_zone profile
+             or :class:`~openstack.load_balancer.v2.availability_zone_profile.
+             AvailabilityZoneProfile` instance.
+
+        :returns: One
+             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
+        """
+        return self._get(_availability_zone_profile.AvailabilityZoneProfile,
+                         *attrs)
+
+    def availability_zone_profiles(self, **query):
+        """Retrieve a generator of availability zone profiles
+
+        :returns: A generator of availability zone profiles instances
+        """
+        return self._list(_availability_zone_profile.AvailabilityZoneProfile,
+                          **query)
+
+    def delete_availability_zone_profile(self, availability_zone_profile,
+                                         ignore_missing=True):
+        """Delete an availability zone profile
+
+        :param availability_zone_profile: The availability_zone_profile can be
+            either the name or a
+            :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
+            instance
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the availability zone profile does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent availability zone profile.
+
+        :returns: ``None``
+        """
+        self._delete(_availability_zone_profile.AvailabilityZoneProfile,
+                     availability_zone_profile, ignore_missing=ignore_missing)
+
+    def find_availability_zone_profile(self, name_or_id, ignore_missing=True):
+        """Find a single availability zone profile
+
+        :param name_or_id: The name or ID of a availability zone profile
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the availability zone profile does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to delete a nonexistent availability zone profile.
+
+        :returns: ``None``
+        """
+        return self._find(_availability_zone_profile.AvailabilityZoneProfile,
+                          name_or_id, ignore_missing=ignore_missing)
+
+    def update_availability_zone_profile(self, availability_zone_profile,
+                                         **attrs):
+        """Update an availability zone profile
+
+        :param availability_zone_profile: The availability_zone_profile can be
+            either the name or a
+            :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
+            instance
+        :param dict attrs: The attributes to update on the availability_zone
+                           profile represented by
+                           ``availability_zone_profile``.
+
+        :returns: The updated availability zone profile
+        :rtype: :class:`~openstack.load_balancer.v2.availability_zone_profile.
+                        AvailabilityZoneProfile`
+        """
+        return self._update(_availability_zone_profile.AvailabilityZoneProfile,
+                            availability_zone_profile, **attrs)
+
+    def create_availability_zone(self, **attrs):
+        """Create a new availability zone from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.load_balancer.v2.
+                           availability_zone.AvailabilityZone`, comprised of
+                           the properties on the AvailabilityZoneclass.
+
+        :returns: The results of availability_zone creation creation
+        :rtype:
+            :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
+        """
+        return self._create(_availability_zone.AvailabilityZone, **attrs)
+
+    def get_availability_zone(self, *attrs):
+        """Get an availability zone
+
+        :param availability_zone: The value can be the name of a
+             availability_zone or
+             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
+             instance.
+
+        :returns: One
+             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
+        """
+        return self._get(_availability_zone.AvailabilityZone, *attrs)
+
+    def availability_zones(self, **query):
+        """Retrieve a generator of availability zones
+
+        :returns: A generator of availability zone instances
+        """
+        return self._list(_availability_zone.AvailabilityZone, **query)
+
+    def delete_availability_zone(self, availability_zone, ignore_missing=True):
+        """Delete an availability_zone
+
+        :param availability_zone: The availability_zone can be either the name
+            or a
+            :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
+            instance
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the availability zone does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent availability zone.
+
+        :returns: ``None``
+        """
+        self._delete(_availability_zone.AvailabilityZone, availability_zone,
+                     ignore_missing=ignore_missing)
+
+    def find_availability_zone(self, name_or_id, ignore_missing=True):
+        """Find a single availability zone
+
+        :param name_or_id: The name or ID of a availability zone
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the availability zone does not exist.
+            When set to ``True``, no exception will be set when attempting
+            to delete a nonexistent availability zone.
+
+        :returns: ``None``
+        """
+        return self._find(_availability_zone.AvailabilityZone, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def update_availability_zone(self, availability_zone, **attrs):
+        """Update an availability zone
+
+        :param availability_zone: The availability_zone can be either the name
+            or a
+            :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
+            instance
+        :param dict attrs: The attributes to update on the availability_zone
+                           represented by ``availability_zone``.
+
+        :returns: The updated availability_zone
+        :rtype:
+            :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
+        """
+        return self._update(_availability_zone.AvailabilityZone,
+                            availability_zone, **attrs)

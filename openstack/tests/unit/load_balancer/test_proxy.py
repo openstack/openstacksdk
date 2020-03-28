@@ -15,6 +15,8 @@ import mock
 
 from openstack.load_balancer.v2 import _proxy
 from openstack.load_balancer.v2 import amphora
+from openstack.load_balancer.v2 import availability_zone
+from openstack.load_balancer.v2 import availability_zone_profile
 from openstack.load_balancer.v2 import flavor
 from openstack.load_balancer.v2 import flavor_profile
 from openstack.load_balancer.v2 import health_monitor
@@ -388,3 +390,52 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
                            value=[self.AMPHORA_ID],
                            expected_args=[],
                            expected_kwargs={'amphora_id': self.AMPHORA_ID})
+
+    def test_availability_zone_profiles(self):
+        self.verify_list(self.proxy.availability_zone_profiles,
+                         availability_zone_profile.AvailabilityZoneProfile)
+
+    def test_availability_zone_profile_get(self):
+        self.verify_get(self.proxy.get_availability_zone_profile,
+                        availability_zone_profile.AvailabilityZoneProfile)
+
+    def test_availability_zone_profile_create(self):
+        self.verify_create(self.proxy.create_availability_zone_profile,
+                           availability_zone_profile.AvailabilityZoneProfile)
+
+    def test_availability_zone_profile_delete(self):
+        self.verify_delete(self.proxy.delete_availability_zone_profile,
+                           availability_zone_profile.AvailabilityZoneProfile,
+                           True)
+
+    def test_availability_zone_profile_find(self):
+        self.verify_find(self.proxy.find_availability_zone_profile,
+                         availability_zone_profile.AvailabilityZoneProfile)
+
+    def test_availability_zone_profile_update(self):
+        self.verify_update(self.proxy.update_availability_zone_profile,
+                           availability_zone_profile.AvailabilityZoneProfile)
+
+    def test_availability_zones(self):
+        self.verify_list(self.proxy.availability_zones,
+                         availability_zone.AvailabilityZone)
+
+    def test_availability_zone_get(self):
+        self.verify_get(self.proxy.get_availability_zone,
+                        availability_zone.AvailabilityZone)
+
+    def test_availability_zone_create(self):
+        self.verify_create(self.proxy.create_availability_zone,
+                           availability_zone.AvailabilityZone)
+
+    def test_availability_zone_delete(self):
+        self.verify_delete(self.proxy.delete_availability_zone,
+                           availability_zone.AvailabilityZone, True)
+
+    def test_availability_zone_find(self):
+        self.verify_find(self.proxy.find_availability_zone,
+                         availability_zone.AvailabilityZone)
+
+    def test_availability_zone_update(self):
+        self.verify_update(self.proxy.update_availability_zone,
+                           availability_zone.AvailabilityZone)
