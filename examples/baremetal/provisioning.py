@@ -14,8 +14,6 @@
 Operations with the provision state in the Bare Metal service.
 """
 
-from __future__ import print_function
-
 
 def manage_and_inspect_node(conn, uuid):
     node = conn.baremetal.find_node(uuid)
