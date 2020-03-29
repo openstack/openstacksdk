@@ -45,7 +45,7 @@ def merge_clouds(old_dict, new_dict):
     return ret
 
 
-class VersionRequest(object):
+class VersionRequest:
     def __init__(
         self,
         version=None,

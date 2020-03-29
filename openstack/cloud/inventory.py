@@ -22,7 +22,7 @@ from openstack.cloud import _utils
 __all__ = ['OpenStackInventory']
 
 
-class OpenStackInventory(object):
+class OpenStackInventory:
 
     # Put this here so the capability can be detected with hasattr on the class
     extra_config = None

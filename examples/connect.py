@@ -36,7 +36,7 @@ config = loader.OpenStackConfig()
 cloud = openstack.connect(cloud=TEST_CLOUD)
 
 
-class Opts(object):
+class Opts:
     def __init__(self, cloud_name='devstack-admin', debug=False):
         self.cloud = cloud_name
         self.debug = debug

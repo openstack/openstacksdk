@@ -24,7 +24,7 @@ def _verify_checksum(md5, checksum):
                 "checksum mismatch: %s != %s" % (checksum, digest))
 
 
-class DownloadMixin(object):
+class DownloadMixin:
 
     def download(self, session, stream=False, output=None, chunk_size=1024):
         """Download the data contained in an image"""

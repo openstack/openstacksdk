@@ -806,7 +806,7 @@ class TestServer(base.TestCase):
     def test_live_migrate_no_force(self):
         sot = server.Server(**EXAMPLE)
 
-        class FakeEndpointData(object):
+        class FakeEndpointData:
             min_microversion = None
             max_microversion = None
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
@@ -822,7 +822,7 @@ class TestServer(base.TestCase):
     def test_live_migrate_no_microversion_force_true(self):
         sot = server.Server(**EXAMPLE)
 
-        class FakeEndpointData(object):
+        class FakeEndpointData:
             min_microversion = None
             max_microversion = None
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
@@ -848,7 +848,7 @@ class TestServer(base.TestCase):
     def test_live_migrate_25(self):
         sot = server.Server(**EXAMPLE)
 
-        class FakeEndpointData(object):
+        class FakeEndpointData:
             min_microversion = '2.1'
             max_microversion = '2.25'
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
@@ -872,7 +872,7 @@ class TestServer(base.TestCase):
     def test_live_migrate_25_default_block(self):
         sot = server.Server(**EXAMPLE)
 
-        class FakeEndpointData(object):
+        class FakeEndpointData:
             min_microversion = '2.1'
             max_microversion = '2.25'
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
@@ -896,7 +896,7 @@ class TestServer(base.TestCase):
     def test_live_migrate_30(self):
         sot = server.Server(**EXAMPLE)
 
-        class FakeEndpointData(object):
+        class FakeEndpointData:
             min_microversion = '2.1'
             max_microversion = '2.30'
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
@@ -920,7 +920,7 @@ class TestServer(base.TestCase):
     def test_live_migrate_30_force(self):
         sot = server.Server(**EXAMPLE)
 
-        class FakeEndpointData(object):
+        class FakeEndpointData:
             min_microversion = '2.1'
             max_microversion = '2.30'
         self.sess.get_endpoint_data.return_value = FakeEndpointData()

@@ -71,7 +71,7 @@ def make_names():
     for imp in sorted(imports):
         print(imp)
     print('\n')
-    print("class ServicesMixin(object):\n")
+    print("class ServicesMixin:\n")
     for service in services:
         if service:
             print("    {service}".format(service=service))

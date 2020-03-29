@@ -137,7 +137,7 @@ class TestProxyPrivate(base.TestCase):
         # of that same behavior to let us check that `new` gets
         # called with the expected arguments.
 
-        class Fake(object):
+        class Fake:
             call = {}
 
             @classmethod

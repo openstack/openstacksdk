@@ -667,7 +667,7 @@ def generate_patches_from_kwargs(operation, **kwargs):
     return sorted(patches)
 
 
-class FileSegment(object):
+class FileSegment:
     """File-like object to pass to requests."""
 
     def __init__(self, filename, offset, length):

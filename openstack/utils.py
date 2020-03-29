@@ -75,7 +75,7 @@ def get_string_format_keys(fmt_string, old_style=True):
     use the old style string formatting.
     """
     if old_style:
-        class AccessSaver(object):
+        class AccessSaver:
             def __init__(self):
                 self.keys = []
 
@@ -192,7 +192,7 @@ def maximum_supported_microversion(adapter, client_maximum):
     return discover.version_to_string(result)
 
 
-class TinyDAG(object):
+class TinyDAG:
     """Tiny DAG
 
     Bases on the Kahn's algorithm, and enables parallel visiting of the nodes

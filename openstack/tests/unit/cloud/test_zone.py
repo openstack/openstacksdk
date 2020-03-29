@@ -26,7 +26,7 @@ zone_dict = {
 }
 
 
-class ZoneTestWrapper(object):
+class ZoneTestWrapper:
 
     def __init__(self, ut, attrs):
         self.remote_res = attrs

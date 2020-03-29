@@ -139,7 +139,7 @@ def _pop_or_get(resource, key, default, strict):
         return resource.get(key, default)
 
 
-class Normalizer(object):
+class Normalizer:
     '''Mix-in class to provide the normalization functions.
 
     This is in a separate class just for on-disk source code organization

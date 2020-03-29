@@ -18,7 +18,7 @@ from openstack import resource
 from openstack import utils
 
 
-class ValidationResult(object):
+class ValidationResult:
     """Result of a single interface validation.
 
     :ivar result: Result of a validation, ``True`` for success, ``False`` for

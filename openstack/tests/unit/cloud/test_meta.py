@@ -24,13 +24,13 @@ PUBLIC_V4 = '192.0.2.99'
 PUBLIC_V6 = '2001:0db8:face:0da0:face::0b00:1c'  # rfc3849
 
 
-class FakeConfig(object):
+class FakeConfig:
     def get_region_name(self, service_type=None):
         # TODO(efried): Validate service_type?
         return 'test-region'
 
 
-class FakeCloud(object):
+class FakeCloud:
     config = FakeConfig()
     name = 'test-name'
     private = False
@@ -942,10 +942,10 @@ class TestMeta(base.TestCase):
 
     def test_obj_list_to_munch(self):
         """Test conversion of a list of objects to a list of dictonaries"""
-        class obj0(object):
+        class obj0:
             value = 0
 
-        class obj1(object):
+        class obj1:
             value = 1
 
         list = [obj0, obj1]

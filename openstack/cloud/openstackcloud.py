@@ -48,7 +48,7 @@ DEFAULT_MAX_FILE_SIZE = _object_store.DEFAULT_MAX_FILE_SIZE
 OBJECT_CONTAINER_ACLS = _object_store.OBJECT_CONTAINER_ACLS
 
 
-class _OpenStackCloudMixin(object):
+class _OpenStackCloudMixin:
     """Represent a connection to an OpenStack Cloud.
 
     OpenStackCloud is the entry point for all cloud operations, regardless
@@ -126,7 +126,7 @@ class _OpenStackCloudMixin(object):
             def _fake_invalidate(unused):
                 pass
 
-            class _FakeCache(object):
+            class _FakeCache:
                 def invalidate(self):
                     pass
 

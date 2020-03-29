@@ -12,7 +12,7 @@
 #
 
 
-class IterableChunkedFile(object):
+class IterableChunkedFile:
     """File object chunk iterator using yield.
 
     Represents a local file as an iterable object by splitting the file
