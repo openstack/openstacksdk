@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
 
 from openstack import exceptions
 from openstack.tests.functional import base
@@ -28,8 +27,8 @@ class TestFlavor(base.BaseFunctionalTest):
         self.assertGreater(len(flavors), 0)
 
         for flavor in flavors:
-            self.assertIsInstance(flavor.id, six.string_types)
-            self.assertIsInstance(flavor.name, six.string_types)
+            self.assertIsInstance(flavor.id, str)
+            self.assertIsInstance(flavor.name, str)
             self.assertIsInstance(flavor.disk, int)
             self.assertIsInstance(flavor.ram, int)
             self.assertIsInstance(flavor.vcpus, int)

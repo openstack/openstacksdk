@@ -182,7 +182,6 @@ import weakref
 import concurrent.futures
 import keystoneauth1.exceptions
 import requestsexceptions
-import six
 
 from openstack import _log
 from openstack import _services_mixin
@@ -465,7 +464,7 @@ class Connection(
         """
         # If we don't have a proxy, just instantiate Proxy so that
         # we get an adapter.
-        if isinstance(service, six.string_types):
+        if isinstance(service, str):
             service = service_description.ServiceDescription(service)
 
         # Directly invoke descriptor of the ServiceDescription

@@ -11,11 +11,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import io
 import operator
 import tempfile
 import uuid
-
-import six
 
 from openstack import exceptions
 from openstack.cloud import exc
@@ -75,7 +74,7 @@ class TestImage(BaseTestImage):
                           self.cloud.download_image, self.image_name)
 
     def test_download_image_two_outputs(self):
-        fake_fd = six.BytesIO()
+        fake_fd = io.BytesIO()
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.download_image, self.image_name,
                           output_path='fake_path', output_file=fake_fd)
@@ -120,7 +119,7 @@ class TestImage(BaseTestImage):
 
     def test_download_image_with_fd(self):
         self._register_image_mocks()
-        output_file = six.BytesIO()
+        output_file = io.BytesIO()
         self.cloud.download_image(self.image_name, output_file=output_file)
         output_file.seek(0)
         self.assertEqual(output_file.read(), self.output)

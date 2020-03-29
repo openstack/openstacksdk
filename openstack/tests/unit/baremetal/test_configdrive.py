@@ -17,7 +17,6 @@ import json
 import os
 
 import mock
-import six
 import testtools
 
 from openstack.baremetal import configdrive
@@ -58,7 +57,7 @@ class TestPopulateDirectory(testtools.TestCase):
                 if user_data is None:
                     self.assertFalse(os.path.exists(user_data_file))
                 else:
-                    if isinstance(user_data, six.text_type):
+                    if isinstance(user_data, str):
                         user_data = user_data.encode()
                     with open(user_data_file, 'rb') as fp:
                         self.assertEqual(user_data, fp.read())
@@ -101,4 +100,4 @@ class TestPack(testtools.TestCase):
         mock_popen.return_value.returncode = 0
         result = configdrive.pack("/fake")
         # Make sure the result is string on all python versions
-        self.assertIsInstance(result, six.string_types)
+        self.assertIsInstance(result, str)

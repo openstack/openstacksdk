@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
 
 from openstack.tests.functional import base
 
@@ -22,6 +21,6 @@ class TestExtension(base.BaseFunctionalTest):
         self.assertGreater(len(extensions), 0)
 
         for ext in extensions:
-            self.assertIsInstance(ext.name, six.string_types)
-            self.assertIsInstance(ext.namespace, six.string_types)
-            self.assertIsInstance(ext.alias, six.string_types)
+            self.assertIsInstance(ext.name, str)
+            self.assertIsInstance(ext.namespace, str)
+            self.assertIsInstance(ext.alias, str)

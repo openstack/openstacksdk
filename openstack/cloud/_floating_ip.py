@@ -16,7 +16,6 @@
 import ipaddress
 # import jsonpatch
 import threading
-import six
 import time
 import types  # noqa
 
@@ -262,7 +261,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
             project_id = self.current_project_id
 
         if network:
-            if isinstance(network, six.string_types):
+            if isinstance(network, str):
                 network = [network]
 
             # Use given list to get first matching external network

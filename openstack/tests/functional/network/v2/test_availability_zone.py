@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
 
 from openstack.tests.functional import base
 
@@ -22,6 +21,6 @@ class TestAvailabilityZone(base.BaseFunctionalTest):
         self.assertGreater(len(availability_zones), 0)
 
         for az in availability_zones:
-            self.assertIsInstance(az.name, six.string_types)
-            self.assertIsInstance(az.resource, six.string_types)
-            self.assertIsInstance(az.state, six.string_types)
+            self.assertIsInstance(az.name, str)
+            self.assertIsInstance(az.resource, str)
+            self.assertIsInstance(az.state, str)

@@ -15,8 +15,6 @@ import string
 import threading
 import time
 
-import six
-
 import keystoneauth1
 from keystoneauth1 import discover
 
@@ -31,7 +29,7 @@ def urljoin(*args):
     like /path this should be joined to http://host/path as it is an anchored
     link. We generally won't care about that in client.
     """
-    return '/'.join(six.text_type(a or '').strip('/') for a in args)
+    return '/'.join(str(a or '').strip('/') for a in args)
 
 
 def iterate_timeout(timeout, message, wait=2):
@@ -194,7 +192,7 @@ def maximum_supported_microversion(adapter, client_maximum):
     return discover.version_to_string(result)
 
 
-class TinyDAG(six.Iterator):
+class TinyDAG(object):
     """Tiny DAG
 
     Bases on the Kahn's algorithm, and enables parallel visiting of the nodes

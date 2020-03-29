@@ -14,7 +14,6 @@
 
 import collections
 import json
-import six
 from urllib import parse
 from urllib import request
 
@@ -55,7 +54,7 @@ def get_template_contents(template_file=None, template_url=None,
             'Could not fetch template from %s' % template_url)
 
     try:
-        if isinstance(tpl, six.binary_type):
+        if isinstance(tpl, bytes):
             tpl = tpl.decode('utf-8')
         template = template_format.parse(tpl)
     except ValueError as e:
@@ -77,7 +76,7 @@ def resolve_template_get_files(template, files, template_base_url,
     def ignore_if(key, value):
         if key != 'get_file' and key != 'type':
             return True
-        if not isinstance(value, six.string_types):
+        if not isinstance(value, str):
             return True
         if (key == 'type'
                 and not value.endswith(('.yaml', '.template'))):
@@ -93,7 +92,7 @@ def resolve_template_get_files(template, files, template_base_url,
 
 def is_template(file_content):
     try:
-        if isinstance(file_content, six.binary_type):
+        if isinstance(file_content, bytes):
             file_content = file_content.decode('utf-8')
         template_format.parse(file_content)
     except (ValueError, TypeError):

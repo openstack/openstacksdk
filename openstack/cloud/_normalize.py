@@ -18,7 +18,6 @@
 
 import datetime
 import munch
-import six
 
 from openstack import resource
 
@@ -117,7 +116,7 @@ def _split_filters(obj_name='', filters=None, **kwargs):
 
 
 def _to_bool(value):
-    if isinstance(value, six.string_types):
+    if isinstance(value, str):
         if not value:
             return False
         prospective = value.lower().capitalize()

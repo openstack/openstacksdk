@@ -11,13 +11,11 @@
 # under the License.
 import abc
 
-import six
-
 from openstack import exceptions
 from openstack import proxy
 
 
-class BaseBlockStorageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
+class BaseBlockStorageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
 
     def create_image(
             self, name, volume, allow_duplicates,

@@ -20,7 +20,6 @@ import json
 import re
 
 from requests import exceptions as _rex
-import six
 
 
 class SDKException(Exception):
@@ -101,7 +100,7 @@ class HttpException(SDKException, _rex.HTTPError):
             if self.details:
                 remote_error += ', '
         if self.details:
-            remote_error += six.text_type(self.details)
+            remote_error += str(self.details)
 
         return "{message}: {remote_error}".format(
             message=super(HttpException, self).__str__(),
@@ -176,7 +175,7 @@ def _extract_message(obj):
         # Ironic starting with Stein
         elif obj.get('faultstring'):
             return obj['faultstring']
-    elif isinstance(obj, six.string_types):
+    elif isinstance(obj, str):
         # Ironic before Stein has double JSON encoding, nobody remembers why.
         try:
             obj = json.loads(obj)

@@ -20,9 +20,7 @@ import jmespath
 import munch
 import netifaces
 import re
-import six
 import sre_constants
-import sys
 import time
 import uuid
 
@@ -33,12 +31,6 @@ from openstack.cloud import exc
 from openstack.cloud import meta
 
 _decorated_methods = []
-
-
-def _exc_clear():
-    """Because sys.exc_clear is gone in py3 and is not in six."""
-    if sys.version_info[0] == 2:
-        sys.exc_clear()
 
 
 def _make_unicode(input):
@@ -134,7 +126,7 @@ def _filter_list(data, name_or_id, filters):
     if not filters:
         return data
 
-    if isinstance(filters, six.string_types):
+    if isinstance(filters, str):
         return jmespath.search(filters, data)
 
     def _dict_filter(f, d):

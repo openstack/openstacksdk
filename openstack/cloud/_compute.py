@@ -18,7 +18,6 @@ import datetime
 import functools
 import iso8601
 import operator
-import six
 import threading
 import time
 import types  # noqa
@@ -1634,7 +1633,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         if (
-            isinstance(name_or_id, six.string_types + (six.binary_type,))
+            isinstance(name_or_id, (str, bytes))
             and not name_or_id.isdigit()
         ):
             aggregate = self.get_aggregate(name_or_id)
@@ -1828,9 +1827,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         if hasattr(userdata, 'read'):
             userdata = userdata.read()
 
-        if not isinstance(userdata, six.binary_type):
+        if not isinstance(userdata, bytes):
             # If the userdata passed in is bytes, just send it unmodified
-            if not isinstance(userdata, six.string_types):
+            if not isinstance(userdata, str):
                 raise TypeError("%s can't be encoded" % type(userdata))
             # If it's not bytes, make it bytes
             userdata = userdata.encode('utf-8', 'strict')

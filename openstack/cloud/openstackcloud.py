@@ -12,7 +12,6 @@
 import copy
 import functools
 import queue
-import six
 # import types so that we can reference ListType in sphinx param declarations.
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
@@ -351,7 +350,7 @@ class _OpenStackCloudMixin(object):
     def _get_major_version_id(self, version):
         if isinstance(version, int):
             return version
-        elif isinstance(version, six.string_types + (tuple,)):
+        elif isinstance(version, (str, tuple)):
             return int(version[0])
         return version
 

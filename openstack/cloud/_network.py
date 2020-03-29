@@ -13,7 +13,6 @@
 # import types so that we can reference ListType in sphinx param declarations.
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
-import six
 import time
 import threading
 import types  # noqa
@@ -2205,7 +2204,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 'True')
 
         # Be friendly on ip_version and allow strings
-        if isinstance(ip_version, six.string_types):
+        if isinstance(ip_version, str):
             try:
                 ip_version = int(ip_version)
             except ValueError:
