@@ -181,6 +181,32 @@ class TestCloudRegion(base.TestCase):
         self.assertEqual(1, cc.get_connect_retries('compute'))
         self.assertEqual(3, cc.get_connect_retries('baremetal'))
 
+    def test_rackspace_workaround(self):
+        # We're skipping loader here, so we have to expand relevant
+        # parts from the rackspace profile. The thing we're testing
+        # is that the project_id logic works.
+        cc = cloud_region.CloudRegion("test1", "DFW", {
+            'profile': 'rackspace',
+            'region_name': 'DFW',
+            'auth': {'project_id': '123456'},
+            'block_storage_endpoint_override': 'https://example.com/v2/',
+        })
+        self.assertEqual(
+            'https://example.com/v2/123456',
+            cc.get_endpoint('block-storage')
+        )
+
+    def test_rackspace_workaround_only_rax(self):
+        cc = cloud_region.CloudRegion("test1", "DFW", {
+            'region_name': 'DFW',
+            'auth': {'project_id': '123456'},
+            'block_storage_endpoint_override': 'https://example.com/v2/',
+        })
+        self.assertEqual(
+            'https://example.com/v2/',
+            cc.get_endpoint('block-storage')
+        )
+
     def test_get_region_name(self):
 
         def assert_region_name(default, compute):
