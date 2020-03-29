@@ -14,6 +14,8 @@
 
 import re
 
+from hacking import core
+
 """
 Guidelines for writing new hacking checks
 
@@ -31,6 +33,7 @@ Guidelines for writing new hacking checks
 SETUPCLASS_RE = re.compile(r"def setUpClass\(")
 
 
+@core.flake8ext
 def assert_no_setupclass(logical_line):
     """Check for use of setUpClass
 
@@ -38,7 +41,3 @@ def assert_no_setupclass(logical_line):
     """
     if SETUPCLASS_RE.match(logical_line):
         yield (0, "O300: setUpClass not allowed")
-
-
-def factory(register):
-    register(assert_no_setupclass)
