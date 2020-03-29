@@ -12,7 +12,7 @@
 
 from openstack import format
 
-from six.moves.urllib import parse
+from urllib import parse
 
 
 class HREFToUUID(format.Formatter):

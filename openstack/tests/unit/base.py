@@ -15,8 +15,10 @@
 
 import collections
 import os
+import tempfile
 import time
 import uuid
+import urllib
 
 import fixtures
 from keystoneauth1 import loading as ks_loading
@@ -24,8 +26,6 @@ import openstack.config as occ
 from oslo_config import cfg
 from requests import structures
 from requests_mock.contrib import fixture as rm_fixture
-from six.moves import urllib
-import tempfile
 
 import openstack.cloud
 import openstack.connection

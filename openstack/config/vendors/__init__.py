@@ -15,8 +15,8 @@
 import glob
 import json
 import os
+import urllib
 
-from six.moves import urllib
 import requests
 import yaml
 

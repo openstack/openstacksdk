@@ -15,7 +15,7 @@ try:
     JSONDecodeError = simplejson.scanner.JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
-from six.moves import urllib
+import urllib
 
 from keystoneauth1 import adapter
 

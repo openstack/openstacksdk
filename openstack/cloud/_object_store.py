@@ -20,8 +20,7 @@ import json
 import os
 import six
 import types  # noqa
-
-from six.moves import urllib_parse
+import urllib.parse
 
 import keystoneauth1.exceptions
 
@@ -242,7 +241,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         # The endpoint in the catalog has version and project-id in it
         # To get capabilities, we have to disassemble and reassemble the URL
         # This logic is taken from swiftclient
-        endpoint = urllib_parse.urlparse(self.object_store.get_endpoint())
+        endpoint = urllib.parse.urlparse(self.object_store.get_endpoint())
         url = "{scheme}://{netloc}/info".format(
             scheme=endpoint.scheme, netloc=endpoint.netloc)
 
@@ -753,11 +752,11 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         return self._object_store_client.get(endpoint, stream=stream)
 
     def _get_object_endpoint(self, container, obj=None, query_string=None):
-        endpoint = urllib_parse.quote(container)
+        endpoint = urllib.parse.quote(container)
         if obj:
             endpoint = '{endpoint}/{object}'.format(
                 endpoint=endpoint,
-                object=urllib_parse.quote(obj)
+                object=urllib.parse.quote(obj)
             )
         if query_string:
             endpoint = '{endpoint}?{query_string}'.format(
