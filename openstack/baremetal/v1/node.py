@@ -53,8 +53,8 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # The allocation_uuid field introduced in 1.52 (Stein).
-    _max_microversion = '1.52'
+    # The max microversion in Train
+    _max_microversion = '1.58'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
