@@ -515,8 +515,8 @@ class Node(_common.ListMixin, resource.Resource):
         elif not abort_on_failed_state:
             return False
 
-        if (self.provision_state.endswith(' failed') or
-                self.provision_state == 'error'):
+        if (self.provision_state.endswith(' failed')
+                or self.provision_state == 'error'):
             raise exceptions.ResourceFailure(
                 "Node %(node)s reached failure state \"%(state)s\"; "
                 "the last error is %(error)s" %

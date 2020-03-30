@@ -209,7 +209,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         # side filter for user name https://bit.ly/2qh0Ijk
         # especially important when using LDAP and using page to limit results
         if name_or_id and not _utils._is_uuid_like(name_or_id):
-                kwargs['name'] = name_or_id
+            kwargs['name'] = name_or_id
         users = self.list_users(**kwargs)
         return _utils._filter_list(users, name_or_id, filters)
 

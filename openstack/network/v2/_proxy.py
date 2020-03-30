@@ -3976,7 +3976,7 @@ class Proxy(proxy.Proxy):
         :param floating_ip: The value can be the ID of the Floating IP that the
                             port forwarding  belongs or a :class:`~openstack.
                             network.v2.floating_ip.FloatingIP` instance.
-        :param kwargs \*\*query: Optional query parameters to be sent to limit
+        :param kwargs **query: Optional query parameters to be sent to limit
                                  the resources being returned.
         :returns: A generator of floating ip port forwarding objects
         :rtype: :class:`~openstack.network.v2.port_forwarding.
