@@ -98,7 +98,6 @@ class IdentityCloudMixin(_normalize.Normalizer):
         return _utils._get_entity(self, 'project', name_or_id, filters,
                                   domain_id=domain_id)
 
-    @_utils.valid_kwargs('description')
     def update_project(self, name_or_id, enabled=None, domain_id=None,
                        **kwargs):
         with _utils.shade_exceptions(
