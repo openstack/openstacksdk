@@ -131,7 +131,7 @@ construct a Connection with the ``CONF`` object and an authenticated Session.
 
     conn = connection.Connection(
         session=session,
-        oslo_config=CONF)
+        oslo_conf=CONF)
 
 From existing CloudRegion
 -------------------------
