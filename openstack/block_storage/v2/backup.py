@@ -76,6 +76,64 @@ class Backup(resource.Resource):
     #: The UUID of the volume.
     volume_id = resource.Body("volume_id")
 
+    def create(self, session, prepend_key=True, base_path=None, **params):
+        """Create a remote resource based on this instance.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param prepend_key: A boolean indicating whether the resource_key
+                            should be prepended in a resource creation
+                            request. Default to True.
+        :param str base_path: Base part of the URI for creating resources, if
+                              different from
+                              :data:`~openstack.resource.Resource.base_path`.
+        :param dict params: Additional params to pass.
+        :return: This :class:`Resource` instance.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+                 :data:`Resource.allow_create` is not set to ``True``.
+        """
+        if not self.allow_create:
+            raise exceptions.MethodNotSupported(self, "create")
+
+        session = self._get_session(session)
+        microversion = self._get_microversion_for(session, 'create')
+        requires_id = (self.create_requires_id
+                       if self.create_requires_id is not None
+                       else self.create_method == 'PUT')
+
+        if self.create_exclude_id_from_body:
+            self._body._dirty.discard("id")
+
+        if self.create_method == 'POST':
+            request = self._prepare_request(requires_id=requires_id,
+                                            prepend_key=prepend_key,
+                                            base_path=base_path)
+            # NOTE(gtema) this is a funny example of when attribute
+            # is called "incremental" on create, "is_incremental" on get
+            # and use of "alias" or "aka" is not working for such conflict,
+            # since our preferred attr name is exactly "is_incremental"
+            body = request.body
+            if 'is_incremental' in body['backup']:
+                body['backup']['incremental'] = \
+                    body['backup'].pop('is_incremental')
+            response = session.post(request.url,
+                                    json=request.body, headers=request.headers,
+                                    microversion=microversion, params=params)
+        else:
+            # Just for safety of the implementation (since PUT removed)
+            raise exceptions.ResourceFailure(
+                msg="Invalid create method: %s" % self.create_method)
+
+        has_body = (self.has_body if self.create_returns_body is None
+                    else self.create_returns_body)
+        self.microversion = microversion
+        self._translate_response(response, has_body=has_body)
+        # direct comparision to False since we need to rule out None
+        if self.has_body and self.create_returns_body is False:
+            # fetch the body if it's required but not returned by create
+            return self.fetch(session)
+        return self
+
     def restore(self, session, volume_id=None, name=None):
         """Restore current backup to volume
 

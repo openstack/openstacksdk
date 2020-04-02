@@ -55,7 +55,7 @@ class TestBackup(base.TestCase):
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.get = mock.Mock()
         self.sess.post = mock.Mock(return_value=self.resp)
-        self.sess.default_microversion = mock.Mock(return_value='')
+        self.sess.default_microversion = None
 
     def test_basic(self):
         sot = backup.Backup(BACKUP)
@@ -104,6 +104,42 @@ class TestBackup(base.TestCase):
                          sot.project_id)
         self.assertEqual(BACKUP['metadata'], sot.metadata)
         self.assertEqual(BACKUP['user_id'], sot.user_id)
+
+    def test_create_incremental(self):
+        sot = backup.Backup(is_incremental=True)
+        sot2 = backup.Backup(is_incremental=False)
+
+        create_response = mock.Mock()
+        create_response.status_code = 200
+        create_response.json.return_value = {}
+        create_response.headers = {}
+        self.sess.post.return_value = create_response
+
+        sot.create(self.sess)
+        self.sess.post.assert_called_with(
+            '/backups',
+            headers={},
+            json={
+                'backup': {
+                    'incremental': True,
+                }
+            },
+            microversion=None,
+            params={}
+        )
+
+        sot2.create(self.sess)
+        self.sess.post.assert_called_with(
+            '/backups',
+            headers={},
+            json={
+                'backup': {
+                    'incremental': False,
+                }
+            },
+            microversion=None,
+            params={}
+        )
 
     def test_restore(self):
         sot = backup.Backup(**BACKUP)

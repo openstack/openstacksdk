@@ -42,7 +42,8 @@ class TestBackup(base.BaseBlockStorageTest):
 
         backup = self.user_cloud.block_storage.create_backup(
             name=self.BACKUP_NAME,
-            volume_id=volume.id)
+            volume_id=volume.id,
+            is_incremental=False)
         self.user_cloud.block_storage.wait_for_status(
             backup,
             status='available',
@@ -66,3 +67,22 @@ class TestBackup(base.BaseBlockStorageTest):
     def test_get(self):
         sot = self.user_cloud.block_storage.get_backup(self.BACKUP_ID)
         self.assertEqual(self.BACKUP_NAME, sot.name)
+        self.assertEqual(False, sot.is_incremental)
+
+    def test_create_incremental(self):
+        incremental_backup = self.user_cloud.block_storage.create_backup(
+            name=self.getUniqueString(),
+            volume_id=self.VOLUME_ID,
+            is_incremental=True)
+        self.user_cloud.block_storage.wait_for_status(
+            incremental_backup,
+            status='available',
+            failures=['error'],
+            interval=5,
+            wait=self._wait_for_timeout)
+        self.assertEqual(True, incremental_backup.is_incremental)
+        self.user_cloud.block_storage.delete_backup(
+            incremental_backup.id,
+            ignore_missing=False)
+        self.user_cloud.block_storage.wait_for_delete(
+            incremental_backup)
