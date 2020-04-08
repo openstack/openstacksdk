@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
+# TODO(shade) Rework for Zuul v3
+
+export OPENSTACKSDK_DIR="$BASE/new/openstacksdk"
+
+cd $OPENSTACKSDK_DIR
+sudo chown -R jenkins:stack $OPENSTACKSDK_DIR
+
+echo "Running shade Ansible test suite"
+
+if [ ${OPENSTACKSDK_ANSIBLE_DEV:-0} -eq 1 ]
+then
+    # Use the upstream development version of Ansible
+    set +e
+    sudo -E -H -u jenkins tox -eansible -- -d
+    EXIT_CODE=$?
+    set -e
+else
+    # Use the release version of Ansible
+    set +e
+    sudo -E -H -u jenkins tox -eansible
+    EXIT_CODE=$?
+    set -e
+fi
+
+
+exit $EXIT_CODE
