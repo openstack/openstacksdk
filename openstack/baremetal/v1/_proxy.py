@@ -17,6 +17,7 @@ from openstack.baremetal.v1 import driver as _driver
 from openstack.baremetal.v1 import node as _node
 from openstack.baremetal.v1 import port as _port
 from openstack.baremetal.v1 import port_group as _portgroup
+from openstack.baremetal.v1 import volume_connector as _volumeconnector
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
@@ -1003,3 +1004,145 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_node.Node, node)
         return res.set_traits(self, traits)
+
+    def volume_connectors(self, details=False, **query):
+        """Retrieve a generator of volume_connector.
+
+        :param details: A boolean indicating whether the detailed information
+                        for every volume_connector should be returned.
+        :param dict query: Optional query parameters to be sent to restrict
+            the volume_connectors returned. Available parameters include:
+
+            * ``fields``: A list containing one or more fields to be returned
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
+            * ``limit``: Requests at most the specified number of
+              volume_connector be returned from the query.
+            * ``marker``: Specifies the ID of the last-seen volume_connector.
+              Use the ``limit`` parameter to make an initial limited request
+              and use the ID of the last-seen volume_connector from the
+              response as the ``marker`` value in subsequent limited request.
+            * ``node``:only return the ones associated with this specific node
+              (name or UUID), or an empty set if not found.
+            * ``sort_dir``:Sorts the response by the requested sort direction.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``. You can specify multiple
+              pairs of sort key and sort direction query parameters. If
+              you omit the sort direction in a pair, the API uses the
+              natural sorting direction of the server attribute that is
+              provided as the ``sort_key``.
+            * ``sort_key``: Sorts the response by the this attribute value.
+              Default is ``id``. You can specify multiple pairs of sort
+              key and sort direction query parameters. If you omit the
+              sort direction in a pair, the API uses the natural sorting
+              direction of the server attribute that is provided as the
+              ``sort_key``.
+
+        :returns: A generator of volume_connector instances.
+        """
+        if details:
+            query['detail'] = True
+        return _volumeconnector.VolumeConnector.list(self, **query)
+
+    def create_volume_connector(self, **attrs):
+        """Create a new volume_connector from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+            :class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector`.
+
+        :returns: The results of volume_connector creation.
+        :rtype::class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector`.
+        """
+        return self._create(_volumeconnector.VolumeConnector, **attrs)
+
+    def find_volume_connector(self, vc_id, ignore_missing=True):
+        """Find a single volume connector.
+
+        :param str vc_id: The ID of a volume connector.
+
+        :param bool ignore_missing: When set to ``False``, an exception of
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the volume connector does not exist.  When set to `True``,
+            None will be returned when attempting to find a nonexistent
+            volume connector.
+        :returns: One :class:
+            `~openstack.baremetal.v1.volumeconnector.VolumeConnector`
+            object or None.
+        """
+        return self._find(_volumeconnector.VolumeConnector, vc_id,
+                          ignore_missing=ignore_missing)
+
+    def get_volume_connector(self, volume_connector, fields=None):
+        """Get a specific volume_connector.
+
+        :param volume_connector: The value can be the ID of a
+            volume_connector or a :class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector
+            instance.`
+        :param fields: Limit the resource fields to fetch.`
+
+        :returns: One
+            :class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            volume_connector matching the name or ID could be found.`
+        """
+        return self._get_with_fields(_volumeconnector.VolumeConnector,
+                                     volume_connector,
+                                     fields=fields)
+
+    def update_volume_connector(self, volume_connector, **attrs):
+        """Update a volume_connector.
+
+        :param volume_connector:Either the ID of a volume_connector
+        or an instance of
+        :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector.`
+        :param dict attrs: The attributes to update on the
+        volume_connector represented by the ``volume_connector`` parameter.`
+
+        :returns: The updated volume_connector.
+        :rtype::class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector.`
+        """
+        return self._update(_volumeconnector.VolumeConnector,
+                            volume_connector, **attrs)
+
+    def patch_volume_connector(self, volume_connector, patch):
+        """Apply a JSON patch to the volume_connector.
+
+        :param volume_connector: The value can be the ID of a
+            volume_connector or a :class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector`
+            instance.
+        :param patch: JSON patch to apply.
+
+        :returns: The updated volume_connector.
+        :rtype::class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector.`
+        """
+        return self._get_resource(_volumeconnector.VolumeConnector,
+                                  volume_connector).patch(self, patch)
+
+    def delete_volume_connector(self, volume_connector,
+                                ignore_missing=True):
+        """Delete an volume_connector.
+
+        :param volume_connector: The value can be either the ID of a
+            volume_connector.VolumeConnector or a
+            :class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector`
+            instance.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the volume_connector could not be found.
+            When set to ``True``, no exception will be raised when
+            attempting to delete a non-existent volume_connector.
+
+        :returns: The instance of the volume_connector which was deleted.
+        :rtype::class:
+            `~openstack.baremetal.v1.volume_connector.VolumeConnector`.
+        """
+        return self._delete(_volumeconnector.VolumeConnector,
+                            volume_connector, ignore_missing=ignore_missing)

@@ -61,6 +61,14 @@ Allocation Operations
             update_allocation, patch_allocation, delete_allocation,
             wait_for_allocation
 
+Volume Connector Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.baremetal.v1._proxy.Proxy
+  :noindex:
+  :members: volume_connectors, find_volume_connector, get_volume_connector,
+            create_volume_connector, update_volume_connector,
+            patch_volume_connector, delete_volume_connector
+
 Utilities
 ---------
 
