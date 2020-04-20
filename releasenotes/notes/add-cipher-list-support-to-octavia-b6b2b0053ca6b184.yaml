@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added the ``tls_ciphers`` properties to listener.py
+    and pool.py for storing stings of tls ciphers in
+    OpenSSL cipher string format.

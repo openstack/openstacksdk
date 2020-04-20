@@ -32,6 +32,7 @@ class Listener(resource.Resource, resource.TagMixin):
         'sni_container_refs', 'insert_headers', 'load_balancer_id',
         'timeout_client_data', 'timeout_member_connect',
         'timeout_member_data', 'timeout_tcp_inspect', 'allowed_cidrs',
+        'tls_ciphers',
         is_admin_state_up='admin_state_up',
         **resource.TagMixin._tag_query_parameters
     )
@@ -91,6 +92,8 @@ class Listener(resource.Resource, resource.TagMixin):
     #: Time, in milliseconds, to wait for additional TCP packets for content
     #: inspection.
     timeout_tcp_inspect = resource.Body('timeout_tcp_inspect', type=int)
+    #: Stores a cipher string in OpenSSL format.
+    tls_ciphers = resource.Body('tls_ciphers')
 
 
 class ListenerStats(resource.Resource):
