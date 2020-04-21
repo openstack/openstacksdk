@@ -14,20 +14,14 @@ Workflow Operations
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.workflow.v2._proxy.Proxy
-
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.create_workflow
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.delete_workflow
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.get_workflow
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.find_workflow
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.workflows
+  :noindex:
+  :members: create_workflow, delete_workflow, get_workflow,
+            find_workflow, workflows
 
 Execution Operations
 ^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.workflow.v2._proxy.Proxy
-
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.create_execution
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.delete_execution
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.get_execution
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.find_execution
-   .. automethod:: openstack.workflow.v2._proxy.Proxy.executions
+  :noindex:
+  :members: create_execution, delete_execution, get_execution,
+            find_execution, executions

@@ -15,151 +15,105 @@ Build Info Operations
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_build_info
+  :noindex:
+  :members: get_build_info
 
 
 Profile Type Operations
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.profile_types
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_profile_type
+  :noindex:
+  :members: profile_types, get_profile_type
 
 
 Profile Operations
 ^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.create_profile
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.update_profile
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.delete_profile
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_profile
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.find_profile
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.profiles
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.validate_profile
+  :noindex:
+  :members: create_profile, update_profile, delete_profile, get_profile,
+            find_profile, profiles, validate_profile
 
 
 Policy Type Operations
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.policy_types
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_policy_type
+  :noindex:
+  :members: policy_types, get_policy_type
 
 
 Policy Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
+  :noindex:
+  :members: create_policy, update_policy, delete_policy, get_policy,
+            find_policy, policies
 
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.create_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.update_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.delete_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.find_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.policies
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.validate_policy
+validate_policy
 
 
 Cluster Operations
 ^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.create_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.update_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.delete_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.find_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.clusters
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.check_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.recover_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.resize_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.scale_in_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.scale_out_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.collect_cluster_attrs
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.perform_operation_on_cluster
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.add_nodes_to_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.remove_nodes_from_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.replace_nodes_in_cluster
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.attach_policy_to_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.update_cluster_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.detach_policy_from_cluster
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_cluster_policy
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.cluster_policies
-
+  :noindex:
+  :members: create_cluster, update_cluster, delete_cluster, get_cluster,
+            find_cluster, clusters, check_cluster, recover_cluster,
+            resize_cluster, scale_in_cluster, scale_out_cluster,
+            collect_cluster_attrs, perform_operation_on_cluster,
+            add_nodes_to_cluster, remove_nodes_from_cluster,
+            replace_nodes_in_cluster, attach_policy_to_cluster,
+            update_cluster_policy, detach_policy_from_cluster,
+            get_cluster_policy, cluster_policies
 
 Node Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.create_node
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.update_node
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.delete_node
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_node
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.find_node
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.nodes
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.check_node
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.recover_node
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.perform_operation_on_node
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.adopt_node
+  :noindex:
+  :members: create_node, update_node, delete_node, get_node, find_node, nodes,
+            check_node, recover_node, perform_operation_on_node, adopt_node
 
 
 Receiver Operations
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.create_receiver
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.update_receiver
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.delete_receiver
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_receiver
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.find_receiver
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.receivers
+  :noindex:
+  :members: create_receiver, update_receiver, delete_receiver,
+            get_receiver, find_receiver, receivers
 
 
 Action Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_action
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.actions
+  :noindex:
+  :members: get_action, actions
 
 
 Event Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.get_event
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.events
+  :noindex:
+  :members: get_event, events
 
 
 Helper Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.wait_for_delete
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.wait_for_status
+  :noindex:
+  :members: wait_for_delete, wait_for_status
 
 
 Service Operations
 ^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.clustering.v1._proxy.Proxy
-
-   .. automethod:: openstack.clustering.v1._proxy.Proxy.services
+  :noindex:
+  :members: services

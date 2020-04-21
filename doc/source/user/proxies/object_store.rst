@@ -15,36 +15,23 @@ Account Operations
 ^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.object_store.v1._proxy.Proxy
-
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.get_account_metadata
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.set_account_metadata
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.delete_account_metadata
+  :noindex:
+  :members: get_account_metadata, set_account_metadata, delete_account_metadata
 
 Container Operations
 ^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.object_store.v1._proxy.Proxy
-
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.create_container
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.delete_container
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.containers
-
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.get_container_metadata
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.set_container_metadata
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.delete_container_metadata
+  :noindex:
+  :members: create_container, delete_container, containers,
+            get_container_metadata, set_container_metadata,
+            delete_container_metadata
 
 Object Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.object_store.v1._proxy.Proxy
-
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.upload_object
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.download_object
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.copy_object
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.delete_object
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.get_object
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.objects
-
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.get_object_metadata
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.set_object_metadata
-   .. automethod:: openstack.object_store.v1._proxy.Proxy.delete_object_metadata
+  :noindex:
+  :members: upload_object, download_object, copy_object, delete_object,
+            get_object, objects, get_object_metadata, set_object_metadata,
+            delete_object_metadata

@@ -16,42 +16,27 @@ Extension Operations
 ^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v2._proxy.Proxy
-
-   .. automethod:: openstack.identity.v2._proxy.Proxy.get_extension
-   .. automethod:: openstack.identity.v2._proxy.Proxy.extensions
+  :noindex:
+  :members: get_extension, extensions
 
 User Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v2._proxy.Proxy
-
-   .. automethod:: openstack.identity.v2._proxy.Proxy.create_user
-   .. automethod:: openstack.identity.v2._proxy.Proxy.update_user
-   .. automethod:: openstack.identity.v2._proxy.Proxy.delete_user
-   .. automethod:: openstack.identity.v2._proxy.Proxy.get_user
-   .. automethod:: openstack.identity.v2._proxy.Proxy.find_user
-   .. automethod:: openstack.identity.v2._proxy.Proxy.users
+  :noindex:
+  :members: create_user, update_user, delete_user, get_user, find_user, users
 
 Role Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v2._proxy.Proxy
-
-   .. automethod:: openstack.identity.v2._proxy.Proxy.create_role
-   .. automethod:: openstack.identity.v2._proxy.Proxy.update_role
-   .. automethod:: openstack.identity.v2._proxy.Proxy.delete_role
-   .. automethod:: openstack.identity.v2._proxy.Proxy.get_role
-   .. automethod:: openstack.identity.v2._proxy.Proxy.find_role
-   .. automethod:: openstack.identity.v2._proxy.Proxy.roles
+  :noindex:
+  :members: create_role, update_role, delete_role, get_role, find_role, roles
 
 Tenant Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v2._proxy.Proxy
-
-   .. automethod:: openstack.identity.v2._proxy.Proxy.create_tenant
-   .. automethod:: openstack.identity.v2._proxy.Proxy.update_tenant
-   .. automethod:: openstack.identity.v2._proxy.Proxy.delete_tenant
-   .. automethod:: openstack.identity.v2._proxy.Proxy.get_tenant
-   .. automethod:: openstack.identity.v2._proxy.Proxy.find_tenant
-   .. automethod:: openstack.identity.v2._proxy.Proxy.tenants
+  :noindex:
+  :members: create_tenant, update_tenant, delete_tenant, get_tenant,
+            find_tenant, tenants

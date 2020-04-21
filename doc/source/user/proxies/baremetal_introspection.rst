@@ -16,10 +16,6 @@ Introspection Process Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.baremetal_introspection.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal_introspection.v1._proxy.Proxy.introspections
-   .. automethod:: openstack.baremetal_introspection.v1._proxy.Proxy.get_introspection
-   .. automethod:: openstack.baremetal_introspection.v1._proxy.Proxy.get_introspection_data
-   .. automethod:: openstack.baremetal_introspection.v1._proxy.Proxy.start_introspection
-   .. automethod:: openstack.baremetal_introspection.v1._proxy.Proxy.wait_for_introspection
-   .. automethod:: openstack.baremetal_introspection.v1._proxy.Proxy.abort_introspection
+  :noindex:
+  :members: introspections, get_introspection, get_introspection_data,
+            start_introspection, wait_for_introspection, abort_introspection

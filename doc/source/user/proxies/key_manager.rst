@@ -18,34 +18,22 @@ Secret Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.key_manager.v1._proxy.Proxy
-
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.create_secret
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.update_secret
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.delete_secret
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.get_secret
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.find_secret
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.secrets
+  :noindex:
+  :members: create_secret, update_secret, delete_secret, get_secret,
+            find_secret, secrets
 
 Container Operations
 ^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.key_manager.v1._proxy.Proxy
-
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.create_container
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.update_container
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.delete_container
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.get_container
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.find_container
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.containers
+  :noindex:
+  :members: create_container, update_container, delete_container,
+            get_container, find_container, containers
 
 Order Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.key_manager.v1._proxy.Proxy
-
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.create_order
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.update_order
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.delete_order
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.get_order
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.find_order
-   .. automethod:: openstack.key_manager.v1._proxy.Proxy.orders
+  :noindex:
+  :members: create_order, update_order, delete_order, get_order,
+            find_order, orders

@@ -16,66 +16,47 @@ DNS Zone Operations
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.dns.v2._proxy.Proxy
-
-   .. automethod:: openstack.dns.v2._proxy.Proxy.create_zone
-   .. automethod:: openstack.dns.v2._proxy.Proxy.delete_zone
-   .. automethod:: openstack.dns.v2._proxy.Proxy.get_zone
-   .. automethod:: openstack.dns.v2._proxy.Proxy.find_zone
-   .. automethod:: openstack.dns.v2._proxy.Proxy.zones
-   .. automethod:: openstack.dns.v2._proxy.Proxy.abandon_zone
-   .. automethod:: openstack.dns.v2._proxy.Proxy.xfr_zone
+  :noindex:
+  :members: create_zone, delete_zone, get_zone, find_zone, zones,
+            abandon_zone, xfr_zone
 
 Recordset Operations
 ^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.dns.v2._proxy.Proxy
-
-   .. automethod:: openstack.dns.v2._proxy.Proxy.create_recordset
-   .. automethod:: openstack.dns.v2._proxy.Proxy.update_recordset
-   .. automethod:: openstack.dns.v2._proxy.Proxy.get_recordset
-   .. automethod:: openstack.dns.v2._proxy.Proxy.delete_recordset
-   .. automethod:: openstack.dns.v2._proxy.Proxy.recordsets
+  :noindex:
+  :members: create_recordset, update_recordset, get_recordset,
+            delete_recordset, recordsets
 
 Zone Import Operations
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.dns.v2._proxy.Proxy
-
-   .. automethod:: openstack.dns.v2._proxy.Proxy.zone_imports
-   .. automethod:: openstack.dns.v2._proxy.Proxy.create_zone_import
-   .. automethod:: openstack.dns.v2._proxy.Proxy.get_zone_import
-   .. automethod:: openstack.dns.v2._proxy.Proxy.delete_zone_import
+  :noindex:
+  :members: zone_imports, create_zone_import, get_zone_import,
+            delete_zone_import
 
 Zone Export Operations
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.dns.v2._proxy.Proxy
-
-   .. automethod:: openstack.dns.v2._proxy.Proxy.zone_exports
-   .. automethod:: openstack.dns.v2._proxy.Proxy.create_zone_export
-   .. automethod:: openstack.dns.v2._proxy.Proxy.get_zone_export
-   .. automethod:: openstack.dns.v2._proxy.Proxy.get_zone_export_text
-   .. automethod:: openstack.dns.v2._proxy.Proxy.delete_zone_export
+  :noindex:
+  :members: zone_exports, create_zone_export, get_zone_export,
+            get_zone_export_text, delete_zone_export
 
 FloatingIP Operations
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.dns.v2._proxy.Proxy
-
-   .. automethod:: openstack.dns.v2._proxy.Proxy.floating_ips
-   .. automethod:: openstack.dns.v2._proxy.Proxy.get_floating_ip
-   .. automethod:: openstack.dns.v2._proxy.Proxy.update_floating_ip
+  :noindex:
+  :members: floating_ips, get_floating_ip, update_floating_ip
 
 Zone Transfer Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.dns.v2._proxy.Proxy
-
-   .. automethod:: openstack.dns.v2._proxy.Proxy.zone_transfer_requests
-   .. automethod:: openstack.dns.v2._proxy.Proxy.get_zone_transfer_request
-   .. automethod:: openstack.dns.v2._proxy.Proxy.create_zone_transfer_request
-   .. automethod:: openstack.dns.v2._proxy.Proxy.update_zone_transfer_request
-   .. automethod:: openstack.dns.v2._proxy.Proxy.delete_zone_transfer_request
-   .. automethod:: openstack.dns.v2._proxy.Proxy.zone_transfer_accepts
-   .. automethod:: openstack.dns.v2._proxy.Proxy.get_zone_transfer_accept
-   .. automethod:: openstack.dns.v2._proxy.Proxy.create_zone_transfer_accept
+  :noindex:
+  :members: zone_transfer_requests, get_zone_transfer_request,
+            create_zone_transfer_request, update_zone_transfer_request,
+            delete_zone_transfer_request, zone_transfer_accepts,
+            get_zone_transfer_accept, create_zone_transfer_accept

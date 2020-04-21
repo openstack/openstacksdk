@@ -16,38 +16,27 @@ Message Operations
 ^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.message.v2._proxy.Proxy
-
-   .. automethod:: openstack.message.v2._proxy.Proxy.post_message
-   .. automethod:: openstack.message.v2._proxy.Proxy.delete_message
-   .. automethod:: openstack.message.v2._proxy.Proxy.get_message
-   .. automethod:: openstack.message.v2._proxy.Proxy.messages
+  :noindex:
+  :members: post_message, delete_message, get_message, messages
 
 Queue Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.message.v2._proxy.Proxy
-
-   .. automethod:: openstack.message.v2._proxy.Proxy.create_queue
-   .. automethod:: openstack.message.v2._proxy.Proxy.delete_queue
-   .. automethod:: openstack.message.v2._proxy.Proxy.get_queue
-   .. automethod:: openstack.message.v2._proxy.Proxy.queues
+  :noindex:
+  :members: create_queue, delete_queue, get_queue, queues
 
 Claim Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.message.v2._proxy.Proxy
-
-   .. automethod:: openstack.message.v2._proxy.Proxy.create_claim
-   .. automethod:: openstack.message.v2._proxy.Proxy.update_claim
-   .. automethod:: openstack.message.v2._proxy.Proxy.delete_claim
-   .. automethod:: openstack.message.v2._proxy.Proxy.get_claim
+  :noindex:
+  :members: create_claim, update_claim, delete_claim, get_claim
 
 Subscription Operations
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.message.v2._proxy.Proxy
-
-   .. automethod:: openstack.message.v2._proxy.Proxy.create_subscription
-   .. automethod:: openstack.message.v2._proxy.Proxy.delete_subscription
-   .. automethod:: openstack.message.v2._proxy.Proxy.get_subscription
-   .. automethod:: openstack.message.v2._proxy.Proxy.subscriptions
+  :noindex:
+  :members: create_subscription, delete_subscription, get_subscription,
+            subscriptions
