@@ -16,46 +16,33 @@ Volume Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
-
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.create_volume
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.delete_volume
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.get_volume
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.volumes
+  :noindex:
+  :members: create_volume, delete_volume, get_volume, volumes
 
 Backup Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
-
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.create_backup
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.delete_backup
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.get_backup
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.backups
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.restore_backup
+  :noindex:
+  :members: create_backup, delete_backup, get_backup, backups, restore_backup
 
 Type Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
-
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.create_type
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.delete_type
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.get_type
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.types
+  :noindex:
+  :members: create_type, delete_type, get_type, types
 
 Snapshot Operations
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
-
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.create_snapshot
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.delete_snapshot
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.get_snapshot
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.snapshots
+  :noindex:
+  :members: create_snapshot, delete_snapshot, get_snapshot, snapshots
 
 Stats Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
-
-   .. automethod:: openstack.block_storage.v2._proxy.Proxy.backend_pools
+  :noindex:
+  :members: backend_pools

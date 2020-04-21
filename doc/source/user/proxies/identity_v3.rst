@@ -16,144 +16,93 @@ Credential Operations
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_credential
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_credential
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_credential
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_credential
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_credential
-   .. automethod:: openstack.identity.v3._proxy.Proxy.credentials
+  :noindex:
+  :members: create_credential, update_credential, delete_credential,
+            get_credential, find_credential, credentials
 
 Domain Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_domain
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_domain
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_domain
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_domain
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_domain
-   .. automethod:: openstack.identity.v3._proxy.Proxy.domains
+  :noindex:
+  :members: create_domain, update_domain, delete_domain, get_domain,
+            find_domain, domains
 
 Endpoint Operations
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_endpoint
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_endpoint
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_endpoint
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_endpoint
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_endpoint
-   .. automethod:: openstack.identity.v3._proxy.Proxy.endpoints
+  :noindex:
+  :members: create_endpoint, update_endpoint, delete_endpoint, get_endpoint,
+            find_endpoint, endpoints
 
 Group Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_group
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_group
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_group
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_group
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_group
-   .. automethod:: openstack.identity.v3._proxy.Proxy.groups
+  :noindex:
+  :members: create_group, update_group, delete_group, get_group, find_group,
+            groups
 
 Policy Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_policy
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_policy
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_policy
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_policy
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_policy
-   .. automethod:: openstack.identity.v3._proxy.Proxy.policies
+  :noindex:
+  :members: create_policy, update_policy, delete_policy, get_policy,
+            find_policy, policies
 
 Project Operations
 ^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_project
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_project
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_project
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_project
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_project
-   .. automethod:: openstack.identity.v3._proxy.Proxy.projects
+  :noindex:
+  :members: create_project, update_project, delete_project, get_project,
+            find_project, projects
 
 Region Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_region
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_region
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_region
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_region
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_region
-   .. automethod:: openstack.identity.v3._proxy.Proxy.regions
+  :noindex:
+  :members: create_region, update_region, delete_region, get_region,
+            find_region, regions
 
 Role Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_role
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_role
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_role
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_role
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_role
-   .. automethod:: openstack.identity.v3._proxy.Proxy.roles
+  :noindex:
+  :members: create_role, update_role, delete_role, get_role, find_role, roles
 
 Role Assignment Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.role_assignments
-   .. automethod:: openstack.identity.v3._proxy.Proxy.role_assignments_filter
-   .. automethod:: openstack.identity.v3._proxy.Proxy.assign_project_role_to_user
-   .. automethod:: openstack.identity.v3._proxy.Proxy.unassign_project_role_from_user
-   .. automethod:: openstack.identity.v3._proxy.Proxy.validate_user_has_role
-   .. automethod:: openstack.identity.v3._proxy.Proxy.assign_project_role_to_group
-   .. automethod:: openstack.identity.v3._proxy.Proxy.unassign_project_role_from_group
-   .. automethod:: openstack.identity.v3._proxy.Proxy.validate_group_has_role
-
+  :noindex:
+  :members: role_assignments, role_assignments_filter,
+            assign_project_role_to_user, unassign_project_role_from_user,
+            validate_user_has_role, assign_project_role_to_group,
+            unassign_project_role_from_group, validate_group_has_role
 
 Service Operations
 ^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_service
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_service
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_service
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_service
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_service
-   .. automethod:: openstack.identity.v3._proxy.Proxy.services
+  :noindex:
+  :members: create_service, update_service, delete_service, get_service,
+            find_service, services
 
 Trust Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_trust
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_trust
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_trust
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_trust
-   .. automethod:: openstack.identity.v3._proxy.Proxy.trusts
+  :noindex:
+  :members: create_trust, delete_trust, get_trust, find_trust, trusts
 
 User Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
-
-   .. automethod:: openstack.identity.v3._proxy.Proxy.create_user
-   .. automethod:: openstack.identity.v3._proxy.Proxy.update_user
-   .. automethod:: openstack.identity.v3._proxy.Proxy.delete_user
-   .. automethod:: openstack.identity.v3._proxy.Proxy.get_user
-   .. automethod:: openstack.identity.v3._proxy.Proxy.find_user
-   .. automethod:: openstack.identity.v3._proxy.Proxy.users
+  :noindex:
+  :members: create_user, update_user, delete_user, get_user, find_user, users

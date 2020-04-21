@@ -16,60 +16,38 @@ Image Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
-
-   .. automethod:: openstack.image.v2._proxy.Proxy.create_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.import_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.upload_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.download_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.update_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.delete_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.find_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.images
-   .. automethod:: openstack.image.v2._proxy.Proxy.deactivate_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.reactivate_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.stage_image
-   .. automethod:: openstack.image.v2._proxy.Proxy.add_tag
-   .. automethod:: openstack.image.v2._proxy.Proxy.remove_tag
+  :noindex:
+  :members: create_image, import_image, upload_image, download_image,
+            update_image, delete_image, get_image, find_image, images,
+            deactivate_image, reactivate_image, stage_image,
+            add_tag, remove_tag
 
 Member Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
-
-   .. automethod:: openstack.image.v2._proxy.Proxy.add_member
-   .. automethod:: openstack.image.v2._proxy.Proxy.remove_member
-   .. automethod:: openstack.image.v2._proxy.Proxy.update_member
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_member
-   .. automethod:: openstack.image.v2._proxy.Proxy.find_member
-   .. automethod:: openstack.image.v2._proxy.Proxy.members
+  :noindex:
+  :members: add_member, remove_member, update_member, get_member, find_member,
+            members
 
 Task Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
-
-   .. automethod:: openstack.image.v2._proxy.Proxy.tasks
-   .. automethod:: openstack.image.v2._proxy.Proxy.create_task
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_task
-   .. automethod:: openstack.image.v2._proxy.Proxy.wait_for_task
+  :noindex:
+  :members: tasks, create_task, get_task, wait_for_task
 
 Schema Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
-
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_images_schema
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_image_schema
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_members_schema
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_member_schema
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_tasks_schema
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_task_schema
+  :noindex:
+  :members: get_images_schema, get_image_schema, get_members_schema,
+            get_member_schema, get_tasks_schema, get_task_schema
 
 Service Info Discovery Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
-
-   .. automethod:: openstack.image.v2._proxy.Proxy.stores
-   .. automethod:: openstack.image.v2._proxy.Proxy.get_import_info
+  :noindex:
+  :members: stores, get_import_info

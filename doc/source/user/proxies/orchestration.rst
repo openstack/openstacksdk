@@ -17,37 +17,24 @@ Stack Operations
 ^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.orchestration.v1._proxy.Proxy
-
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.create_stack
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.check_stack
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.update_stack
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.delete_stack
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.find_stack
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_stack
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_stack_environment
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_stack_files
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_stack_template
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.stacks
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.validate_template
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.resources
+  :noindex:
+  :members: create_stack, check_stack, update_stack, delete_stack, find_stack,
+            get_stack, get_stack_environment, get_stack_files,
+            get_stack_template, stacks, validate_template, resources
 
 Software Configuration Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.orchestration.v1._proxy.Proxy
-
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.create_software_config
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.delete_software_config
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_software_config
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.software_configs
+  :noindex:
+  :members: create_software_config, delete_software_config,
+            get_software_config, software_configs
 
 Software Deployment Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.orchestration.v1._proxy.Proxy
-
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.create_software_deployment
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.update_software_deployment
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.delete_software_deployment
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.get_software_deployment
-   .. automethod:: openstack.orchestration.v1._proxy.Proxy.software_deployments
+  :noindex:
+  :members: create_software_deployment, update_software_deployment,
+            delete_software_deployment, get_software_deployment,
+            software_deployments

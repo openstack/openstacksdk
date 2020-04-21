@@ -15,37 +15,29 @@ Device Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.accelerator.v2._proxy.Proxy
-
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.get_device
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.devices
+  :noindex:
+  :members: devices, get_device
 
 Deployable Operations
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.accelerator.v2._proxy.Proxy
-
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.update_deployable
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.get_deployable
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.deployables
+  :noindex:
+  :members: deployables, get_deployable, update_deployable
 
 Device Profile Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.accelerator.v2._proxy.Proxy
-
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.create_device_profile
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.delete_device_profile
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.get_device_profile
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.device_profiles
+  :noindex:
+  :members: device_profiles, get_device_profile,
+            create_device_profile, delete_device_profile
 
 Accelerator Request Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.accelerator.v2._proxy.Proxy
-
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.create_accelerator_request
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.delete_accelerator_request
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.get_accelerator_request
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.accelerator_requests
-   .. automethod:: openstack.accelerator.v2._proxy.Proxy.update_accelerator_request
-
+  :noindex:
+  :members: accelerator_requests, get_accelerator_request,
+            create_accelerator_request, delete_accelerator_request,
+            update_accelerator_request

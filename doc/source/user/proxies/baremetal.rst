@@ -15,84 +15,51 @@ The ``baremetal`` member will only be added if the service is detected.
 Node Operations
 ^^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.nodes
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.set_node_power_state
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.set_node_provision_state
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.wait_for_nodes_provision_state
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.wait_for_node_reservation
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.validate_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.set_node_maintenance
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.unset_node_maintenance
+  :noindex:
+  :members: nodes, find_node, get_node, create_node, update_node, patch_node, delete_node,
+            validate_node, set_node_power_state, set_node_provision_state,
+            wait_for_nodes_provision_state, wait_for_node_reservation,
+            set_node_maintenance, unset_node_maintenance
 
 Port Operations
 ^^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_port
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_port
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_port
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_port
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_port
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_port
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.ports
+  :noindex:
+  :members: ports, find_port, get_port, create_port, update_port, delete_port, patch_port
 
 Port Group Operations
 ^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_port_group
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_port_group
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_port_group
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_port_group
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_port_group
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_port_group
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.port_groups
+  :noindex:
+  :members: port_groups, find_port_group, get_port_group,
+            create_port_group, update_port_group, delete_port_group, patch_port_group
 
 Driver Operations
 ^^^^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.drivers
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_driver
+  :noindex:
+  :members: drivers, get_driver
 
 Chassis Operations
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_chassis
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_chassis
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_chassis
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_chassis
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_chassis
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.find_chassis
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.chassis
+  :noindex:
+  :members: chassis, find_chassis, get_chassis,
+            create_chassis, update_chassis, patch_chassis, delete_chassis
 
 VIF Operations
 ^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.attach_vif_to_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.detach_vif_from_node
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.list_node_vifs
+  :noindex:
+  :members: list_node_vifs, attach_vif_to_node, detach_vif_from_node
 
 Allocation Operations
 ^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
-
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.create_allocation
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.update_allocation
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.patch_allocation
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.delete_allocation
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.get_allocation
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.allocations
-   .. automethod:: openstack.baremetal.v1._proxy.Proxy.wait_for_allocation
+  :noindex:
+  :members: allocations, get_allocation, create_allocation,
+            update_allocation, patch_allocation, delete_allocation,
+            wait_for_allocation
 
 Utilities
 ---------
@@ -101,4 +68,5 @@ Building config drives
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: openstack.baremetal.configdrive
+  :noindex:
    :members:

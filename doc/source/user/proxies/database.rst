@@ -16,41 +16,28 @@ Database Operations
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.database.v1._proxy.Proxy
-
-   .. automethod:: openstack.database.v1._proxy.Proxy.create_database
-   .. automethod:: openstack.database.v1._proxy.Proxy.delete_database
-   .. automethod:: openstack.database.v1._proxy.Proxy.get_database
-   .. automethod:: openstack.database.v1._proxy.Proxy.find_database
-   .. automethod:: openstack.database.v1._proxy.Proxy.databases
+  :noindex:
+  :members: create_database, delete_database, get_database, find_database,
+            databases
 
 Flavor Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.database.v1._proxy.Proxy
-
-   .. automethod:: openstack.database.v1._proxy.Proxy.get_flavor
-   .. automethod:: openstack.database.v1._proxy.Proxy.find_flavor
-   .. automethod:: openstack.database.v1._proxy.Proxy.flavors
+  :noindex:
+  :members: get_flavor, find_flavor, flavors
 
 Instance Operations
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.database.v1._proxy.Proxy
-
-   .. automethod:: openstack.database.v1._proxy.Proxy.create_instance
-   .. automethod:: openstack.database.v1._proxy.Proxy.update_instance
-   .. automethod:: openstack.database.v1._proxy.Proxy.delete_instance
-   .. automethod:: openstack.database.v1._proxy.Proxy.get_instance
-   .. automethod:: openstack.database.v1._proxy.Proxy.find_instance
-   .. automethod:: openstack.database.v1._proxy.Proxy.instances
+  :noindex:
+  :members: create_instance, update_instance, delete_instance, get_instance,
+            find_instance, instances
 
 User Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.database.v1._proxy.Proxy
-
-   .. automethod:: openstack.database.v1._proxy.Proxy.create_user
-   .. automethod:: openstack.database.v1._proxy.Proxy.delete_user
-   .. automethod:: openstack.database.v1._proxy.Proxy.get_user
-   .. automethod:: openstack.database.v1._proxy.Proxy.find_user
-   .. automethod:: openstack.database.v1._proxy.Proxy.users
+  :noindex:
+  :members: create_user, delete_user, get_user, find_user, users

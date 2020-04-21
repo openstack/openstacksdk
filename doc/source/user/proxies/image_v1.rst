@@ -13,10 +13,6 @@ The image high-level interface is available through the ``image`` member of a
 only be added if the service is detected.
 
 .. autoclass:: openstack.image.v1._proxy.Proxy
-
-   .. automethod:: openstack.image.v1._proxy.Proxy.upload_image
-   .. automethod:: openstack.image.v1._proxy.Proxy.update_image
-   .. automethod:: openstack.image.v1._proxy.Proxy.delete_image
-   .. automethod:: openstack.image.v1._proxy.Proxy.get_image
-   .. automethod:: openstack.image.v1._proxy.Proxy.find_image
-   .. automethod:: openstack.image.v1._proxy.Proxy.images
+  :noindex:
+  :members: upload_image, update_image, delete_image, get_image, find_image,
+            images
