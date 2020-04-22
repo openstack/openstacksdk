@@ -279,12 +279,12 @@ class TestWaitForNodesProvisionState(base.TestCase):
         self.assertEqual([], result.failure)
 
     def test_timeout_and_failures_not_fail(self, mock_get):
-        def _fake_get(_self, uuid):
+        def _fake_get(_self, node):
             result = mock.Mock()
-            result.id = uuid
-            if uuid == '1':
+            result.id = getattr(node, 'id', node)
+            if result.id == '1':
                 result._check_state_reached.return_value = True
-            elif uuid == '2':
+            elif result.id == '2':
                 result._check_state_reached.side_effect = \
                     exceptions.ResourceFailure("boom")
             else:
