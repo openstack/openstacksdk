@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added the ``tls_versions`` properties to listener.py
+    and pool.py for storing a python list of TLS protocol
+    versions to be used by the pools and listeners.

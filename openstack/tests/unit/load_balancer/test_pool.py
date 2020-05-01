@@ -35,7 +35,8 @@ EXAMPLE = {
     'health_monitor': 'healthmonitor',
     'health_monitor_id': uuid.uuid4(),
     'members': [{'id': uuid.uuid4()}],
-    'tls_ciphers': 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256'
+    'tls_ciphers': 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256',
+    'tls_versions': ['TLSv1.1', 'TLSv1.2'],
 }
 
 
@@ -84,6 +85,8 @@ class TestPool(base.TestCase):
         self.assertEqual(EXAMPLE['members'], test_pool.members)
         self.assertEqual(EXAMPLE['tls_ciphers'],
                          test_pool.tls_ciphers)
+        self.assertEqual(EXAMPLE['tls_versions'],
+                         test_pool.tls_versions)
 
         self.assertDictEqual(
             {'limit': 'limit',
@@ -107,5 +110,6 @@ class TestPool(base.TestCase):
              'loadbalancer_id': 'loadbalancer_id',
              'protocol': 'protocol',
              'tls_ciphers': 'tls_ciphers',
+             'tls_versions': 'tls_versions',
              },
             test_pool._query_mapping._mapping)
