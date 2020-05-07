@@ -29,6 +29,7 @@ class Pool(resource.Resource, resource.TagMixin):
         'health_monitor_id', 'lb_algorithm', 'listener_id', 'loadbalancer_id',
         'description', 'name', 'project_id', 'protocol',
         'created_at', 'updated_at', 'provisioning_status', 'operating_status',
+        'tls_ciphers',
         is_admin_state_up='admin_state_up',
         **resource.TagMixin._tag_query_parameters
     )
@@ -64,6 +65,8 @@ class Pool(resource.Resource, resource.TagMixin):
     protocol = resource.Body('protocol')
     #: Provisioning status of the pool
     provisioning_status = resource.Body('provisioning_status')
+    #: Stores a string of cipher strings in OpenSSL format.
+    tls_ciphers = resource.Body('tls_ciphers')
     #: A JSON object specifying the session persistence for the pool.
     session_persistence = resource.Body('session_persistence', type=dict)
     #: Timestamp when the pool was updated
