@@ -30,8 +30,9 @@ class Port(_base.NetworkResource, resource.TagMixin):
     _query_mapping = resource.QueryParameters(
         'binding:host_id', 'binding:profile', 'binding:vif_details',
         'binding:vif_type', 'binding:vnic_type',
-        'description', 'device_id', 'device_owner', 'fixed_ips', 'ip_address',
-        'mac_address', 'name', 'network_id', 'status', 'subnet_id',
+        'description', 'device_id', 'device_owner', 'fixed_ips', 'id',
+        'ip_address', 'mac_address', 'name', 'network_id', 'status',
+        'subnet_id',
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
         project_id='tenant_id',

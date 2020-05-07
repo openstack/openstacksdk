@@ -85,6 +85,7 @@ class TestPort(base.TestCase):
                               "device_id": "device_id",
                               "device_owner": "device_owner",
                               "fixed_ips": "fixed_ips",
+                              "id": "id",
                               "ip_address": "ip_address",
                               "mac_address": "mac_address",
                               "name": "name",
