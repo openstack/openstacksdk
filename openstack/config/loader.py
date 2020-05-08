@@ -17,6 +17,7 @@
 import argparse as argparse_mod
 import collections
 import copy
+import errno
 import json
 import os
 import re
@@ -378,11 +379,17 @@ class OpenStackConfig(object):
     def _load_yaml_json_file(self, filelist):
         for path in filelist:
             if os.path.exists(path):
-                with open(path, 'r') as f:
-                    if path.endswith('json'):
-                        return path, json.load(f)
-                    else:
-                        return path, yaml.safe_load(f)
+                try:
+                    with open(path, 'r') as f:
+                        if path.endswith('json'):
+                            return path, json.load(f)
+                        else:
+                            return path, yaml.safe_load(f)
+                except IOError as e:
+                    if e.errno == errno.EACCES:
+                        # Can't access file so let's continue to the next
+                        # file
+                        continue
         return (None, {})
 
     def _expand_region_name(self, region_name):
