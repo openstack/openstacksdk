@@ -247,12 +247,19 @@ class TestDownloadObject(base_test_object.BaseTestObject):
 class TestExtractName(TestObjectStoreProxy):
 
     scenarios = [
-        ('discovery', dict(url='/', parts=['account']))
+        ('discovery', dict(url='/', parts=['account'])),
+        ('endpoints', dict(url='/endpoints', parts=['endpoints'])),
+        ('container', dict(url='/AUTH_123/container_name',
+                           parts=['container'])),
+        ('object', dict(url='/container_name/object_name',
+                        parts=['object'])),
+        ('object_long', dict(url='/v1/AUTH_123/cnt/path/deep/object_name',
+                             parts=['object']))
     ]
 
     def test_extract_name(self):
 
-        results = self.proxy._extract_name(self.url)
+        results = self.proxy._extract_name(self.url, project_id='123')
         self.assertEqual(self.parts, results)
 
 

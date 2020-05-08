@@ -69,14 +69,21 @@ class Proxy(proxy.Proxy):
                 and url_parts[0][0] == 'v'
                 and url_parts[0][1] and url_parts[0][1].isdigit()):
             url_parts = url_parts[1:]
-        name_parts = self._extract_name_consume_url_parts(url_parts)
-
-        # Getting the root of an endpoint is doing version discovery
-        if not name_parts:
-            name_parts = ['account']
 
         # Strip out anything that's empty or None
-        return [part for part in name_parts if part]
+        parts = [part for part in url_parts if part]
+
+        # Getting the root of an endpoint is doing version discovery
+        if not parts:
+            return ['account']
+
+        if len(parts) == 1:
+            if 'endpoints' in parts:
+                return ['endpoints']
+            else:
+                return ['container']
+        else:
+            return ['object']
 
     def get_account_metadata(self):
         """Get metadata for this account.
