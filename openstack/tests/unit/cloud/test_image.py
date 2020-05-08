@@ -377,7 +377,7 @@ class TestImage(BaseTestImage):
         self.cloud.create_image(
             self.image_name, self.imagefile.name, wait=True, timeout=1,
             tags=['tag1', 'tag2'],
-            is_public=False)
+            is_public=False, validate_checksum=True)
 
         self.assert_calls()
         self.assertEqual(self.adapter.request_history[7].text.read(),
@@ -553,7 +553,8 @@ class TestImage(BaseTestImage):
         self.cloud.create_image(
             self.image_name, self.imagefile.name, wait=True, timeout=1,
             disk_format='vhd', container_format='ovf',
-            is_public=False, container=self.container_name)
+            is_public=False, validate_checksum=True,
+            container=self.container_name)
 
         self.assert_calls()
 
@@ -696,7 +697,7 @@ class TestImage(BaseTestImage):
         imagefile.close()
         self.cloud.create_image(
             name, imagefile.name, wait=True, timeout=1,
-            is_public=False, **kwargs)
+            is_public=False, validate_checksum=True, **kwargs)
 
     def test_create_image_put_v1(self):
         self.cloud.config.config['image_api_version'] = '1'
@@ -920,7 +921,7 @@ class TestImage(BaseTestImage):
             self.cloud.create_image,
             self.image_name, self.imagefile.name,
             is_public=False, md5='a', sha256='b',
-            allow_duplicates=True
+            allow_duplicates=True, validate_checksum=True
         )
 
         self.assert_calls()
