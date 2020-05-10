@@ -70,7 +70,9 @@ class Image(resource.Resource, _download.DownloadMixin):
     #: of images owned by others.
     name = resource.Body('name')
     #: The ID of the owner, or project, of the image.
-    owner_id = resource.Body('owner')
+    owner = resource.Body('owner', alias='owner_id')
+    #: The ID of the owner, or project, of the image. (backwards compat)
+    owner_id = resource.Body('owner', alias='owner')
     #: Properties, if any, that are associated with the image.
     properties = resource.Body('properties')
     #: The size of the image data, in bytes.

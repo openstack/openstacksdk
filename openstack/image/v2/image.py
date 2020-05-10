@@ -88,7 +88,9 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
     #: The name of the image.
     name = resource.Body('name')
     #: The ID of the owner, or project, of the image.
-    owner_id = resource.Body('owner')
+    owner = resource.Body('owner', alias='owner_id')
+    #: The ID of the owner, or project, of the image. (backwards compat)
+    owner_id = resource.Body('owner', alias='owner')
     # TODO(mordred) This is not how this works in v2. I mean, it's how it
     # should work, but it's not. We need to fix properties. They work right
     # in shade, so we can draw some logic from there.
