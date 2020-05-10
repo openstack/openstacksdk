@@ -1117,6 +1117,13 @@ class Resource(dict):
                 if self.resource_key and self.resource_key in body:
                     body = body[self.resource_key]
 
+                # Do not allow keys called "self" through. Glance chose
+                # to name a key "self", so we need to pop it out because
+                # we can't send it through cls.existing and into the
+                # Resource initializer. "self" is already the first
+                # argument and is practically a reserved word.
+                body.pop("self", None)
+
                 body_attrs = self._consume_body_attrs(body)
 
                 if self._store_unknown_attrs_as_properties:
