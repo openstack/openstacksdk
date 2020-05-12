@@ -80,6 +80,7 @@ class TestImage(base.BaseFunctionalTest):
                 container_format='bare',
                 min_disk=10,
                 min_ram=1024,
+                validate_checksum=True,
                 wait=True)
             second_image = self.user_cloud.create_image(
                 name=image_name,
@@ -88,6 +89,7 @@ class TestImage(base.BaseFunctionalTest):
                 container_format='bare',
                 min_disk=10,
                 min_ram=1024,
+                validate_checksum=True,
                 wait=True)
             self.assertEqual(first_image.id, second_image.id)
         finally:

@@ -41,7 +41,7 @@ class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
             disable_vendor_agent=True,
             allow_duplicates=False, meta=None,
             wait=False, timeout=3600,
-            data=None, validate_checksum=True,
+            data=None, validate_checksum=False,
             **kwargs):
         """Upload an image.
 
