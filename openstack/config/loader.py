@@ -289,25 +289,28 @@ class OpenStackConfig:
 
             influxdb_cfg = metrics_config.get('influxdb', {})
             # Parse InfluxDB configuration
-            if influxdb_config:
-                influxdb_cfg.update(influxdb_config)
-            if influxdb_cfg:
-                config = {}
-                if 'use_udp' in influxdb_cfg:
-                    use_udp = influxdb_cfg['use_udp']
-                    if isinstance(use_udp, str):
-                        use_udp = use_udp.lower() in ('true', 'yes', '1')
-                    elif not isinstance(use_udp, bool):
-                        use_udp = False
-                        self.log.warning('InfluxDB.use_udp value type is not '
-                                         'supported. Use one of '
-                                         '[true|false|yes|no|1|0]')
-                    config['use_udp'] = use_udp
-                for key in ['host', 'port', 'username', 'password', 'database',
-                            'measurement', 'timeout']:
-                    if key in influxdb_cfg:
-                        config[key] = influxdb_cfg[key]
-                self._influxdb_config = config
+            if not influxdb_config:
+                influxdb_config = influxdb_cfg
+            else:
+                influxdb_config.update(influxdb_cfg)
+
+        if influxdb_config:
+            config = {}
+            if 'use_udp' in influxdb_config:
+                use_udp = influxdb_config['use_udp']
+                if isinstance(use_udp, str):
+                    use_udp = use_udp.lower() in ('true', 'yes', '1')
+                elif not isinstance(use_udp, bool):
+                    use_udp = False
+                    self.log.warning('InfluxDB.use_udp value type is not '
+                                     'supported. Use one of '
+                                     '[true|false|yes|no|1|0]')
+                config['use_udp'] = use_udp
+            for key in ['host', 'port', 'username', 'password', 'database',
+                        'measurement', 'timeout']:
+                if key in influxdb_config:
+                    config[key] = influxdb_config[key]
+            self._influxdb_config = config
 
         if load_envvars:
             statsd_host = statsd_host or os.environ.get('STATSD_HOST')

@@ -435,6 +435,14 @@ class Connection(
                 self.log.warning('Configured hook %s cannot be executed: %s',
                                  vendor_hook, e)
 
+        # Add additional metrics into the configuration according to the
+        # selected connection. We don't want to deal with overall config in the
+        # proxy, just pass required part.
+        if (self.config._influxdb_config
+                and 'additional_metric_tags' in self.config.config):
+            self.config._influxdb_config['additional_metric_tags'] = \
+                self.config.config['additional_metric_tags']
+
     @property
     def session(self):
         if not self._session:

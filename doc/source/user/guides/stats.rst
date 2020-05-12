@@ -57,3 +57,15 @@ Metrics will be reported only when corresponding client libraries (
 `statsd` for 'statsd' reporting, `influxdb` for influxdb reporting
 correspondingly). When those libraries are not available reporting will be
 silently ignored.
+
+InfluxDB reporting allows setting additional tags into the metrics based on the
+selected cloud.
+
+.. code-block:: yaml
+
+  clouds:
+    my_cloud:
+      profile: some_profile
+      ...
+      additional_metric_tags:
+        environment: production
