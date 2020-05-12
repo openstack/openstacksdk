@@ -43,9 +43,9 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         def _list(data):
             volumes.extend(data.get('volumes', []))
             endpoint = None
-            for l in data.get('volumes_links', []):
-                if 'rel' in l and 'next' == l['rel']:
-                    endpoint = l['href']
+            for link in data.get('volumes_links', []):
+                if 'rel' in link and 'next' == link['rel']:
+                    endpoint = link['href']
                     break
             if endpoint:
                 try:

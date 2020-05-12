@@ -1813,7 +1813,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException(
-                "project does not exist: {}".format(name=proj.id))
+                "project does not exist: {name}".format(name=proj.id))
 
         data = proxy._json_response(
             self.compute.get(

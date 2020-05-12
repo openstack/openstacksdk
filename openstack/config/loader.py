@@ -779,8 +779,8 @@ class OpenStackConfig(object):
             # legacy clients have un-prefixed api-version options
             parser.add_argument(
                 '--{service_key}-api-version'.format(
-                    service_key=service_key.replace('_', '-'),
-                    help=argparse_mod.SUPPRESS))
+                    service_key=service_key.replace('_', '-')),
+                help=argparse_mod.SUPPRESS)
             adapter.register_service_adapter_argparse_arguments(
                 parser, service_type=service_key)
 
