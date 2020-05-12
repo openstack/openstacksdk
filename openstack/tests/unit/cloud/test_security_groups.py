@@ -640,7 +640,7 @@ class TestSecurityGroups(base.TestCase):
                 method='GET',
                 uri='{endpoint}/os-security-groups'.format(
                     endpoint=fakes.COMPUTE_ENDPOINT,
-                    id='server_id'),
+                ),
                 json={'security_groups': [nova_grp_dict]}),
             dict(
                 method='POST',

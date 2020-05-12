@@ -64,8 +64,8 @@ def poll_for_events(
             return False
 
         phys_id = event.get('physical_resource_id', '')
-        links = dict((l.get('rel'),
-                      l.get('href')) for l in event.get('links', []))
+        links = dict((link.get('rel'),
+                      link.get('href')) for link in event.get('links', []))
         stack_id = links.get('stack', phys_id).rsplit('/', 1)[-1]
         return stack_id == phys_id
 
