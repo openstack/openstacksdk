@@ -168,6 +168,7 @@ class TestImage(base.TestCase):
         self.assertEqual(EXAMPLE['disk_format'], sot.disk_format)
         self.assertEqual(EXAMPLE['min_disk'], sot.min_disk)
         self.assertEqual(EXAMPLE['name'], sot.name)
+        self.assertEqual(EXAMPLE['owner'], sot.owner)
         self.assertEqual(EXAMPLE['owner'], sot.owner_id)
         self.assertEqual(EXAMPLE['properties'], sot.properties)
         self.assertFalse(sot.is_protected)
