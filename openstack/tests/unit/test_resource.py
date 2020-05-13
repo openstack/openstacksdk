@@ -17,7 +17,6 @@ from keystoneauth1 import adapter
 import mock
 import munch
 import requests
-import six
 
 from openstack import exceptions
 from openstack import format
@@ -960,7 +959,7 @@ class TestResource(base.TestCase):
             body=False, headers=False, computed=False)
         self.assertEqual(
             'At least one of `body`, `headers` or `computed` must be True',
-            six.text_type(err))
+            str(err))
 
     def test_to_dict_with_mro_no_override(self):
 

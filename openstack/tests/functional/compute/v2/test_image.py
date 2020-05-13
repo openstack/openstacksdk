@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
 
 from openstack.tests.functional import base
 from openstack.tests.functional.image.v2.test_image import TEST_IMAGE_NAME
@@ -22,7 +21,7 @@ class TestImage(base.BaseFunctionalTest):
         images = list(self.conn.compute.images())
         self.assertGreater(len(images), 0)
         for image in images:
-            self.assertIsInstance(image.id, six.string_types)
+            self.assertIsInstance(image.id, str)
 
     def _get_non_test_image(self):
         images = self.conn.compute.images()

@@ -14,7 +14,6 @@ from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 from hashlib import sha1
 import mock
 import random
-import six
 import string
 import tempfile
 import time
@@ -288,7 +287,7 @@ class TestTempURL(TestObjectStoreProxy):
         url = self.proxy.generate_temp_url(
             self.url, self.seconds, self.method, temp_url_key=self.key)
         key = self.key
-        if not isinstance(key, six.binary_type):
+        if not isinstance(key, bytes):
             key = key.encode('utf-8')
         self.assertEqual(url, self.expected_url)
         self.assertEqual(hmac_mock.mock_calls, [
@@ -316,10 +315,10 @@ class TestTempURL(TestObjectStoreProxy):
                 path, self.seconds, self.method,
                 temp_url_key=self.key, ip_range=ip_range)
             key = self.key
-            if not isinstance(key, six.binary_type):
+            if not isinstance(key, bytes):
                 key = key.encode('utf-8')
 
-            if isinstance(ip_range, six.binary_type):
+            if isinstance(ip_range, bytes):
                 ip_range_expected_url = (
                     expected_url + ip_range.decode('utf-8')
                 )
@@ -364,7 +363,7 @@ class TestTempURL(TestObjectStoreProxy):
         lt = time.localtime()
         expires = time.strftime(self.expires_iso8601_format[:-1], lt)
 
-        if not isinstance(self.expected_url, six.string_types):
+        if not isinstance(self.expected_url, str):
             expected_url = self.expected_url.replace(
                 b'1400003600', bytes(str(int(time.mktime(lt))),
                                      encoding='ascii'))
@@ -379,7 +378,7 @@ class TestTempURL(TestObjectStoreProxy):
         expires = time.strftime(self.short_expires_iso8601_format, lt)
         lt = time.strptime(expires, self.short_expires_iso8601_format)
 
-        if not isinstance(self.expected_url, six.string_types):
+        if not isinstance(self.expected_url, str):
             expected_url = self.expected_url.replace(
                 b'1400003600', bytes(str(int(time.mktime(lt))),
                                      encoding='ascii'))
@@ -400,12 +399,12 @@ class TestTempURL(TestObjectStoreProxy):
                                            temp_url_key=self.key,
                                            iso8601=True)
         key = self.key
-        if not isinstance(key, six.binary_type):
+        if not isinstance(key, bytes):
             key = key.encode('utf-8')
 
         expires = time.strftime(self.expires_iso8601_format,
                                 time.gmtime(1400003600))
-        if not isinstance(self.url, six.string_types):
+        if not isinstance(self.url, str):
             self.assertTrue(url.endswith(bytes(expires, 'utf-8')))
         else:
             self.assertTrue(url.endswith(expires))
@@ -436,7 +435,7 @@ class TestTempURL(TestObjectStoreProxy):
                 path, self.seconds, self.method, prefix=True,
                 temp_url_key=self.key)
             key = self.key
-            if not isinstance(key, six.binary_type):
+            if not isinstance(key, bytes):
                 key = key.encode('utf-8')
             self.assertEqual(url, expected_url)
             self.assertEqual(hmac_mock.mock_calls, [
@@ -455,7 +454,7 @@ class TestTempURL(TestObjectStoreProxy):
 
     @mock.patch('hmac.HMAC.hexdigest', return_value="temp_url_signature")
     def test_generate_absolute_expiry_temp_url(self, hmac_mock):
-        if isinstance(self.expected_url, six.binary_type):
+        if isinstance(self.expected_url, bytes):
             expected_url = self.expected_url.replace(
                 b'1400003600', b'2146636800')
         else:

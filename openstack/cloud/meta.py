@@ -15,7 +15,6 @@
 
 import munch
 import ipaddress
-import six
 import socket
 
 from openstack import _log
@@ -23,7 +22,7 @@ from openstack import utils
 from openstack.cloud import exc
 
 
-NON_CALLABLES = (six.string_types, bool, dict, int, float, list, type(None))
+NON_CALLABLES = (str, bool, dict, int, float, list, type(None))
 
 
 def find_nova_interfaces(addresses, ext_tag=None, key_name=None, version=4,

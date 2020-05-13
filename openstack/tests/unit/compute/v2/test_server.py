@@ -11,7 +11,6 @@
 # under the License.
 
 import mock
-import six
 from openstack.tests.unit import base
 
 from openstack.image.v2 import image
@@ -818,7 +817,7 @@ class TestServer(base.TestCase):
             self.sess, host='HOST2', force=False, block_migration=False)
         self.assertIn(
             "Live migration on this cloud implies 'force'",
-            six.text_type(ex))
+            str(ex))
 
     def test_live_migrate_no_microversion_force_true(self):
         sot = server.Server(**EXAMPLE)

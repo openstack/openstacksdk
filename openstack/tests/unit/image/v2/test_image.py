@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import hashlib
+import io
 import operator
-import six
 import tempfile
 
 from keystoneauth1 import adapter
@@ -403,7 +403,7 @@ class TestImage(base.TestCase):
         self.assertEqual(rv, resp)
 
     def test_image_download_output_fd(self):
-        output_file = six.BytesIO()
+        output_file = io.BytesIO()
         sot = image.Image(**EXAMPLE)
         response = mock.Mock()
         response.status_code = 200

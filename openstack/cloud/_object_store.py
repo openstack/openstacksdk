@@ -18,7 +18,6 @@ import concurrent.futures
 import hashlib
 import json
 import os
-import six
 import types  # noqa
 import urllib.parse
 
@@ -256,9 +255,6 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             caps = self.get_object_capabilities()
         except exc.OpenStackCloudHTTPError as e:
             if e.response.status_code in (404, 412):
-                # Clear the exception so that it doesn't linger
-                # and get reported as an Inner Exception later
-                _utils._exc_clear()
                 server_max_file_size = DEFAULT_MAX_FILE_SIZE
                 self.log.info(
                     "Swift capabilities not supported. "
@@ -819,14 +815,14 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
                 response_headers = {
                     k.lower(): v for k, v in response.headers.items()}
                 if outfile:
-                    if isinstance(outfile, six.string_types):
+                    if isinstance(outfile, str):
                         outfile_handle = open(outfile, 'wb')
                     else:
                         outfile_handle = outfile
                     for chunk in response.iter_content(
                             resp_chunk_size, decode_unicode=False):
                         outfile_handle.write(chunk)
-                    if isinstance(outfile, six.string_types):
+                    if isinstance(outfile, str):
                         outfile_handle.close()
                     else:
                         outfile_handle.flush()

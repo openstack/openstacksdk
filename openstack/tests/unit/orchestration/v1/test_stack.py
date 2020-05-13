@@ -11,7 +11,7 @@
 # under the License.
 
 import mock
-import six
+
 from openstack.tests.unit import base
 from openstack.tests.unit import test_resource
 
@@ -223,10 +223,10 @@ class TestStack(base.TestCase):
             'stacks/{id}?resolve_outputs=False'.format(id=sot.id),
             microversion=None)
         ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
-        self.assertEqual('oops', six.text_type(ex))
+        self.assertEqual('oops', str(ex))
         ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
         self.assertEqual('No stack found for %s' % FAKE_ID,
-                         six.text_type(ex))
+                         str(ex))
 
     def test_abandon(self):
         sess = mock.Mock()

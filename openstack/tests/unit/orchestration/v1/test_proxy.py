@@ -12,7 +12,6 @@
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 import mock
-import six
 
 from openstack import exceptions
 from openstack.orchestration.v1 import _proxy
@@ -253,7 +252,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
         ex = self.assertRaises(exceptions.ResourceNotFound,
                                self.proxy.resources, stack_name)
-        self.assertEqual('No stack found for test_stack', six.text_type(ex))
+        self.assertEqual('No stack found for test_stack', str(ex))
 
     def test_create_software_config(self):
         self.verify_create(self.proxy.create_software_config,
@@ -320,7 +319,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                                 self.proxy.validate_template,
                                 None, template_url=None)
         self.assertEqual("'template_url' must be specified when template is "
-                         "None", six.text_type(err))
+                         "None", str(err))
 
 
 class TestExtractName(TestOrchestrationProxy):

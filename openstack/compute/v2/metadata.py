@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
 
 from openstack import exceptions
 from openstack import utils
@@ -22,7 +21,7 @@ class MetadataMixin(object):
                   metadata=None):
         metadata = metadata or {}
         for k, v in metadata.items():
-            if not isinstance(v, six.string_types):
+            if not isinstance(v, str):
                 raise ValueError("The value for %s (%s) must be "
                                  "a text string" % (k, v))
 

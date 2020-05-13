@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
 
 from openstack.tests.functional import base
 
@@ -34,4 +33,4 @@ class TestQoSRuleType(base.BaseFunctionalTest):
         self.assertGreater(len(rule_types), 0)
 
         for rule_type in rule_types:
-            self.assertIsInstance(rule_type.type, six.string_types)
+            self.assertIsInstance(rule_type.type, str)

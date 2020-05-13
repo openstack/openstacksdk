@@ -21,8 +21,6 @@ import shutil
 import subprocess
 import tempfile
 
-import six
-
 
 @contextlib.contextmanager
 def populate_directory(metadata, user_data=None, versions=None,
@@ -60,7 +58,7 @@ def populate_directory(metadata, user_data=None, versions=None,
             if user_data:
                 # Strictly speaking, user data is binary, but in many cases
                 # it's actually a text (cloud-init, ignition, etc).
-                flag = 't' if isinstance(user_data, six.text_type) else 'b'
+                flag = 't' if isinstance(user_data, str) else 'b'
                 with open(os.path.join(subdir, 'user_data'),
                           'w%s' % flag) as fp:
                     fp.write(user_data)
@@ -142,7 +140,7 @@ def pack(path):
 
     # NOTE(dtantsur): Ironic expects configdrive to be a string, but base64
     # returns bytes on Python 3.
-    if not isinstance(cd, six.string_types):
+    if not isinstance(cd, str):
         cd = cd.decode('utf-8')
 
     return cd

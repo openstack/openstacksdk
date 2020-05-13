@@ -11,7 +11,6 @@
 # under the License.
 import io
 import hashlib
-import six
 
 from openstack import exceptions
 from openstack import utils
@@ -49,10 +48,7 @@ class DownloadMixin(object):
         md5 = hashlib.md5()
         if output:
             try:
-                # In python 2 we might get StringIO - delete it as soon as
-                # py2 support is dropped
-                if isinstance(output, io.IOBase) \
-                        or isinstance(output, six.StringIO):
+                if isinstance(output, io.IOBase):
                     for chunk in resp.iter_content(chunk_size=chunk_size):
                         output.write(chunk)
                         md5.update(chunk)

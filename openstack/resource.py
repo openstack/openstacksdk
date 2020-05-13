@@ -34,6 +34,7 @@ and then returned to the caller.
 import collections
 import inspect
 import itertools
+import urllib.parse
 
 import jsonpatch
 import operator
@@ -41,7 +42,6 @@ from keystoneauth1 import adapter
 from keystoneauth1 import discover
 import munch
 from requests import structures
-import six
 
 from openstack import _log
 from openstack import exceptions
@@ -1094,7 +1094,7 @@ class Resource(dict):
             uri = utils.urljoin(uri, self.id)
 
         if params:
-            query_params = six.moves.urllib.parse.urlencode(params)
+            query_params = urllib.parse.urlencode(params)
             uri += '?' + query_params
 
         return _Request(uri, body, headers)
@@ -1783,11 +1783,10 @@ class Resource(dict):
         # This prevents duplication of query parameters that with large
         # number of pages result in HTTP 414 error eventually.
         if next_link:
-            parts = six.moves.urllib.parse.urlparse(next_link)
-            query_params = six.moves.urllib.parse.parse_qs(parts.query)
+            parts = urllib.parse.urlparse(next_link)
+            query_params = urllib.parse.parse_qs(parts.query)
             params.update(query_params)
-            next_link = six.moves.urllib.parse.urljoin(next_link,
-                                                       parts.path)
+            next_link = urllib.parse.urljoin(next_link, parts.path)
 
         # If we still have no link, and limit was given and is non-zero,
         # and the number of records yielded equals the limit, then the user

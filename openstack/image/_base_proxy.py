@@ -12,13 +12,12 @@
 import abc
 import os
 
-import six
 
 from openstack import exceptions
 from openstack import proxy
 
 
-class BaseImageProxy(six.with_metaclass(abc.ABCMeta, proxy.Proxy)):
+class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
 
     retriable_status_codes = [503]
 

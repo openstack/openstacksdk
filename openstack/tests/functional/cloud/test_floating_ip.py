@@ -20,7 +20,6 @@ Functional tests for floating IP resource.
 """
 
 import pprint
-import six
 import sys
 
 from testtools import content
@@ -102,8 +101,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
                     content.text_content(
                         '\n'.join([str(ex) for ex in exception_list])))
             exc = exception_list[0]
-            tb = tb_list[0]
-            six.reraise(type(exc), exc, tb)
+            raise exc
 
     def _cleanup_servers(self):
         exception_list = list()

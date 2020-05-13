@@ -19,8 +19,6 @@ import os
 import time
 from urllib import parse
 
-import six
-
 from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import obj as _obj
@@ -644,9 +642,6 @@ class Proxy(proxy.Proxy):
             caps = self.get_info()
         except exceptions.SDKException as e:
             if e.response.status_code in (404, 412):
-                # Clear the exception so that it doesn't linger
-                # and get reported as an Inner Exception later
-                _utils._exc_clear()
                 server_max_file_size = DEFAULT_MAX_FILE_SIZE
                 self._connection.log.info(
                     "Swift capabilities not supported. "
@@ -737,13 +732,13 @@ class Proxy(proxy.Proxy):
             account_meta = self.get_account_metadata()
             temp_url_key = (account_meta.meta_temp_url_key_2
                             or account_meta.meta_temp_url_key)
-        if temp_url_key and not isinstance(temp_url_key, six.binary_type):
+        if temp_url_key and not isinstance(temp_url_key, bytes):
             temp_url_key = temp_url_key.encode('utf8')
         return temp_url_key
 
     def _check_temp_url_key(self, container=None, temp_url_key=None):
         if temp_url_key:
-            if not isinstance(temp_url_key, six.binary_type):
+            if not isinstance(temp_url_key, bytes):
                 temp_url_key = temp_url_key.encode('utf8')
         else:
             temp_url_key = self.get_temp_url_key(container)
@@ -799,8 +794,7 @@ class Proxy(proxy.Proxy):
 
         data = '%s\n%s\n%s\n%s\n%s' % (path, redirect_url, max_file_size,
                                        max_upload_count, expires)
-        if six.PY3:
-            data = data.encode('utf8')
+        data = data.encode('utf8')
         sig = hmac.new(temp_url_key, data, sha1).hexdigest()
 
         return (expires, sig)
@@ -871,7 +865,7 @@ class Proxy(proxy.Proxy):
             raise ValueError('time must either be a whole number '
                              'or in specific ISO 8601 format.')
 
-        if isinstance(path, six.binary_type):
+        if isinstance(path, bytes):
             try:
                 path_for_body = path.decode('utf-8')
             except UnicodeDecodeError:
@@ -902,7 +896,7 @@ class Proxy(proxy.Proxy):
                       ('prefix:' if prefix else '') + path_for_body]
 
         if ip_range:
-            if isinstance(ip_range, six.binary_type):
+            if isinstance(ip_range, bytes):
                 try:
                     ip_range = ip_range.decode('utf-8')
                 except UnicodeDecodeError:
@@ -931,7 +925,7 @@ class Proxy(proxy.Proxy):
         if prefix:
             temp_url += u'&temp_url_prefix={}'.format(parts[4])
         # Have return type match path from caller
-        if isinstance(path, six.binary_type):
+        if isinstance(path, bytes):
             return temp_url.encode('utf-8')
         else:
             return temp_url
