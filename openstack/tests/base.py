@@ -17,11 +17,11 @@ import os
 import sys
 
 import fixtures
+from io import StringIO
 import logging
 import munch
 from oslotest import base
 import pprint
-from six import StringIO
 import testtools.content
 
 _TRUE_VALUES = ('true', '1', 'yes')

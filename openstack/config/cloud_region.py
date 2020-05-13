@@ -14,6 +14,7 @@
 
 import copy
 import warnings
+import urllib
 
 from keystoneauth1 import discover
 import keystoneauth1.exceptions.catalog
@@ -21,7 +22,6 @@ from keystoneauth1.loading import adapter as ks_load_adap
 from keystoneauth1 import session as ks_session
 import os_service_types
 import requestsexceptions
-from six.moves import urllib
 try:
     import statsd
 except ImportError:

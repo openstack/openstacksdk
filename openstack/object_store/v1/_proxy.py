@@ -17,9 +17,9 @@ import hmac
 import json
 import os
 import time
+from urllib import parse
 
 import six
-from six.moves.urllib import parse
 
 from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container

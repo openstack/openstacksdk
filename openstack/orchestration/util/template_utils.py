@@ -15,8 +15,8 @@
 import collections
 import json
 import six
-from six.moves.urllib import parse
-from six.moves.urllib import request
+from urllib import parse
+from urllib import request
 
 from openstack.orchestration.util import environment_format
 from openstack.orchestration.util import template_format

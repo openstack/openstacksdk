@@ -15,10 +15,9 @@
 
 import base64
 import os
-
-from six.moves.urllib import error
-from six.moves.urllib import parse
-from six.moves.urllib import request
+from urllib import error
+from urllib import parse
+from urllib import request
 
 from openstack import exceptions
 

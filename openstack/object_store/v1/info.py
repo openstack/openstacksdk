@@ -11,10 +11,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import urllib
+
 from openstack import exceptions
 from openstack import resource
-
-from six.moves import urllib
 
 
 class Info(resource.Resource):
