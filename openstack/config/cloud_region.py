@@ -201,7 +201,7 @@ def from_conf(conf, session=None, service_types=None, **kwargs):
         session=session, config=config_dict, **kwargs)
 
 
-class CloudRegion(object):
+class CloudRegion:
     # TODO(efried): Doc the rest of the kwargs
     """The configuration for a Region of an OpenStack Cloud.
 

@@ -68,7 +68,7 @@ CONFIG_DRIVE_DICT_VERSION = '1.56'
 """API version in which configdrive can be a dictionary."""
 
 
-class ListMixin(object):
+class ListMixin:
 
     @classmethod
     def list(cls, session, details=False, **params):

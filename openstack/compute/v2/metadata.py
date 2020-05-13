@@ -15,7 +15,7 @@ from openstack import exceptions
 from openstack import utils
 
 
-class MetadataMixin(object):
+class MetadataMixin:
 
     def _metadata(self, method, key=None, clear=False, delete=False,
                   metadata=None):

@@ -95,7 +95,7 @@ def calculate_md5_checksum(data):
     return checksum.hexdigest()
 
 
-class FakeResponse(object):
+class FakeResponse:
     def __init__(self, response, status_code=200, headers=None, reason=None):
         self.body = response
         self.content = response

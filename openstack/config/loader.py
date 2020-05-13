@@ -128,7 +128,7 @@ def _fix_argv(argv):
                 options=','.join(overlap)))
 
 
-class OpenStackConfig(object):
+class OpenStackConfig:
 
     # These two attribute are to allow os-client-config to plumb in its
     # local versions for backwards compat.

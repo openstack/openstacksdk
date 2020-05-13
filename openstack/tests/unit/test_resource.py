@@ -24,7 +24,7 @@ from openstack import resource
 from openstack.tests.unit import base
 
 
-class FakeResponse(object):
+class FakeResponse:
     def __init__(self, response, status_code=200, headers=None):
         self.body = response
         self.status_code = status_code
@@ -74,7 +74,7 @@ class TestComponent(base.TestCase):
     def test_get_name_None(self):
         name = "name"
 
-        class Parent(object):
+        class Parent:
             _example = {name: None}
 
         instance = Parent()
@@ -87,7 +87,7 @@ class TestComponent(base.TestCase):
     def test_get_default(self):
         expected_result = 123
 
-        class Parent(object):
+        class Parent:
             _example = {}
 
         instance = Parent()
@@ -104,7 +104,7 @@ class TestComponent(base.TestCase):
         name = "name"
         expected_result = 123
 
-        class Parent(object):
+        class Parent:
             _example = {name: expected_result}
 
         instance = Parent()
@@ -119,7 +119,7 @@ class TestComponent(base.TestCase):
         name = "name"
         value = "123"
 
-        class Parent(object):
+        class Parent:
             _example = {name: value}
 
         instance = Parent()
@@ -134,7 +134,7 @@ class TestComponent(base.TestCase):
         value = "123"
         expected_result = "one hundred twenty three"
 
-        class Parent(object):
+        class Parent:
             _example = {name: value}
 
         class FakeFormatter(format.Formatter):
@@ -154,7 +154,7 @@ class TestComponent(base.TestCase):
         name = "name"
         expected_value = "123"
 
-        class Parent(object):
+        class Parent:
             _example = {}
 
         instance = Parent()
@@ -167,7 +167,7 @@ class TestComponent(base.TestCase):
     def test_set_name_typed(self):
         expected_value = "123"
 
-        class Parent(object):
+        class Parent:
             _example = {}
 
         instance = Parent()
@@ -177,7 +177,7 @@ class TestComponent(base.TestCase):
         # instance that would allow us to call `assert_called_once_with` to
         # ensure that we're sending the value through the type.
         # Instead, we use this tiny version of a similar thing.
-        class FakeType(object):
+        class FakeType:
             calls = []
 
             def __init__(self, arg):
@@ -192,7 +192,7 @@ class TestComponent(base.TestCase):
     def test_set_name_formatter(self):
         expected_value = "123"
 
-        class Parent(object):
+        class Parent:
             _example = {}
 
         instance = Parent()
@@ -220,7 +220,7 @@ class TestComponent(base.TestCase):
         name = "name"
         expected_value = "123"
 
-        class Parent(object):
+        class Parent:
             _example = {name: expected_value}
 
         instance = Parent()
@@ -235,7 +235,7 @@ class TestComponent(base.TestCase):
         name = "name"
         expected_value = "123"
 
-        class Parent(object):
+        class Parent:
             _example = {"what": expected_value}
 
         instance = Parent()

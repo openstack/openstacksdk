@@ -11,7 +11,7 @@
 # under the License.
 
 
-class Formatter(object):
+class Formatter:
 
     @classmethod
     def serialize(cls, value):

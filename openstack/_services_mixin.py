@@ -20,7 +20,7 @@ from openstack.orchestration import orchestration_service
 from openstack.workflow import workflow_service
 
 
-class ServicesMixin(object):
+class ServicesMixin:
 
     identity = identity_service.IdentityService(service_type='identity')
 

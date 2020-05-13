@@ -82,7 +82,7 @@ def _convert_type(value, data_type, list_type=None):
         return data_type(value)
 
 
-class _BaseComponent(object):
+class _BaseComponent:
 
     # The name this component is being tracked as in the Resource
     key = None
@@ -257,7 +257,7 @@ class _ComponentManager(collections.MutableMapping):
             self._dirty = set()
 
 
-class _Request(object):
+class _Request:
     """Prepared components that go into a KSA request"""
 
     def __init__(self, url, body, headers):
@@ -266,7 +266,7 @@ class _Request(object):
         self.headers = headers
 
 
-class QueryParameters(object):
+class QueryParameters:
 
     def __init__(self, *names, **mappings):
         """Create a dict of accepted query parameters
@@ -1869,7 +1869,7 @@ class Resource(dict):
             "No %s found for %s" % (cls.__name__, name_or_id))
 
 
-class TagMixin(object):
+class TagMixin:
 
     _tag_query_parameters = {
         'tags': 'tags',

@@ -28,7 +28,7 @@ HASH_METHODS = {
 }
 
 
-class ImageSigner(object):
+class ImageSigner:
     """Image file signature generator.
 
     Generates signatures for files using a specified private key file.

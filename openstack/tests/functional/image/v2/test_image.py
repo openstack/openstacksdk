@@ -18,7 +18,7 @@ TEST_IMAGE_NAME = 'Test Image'
 
 class TestImage(base.BaseFunctionalTest):
 
-    class ImageOpts(object):
+    class ImageOpts:
         def __init__(self):
             self.image_api_version = '2'
 

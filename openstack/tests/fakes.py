@@ -282,7 +282,7 @@ def make_fake_port(address, node_id=None, port_id=None):
         node_id=node_id))
 
 
-class FakeFloatingIP(object):
+class FakeFloatingIP:
     def __init__(self, id, pool, ip, fixed_ip, instance_id):
         self.id = id
         self.pool = pool
@@ -345,7 +345,7 @@ def make_fake_hypervisor(id, name):
     }))
 
 
-class FakeVolume(object):
+class FakeVolume:
     def __init__(
             self, id, status, name, attachments=[],
             size=75):
@@ -363,7 +363,7 @@ class FakeVolume(object):
         self.metadata = {}
 
 
-class FakeVolumeSnapshot(object):
+class FakeVolumeSnapshot:
     def __init__(
             self, id, status, name, description, size=75):
         self.id = id
@@ -376,7 +376,7 @@ class FakeVolumeSnapshot(object):
         self.metadata = {}
 
 
-class FakeMachine(object):
+class FakeMachine:
     def __init__(self, id, name=None, driver=None, driver_info=None,
                  chassis_uuid=None, instance_info=None, instance_uuid=None,
                  properties=None, reservation=None, last_error=None,
@@ -394,7 +394,7 @@ class FakeMachine(object):
         self.provision_state = provision_state
 
 
-class FakeMachinePort(object):
+class FakeMachinePort:
     def __init__(self, id, address, node_id):
         self.uuid = id
         self.address = address
@@ -443,7 +443,7 @@ def make_fake_nova_security_group(id, name, description, rules):
     }))
 
 
-class FakeNovaSecgroupRule(object):
+class FakeNovaSecgroupRule:
     def __init__(self, id, from_port=None, to_port=None, ip_protocol=None,
                  cidr=None, parent_group_id=None):
         self.id = id
@@ -455,13 +455,13 @@ class FakeNovaSecgroupRule(object):
         self.parent_group_id = parent_group_id
 
 
-class FakeHypervisor(object):
+class FakeHypervisor:
     def __init__(self, id, hostname):
         self.id = id
         self.hypervisor_hostname = hostname
 
 
-class FakeZone(object):
+class FakeZone:
     def __init__(self, id, name, type_, email, description,
                  ttl, masters):
         self.id = id
@@ -473,7 +473,7 @@ class FakeZone(object):
         self.masters = masters
 
 
-class FakeRecordset(object):
+class FakeRecordset:
     def __init__(self, zone, id, name, type_, description,
                  ttl, records):
         self.zone = zone

@@ -27,7 +27,7 @@ _logger = _log.setup_logging('openstack')
 _service_type_manager = os_service_types.ServiceTypes()
 
 
-class _ServiceDisabledProxyShim(object):
+class _ServiceDisabledProxyShim:
     def __init__(self, service_type, reason):
         self.service_type = service_type
         self.reason = reason
@@ -39,7 +39,7 @@ class _ServiceDisabledProxyShim(object):
                 service_type=self.service_type, reason=self.reason or ''))
 
 
-class ServiceDescription(object):
+class ServiceDescription:
 
     #: Dictionary of supported versions and proxy classes for that version
     supported_versions = None
