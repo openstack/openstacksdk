@@ -19,7 +19,6 @@ import copy
 import os
 import tempfile
 
-import extras
 import fixtures
 import yaml
 
@@ -226,7 +225,7 @@ class TestCase(base.TestCase):
 
     def _assert_cloud_details(self, cc):
         self.assertIsInstance(cc, cloud_region.CloudRegion)
-        self.assertTrue(extras.safe_hasattr(cc, 'auth'))
+        self.assertTrue(hasattr(cc, 'auth'))
         self.assertIsInstance(cc.auth, dict)
         self.assertIsNone(cc.cloud)
         self.assertIn('username', cc.auth)

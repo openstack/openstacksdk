@@ -16,7 +16,6 @@ import argparse
 import copy
 import os
 
-import extras
 import fixtures
 import testtools
 import yaml
@@ -765,7 +764,7 @@ class TestConfigArgparse(base.TestCase):
         # Not using assert_cloud_details because of cache settings which
         # are not present without the file
         self.assertIsInstance(cc, cloud_region.CloudRegion)
-        self.assertTrue(extras.safe_hasattr(cc, 'auth'))
+        self.assertTrue(hasattr(cc, 'auth'))
         self.assertIsInstance(cc.auth, dict)
         self.assertIsNone(cc.cloud)
         self.assertIn('username', cc.auth)
