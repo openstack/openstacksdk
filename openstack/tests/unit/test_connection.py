@@ -332,7 +332,7 @@ class TestAuthorize(base.TestCase):
     def test_authorize_failure(self):
         self.use_broken_keystone()
 
-        self.assertRaises(openstack.exceptions.HttpException,
+        self.assertRaises(openstack.exceptions.SDKException,
                           self.cloud.authorize)
 
 
