@@ -8,18 +8,22 @@
       "BHS",
       "BHS1",
       "BHS3",
+      "BHS5",
       "DE",
       "DE1",
       "GRA",
       "GRA1",
       "GRA5",
+      "GRA7",
       "SBG",
       "SBG1",
       "SBG5",
       "UK",
       "UK1",
       "WAW",
-      "WAW1"
+      "WAW1",
+      "SYD1",
+      "SGP1"
     ],
     "identity_api_version": "3",
     "floating_ip_source": "None"
