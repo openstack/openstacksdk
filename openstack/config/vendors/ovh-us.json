@@ -1,0 +1,13 @@
+{
+  "name": "ovh-us",
+  "profile": {
+    "auth": {
+      "auth_url": "https://auth.cloud.ovh.us/"
+    },
+    "regions": [
+      "US-EAST-VA-1"
+    ],
+    "identity_api_version": "3",
+    "floating_ip_source": "None"
+  }
+}
