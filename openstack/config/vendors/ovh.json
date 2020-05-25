@@ -2,7 +2,9 @@
   "name": "ovh",
   "profile": {
     "auth": {
-      "auth_url": "https://auth.cloud.ovh.net/"
+      "auth_url": "https://auth.cloud.ovh.net/",
+      "user_domain_name": "Default",
+      "project_domain_name": "Default"
     },
     "regions": [
       "BHS",
