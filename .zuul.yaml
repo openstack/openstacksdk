@@ -1,8 +1,8 @@
 - job:
-    name: openstacksdk-tox-py36-tips
-    parent: openstack-tox-py36
+    name: openstacksdk-tox-py38-tips
+    parent: openstack-tox-py38
     description: |
-      Run tox python 36 unittests against master of important libs
+      Run tox python 38 unittests against master of important libs
     vars:
       tox_install_siblings: true
       zuul_work_dir: src/opendev.org/openstack/openstacksdk
@@ -17,10 +17,10 @@
     name: openstacksdk-tox-tips
     check:
       jobs:
-        - openstacksdk-tox-py36-tips
+        - openstacksdk-tox-py38-tips
     gate:
       jobs:
-        - openstacksdk-tox-py36-tips
+        - openstacksdk-tox-py38-tips
 
 - job:
     name: openstacksdk-functional-devstack-minimum
