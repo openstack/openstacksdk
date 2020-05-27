@@ -1482,7 +1482,6 @@ class TestBaremetalNode(base.IronicTestCase):
         port_uuid = self.fake_baremetal_port['uuid']
         # NOTE(TheJulia): The two values below should be the same.
         port_node_uuid = self.fake_baremetal_port['node_uuid']
-        port_url_address = 'detail?address=%s' % mac_address
         self.fake_baremetal_node['provision_state'] = 'available'
         self.register_uris([
             dict(
@@ -1495,7 +1494,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 method='GET',
                 uri=self.get_mock_url(
                     resource='ports',
-                    append=[port_url_address]),
+                    qs_elements=['address=%s' % mac_address]),
                 json={'ports': [{'address': mac_address,
                                  'node_uuid': port_node_uuid,
                                  'uuid': port_uuid}]}),
@@ -1513,55 +1512,6 @@ class TestBaremetalNode(base.IronicTestCase):
 
         self.cloud.unregister_machine(
             nics, self.fake_baremetal_node['uuid'])
-
-        self.assert_calls()
-
-    def test_unregister_machine_timeout(self):
-        mac_address = self.fake_baremetal_port['address']
-        nics = [{'mac': mac_address}]
-        port_uuid = self.fake_baremetal_port['uuid']
-        port_node_uuid = self.fake_baremetal_port['node_uuid']
-        port_url_address = 'detail?address=%s' % mac_address
-        self.fake_baremetal_node['provision_state'] = 'available'
-        self.register_uris([
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']]),
-                json=self.fake_baremetal_node),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    resource='ports',
-                    append=[port_url_address]),
-                json={'ports': [{'address': mac_address,
-                                 'node_uuid': port_node_uuid,
-                                 'uuid': port_uuid}]}),
-            dict(
-                method='DELETE',
-                uri=self.get_mock_url(
-                    resource='ports',
-                    append=[self.fake_baremetal_port['uuid']])),
-            dict(
-                method='DELETE',
-                uri=self.get_mock_url(
-                    resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']])),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']]),
-                json=self.fake_baremetal_node),
-        ])
-        self.assertRaises(
-            exc.OpenStackCloudException,
-            self.cloud.unregister_machine,
-            nics,
-            self.fake_baremetal_node['uuid'],
-            wait=True,
-            timeout=0.001)
 
         self.assert_calls()
 
@@ -1598,7 +1548,6 @@ class TestBaremetalNode(base.IronicTestCase):
         port_uuid = self.fake_baremetal_port['uuid']
         # NOTE(TheJulia): The two values below should be the same.
         port_node_uuid = self.fake_baremetal_port['node_uuid']
-        port_url_address = 'detail?address=%s' % mac_address
         self.fake_baremetal_node['provision_state'] = 'available'
         self.register_uris([
             dict(
@@ -1611,7 +1560,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 method='GET',
                 uri=self.get_mock_url(
                     resource='ports',
-                    append=[port_url_address]),
+                    qs_elements=['address=%s' % mac_address]),
                 json={'ports': [{'address': mac_address,
                                  'node_uuid': port_node_uuid,
                                  'uuid': port_uuid}]}),
