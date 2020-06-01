@@ -27,6 +27,7 @@ class Service(resource.Resource):
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
+        'name',
         'type',
     )
 

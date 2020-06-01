@@ -41,6 +41,7 @@ class TestService(base.TestCase):
 
         self.assertDictEqual(
             {
+                'name': 'name',
                 'type': 'type',
                 'limit': 'limit',
                 'marker': 'marker',
