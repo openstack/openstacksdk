@@ -325,7 +325,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
         else:
             return machine
 
-    def unregister_machine(self, nics, uuid, wait=False, timeout=600):
+    def unregister_machine(self, nics, uuid, wait=None, timeout=600):
         """Unregister Baremetal from Ironic
 
         Removes entries for Network Interfaces and baremetal nodes
@@ -335,15 +335,17 @@ class BaremetalCloudMixin(_normalize.Normalizer):
                           to be removed.
         :param string uuid: The UUID of the node to be deleted.
 
-        :param wait: Boolean value, defaults to false, if to block the method
-                     upon the final step of unregistering the machine.
+        :param wait: DEPRECATED, do not use.
 
         :param timeout: Integer value, representing seconds with a default
                         value of 600, which controls the maximum amount of
-                        time to block the method's completion on.
+                        time to block until a lock is released on machine.
 
         :raises: OpenStackCloudException on operation failure.
         """
+        if wait is not None:
+            warnings.warn("wait argument is deprecated and has no effect",
+                          DeprecationWarning)
 
         machine = self.get_machine(uuid)
         invalid_states = ['active', 'cleaning', 'clean wait', 'clean failed']
@@ -357,47 +359,20 @@ class BaremetalCloudMixin(_normalize.Normalizer):
         # previously concealed by exception retry logic that detected the
         # failure, and resubitted the request in python-ironicclient.
         try:
-            self.wait_for_baremetal_node_lock(machine, timeout=timeout)
+            self.baremetal.wait_for_node_reservation(machine, timeout)
         except exc.OpenStackCloudException as e:
             raise exc.OpenStackCloudException(
                 "Error unregistering node '%s': Exception occured while"
                 " waiting to be able to proceed: %s" % (machine['uuid'], e))
 
         for nic in nics:
-            port_msg = ("Error removing NIC {nic} from baremetal API for "
-                        "node {uuid}").format(nic=nic, uuid=uuid)
-            port_url = '/ports/detail?address={mac}'.format(mac=nic['mac'])
-            port = self._baremetal_client.get(port_url, microversion=1.6,
-                                              error_message=port_msg)
-            port_url = '/ports/{uuid}'.format(uuid=port['ports'][0]['uuid'])
-            _utils._call_client_and_retry(self._baremetal_client.delete,
-                                          port_url, retry_on=[409, 503],
-                                          error_message=port_msg)
+            try:
+                port = next(self.baremetal.ports(address=nic['mac']))
+            except StopIteration:
+                continue
+            self.baremetal.delete_port(port.id)
 
-        with _utils.shade_exceptions(
-                "Error unregistering machine {node_id} from the baremetal "
-                "API".format(node_id=uuid)):
-
-            # NOTE(TheJulia): While this should not matter microversion wise,
-            # ironic assumes all calls without an explicit microversion to be
-            # version 1.0. Ironic expects to deprecate support for older
-            # microversions in future releases, as such, we explicitly set
-            # the version to what we have been using with the client library..
-            version = "1.6"
-            msg = "Baremetal machine failed to be deleted"
-            url = '/nodes/{node_id}'.format(
-                node_id=uuid)
-            _utils._call_client_and_retry(self._baremetal_client.delete,
-                                          url, retry_on=[409, 503],
-                                          error_message=msg,
-                                          microversion=version)
-
-            if wait:
-                for count in utils.iterate_timeout(
-                        timeout,
-                        "Timeout waiting for machine to be deleted"):
-                    if not self.get_machine(uuid):
-                        break
+        self.baremetal.delete_node(uuid)
 
     def patch_machine(self, name_or_id, patch):
         """Patch Machine Information
