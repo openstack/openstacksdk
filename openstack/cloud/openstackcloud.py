@@ -798,6 +798,13 @@ class _OpenStackCloudMixin:
             else:
                 dep_graph.node_done(service)
 
+        for count in utils.iterate_timeout(
+                timeout=wait_timeout,
+                message="Timeout waiting for cleanup to finish",
+                wait=1):
+            if dep_graph.is_complete():
+                return
+
 
 def cleanup_task(graph, service, fn):
     fn()
