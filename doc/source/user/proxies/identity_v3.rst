@@ -105,4 +105,5 @@ User Operations
 
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
-  :members: create_user, update_user, delete_user, get_user, find_user, users
+  :members: create_user, update_user, delete_user, get_user, find_user, users,
+            user_projects
