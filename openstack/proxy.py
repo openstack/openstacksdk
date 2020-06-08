@@ -91,15 +91,23 @@ class Proxy(adapter.Adapter):
             if conn:
                 # Per-request setting should take precedence
                 global_request_id = conn._global_request_id
-        response = super(Proxy, self).request(
-            url, method,
-            connect_retries=connect_retries, raise_exc=raise_exc,
-            global_request_id=global_request_id,
-            **kwargs)
-        for h in response.history:
-            self._report_stats(h)
-        self._report_stats(response)
-        return response
+        try:
+            response = super(Proxy, self).request(
+                url, method,
+                connect_retries=connect_retries, raise_exc=raise_exc,
+                global_request_id=global_request_id,
+                **kwargs)
+            for h in response.history:
+                self._report_stats(h)
+            self._report_stats(response)
+            return response
+        except Exception as e:
+            # If we want metrics to be generated we also need to generate some
+            # in case of exceptions as well, so that timeouts and connection
+            # problems (especially when called from ansible) are being
+            # generated as well.
+            self._report_stats(None, url, method, e)
+            raise
 
     def _extract_name(self, url, service_type=None, project_id=None):
         '''Produce a key name to use in logging/metrics from the URL path.
@@ -185,58 +193,91 @@ class Proxy(adapter.Adapter):
 
         return name_parts
 
-    def _report_stats(self, response):
+    def _report_stats(self, response, url=None, method=None, exc=None):
         if self._statsd_client:
-            self._report_stats_statsd(response)
+            self._report_stats_statsd(response, url, method, exc)
         if self._prometheus_counter and self._prometheus_histogram:
-            self._report_stats_prometheus(response)
+            self._report_stats_prometheus(response, url, method, exc)
         if self._influxdb_client:
-            self._report_stats_influxdb(response)
+            self._report_stats_influxdb(response, url, method, exc)
 
-    def _report_stats_statsd(self, response):
-        name_parts = self._extract_name(response.request.url,
+    def _report_stats_statsd(self, response, url=None, method=None, exc=None):
+        if response is not None and not url:
+            url = response.request.url
+        if response is not None and not method:
+            method = response.request.method
+        name_parts = self._extract_name(url,
                                         self.service_type,
                                         self.session.get_project_id())
         key = '.'.join(
-            [self._statsd_prefix, self.service_type, response.request.method]
+            [self._statsd_prefix, self.service_type, method]
             + name_parts)
-        self._statsd_client.timing(key, int(
-            response.elapsed.microseconds / 1000))
-        self._statsd_client.incr(key)
+        if response is not None:
+            duration = int(response.elapsed.microseconds / 1000)
+            self._statsd_client.timing(key, duration)
+            self._statsd_client.incr(key)
+        elif exc is not None:
+            self._statsd_client.incr('%s.failed' % key)
 
-    def _report_stats_prometheus(self, response):
-        labels = dict(
-            method=response.request.method,
-            endpoint=response.request.url,
-            service_type=self.service_type,
-            status_code=response.status_code,
-        )
-        self._prometheus_counter.labels(**labels).inc()
-        self._prometheus_histogram.labels(**labels).observe(
-            response.elapsed.microseconds / 1000)
+    def _report_stats_prometheus(self, response, url=None, method=None,
+                                 exc=None):
+        if response is not None and not url:
+            url = response.request.url
+        if response is not None and not method:
+            method = response.request.method
+        if response is not None:
+            labels = dict(
+                method=method,
+                endpoint=url,
+                service_type=self.service_type,
+                status_code=response.status_code,
+            )
+            self._prometheus_counter.labels(**labels).inc()
+            self._prometheus_histogram.labels(**labels).observe(
+                response.elapsed.microseconds / 1000)
 
-    def _report_stats_influxdb(self, response):
+    def _report_stats_influxdb(self, response, url=None, method=None,
+                               exc=None):
         # NOTE(gtema): status_code is saved both as tag and field to give
         # ability showing it as a value and not only as a legend.
         # However Influx is not ok with having same name in tags and fields,
         # therefore use different names.
+        if response is not None and not url:
+            url = response.request.url
+        if response is not None and not method:
+            method = response.request.method
+        tags = dict(
+            method=method,
+            name='_'.join(self._extract_name(
+                url, self.service_type,
+                self.session.get_project_id()))
+        )
+        fields = dict(
+            attempted=1
+        )
+        if response is not None:
+            fields['duration'] = int(response.elapsed.microseconds / 1000)
+            tags['status_code'] = str(response.status_code)
+            # Note(gtema): emit also status_code as a value (counter)
+            fields[str(response.status_code)] = 1
+            fields['%s.%s' % (method, response.status_code)] = 1
+            # Note(gtema): status_code field itself is also very helpful on the
+            # graphs to show what was the code, instead of counting its
+            # occurences
+            fields['status_code_val'] = response.status_code
+        elif exc:
+            fields['failed'] = 1
+        if 'additional_metric_tags' in self._influxdb_config:
+            tags.update(self._influxdb_config['additional_metric_tags'])
+        measurement = self._influxdb_config.get(
+            'measurement', 'openstack_api') \
+            if self._influxdb_config else 'openstack_api'
+        # Note(gtema) append service name into the measurement name
+        measurement = '%s.%s' % (measurement, self.service_type)
         data = [dict(
-            measurement=(self._influxdb_config.get('measurement',
-                                                   'openstack_api')
-                         if self._influxdb_config else 'openstack_api'),
-            tags=dict(
-                method=response.request.method,
-                service_type=self.service_type,
-                status_code=response.status_code,
-                name='_'.join(self._extract_name(
-                    response.request.url, self.service_type,
-                    self.session.get_project_id())
-                )
-            ),
-            fields=dict(
-                duration=int(response.elapsed.microseconds / 1000),
-                status_code_val=int(response.status_code)
-            )
+            measurement=measurement,
+            tags=tags,
+            fields=fields
         )]
         try:
             self._influxdb_client.write_points(data)
