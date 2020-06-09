@@ -13,15 +13,15 @@ import hashlib
 import io
 import operator
 import tempfile
+from unittest import mock
 
 from keystoneauth1 import adapter
-import mock
 import requests
-from openstack.tests.unit import base
 
 from openstack import _log
 from openstack import exceptions
 from openstack.image.v2 import image
+from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

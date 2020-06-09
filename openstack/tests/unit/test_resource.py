@@ -12,9 +12,9 @@
 
 import itertools
 import json
+from unittest import mock
 
 from keystoneauth1 import adapter
-import mock
 import munch
 import requests
 

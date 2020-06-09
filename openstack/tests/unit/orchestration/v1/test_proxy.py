@@ -11,7 +11,7 @@
 # under the License.
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
-import mock
+from unittest import mock
 
 from openstack import exceptions
 from openstack.orchestration.v1 import _proxy

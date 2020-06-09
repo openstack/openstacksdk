@@ -19,7 +19,7 @@ test_floating_ip_common
 Tests floating IP resource methods for Neutron and Nova-network.
 """
 
-from mock import patch
+from unittest.mock import patch
 
 from openstack import connection
 from openstack.cloud import meta

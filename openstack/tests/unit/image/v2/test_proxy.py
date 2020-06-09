@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
 import io
+from unittest import mock
+
 import requests
 
 from openstack import exceptions

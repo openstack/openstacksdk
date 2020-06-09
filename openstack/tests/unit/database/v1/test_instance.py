@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-from openstack.tests.unit import base
+from unittest import mock
 
 from openstack.database.v1 import instance
+from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

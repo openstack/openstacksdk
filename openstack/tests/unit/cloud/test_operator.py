@@ -11,8 +11,8 @@
 # under the License.
 
 import uuid
+from unittest import mock
 
-import mock
 import testtools
 
 from openstack.cloud import exc

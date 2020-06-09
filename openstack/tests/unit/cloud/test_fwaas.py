@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from copy import deepcopy
-import mock
+from unittest import mock
 
 from openstack import exceptions
 from openstack.network.v2.firewall_group import FirewallGroup

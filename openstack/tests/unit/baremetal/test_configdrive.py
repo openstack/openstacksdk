@@ -15,8 +15,8 @@
 
 import json
 import os
+from unittest import mock
 
-import mock
 import testtools
 
 from openstack.baremetal import configdrive

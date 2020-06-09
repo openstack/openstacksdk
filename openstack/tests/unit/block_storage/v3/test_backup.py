@@ -10,14 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
+from unittest import mock
 
 from keystoneauth1 import adapter
 
-from openstack.tests.unit import base
-
 from openstack import exceptions
 from openstack.block_storage.v3 import backup
+from openstack.tests.unit import base
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 

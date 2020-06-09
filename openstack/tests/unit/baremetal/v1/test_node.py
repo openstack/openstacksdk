@@ -10,8 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
 from keystoneauth1 import adapter
-import mock
 
 from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import node
@@ -790,7 +791,7 @@ class TestNodePatch(base.TestCase):
         patch = {'path': 'test'}
         self.node.patch(self.session, patch=patch)
         mock_patch.assert_called_once()
-        kwargs = mock_patch.call_args.kwargs
+        kwargs = mock_patch.call_args[1]
         self.assertEqual(kwargs['patch'], {'path': 'test'})
 
     @mock.patch.object(resource.Resource, '_prepare_request', autospec=True)
@@ -801,12 +802,12 @@ class TestNodePatch(base.TestCase):
         self.node.patch(self.session, patch=patch, retry_on_conflict=True,
                         reset_interfaces=True)
         mock_prepreq.assert_called_once()
-        prepreq_kwargs = mock_prepreq.call_args.kwargs
+        prepreq_kwargs = mock_prepreq.call_args[1]
         self.assertEqual(prepreq_kwargs['params'],
                          [('reset_interfaces', True)])
         mock__commit.assert_called_once()
-        commit_args = mock__commit.call_args.args
-        commit_kwargs = mock__commit.call_args.kwargs
+        commit_args = mock__commit.call_args[0]
+        commit_kwargs = mock__commit.call_args[1]
         self.assertIn('1.45', commit_args)
         self.assertEqual(commit_kwargs['retry_on_conflict'], True)
         mock_patch.assert_not_called()

@@ -12,15 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
 from uuid import uuid4
 
-import mock
 import testtools
 
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.tests.unit import base
-
 
 RANGE_DATA = [
     dict(id=1, key1=1, key2=5),

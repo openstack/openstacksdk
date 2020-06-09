@@ -11,11 +11,11 @@
 # under the License.
 
 import copy
-import mock
-from openstack.tests.unit import base
+from unittest import mock
 import uuid
 
 from openstack.message.v2 import subscription
+from openstack.tests.unit import base
 
 
 FAKE1 = {

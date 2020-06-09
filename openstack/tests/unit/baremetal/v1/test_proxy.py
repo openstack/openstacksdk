@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
+from unittest import mock
 
 from openstack.baremetal.v1 import _proxy
 from openstack.baremetal.v1 import allocation

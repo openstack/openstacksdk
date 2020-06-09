@@ -12,20 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
-import mock
-import sys
-from openstack.tests.unit import base
-
 import concurrent.futures
-
-import testtools
+import logging
+from unittest import mock
+import sys
 
 import fixtures
 import os_service_types
+import testtools
 
 import openstack
 from openstack import exceptions
+from openstack.tests.unit import base
 from openstack import utils
 
 

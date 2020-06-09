@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-
-from openstack.tests.unit import base
+from unittest import mock
 
 from openstack.block_storage.v3 import volume
+from openstack.tests.unit import base
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 IMAGE_METADATA = {

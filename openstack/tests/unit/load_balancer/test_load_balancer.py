@@ -10,11 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-from openstack.tests.unit import base
+from unittest import mock
 import uuid
 
 from openstack.load_balancer.v2 import load_balancer
+from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

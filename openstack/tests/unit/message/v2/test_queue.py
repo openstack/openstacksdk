@@ -10,12 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-from openstack.tests.unit import base
+from unittest import mock
 import uuid
 
 from openstack.message.v2 import queue
-
+from openstack.tests.unit import base
 
 FAKE1 = {
     'name': 'test_queue',

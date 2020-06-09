@@ -11,7 +11,7 @@
 # under the License.
 
 import uuid
-import mock
+from unittest import mock
 
 from openstack.load_balancer.v2 import _proxy
 from openstack.load_balancer.v2 import amphora

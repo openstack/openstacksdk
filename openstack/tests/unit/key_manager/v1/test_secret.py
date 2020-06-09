@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-from openstack.tests.unit import base
+from unittest import mock
 
 from openstack.key_manager.v1 import secret
+from openstack.tests.unit import base
 
 ID_VAL = "123"
 IDENTIFIER = 'http://localhost:9311/v1/secrets/%s' % ID_VAL

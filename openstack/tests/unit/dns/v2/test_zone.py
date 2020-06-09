@@ -10,13 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from keystoneauth1 import adapter
-import mock
+from unittest import mock
 
-from openstack.tests.unit import base
+from keystoneauth1 import adapter
 
 from openstack.dns.v2 import zone
-
+from openstack.tests.unit import base
 
 IDENTIFIER = 'NAME'
 EXAMPLE = {

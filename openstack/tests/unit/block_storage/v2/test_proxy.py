@@ -9,9 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import mock
-
-from openstack import exceptions
+from unittest import mock
 
 from openstack.block_storage.v2 import _proxy
 from openstack.block_storage.v2 import backup
@@ -19,6 +17,7 @@ from openstack.block_storage.v2 import snapshot
 from openstack.block_storage.v2 import stats
 from openstack.block_storage.v2 import type
 from openstack.block_storage.v2 import volume
+from openstack import exceptions
 from openstack.tests.unit import test_proxy_base
 
 

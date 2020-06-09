@@ -11,17 +11,16 @@
 # under the License.
 
 import copy
+from unittest import mock
 
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
-import mock
 
-from openstack import version as openstack_version
 from openstack.config import cloud_region
 from openstack.config import defaults
 from openstack import exceptions
 from openstack.tests.unit.config import base
-
+from openstack import version as openstack_version
 
 fake_config_dict = {'a': 1, 'os_b': 2, 'c': 3, 'os_c': 4}
 fake_services_dict = {

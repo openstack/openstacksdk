@@ -13,12 +13,11 @@
 # under the License.
 
 import json
-
-import mock
-from openstack.tests.unit import base
+from unittest import mock
 import uuid
 
 from openstack import exceptions
+from openstack.tests.unit import base
 
 
 class Test_Exception(base.TestCase):

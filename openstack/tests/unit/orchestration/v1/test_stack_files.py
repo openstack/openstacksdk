@@ -10,11 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-from openstack.tests.unit import base
+from unittest import mock
 
 from openstack.orchestration.v1 import stack_files as sf
 from openstack import resource
+from openstack.tests.unit import base
 
 FAKE = {
     'stack_id': 'ID',

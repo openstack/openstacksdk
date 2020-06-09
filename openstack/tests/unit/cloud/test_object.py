@@ -13,16 +13,16 @@
 # under the License.
 
 import tempfile
+from unittest import mock
 
-import mock
 import testtools
 
 import openstack.cloud
 import openstack.cloud.openstackcloud as oc_oc
 from openstack.cloud import exc
 from openstack import exceptions
-from openstack.tests.unit import base
 from openstack.object_store.v1 import _proxy
+from openstack.tests.unit import base
 
 
 class BaseTestObject(base.TestCase):

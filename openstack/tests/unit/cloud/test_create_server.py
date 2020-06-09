@@ -17,9 +17,8 @@ test_create_server
 Tests for the `create_server` command.
 """
 import base64
+from unittest import mock
 import uuid
-
-import mock
 
 from openstack import connection
 from openstack.cloud import exc

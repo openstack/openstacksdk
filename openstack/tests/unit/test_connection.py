@@ -11,10 +11,10 @@
 # under the License.
 
 import os
+from unittest import mock
 
 import fixtures
 from keystoneauth1 import session
-import mock
 from testtools import matchers
 
 from openstack import connection

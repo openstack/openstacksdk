@@ -12,11 +12,11 @@
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from hashlib import sha1
-import mock
 import random
 import string
 import tempfile
 import time
+from unittest import mock
 
 from openstack.object_store.v1 import account
 from openstack.object_store.v1 import container
