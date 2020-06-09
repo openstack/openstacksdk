@@ -506,7 +506,7 @@ class Connection(
         try:
             return self.session.get_token()
         except keystoneauth1.exceptions.ClientException as e:
-            raise exceptions.raise_from_response(e.response)
+            raise exceptions.SDKException(e)
 
     @property
     def _pool_executor(self):
