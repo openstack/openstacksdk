@@ -1486,9 +1486,3 @@ class Proxy(proxy.Proxy):
                                           obj,
                                           dry_run,
                                           status_queue)
-
-        for obj in self.keypairs():
-            self._service_cleanup_del_res(self.delete_keypair,
-                                          obj,
-                                          dry_run,
-                                          status_queue)
