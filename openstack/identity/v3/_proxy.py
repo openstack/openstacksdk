@@ -1225,7 +1225,7 @@ class Proxy(proxy.Proxy):
                    :class:`~openstack.identity.v3.user.User` instance.
 
         :param kwargs query: Optional query parameters to be sent to
-            application credential the resources being returned.
+            limit the resources being returned.
 
         :returns: A generator of application credentials instances.
         :rtype: :class:`~openstack.identity.v3.application_credential.
@@ -1285,7 +1285,7 @@ class Proxy(proxy.Proxy):
 
         :param user: Either the ID of a user or a
                    :class:`~openstack.identity.v3.user.User` instance.
-        :param name_or_id: The name or ID of a application credential.
+        :param name_or_id: The name or ID of an application credential.
         :param bool ignore_missing: When set to ``False``
              :class:`~openstack.exceptions.ResourceNotFound` will be
              raised when the resource does not exist.
@@ -1302,7 +1302,7 @@ class Proxy(proxy.Proxy):
 
     def delete_application_credential(self, user, application_credential,
                                       ignore_missing=True):
-        """Delete a application credential
+        """Delete an application credential
 
         :param user: Either the ID of a user or a
                    :class:`~openstack.identity.v3.user.User` instance.
