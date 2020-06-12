@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support for optionally caching auth information int the local
+    keyring. Requires the installation of the python ``keyring`` package.

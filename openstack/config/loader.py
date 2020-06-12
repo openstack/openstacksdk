@@ -160,9 +160,19 @@ class OpenStackConfig:
         self._load_envvars = load_envvars
 
         if load_yaml_config:
-            self._config_files = config_files or CONFIG_FILES
-            self._secure_files = secure_files or SECURE_FILES
-            self._vendor_files = vendor_files or VENDOR_FILES
+            # "if config_files" is not sufficient to process empty list
+            if config_files is not None:
+                self._config_files = config_files
+            else:
+                self._config_files = CONFIG_FILES
+            if secure_files is not None:
+                self._secure_files = secure_files
+            else:
+                self._secure_files = SECURE_FILES
+            if vendor_files is not None:
+                self._vendor_files = vendor_files
+            else:
+                self._vendor_files = VENDOR_FILES
         else:
             self._config_files = []
             self._secure_files = []
@@ -259,6 +269,7 @@ class OpenStackConfig:
                 clouds=dict(defaults=dict(self.defaults)))
             self.default_cloud = 'defaults'
 
+        self._cache_auth = False
         self._cache_expiration_time = 0
         self._cache_path = CACHE_PATH
         self._cache_class = 'dogpile.cache.null'
@@ -267,6 +278,9 @@ class OpenStackConfig:
         self._influxdb_config = {}
         if 'cache' in self.cloud_config:
             cache_settings = _util.normalize_keys(self.cloud_config['cache'])
+
+            self._cache_auth = get_boolean(
+                cache_settings.get('auth', self._cache_auth))
 
             # expiration_time used to be 'max_age' but the dogpile setting
             # is expiration_time. Support max_age for backwards compat.
@@ -1146,6 +1160,7 @@ class OpenStackConfig:
             session_constructor=self._session_constructor,
             app_name=self._app_name,
             app_version=self._app_version,
+            cache_auth=self._cache_auth,
             cache_expiration_time=self._cache_expiration_time,
             cache_expirations=self._cache_expirations,
             cache_path=self._cache_path,
@@ -1251,6 +1266,7 @@ class OpenStackConfig:
             force_ipv4=force_ipv4,
             auth_plugin=auth_plugin,
             openstack_config=self,
+            cache_auth=self._cache_auth,
             cache_expiration_time=self._cache_expiration_time,
             cache_expirations=self._cache_expirations,
             cache_path=self._cache_path,

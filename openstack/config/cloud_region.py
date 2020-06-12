@@ -17,6 +17,11 @@ import os.path
 import warnings
 import urllib
 
+try:
+    import keyring
+except ImportError:
+    keyring = None
+
 from keystoneauth1 import discover
 import keystoneauth1.exceptions.catalog
 from keystoneauth1.loading import adapter as ks_load_adap
@@ -239,7 +244,8 @@ class CloudRegion:
                  cache_arguments=None, password_callback=None,
                  statsd_host=None, statsd_port=None, statsd_prefix=None,
                  influxdb_config=None,
-                 collector_registry=None):
+                 collector_registry=None,
+                 cache_auth=False):
         self._name = name
         self.config = _util.normalize_keys(config)
         # NOTE(efried): For backward compatibility: a) continue to accept the
@@ -251,6 +257,8 @@ class CloudRegion:
         self.log = _log.setup_logging('openstack.config')
         self._force_ipv4 = force_ipv4
         self._auth = auth_plugin
+        self._cache_auth = cache_auth
+        self.load_auth_from_cache()
         self._openstack_config = openstack_config
         self._keystone_session = session
         self._session_constructor = session_constructor or ks_session.Session
@@ -556,6 +564,40 @@ class CloudRegion:
     def get_auth(self):
         """Return a keystoneauth plugin from the auth credentials."""
         return self._auth
+
+    def skip_auth_cache(self):
+        return not keyring or not self._auth or not self._cache_auth
+
+    def load_auth_from_cache(self):
+        if self.skip_auth_cache():
+            return
+
+        cache_id = self._auth.get_cache_id()
+
+        # skip if the plugin does not support caching
+        if not cache_id:
+            return
+
+        try:
+            state = keyring.get_password('openstacksdk', cache_id)
+        except RuntimeError:  # the fail backend raises this
+            self.log.debug('Failed to fetch auth from keyring')
+            return
+
+        self.log.debug('Reusing authentication from keyring')
+        self._auth.set_auth_state(state)
+
+    def set_auth_cache(self):
+        if self.skip_auth_cache():
+            return
+
+        cache_id = self._auth.get_cache_id()
+        state = self._auth.get_auth_state()
+
+        try:
+            keyring.set_password('openstacksdk', cache_id, state)
+        except RuntimeError:  # the fail backend raises this
+            self.log.debug('Failed to set auth into keyring')
 
     def insert_user_agent(self):
         """Set sdk information into the user agent of the Session.
