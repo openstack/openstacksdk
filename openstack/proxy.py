@@ -15,6 +15,7 @@ try:
     JSONDecodeError = simplejson.scanner.JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
+import iso8601
 import urllib
 
 from keystoneauth1 import adapter
@@ -565,18 +566,79 @@ class Proxy(adapter.Adapter):
     def _get_cleanup_dependencies(self):
         return None
 
-    def _service_cleanup(self, dry_run=True, status_queue=None):
+    def _service_cleanup(self, dry_run=True, client_status_queue=None,
+                         identified_resources=None, filters=None,
+                         resource_evaluation_fn=None):
         return None
 
     def _service_cleanup_del_res(self, del_fn, obj, dry_run=True,
-                                 status_queue=None):
-        if status_queue:
-            status_queue.put(obj)
-        if not dry_run:
-            try:
-                del_fn(obj)
-            except exceptions.SDKException as e:
-                self.log.error('Cannot delete resource %s: %s', obj, str(e))
+                                 client_status_queue=None,
+                                 identified_resources=None,
+                                 filters=None,
+                                 resource_evaluation_fn=None):
+        need_delete = False
+        try:
+            if (
+                resource_evaluation_fn
+                and callable(resource_evaluation_fn)
+            ):
+                # Ask a user-provided evaluation function if we need to delete
+                # the resource
+                need_del = resource_evaluation_fn(obj, filters,
+                                                  identified_resources)
+                if isinstance(need_del, bool):
+                    # Just double check function returned bool
+                    need_delete = need_del
+            else:
+                need_delete = \
+                    self._service_cleanup_resource_filters_evaluation(
+                        obj,
+                        filters=filters)
+
+            if need_delete:
+                if client_status_queue:
+                    # Put into queue for client status info
+                    client_status_queue.put(obj)
+                if identified_resources is not None:
+                    # Put into internal dict shared between threads so that
+                    # other services might know which other resources were
+                    # identified
+                    identified_resources[obj.id] = obj
+                if not dry_run:
+                    del_fn(obj)
+        except Exception as e:
+            self.log.exception('Cannot delete resource %s: %s', obj, str(e))
+        return need_delete
+
+    def _service_cleanup_resource_filters_evaluation(self, obj, filters=None):
+        part_cond = []
+        if filters is not None and isinstance(filters, dict):
+            for k, v in filters.items():
+                try:
+                    res_val = None
+                    if k == 'created_at' and hasattr(obj, 'created_at'):
+                        res_val = getattr(obj, 'created_at')
+                    if k == 'updated_at' and hasattr(obj, 'updated_at'):
+                        res_val = getattr(obj, 'updated_at')
+                    if res_val:
+                        res_date = iso8601.parse_date(res_val)
+                        cmp_date = iso8601.parse_date(v)
+                        if res_date and cmp_date and res_date <= cmp_date:
+                            part_cond.append(True)
+                        else:
+                            part_cond.append(False)
+                    else:
+                        # There are filters set, but we can't get required
+                        # attribute, so skip the resource
+                        self.log.debug('Requested cleanup attribute %s is not '
+                                       'available on the resource' % k)
+                        part_cond.append(False)
+                except Exception:
+                    self.log.exception('Error during condition evaluation')
+        if all(part_cond):
+            return True
+        else:
+            return False
 
 
 def _json_response(response, result_key=None, error_message=None):

@@ -1495,9 +1495,28 @@ class Proxy(proxy.Proxy):
             }
         }
 
-    def _service_cleanup(self, dry_run=True, status_queue=None):
-        for obj in self.servers(details=False):
-            self._service_cleanup_del_res(self.delete_server,
-                                          obj,
-                                          dry_run,
-                                          status_queue)
+    def _service_cleanup(self, dry_run=True, client_status_queue=None,
+                         identified_resources=None,
+                         filters=None, resource_evaluation_fn=None):
+        servers = []
+        for obj in self.servers():
+            need_delete = self._service_cleanup_del_res(
+                self.delete_server,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn)
+            if not dry_run and need_delete:
+                # In the dry run we identified, that server will go. To propely
+                # identify consequences we need to tell others, that the port
+                # will disappear as well
+                for port in self._connection.network.ports(device_id=obj.id):
+                    identified_resources[port.id] = port
+                servers.append(obj)
+
+        # We actually need to wait for servers to really disappear, since they
+        # might be still holding ports on the subnet
+        for server in servers:
+            self.wait_for_delete(server)

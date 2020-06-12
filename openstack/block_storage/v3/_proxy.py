@@ -421,23 +421,45 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             }
         }
 
-    def _service_cleanup(self, dry_run=True, status_queue=None):
+    def _service_cleanup(self, dry_run=True, client_status_queue=None,
+                         identified_resources=None,
+                         filters=None, resource_evaluation_fn=None):
         if self._connection.has_service('object-store'):
             # Volume backups require object-store to be available, even for
             # listing
+            backups = []
             for obj in self.backups(details=False):
-                if status_queue:
-                    status_queue.put(obj)
-                if not dry_run:
-                    self.delete_backup(obj)
+                need_delete = self._service_cleanup_del_res(
+                    self.delete_backup,
+                    obj,
+                    dry_run=dry_run,
+                    client_status_queue=client_status_queue,
+                    identified_resources=identified_resources,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn)
+                if not dry_run and need_delete:
+                    backups.append(obj)
+
+            # Before deleting snapshots need to wait for backups to be deleted
+            for obj in backups:
+                try:
+                    self.wait_for_delete(obj)
+                except exceptions.SDKException:
+                    # Well, did our best, still try further
+                    pass
 
         snapshots = []
         for obj in self.snapshots(details=False):
-            if status_queue:
+            need_delete = self._service_cleanup_del_res(
+                self.delete_snapshot,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn)
+            if not dry_run and need_delete:
                 snapshots.append(obj)
-                status_queue.put(obj)
-            if not dry_run:
-                self.delete_snapshot(obj)
 
         # Before deleting volumes need to wait for snapshots to be deleted
         for obj in snapshots:
@@ -447,8 +469,12 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 # Well, did our best, still try further
                 pass
 
-        for obj in self.volumes(details=False):
-            if status_queue:
-                status_queue.put(obj)
-            if not dry_run:
-                self.delete_volume(obj)
+        for obj in self.volumes(details=True):
+            self._service_cleanup_del_res(
+                self.delete_volume,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn)

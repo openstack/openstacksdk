@@ -48,9 +48,46 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             self.router.id,
             subnet_id=self.subnet.id)
 
-    def _test_cleanup(self):
+    def test_cleanup(self):
         self._create_network_resources()
         status_queue = queue.Queue()
+
+        # First round - check no resources are old enough
+        self.conn.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+            filters={'created_at': '2000-01-01'})
+
+        self.assertTrue(status_queue.empty())
+
+        # Second round - resource evaluation function return false, ensure
+        # nothing identified
+        self.conn.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+            filters={'created_at': '2200-01-01'},
+            resource_evaluation_fn=lambda x, y, z: False)
+
+        self.assertTrue(status_queue.empty())
+
+        # Third round - filters set too low
+        self.conn.project_cleanup(
+            dry_run=True,
+            wait_timeout=120,
+            status_queue=status_queue,
+            filters={'created_at': '2200-01-01'})
+
+        objects = []
+        while not status_queue.empty():
+            objects.append(status_queue.get())
+
+        # At least known networks should be identified
+        net_names = list(obj.name for obj in objects)
+        self.assertIn(self.network_name, net_names)
+
+        # Fourth round - dry run with no filters, ensure everything identified
         self.conn.project_cleanup(
             dry_run=True,
             wait_timeout=120,
@@ -67,6 +104,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         net = self.conn.network.get_network(self.net.id)
         self.assertEqual(net.name, self.net.name)
 
+        # Last round - do a real cleanup
         self.conn.project_cleanup(
             dry_run=False,
             wait_timeout=600,
@@ -81,6 +119,3 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         # Since we might not have enough privs to drop all nets - ensure
         # we do not have our known one
         self.assertNotIn(self.network_name, net_names)
-
-    def test_cleanup(self):
-        self._test_cleanup()

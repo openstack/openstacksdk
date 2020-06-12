@@ -751,8 +751,14 @@ class _OpenStackCloudMixin:
         else:
             return False
 
-    def project_cleanup(self, dry_run=True,
-                        wait_timeout=120, status_queue=None):
+    def project_cleanup(
+        self,
+        dry_run=True,
+        wait_timeout=120,
+        status_queue=None,
+        filters=None,
+        resource_evaluation_fn=None
+    ):
         """Cleanup the project resources.
 
         Cleanup all resources in all services, which provide cleanup methods.
@@ -762,6 +768,12 @@ class _OpenStackCloudMixin:
             to comlete the cleanup.
         :param queue status_queue: a threading queue object used to get current
             process status. The queue contain processed resources.
+        :param dict filters: Additional filters for the cleanup (only resources
+            matching all filters will be deleted, if there are no other
+            dependencies).
+        :param resource_evaluation_fn: A callback function, which will be
+            invoked for each resurce and must return True/False depending on
+            whether resource need to be deleted or not.
         """
         dependencies = {}
         get_dep_fn_name = '_get_cleanup_dependencies'
@@ -771,9 +783,11 @@ class _OpenStackCloudMixin:
         for service in self.config.get_enabled_services():
             if hasattr(self, service):
                 proxy = getattr(self, service)
-                if (proxy
-                        and hasattr(proxy, get_dep_fn_name)
-                        and hasattr(proxy, cleanup_fn_name)):
+                if (
+                    proxy
+                    and hasattr(proxy, get_dep_fn_name)
+                    and hasattr(proxy, cleanup_fn_name)
+                ):
                     deps = getattr(proxy, get_dep_fn_name)()
                     if deps:
                         dependencies.update(deps)
@@ -783,6 +797,10 @@ class _OpenStackCloudMixin:
             for dep in v['before']:
                 dep_graph.add_node(dep)
                 dep_graph.add_edge(k, dep)
+            for dep in v.get('after', []):
+                dep_graph.add_edge(dep, k)
+
+        cleanup_resources = dict()
 
         for service in dep_graph.walk(timeout=wait_timeout):
             fn = None
@@ -790,11 +808,18 @@ class _OpenStackCloudMixin:
                 proxy = getattr(self, service)
                 cleanup_fn = getattr(proxy, cleanup_fn_name, None)
                 if cleanup_fn:
-                    fn = functools.partial(cleanup_fn, dry_run=dry_run,
-                                           status_queue=status_queue)
+                    fn = functools.partial(
+                        cleanup_fn,
+                        dry_run=dry_run,
+                        client_status_queue=status_queue,
+                        identified_resources=cleanup_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn
+                    )
             if fn:
-                self._pool_executor.submit(cleanup_task, dep_graph,
-                                           service, fn)
+                self._pool_executor.submit(
+                    cleanup_task, dep_graph, service, fn
+                )
             else:
                 dep_graph.node_done(service)
 
@@ -807,5 +832,10 @@ class _OpenStackCloudMixin:
 
 
 def cleanup_task(graph, service, fn):
-    fn()
-    graph.node_done(service)
+    try:
+        fn()
+    except Exception:
+        log = _log.setup_logging('openstack.project_cleanup')
+        log.exception('Error in the %s cleanup function' % service)
+    finally:
+        graph.node_done(service)
