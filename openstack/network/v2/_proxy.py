@@ -3150,6 +3150,7 @@ class Proxy(proxy.Proxy):
                            the resources being returned. Valid parameters are:
 
             * ``description``: Security group description
+            * ``ìd``: The id of a security group, or list of security group ids
             * ``name``: The name of a security group
             * ``project_id``: The ID of the project this security group is
                               associated with.

@@ -80,6 +80,7 @@ class TestSecurityGroup(base.TestCase):
         self.assertDictEqual({'any_tags': 'tags-any',
                               'description': 'description',
                               'fields': 'fields',
+                              'id': 'id',
                               'limit': 'limit',
                               'marker': 'marker',
                               'name': 'name',

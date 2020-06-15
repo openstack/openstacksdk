@@ -46,6 +46,10 @@ class TestSecurityGroup(base.BaseFunctionalTest):
         names = [o.name for o in self.conn.network.security_groups()]
         self.assertIn(self.NAME, names)
 
+    def test_list_query_list_of_ids(self):
+        ids = [o.id for o in self.conn.network.security_groups(id=[self.ID])]
+        self.assertIn(self.ID, ids)
+
     def test_set_tags(self):
         sot = self.conn.network.get_security_group(self.ID)
         self.assertEqual([], sot.tags)

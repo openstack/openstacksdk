@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    The ``id`` field was added a query parameter for security_groups. A single
+    security group id, or a list of security group ids can be passed. For
+    example::
+
+      conn.network.security_groups(id=['f959e85a-1a87-4b5c-ae56-dc917ceeb584',
+                                       'a55c0100-7ded-40af-9c61-1d1b9a9c2692'])
