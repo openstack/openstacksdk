@@ -1,0 +1,4 @@
+---
+upgrade:
+  - |
+    Python 3.5 is no longer supported.

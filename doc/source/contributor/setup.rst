@@ -34,15 +34,13 @@ as an administrator in some situations.::
 
 You can create a virtualenv in any location. A common usage is to store all
 of your virtualenvs in the same place, such as under your home directory.
-To create a virtualenv for the default Python, likely a version 2, run
-the following::
+To create a virtualenv for the default Python, run the following::
 
    $ virtualenv $HOME/envs/sdk
 
-To create an environment for a different version, such as Python 3, run
-the following::
+To create an environment for a different version, run the following::
 
-   $ virtualenv -p python3.5 $HOME/envs/sdk3
+   $ virtualenv -p python3.8 $HOME/envs/sdk3
 
 When you want to enable your environment so that you can develop inside of it,
 you *activate* it. To activate an environment, run the /bin/activate
