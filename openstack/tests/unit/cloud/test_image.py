@@ -22,6 +22,8 @@ from openstack.cloud import meta
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
+IMPORT_METHODS = 'glance-direct,web-download'
+
 
 class BaseTestImage(base.TestCase):
 
@@ -314,7 +316,7 @@ class TestImage(BaseTestImage):
             self.cloud.list_images())
         self.assert_calls()
 
-    def test_create_image_put_v2(self):
+    def test_create_image_put_v2_no_import(self):
         self.cloud.image_api_use_tasks = False
 
         self.register_uris([
@@ -377,6 +379,238 @@ class TestImage(BaseTestImage):
             self.image_name, self.imagefile.name, wait=True, timeout=1,
             tags=['tag1', 'tag2'],
             is_public=False, validate_checksum=True)
+
+        self.assert_calls()
+        self.assertEqual(self.adapter.request_history[7].text.read(),
+                         self.output)
+
+    def test_create_image_put_v2_import_supported(self):
+        self.cloud.image_api_use_tasks = False
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
+                 json={'images': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_image_dict,
+                 headers={
+                     'OpenStack-image-import-methods': IMPORT_METHODS,
+                 },
+                 validate=dict(
+                     json={
+                         u'container_format': u'bare',
+                         u'disk_format': u'qcow2',
+                         u'name': self.image_name,
+                         u'owner_specified.openstack.md5':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.md5'],
+                         u'owner_specified.openstack.object': self.object_name,
+                         u'owner_specified.openstack.sha256':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.sha256'],
+                         u'visibility': u'private',
+                         u'tags': [u'tag1', u'tag2']})
+                 ),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id, 'file'],
+                     base_url_append='v2'),
+                 request_headers={'Content-Type': 'application/octet-stream'}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.fake_image_dict['id']],
+                     base_url_append='v2'
+                 ),
+                 json=self.fake_image_dict),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 complete_qs=True,
+                 json=self.fake_search_return)
+        ])
+
+        self.cloud.create_image(
+            self.image_name, self.imagefile.name, wait=True, timeout=1,
+            tags=['tag1', 'tag2'],
+            is_public=False, validate_checksum=True)
+
+        self.assert_calls()
+        self.assertEqual(self.adapter.request_history[7].text.read(),
+                         self.output)
+
+    def test_create_image_use_import(self):
+        self.cloud.image_api_use_tasks = False
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
+                 json={'images': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_image_dict,
+                 headers={
+                     'OpenStack-image-import-methods': IMPORT_METHODS,
+                 },
+                 validate=dict(
+                     json={
+                         u'container_format': u'bare',
+                         u'disk_format': u'qcow2',
+                         u'name': self.image_name,
+                         u'owner_specified.openstack.md5':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.md5'],
+                         u'owner_specified.openstack.object': self.object_name,
+                         u'owner_specified.openstack.sha256':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.sha256'],
+                         u'visibility': u'private',
+                         u'tags': [u'tag1', u'tag2']})
+                 ),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id, 'stage'],
+                     base_url_append='v2'),
+                 request_headers={'Content-Type': 'application/octet-stream'}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id, 'import'],
+                     base_url_append='v2'),
+                 json={'method': {'name': 'glance-direct'}}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.fake_image_dict['id']],
+                     base_url_append='v2'
+                 ),
+                 json=self.fake_image_dict),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 complete_qs=True,
+                 json=self.fake_search_return)
+        ])
+
+        self.cloud.create_image(
+            self.image_name, self.imagefile.name, wait=True, timeout=1,
+            tags=['tag1', 'tag2'],
+            is_public=False, validate_checksum=True,
+            use_import=True,
+        )
+
+        self.assert_calls()
+        self.assertEqual(self.adapter.request_history[7].text.read(),
+                         self.output)
+
+    def test_create_image_import_fallback(self):
+        self.cloud.image_api_use_tasks = False
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_name],
+                     base_url_append='v2'),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['name=' + self.image_name]),
+                 validate=dict(),
+                 json={'images': []}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'],
+                     base_url_append='v2',
+                     qs_elements=['os_hidden=True']),
+                 json={'images': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 json=self.fake_image_dict,
+                 headers={
+                     'OpenStack-image-import-methods': IMPORT_METHODS,
+                 },
+                 validate=dict(
+                     json={
+                         u'container_format': u'bare',
+                         u'disk_format': u'qcow2',
+                         u'name': self.image_name,
+                         u'owner_specified.openstack.md5':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.md5'],
+                         u'owner_specified.openstack.object': self.object_name,
+                         u'owner_specified.openstack.sha256':
+                             self.fake_image_dict[
+                                 'owner_specified.openstack.sha256'],
+                         u'visibility': u'private',
+                         u'tags': [u'tag1', u'tag2']})
+                 ),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id, 'file'],
+                     base_url_append='v2'),
+                 request_headers={'Content-Type': 'application/octet-stream'},
+                 status_code=403),
+            dict(method='PUT',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id, 'stage'],
+                     base_url_append='v2'),
+                 request_headers={'Content-Type': 'application/octet-stream'}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.image_id, 'import'],
+                     base_url_append='v2'),
+                 json={'method': {'name': 'glance-direct'}}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images', self.fake_image_dict['id']],
+                     base_url_append='v2'
+                 ),
+                 json=self.fake_image_dict),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'image', append=['images'], base_url_append='v2'),
+                 complete_qs=True,
+                 json=self.fake_search_return)
+        ])
+
+        self.cloud.create_image(
+            self.image_name, self.imagefile.name, wait=True, timeout=1,
+            tags=['tag1', 'tag2'],
+            is_public=False, validate_checksum=True,
+        )
 
         self.assert_calls()
         self.assertEqual(self.adapter.request_history[7].text.read(),

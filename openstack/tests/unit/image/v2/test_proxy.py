@@ -132,7 +132,9 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                                               'd8262cd4f54963f0c93082d8dcf33'
                                               '4d4c78',
                 self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
-            timeout=3600, validate_checksum=True, wait=False)
+            timeout=3600, validate_checksum=True,
+            use_import=False,
+            wait=False)
 
     def test_image_create_validate_checksum_data_not_binary(self):
         self.assertRaises(
@@ -161,7 +163,9 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                 self.proxy._IMAGE_MD5_KEY: '',
                 self.proxy._IMAGE_SHA256_KEY: '',
                 self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
-            timeout=3600, validate_checksum=False, wait=False)
+            timeout=3600, validate_checksum=False,
+            use_import=False,
+            wait=False)
 
     def test_image_create_without_filename(self):
         self.proxy._create_image = mock.Mock()

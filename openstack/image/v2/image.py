@@ -276,8 +276,6 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
         if uri:
             if method == 'web-download':
                 json['method']['uri'] = uri
-            elif method == 'glance-direct':
-                json['method']['uri'] = uri
             else:
                 raise exceptions.InvalidRequest('URI is only supported with '
                                                 'method: "web-download"')
@@ -285,6 +283,14 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
         if store is not None:
             headers = {'X-Image-Meta-Store': store.id}
         session.post(url, json=json, headers=headers)
+
+    def _consume_header_attrs(self, attrs):
+        self.image_import_methods = []
+        _image_import_methods = attrs.pop('OpenStack-image-import-methods', '')
+        if _image_import_methods:
+            self.image_import_methods = _image_import_methods.split(',')
+
+        return super()._consume_header_attrs(attrs)
 
     def _prepare_request(self, requires_id=None, prepend_key=False,
                          patch=False, base_path=None, **kwargs):
