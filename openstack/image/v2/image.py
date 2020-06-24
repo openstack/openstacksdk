@@ -269,8 +269,22 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
         return self
 
     def import_image(self, session, method='glance-direct', uri=None,
-                     store=None):
+                     store=None, stores=None, all_stores=None,
+                     all_stores_must_succeed=None):
         """Import Image via interoperable image import process"""
+        if all_stores and (store or stores):
+            raise exceptions.InvalidRequest(
+                "all_stores is mutually exclusive with"
+                " store and stores")
+        if store and stores:
+            raise exceptions.InvalidRequest(
+                "store and stores are mutually exclusive."
+                " Please just use stores.")
+        if store:
+            stores = [store]
+        else:
+            stores = stores or []
+
         url = utils.urljoin(self.base_path, self.id, 'import')
         json = {'method': {'name': method}}
         if uri:
@@ -279,7 +293,16 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
             else:
                 raise exceptions.InvalidRequest('URI is only supported with '
                                                 'method: "web-download"')
+        if all_stores is not None:
+            json['all_stores'] = all_stores
+        if all_stores_must_succeed is not None:
+            json['all_stores_must_succeed'] = all_stores_must_succeed
+        for s in stores:
+            json.setdefault('stores', [])
+            json['stores'].append(s.id)
+
         headers = {}
+        # Backward compat
         if store is not None:
             headers = {'X-Image-Meta-Store': store.id}
         session.post(url, json=json, headers=headers)

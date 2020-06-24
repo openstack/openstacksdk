@@ -33,16 +33,20 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
     _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 
     def create_image(
-            self, name, filename=None,
-            container=None,
-            md5=None, sha256=None,
-            disk_format=None, container_format=None,
-            disable_vendor_agent=True,
-            allow_duplicates=False, meta=None,
-            wait=False, timeout=3600,
-            data=None, validate_checksum=False,
-            use_import=False,
-            **kwargs):
+        self, name, filename=None,
+        container=None,
+        md5=None, sha256=None,
+        disk_format=None, container_format=None,
+        disable_vendor_agent=True,
+        allow_duplicates=False, meta=None,
+        wait=False, timeout=3600,
+        data=None, validate_checksum=False,
+        use_import=False,
+        stores=None,
+        all_stores=None,
+        all_stores_must_succeed=None,
+        **kwargs,
+    ):
         """Upload an image.
 
         :param str name: Name of the image to create. If it is a pathname
@@ -84,6 +88,26 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
             the target cloud so should only be used when needed, such as when
             the user needs the cloud to transform image format. If the cloud
             has disabled direct uploads, this will default to true.
+        :param stores:
+            List of stores to be used when enabled_backends is activated
+            in glance. List values can be the id of a store or a
+            :class:`~openstack.image.v2.service_info.Store` instance.
+            Implies ``use_import`` equals ``True``.
+        :param all_stores:
+            Upload to all available stores. Mutually exclusive with
+            ``store`` and ``stores``.
+            Implies ``use_import`` equals ``True``.
+        :param all_stores_must_succeed:
+            When set to True, if an error occurs during the upload in at
+            least one store, the worfklow fails, the data is deleted
+            from stores where copying is done (not staging), and the
+            state of the image is unchanged. When set to False, the
+            workflow will fail (data deleted from stores, …) only if the
+            import fails on all stores specified by the user. In case of
+            a partial success, the locations added to the image will be
+            the stores where the data has been correctly uploaded.
+            Default is True.
+            Implies ``use_import`` equals ``True``.
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image and will have all values converted to string
@@ -177,6 +201,9 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
                 wait=wait, timeout=timeout,
                 validate_checksum=validate_checksum,
                 use_import=use_import,
+                stores=stores,
+                all_stores=stores,
+                all_stores_must_succeed=stores,
                 **image_kwargs)
         else:
             image_kwargs['name'] = name
@@ -189,9 +216,14 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def _upload_image(self, name, filename, data, meta, wait, timeout,
-                      validate_checksum=True, use_import=False,
-                      **image_kwargs):
+    def _upload_image(
+        self, name, filename, data, meta, wait, timeout,
+        validate_checksum=True, use_import=False,
+        stores=None,
+        all_stores=None,
+        all_stores_must_succeed=None,
+        **image_kwargs
+    ):
         pass
 
     @abc.abstractmethod

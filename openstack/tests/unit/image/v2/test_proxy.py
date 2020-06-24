@@ -53,11 +53,18 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
 
     def test_image_import(self):
         original_image = image.Image(**EXAMPLE)
-        self._verify("openstack.image.v2.image.Image.import_image",
-                     self.proxy.import_image,
-                     method_args=[original_image, "method", "uri"],
-                     expected_kwargs={"method": "method", "store": None,
-                                      "uri": "uri"})
+        self._verify(
+            "openstack.image.v2.image.Image.import_image",
+            self.proxy.import_image,
+            method_args=[original_image, "method", "uri"],
+            expected_kwargs={
+                "method": "method",
+                "store": None,
+                "uri": "uri",
+                "stores": [],
+                "all_stores": None,
+                "all_stores_must_succeed": None,
+            })
 
     def test_image_create_conflict(self):
         self.assertRaises(
@@ -134,6 +141,9 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                 self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
             timeout=3600, validate_checksum=True,
             use_import=False,
+            stores=None,
+            all_stores=None,
+            all_stores_must_succeed=None,
             wait=False)
 
     def test_image_create_validate_checksum_data_not_binary(self):
@@ -165,6 +175,9 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                 self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
             timeout=3600, validate_checksum=False,
             use_import=False,
+            stores=None,
+            all_stores=None,
+            all_stores_must_succeed=None,
             wait=False)
 
     def test_image_create_without_filename(self):
