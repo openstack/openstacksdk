@@ -10,3 +10,4 @@ Baremetal Resources
    v1/port
    v1/port_group
    v1/allocation
+   v1/volume_connector

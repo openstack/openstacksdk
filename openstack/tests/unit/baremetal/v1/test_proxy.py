@@ -19,6 +19,7 @@ from openstack.baremetal.v1 import driver
 from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
 from openstack.baremetal.v1 import port_group
+from openstack.baremetal.v1 import volume_connector
 from openstack import exceptions
 from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
@@ -178,6 +179,30 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
 
     def test_delete_allocation_ignore(self):
         self.verify_delete(self.proxy.delete_allocation, allocation.Allocation,
+                           True)
+
+    def test_create_volume_connector(self):
+        self.verify_create(self.proxy.create_volume_connector,
+                           volume_connector.VolumeConnector)
+
+    def test_find_volume_connector(self):
+        self.verify_find(self.proxy.find_volume_connector,
+                         volume_connector.VolumeConnector)
+
+    def test_get_volume_connector(self):
+        self.verify_get(self.proxy.get_volume_connector,
+                        volume_connector.VolumeConnector,
+                        mock_method=_MOCK_METHOD,
+                        expected_kwargs={'fields': None})
+
+    def test_delete_volume_connector(self):
+        self.verify_delete(self.proxy.delete_volume_connector,
+                           volume_connector.VolumeConnector,
+                           False)
+
+    def test_delete_volume_connector_ignore(self):
+        self.verify_delete(self.proxy.delete_volume_connector,
+                           volume_connector.VolumeConnector,
                            True)
 
     @mock.patch.object(node.Node, 'fetch', autospec=True)

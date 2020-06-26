@@ -62,3 +62,14 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
             lambda: self.conn.baremetal.delete_port_group(port_group.id,
                                                           ignore_missing=True))
         return port_group
+
+    def create_volume_connector(self, node_id=None, **kwargs):
+        node_id = node_id or self.node_id
+        volume_connector = self.conn.baremetal.create_volume_connector(
+            node_uuid=node_id, **kwargs)
+
+        self.addCleanup(
+            lambda:
+            self.conn.baremetal.delete_volume_connector(volume_connector.id,
+                                                        ignore_missing=True))
+        return volume_connector
