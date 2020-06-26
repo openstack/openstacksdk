@@ -180,7 +180,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
 
     def test_file_segment(self):
         file_size = 4200
-        content = ''.join(random.SystemRandom().choice(
+        content = ''.join(random.choice(
             string.ascii_uppercase + string.digits)
             for _ in range(file_size)).encode('latin-1')
         self.imagefile = tempfile.NamedTemporaryFile(delete=False)
