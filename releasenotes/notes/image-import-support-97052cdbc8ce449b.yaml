@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added support for using the image import feature when creating an
+    image. SDK will now fall back to using image import if there is an
+    error during PUT.

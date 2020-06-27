@@ -12,6 +12,7 @@
 import warnings
 
 from openstack.cloud import exc
+from openstack import exceptions
 from openstack.image import _base_proxy
 from openstack.image.v1 import image as _image
 
@@ -42,7 +43,13 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._create(_image.Image, **attrs)
 
     def _upload_image(
-            self, name, filename, data, meta, wait, timeout, **image_kwargs):
+        self, name, filename, data, meta, wait, timeout,
+        use_import=False,
+        **image_kwargs,
+    ):
+        if use_import:
+            raise exceptions.SDKException(
+                "Glance v1 does not support image import")
         # NOTE(mordred) wait and timeout parameters are unused, but
         # are present for ease at calling site.
         if filename and not data:

@@ -150,6 +150,7 @@ class Proxy(_base_proxy.BaseImageProxy):
 
     def _upload_image(self, name, filename=None, data=None, meta=None,
                       wait=False, timeout=None, validate_checksum=True,
+                      use_import=False,
                       **kwargs):
         # We can never have nice things. Glance v1 took "is_public" as a
         # boolean. Glance v2 takes "visibility". If the user gives us
@@ -165,6 +166,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         try:
             # This makes me want to die inside
             if self._connection.image_api_use_tasks:
+                if use_import:
+                    raise exceptions.SDKException(
+                        "The Glance Task API and Import API are"
+                        " mutually exclusive. Either disable"
+                        " image_api_use_tasks in config, or"
+                        " do not request using import")
                 return self._upload_image_task(
                     name, filename, data=data, meta=meta,
                     wait=wait, timeout=timeout, **kwargs)
@@ -172,6 +179,7 @@ class Proxy(_base_proxy.BaseImageProxy):
                 return self._upload_image_put(
                     name, filename, data=data, meta=meta,
                     validate_checksum=validate_checksum,
+                    use_import=use_import,
                     **kwargs)
         except exceptions.SDKException:
             self.log.debug("Image creation failed", exc_info=True)
@@ -196,8 +204,10 @@ class Proxy(_base_proxy.BaseImageProxy):
         return ret
 
     def _upload_image_put(
-            self, name, filename, data, meta,
-            validate_checksum, **image_kwargs):
+        self, name, filename, data, meta,
+        validate_checksum, use_import=False,
+        **image_kwargs,
+    ):
         if filename and not data:
             image_data = open(filename, 'rb')
         else:
@@ -211,10 +221,28 @@ class Proxy(_base_proxy.BaseImageProxy):
         image = self._create(_image.Image, **image_kwargs)
 
         image.data = image_data
+        supports_import = (
+            image.image_import_methods
+            and 'glance-direct' in image.image_import_methods
+        )
+        if use_import and not supports_import:
+            raise exceptions.SDKException(
+                "Importing image was requested but the cloud does not"
+                " support the image import method.")
 
         try:
-            response = image.upload(self)
-            exceptions.raise_from_response(response)
+            if not use_import:
+                try:
+                    response = image.upload(self)
+                    exceptions.raise_from_response(response)
+                except Exception:
+                    if not supports_import:
+                        raise
+                    use_import = True
+            if use_import:
+                image.stage(self)
+                image.import_image(self)
+
             # image_kwargs are flat here
             md5 = image_kwargs.get(self._IMAGE_MD5_KEY)
             sha256 = image_kwargs.get(self._IMAGE_SHA256_KEY)

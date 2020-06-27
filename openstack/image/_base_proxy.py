@@ -41,6 +41,7 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
             allow_duplicates=False, meta=None,
             wait=False, timeout=3600,
             data=None, validate_checksum=False,
+            use_import=False,
             **kwargs):
         """Upload an image.
 
@@ -78,6 +79,11 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
             compares return value with the one calculated or passed into this
             call. If value does not match - raises exception. Default is
             'false'
+        :param bool use_import: Use the interoperable image import mechanism
+            to import the image. This defaults to false because it is harder on
+            the target cloud so should only be used when needed, such as when
+            the user needs the cloud to transform image format. If the cloud
+            has disabled direct uploads, this will default to true.
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image and will have all values converted to string
@@ -170,6 +176,7 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
                 name, filename=filename, data=data, meta=meta,
                 wait=wait, timeout=timeout,
                 validate_checksum=validate_checksum,
+                use_import=use_import,
                 **image_kwargs)
         else:
             image_kwargs['name'] = name
@@ -183,7 +190,7 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _upload_image(self, name, filename, data, meta, wait, timeout,
-                      validate_checksum=True,
+                      validate_checksum=True, use_import=False,
                       **image_kwargs):
         pass
 
