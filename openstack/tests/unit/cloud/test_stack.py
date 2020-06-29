@@ -183,9 +183,66 @@ class TestStack(base.TestCase):
             self.cloud.delete_stack(self.stack_id)
         self.assert_calls()
 
-    def test_delete_stack_wait(self):
+    def test_delete_stack_by_name_wait(self):
         marker_event = fakes.make_fake_stack_event(
-            self.stack_id, self.stack_name, status='CREATE_COMPLETE')
+            self.stack_id, self.stack_name, status='CREATE_COMPLETE',
+            resource_name='name')
+        marker_qs = 'marker={e_id}&sort_dir=asc'.format(
+            e_id=marker_event['id'])
+        resolve = 'resolve_outputs=False'
+        self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}?{resolve}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     name=self.stack_name,
+                     resolve=resolve),
+                 status_code=302,
+                 headers=dict(
+                     location='{endpoint}/stacks/{name}/{id}?{resolve}'.format(
+                         endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                         id=self.stack_id, name=self.stack_name,
+                         resolve=resolve))),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/{id}?{resolve}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name, resolve=resolve),
+                 json={"stack": self.stack}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/events?{qs}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     name=self.stack_name,
+                     qs='limit=1&sort_dir=desc'),
+                 complete_qs=True,
+                 json={"events": [marker_event]}),
+            dict(method='DELETE',
+                 uri='{endpoint}/stacks/{id}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id)),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}/events?{qs}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     name=self.stack_name,
+                     qs=marker_qs),
+                 complete_qs=True,
+                 json={"events": [
+                     fakes.make_fake_stack_event(
+                         self.stack_id, self.stack_name,
+                         status='DELETE_COMPLETE', resource_name='name'),
+                 ]}),
+            dict(method='GET',
+                 uri='{endpoint}/stacks/{name}?{resolve}'.format(
+                     endpoint=fakes.ORCHESTRATION_ENDPOINT,
+                     id=self.stack_id, name=self.stack_name, resolve=resolve),
+                 status_code=404),
+        ])
+
+        self.assertTrue(self.cloud.delete_stack(self.stack_name, wait=True))
+        self.assert_calls()
+
+    def test_delete_stack_by_id_wait(self):
+        marker_event = fakes.make_fake_stack_event(
+            self.stack_id, self.stack_name, status='CREATE_COMPLETE',
+            resource_name='name')
         marker_qs = 'marker={e_id}&sort_dir=asc'.format(
             e_id=marker_event['id'])
         resolve = 'resolve_outputs=False'

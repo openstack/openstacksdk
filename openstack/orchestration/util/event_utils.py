@@ -60,7 +60,8 @@ def poll_for_events(
     msg_template = "\n Stack %(name)s %(status)s \n"
 
     def is_stack_event(event):
-        if event.get('resource_name', '') != stack_name:
+        if (event.get('resource_name', '') != stack_name
+                and event.get('physical_resource_id', '') != stack_name):
             return False
 
         phys_id = event.get('physical_resource_id', '')
