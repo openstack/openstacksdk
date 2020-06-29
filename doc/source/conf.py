@@ -26,7 +26,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'openstackdocstheme',
     'sphinxcontrib.rsvgconverter',
-    'enforcer'
 ]
 
 # openstackdocstheme options
@@ -34,11 +33,6 @@ openstackdocs_repo_name = 'openstack/openstacksdk'
 openstackdocs_pdf_link = True
 openstackdocs_use_storyboard = True
 html_theme = 'openstackdocs'
-
-# TODO(shade) Set this to true once the build-openstack-sphinx-docs job is
-# updated to use sphinx-build.
-# When True, this will raise an exception that kills sphinx-build.
-enforcer_warnings_as_errors = False
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
