@@ -297,3 +297,6 @@ class TinyDAG:
 
     def size(self):
         return len(self._graph.keys())
+
+    def is_complete(self):
+        return len(self._done) == self.size()
