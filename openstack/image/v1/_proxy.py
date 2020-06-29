@@ -45,11 +45,17 @@ class Proxy(_base_proxy.BaseImageProxy):
     def _upload_image(
         self, name, filename, data, meta, wait, timeout,
         use_import=False,
+        stores=None,
+        all_stores=None,
+        all_stores_must_succeed=None,
         **image_kwargs,
     ):
         if use_import:
-            raise exceptions.SDKException(
+            raise exceptions.InvalidRequest(
                 "Glance v1 does not support image import")
+        if stores or all_stores or all_stores_must_succeed:
+            raise exceptions.InvalidRequest(
+                "Glance v1 does not support stores")
         # NOTE(mordred) wait and timeout parameters are unused, but
         # are present for ease at calling site.
         if filename and not data:

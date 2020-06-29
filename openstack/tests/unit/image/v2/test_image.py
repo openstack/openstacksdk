@@ -277,9 +277,15 @@ class TestImage(base.TestCase):
             json={"method": {"name": "glance-direct"}}
         )
 
-    def test_import_image_with_stores(self):
+    def test_import_image_with_store(self):
         sot = image.Image(**EXAMPLE)
-        json = {"method": {"name": "web-download", "uri": "such-a-good-uri"}}
+        json = {
+            "method": {
+                "name": "web-download",
+                "uri": "such-a-good-uri",
+            },
+            "stores": ["ceph_1"],
+        }
         store = mock.MagicMock()
         store.id = "ceph_1"
         sot.import_image(self.sess, "web-download", "such-a-good-uri", store)
@@ -287,6 +293,50 @@ class TestImage(base.TestCase):
             'images/IDENTIFIER/import',
             headers={'X-Image-Meta-Store': 'ceph_1'},
             json=json
+        )
+
+    def test_import_image_with_stores(self):
+        sot = image.Image(**EXAMPLE)
+        json = {
+            "method": {
+                "name": "web-download",
+                "uri": "such-a-good-uri",
+            },
+            "stores": ["ceph_1"],
+        }
+        store = mock.MagicMock()
+        store.id = "ceph_1"
+        sot.import_image(
+            self.sess,
+            "web-download",
+            "such-a-good-uri",
+            stores=[store],
+        )
+        self.sess.post.assert_called_with(
+            'images/IDENTIFIER/import',
+            headers={},
+            json=json,
+        )
+
+    def test_import_image_with_all_stores(self):
+        sot = image.Image(**EXAMPLE)
+        json = {
+            "method": {
+                "name": "web-download",
+                "uri": "such-a-good-uri",
+            },
+            "all_stores": True,
+        }
+        sot.import_image(
+            self.sess,
+            "web-download",
+            "such-a-good-uri",
+            all_stores=True,
+        )
+        self.sess.post.assert_called_with(
+            'images/IDENTIFIER/import',
+            headers={},
+            json=json,
         )
 
     def test_upload(self):

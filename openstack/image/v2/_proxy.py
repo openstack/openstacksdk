@@ -36,8 +36,13 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         return self._create(_image.Image, **kwargs)
 
-    def import_image(self, image, method='glance-direct', uri=None,
-                     store=None):
+    def import_image(
+        self, image, method='glance-direct', uri=None,
+        store=None,
+        stores=None,
+        all_stores=None,
+        all_stores_must_succeed=None,
+    ):
         """Import data to an existing image
 
         Interoperable image import process are introduced in the Image API
@@ -45,23 +50,56 @@ class Proxy(_base_proxy.BaseImageProxy):
         Image Service download it by itself without sending binary data at
         image creation.
 
-        :param image: The value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
-        :param method: Method to use for importing the image.
-                       A valid value is glance-direct or web-download.
-        :param uri: Required only if using the web-download import method.
-                    This url is where the data is made available to the Image
-                    service.
-        :param store: Used when enabled_backends is activated in glance
-                      The value can be the id of a store or a
-                      :class:`~openstack.image.v2.service_info.Store`
-                      instance.
+        :param image:
+            The value can be the ID of a image or a
+            :class:`~openstack.image.v2.image.Image` instance.
+        :param method:
+            Method to use for importing the image.
+            A valid value is glance-direct or web-download.
+        :param uri:
+            Required only if using the web-download import method.
+            This url is where the data is made available to the Image
+            service.
+        :param store:
+            Used when enabled_backends is activated in glance. The value
+            can be the id of a store or a
+            :class:`~openstack.image.v2.service_info.Store` instance.
+        :param stores:
+            List of stores to be used when enabled_backends is activated
+            in glance. List values can be the id of a store or a
+            :class:`~openstack.image.v2.service_info.Store` instance.
+        :param all_stores:
+            Upload to all available stores. Mutually exclusive with
+            ``store`` and ``stores``.
+        :param all_stores_must_succeed:
+            When set to True, if an error occurs during the upload in at
+            least one store, the worfklow fails, the data is deleted
+            from stores where copying is done (not staging), and the
+            state of the image is unchanged. When set to False, the
+            workflow will fail (data deleted from stores, …) only if the
+            import fails on all stores specified by the user. In case of
+            a partial success, the locations added to the image will be
+            the stores where the data has been correctly uploaded.
+            Default is True.
 
         :returns: None
         """
         image = self._get_resource(_image.Image, image)
+        if all_stores and (store or stores):
+            raise exceptions.InvalidRequest(
+                "all_stores is mutually exclusive with"
+                " store and stores")
         if store is not None:
+            if stores:
+                raise exceptions.InvalidRequest(
+                    "store and stores are mutually exclusive")
             store = self._get_resource(_si.Store, store)
+
+        stores = stores or []
+        new_stores = []
+        for s in stores:
+            new_stores.append(self._get_resource(_si.Store, s))
+        stores = new_stores
 
         # as for the standard image upload function, container_format and
         # disk_format are required for using image import process
@@ -70,7 +108,13 @@ class Proxy(_base_proxy.BaseImageProxy):
                 "Both container_format and disk_format are required for"
                 " importing an image")
 
-        image.import_image(self, method=method, uri=uri, store=store)
+        image.import_image(
+            self, method=method, uri=uri,
+            store=store,
+            stores=stores,
+            all_stores=all_stores,
+            all_stores_must_succeed=all_stores_must_succeed,
+        )
 
     def stage_image(self, image, filename=None, data=None):
         """Stage binary image data
@@ -148,10 +192,15 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         return img
 
-    def _upload_image(self, name, filename=None, data=None, meta=None,
-                      wait=False, timeout=None, validate_checksum=True,
-                      use_import=False,
-                      **kwargs):
+    def _upload_image(
+        self, name, filename=None, data=None, meta=None,
+        wait=False, timeout=None, validate_checksum=True,
+        use_import=False,
+        stores=None,
+        all_stores=None,
+        all_stores_must_succeed=None,
+        **kwargs
+    ):
         # We can never have nice things. Glance v1 took "is_public" as a
         # boolean. Glance v2 takes "visibility". If the user gives us
         # is_public, we know what they mean. If they give us visibility, they
@@ -180,6 +229,9 @@ class Proxy(_base_proxy.BaseImageProxy):
                     name, filename, data=data, meta=meta,
                     validate_checksum=validate_checksum,
                     use_import=use_import,
+                    stores=stores,
+                    all_stores=all_stores,
+                    all_stores_must_succeed=all_stores_must_succeed,
                     **kwargs)
         except exceptions.SDKException:
             self.log.debug("Image creation failed", exc_info=True)
@@ -206,6 +258,9 @@ class Proxy(_base_proxy.BaseImageProxy):
     def _upload_image_put(
         self, name, filename, data, meta,
         validate_checksum, use_import=False,
+        stores=None,
+        all_stores=None,
+        all_stores_must_succeed=None,
         **image_kwargs,
     ):
         if filename and not data:
@@ -225,6 +280,8 @@ class Proxy(_base_proxy.BaseImageProxy):
             image.image_import_methods
             and 'glance-direct' in image.image_import_methods
         )
+        if stores or all_stores or all_stores_must_succeed:
+            use_import = True
         if use_import and not supports_import:
             raise exceptions.SDKException(
                 "Importing image was requested but the cloud does not"
