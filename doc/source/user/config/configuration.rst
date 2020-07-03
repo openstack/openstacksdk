@@ -254,18 +254,22 @@ are connecting to OpenStack can share a cache should you desire.
 IPv6
 ----
 
-IPv6 is the future, and you should always use it if your cloud supports it and
-if your local network supports it. Both of those are easily detectable and all
-friendly software should do the right thing. However, sometimes you might
-exist in a location where you have an IPv6 stack, but something evil has
-caused it to not actually function. In that case, there is a config option
-you can set to unbreak you `force_ipv4`, or `OS_FORCE_IPV4` boolean
-environment variable.
+IPv6 is the future, and you should always use it if your cloud
+supports it and if your local network supports it. Both of those are
+easily detectable and all friendly software should do the right thing.
+
+However, sometimes a cloud API may return IPv6 information that is not
+useful to a production deployment.  For example, the API may provide
+an IPv6 address for a server, but not provide that to the host
+instance via metadata (configdrive) or standard IPv6 autoconfiguration
+methods (i.e. the host either needs to make a bespoke API call, or
+otherwise statically configure itself).
+
+For such situations, you can set the ``force_ipv4``, or ``OS_FORCE_IPV4``
+boolean environment variable.  For example:
 
 .. code-block:: yaml
 
-  client:
-    force_ipv4: true
   clouds:
     mtvexx:
       profile: vexxhost
@@ -276,15 +280,24 @@ environment variable.
       region_name: ca-ymq-1
       dns_api_version: 1
     monty:
-      profile: rax
+      profile: fooprovider
+      force_ipv4: true
       auth:
         username: mordred@inaugust.com
         password: XXXXXXXXX
         project_name: mordred@inaugust.com
-      region_name: DFW
+      region_name: RegionFoo
 
-The above snippet will tell client programs to prefer returning an IPv4
-address.
+The above snippet will tell client programs to prefer the IPv4 address
+and leave the ``public_v6`` field of the `Server` object blank for the
+``fooprovider`` cloud .  You can also set this with a client flag for
+all clouds:
+
+.. code-block:: yaml
+
+  client:
+    force_ipv4: true
+
 
 Per-region settings
 -------------------

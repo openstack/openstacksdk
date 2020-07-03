@@ -1018,6 +1018,7 @@ class TestMeta(base.TestCase):
         hostvars = meta.get_hostvars_from_server(
             fake_cloud, meta.obj_to_munch(standard_fake_server))
         self.assertEqual(PUBLIC_V4, hostvars['interface_ip'])
+        self.assertEqual('', hostvars['public_v6'])
 
     @mock.patch.object(meta, 'get_server_external_ipv4')
     def test_private_interface_ip(self, mock_get_server_external_ipv4):

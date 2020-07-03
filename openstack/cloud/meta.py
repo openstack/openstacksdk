@@ -280,6 +280,7 @@ def get_server_external_ipv6(server):
     :param server: the server from which we want to get an IPv6 address
     :return: a string containing the IPv6 address or None
     """
+    # Don't return ipv6 interfaces if forcing IPv4
     if server['accessIPv6']:
         return server['accessIPv6']
     addresses = find_nova_addresses(addresses=server['addresses'], version=6)
@@ -448,7 +449,12 @@ def add_server_interfaces(cloud, server):
     # not exist to remain consistent with the pre-existing missing values
     server['addresses'] = _get_supplemental_addresses(cloud, server)
     server['public_v4'] = get_server_external_ipv4(cloud, server) or ''
-    server['public_v6'] = get_server_external_ipv6(server) or ''
+    # If we're forcing IPv4, then don't report IPv6 interfaces which
+    # are likely to be unconfigured.
+    if cloud.force_ipv4:
+        server['public_v6'] = ''
+    else:
+        server['public_v6'] = get_server_external_ipv6(server) or ''
     server['private_v4'] = get_server_private_ip(server, cloud) or ''
     server['interface_ip'] = _get_interface_ip(cloud, server) or ''
 
