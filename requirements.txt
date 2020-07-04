@@ -17,3 +17,5 @@ netifaces>=0.10.4 # MIT
 
 dogpile.cache>=0.6.5 # BSD
 cryptography>=2.1 # BSD/Apache-2.0
+
+importlib_metadata>=1.7.0;python_version<'3.8' # Apache-2.0

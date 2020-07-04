@@ -179,6 +179,13 @@ Additional information about the services can be found in the
 import warnings
 import weakref
 
+try:
+    # For python 3.8 and later
+    import importlib.metadata as importlib_metadata
+except ImportError:
+    # For everyone else
+    import importlib_metadata
+
 import concurrent.futures
 import keystoneauth1.exceptions
 import requestsexceptions
@@ -423,15 +430,17 @@ class Connection(
                     (package_name, function) = vendor_hook.rsplit(':')
 
                     if package_name and function:
-                        import pkg_resources
-                        ep = pkg_resources.EntryPoint(
-                            'vendor_hook', package_name, attrs=(function,))
-                        hook = ep.resolve()
+                        ep = importlib_metadata.EntryPoint(
+                            name='vendor_hook',
+                            value=vendor_hook,
+                            group='vendor_hook',
+                        )
+                        hook = ep.load()
                         hook(self)
                 except ValueError:
                     self.log.warning('Hook should be in the entrypoint '
                                      'module:attribute format')
-            except (ImportError, TypeError) as e:
+            except (ImportError, TypeError, AttributeError) as e:
                 self.log.warning('Configured hook %s cannot be executed: %s',
                                  vendor_hook, e)
 
