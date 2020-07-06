@@ -156,7 +156,8 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
         else:
             current_image = self.find_image(name)
             if current_image:
-                props = current_image.get('properties', {})
+                # NOTE(pas-ha) 'properties' may be absent or be None
+                props = current_image.get('properties') or {}
                 md5_key = props.get(
                     self._IMAGE_MD5_KEY,
                     props.get(self._SHADE_IMAGE_MD5_KEY, ''))
