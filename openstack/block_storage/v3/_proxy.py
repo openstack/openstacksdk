@@ -35,6 +35,21 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_snapshot.Snapshot, snapshot)
 
+    def find_snapshot(self, name_or_id, ignore_missing=True, **attrs):
+        """Find a single snapshot
+
+        :param snapshot: The name or ID a snapshot
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the snapshot does not exist.
+
+        :returns: One :class:`~openstack.volume.v3.snapshot.Snapshot`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._find(_snapshot.Snapshot, name_or_id,
+                          ignore_missing=ignore_missing)
+
     def snapshots(self, details=True, **query):
         """Retrieve a generator of snapshots
 
@@ -98,6 +113,21 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_type.Type, type)
 
+    def find_type(self, name_or_id, ignore_missing=True, **attrs):
+        """Find a single volume type
+
+        :param snapshot: The name or ID a volume type
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the type does not exist.
+
+        :returns: One :class:`~openstack.volume.v3.type.Type`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._find(_type.Type, name_or_id,
+                          ignore_missing=ignore_missing)
+
     def types(self, **query):
         """Retrieve a generator of volume types
 
@@ -143,6 +173,21 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                  when no resource can be found.
         """
         return self._get(_volume.Volume, volume)
+
+    def find_volume(self, name_or_id, ignore_missing=True, **attrs):
+        """Find a single volume
+
+        :param snapshot: The name or ID a volume
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the volume does not exist.
+
+        :returns: One :class:`~openstack.volume.v3.volume.Volume`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._find(_volume.Volume, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def volumes(self, details=True, **query):
         """Retrieve a generator of volumes
@@ -254,6 +299,25 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 'Object-store service is required for block-store backups'
             )
         return self._get(_backup.Backup, backup)
+
+    def find_backup(self, name_or_id, ignore_missing=True, **attrs):
+        """Find a single backup
+
+        :param snapshot: The name or ID a backup
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the backup does not exist.
+
+        :returns: One :class:`~openstack.volume.v3.backup.Backup`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        if not self._connection.has_service('object-store'):
+            raise exceptions.SDKException(
+                'Object-store service is required for block-store backups'
+            )
+        return self._find(_backup.Backup, name_or_id,
+                          ignore_missing=ignore_missing)
 
     def create_backup(self, **attrs):
         """Create a new Backup from attributes with native API

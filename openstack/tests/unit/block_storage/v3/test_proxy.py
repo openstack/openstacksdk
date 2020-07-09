@@ -30,6 +30,9 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_snapshot_get(self):
         self.verify_get(self.proxy.get_snapshot, snapshot.Snapshot)
 
+    def test_snapshot_find(self):
+        self.verify_find(self.proxy.find_snapshot, snapshot.Snapshot)
+
     def test_snapshots_detailed(self):
         self.verify_list(self.proxy.snapshots, snapshot.SnapshotDetail,
                          method_kwargs={"details": True, "query": 1},
@@ -54,6 +57,9 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_type_get(self):
         self.verify_get(self.proxy.get_type, type.Type)
 
+    def test_type_find(self):
+        self.verify_find(self.proxy.find_type, type.Type)
+
     def test_types(self):
         self.verify_list(self.proxy.types, type.Type)
 
@@ -68,6 +74,9 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_volume_get(self):
         self.verify_get(self.proxy.get_volume, volume.Volume)
+
+    def test_volume_find(self):
+        self.verify_find(self.proxy.find_volume, volume.Volume)
 
     def test_volumes_detailed(self):
         self.verify_list(self.proxy.volumes, volume.Volume,
@@ -120,6 +129,12 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
         self.verify_get(self.proxy.get_backup, backup.Backup)
+
+    def test_backup_find(self):
+        # NOTE: mock has_service
+        self.proxy._connection = mock.Mock()
+        self.proxy._connection.has_service = mock.Mock(return_value=True)
+        self.verify_find(self.proxy.find_backup, backup.Backup)
 
     def test_backup_delete(self):
         # NOTE: mock has_service
