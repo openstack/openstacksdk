@@ -44,9 +44,11 @@ def setup_logging(name, handlers=None, level=None):
 
 
 def enable_logging(
-        debug=False, http_debug=False, path=None, stream=None,
-        format_stream=False,
-        format_template='%(asctime)s %(levelname)s: %(name)s %(message)s'):
+    debug=False, http_debug=False, path=None, stream=None,
+    format_stream=False,
+    format_template='%(asctime)s %(levelname)s: %(name)s %(message)s',
+    handlers=None,
+):
     """Enable logging output.
 
     Helper function to enable logging. This function is available for
@@ -90,18 +92,23 @@ def enable_logging(
 
     formatter = logging.Formatter(format_template)
 
-    handlers = []
+    if handlers:
+        for handler in handlers:
+            handler.setFormatter(formatter)
 
-    if stream is not None:
-        console = logging.StreamHandler(stream)
-        if format_stream:
-            console.setFormatter(formatter)
-        handlers.append(console)
+    else:
+        handlers = []
 
-    if path is not None:
-        file_handler = logging.FileHandler(path)
-        file_handler.setFormatter(formatter)
-        handlers.append(file_handler)
+        if stream is not None:
+            console = logging.StreamHandler(stream)
+            if format_stream:
+                console.setFormatter(formatter)
+            handlers.append(console)
+
+        if path is not None:
+            file_handler = logging.FileHandler(path)
+            file_handler.setFormatter(formatter)
+            handlers.append(file_handler)
 
     setup_logging('openstack', handlers=handlers, level=level)
     setup_logging('keystoneauth', handlers=handlers, level=level)
