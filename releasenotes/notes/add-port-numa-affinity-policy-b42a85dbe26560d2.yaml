@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add ``numa_affinity_policy`` attribute to ``port`` resource. Users
+    can set this attribute to ``required``, ``deferred`` or ``legacy``.
+    This parameter is nullable.

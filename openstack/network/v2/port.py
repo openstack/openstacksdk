@@ -104,6 +104,8 @@ class Port(_base.NetworkResource, resource.TagMixin):
     name = resource.Body('name')
     #: The ID of the attached network.
     network_id = resource.Body('network_id')
+    #: The NUMA affinity policy defined for this port.
+    numa_affinity_policy = resource.Body('numa_affinity_policy')
     #: The ID of the project who owns the network. Only administrative
     #: users can specify a project ID other than their own.
     project_id = resource.Body('tenant_id')

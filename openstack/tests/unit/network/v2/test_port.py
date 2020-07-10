@@ -38,6 +38,7 @@ EXAMPLE = {
     'mac_address': '16',
     'name': '17',
     'network_id': '18',
+    'numa_affinity_policy': False,
     'port_security_enabled': True,
     'qos_network_policy_id': '32',
     'qos_policy_id': '21',
@@ -130,6 +131,8 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['mac_address'], sot.mac_address)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['network_id'], sot.network_id)
+        self.assertEqual(EXAMPLE['numa_affinity_policy'],
+                         sot.numa_affinity_policy)
         self.assertTrue(sot.is_port_security_enabled)
         self.assertEqual(EXAMPLE['qos_network_policy_id'],
                          sot.qos_network_policy_id)
