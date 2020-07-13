@@ -44,7 +44,22 @@
     vars:
       devstack_localrc:
         Q_ML2_PLUGIN_EXT_DRIVERS: qos,port_security
+        Q_AGENT: openvswitch
+        Q_ML2_TENANT_NETWORK_TYPE: vxlan
+        Q_ML2_PLUGIN_MECHANISM_DRIVERS: openvswitch
       devstack_services:
+        # OVN services
+        ovn-controller: false
+        ovn-northd: false
+        ovs-vswitchd: false
+        ovsdb-server: false
+        q-ovn-metadata-agent: false
+        # Neutron services
+        q-agt: true
+        q-dhcp: true
+        q-l3: true
+        q-metering: true
+        q-svc: true
         # sdk doesn't need vnc access
         n-cauth: false
         n-novnc: false
