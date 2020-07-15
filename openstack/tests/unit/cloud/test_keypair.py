@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import fixtures
 
 from openstack.cloud import exc
 from openstack.tests import fakes
@@ -23,6 +24,9 @@ class TestKeypair(base.TestCase):
         super(TestKeypair, self).setUp()
         self.keyname = self.getUniqueString('key')
         self.key = fakes.make_fake_keypair(self.keyname)
+        self.useFixture(fixtures.MonkeyPatch(
+            'openstack.utils.maximum_supported_microversion',
+            lambda *args, **kwargs: '2.10'))
 
     def test_create_keypair(self):
         self.register_uris([
