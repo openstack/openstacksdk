@@ -23,6 +23,8 @@ from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_diagnostics as _server_diagnostics
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
+from openstack.compute.v2 import (
+    server_remote_console as _server_remote_console)
 from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import volume_attachment as _volume_attachment
@@ -1472,6 +1474,19 @@ class Proxy(proxy.Proxy):
         server_id = self._get_resource(_server.Server, server).id
         return self._get(_server_diagnostics.ServerDiagnostics,
                          server_id=server_id, requires_id=False)
+
+    def create_server_remote_console(self, server, **attrs):
+        """Create a remote console on the server.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: One
+            :class:`~openstack.compute.v2.server_remote_console.
+                    ServerRemoteConsole`
+        """
+        server_id = resource.Resource._get_id(server)
+        return self._create(_server_remote_console.ServerRemoteConsole,
+                            server_id=server_id, **attrs)
 
     def _get_cleanup_dependencies(self):
         return {
