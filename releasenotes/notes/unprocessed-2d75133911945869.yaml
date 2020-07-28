@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Supports fetching raw (unprocessed) introspection data from the bare metal
+    introspection service.

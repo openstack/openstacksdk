@@ -163,3 +163,12 @@ class TestGetData(base.TestCase):
             self.proxy, 'introspection/1234/data', 'GET',
             headers=mock.ANY, microversion=mock.ANY)
         self.assertIs(data, mock_request.return_value.json.return_value)
+
+    def test_get_unprocessed_data(self, mock_request):
+        mock_request.return_value.status_code = 200
+        data = self.proxy.get_introspection_data(self.introspection,
+                                                 processed=False)
+        mock_request.assert_called_once_with(
+            self.proxy, 'introspection/1234/data/unprocessed', 'GET',
+            headers=mock.ANY, microversion='1.17')
+        self.assertIs(data, mock_request.return_value.json.return_value)
