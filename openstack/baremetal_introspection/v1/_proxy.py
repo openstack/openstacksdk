@@ -86,17 +86,19 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_introspect.Introspection, introspection)
 
-    def get_introspection_data(self, introspection):
+    def get_introspection_data(self, introspection, processed=True):
         """Get introspection data.
 
         :param introspection: The value can be the name or ID of an
             introspection (matching bare metal node name or ID) or
             an :class:`~.introspection.Introspection` instance.
+        :param processed: Whether to fetch the final processed data (the
+            default) or the raw unprocessed data as received from the ramdisk.
         :returns: introspection data from the most recent successful run.
         :rtype: dict
         """
         res = self._get_resource(_introspect.Introspection, introspection)
-        return res.get_data(self)
+        return res.get_data(self, processed=processed)
 
     def abort_introspection(self, introspection, ignore_missing=True):
         """Abort an introspection.

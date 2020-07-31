@@ -73,7 +73,7 @@ class Introspection(resource.Resource):
                .format(id=self.id))
         exceptions.raise_from_response(response, error_message=msg)
 
-    def get_data(self, session):
+    def get_data(self, session, processed=True):
         """Get introspection data.
 
         Note that the introspection data format is not stable and can vary
@@ -81,14 +81,20 @@ class Introspection(resource.Resource):
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param processed: Whether to fetch the final processed data (the
+            default) or the raw unprocessed data as received from the ramdisk.
+        :type processed: bool
         :returns: introspection data from the most recent successful run.
         :rtype: dict
         """
         session = self._get_session(session)
 
-        version = self._get_microversion_for(session, 'fetch')
+        version = (self._get_microversion_for(session, 'fetch')
+                   if processed else '1.17')
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'data')
+        if not processed:
+            request.url = utils.urljoin(request.url, 'unprocessed')
         response = session.get(
             request.url, headers=request.headers, microversion=version)
         msg = ("Failed to fetch introspection data for node {id}"
