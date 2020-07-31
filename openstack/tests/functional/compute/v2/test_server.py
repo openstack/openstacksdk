@@ -122,3 +122,10 @@ class TestServer(ft_base.BaseComputeTest):
             test_server, test_server.metadata.keys())
         test_server = self.conn.compute.get_server_metadata(test_server)
         self.assertFalse(test_server.metadata)
+
+    def test_server_remote_console(self):
+        console = self.conn.compute.create_server_remote_console(
+            self.server, protocol='vnc', type='novnc')
+        self.assertEqual('vnc', console.protocol)
+        self.assertEqual('novnc', console.type)
+        self.assertTrue(console.url.startswith('http'))
