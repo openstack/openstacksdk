@@ -289,13 +289,8 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         try:
             if not use_import:
-                try:
-                    response = image.upload(self)
-                    exceptions.raise_from_response(response)
-                except Exception:
-                    if not supports_import:
-                        raise
-                    use_import = True
+                response = image.upload(self)
+                exceptions.raise_from_response(response)
             if use_import:
                 image.stage(self)
                 image.import_image(self)
