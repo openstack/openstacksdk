@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add initial support for Placement. Currently the following resources are
+    supported:
+
+    - ``ResourceProvider``
