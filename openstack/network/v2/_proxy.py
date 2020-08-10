@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import exceptions
+from openstack.network.v2 import address_group as _address_group
 from openstack.network.v2 import address_scope as _address_scope
 from openstack.network.v2 import agent as _agent
 from openstack.network.v2 import auto_allocated_topology as \
@@ -79,6 +80,118 @@ class Proxy(proxy.Proxy):
             raise
 
         return rv
+
+    def create_address_group(self, **attrs):
+        """Create a new address group from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.address_group.AddressGroup`,
+            comprised of the properties on the AddressGroup class.
+
+        :returns: The results of address group creation
+        :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
+        """
+        return self._create(_address_group.AddressGroup, **attrs)
+
+    def delete_address_group(self, address_group, ignore_missing=True):
+        """Delete an address group
+
+        :param address_group: The value can be either the ID of an
+            address group or
+            a :class:`~openstack.network.v2.address_group.AddressGroup`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will
+                    be raised when the address group does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent address group.
+
+        :returns: ``None``
+        """
+        self._delete(_address_group.AddressGroup, address_group,
+                     ignore_missing=ignore_missing)
+
+    def find_address_group(self, name_or_id, ignore_missing=True, **args):
+        """Find a single address group
+
+        :param name_or_id: The name or ID of an address group.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the resource does not exist.
+                    When set to ``True``, None will be returned when
+                    attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+                          underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.address_group.AddressGroup`
+                  or None
+        """
+        return self._find(_address_group.AddressGroup, name_or_id,
+                          ignore_missing=ignore_missing, **args)
+
+    def get_address_group(self, address_group):
+        """Get a single address group
+
+        :param address_group: The value can be the ID of an address group or a
+            :class:`~openstack.network.v2.address_group.AddressGroup` instance.
+
+        :returns: One :class:`~openstack.network.v2.address_group.AddressGroup`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._get(_address_group.AddressGroup, address_group)
+
+    def address_groups(self, **query):
+        """Return a generator of address groups
+
+        :param dict query: Optional query parameters to be sent to limit
+                           the resources being returned.
+
+            * ``name``: Address group name
+            * ``description``: Address group description
+            * ``project_id``: Owner project ID
+
+        :returns: A generator of address group objects
+        :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
+        """
+        return self._list(_address_group.AddressGroup, **query)
+
+    def update_address_group(self, address_group, **attrs):
+        """Update an address group
+
+        :param address_group: Either the ID of an address group or a
+            :class:`~openstack.network.v2.address_group.AddressGroup` instance.
+        :param dict attrs: The attributes to update on the address group
+                           represented by ``value``.
+
+        :returns: The updated address group
+        :rtype: :class:`~openstack.network.v2.address_group.AddressGroup`
+        """
+        return self._update(_address_group.AddressGroup, address_group,
+                            **attrs)
+
+    def add_addresses_to_address_group(self, address_group, addresses):
+        """Add addresses to a address group
+
+        :param address_group: Either the ID of an address group or a
+            :class:`~openstack.network.v2.address_group.AddressGroup` instance.
+        :param list addresses: List of address strings.
+        :returns: AddressGroup with updated addresses
+        :rtype: :class: `~openstack.network.v2.address_group.AddressGroup`
+        """
+        ag = self._get_resource(_address_group.AddressGroup, address_group)
+        return ag.add_addresses(self, addresses)
+
+    def remove_addresses_from_address_group(self, address_group, addresses):
+        """Remove addresses from a address group
+
+        :param address_group: Either the ID of an address group or a
+            :class:`~openstack.network.v2.address_group.AddressGroup` instance.
+        :param list addresses: List of address strings.
+        :returns: AddressGroup with updated addresses
+        :rtype: :class: `~openstack.network.v2.address_group.AddressGroup`
+        """
+        ag = self._get_resource(_address_group.AddressGroup, address_group)
+        return ag.remove_addresses(self, addresses)
 
     def create_address_scope(self, **attrs):
         """Create a new address scope from attributes
