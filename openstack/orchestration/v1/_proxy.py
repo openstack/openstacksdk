@@ -487,13 +487,21 @@ class Proxy(proxy.Proxy):
             }
         }
 
-    def _service_cleanup(self, dry_run=True, status_queue=None):
+    def _service_cleanup(self, dry_run=True, client_status_queue=None,
+                         identified_resources=None,
+                         filters=None, resource_evaluation_fn=None):
         stacks = []
         for obj in self.stacks():
-            stacks.append(obj)
-            self._project_cleanup_del_res(
-                self.delete_stack, obj,
-                dry_run, status_queue)
+            need_delete = self._service_cleanup_del_res(
+                self.delete_stack,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn)
+            if not dry_run and need_delete:
+                stacks.append(obj)
 
         for stack in stacks:
             self.wait_for_delete(stack)

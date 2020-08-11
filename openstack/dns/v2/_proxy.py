@@ -520,5 +520,7 @@ class Proxy(proxy.Proxy):
             }
         }
 
-    def _service_cleanup(self, dry_run=True, status_queue=False):
+    def _service_cleanup(self, dry_run=True, client_status_queue=False,
+                         identified_resources=None,
+                         filters=None, resource_evaluation_fn=None):
         pass
