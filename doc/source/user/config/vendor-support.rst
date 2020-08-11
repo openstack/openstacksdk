@@ -274,7 +274,7 @@ SYD            Sydney, NSW
 SWITCHengines
 -------------
 
-https://keystone.cloud.switch.ch:5000/v2.0
+https://keystone.cloud.switch.ch:5000/v3
 
 ============== ================
 Region Name    Location
