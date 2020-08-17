@@ -50,6 +50,8 @@ from openstack import utils
 
 _SEEN_FORMAT = '{name}_seen'
 
+LOG = _log.setup_logging(__name__)
+
 
 def _convert_type(value, data_type, list_type=None):
     # This should allow handling list of dicts that have their own
@@ -89,8 +91,18 @@ class _BaseComponent:
     # The class to be used for mappings
     _map_cls = dict
 
+    #: Marks the property as deprecated.
+    deprecated = False
+    #: Deprecation reason message used to warn users when deprecated == True
+    deprecation_reason = None
+
+    #: Control field used to manage the deprecation warning. We want to warn
+    # only once when the attribute is retrieved in the code.
+    already_warned_deprecation = False
+
     def __init__(self, name, type=None, default=None, alias=None, aka=None,
                  alternate_id=False, list_type=None, coerce_to_default=False,
+                 deprecated=False, deprecation_reason=None,
                  **kwargs):
         """A typed descriptor for a component that makes up a Resource
 
@@ -115,6 +127,11 @@ class _BaseComponent:
             If the Component is None or not present, force the given default
             to be used. If a default is not given but a type is given,
             construct an empty version of the type in question.
+        :param deprecated:
+            Indicates if the option is deprecated. If it is, we display a
+            warning message to the user.
+        :param deprecation_reason:
+            Custom deprecation message.
         """
         self.name = name
         self.type = type
@@ -128,6 +145,9 @@ class _BaseComponent:
         self.list_type = list_type
         self.coerce_to_default = coerce_to_default
 
+        self.deprecated = deprecated
+        self.deprecation_reason = deprecation_reason
+
     def __get__(self, instance, owner):
         if instance is None:
             return self
@@ -137,6 +157,7 @@ class _BaseComponent:
         try:
             value = attributes[self.name]
         except KeyError:
+            value = self.default
             if self.alias:
                 # Resource attributes can be aliased to each other. If neither
                 # of them exist, then simply doing a
@@ -156,14 +177,28 @@ class _BaseComponent:
                     setattr(instance, seen_flag, True)
                     value = getattr(instance, self.alias)
                     delattr(instance, seen_flag)
-                    return value
-            return self.default
+            self.warn_if_deprecated_property(value)
+            return value
 
         # self.type() should not be called on None objects.
         if value is None:
             return None
 
+        self.warn_if_deprecated_property(value)
         return _convert_type(value, self.type, self.list_type)
+
+    def warn_if_deprecated_property(self, value):
+        deprecated = object.__getattribute__(self, 'deprecated')
+        deprecate_reason = object.__getattribute__(self, 'deprecation_reason')
+
+        if value and deprecated and not self.already_warned_deprecation:
+            self.already_warned_deprecation = True
+            if not deprecate_reason:
+                LOG.warning("The option [%s] has been deprecated. "
+                            "Please avoid using it.", self.name)
+            else:
+                LOG.warning(deprecate_reason)
+        return value
 
     def __set__(self, instance, value):
         if self.coerce_to_default and value is None:
@@ -562,6 +597,14 @@ class Resource(dict):
             self._computed.attributes == comparand._computed.attributes
         ])
 
+    def warning_if_attribute_deprecated(self, attr, value):
+        if value and self.deprecated:
+            if not self.deprecation_reason:
+                LOG.warning("The option [%s] has been deprecated. "
+                            "Please avoid using it.", attr)
+            else:
+                LOG.warning(self.deprecation_reason)
+
     def __getattribute__(self, name):
         """Return an attribute on this instance
 
@@ -575,7 +618,9 @@ class Resource(dict):
             else:
                 try:
                     return self._body[self._alternate_id()]
-                except KeyError:
+                except KeyError as e:
+                    LOG.debug("Attribute [%s] not found in [%s]: %s.",
+                              self._alternate_id(), self._body, e)
                     return None
         else:
             try:
@@ -2014,7 +2059,6 @@ def wait_for_status(session, resource, status, failures, interval=None,
     :raises: :class:`~AttributeError` if the resource does not have a status
              attribute
     """
-    log = _log.setup_logging(__name__)
 
     current_status = getattr(resource, attribute)
     if _normalize_status(current_status) == status.lower():
@@ -2048,7 +2092,7 @@ def wait_for_status(session, resource, status, failures, interval=None,
                 "{name} transitioned to failure state {status}".format(
                     name=name, status=new_status))
 
-        log.debug('Still waiting for resource %s to reach state %s, '
+        LOG.debug('Still waiting for resource %s to reach state %s, '
                   'current state is %s', name, status, new_status)
 
 

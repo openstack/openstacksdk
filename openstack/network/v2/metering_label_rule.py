@@ -44,4 +44,11 @@ class MeteringLabelRule(resource.Resource):
     #: The ID of the project this metering label rule is associated with.
     project_id = resource.Body('tenant_id')
     #: The remote IP prefix to be associated with this metering label rule.
-    remote_ip_prefix = resource.Body('remote_ip_prefix')
+    remote_ip_prefix = resource.Body(
+        'remote_ip_prefix', deprecated=True,
+        deprecation_reason="The use of 'remote_ip_prefix' in metering label "
+                           "rules is deprecated and will be removed in future "
+                           "releases. One should use instead, the "
+                           "'source_ip_prefix' and/or 'destination_ip_prefix' "
+                           "parameters. For more details, you can check the "
+                           "spec: https://review.opendev.org/#/c/744702/.")
