@@ -27,7 +27,7 @@ class MeteringLabelRule(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'direction', 'metering_label_id', 'remote_ip_prefix',
-        project_id='tenant_id',
+        'source_ip_prefix', 'destination_ip_prefix', project_id='tenant_id',
     )
 
     # Properties
@@ -52,3 +52,8 @@ class MeteringLabelRule(resource.Resource):
                            "'source_ip_prefix' and/or 'destination_ip_prefix' "
                            "parameters. For more details, you can check the "
                            "spec: https://review.opendev.org/#/c/744702/.")
+
+    #: The source IP prefix to be associated with this metering label rule.
+    source_ip_prefix = resource.Body('source_ip_prefix')
+    #: The destination IP prefix to be associated with this metering label rule
+    destination_ip_prefix = resource.Body('destination_ip_prefix')
