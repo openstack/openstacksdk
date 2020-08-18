@@ -1,0 +1,3 @@
+---
+features:
+  - Adds ALPN protocols support for the Octavia (load_balancer) listeners.
