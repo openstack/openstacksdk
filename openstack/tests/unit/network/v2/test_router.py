@@ -26,6 +26,7 @@ EXAMPLE = {
     'created_at': 'timestamp1',
     'description': '3',
     'distributed': False,
+    'enable_ndp_proxy': True,
     'external_gateway_info': {'4': 4},
     'flavor_id': '5',
     'ha': False,
@@ -83,6 +84,7 @@ class TestRouter(base.TestCase):
                          sot.availability_zones)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
         self.assertEqual(EXAMPLE['description'], sot.description)
+        self.assertTrue(sot.enable_ndp_proxy)
         self.assertFalse(sot.is_distributed)
         self.assertEqual(EXAMPLE['external_gateway_info'],
                          sot.external_gateway_info)

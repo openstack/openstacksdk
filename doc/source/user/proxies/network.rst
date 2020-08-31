@@ -281,3 +281,11 @@ Local IP Operations
             local_ips, update_local_ip, create_local_ip_association,
             delete_local_ip_association, find_local_ip_association,
             get_local_ip_association, local_ip_associations
+
+Ndp Proxy Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_ndp_proxy, get_ndp_proxy, find_ndp_proxy, delete_ndp_proxy,
+            ndp_proxies, update_ndp_proxy

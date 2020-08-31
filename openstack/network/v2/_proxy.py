@@ -34,6 +34,7 @@ from openstack.network.v2 import local_ip as _local_ip
 from openstack.network.v2 import local_ip_association as _local_ip_association
 from openstack.network.v2 import metering_label as _metering_label
 from openstack.network.v2 import metering_label_rule as _metering_label_rule
+from openstack.network.v2 import ndp_proxy as _ndp_proxy
 from openstack.network.v2 import network as _network
 from openstack.network.v2 import network_ip_availability
 from openstack.network.v2 import network_segment_range as \
@@ -3389,6 +3390,96 @@ class Proxy(proxy.Proxy):
         agent = self._get_resource(_agent.Agent, agent)
         router = self._get_resource(_router.Router, router)
         return agent.remove_router_from_agent(self, router.id)
+
+    def create_ndp_proxy(self, **attrs):
+        """Create a new ndp proxy from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.ndp_proxy.NDPProxxy`,
+            comprised of the properties on the NDPProxy class.
+
+        :returns: The results of ndp proxy creation
+        :rtype: :class:`~openstack.network.v2.ndp_proxy.NDPProxxy`
+        """
+        return self._create(_ndp_proxy.NDPProxy, **attrs)
+
+    def get_ndp_proxy(self, ndp_proxy):
+        """Get a single ndp proxy
+
+        :param ndp_proxy: The value can be the ID of a ndp proxy
+            or a :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
+            instance.
+
+        :returns: One
+            :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_ndp_proxy.NDPProxy, ndp_proxy)
+
+    def find_ndp_proxy(self, ndp_proxy_id,
+                       ignore_missing=True, **args):
+        """Find a single ndp proxy
+
+        :param ndp_proxy_id: The ID of a ndp proxy.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist.  When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns:
+            One :class:`~openstack.network.v2.ndp_proxy.NDPProxy` or None
+        """
+        return self._find(
+            _ndp_proxy.NDPProxy, ndp_proxy_id,
+            ignore_missing=ignore_missing,
+            **args)
+
+    def delete_ndp_proxy(self, ndp_proxy, ignore_missing=True):
+        """Delete a ndp proxy
+
+        :param ndp_proxy: The value can be the ID of a ndp proxy
+            or a :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the router does not exist.  When set to ``True``, no exception will
+            be set when attempting to delete a nonexistent ndp proxy.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _ndp_proxy.NDPProxy, ndp_proxy,
+            ignore_missing=ignore_missing)
+
+    def ndp_proxies(self, **query):
+        """Return a generator of ndp proxies
+
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned. Valid parameters are:
+
+            * ``router_id``: The ID fo the router
+            * ``port_id``: The ID of internal port.
+            * ``ip_address``: The internal IP address
+
+        :returns: A generator of port forwarding objects
+        :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
+        """
+        return self._list(_ndp_proxy.NDPProxy, paginated=False, **query)
+
+    def update_ndp_proxy(self, ndp_proxy, **attrs):
+        """Update a ndp proxy
+
+        :param ndp_proxy: The value can be the ID of a ndp proxy or a
+            :class:`~openstack.network.v2.ndp_proxy.NDPProxy` instance.
+        :param dict attrs: The attributes to update on the ip represented
+            by ``value``.
+
+        :returns: The updated ndp_proxy
+        :rtype: :class:`~openstack.network.v2.ndp_proxy.NDPProxy`
+        """
+        return self._update(_ndp_proxy.NDPProxy, ndp_proxy, **attrs)
 
     def create_firewall_group(self, **attrs):
         """Create a new firewall group from attributes

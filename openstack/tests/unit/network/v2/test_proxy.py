@@ -35,6 +35,7 @@ from openstack.network.v2 import local_ip
 from openstack.network.v2 import local_ip_association
 from openstack.network.v2 import metering_label
 from openstack.network.v2 import metering_label_rule
+from openstack.network.v2 import ndp_proxy
 from openstack.network.v2 import network
 from openstack.network.v2 import network_ip_availability
 from openstack.network.v2 import network_segment_range
@@ -1773,3 +1774,28 @@ class TestNetworkFloatingIp(TestNetworkProxy):
                 l3_conntrack_helper.ConntrackHelper,
                 'conntrack_helper_id'],
             expected_kwargs={'router_id': ROUTER_ID, 'foo': 'bar'})
+
+
+class TestNetworkNDPProxy(TestNetworkProxy):
+    def test_ndp_proxy_create_attrs(self):
+        self.verify_create(self.proxy.create_ndp_proxy, ndp_proxy.NDPProxy)
+
+    def test_ndp_proxy_delete(self):
+        self.verify_delete(self.proxy.delete_ndp_proxy, ndp_proxy.NDPProxy,
+                           False)
+
+    def test_ndp_proxy_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_ndp_proxy, ndp_proxy.NDPProxy,
+                           True)
+
+    def test_ndp_proxy_find(self):
+        self.verify_find(self.proxy.find_ndp_proxy, ndp_proxy.NDPProxy)
+
+    def test_ndp_proxy_get(self):
+        self.verify_get(self.proxy.get_ndp_proxy, ndp_proxy.NDPProxy)
+
+    def test_ndp_proxies(self):
+        self.verify_list(self.proxy.ndp_proxies, ndp_proxy.NDPProxy)
+
+    def test_ndp_proxy_update(self):
+        self.verify_update(self.proxy.update_ndp_proxy, ndp_proxy.NDPProxy)
