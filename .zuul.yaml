@@ -441,6 +441,9 @@
             voting: false
         - openstacksdk-ansible-stable-2.6-functional-devstack:
             voting: false
+        - opendev-buildset-registry
+        - nodepool-build-image-siblings
+        - dib-nodepool-functional-openstack-centos-8-stream-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
@@ -453,7 +456,6 @@
         - openstacksdk-functional-devstack-python2
         - osc-functional-devstack-tips:
             voting: false
-        - nodepool-functional-openstack-src
         - bifrost-integration-tinyipa-ubuntu-xenial:
             voting: false
         - metalsmith-integration-openstacksdk-src:
@@ -469,4 +471,6 @@
         - openstacksdk-functional-devstack-python2
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
-        - nodepool-functional-openstack-src
+        - opendev-buildset-registry
+        - nodepool-build-image-siblings
+        - dib-nodepool-functional-openstack-centos-8-stream-src
