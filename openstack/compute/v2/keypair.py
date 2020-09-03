@@ -27,6 +27,8 @@ class Keypair(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _max_microversion = '2.10'
+
     # Properties
     #: The date and time when the resource was created.
     created_at = resource.Body('created_at')
