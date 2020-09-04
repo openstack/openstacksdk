@@ -102,7 +102,7 @@ def _fix_argv(argv):
     # Transform any _ characters in arg names to - so that we don't
     # have to throw billions of compat argparse arguments around all
     # over the place.
-    processed = collections.defaultdict(list)
+    processed = collections.defaultdict(set)
     for index in range(0, len(argv)):
         # If the value starts with '--' and has '-' or '_' in it, then
         # it's worth looking at it
@@ -114,7 +114,7 @@ def _fix_argv(argv):
                 split_args[0] = new
                 argv[index] = "=".join(split_args)
             # Save both for later so we can throw an error about dupes
-            processed[new].append(orig)
+            processed[new].add(orig)
     overlap = []
     for new, old in processed.items():
         if len(old) > 1:
