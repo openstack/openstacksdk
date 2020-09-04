@@ -207,7 +207,7 @@ class Computed(_BaseComponent):
     key = "_computed"
 
 
-class _ComponentManager(collections.MutableMapping):
+class _ComponentManager(collections.abc.MutableMapping):
     """Storage of a component type"""
 
     def __init__(self, attributes=None, synchronized=False):
@@ -348,7 +348,7 @@ class QueryParameters:
             # single-argument (like int) and double-argument type functions.
             try:
                 provide_resource_type = (
-                    len(inspect.getargspec(type_).args) > 1)
+                    len(inspect.getfullargspec(type_).args) > 1)
             except TypeError:
                 provide_resource_type = False
 
