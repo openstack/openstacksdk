@@ -26,16 +26,10 @@ SNAPSHOT = {
     "id": FAKE_ID,
     "name": "snap-001",
     "force": "true",
-}
-
-DETAILS = {
     "os-extended-snapshot-attributes:progress": "100%",
     "os-extended-snapshot-attributes:project_id":
         "0c2eba2c5af04d3f9e9d0d410b371fde"
 }
-
-DETAILED_SNAPSHOT = SNAPSHOT.copy()
-DETAILED_SNAPSHOT.update(**DETAILS)
 
 
 class TestSnapshot(base.TestCase):
@@ -68,27 +62,10 @@ class TestSnapshot(base.TestCase):
         self.assertEqual(SNAPSHOT["volume_id"], sot.volume_id)
         self.assertEqual(SNAPSHOT["size"], sot.size)
         self.assertEqual(SNAPSHOT["name"], sot.name)
-        self.assertTrue(sot.is_forced)
-
-
-class TestSnapshotDetail(base.TestCase):
-
-    def test_basic(self):
-        sot = snapshot.SnapshotDetail(DETAILED_SNAPSHOT)
-        self.assertIsInstance(sot, snapshot.Snapshot)
-        self.assertEqual("/snapshots/detail", sot.base_path)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
-
-    def test_create_detailed(self):
-        sot = snapshot.SnapshotDetail(**DETAILED_SNAPSHOT)
-
         self.assertEqual(
-            DETAILED_SNAPSHOT["os-extended-snapshot-attributes:progress"],
+            SNAPSHOT["os-extended-snapshot-attributes:progress"],
             sot.progress)
         self.assertEqual(
-            DETAILED_SNAPSHOT["os-extended-snapshot-attributes:project_id"],
+            SNAPSHOT["os-extended-snapshot-attributes:project_id"],
             sot.project_id)
+        self.assertTrue(sot.is_forced)
