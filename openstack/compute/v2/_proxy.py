@@ -58,7 +58,10 @@ class Proxy(proxy.Proxy):
         """
         return self._list(extension.Extension)
 
-    def find_flavor(self, name_or_id, ignore_missing=True):
+    # ========== Flavors ==========
+
+    def find_flavor(self, name_or_id, ignore_missing=True,
+                    get_extra_specs=False):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
@@ -69,8 +72,11 @@ class Proxy(proxy.Proxy):
                     attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
         """
-        return self._find(_flavor.Flavor, name_or_id,
-                          ignore_missing=ignore_missing)
+        flavor = self._find(_flavor.Flavor, name_or_id,
+                            ignore_missing=ignore_missing)
+        if flavor and get_extra_specs and not flavor.extra_specs:
+            flavor = flavor.fetch_extra_specs(self)
+        return flavor
 
     def create_flavor(self, **attrs):
         """Create a new flavor from attributes
@@ -99,7 +105,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
 
-    def get_flavor(self, flavor):
+    def get_flavor(self, flavor, get_extra_specs=False):
         """Get a single flavor
 
         :param flavor: The value can be the ID of a flavor or a
@@ -109,22 +115,121 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        return self._get(_flavor.Flavor, flavor)
+        flavor = self._get(_flavor.Flavor, flavor)
+        if get_extra_specs and not flavor.extra_specs:
+            flavor = flavor.fetch_extra_specs(self)
+        return flavor
 
     def flavors(self, details=True, **query):
         """Return a generator of flavors
 
         :param bool details: When ``True``, returns
-            :class:`~openstack.compute.v2.flavor.FlavorDetail` objects,
-            otherwise :class:`~openstack.compute.v2.flavor.Flavor`.
-            *Default: ``True``*
+            :class:`~openstack.compute.v2.flavor.Flavor` objects,
+            with additional attributes filled.
         :param kwargs query: Optional query parameters to be sent to limit
-                                 the flavors being returned.
+            the flavors being returned.
 
         :returns: A generator of flavor objects
         """
-        flv = _flavor.FlavorDetail if details else _flavor.Flavor
-        return self._list(flv, **query)
+        base_path = '/flavors/detail' if details else '/flavors'
+        return self._list(_flavor.Flavor, base_path=base_path, **query)
+
+    def flavor_add_tenant_access(self, flavor, tenant):
+        """Adds tenant/project access to flavor.
+
+        :param flavor: Either the ID of a flavor or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param str tenant: The UUID of the tenant.
+
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        return flavor.add_tenant_access(self, tenant)
+
+    def flavor_remove_tenant_access(self, flavor, tenant):
+        """Removes tenant/project access to flavor.
+
+        :param flavor: Either the ID of a flavor or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param str tenant: The UUID of the tenant.
+
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        return flavor.remove_tenant_access(self, tenant)
+
+    def get_flavor_access(self, flavor):
+        """Lists tenants who have access to private flavor
+
+        :param flavor: Either the ID of a flavor or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+
+        :returns: List of dicts with flavor_id and tenant_id attributes.
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        return flavor.get_access(self)
+
+    def fetch_flavor_extra_specs(self, flavor):
+        """Lists Extra Specs of a flavor
+
+        :param flavor: Either the ID of a flavor or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        return flavor.fetch_extra_specs(self)
+
+    def create_flavor_extra_specs(self, flavor, extra_specs):
+        """Lists Extra Specs of a flavor
+
+        :param flavor: Either the ID of a flavor or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param dict extra_specs: dict of extra specs
+
+        :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        return flavor.create_extra_specs(self, specs=extra_specs)
+
+    def get_flavor_extra_specs_property(self, flavor, prop):
+        """Get specific Extra Spec property of a flavor
+
+        :param flavor: Either the ID of a flavor or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param str prop: Property name.
+
+        :returns: String value of the requested property.
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        return flavor.get_extra_specs_property(self, prop)
+
+    def update_flavor_extra_specs_property(self, flavor, prop, val):
+        """Update specific Extra Spec property of a flavor
+
+        :param flavor: Either the ID of a flavor or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param str prop: Property name.
+        :param str val: Property value.
+
+        :returns: String value of the requested property.
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        return flavor.update_extra_specs_property(self, prop, val)
+
+    def delete_flavor_extra_specs_property(self, flavor, prop):
+        """Delete specific Extra Spec property of a flavor
+
+        :param flavor: Either the ID of a flavor or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param str prop: Property name.
+
+        :returns: None
+        """
+        flavor = self._get_resource(_flavor.Flavor, flavor)
+        return flavor.delete_extra_specs_property(self, prop)
+
+    # ========== Aggregates ==========
 
     def aggregates(self, **query):
         """Return a generator of aggregate

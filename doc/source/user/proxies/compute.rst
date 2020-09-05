@@ -66,7 +66,12 @@ Flavor Operations
 
 .. autoclass:: openstack.compute.v2._proxy.Proxy
   :noindex:
-  :members: create_flavor, delete_flavor, get_flavor, find_flavor, flavors
+  :members: create_flavor, delete_flavor, get_flavor, find_flavor, flavors,
+            flavor_add_tenant_access, flavor_remove_tenant_access,
+            get_flavor_access, fetch_flavor_extra_specs,
+            create_flavor_extra_specs, get_flavor_extra_specs_property,
+            update_flavor_extra_specs_property,
+            delete_flavor_extra_specs_property
 
 Service Operations
 ^^^^^^^^^^^^^^^^^^
