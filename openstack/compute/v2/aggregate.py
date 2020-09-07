@@ -38,6 +38,10 @@ class Aggregate(resource.Resource):
     hosts = resource.Body('hosts')
     #: Metadata
     metadata = resource.Body('metadata')
+    #: UUID
+    uuid = resource.Body('uuid')
+    # uuid introduced in 2.41
+    _max_microversion = '2.41'
 
     def _action(self, session, body, microversion=None):
         """Preform aggregate actions given the message body."""

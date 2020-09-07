@@ -20,6 +20,7 @@ class TestAggregate(base.TestCase):
         super(TestAggregate, self).setUp()
         self.aggregate_name = self.getUniqueString('aggregate')
         self.fake_aggregate = fakes.make_fake_aggregate(1, self.aggregate_name)
+        self.use_compute_discovery()
 
     def test_create_aggregate(self):
         create_aggregate = self.fake_aggregate.copy()
