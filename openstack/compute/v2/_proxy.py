@@ -31,6 +31,7 @@ from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
+from openstack import utils
 
 
 class Proxy(proxy.Proxy):
@@ -1487,6 +1488,49 @@ class Proxy(proxy.Proxy):
         server_id = resource.Resource._get_id(server)
         return self._create(_server_remote_console.ServerRemoteConsole,
                             server_id=server_id, **attrs)
+
+    def get_server_console_url(self, server, console_type):
+        """Create a remote console on the server.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param console_type: Type of the console connection.
+        :returns: Dictionary with console type and url
+        """
+        server = self._get_resource(_server.Server, server)
+        return server.get_console_url(self, console_type)
+
+    def create_console(self, server, console_type, console_protocol=None):
+        """Create a remote console on the server.
+
+        When microversion supported is higher then 2.6 remote console is
+        created, otherwise deprecated call to get server console is issued.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param console_type: Type of the remote console. Supported values as:
+            * novnc
+            * spice-html5
+            * rdp-html5
+            * serial
+            * webmks (supported after 2.8)
+        :param console_protocol: Optional console protocol (is respected only
+            after microversion 2.6).
+
+        :returns: Dictionary with console type, url and optionally protocol.
+        """
+        server = self._get_resource(_server.Server, server)
+        # NOTE: novaclient supports undocumented type xcpvnc also supported
+        # historically by OSC. We support it, but do not document either.
+        if utils.supports_microversion(self, '2.6'):
+            console = self._create(
+                _server_remote_console.ServerRemoteConsole,
+                server_id=server.id,
+                type=console_type,
+                protocol=console_protocol)
+            return console.to_dict()
+        else:
+            return server.get_console_url(self, console_type)
 
     def _get_cleanup_dependencies(self):
         return {

@@ -12,6 +12,17 @@
 
 from openstack import resource
 
+from openstack import utils
+
+CONSOLE_TYPE_PROTOCOL_MAPPING = {
+    'novnc': 'vnc',
+    'xvpvnc': 'vnc',
+    'spice-html5': 'spice',
+    'rdp-html5': 'rdp',
+    'serial': 'serial',
+    'webmks': 'mks'
+}
+
 
 class ServerRemoteConsole(resource.Resource):
     resource_key = 'remote_console'
@@ -34,3 +45,19 @@ class ServerRemoteConsole(resource.Resource):
     url = resource.Body('url')
     #: The ID for the server.
     server_id = resource.URI('server_id')
+
+    def create(self, session, prepend_key=True, base_path=None, **params):
+        if not self.protocol:
+            self.protocol = \
+                CONSOLE_TYPE_PROTOCOL_MAPPING.get(self.type)
+        if (
+            not utils.supports_microversion(session, '2.8')
+            and self.type == 'webmks'
+        ):
+            raise ValueError('Console type webmks is not supported on '
+                             'server side')
+        return super(ServerRemoteConsole, self).create(
+            session,
+            prepend_key=prepend_key,
+            base_path=base_path,
+            **params)
