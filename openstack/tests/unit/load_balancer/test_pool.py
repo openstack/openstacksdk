@@ -38,6 +38,7 @@ EXAMPLE = {
     'tls_enabled': True,
     'tls_ciphers': 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256',
     'tls_versions': ['TLSv1.1', 'TLSv1.2'],
+    'alpn_protocols': ['h2', 'http/1.1', 'http/1.0'],
 }
 
 
@@ -90,6 +91,8 @@ class TestPool(base.TestCase):
                          test_pool.tls_ciphers)
         self.assertEqual(EXAMPLE['tls_versions'],
                          test_pool.tls_versions)
+        self.assertEqual(EXAMPLE['alpn_protocols'],
+                         test_pool.alpn_protocols)
 
         self.assertDictEqual(
             {'limit': 'limit',
@@ -115,5 +118,6 @@ class TestPool(base.TestCase):
              'tls_enabled': 'tls_enabled',
              'tls_ciphers': 'tls_ciphers',
              'tls_versions': 'tls_versions',
+             'alpn_protocols': 'alpn_protocols',
              },
             test_pool._query_mapping._mapping)
