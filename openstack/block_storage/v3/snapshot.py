@@ -51,20 +51,10 @@ class Snapshot(resource.Resource):
     #: Indicate whether to create snapshot, even if the volume is attached.
     #: Default is ``False``. *Type: bool*
     is_forced = resource.Body("force", type=format.BoolStr)
-
-
-class SnapshotDetail(Snapshot):
-
-    base_path = "/snapshots/detail"
-
-    # capabilities
-    allow_fetch = False
-    allow_create = False
-    allow_delete = False
-    allow_commit = False
-    allow_list = True
-
     #: The percentage of completeness the snapshot is currently at.
     progress = resource.Body("os-extended-snapshot-attributes:progress")
     #: The project ID this snapshot is associated with.
     project_id = resource.Body("os-extended-snapshot-attributes:project_id")
+
+
+SnapshotDetail = Snapshot

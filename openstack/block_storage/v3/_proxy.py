@@ -54,10 +54,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """Retrieve a generator of snapshots
 
         :param bool details: When set to ``False``
-                    :class:`~openstack.block_storage.v3.snapshot.Snapshot`
-                    objects will be returned. The default, ``True``, will cause
-                    :class:`~openstack.block_storage.v3.snapshot.SnapshotDetail`
-                    objects to be returned.
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot`
+            objects will be returned. The default, ``True``, will cause
+            more attributes to be returned.
         :param kwargs query: Optional query parameters to be sent to limit
             the snapshots being returned.  Available parameters include:
 
@@ -69,8 +68,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: A generator of snapshot objects.
         """
-        snapshot = _snapshot.SnapshotDetail if details else _snapshot.Snapshot
-        return self._list(snapshot, **query)
+        base_path = '/snapshots/detail' if details else None
+        return self._list(_snapshot.Snapshot, base_path=base_path, **query)
 
     def create_snapshot(self, **attrs):
         """Create a new snapshot from attributes

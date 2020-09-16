@@ -35,7 +35,8 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_snapshots_detailed(self):
         self.verify_list(self.proxy.snapshots, snapshot.SnapshotDetail,
                          method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+                         expected_kwargs={"query": 1,
+                                          "base_path": "/snapshots/detail"})
 
     def test_snapshots_not_detailed(self):
         self.verify_list(self.proxy.snapshots, snapshot.Snapshot,
