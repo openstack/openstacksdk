@@ -42,7 +42,8 @@ EXAMPLE = {
     'timeout_member_data': 50000,
     'timeout_tcp_inspect': 0,
     'tls_ciphers': 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256',
-    'tls_versions': ['TLSv1.1', 'TLSv1.2']
+    'tls_versions': ['TLSv1.1', 'TLSv1.2'],
+    'alpn_protocols': ['h2', 'http/1.1', 'http/1.0']
 }
 
 EXAMPLE_STATS = {
@@ -109,6 +110,8 @@ class TestListener(base.TestCase):
                          test_listener.tls_ciphers)
         self.assertEqual(EXAMPLE['tls_versions'],
                          test_listener.tls_versions)
+        self.assertEqual(EXAMPLE['alpn_protocols'],
+                         test_listener.alpn_protocols)
 
         self.assertDictEqual(
             {'limit': 'limit',
@@ -141,6 +144,7 @@ class TestListener(base.TestCase):
              'timeout_tcp_inspect': 'timeout_tcp_inspect',
              'tls_ciphers': 'tls_ciphers',
              'tls_versions': 'tls_versions',
+             'alpn_protocols': 'alpn_protocols',
              },
             test_listener._query_mapping._mapping)
 
