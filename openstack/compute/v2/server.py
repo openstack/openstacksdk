@@ -170,7 +170,7 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
                                     type=list, list_type=dict)
     #: The UUIDs of the server groups to which the server belongs.
     #: Currently this can contain at most one entry.
-    server_groups = resource.Body('server_groups', type=list, list_type=dict)
+    server_groups = resource.Body('server_groups', type=list)
     #: The state this server is in. Valid values include ``ACTIVE``,
     #: ``BUILDING``, ``DELETED``, ``ERROR``, ``HARD_REBOOT``, ``PASSWORD``,
     #: ``PAUSED``, ``REBOOT``, ``REBUILD``, ``RESCUED``, ``RESIZED``,

@@ -104,6 +104,7 @@ EXAMPLE = {
             'name': 'default'
         }
     ],
+    'server_groups': ['3caf4187-8010-491f-b6f5-a4a68a40371e'],
     'status': 'ACTIVE',
     'tags': [],
     'tenant_id': '6f70656e737461636b20342065766572',
@@ -206,6 +207,7 @@ class TestServer(base.TestCase):
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['progress'], sot.progress)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['server_groups'], sot.server_groups)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['updated'], sot.updated_at)
         self.assertEqual(EXAMPLE['user_id'], sot.user_id)
