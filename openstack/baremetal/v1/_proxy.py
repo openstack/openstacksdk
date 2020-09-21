@@ -18,6 +18,7 @@ from openstack.baremetal.v1 import node as _node
 from openstack.baremetal.v1 import port as _port
 from openstack.baremetal.v1 import port_group as _portgroup
 from openstack.baremetal.v1 import volume_connector as _volumeconnector
+from openstack.baremetal.v1 import volume_target as _volumetarget
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
@@ -231,7 +232,7 @@ class Proxy(proxy.Proxy):
               provided as the ``sort_key``.
             * ``sort_key``: Sorts the response by the this attribute value.
               Default is ``id``. You can specify multiple pairs of sort
-              key and sort direction query parameters. If you omit the
+              key and sort direction query pa rameters. If you omit the
               sort direction in a pair, the API uses the natural sorting
               direction of the server attribute that is provided as the
               ``sort_key``.
@@ -1166,3 +1167,145 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_volumeconnector.VolumeConnector,
                             volume_connector, ignore_missing=ignore_missing)
+
+    def volume_targets(self, details=False, **query):
+        """Retrieve a generator of volume_target.
+
+        :param details: A boolean indicating whether the detailed information
+                        for every volume_target should be returned.
+        :param dict query: Optional query parameters to be sent to restrict
+            the volume_targets returned. Available parameters include:
+
+            * ``fields``: A list containing one or more fields to be returned
+              in the response. This may lead to some performance gain
+              because other fields of the resource are not refreshed.
+            * ``limit``: Requests at most the specified number of
+              volume_connector be returned from the query.
+            * ``marker``: Specifies the ID of the last-seen volume_target.
+              Use the ``limit`` parameter to make an initial limited request
+              and use the ID of the last-seen volume_target from the
+              response as the ``marker`` value in subsequent limited request.
+            * ``node``:only return the ones associated with this specific node
+              (name or UUID), or an empty set if not found.
+            * ``sort_dir``:Sorts the response by the requested sort direction.
+              A valid value is ``asc`` (ascending) or ``desc``
+              (descending). Default is ``asc``. You can specify multiple
+              pairs of sort key and sort direction query parameters. If
+              you omit the sort direction in a pair, the API uses the
+              natural sorting direction of the server attribute that is
+              provided as the ``sort_key``.
+            * ``sort_key``: Sorts the response by the this attribute value.
+              Default is ``id``. You can specify multiple pairs of sort
+              key and sort direction query parameters. If you omit the
+              sort direction in a pair, the API uses the natural sorting
+              direction of the server attribute that is provided as the
+              ``sort_key``.
+
+        :returns: A generator of volume_target instances.
+        """
+        if details:
+            query['detail'] = True
+        return _volumetarget.VolumeTarget.list(self, **query)
+
+    def create_volume_target(self, **attrs):
+        """Create a new volume_target from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+            :class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget`.
+
+        :returns: The results of volume_target creation.
+        :rtype::class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget`.
+        """
+        return self._create(_volumetarget.VolumeTarget, **attrs)
+
+    def find_volume_target(self, vt_id, ignore_missing=True):
+        """Find a single volume target.
+
+        :param str vt_id: The ID of a volume target.
+
+        :param bool ignore_missing: When set to ``False``, an exception of
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the volume connector does not exist.  When set to `True``,
+            None will be returned when attempting to find a nonexistent
+            volume target.
+        :returns: One :class:
+            `~openstack.baremetal.v1.volumetarget.VolumeTarget`
+            object or None.
+        """
+        return self._find(_volumetarget.VolumeTarget, vt_id,
+                          ignore_missing=ignore_missing)
+
+    def get_volume_target(self, volume_target, fields=None):
+        """Get a specific volume_target.
+
+        :param volume_target: The value can be the ID of a
+            volume_target or a :class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget
+            instance.`
+        :param fields: Limit the resource fields to fetch.`
+
+        :returns: One
+            :class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            volume_target matching the name or ID could be found.`
+        """
+        return self._get_with_fields(_volumetarget.VolumeTarget,
+                                     volume_target,
+                                     fields=fields)
+
+    def update_volume_target(self, volume_target, **attrs):
+        """Update a volume_target.
+
+        :param volume_target:Either the ID of a volume_target
+        or an instance of
+        :class:`~openstack.baremetal.v1.volume_target.VolumeTarget.`
+        :param dict attrs: The attributes to update on the
+        volume_target represented by the ``volume_target`` parameter.`
+
+        :returns: The updated volume_target.
+        :rtype::class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget.`
+        """
+        return self._update(_volumetarget.VolumeTarget,
+                            volume_target, **attrs)
+
+    def patch_volume_target(self, volume_target, patch):
+        """Apply a JSON patch to the volume_target.
+
+        :param volume_target: The value can be the ID of a
+            volume_target or a :class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget`
+            instance.
+        :param patch: JSON patch to apply.
+
+        :returns: The updated volume_target.
+        :rtype::class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget.`
+        """
+        return self._get_resource(_volumetarget.VolumeTarget,
+                                  volume_target).patch(self, patch)
+
+    def delete_volume_target(self, volume_target,
+                             ignore_missing=True):
+        """Delete an volume_target.
+
+        :param volume_target: The value can be either the ID of a
+            volume_target.VolumeTarget or a
+            :class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget`
+            instance.
+        :param bool ignore_missing: When set to ``False``, an exception
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the volume_target could not be found.
+            When set to ``True``, no exception will be raised when
+            attempting to delete a non-existent volume_target.
+
+        :returns: The instance of the volume_target which was deleted.
+        :rtype::class:
+            `~openstack.baremetal.v1.volume_target.VolumeTarget`.
+        """
+        return self._delete(_volumetarget.VolumeTarget,
+                            volume_target, ignore_missing=ignore_missing)

@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Support for Ironic Volume Target API.
