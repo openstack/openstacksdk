@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class Flavor(resource.Resource):
@@ -62,12 +64,117 @@ class Flavor(resource.Resource):
     #: A dictionary of the flavor's extra-specs key-and-value pairs.
     extra_specs = resource.Body('extra_specs', type=dict)
 
+    @classmethod
+    def list(cls, session, paginated=True, base_path='/flavors/detail',
+             allow_unknown_params=False, **params):
+        # Find will invoke list when name was passed. Since we want to return
+        # flavor with details (same as direct get) we need to swap default here
+        # and list with "/flavors" if no details explicitely requested
+        if 'is_public' not in params or params['is_public'] is None:
+            # is_public is ternary - None means give all flavors.
+            # Force it to string to avoid requests skipping it.
+            params['is_public'] = 'None'
+        return super(Flavor, cls).list(
+            session, paginated=paginated,
+            base_path=base_path,
+            allow_unknown_params=allow_unknown_params,
+            **params)
 
-class FlavorDetail(Flavor):
-    base_path = '/flavors/detail'
+    def _action(self, session, body, microversion=None):
+        """Preform flavor actions given the message body."""
+        url = utils.urljoin(Flavor.base_path, self.id, 'action')
+        headers = {'Accept': ''}
+        attrs = {}
+        if microversion:
+            # Do not reset microversion if it is set on a session level
+            attrs['microversion'] = microversion
+        response = session.post(
+            url, json=body, headers=headers, **attrs)
+        exceptions.raise_from_response(response)
+        return response
 
-    allow_create = False
-    allow_fetch = False
-    allow_commit = False
-    allow_delete = False
-    allow_list = True
+    def add_tenant_access(self, session, tenant):
+        """Adds flavor access to a tenant and flavor."""
+        body = {'addTenantAccess': {'tenant': tenant}}
+        self._action(session, body)
+
+    def remove_tenant_access(self, session, tenant):
+        """Removes flavor access to a tenant and flavor."""
+        body = {'removeTenantAccess': {'tenant': tenant}}
+        self._action(session, body)
+
+    def get_access(self, session):
+        """Lists tenants who have access to a private flavor and adds private
+        flavor access to and removes private flavor access from tenants. By
+        default, only administrators can manage private flavor access. A
+        private flavor has is_public set to false while a public flavor has
+        is_public set to true.
+
+        :return: List of dicts with flavor_id and tenant_id attributes
+        """
+        url = utils.urljoin(Flavor.base_path, self.id, 'os-flavor-access')
+        response = session.get(url)
+        exceptions.raise_from_response(response)
+        return response.json().get('flavor_access', [])
+
+    def fetch_extra_specs(self, session):
+        """Fetch extra_specs of the flavor
+        Starting with 2.61 extra_specs are returned with the flavor details,
+        before that a separate call is required
+        """
+        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
+        microversion = self._get_microversion_for(session, 'fetch')
+        response = session.get(url, microversion=microversion)
+        exceptions.raise_from_response(response)
+        specs = response.json().get('extra_specs', {})
+        self._update(extra_specs=specs)
+        return self
+
+    def create_extra_specs(self, session, specs):
+        """Creates extra specs for a flavor"""
+        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
+        microversion = self._get_microversion_for(session, 'create')
+        response = session.post(
+            url,
+            json={'extra_specs': specs},
+            microversion=microversion)
+        exceptions.raise_from_response(response)
+        specs = response.json().get('extra_specs', {})
+        self._update(extra_specs=specs)
+        return self
+
+    def get_extra_specs_property(self, session, prop):
+        """Get individual extra_spec property"""
+        url = utils.urljoin(Flavor.base_path, self.id,
+                            'os-extra_specs', prop)
+        microversion = self._get_microversion_for(session, 'fetch')
+        response = session.get(url, microversion=microversion)
+        exceptions.raise_from_response(response)
+        val = response.json().get(prop)
+        return val
+
+    def update_extra_specs_property(self, session, prop, val):
+        """Update An Extra Spec For A Flavor"""
+        url = utils.urljoin(Flavor.base_path, self.id,
+                            'os-extra_specs', prop)
+        microversion = self._get_microversion_for(session, 'commit')
+        response = session.put(
+            url,
+            json={prop: val},
+            microversion=microversion)
+        exceptions.raise_from_response(response)
+        val = response.json().get(prop)
+        return val
+
+    def delete_extra_specs_property(self, session, prop):
+        """Delete An Extra Spec For A Flavor"""
+        url = utils.urljoin(Flavor.base_path, self.id,
+                            'os-extra_specs', prop)
+        microversion = self._get_microversion_for(session, 'delete')
+        response = session.delete(
+            url,
+            microversion=microversion)
+        exceptions.raise_from_response(response)
+
+
+FlavorDetail = Flavor

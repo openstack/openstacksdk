@@ -33,12 +33,8 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
         super(TestComputeProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    def test_extension_find(self):
-        self.verify_find(self.proxy.find_extension, extension.Extension)
 
-    def test_extensions(self):
-        self.verify_list_no_kwargs(self.proxy.extensions, extension.Extension)
-
+class TestFlavor(TestComputeProxy):
     def test_flavor_create(self):
         self.verify_create(self.proxy.create_flavor, flavor.Flavor)
 
@@ -51,18 +47,161 @@ class TestComputeProxy(test_proxy_base.TestProxyBase):
     def test_flavor_find(self):
         self.verify_find(self.proxy.find_flavor, flavor.Flavor)
 
-    def test_flavor_get(self):
-        self.verify_get(self.proxy.get_flavor, flavor.Flavor)
+    def test_flavor_find_fetch_extra(self):
+        """fetch extra_specs is triggered"""
+        with mock.patch(
+            'openstack.compute.v2.flavor.Flavor.fetch_extra_specs'
+        ) as mocked:
+            res = flavor.Flavor()
+            mocked.return_value = res
+            self._verify2(
+                'openstack.proxy.Proxy._find',
+                self.proxy.find_flavor,
+                method_args=['res', True, True],
+                expected_result=res,
+                expected_args=[flavor.Flavor, 'res'],
+                expected_kwargs={'ignore_missing': True}
+            )
+            mocked.assert_called_once()
+
+    def test_flavor_find_skip_fetch_extra(self):
+        """fetch extra_specs not triggered"""
+        with mock.patch(
+            'openstack.compute.v2.flavor.Flavor.fetch_extra_specs'
+        ) as mocked:
+            res = flavor.Flavor(extra_specs={'a': 'b'})
+            mocked.return_value = res
+            self._verify2(
+                'openstack.proxy.Proxy._find',
+                self.proxy.find_flavor,
+                method_args=['res', True],
+                expected_result=res,
+                expected_args=[flavor.Flavor, 'res'],
+                expected_kwargs={'ignore_missing': True}
+            )
+            mocked.assert_not_called()
+
+    def test_flavor_get_no_extra(self):
+        """fetch extra_specs not triggered"""
+        with mock.patch(
+            'openstack.compute.v2.flavor.Flavor.fetch_extra_specs'
+        ) as mocked:
+            res = flavor.Flavor()
+            mocked.return_value = res
+            self._verify2(
+                'openstack.proxy.Proxy._get',
+                self.proxy.get_flavor,
+                method_args=['res'],
+                expected_result=res,
+                expected_args=[flavor.Flavor, 'res']
+            )
+            mocked.assert_not_called()
+
+    def test_flavor_get_fetch_extra(self):
+        """fetch extra_specs is triggered"""
+        with mock.patch(
+            'openstack.compute.v2.flavor.Flavor.fetch_extra_specs'
+        ) as mocked:
+            res = flavor.Flavor()
+            mocked.return_value = res
+            self._verify2(
+                'openstack.proxy.Proxy._get',
+                self.proxy.get_flavor,
+                method_args=['res', True],
+                expected_result=res,
+                expected_args=[flavor.Flavor, 'res']
+            )
+            mocked.assert_called_once()
+
+    def test_flavor_get_skip_fetch_extra(self):
+        """fetch extra_specs not triggered"""
+        with mock.patch(
+            'openstack.compute.v2.flavor.Flavor.fetch_extra_specs'
+        ) as mocked:
+            res = flavor.Flavor(extra_specs={'a': 'b'})
+            mocked.return_value = res
+            self._verify2(
+                'openstack.proxy.Proxy._get',
+                self.proxy.get_flavor,
+                method_args=['res', True],
+                expected_result=res,
+                expected_args=[flavor.Flavor, 'res']
+            )
+            mocked.assert_not_called()
 
     def test_flavors_detailed(self):
         self.verify_list(self.proxy.flavors, flavor.FlavorDetail,
                          method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+                         expected_kwargs={"query": 1,
+                                          "base_path": "/flavors/detail"})
 
     def test_flavors_not_detailed(self):
         self.verify_list(self.proxy.flavors, flavor.Flavor,
                          method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+                         expected_kwargs={"query": 1,
+                                          "base_path": "/flavors"})
+
+    def test_flavor_get_access(self):
+        self._verify("openstack.compute.v2.flavor.Flavor.get_access",
+                     self.proxy.get_flavor_access,
+                     method_args=["value"],
+                     expected_args=[])
+
+    def test_flavor_add_tenant_access(self):
+        self._verify("openstack.compute.v2.flavor.Flavor.add_tenant_access",
+                     self.proxy.flavor_add_tenant_access,
+                     method_args=["value", "fake-tenant"],
+                     expected_args=["fake-tenant"])
+
+    def test_flavor_remove_tenant_access(self):
+        self._verify("openstack.compute.v2.flavor.Flavor.remove_tenant_access",
+                     self.proxy.flavor_remove_tenant_access,
+                     method_args=["value", "fake-tenant"],
+                     expected_args=["fake-tenant"])
+
+    def test_flavor_fetch_extra_specs(self):
+        self._verify("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
+                     self.proxy.fetch_flavor_extra_specs,
+                     method_args=["value"],
+                     expected_args=[])
+
+    def test_create_flavor_extra_specs(self):
+        specs = {
+            'a': 'b'
+        }
+        self._verify("openstack.compute.v2.flavor.Flavor.create_extra_specs",
+                     self.proxy.create_flavor_extra_specs,
+                     method_args=["value", specs],
+                     expected_kwargs={"specs": specs})
+
+    def test_get_flavor_extra_specs_prop(self):
+        self._verify(
+            "openstack.compute.v2.flavor.Flavor.get_extra_specs_property",
+            self.proxy.get_flavor_extra_specs_property,
+            method_args=["value", "prop"],
+            expected_args=["prop"])
+
+    def test_update_flavor_extra_specs_prop(self):
+        self._verify(
+            "openstack.compute.v2.flavor.Flavor.update_extra_specs_property",
+            self.proxy.update_flavor_extra_specs_property,
+            method_args=["value", "prop", "val"],
+            expected_args=["prop", "val"])
+
+    def test_delete_flavor_extra_specs_prop(self):
+        self._verify(
+            "openstack.compute.v2.flavor.Flavor.delete_extra_specs_property",
+            self.proxy.delete_flavor_extra_specs_property,
+            method_args=["value", "prop"],
+            expected_args=["prop"])
+
+
+class TestCompute(TestComputeProxy):
+    def test_extension_find(self):
+        self.verify_find(self.proxy.find_extension, extension.Extension)
+
+    def test_extensions(self):
+        self.verify_list_no_kwargs(self.proxy.extensions, extension.Extension)
 
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)

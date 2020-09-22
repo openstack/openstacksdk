@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add additional compute flavor operations (flavor_add_tenant_access, flavor_remove_tenant_access, get_flavor_access, extra_specs fetching/updating).
+other:
+  - |
+    Merge FlavorDetails into Flavor class.

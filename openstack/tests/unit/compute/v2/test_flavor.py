@@ -9,6 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from unittest import mock
+
+from keystoneauth1 import adapter
 
 from openstack.tests.unit import base
 
@@ -32,6 +35,12 @@ BASIC_EXAMPLE = {
 
 
 class TestFlavor(base.TestCase):
+
+    def setUp(self):
+        super(TestFlavor, self).setUp()
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = 1
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
 
     def test_basic(self):
         sot = flavor.Flavor()
@@ -71,13 +80,160 @@ class TestFlavor(base.TestCase):
                          sot.is_disabled)
         self.assertEqual(BASIC_EXAMPLE['rxtx_factor'], sot.rxtx_factor)
 
-    def test_detail(self):
-        sot = flavor.FlavorDetail()
-        self.assertEqual('flavor', sot.resource_key)
-        self.assertEqual('flavors', sot.resources_key)
-        self.assertEqual('/flavors/detail', sot.base_path)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
+    def test_add_tenant_access(self):
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
+        resp = mock.Mock()
+        resp.body = None
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.post = mock.Mock(return_value=resp)
+
+        sot.add_tenant_access(self.sess, 'fake_tenant')
+
+        self.sess.post.assert_called_with(
+            'flavors/IDENTIFIER/action',
+            json={
+                'addTenantAccess': {
+                    'tenant': 'fake_tenant'}},
+            headers={'Accept': ''}
+        )
+
+    def test_remove_tenant_access(self):
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
+        resp = mock.Mock()
+        resp.body = None
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.post = mock.Mock(return_value=resp)
+
+        sot.remove_tenant_access(self.sess, 'fake_tenant')
+
+        self.sess.post.assert_called_with(
+            'flavors/IDENTIFIER/action',
+            json={
+                'removeTenantAccess': {
+                    'tenant': 'fake_tenant'}},
+            headers={'Accept': ''}
+        )
+
+    def test_get_flavor_access(self):
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
+        resp = mock.Mock()
+        resp.body = {'flavor_access': [
+            {'flavor_id': 'fake_flavor',
+             'tenant_id': 'fake_tenant'}
+        ]}
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.get = mock.Mock(return_value=resp)
+
+        rsp = sot.get_access(self.sess)
+
+        self.sess.get.assert_called_with(
+            'flavors/IDENTIFIER/os-flavor-access',
+        )
+
+        self.assertEqual(resp.body['flavor_access'], rsp)
+
+    def test_fetch_extra_specs(self):
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
+        resp = mock.Mock()
+        resp.body = {
+            'extra_specs':
+                {'a': 'b',
+                 'c': 'd'}
+        }
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.get = mock.Mock(return_value=resp)
+
+        rsp = sot.fetch_extra_specs(self.sess)
+
+        self.sess.get.assert_called_with(
+            'flavors/IDENTIFIER/os-extra_specs',
+            microversion=self.sess.default_microversion
+        )
+
+        self.assertEqual(resp.body['extra_specs'], rsp.extra_specs)
+        self.assertIsInstance(rsp, flavor.Flavor)
+
+    def test_create_extra_specs(self):
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
+        specs = {
+            'a': 'b',
+            'c': 'd'
+        }
+        resp = mock.Mock()
+        resp.body = {
+            'extra_specs': specs
+        }
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.post = mock.Mock(return_value=resp)
+
+        rsp = sot.create_extra_specs(self.sess, specs)
+
+        self.sess.post.assert_called_with(
+            'flavors/IDENTIFIER/os-extra_specs',
+            json={'extra_specs': specs},
+            microversion=self.sess.default_microversion
+        )
+
+        self.assertEqual(resp.body['extra_specs'], rsp.extra_specs)
+        self.assertIsInstance(rsp, flavor.Flavor)
+
+    def test_get_extra_specs_property(self):
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
+        resp = mock.Mock()
+        resp.body = {
+            'a': 'b'
+        }
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.get = mock.Mock(return_value=resp)
+
+        rsp = sot.get_extra_specs_property(self.sess, 'a')
+
+        self.sess.get.assert_called_with(
+            'flavors/IDENTIFIER/os-extra_specs/a',
+            microversion=self.sess.default_microversion
+        )
+
+        self.assertEqual('b', rsp)
+
+    def test_update_extra_specs_property(self):
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
+        resp = mock.Mock()
+        resp.body = {
+            'a': 'b'
+        }
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.put = mock.Mock(return_value=resp)
+
+        rsp = sot.update_extra_specs_property(self.sess, 'a', 'b')
+
+        self.sess.put.assert_called_with(
+            'flavors/IDENTIFIER/os-extra_specs/a',
+            json={'a': 'b'},
+            microversion=self.sess.default_microversion
+        )
+
+        self.assertEqual('b', rsp)
+
+    def test_delete_extra_specs_property(self):
+        sot = flavor.Flavor(**BASIC_EXAMPLE)
+        resp = mock.Mock()
+        resp.body = None
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.delete = mock.Mock(return_value=resp)
+
+        rsp = sot.delete_extra_specs_property(self.sess, 'a')
+
+        self.sess.delete.assert_called_with(
+            'flavors/IDENTIFIER/os-extra_specs/a',
+            microversion=self.sess.default_microversion
+        )
+
+        self.assertIsNone(rsp)
