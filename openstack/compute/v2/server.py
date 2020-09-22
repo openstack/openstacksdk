@@ -487,7 +487,7 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     def get_console_url(self, session, console_type):
         action = CONSOLE_TYPE_ACTION_MAPPING.get(console_type)
         if not action:
-            raise ValueError("Unsupported console type")
+            raise ValueError("Unsupported console type %s" % console_type)
         body = {action: {'type': console_type}}
         resp = self._action(session, body)
         return resp.json().get('console')

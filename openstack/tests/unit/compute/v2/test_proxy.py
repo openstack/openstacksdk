@@ -719,38 +719,45 @@ class TestCompute(TestComputeProxy):
             method_args=["value", "console_type"],
             expected_args=["console_type"])
 
-    def test_create_console(self):
-        with \
-            mock.patch('openstack.utils.supports_microversion') as smv, \
-            mock.patch('openstack.compute.v2._proxy.Proxy._create') as rcc, \
-            mock.patch('openstack.compute.v2.server.Server.get_console_url') \
-                as sgc:
-            console_fake = {
-                'url': 'a',
-                'type': 'b',
-                'protocol': 'c'
-            }
-            smv.return_value = False
-            sgc.return_value = console_fake
-            ret = self.proxy.create_console('fake_server', 'fake_type')
-            smv.assert_called_once_with(self.proxy, '2.6')
-            rcc.assert_not_called()
-            sgc.assert_called_with(self.proxy, 'fake_type')
-            self.assertDictEqual(console_fake, ret)
+    @mock.patch('openstack.utils.supports_microversion', autospec=True)
+    @mock.patch('openstack.compute.v2._proxy.Proxy._create', autospec=True)
+    @mock.patch('openstack.compute.v2.server.Server.get_console_url',
+                autospec=True)
+    def test_create_console_mv_old(self, sgc, rcc, smv):
+        console_fake = {
+            'url': 'a',
+            'type': 'b',
+            'protocol': 'c'
+        }
+        smv.return_value = False
+        sgc.return_value = console_fake
+        ret = self.proxy.create_console('fake_server', 'fake_type')
+        smv.assert_called_once_with(self.proxy, '2.6')
+        rcc.assert_not_called()
+        sgc.assert_called_with(mock.ANY, self.proxy, 'fake_type')
+        self.assertDictEqual(console_fake, ret)
 
-            smv.reset_mock()
-            sgc.reset_mock()
-            rcc.reset_mock()
+    @mock.patch('openstack.utils.supports_microversion', autospec=True)
+    @mock.patch('openstack.compute.v2._proxy.Proxy._create', autospec=True)
+    @mock.patch('openstack.compute.v2.server.Server.get_console_url',
+                autospec=True)
+    def test_create_console_mv_2_6(self, sgc, rcc, smv):
+        console_fake = {
+            'url': 'a',
+            'type': 'b',
+            'protocol': 'c'
+        }
 
-            # Test server_remote_console is triggered when mv>=2.6
-            smv.return_value = True
-            rcc.return_value = server_remote_console.ServerRemoteConsole(
-                **console_fake)
-            ret = self.proxy.create_console('fake_server', 'fake_type')
-            smv.assert_called_once_with(self.proxy, '2.6')
-            sgc.assert_not_called()
-            rcc.assert_called_with(server_remote_console.ServerRemoteConsole,
-                                   server_id='fake_server',
-                                   type='fake_type',
-                                   protocol=None)
-            self.assertEqual(console_fake['url'], ret['url'])
+        # Test server_remote_console is triggered when mv>=2.6
+        smv.return_value = True
+        rcc.return_value = server_remote_console.ServerRemoteConsole(
+            **console_fake)
+        ret = self.proxy.create_console('fake_server', 'fake_type')
+        smv.assert_called_once_with(self.proxy, '2.6')
+        sgc.assert_not_called()
+        rcc.assert_called_with(mock.ANY,
+                               server_remote_console.ServerRemoteConsole,
+                               server_id='fake_server',
+                               type='fake_type',
+                               protocol=None)
+        self.assertEqual(console_fake['url'], ret['url'])

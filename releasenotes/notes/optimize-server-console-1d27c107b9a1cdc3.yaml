@@ -1,4 +1,6 @@
 ---
 features:
   - |
-    Optimizes compute server console creation by addind older get_server_console method to the server and create_console proxy method calling appropriate method depending on the suported microversion.
+    Optimizes compute server console creation by adding older
+    get_server_console method to the server and create_console proxy method
+    calling appropriate method depending on the supported microversion.

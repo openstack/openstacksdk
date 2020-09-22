@@ -67,10 +67,12 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a flavor.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist.  When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param bool get_extra_specs: When set to ``True`` and extra_specs not
+            present in the response will invoke additional API call to fetch
+            extra_specs.
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
         """
         flavor = self._find(_flavor.Flavor, name_or_id,
@@ -110,11 +112,14 @@ class Proxy(proxy.Proxy):
         """Get a single flavor
 
         :param flavor: The value can be the ID of a flavor or a
-                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :param bool get_extra_specs: When set to ``True`` and extra_specs not
+            present in the response will invoke additional API call to fetch
+            extra_specs.
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         flavor = self._get(_flavor.Flavor, flavor)
         if get_extra_specs and not flavor.extra_specs:

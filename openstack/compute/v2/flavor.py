@@ -104,9 +104,9 @@ class Flavor(resource.Resource):
         self._action(session, body)
 
     def get_access(self, session):
-        """Lists tenants who have access to a private flavor and adds private
-        flavor access to and removes private flavor access from tenants. By
-        default, only administrators can manage private flavor access. A
+        """Lists tenants who have access to a private flavor
+
+        By default, only administrators can manage private flavor access. A
         private flavor has is_public set to false while a public flavor has
         is_public set to true.
 
@@ -119,8 +119,9 @@ class Flavor(resource.Resource):
 
     def fetch_extra_specs(self, session):
         """Fetch extra_specs of the flavor
+
         Starting with 2.61 extra_specs are returned with the flavor details,
-        before that a separate call is required
+        before that a separate call is required.
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
         microversion = self._get_microversion_for(session, 'fetch')
