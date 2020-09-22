@@ -17,6 +17,15 @@ from openstack import resource
 from openstack import utils
 
 
+CONSOLE_TYPE_ACTION_MAPPING = {
+    'novnc': 'os-getVNCConsole',
+    'xvpvnc': 'os-getVNCConsole',
+    'spice-html5': 'os-getSPICEConsole',
+    'rdp-html5': 'os-getRDPConsole',
+    'serial': 'os-getSerialConsole'
+}
+
+
 class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     resource_key = 'server'
     resources_key = 'servers'
@@ -474,6 +483,14 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
                 force=force,
                 block_migration=block_migration,
                 disk_over_commit=disk_over_commit)
+
+    def get_console_url(self, session, console_type):
+        action = CONSOLE_TYPE_ACTION_MAPPING.get(console_type)
+        if not action:
+            raise ValueError("Unsupported console type")
+        body = {action: {'type': console_type}}
+        resp = self._action(session, body)
+        return resp.json().get('console')
 
     def _live_migrate_30(self, session, host, force, block_migration):
         microversion = '2.30'

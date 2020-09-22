@@ -805,6 +805,52 @@ class TestServer(base.TestCase):
         self.sess.post.assert_called_with(
             url, json=body, headers=headers, microversion=None)
 
+    def test_get_console_url(self):
+        sot = server.Server(**EXAMPLE)
+
+        resp = mock.Mock()
+        resp.body = {'console': {'a': 'b'}}
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.status_code = 200
+        self.sess.post.return_value = resp
+
+        res = sot.get_console_url(self.sess, 'novnc')
+        self.sess.post.assert_called_with(
+            'servers/IDENTIFIER/action',
+            json={'os-getVNCConsole': {'type': 'novnc'}},
+            headers={'Accept': ''}, microversion=None)
+        self.assertDictEqual(resp.body['console'], res)
+
+        sot.get_console_url(self.sess, 'xvpvnc')
+        self.sess.post.assert_called_with(
+            'servers/IDENTIFIER/action',
+            json={'os-getVNCConsole': {'type': 'xvpvnc'}},
+            headers={'Accept': ''}, microversion=None)
+
+        sot.get_console_url(self.sess, 'spice-html5')
+        self.sess.post.assert_called_with(
+            'servers/IDENTIFIER/action',
+            json={'os-getSPICEConsole': {'type': 'spice-html5'}},
+            headers={'Accept': ''}, microversion=None)
+
+        sot.get_console_url(self.sess, 'rdp-html5')
+        self.sess.post.assert_called_with(
+            'servers/IDENTIFIER/action',
+            json={'os-getRDPConsole': {'type': 'rdp-html5'}},
+            headers={'Accept': ''}, microversion=None)
+
+        sot.get_console_url(self.sess, 'serial')
+        self.sess.post.assert_called_with(
+            'servers/IDENTIFIER/action',
+            json={'os-getSerialConsole': {'type': 'serial'}},
+            headers={'Accept': ''}, microversion=None)
+
+        self.assertRaises(ValueError,
+                          sot.get_console_url,
+                          self.sess,
+                          'fake_type'
+                          )
+
     def test_live_migrate_no_force(self):
         sot = server.Server(**EXAMPLE)
 
