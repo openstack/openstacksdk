@@ -12,8 +12,12 @@
 
 from unittest import mock
 
+from keystoneauth1 import adapter
+
 from openstack.compute.v2 import aggregate
 from openstack.tests.unit import base
+
+IDENTIFIER = 'IDENTIFIER'
 
 EXAMPLE = {
     "name": "m-family",
@@ -24,6 +28,7 @@ EXAMPLE = {
     "hosts": ["oscomp-m001", "oscomp-m002", "oscomp-m003"],
     "deleted_at": None,
     "id": 4,
+    "uuid": IDENTIFIER,
     "metadata": {"type": "public", "family": "m-family"}
 }
 
@@ -37,7 +42,7 @@ class TestAggregate(base.TestCase):
         self.resp.json = mock.Mock(return_value=self.resp.body)
         self.resp.status_code = 200
         self.resp.headers = {'Accept': ''}
-        self.sess = mock.Mock()
+        self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.post = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
@@ -58,6 +63,7 @@ class TestAggregate(base.TestCase):
         self.assertEqual(EXAMPLE['deleted'], sot.deleted)
         self.assertEqual(EXAMPLE['hosts'], sot.hosts)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['uuid'], sot.uuid)
         self.assertDictEqual(EXAMPLE['metadata'], sot.metadata)
 
     def test_add_host(self):
