@@ -28,7 +28,7 @@ class Action(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'name', 'action', 'status', 'sort', 'global_project',
-        target_id='target')
+        'cluster_id', target_id='target')
 
     # Properties
     #: Name of the action.
