@@ -63,6 +63,7 @@ class AcceleratorCloudMixin(_normalize.Normalizer):
     def delete_device_profile(self, name_or_id, filters):
         """Delete a device_profile.
         :param name_or_id: The Name(or uuid) of device_profile to be deleted.
+        :param filters: dict of filter conditions to push down
         :returns: True if delete succeeded, False otherwise.
         """
 
@@ -95,6 +96,7 @@ class AcceleratorCloudMixin(_normalize.Normalizer):
     def delete_accelerator_request(self, name_or_id, filters):
         """Delete a accelerator_request.
         :param name_or_id: The Name(or uuid) of accelerator_request.
+        :param filters: dict of filter conditions to push down
         :returns: True if delete succeeded, False otherwise.
         """
 
