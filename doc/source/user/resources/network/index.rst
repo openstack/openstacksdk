@@ -4,6 +4,7 @@ Network Resources
 .. toctree::
    :maxdepth: 1
 
+   v2/address_group
    v2/address_scope
    v2/agent
    v2/auto_allocated_topology
