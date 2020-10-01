@@ -20,7 +20,8 @@ class Snapshot(resource.Resource):
     base_path = "/snapshots"
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'volume_id', all_projects='all_tenants')
+        'name', 'status', 'volume_id',
+        'project_id', all_projects='all_tenants')
 
     # capabilities
     allow_fetch = True

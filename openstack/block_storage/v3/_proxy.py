@@ -62,6 +62,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
             * name: Name of the snapshot as a string.
             * all_projects: Whether return the snapshots in all projects.
+            * project_id: Filter the snapshots by project.
             * volume_id: volume id of a snapshot.
             * status: Value of the status of the snapshot so that you can
                       filter on "available" for example.
