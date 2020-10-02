@@ -22,6 +22,11 @@ class TestAddressGroup(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestAddressGroup, self).setUp()
+
+        # Skip the tests if address group extension is not enabled.
+        if not self.conn.network.find_extension('address-group'):
+            self.skipTest('Network Address Group extension disabled')
+
         self.ADDRESS_GROUP_NAME = self.getUniqueString()
         self.ADDRESS_GROUP_DESCRIPTION = self.getUniqueString()
         self.ADDRESS_GROUP_NAME_UPDATED = self.getUniqueString()
