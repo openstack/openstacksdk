@@ -31,6 +31,8 @@ class Type(resource.Resource):
     id = resource.Body("id")
     #: Name of the type.
     name = resource.Body("name")
+    #: Description of the type.
+    description = resource.Body("description")
     #: A dict of extra specifications. "capabilities" is a usual key.
     extra_specs = resource.Body("extra_specs", type=dict)
     #: a private volume-type. *Type: bool*

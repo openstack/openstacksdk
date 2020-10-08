@@ -20,7 +20,8 @@ TYPE = {
         "capabilities": "gpu"
     },
     "id": FAKE_ID,
-    "name": "SSD"
+    "name": "SSD",
+    "description": "Test type",
 }
 
 
@@ -46,3 +47,4 @@ class TestType(base.TestCase):
         self.assertEqual(TYPE["id"], sot.id)
         self.assertEqual(TYPE["extra_specs"], sot.extra_specs)
         self.assertEqual(TYPE["name"], sot.name)
+        self.assertEqual(TYPE["description"], sot.description)
