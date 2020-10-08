@@ -38,3 +38,38 @@ class Type(resource.Resource):
     extra_specs = resource.Body("extra_specs", type=dict)
     #: a private volume-type. *Type: bool*
     is_public = resource.Body('os-volume-type-access:is_public', type=bool)
+
+
+class TypeEncryption(resource.Resource):
+    resource_key = "encryption"
+    resources_key = "encryption"
+    base_path = "/types/%(volume_type_id)s/encryption"
+
+    # capabilities
+    allow_fetch = True
+    allow_create = True
+    allow_delete = True
+    allow_list = False
+    allow_commit = True
+
+    # Properties
+    #: A ID representing this type.
+    encryption_id = resource.Body("encryption_id", alternate_id=True)
+    #: The ID of the Volume Type.
+    volume_type_id = resource.URI("volume_type_id")
+    #: The Size of encryption key.
+    key_size = resource.Body("key_size")
+    #: The class that provides encryption support.
+    provider = resource.Body("provider")
+    #: Notional service where encryption is performed.
+    control_location = resource.Body("control_location")
+    #: The encryption algorithm or mode.
+    cipher = resource.Body("cipher")
+    #: The resource is deleted or not.
+    deleted = resource.Body("deleted")
+    #: The date and time when the resource was created.
+    created_at = resource.Body("created_at")
+    #: The date and time when the resource was updated.
+    updated_at = resource.Body("updated_at")
+    #: The date and time when the resource was deleted.
+    deleted_at = resource.Body("deleted_at")

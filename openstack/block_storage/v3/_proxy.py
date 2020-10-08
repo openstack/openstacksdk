@@ -175,6 +175,99 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._update(_type.Type, type, **attrs)
 
+    def get_type_encryption(self, volume_type_id):
+        """Get the encryption details of a volume type
+
+        :param volume_type_id: The value can be the ID of a type or a
+                               :class:`~openstack.volume.v3.type.Type`
+                               instance.
+
+        :returns: One :class:`~openstack.volume.v3.type.TypeEncryption`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        volume_type = self._get_resource(_type.Type, volume_type_id)
+
+        return self._get(_type.TypeEncryption,
+                         volume_type_id=volume_type.id,
+                         requires_id=False)
+
+    def create_type_encryption(self, volume_type, **attrs):
+        """Create new type encryption from attributes
+
+        :param volume_type: The value can be the ID of a type or a
+                            :class:`~openstack.volume.v3.type.Type`
+                            instance.
+
+        :param dict attrs: Keyword arguments which will be used to create
+                           a :class:`~openstack.volume.v3.type.TypeEncryption`,
+                           comprised of the properties on the TypeEncryption
+                           class.
+
+        :returns: The results of type encryption creation
+        :rtype: :class:`~openstack.volume.v3.type.TypeEncryption`
+        """
+        volume_type = self._get_resource(_type.Type, volume_type)
+
+        return self._create(_type.TypeEncryption,
+                            volume_type_id=volume_type.id, **attrs)
+
+    def delete_type_encryption(self, encryption=None,
+                               volume_type=None, ignore_missing=True):
+        """Delete type encryption attributes
+
+        :param encryption: The value can be None or a
+                           :class:`~openstack.volume.v3.type.TypeEncryption`
+                           instance.  If encryption_id is None then
+                           volume_type_id must be specified.
+
+        :param volume_type: The value can be the ID of a type or a
+                            :class:`~openstack.volume.v3.type.Type`
+                            instance.  Required if encryption_id is None.
+
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the type does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent type.
+
+        :returns: ``None``
+        """
+
+        if volume_type:
+            volume_type = self._get_resource(_type.Type, volume_type)
+            encryption = self._get(_type.TypeEncryption,
+                                   volume_type=volume_type.id,
+                                   requires_id=False)
+
+        self._delete(_type.TypeEncryption, encryption,
+                     ignore_missing=ignore_missing)
+
+    def update_type_encryption(self, encryption=None,
+                               volume_type=None, **attrs):
+        """Update a type
+        :param encryption: The value can be None or a
+                           :class:`~openstack.volume.v3.type.TypeEncryption`
+                           instance.  If encryption_id is None then
+                           volume_type_id must be specified.
+
+        :param volume_type: The value can be the ID of a type or a
+                            :class:`~openstack.volume.v3.type.Type`
+                            instance.  Required if encryption_id is None.
+        :param dict attrs: The attributes to update on the type encryption.
+
+        :returns: The updated type encryption
+        :rtype: :class:`~openstack.volume.v3.type.TypeEncryption`
+        """
+
+        if volume_type:
+            volume_type = self._get_resource(_type.Type, volume_type)
+            encryption = self._get(_type.TypeEncryption,
+                                   volume_type=volume_type.id,
+                                   requires_id=False)
+
+        return self._update(_type.TypeEncryption, encryption, **attrs)
+
     def get_volume(self, volume):
         """Get a single volume
 

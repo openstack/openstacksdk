@@ -75,6 +75,34 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_type_update(self):
         self.verify_update(self.proxy.update_type, type.Type)
 
+    def test_type_encryption_get(self):
+        self.verify_get(self.proxy.get_type_encryption,
+                        type.TypeEncryption,
+                        expected_args=[type.TypeEncryption],
+                        expected_kwargs={
+                            'volume_type_id': 'value',
+                            'requires_id': False
+                        })
+
+    def test_type_encryption_create(self):
+        self.verify_create(self.proxy.create_type_encryption,
+                           type.TypeEncryption,
+                           method_kwargs={'volume_type': 'id'},
+                           expected_kwargs={'volume_type_id': 'id'}
+                           )
+
+    def test_type_encryption_update(self):
+        self.verify_update(self.proxy.update_type_encryption,
+                           type.TypeEncryption)
+
+    def test_type_encryption_delete(self):
+        self.verify_delete(self.proxy.delete_type_encryption,
+                           type.TypeEncryption, False)
+
+    def test_type_encryption_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_type_encryption,
+                           type.TypeEncryption, True)
+
     def test_volume_get(self):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
