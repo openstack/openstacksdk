@@ -13,6 +13,7 @@
 # under the License.
 
 import copy
+import os.path
 import warnings
 import urllib
 
@@ -338,7 +339,7 @@ class CloudRegion:
         if insecure:
             verify = False
         if verify and cacert:
-            verify = cacert
+            verify = os.path.expanduser(cacert)
         else:
             if cacert:
                 warnings.warn(
@@ -349,8 +350,9 @@ class CloudRegion:
 
         cert = self.config.get('cert')
         if cert:
+            cert = os.path.expanduser(cert)
             if self.config.get('key'):
-                cert = (cert, self.config.get('key'))
+                cert = (cert, os.path.expanduser(self.config.get('key')))
         return (verify, cert)
 
     def get_services(self):
