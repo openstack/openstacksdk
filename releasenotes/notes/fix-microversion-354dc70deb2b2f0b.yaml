@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Modify microversion handling. Microversion chosen by the client/user is
+    respected in the microversion  negotiation. For features, requiring
+    particular microversion, it would be ensured it is supported by the server
+    side and required microversion is <= chosen microversion, otherwise call
+    will be rejected.

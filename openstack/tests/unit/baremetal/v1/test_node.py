@@ -18,6 +18,7 @@ from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import node
 from openstack import exceptions
 from openstack import resource
+from openstack import utils
 from openstack.tests.unit import base
 
 # NOTE: Sample data from api-ref doc
@@ -731,6 +732,7 @@ class TestNodeSetBootDevice(base.TestCase):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
 
+@mock.patch.object(utils, 'pick_microversion', lambda session, v: v)
 @mock.patch.object(node.Node, 'fetch', lambda self, session: self)
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeTraits(base.TestCase):
