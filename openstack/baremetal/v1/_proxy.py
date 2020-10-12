@@ -442,7 +442,7 @@ class Proxy(proxy.Proxy):
             else:
                 return _node.WaitResult(finished, failed, remaining)
 
-    def set_node_power_state(self, node, target):
+    def set_node_power_state(self, node, target, wait=False, timeout=None):
         """Run an action modifying node's power state.
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -450,10 +450,30 @@ class Proxy(proxy.Proxy):
 
         :param node: The value can be the name or ID of a node or a
             :class:`~openstack.baremetal.v1.node.Node` instance.
-        :param target: Target power state, e.g. "rebooting", "power on".
-            See the Bare Metal service documentation for available actions.
+        :param target: Target power state, one of
+            :class:`~openstack.baremetal.v1.node.PowerAction` or a string.
+        :param wait: Whether to wait for the node to get into the expected
+            state.
+        :param timeout: If ``wait`` is set to ``True``, specifies how much (in
+            seconds) to wait for the expected state to be reached. The value of
+            ``None`` (the default) means no client-side timeout.
         """
-        self._get_resource(_node.Node, node).set_power_state(self, target)
+        self._get_resource(_node.Node, node).set_power_state(
+            self, target, wait=wait, timeout=timeout)
+
+    def wait_for_node_power_state(self, node, expected_state, timeout=None):
+        """Wait for the node to reach the power state.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param timeout: How much (in seconds) to wait for the target state
+            to be reached. The value of ``None`` (the default) means
+            no timeout.
+
+        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.wait_for_power_state(self, expected_state, timeout=timeout)
 
     def wait_for_node_reservation(self, node, timeout=None):
         """Wait for a lock on the node to be released.

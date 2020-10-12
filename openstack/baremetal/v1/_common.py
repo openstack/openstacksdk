@@ -49,6 +49,15 @@ EXPECTED_STATES = {
 }
 """Mapping of provisioning actions to expected stable states."""
 
+EXPECTED_POWER_STATES = {
+    'power on': 'power on',
+    'power off': 'power off',
+    'rebooting': 'power on',
+    'soft power off': 'power off',
+    'soft rebooting': 'power on',
+}
+"""Mapping of target power states to expected power states."""
+
 STATE_VERSIONS = {
     'enroll': '1.11',
     'manageable': '1.4',

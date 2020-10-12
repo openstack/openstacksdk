@@ -11,6 +11,7 @@
 # under the License.
 
 import collections
+import enum
 
 from openstack.baremetal.v1 import _common
 from openstack import exceptions
@@ -30,6 +31,24 @@ class ValidationResult:
     def __init__(self, result, reason):
         self.result = result
         self.reason = reason
+
+
+class PowerAction(enum.Enum):
+    """Mapping from an action to a target power state."""
+
+    POWER_ON = 'power on'
+    """Power on the node."""
+
+    POWER_OFF = 'power off'
+    """Power off the node (using hard power off)."""
+    REBOOT = 'rebooting'
+    """Reboot the node (using hard power off)."""
+
+    SOFT_POWER_OFF = 'soft power off'
+    """Power off the node using soft power off."""
+
+    SOFT_REBOOT = 'soft rebooting'
+    """Reboot the node using soft power off."""
 
 
 class WaitResult(collections.namedtuple('WaitResult',
@@ -416,6 +435,34 @@ class Node(_common.ListMixin, resource.Resource):
         else:
             return self.fetch(session)
 
+    def wait_for_power_state(self, session, expected_state, timeout=None):
+        """Wait for the node to reach the expected power state.
+
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param expected_state: The expected power state to reach.
+        :param timeout: If ``wait`` is set to ``True``, specifies how much (in
+            seconds) to wait for the expected state to be reached. The value of
+            ``None`` (the default) means no client-side timeout.
+
+        :return: This :class:`Node` instance.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` on timeout.
+        """
+        for count in utils.iterate_timeout(
+                timeout,
+                "Timeout waiting for node %(node)s to reach "
+                "power state '%(state)s'" % {'node': self.id,
+                                             'state': expected_state}):
+            self.fetch(session)
+            if self.power_state == expected_state:
+                return self
+
+            session.log.debug(
+                'Still waiting for node %(node)s to reach power state '
+                '"%(target)s", the current state is "%(state)s"',
+                {'node': self.id, 'target': expected_state,
+                 'state': self.power_state})
+
     def wait_for_provision_state(self, session, expected_state, timeout=None,
                                  abort_on_failed_state=True):
         """Wait for the node to reach the expected state.
@@ -532,8 +579,7 @@ class Node(_common.ListMixin, resource.Resource):
                 "the last error is %(error)s" %
                 {'node': self.id, 'error': self.last_error})
 
-    # TODO(dtantsur): waiting for power state
-    def set_power_state(self, session, target):
+    def set_power_state(self, session, target, wait=False, timeout=None):
         """Run an action modifying this node's power state.
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -541,9 +587,22 @@ class Node(_common.ListMixin, resource.Resource):
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
-        :param target: Target power state, e.g. "rebooting", "power on".
-            See the Bare Metal service documentation for available actions.
+        :param target: Target power state, as a :class:`PowerAction` or
+            a string.
+        :param wait: Whether to wait for the expected power state to be
+            reached.
+        :param timeout: Timeout (in seconds) to wait for the target state to be
+            reached. If ``None``, wait without timeout.
         """
+        if isinstance(target, PowerAction):
+            target = target.value
+        if wait:
+            try:
+                expected = _common.EXPECTED_POWER_STATES[target]
+            except KeyError:
+                raise ValueError("Cannot use target power state %s with wait, "
+                                 "the expected state is not known" % target)
+
         session = self._get_session(session)
 
         if target.startswith("soft "):
@@ -566,6 +625,9 @@ class Node(_common.ListMixin, resource.Resource):
         msg = ("Failed to set power state for bare metal node {node} "
                "to {target}".format(node=self.id, target=target))
         exceptions.raise_from_response(response, error_message=msg)
+
+        if wait:
+            self.wait_for_power_state(session, expected, timeout=timeout)
 
     def attach_vif(self, session, vif_id, retry_on_conflict=True):
         """Attach a VIF to the node.
