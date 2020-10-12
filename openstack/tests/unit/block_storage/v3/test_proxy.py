@@ -75,6 +75,28 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_type_update(self):
         self.verify_update(self.proxy.update_type, type.Type)
 
+    def test_type_extra_specs_update(self):
+        kwargs = {"a": "1", "b": "2"}
+        id = "an_id"
+        self._verify2(
+            "openstack.block_storage.v3.type.Type.set_extra_specs",
+            self.proxy.update_type_extra_specs,
+            method_args=[id],
+            method_kwargs=kwargs,
+            method_result=type.Type.existing(id=id,
+                                             extra_specs=kwargs),
+            expected_args=[self.proxy],
+            expected_kwargs=kwargs,
+            expected_result=kwargs)
+
+    def test_type_extra_specs_delete(self):
+        self._verify2(
+            "openstack.block_storage.v3.type.Type.delete_extra_specs",
+            self.proxy.delete_type_extra_specs,
+            expected_result=None,
+            method_args=["value", "key"],
+            expected_args=[self.proxy, "key"])
+
     def test_type_encryption_get(self):
         self.verify_get(self.proxy.get_type_encryption,
                         type.TypeEncryption,

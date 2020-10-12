@@ -175,6 +175,36 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._update(_type.Type, type, **attrs)
 
+    def update_type_extra_specs(self, type, **attrs):
+        """Update the extra_specs for a type
+
+        :param type: The value can be either the ID of a type or a
+                     :class:`~openstack.volume.v3.type.Type` instance.
+        :param dict attrs: The extra_spec attributes to update on the
+                           type represented by ``value``.
+
+        :returns: A dict containing updated extra_specs
+
+        """
+        res = self._get_resource(_type.Type, type)
+        extra_specs = res.set_extra_specs(self, **attrs)
+        result = _type.Type.existing(id=res.id, extra_specs=extra_specs)
+        return result
+
+    def delete_type_extra_specs(self, type, keys):
+        """Delete the extra_specs for a type
+
+        Note: This method will do a HTTP DELETE request for every key in keys.
+
+        :param type: The value can be either the ID of a type or a
+                     :class:`~openstack.volume.v3.type.Type` instance.
+        :param keys: The keys to delete
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_type.Type, type)
+        return res.delete_extra_specs(self, keys)
+
     def get_type_encryption(self, volume_type_id):
         """Get the encryption details of a volume type
 
