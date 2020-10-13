@@ -162,6 +162,19 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         self._delete(_type.Type, type, ignore_missing=ignore_missing)
 
+    def update_type(self, type, **attrs):
+        """Update a type
+
+        :param type: The value can be either the ID of a type or a
+                     :class:`~openstack.volume.v3.type.Type` instance.
+        :param dict attrs: The attributes to update on the type
+                           represented by ``value``.
+
+        :returns: The updated type
+        :rtype: :class:`~openstack.volume.v3.type.Type`
+        """
+        return self._update(_type.Type, type, **attrs)
+
     def get_volume(self, volume):
         """Get a single volume
 

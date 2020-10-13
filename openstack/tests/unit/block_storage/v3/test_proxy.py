@@ -72,6 +72,9 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_type_delete_ignore(self):
         self.verify_delete(self.proxy.delete_type, type.Type, True)
 
+    def test_type_update(self):
+        self.verify_update(self.proxy.update_type, type.Type)
+
     def test_volume_get(self):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 

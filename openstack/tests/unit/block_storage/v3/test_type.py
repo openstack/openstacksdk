@@ -36,7 +36,7 @@ class TestType(base.TestCase):
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertFalse(sot.allow_commit)
+        self.assertTrue(sot.allow_commit)
 
     def test_new(self):
         sot = type.Type.new(id=FAKE_ID)

@@ -23,6 +23,7 @@ class Type(resource.Resource):
     allow_create = True
     allow_delete = True
     allow_list = True
+    allow_commit = True
 
     _query_mapping = resource.QueryParameters("is_public")
 
