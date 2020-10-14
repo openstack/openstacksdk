@@ -454,7 +454,8 @@
         - osc-functional-devstack-tips:
             voting: false
         - nodepool-functional-openstack-src
-        - bifrost-integration-tinyipa-ubuntu-xenial
+        - bifrost-integration-tinyipa-ubuntu-xenial:
+            voting: false
         - metalsmith-integration-openstacksdk-src:
             voting: false
         - ansible-collections-openstack-functional-devstack:
@@ -469,4 +470,3 @@
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
         - nodepool-functional-openstack-src
-        - bifrost-integration-tinyipa-ubuntu-xenial
