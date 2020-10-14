@@ -40,7 +40,7 @@ class TestAddressGroup(base.BaseFunctionalTest):
         self.assertEqual(self.ADDRESS_GROUP_NAME, address_group.name)
         self.assertEqual(self.ADDRESS_GROUP_DESCRIPTION,
                          address_group.description)
-        self.assertItemsEqual(self.ADDRESSES, address_group.addresses)
+        self.assertCountEqual(self.ADDRESSES, address_group.addresses)
         self.ADDRESS_GROUP_ID = address_group.id
 
     def tearDown(self):
@@ -75,7 +75,7 @@ class TestAddressGroup(base.BaseFunctionalTest):
             self.ADDRESS_GROUP_ID, addrs)
         updated_addrs = self.ADDRESSES.copy()
         updated_addrs.extend(addrs)
-        self.assertItemsEqual(updated_addrs, sot.addresses)
+        self.assertCountEqual(updated_addrs, sot.addresses)
         sot = self.conn.network.remove_addresses_from_address_group(
             self.ADDRESS_GROUP_ID, addrs)
-        self.assertItemsEqual(self.ADDRESSES, sot.addresses)
+        self.assertCountEqual(self.ADDRESSES, sot.addresses)

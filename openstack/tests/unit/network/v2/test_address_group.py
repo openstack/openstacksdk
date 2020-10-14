@@ -52,4 +52,4 @@ class TestAddressGroup(base.TestCase):
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
-        self.assertItemsEqual(EXAMPLE['addresses'], sot.addresses)
+        self.assertCountEqual(EXAMPLE['addresses'], sot.addresses)
