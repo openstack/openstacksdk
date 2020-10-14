@@ -274,6 +274,7 @@
         n-sch: false
         nova: false
         placement-api: false
+        dstat: false
       tox_environment:
         OPENSTACKSDK_HAS_IRONIC: 1
         # NOTE(dtantsur): this job cannot run many regular tests (e.g. compute
