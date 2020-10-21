@@ -447,6 +447,7 @@ class TestServer(base.TestCase):
                                        min_microversion='2.1',
                                        max_microversion='2.56')
         self.sess.get_endpoint_data.return_value = self.endpoint_data
+        self.sess.default_microversion = None
 
         image_id = sot.create_image(self.sess, name, metadata)
 
@@ -474,6 +475,7 @@ class TestServer(base.TestCase):
                                        min_microversion='2.1',
                                        max_microversion='2.56')
         self.sess.get_endpoint_data.return_value = self.endpoint_data
+        self.sess.default_microversion = None
 
         self.assertIsNone(self.resp.body, sot.create_image(self.sess, name))
 
@@ -900,6 +902,7 @@ class TestServer(base.TestCase):
             min_microversion = '2.1'
             max_microversion = '2.25'
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
+        self.sess.default_microversion = None
 
         res = sot.live_migrate(
             self.sess, host='HOST2', force=True, block_migration=False)
@@ -924,6 +927,7 @@ class TestServer(base.TestCase):
             min_microversion = '2.1'
             max_microversion = '2.25'
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
+        self.sess.default_microversion = None
 
         res = sot.live_migrate(
             self.sess, host='HOST2', force=True, block_migration=None)
@@ -948,6 +952,7 @@ class TestServer(base.TestCase):
             min_microversion = '2.1'
             max_microversion = '2.30'
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
+        self.sess.default_microversion = None
 
         res = sot.live_migrate(
             self.sess, host='HOST2', force=False, block_migration=False)
@@ -972,6 +977,7 @@ class TestServer(base.TestCase):
             min_microversion = '2.1'
             max_microversion = '2.30'
         self.sess.get_endpoint_data.return_value = FakeEndpointData()
+        self.sess.default_microversion = None
 
         res = sot.live_migrate(
             self.sess, host='HOST2', force=True, block_migration=None)
