@@ -18,8 +18,8 @@ Node Operations
   :noindex:
   :members: nodes, find_node, get_node, create_node, update_node, patch_node, delete_node,
             validate_node, set_node_power_state, set_node_provision_state,
-            wait_for_nodes_provision_state, wait_for_node_reservation,
-            set_node_maintenance, unset_node_maintenance
+            wait_for_nodes_provision_state, wait_for_node_power_state,
+            wait_for_node_reservation, set_node_maintenance, unset_node_maintenance
 
 Port Operations
 ^^^^^^^^^^^^^^^

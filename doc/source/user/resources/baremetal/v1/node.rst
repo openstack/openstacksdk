@@ -11,6 +11,14 @@ The ``Node`` class inherits from :class:`~openstack.resource.Resource`.
 .. autoclass:: openstack.baremetal.v1.node.Node
    :members:
 
+The PowerAction Class
+^^^^^^^^^^^^^^^^^^^^^
+
+The ``PowerAction`` enumeration represents known power actions.
+
+.. autoclass:: openstack.baremetal.v1.node.PowerAction
+   :members:
+
 The ValidationResult Class
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
