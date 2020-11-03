@@ -18,8 +18,13 @@ from openstack.tests.unit import base
 
 class TestFlavors(base.TestCase):
 
+    def setUp(self):
+        super(TestFlavors, self).setUp()
+        # self.use_compute_discovery()
+
     def test_create_flavor(self):
 
+        self.use_compute_discovery()
         self.register_uris([
             dict(method='POST',
                  uri='{endpoint}/flavors'.format(
@@ -44,11 +49,12 @@ class TestFlavors(base.TestCase):
         self.assert_calls()
 
     def test_delete_flavor(self):
+        self.use_compute_discovery()
         self.register_uris([
             dict(method='GET',
-                 uri='{endpoint}/flavors/detail?is_public=None'.format(
+                 uri='{endpoint}/flavors/vanilla'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),
-                 json={'flavors': fakes.FAKE_FLAVOR_LIST}),
+                 json=fakes.FAKE_FLAVOR),
             dict(method='DELETE',
                  uri='{endpoint}/flavors/{id}'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT, id=fakes.FLAVOR_ID))])
@@ -57,7 +63,12 @@ class TestFlavors(base.TestCase):
         self.assert_calls()
 
     def test_delete_flavor_not_found(self):
+        self.use_compute_discovery()
         self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/flavors/invalid'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 status_code=404),
             dict(method='GET',
                  uri='{endpoint}/flavors/detail?is_public=None'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),
@@ -68,7 +79,12 @@ class TestFlavors(base.TestCase):
         self.assert_calls()
 
     def test_delete_flavor_exception(self):
+        self.use_compute_discovery()
         self.register_uris([
+            dict(method='GET',
+                 uri='{endpoint}/flavors/vanilla'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json=fakes.FAKE_FLAVOR),
             dict(method='GET',
                  uri='{endpoint}/flavors/detail?is_public=None'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT),
@@ -82,6 +98,7 @@ class TestFlavors(base.TestCase):
                           self.cloud.delete_flavor, 'vanilla')
 
     def test_list_flavors(self):
+        self.use_compute_discovery()
         uris_to_mock = [
             dict(method='GET',
                  uri='{endpoint}/flavors/detail?is_public=None'.format(
@@ -106,6 +123,7 @@ class TestFlavors(base.TestCase):
         self.assert_calls()
 
     def test_list_flavors_with_extra(self):
+        self.use_compute_discovery()
         uris_to_mock = [
             dict(method='GET',
                  uri='{endpoint}/flavors/detail?is_public=None'.format(
@@ -136,6 +154,7 @@ class TestFlavors(base.TestCase):
         self.assert_calls()
 
     def test_get_flavor_by_ram(self):
+        self.use_compute_discovery()
         uris_to_mock = [
             dict(method='GET',
                  uri='{endpoint}/flavors/detail?is_public=None'.format(
@@ -154,6 +173,7 @@ class TestFlavors(base.TestCase):
         self.assertEqual(fakes.STRAWBERRY_FLAVOR_ID, flavor['id'])
 
     def test_get_flavor_by_ram_and_include(self):
+        self.use_compute_discovery()
         uris_to_mock = [
             dict(method='GET',
                  uri='{endpoint}/flavors/detail?is_public=None'.format(
@@ -171,6 +191,7 @@ class TestFlavors(base.TestCase):
         self.assertEqual(fakes.STRAWBERRY_FLAVOR_ID, flavor['id'])
 
     def test_get_flavor_by_ram_not_found(self):
+        self.use_compute_discovery()
         self.register_uris([
             dict(method='GET',
                  uri='{endpoint}/flavors/detail?is_public=None'.format(
@@ -182,19 +203,19 @@ class TestFlavors(base.TestCase):
             ram=100)
 
     def test_get_flavor_string_and_int(self):
-        flavor_list_uri = '{endpoint}/flavors/detail?is_public=None'.format(
-            endpoint=fakes.COMPUTE_ENDPOINT)
+        self.use_compute_discovery()
         flavor_resource_uri = '{endpoint}/flavors/1/os-extra_specs'.format(
             endpoint=fakes.COMPUTE_ENDPOINT)
-        flavor_list_json = {'flavors': [fakes.make_fake_flavor(
-            '1', 'vanilla')]}
+        flavor = fakes.make_fake_flavor('1', 'vanilla')
         flavor_json = {'extra_specs': {}}
 
         self.register_uris([
-            dict(method='GET', uri=flavor_list_uri, json=flavor_list_json),
+            dict(method='GET',
+                 uri='{endpoint}/flavors/1'.format(
+                     endpoint=fakes.COMPUTE_ENDPOINT),
+                 json=flavor),
             dict(method='GET', uri=flavor_resource_uri, json=flavor_json),
-            dict(method='GET', uri=flavor_list_uri, json=flavor_list_json),
-            dict(method='GET', uri=flavor_resource_uri, json=flavor_json)])
+        ])
 
         flavor1 = self.cloud.get_flavor('1')
         self.assertEqual('1', flavor1['id'])
@@ -202,6 +223,7 @@ class TestFlavors(base.TestCase):
         self.assertEqual('1', flavor2['id'])
 
     def test_set_flavor_specs(self):
+        self.use_compute_discovery()
         extra_specs = dict(key1='value1')
         self.register_uris([
             dict(method='POST',
@@ -213,6 +235,7 @@ class TestFlavors(base.TestCase):
         self.assert_calls()
 
     def test_unset_flavor_specs(self):
+        self.use_compute_discovery()
         keys = ['key1', 'key2']
         self.register_uris([
             dict(method='DELETE',
@@ -262,6 +285,7 @@ class TestFlavors(base.TestCase):
         self.assert_calls()
 
     def test_get_flavor_by_id(self):
+        self.use_compute_discovery()
         flavor_uri = '{endpoint}/flavors/1'.format(
             endpoint=fakes.COMPUTE_ENDPOINT)
         flavor_json = {'flavor': fakes.make_fake_flavor('1', 'vanilla')}
@@ -278,6 +302,7 @@ class TestFlavors(base.TestCase):
         self.assertEqual({}, flavor2.extra_specs)
 
     def test_get_flavor_with_extra_specs(self):
+        self.use_compute_discovery()
         flavor_uri = '{endpoint}/flavors/1'.format(
             endpoint=fakes.COMPUTE_ENDPOINT)
         flavor_extra_uri = '{endpoint}/flavors/1/os-extra_specs'.format(

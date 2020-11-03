@@ -791,11 +791,12 @@ class TestCreateServer(base.TestCase):
             dict(method='GET',
                  uri='https://image.example.com/v2/images',
                  json=fake_image_search_return),
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['flavors', 'detail'],
-                     qs_elements=['is_public=None']),
-                 json={'flavors': fakes.FAKE_FLAVOR_LIST}),
+                     'compute', 'public', append=['flavors', 'vanilla'],
+                     qs_elements=[]),
+                 json=fakes.FAKE_FLAVOR),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),

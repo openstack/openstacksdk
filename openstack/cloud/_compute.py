@@ -159,29 +159,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :returns: A list of flavor ``munch.Munch``.
 
         """
-        data = proxy._json_response(
-            self.compute.get(
-                '/flavors/detail', params=dict(is_public='None')),
-            error_message="Error fetching flavor list")
-        flavors = self._normalize_flavors(
-            self._get_and_munchify('flavors', data))
+        data = self.compute.flavors(details=True)
+        flavors = []
 
-        for flavor in flavors:
+        for flavor in data:
             if not flavor.extra_specs and get_extra:
-                endpoint = "/flavors/{id}/os-extra_specs".format(
-                    id=flavor.id)
-                try:
-                    data = proxy._json_response(
-                        self.compute.get(endpoint),
-                        error_message="Error fetching flavor extra specs")
-                    flavor.extra_specs = self._get_and_munchify(
-                        'extra_specs', data)
-                except exc.OpenStackCloudHTTPError as e:
-                    flavor.extra_specs = {}
-                    self.log.debug(
-                        'Fetching extra specs for flavor failed:'
-                        ' %(msg)s', {'msg': str(e)})
-
+                flavor.fetch_extra_specs(self.compute)
+            flavors.append(flavor._to_munch(original_names=False))
         return flavors
 
     def list_server_security_groups(self, server):
@@ -441,9 +425,12 @@ class ComputeCloudMixin(_normalize.Normalizer):
             found.
 
         """
-        search_func = functools.partial(
-            self.search_flavors, get_extra=get_extra)
-        return _utils._get_entity(self, search_func, name_or_id, filters)
+        if not filters:
+            filters = {}
+        flavor = self.compute.find_flavor(
+            name_or_id, get_extra_specs=get_extra, **filters)
+        if flavor:
+            return flavor._to_munch(original_names=False)
 
     def get_flavor_by_id(self, id, get_extra=False):
         """ Get a flavor by ID
@@ -454,29 +441,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
              specs.
         :returns: A flavor ``munch.Munch``.
         """
-        data = proxy._json_response(
-            self.compute.get('/flavors/{id}'.format(id=id)),
-            error_message="Error getting flavor with ID {id}".format(id=id)
-        )
-        flavor = self._normalize_flavor(
-            self._get_and_munchify('flavor', data))
-
-        if not flavor.extra_specs and get_extra:
-            endpoint = "/flavors/{id}/os-extra_specs".format(
-                id=flavor.id)
-            try:
-                data = proxy._json_response(
-                    self.compute.get(endpoint),
-                    error_message="Error fetching flavor extra specs")
-                flavor.extra_specs = self._get_and_munchify(
-                    'extra_specs', data)
-            except exc.OpenStackCloudHTTPError as e:
-                flavor.extra_specs = {}
-                self.log.debug(
-                    'Fetching extra specs for flavor failed:'
-                    ' %(msg)s', {'msg': str(e)})
-
-        return flavor
+        flavor = self.compute.get_flavor(id, get_extra_specs=get_extra)
+        return flavor._to_munch(original_names=False)
 
     def get_server_console(self, server, length=None):
         """Get the console log for a server.
@@ -1412,27 +1378,23 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        with _utils.shade_exceptions("Failed to create flavor {name}".format(
-                name=name)):
-            payload = {
-                'disk': disk,
-                'OS-FLV-EXT-DATA:ephemeral': ephemeral,
-                'id': flavorid,
-                'os-flavor-access:is_public': is_public,
-                'name': name,
-                'ram': ram,
-                'rxtx_factor': rxtx_factor,
-                'swap': swap,
-                'vcpus': vcpus,
-            }
-            if flavorid == 'auto':
-                payload['id'] = None
-            data = proxy._json_response(self.compute.post(
-                '/flavors',
-                json=dict(flavor=payload)))
+        attrs = {
+            'disk': disk,
+            'ephemeral': ephemeral,
+            'id': flavorid,
+            'is_public': is_public,
+            'name': name,
+            'ram': ram,
+            'rxtx_factor': rxtx_factor,
+            'swap': swap,
+            'vcpus': vcpus,
+        }
+        if flavorid == 'auto':
+            attrs['id'] = None
 
-        return self._normalize_flavor(
-            self._get_and_munchify('flavor', data))
+        flavor = self.compute.create_flavor(**attrs)
+
+        return flavor._to_munch(original_names=False)
 
     def delete_flavor(self, name_or_id):
         """Delete a flavor
@@ -1443,19 +1405,17 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        flavor = self.get_flavor(name_or_id, get_extra=False)
-        if flavor is None:
-            self.log.debug(
-                "Flavor %s not found for deleting", name_or_id)
-            return False
-
-        proxy._json_response(
-            self.compute.delete(
-                '/flavors/{id}'.format(id=flavor['id'])),
-            error_message="Unable to delete flavor {name}".format(
-                name=name_or_id))
-
-        return True
+        try:
+            flavor = self.compute.find_flavor(name_or_id)
+            if not flavor:
+                self.log.debug(
+                    "Flavor %s not found for deleting", name_or_id)
+                return False
+            self.compute.delete_flavor(flavor)
+            return True
+        except exceptions.SDKException:
+            raise exceptions.OpenStackCloudException(
+                "Unable to delete flavor {name}".format(name=name_or_id))
 
     def set_flavor_specs(self, flavor_id, extra_specs):
         """Add extra specs to a flavor
@@ -1466,11 +1426,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
-        proxy._json_response(
-            self.compute.post(
-                "/flavors/{id}/os-extra_specs".format(id=flavor_id),
-                json=dict(extra_specs=extra_specs)),
-            error_message="Unable to set flavor specs")
+        self.compute.create_flavor_extra_specs(flavor_id, extra_specs)
 
     def unset_flavor_specs(self, flavor_id, keys):
         """Delete extra specs from a flavor
@@ -1482,24 +1438,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudResourceNotFound if flavor ID is not found.
         """
         for key in keys:
-            proxy._json_response(
-                self.compute.delete(
-                    "/flavors/{id}/os-extra_specs/{key}".format(
-                        id=flavor_id, key=key)),
-                error_message="Unable to delete flavor spec {0}".format(key))
-
-    def _mod_flavor_access(self, action, flavor_id, project_id):
-        """Common method for adding and removing flavor access
-        """
-        with _utils.shade_exceptions("Error trying to {action} access from "
-                                     "flavor ID {flavor}".format(
-                                         action=action, flavor=flavor_id)):
-            endpoint = '/flavors/{id}/action'.format(id=flavor_id)
-            access = {'tenant': project_id}
-            access_key = '{action}TenantAccess'.format(action=action)
-
-            proxy._json_response(
-                self.compute.post(endpoint, json={access_key: access}))
+            self.compute.delete_flavor_extra_specs_property(flavor_id, key)
 
     def add_flavor_access(self, flavor_id, project_id):
         """Grant access to a private flavor for a project/tenant.
@@ -1509,7 +1448,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        self._mod_flavor_access('add', flavor_id, project_id)
+        self.compute.flavor_add_tenant_access(flavor_id, project_id)
 
     def remove_flavor_access(self, flavor_id, project_id):
         """Revoke access from a private flavor for a project/tenant.
@@ -1519,7 +1458,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        self._mod_flavor_access('remove', flavor_id, project_id)
+        self.compute.flavor_remove_tenant_access(flavor_id, project_id)
 
     def list_flavor_access(self, flavor_id):
         """List access from a private flavor for a project/tenant.
@@ -1530,14 +1469,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        data = proxy._json_response(
-            self.compute.get(
-                '/flavors/{id}/os-flavor-access'.format(id=flavor_id)),
-            error_message=(
-                "Error trying to list access from flavorID {flavor}".format(
-                    flavor=flavor_id)))
-        return _utils.normalize_flavor_accesses(
-            self._get_and_munchify('flavor_access', data))
+        access = self.compute.get_flavor_access(flavor_id)
+        return _utils.normalize_flavor_accesses(access)
 
     def list_hypervisors(self, filters={}):
         """List all hypervisors

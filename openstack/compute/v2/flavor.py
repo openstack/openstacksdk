@@ -62,7 +62,7 @@ class Flavor(resource.Resource):
     # TODO(mordred) extra_specs can historically also come from
     #               OS-FLV-WITH-EXT-SPECS:extra_specs. Do we care?
     #: A dictionary of the flavor's extra-specs key-and-value pairs.
-    extra_specs = resource.Body('extra_specs', type=dict)
+    extra_specs = resource.Body('extra_specs', type=dict, default={})
 
     @classmethod
     def list(cls, session, paginated=True, base_path='/flavors/detail',

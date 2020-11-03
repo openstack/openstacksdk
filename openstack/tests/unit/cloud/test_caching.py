@@ -18,6 +18,7 @@ from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 import openstack
 import openstack.cloud
 from openstack.cloud import meta
+from openstack.compute.v2 import flavor as _flavor
 from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -436,10 +437,16 @@ class TestMemoryCache(base.TestCase):
             endpoint=fakes.COMPUTE_ENDPOINT)
 
         uris_to_mock = [
-            dict(method='GET', uri=mock_uri, json={'flavors': []}),
             dict(method='GET', uri=mock_uri,
+                 validate=dict(
+                     headers={'OpenStack-API-Version': 'compute 2.53'}),
+                 json={'flavors': []}),
+            dict(method='GET', uri=mock_uri,
+                 validate=dict(
+                     headers={'OpenStack-API-Version': 'compute 2.53'}),
                  json={'flavors': fakes.FAKE_FLAVOR_LIST})
         ]
+        self.use_compute_discovery()
 
         self.register_uris(uris_to_mock)
 
@@ -447,8 +454,11 @@ class TestMemoryCache(base.TestCase):
 
         self.assertEqual([], self.cloud.list_flavors())
 
-        fake_flavor_dicts = self.cloud._normalize_flavors(
-            fakes.FAKE_FLAVOR_LIST)
+        fake_flavor_dicts = [
+            _flavor.Flavor(connection=self.cloud, **f)
+            for f in fakes.FAKE_FLAVOR_LIST
+        ]
+
         self.cloud.list_flavors.invalidate(self.cloud)
         self.assertEqual(fake_flavor_dicts, self.cloud.list_flavors())
 
