@@ -196,6 +196,55 @@ class TestFlavor(TestComputeProxy):
             expected_args=["prop"])
 
 
+class TestKeyPair(TestComputeProxy):
+    def test_keypair_create(self):
+        self.verify_create(self.proxy.create_keypair, keypair.Keypair)
+
+    def test_keypair_delete(self):
+        self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, False)
+
+    def test_keypair_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, True)
+
+    def test_keypair_delete_user_id(self):
+        self.verify_delete(
+            self.proxy.delete_keypair, keypair.Keypair,
+            True,
+            method_kwargs={'user_id': 'fake_user'},
+            expected_kwargs={'user_id': 'fake_user'}
+        )
+
+    def test_keypair_find(self):
+        self.verify_find(self.proxy.find_keypair, keypair.Keypair)
+
+    def test_keypair_find_user_id(self):
+        self.verify_find(
+            self.proxy.find_keypair, keypair.Keypair,
+            method_kwargs={'user_id': 'fake_user'},
+            expected_kwargs={'user_id': 'fake_user'}
+        )
+
+    def test_keypair_get(self):
+        self.verify_get(self.proxy.get_keypair, keypair.Keypair)
+
+    def test_keypair_get_user_id(self):
+        self.verify_get(
+            self.proxy.get_keypair, keypair.Keypair,
+            method_kwargs={'user_id': 'fake_user'},
+            expected_kwargs={'user_id': 'fake_user'}
+        )
+
+    def test_keypairs(self):
+        self.verify_list_no_kwargs(self.proxy.keypairs, keypair.Keypair)
+
+    def test_keypairs_user_id(self):
+        self.verify_list(
+            self.proxy.keypairs, keypair.Keypair,
+            method_kwargs={'user_id': 'fake_user'},
+            expected_kwargs={'user_id': 'fake_user'}
+        )
+
+
 class TestCompute(TestComputeProxy):
     def test_extension_find(self):
         self.verify_find(self.proxy.find_extension, extension.Extension)
@@ -224,24 +273,6 @@ class TestCompute(TestComputeProxy):
         self.verify_list(self.proxy.images, image.Image,
                          method_kwargs={"details": False, "query": 1},
                          expected_kwargs={"query": 1})
-
-    def test_keypair_create(self):
-        self.verify_create(self.proxy.create_keypair, keypair.Keypair)
-
-    def test_keypair_delete(self):
-        self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, False)
-
-    def test_keypair_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_keypair, keypair.Keypair, True)
-
-    def test_keypair_find(self):
-        self.verify_find(self.proxy.find_keypair, keypair.Keypair)
-
-    def test_keypair_get(self):
-        self.verify_get(self.proxy.get_keypair, keypair.Keypair)
-
-    def test_keypairs(self):
-        self.verify_list_no_kwargs(self.proxy.keypairs, keypair.Keypair)
 
     def test_limits_get(self):
         self.verify_get(self.proxy.get_limits, limits.Limits, value=[])

@@ -472,48 +472,53 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_keypair.Keypair, **attrs)
 
-    def delete_keypair(self, keypair, ignore_missing=True):
+    def delete_keypair(self, keypair, ignore_missing=True, user_id=None):
         """Delete a keypair
 
         :param keypair: The value can be either the ID of a keypair or a
-                        :class:`~openstack.compute.v2.keypair.Keypair`
-                        instance.
+            :class:`~openstack.compute.v2.keypair.Keypair` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the keypair does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent keypair.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the keypair does not exist.  When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent keypair.
+        :param str user_id: Optional user_id owning the keypair
 
         :returns: ``None``
         """
-        self._delete(_keypair.Keypair, keypair, ignore_missing=ignore_missing)
+        attrs = {'user_id': user_id} if user_id else {}
+        self._delete(_keypair.Keypair, keypair, ignore_missing=ignore_missing,
+                     **attrs)
 
-    def get_keypair(self, keypair):
+    def get_keypair(self, keypair, user_id=None):
         """Get a single keypair
 
         :param keypair: The value can be the ID of a keypair or a
-                        :class:`~openstack.compute.v2.keypair.Keypair`
-                        instance.
+            :class:`~openstack.compute.v2.keypair.Keypair` instance.
+        :param str user_id: Optional user_id owning the keypair
 
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
-        return self._get(_keypair.Keypair, keypair)
+        attrs = {'user_id': user_id} if user_id else {}
+        return self._get(_keypair.Keypair, keypair, **attrs)
 
-    def find_keypair(self, name_or_id, ignore_missing=True):
+    def find_keypair(self, name_or_id, ignore_missing=True, user_id=None):
         """Find a single keypair
 
         :param name_or_id: The name or ID of a keypair.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist.  When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param str user_id: Optional user_id owning the keypair
+
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
         """
+        attrs = {'user_id': user_id} if user_id else {}
         return self._find(_keypair.Keypair, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing,
+                          **attrs)
 
     def keypairs(self, **query):
         """Return a generator of keypairs
