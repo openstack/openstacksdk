@@ -568,17 +568,15 @@ class NetworkCloudMixin:
         :returns: The updated network object.
         :raises: OpenStackCloudException on operation error.
         """
-        if 'provider' in kwargs:
-            if not isinstance(kwargs['provider'], dict):
+        provider = kwargs.pop('provider', None)
+        if provider:
+            if not isinstance(provider, dict):
                 raise exc.OpenStackCloudException(
                     "Parameter 'provider' must be a dict")
-            # Only pass what we know
-            provider = {}
-            for key in kwargs['provider']:
-                if key in ('physical_network', 'network_type',
-                           'segmentation_id'):
-                    provider['provider:' + key] = kwargs['provider'][key]
-            kwargs['provider'] = provider
+            for key in ('physical_network', 'network_type',
+                        'segmentation_id'):
+                if key in provider:
+                    kwargs['provider:' + key] = provider.pop(key)
 
         if 'external' in kwargs:
             kwargs['router:external'] = kwargs.pop('external')
