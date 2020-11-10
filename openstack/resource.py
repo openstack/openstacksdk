@@ -1895,7 +1895,9 @@ class Resource(dict):
                 connection=session._get_connection(),
                 **params)
             return match.fetch(session, **params)
-        except exceptions.NotFoundException:
+        except (exceptions.NotFoundException, exceptions.BadRequestException):
+            # NOTE(gtema): There are few places around openstack that return
+            # 400 if we try to GET resource and it doesn't exist.
             pass
 
         if ('name' in cls._query_mapping._mapping.keys()
