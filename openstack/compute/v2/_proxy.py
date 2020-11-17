@@ -108,6 +108,19 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_flavor.Flavor, flavor, ignore_missing=ignore_missing)
 
+    def update_flavor(self, flavor, **attrs):
+        """Update a flavor
+
+        :param server: Either the ID of a flavot or a
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
+        :attrs kwargs: The attributes to update on the flavor represented
+            by ``flavor``.
+
+        :returns: The updated flavor
+        :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
+        """
+        return self._update(_flavor.Flavor, flavor, **attrs)
+
     def get_flavor(self, flavor, get_extra_specs=False):
         """Get a single flavor
 

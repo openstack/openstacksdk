@@ -51,7 +51,7 @@ class TestFlavor(base.TestCase):
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
-        self.assertFalse(sot.allow_commit)
+        self.assertTrue(sot.allow_commit)
 
         self.assertDictEqual({"sort_key": "sort_key",
                               "sort_dir": "sort_dir",
