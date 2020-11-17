@@ -112,12 +112,6 @@ class TestDnsFloatIP(TestDnsProxy):
         self.verify_update(self.proxy.update_floating_ip,
                            floating_ip.FloatingIP)
 
-    def test_zone_create(self):
-        self.verify_create(self.proxy.create_zone, zone.Zone,
-                           method_kwargs={'name': 'id'},
-                           expected_kwargs={'name': 'id',
-                                            'prepend_key': False})
-
 
 class TestDnsZoneImport(TestDnsProxy):
     def test_zone_import_delete(self):
