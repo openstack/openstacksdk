@@ -155,9 +155,9 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
                     found = True
                     self.assertEqual(service['id'], e['service_id'])
                     if 'interface' in e:
-                        if 'interface' == 'internal':
+                        if e['interface'] == 'internal':
                             self.assertEqual('http://internal.test/', e['url'])
-                        elif 'interface' == 'public':
+                        elif e['interface'] == 'public':
                             self.assertEqual('http://public.test/', e['url'])
                     else:
                         self.assertEqual('http://public.test/',
