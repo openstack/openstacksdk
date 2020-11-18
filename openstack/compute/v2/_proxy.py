@@ -1362,6 +1362,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_server_group.ServerGroup, **query)
 
+    # ========== Hypervisors ==========
+
     def hypervisors(self, details=False, **query):
         """Return a generator of hypervisor
 
@@ -1374,9 +1376,16 @@ class Proxy(proxy.Proxy):
         :rtype: class: `~openstack.compute.v2.hypervisor.Hypervisor`
         """
         base_path = '/os-hypervisors/detail' if details else None
+        if (
+            'hypervisor_hostname_pattern' in query
+            and not utils.supports_microversion(self, '2.53')
+        ):
+            # Until 2.53 we need to use other API
+            base_path = '/os-hypervisors/{pattern}/search'.format(
+                pattern=query.pop('hypervisor_hostname_pattern'))
         return self._list(_hypervisor.Hypervisor, base_path=base_path, **query)
 
-    def find_hypervisor(self, name_or_id, ignore_missing=True):
+    def find_hypervisor(self, name_or_id, ignore_missing=True, details=True):
         """Find a hypervisor from name or id to get the corresponding info
 
         :param name_or_id: The name or id of a hypervisor
@@ -1386,22 +1395,39 @@ class Proxy(proxy.Proxy):
             or None
         """
 
+        list_base_path = '/os-hypervisors/detail' if details else None
         return self._find(_hypervisor.Hypervisor, name_or_id,
+                          list_base_path=list_base_path,
                           ignore_missing=ignore_missing)
 
     def get_hypervisor(self, hypervisor):
         """Get a single hypervisor
 
         :param hypervisor: The value can be the ID of a hypervisor or a
-               :class:`~openstack.compute.v2.hypervisor.Hypervisor`
-               instance.
+            :class:`~openstack.compute.v2.hypervisor.Hypervisor`
+            instance.
 
         :returns:
             A :class:`~openstack.compute.v2.hypervisor.Hypervisor` object.
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_hypervisor.Hypervisor, hypervisor)
+
+    def get_hypervisor_uptime(self, hypervisor):
+        """Get uptime information for hypervisor
+
+        :param hypervisor: The value can be the ID of a hypervisor or a
+            :class:`~openstack.compute.v2.hypervisor.Hypervisor`
+            instance.
+
+        :returns:
+            A :class:`~openstack.compute.v2.hypervisor.Hypervisor` object.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        hypervisor = self._get_resource(_hypervisor.Hypervisor, hypervisor)
+        return hypervisor.get_uptime(self)
 
     # ========== Services ==========
 

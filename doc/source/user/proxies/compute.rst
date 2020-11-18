@@ -140,7 +140,8 @@ Hypervisor Operations
 
 .. autoclass:: openstack.compute.v2._proxy.Proxy
   :noindex:
-  :members: get_hypervisor, find_hypervisor, hypervisors
+  :members: get_hypervisor, find_hypervisor, hypervisors,
+            get_hypervisor_uptime
 
 Extension Operations
 ^^^^^^^^^^^^^^^^^^^^
