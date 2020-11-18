@@ -41,6 +41,9 @@ class TestFlavor(TestComputeProxy):
     def test_flavor_delete(self):
         self.verify_delete(self.proxy.delete_flavor, flavor.Flavor, False)
 
+    def test_flavor_update(self):
+        self.verify_update(self.proxy.update_flavor, flavor.Flavor, False)
+
     def test_flavor_delete_ignore(self):
         self.verify_delete(self.proxy.delete_flavor, flavor.Flavor, True)
 

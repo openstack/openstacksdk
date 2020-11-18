@@ -25,6 +25,7 @@ class Flavor(resource.Resource):
     allow_fetch = True
     allow_delete = True
     allow_list = True
+    allow_commit = True
 
     _query_mapping = resource.QueryParameters(
         "sort_key", "sort_dir", "is_public",
