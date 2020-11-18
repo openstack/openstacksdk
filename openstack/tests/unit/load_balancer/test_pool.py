@@ -35,6 +35,7 @@ EXAMPLE = {
     'health_monitor': 'healthmonitor',
     'health_monitor_id': uuid.uuid4(),
     'members': [{'id': uuid.uuid4()}],
+    'tls_enabled': True,
     'tls_ciphers': 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256',
     'tls_versions': ['TLSv1.1', 'TLSv1.2'],
 }
@@ -83,6 +84,8 @@ class TestPool(base.TestCase):
         self.assertEqual(EXAMPLE['health_monitor_id'],
                          test_pool.health_monitor_id)
         self.assertEqual(EXAMPLE['members'], test_pool.members)
+        self.assertEqual(EXAMPLE['tls_enabled'],
+                         test_pool.tls_enabled)
         self.assertEqual(EXAMPLE['tls_ciphers'],
                          test_pool.tls_ciphers)
         self.assertEqual(EXAMPLE['tls_versions'],
@@ -109,6 +112,7 @@ class TestPool(base.TestCase):
              'listener_id': 'listener_id',
              'loadbalancer_id': 'loadbalancer_id',
              'protocol': 'protocol',
+             'tls_enabled': 'tls_enabled',
              'tls_ciphers': 'tls_ciphers',
              'tls_versions': 'tls_versions',
              },

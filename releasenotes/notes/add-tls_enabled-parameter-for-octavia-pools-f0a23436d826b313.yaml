@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``tls_enabled`` parameter for Octavia pools, it can be used to enable
+    TLS communications between a load balancer and its member servers.
