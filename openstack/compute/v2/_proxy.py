@@ -274,6 +274,20 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_aggregate.Aggregate, aggregate)
 
+    def find_aggregate(self, name_or_id, ignore_missing=True):
+        """Find a single aggregate
+
+        :param name_or_id: The name or ID of an aggregate.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist.  When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
+            or None
+        """
+        return self._find(_aggregate.Aggregate, name_or_id,
+                          ignore_missing=ignore_missing)
+
     def create_aggregate(self, **attrs):
         """Create a new host aggregate from attributes
 
@@ -357,6 +371,26 @@ class Proxy(proxy.Proxy):
         """
         aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
         return aggregate.set_metadata(self, metadata)
+
+    def aggregate_precache_images(self, aggregate, images):
+        """Requests image precaching on an aggregate
+
+        :param aggregate: Either the ID of a aggregate or a
+            :class:`~openstack.compute.v2.aggregate.Aggregate` instance.
+        :param images: Single image id or list of image ids.
+
+        :returns: ``None``
+        """
+        aggregate = self._get_resource(_aggregate.Aggregate, aggregate)
+        # We need to ensure we pass list of image IDs
+        if isinstance(images, str):
+            images = [images]
+        image_data = []
+        for img in images:
+            image_data.append({'id': img})
+        return aggregate.precache_images(self, image_data)
+
+    # ========== Images ==========
 
     def delete_image(self, image, ignore_missing=True):
         """Delete an image

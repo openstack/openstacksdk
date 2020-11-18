@@ -12,6 +12,7 @@
 from unittest import mock
 
 from openstack.compute.v2 import _proxy
+from openstack.compute.v2 import aggregate
 from openstack.compute.v2 import availability_zone as az
 from openstack.compute.v2 import extension
 from openstack.compute.v2 import flavor
@@ -246,6 +247,63 @@ class TestKeyPair(TestComputeProxy):
             method_kwargs={'user_id': 'fake_user'},
             expected_kwargs={'user_id': 'fake_user'}
         )
+
+
+class TestAggregate(TestComputeProxy):
+    def test_aggregate_create(self):
+        self.verify_create(self.proxy.create_aggregate, aggregate.Aggregate)
+
+    def test_aggregate_delete(self):
+        self.verify_delete(
+            self.proxy.delete_aggregate, aggregate.Aggregate, False)
+
+    def test_aggregate_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_aggregate, aggregate.Aggregate, True)
+
+    def test_aggregate_find(self):
+        self.verify_find(self.proxy.find_aggregate, aggregate.Aggregate)
+
+    def test_aggregates(self):
+        self.verify_list_no_kwargs(self.proxy.aggregates, aggregate.Aggregate)
+
+    def test_aggregate_get(self):
+        self.verify_get(self.proxy.get_aggregate, aggregate.Aggregate)
+
+    def test_aggregate_update(self):
+        self.verify_update(self.proxy.update_aggregate, aggregate.Aggregate)
+
+    def test_aggregate_add_host(self):
+        self._verify("openstack.compute.v2.aggregate.Aggregate.add_host",
+                     self.proxy.add_host_to_aggregate,
+                     method_args=["value", "host"],
+                     expected_args=["host"])
+
+    def test_aggregate_remove_host(self):
+        self._verify("openstack.compute.v2.aggregate.Aggregate.remove_host",
+                     self.proxy.remove_host_from_aggregate,
+                     method_args=["value", "host"],
+                     expected_args=["host"])
+
+    def test_aggregate_set_metadata(self):
+        self._verify("openstack.compute.v2.aggregate.Aggregate.set_metadata",
+                     self.proxy.set_aggregate_metadata,
+                     method_args=["value", {'a': 'b'}],
+                     expected_args=[{'a': 'b'}])
+
+    def test_aggregate_precache_image(self):
+        self._verify(
+            "openstack.compute.v2.aggregate.Aggregate.precache_images",
+            self.proxy.aggregate_precache_images,
+            method_args=["value", '1'],
+            expected_args=[[{'id': '1'}]])
+
+    def test_aggregate_precache_images(self):
+        self._verify(
+            "openstack.compute.v2.aggregate.Aggregate.precache_images",
+            self.proxy.aggregate_precache_images,
+            method_args=["value", ['1', '2']],
+            expected_args=[[{'id': '1'}, {'id': '2'}]])
 
 
 class TestCompute(TestComputeProxy):

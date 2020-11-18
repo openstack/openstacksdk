@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -30,25 +30,31 @@ class Aggregate(resource.Resource):
     # Properties
     #: Availability zone of aggregate
     availability_zone = resource.Body('availability_zone')
+    #: The date and time when the resource was created.
+    created_at = resource.Body('created_at')
+    #: The date and time when the resource was deleted.
+    deleted_at = resource.Body('deleted_at')
     #: Deleted?
-    deleted = resource.Body('deleted')
+    is_deleted = resource.Body('deleted', type=bool)
     #: Name of aggregate
     name = resource.Body('name')
     #: Hosts
-    hosts = resource.Body('hosts')
+    hosts = resource.Body('hosts', type=list)
     #: Metadata
-    metadata = resource.Body('metadata')
+    metadata = resource.Body('metadata', type=dict)
+    #: The date and time when the resource was updated
+    updated_at = resource.Body('updated_at')
     #: UUID
     uuid = resource.Body('uuid')
-    # uuid introduced in 2.41
-    _max_microversion = '2.41'
+    # Image pre-caching introduced in 2.81
+    _max_microversion = '2.81'
 
     def _action(self, session, body, microversion=None):
         """Preform aggregate actions given the message body."""
         url = utils.urljoin(self.base_path, self.id, 'action')
-        headers = {'Accept': ''}
         response = session.post(
-            url, json=body, headers=headers, microversion=microversion)
+            url, json=body, microversion=microversion)
+        exceptions.raise_from_response(response)
         aggregate = Aggregate()
         aggregate._translate_response(response=response)
         return aggregate
@@ -67,3 +73,12 @@ class Aggregate(resource.Resource):
         """Creates or replaces metadata for an aggregate."""
         body = {'set_metadata': {'metadata': metadata}}
         return self._action(session, body)
+
+    def precache_images(self, session, images):
+        """Requests image pre-caching"""
+        body = {'cache': images}
+        url = utils.urljoin(self.base_path, self.id, 'images')
+        response = session.post(
+            url, json=body, microversion=self._max_microversion)
+        exceptions.raise_from_response(response)
+        # This API has no result
