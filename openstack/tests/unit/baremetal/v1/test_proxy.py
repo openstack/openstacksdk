@@ -20,6 +20,7 @@ from openstack.baremetal.v1 import node
 from openstack.baremetal.v1 import port
 from openstack.baremetal.v1 import port_group
 from openstack.baremetal.v1 import volume_connector
+from openstack.baremetal.v1 import volume_target
 from openstack import exceptions
 from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
@@ -203,6 +204,42 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_delete_volume_connector_ignore(self):
         self.verify_delete(self.proxy.delete_volume_connector,
                            volume_connector.VolumeConnector,
+                           True)
+
+    @mock.patch.object(volume_target.VolumeTarget, 'list')
+    def test_volume_target_detailed(self, mock_list):
+        result = self.proxy.volume_targets(details=True, query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, detail=True, query=1)
+
+    @mock.patch.object(volume_target.VolumeTarget, 'list')
+    def test_volume_target_not_detailed(self, mock_list):
+        result = self.proxy.volume_targets(query=1)
+        self.assertIs(result, mock_list.return_value)
+        mock_list.assert_called_once_with(self.proxy, query=1)
+
+    def test_create_volume_target(self):
+        self.verify_create(self.proxy.create_volume_target,
+                           volume_target.VolumeTarget)
+
+    def test_find_volume_target(self):
+        self.verify_find(self.proxy.find_volume_target,
+                         volume_target.VolumeTarget)
+
+    def test_get_volume_target(self):
+        self.verify_get(self.proxy.get_volume_target,
+                        volume_target.VolumeTarget,
+                        mock_method=_MOCK_METHOD,
+                        expected_kwargs={'fields': None})
+
+    def test_delete_volume_target(self):
+        self.verify_delete(self.proxy.delete_volume_target,
+                           volume_target.VolumeTarget,
+                           False)
+
+    def test_delete_volume_target_ignore(self):
+        self.verify_delete(self.proxy.delete_volume_target,
+                           volume_target.VolumeTarget,
                            True)
 
     @mock.patch.object(node.Node, 'fetch', autospec=True)

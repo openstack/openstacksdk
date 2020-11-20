@@ -69,6 +69,14 @@ Volume Connector Operations
             create_volume_connector, update_volume_connector,
             patch_volume_connector, delete_volume_connector
 
+Volume Target Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.baremetal.v1._proxy.Proxy
+  :noindex:
+  :members: volume_targets, find_volume_target, get_volume_target,
+            create_volume_target, update_volume_target,
+            patch_volume_target, delete_volume_target
+
 Utilities
 ---------
 
