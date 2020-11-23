@@ -211,6 +211,9 @@ def raise_from_response(response, error_message=None):
         try:
             content = response.json()
             messages = [_extract_message(obj) for obj in content.values()]
+            if not any(messages):
+                # Exception dict may be the root dict in projects that use WSME
+                messages = [_extract_message(content)]
             # Join all of the messages together nicely and filter out any
             # objects that don't have a "message" attr.
             details = '\n'.join(msg for msg in messages if msg)
