@@ -2668,7 +2668,7 @@ class TestResourceFind(base.TestCase):
 
         @classmethod
         def list(cls, session, **params):
-            return None
+            return []
 
     class OneResult(Base):
 
@@ -2788,6 +2788,22 @@ class TestResourceFind(base.TestCase):
         self.assertRaises(
             exceptions.DuplicateResource,
             resource.Resource._get_one_match, the_id, [match, match])
+
+    def test_list_no_base_path(self):
+
+        with mock.patch.object(self.Base, "list") as list_mock:
+            self.Base.find(self.cloud.compute, "name")
+
+            list_mock.assert_called_with(self.cloud.compute)
+
+    def test_list_base_path(self):
+
+        with mock.patch.object(self.Base, "list") as list_mock:
+            self.Base.find(
+                self.cloud.compute, "name", list_base_path='/dummy/list')
+
+            list_mock.assert_called_with(
+                self.cloud.compute, base_path='/dummy/list')
 
 
 class TestWaitForStatus(base.TestCase):

@@ -1863,22 +1863,26 @@ class Resource(dict):
         return the_result
 
     @classmethod
-    def find(cls, session, name_or_id, ignore_missing=True, **params):
+    def find(
+        cls, session, name_or_id, ignore_missing=True,
+        list_base_path=None, **params
+    ):
         """Find a resource by its name or id.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param name_or_id: This resource's identifier, if needed by
-                           the request. The default is ``None``.
+            the request. The default is ``None``.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist.  When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param str list_base_path: base_path to be used when need listing
+            resources.
         :param dict params: Any additional parameters to be passed into
-                            underlying methods, such as to
-                            :meth:`~openstack.resource.Resource.existing`
-                            in order to pass on URI parameters.
+            underlying methods, such as to
+            :meth:`~openstack.resource.Resource.existing` in order to pass on
+            URI parameters.
 
         :return: The :class:`Resource` object matching the given name or id
                  or None if nothing matches.
@@ -1899,6 +1903,9 @@ class Resource(dict):
             # NOTE(gtema): There are few places around openstack that return
             # 400 if we try to GET resource and it doesn't exist.
             pass
+
+        if list_base_path:
+            params['base_path'] = list_base_path
 
         if ('name' in cls._query_mapping._mapping.keys()
                 and 'name' not in params):
