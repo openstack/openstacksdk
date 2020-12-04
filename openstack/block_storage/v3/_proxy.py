@@ -290,10 +290,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: A generator of backup objects.
         """
-        if not self._connection.has_service('object-store'):
-            raise exceptions.SDKException(
-                'Object-store service is required for block-store backups'
-            )
         base_path = '/backups/detail' if details else None
         return self._list(_backup.Backup, base_path=base_path, **query)
 
@@ -307,10 +303,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: Backup instance
         :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
         """
-        if not self._connection.has_service('object-store'):
-            raise exceptions.SDKException(
-                'Object-store service is required for block-store backups'
-            )
         return self._get(_backup.Backup, backup)
 
     def find_backup(self, name_or_id, ignore_missing=True, **attrs):
@@ -325,10 +317,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
                  when no resource can be found.
         """
-        if not self._connection.has_service('object-store'):
-            raise exceptions.SDKException(
-                'Object-store service is required for block-store backups'
-            )
         return self._find(_backup.Backup, name_or_id,
                           ignore_missing=ignore_missing)
 
@@ -342,10 +330,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: The results of Backup creation
         :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
         """
-        if not self._connection.has_service('object-store'):
-            raise exceptions.SDKException(
-                'Object-store service is required for block-store backups'
-            )
         return self._create(_backup.Backup, **attrs)
 
     def delete_backup(self, backup, ignore_missing=True):
@@ -361,10 +345,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: ``None``
         """
-        if not self._connection.has_service('object-store'):
-            raise exceptions.SDKException(
-                'Object-store service is required for block-store backups'
-            )
         self._delete(_backup.Backup, backup,
                      ignore_missing=ignore_missing)
 
@@ -379,10 +359,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: Updated backup instance
         :rtype: :class:`~openstack.block_storage.v3.backup.Backup`
         """
-        if not self._connection.has_service('object-store'):
-            raise exceptions.SDKException(
-                'Object-store service is required for block-store backups'
-            )
         backup = self._get_resource(_backup.Backup, backup)
         return backup.restore(self, volume_id=volume_id, name=name)
 
@@ -437,29 +413,26 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
     def _service_cleanup(self, dry_run=True, client_status_queue=None,
                          identified_resources=None,
                          filters=None, resource_evaluation_fn=None):
-        if self._connection.has_service('object-store'):
-            # Volume backups require object-store to be available, even for
-            # listing
-            backups = []
-            for obj in self.backups(details=False):
-                need_delete = self._service_cleanup_del_res(
-                    self.delete_backup,
-                    obj,
-                    dry_run=dry_run,
-                    client_status_queue=client_status_queue,
-                    identified_resources=identified_resources,
-                    filters=filters,
-                    resource_evaluation_fn=resource_evaluation_fn)
-                if not dry_run and need_delete:
-                    backups.append(obj)
+        backups = []
+        for obj in self.backups(details=False):
+            need_delete = self._service_cleanup_del_res(
+                self.delete_backup,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn)
+            if not dry_run and need_delete:
+                backups.append(obj)
 
-            # Before deleting snapshots need to wait for backups to be deleted
-            for obj in backups:
-                try:
-                    self.wait_for_delete(obj)
-                except exceptions.SDKException:
-                    # Well, did our best, still try further
-                    pass
+        # Before deleting snapshots need to wait for backups to be deleted
+        for obj in backups:
+            try:
+                self.wait_for_delete(obj)
+            except exceptions.SDKException:
+                # Well, did our best, still try further
+                pass
 
         snapshots = []
         for obj in self.snapshots(details=False):
