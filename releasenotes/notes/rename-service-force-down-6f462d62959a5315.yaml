@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    compute.force_service_down function is renamed to
+    update_service_forced_down to better fit the operation meaning.
+  - |
+    compute.v2.service.force_down is renamed to set_forced_down to fit the operation meaning.
+  - |
+    return of compute.service modification operations is changed to be the service itself

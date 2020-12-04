@@ -352,6 +352,99 @@ class TestAggregate(TestComputeProxy):
             expected_args=[[{'id': '1'}, {'id': '2'}]])
 
 
+class TestService(TestComputeProxy):
+    def test_services(self):
+        self.verify_list_no_kwargs(
+            self.proxy.services, service.Service)
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=False)
+    def test_enable_service_252(self, mv_mock):
+        self._verify2(
+            'openstack.compute.v2.service.Service.enable',
+            self.proxy.enable_service,
+            method_args=["value", "host1", "nova-compute"],
+            expected_args=[self.proxy, "host1", "nova-compute"]
+        )
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=True)
+    def test_enable_service_253(self, mv_mock):
+        self._verify2(
+            'openstack.proxy.Proxy._update',
+            self.proxy.enable_service,
+            method_args=["value"],
+            method_kwargs={},
+            expected_args=[service.Service, "value"],
+            expected_kwargs={'status': 'enabled'}
+        )
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=False)
+    def test_disable_service_252(self, mv_mock):
+        self._verify2(
+            'openstack.compute.v2.service.Service.disable',
+            self.proxy.disable_service,
+            method_args=["value", "host1", "nova-compute"],
+            expected_args=[self.proxy, "host1", "nova-compute", None])
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=True)
+    def test_disable_service_253(self, mv_mock):
+        self._verify2(
+            'openstack.proxy.Proxy._update',
+            self.proxy.disable_service,
+            method_args=["value"],
+            method_kwargs={'disabled_reason': 'some_reason'},
+            expected_args=[service.Service, "value"],
+            expected_kwargs={
+                'status': 'disabled',
+                'disabled_reason': 'some_reason'
+            }
+        )
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=False)
+    def test_force_service_down_252(self, mv_mock):
+        self._verify2(
+            'openstack.compute.v2.service.Service.set_forced_down',
+            self.proxy.update_service_forced_down,
+            method_args=["value", "host1", "nova-compute"],
+            expected_args=[self.proxy, "host1", "nova-compute", True])
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=False)
+    def test_force_service_down_252_empty_vals(self, mv_mock):
+        self.assertRaises(
+            ValueError,
+            self.proxy.update_service_forced_down,
+            "value", None, None
+        )
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=False)
+    def test_force_service_down_252_empty_vals_svc(self, mv_mock):
+        self._verify2(
+            'openstack.compute.v2.service.Service.set_forced_down',
+            self.proxy.update_service_forced_down,
+            method_args=[{'host': 'a', 'binary': 'b'}, None, None],
+            expected_args=[self.proxy, None, None, True])
+
+    def test_find_service(self):
+        self.verify_find(
+            self.proxy.find_service,
+            service.Service,
+        )
+
+    def test_find_service_args(self):
+        self.verify_find(
+            self.proxy.find_service,
+            service.Service,
+            method_kwargs={'host': 'h1'},
+            expected_kwargs={'host': 'h1'}
+        )
+
+
 class TestCompute(TestComputeProxy):
     def test_extension_find(self):
         self.verify_find(self.proxy.find_extension, extension.Extension)
@@ -792,28 +885,6 @@ class TestCompute(TestComputeProxy):
     def test_get_hypervisor(self):
         self.verify_get(self.proxy.get_hypervisor,
                         hypervisor.Hypervisor)
-
-    def test_services(self):
-        self.verify_list_no_kwargs(self.proxy.services,
-                                   service.Service)
-
-    def test_enable_service(self):
-        self._verify('openstack.compute.v2.service.Service.enable',
-                     self.proxy.enable_service,
-                     method_args=["value", "host1", "nova-compute"],
-                     expected_args=["host1", "nova-compute"])
-
-    def test_disable_service(self):
-        self._verify('openstack.compute.v2.service.Service.disable',
-                     self.proxy.disable_service,
-                     method_args=["value", "host1", "nova-compute"],
-                     expected_args=["host1", "nova-compute", None])
-
-    def test_force_service_down(self):
-        self._verify('openstack.compute.v2.service.Service.force_down',
-                     self.proxy.force_service_down,
-                     method_args=["value", "host1", "nova-compute"],
-                     expected_args=["host1", "nova-compute"])
 
     def test_live_migrate_server(self):
         self._verify('openstack.compute.v2.server.Server.live_migrate',
