@@ -535,8 +535,8 @@ def _call_client_and_retry(client, url, retry_on=None,
         except exc.OpenStackCloudHTTPError as e:
             if (retry_on is not None
                     and e.response.status_code in retry_on):
-                log.debug('Received retryable error {err}, waiting '
-                          '{wait} seconds to retry', {
+                log.debug('Received retryable error %(err)s, waiting '
+                          '%(wait)s seconds to retry', {
                               'err': e.response.status_code,
                               'wait': retry_wait
                           })
