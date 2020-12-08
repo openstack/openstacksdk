@@ -27,7 +27,7 @@ class SecurityGroupRule(_base.NetworkResource, resource.TagMixin):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'direction', 'protocol',
+        'description', 'direction', 'id', 'protocol',
         'remote_group_id', 'security_group_id',
         'port_range_max', 'port_range_min',
         'remote_ip_prefix', 'revision_number',
