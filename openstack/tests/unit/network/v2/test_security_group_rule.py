@@ -50,6 +50,7 @@ class TestSecurityGroupRule(base.TestCase):
         self.assertDictEqual({'any_tags': 'tags-any',
                               'description': 'description',
                               'direction': 'direction',
+                              'id': 'id',
                               'ether_type': 'ethertype',
                               'limit': 'limit',
                               'marker': 'marker',
