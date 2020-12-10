@@ -20,6 +20,8 @@ from openstack.baremetal.v1 import port_group as _portgroup
 from openstack.baremetal.v1 import volume_connector as _volumeconnector
 from openstack.baremetal.v1 import volume_target as _volumetarget
 from openstack.baremetal.v1 import deploy_templates as _deploytemplates
+from openstack.baremetal.v1 import conductor as _conductor
+
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
@@ -1415,3 +1417,30 @@ class Proxy(proxy.Proxy):
         """
         return self._get_resource(_deploytemplates.DeployTemplate,
                                   deploy_template).patch(self, patch)
+
+    def conductors(self, details=False, **query):
+        """Retrieve a generator of conductors.
+
+        :param bool details: A boolean indicating whether the detailed
+            information for every conductor should be returned.
+
+        :returns: A generator of conductor instances.
+        """
+
+        if details:
+            query['details'] = True
+        return _conductor.Conductor.list(self, **query)
+
+    def get_conductor(self, conductor, fields=None):
+        """Get a specific conductor.
+
+        :param conductor: The value can be the name of a conductor or a
+            :class:`~openstack.baremetal.v1.conductor.Conductor` instance.
+
+        :returns: One :class:`~openstack.baremetal.v1.conductor.Conductor`
+
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            conductor matching the name could be found.
+        """
+        return self._get_with_fields(_conductor.Conductor,
+                                     conductor, fields=fields)
