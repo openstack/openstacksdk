@@ -1591,7 +1591,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
                   found.
 
         """
-        return _utils._get_entity(self, 'aggregate', name_or_id, filters)
+        aggregate = self.compute.find_aggregate(
+            name_or_id, ignore_missing=True)
+        if aggregate:
+            return aggregate._to_munch()
 
     def create_aggregate(self, name, availability_zone=None):
         """Create a new host aggregate.
