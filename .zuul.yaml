@@ -388,7 +388,7 @@
       jobs:
         - opendev-buildset-registry
         - nodepool-build-image-siblings
-        - nodepool-functional-container-openstack-siblings
+        - dib-nodepool-functional-openstack-centos-8-stream-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
@@ -417,7 +417,7 @@
       jobs:
         - opendev-buildset-registry
         - nodepool-build-image-siblings
-        - nodepool-functional-container-openstack-siblings
+        - dib-nodepool-functional-openstack-centos-8-stream-src
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
