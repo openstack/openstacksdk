@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import io
-import hashlib
 
 from openstack import exceptions
 from openstack import utils
@@ -45,7 +44,7 @@ class DownloadMixin:
             details = self.fetch(session)
             checksum = details.checksum
 
-        md5 = hashlib.md5()
+        md5 = utils.md5(usedforsecurity=False)
         if output:
             try:
                 if isinstance(output, io.IOBase):
@@ -73,7 +72,8 @@ class DownloadMixin:
             return resp
 
         if checksum is not None:
-            _verify_checksum(hashlib.md5(resp.content), checksum)
+            _verify_checksum(utils.md5(resp.content, usedforsecurity=False),
+                             checksum)
         else:
             session.log.warning(
                 "Unable to verify the integrity of image %s", (self.id))

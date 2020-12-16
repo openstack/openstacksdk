@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import hashlib
 import queue
 import string
 import threading
@@ -230,6 +231,22 @@ def maximum_supported_microversion(adapter, client_maximum):
 
     result = min(client_max, server_max)
     return discover.version_to_string(result)
+
+
+try:
+    _test_md5 = hashlib.md5(usedforsecurity=False)  # nosec
+
+    # Python distributions that support a hashlib.md5 with the usedforsecurity
+    # keyword can just use that md5 definition as-is
+    # See https://bugs.python.org/issue9216
+    md5 = hashlib.md5
+except TypeError:
+    def md5(string=b'', usedforsecurity=True):
+        """Return an md5 hashlib object without usedforsecurity parameter
+        For python distributions that do not yet support this keyword
+        parameter, we drop the parameter
+        """
+        return hashlib.md5(string)  # nosec
 
 
 class TinyDAG:

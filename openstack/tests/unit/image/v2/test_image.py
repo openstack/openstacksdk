@@ -9,7 +9,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import hashlib
 import io
 import operator
 import tempfile
@@ -22,6 +21,7 @@ from openstack import _log
 from openstack import exceptions
 from openstack.image.v2 import image
 from openstack.tests.unit import base
+from openstack import utils
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
@@ -89,7 +89,7 @@ EXAMPLE = {
 
 
 def calculate_md5_checksum(data):
-    checksum = hashlib.md5()
+    checksum = utils.md5(usedforsecurity=False)
     for chunk in data:
         checksum.update(chunk)
     return checksum.hexdigest()
