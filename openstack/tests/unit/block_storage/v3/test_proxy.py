@@ -17,7 +17,6 @@ from openstack.block_storage.v3 import snapshot
 from openstack.block_storage.v3 import stats
 from openstack.block_storage.v3 import type
 from openstack.block_storage.v3 import volume
-from openstack import exceptions
 from openstack.tests.unit import test_proxy_base
 
 
@@ -197,16 +196,3 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
             expected_args=[self.proxy],
             expected_kwargs={'volume_id': 'vol_id', 'name': 'name'}
         )
-
-    def test_backup_no_swift(self):
-        """Ensure proxy method raises exception if swift is not available
-        """
-        # NOTE: mock has_service
-        self.proxy._connection = mock.Mock()
-        self.proxy._connection.has_service = mock.Mock(return_value=False)
-        self.assertRaises(
-            exceptions.SDKException,
-            self.proxy.restore_backup,
-            'backup',
-            'volume_id',
-            'name')
