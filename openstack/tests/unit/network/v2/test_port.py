@@ -28,6 +28,7 @@ EXAMPLE = {
     'description': '8',
     'device_id': '9',
     'device_owner': '10',
+    'device_profile': 'cyborg_device_profile_1',
     'dns_assignment': [{'11': 11}],
     'dns_domain': 'a11',
     'dns_name': '12',
@@ -122,6 +123,7 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['device_id'], sot.device_id)
         self.assertEqual(EXAMPLE['device_owner'], sot.device_owner)
+        self.assertEqual(EXAMPLE['device_profile'], sot.device_profile)
         self.assertEqual(EXAMPLE['dns_assignment'], sot.dns_assignment)
         self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
         self.assertEqual(EXAMPLE['dns_name'], sot.dns_name)

@@ -78,6 +78,10 @@ class Port(_base.NetworkResource, resource.TagMixin):
     device_id = resource.Body('device_id')
     #: Device owner of this port (e.g. ``network:dhcp``).
     device_owner = resource.Body('device_owner')
+    #: Device profile of this port, refers to Cyborg device-profiles:
+    # https://docs.openstack.org/api-ref/accelerator/v2/index.html#
+    # device-profiles.
+    device_profile = resource.Body('device_profile')
     #: DNS assignment for the port.
     dns_assignment = resource.Body('dns_assignment')
     #: DNS domain assigned to the port.

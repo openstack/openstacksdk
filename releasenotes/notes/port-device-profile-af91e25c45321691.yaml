@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``device_profile`` attribute to ``port`` resource. This parameter
+    can be define during the port creation. This parameter is nullable string.
