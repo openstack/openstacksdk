@@ -20,6 +20,8 @@ class PortForwarding(resource.Resource):
     resources_key = 'port_forwardings'
     base_path = '/floatingips/%(floatingip_id)s/port_forwardings'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

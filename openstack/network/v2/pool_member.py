@@ -18,6 +18,8 @@ class PoolMember(resource.Resource):
     resources_key = 'members'
     base_path = '/lbaas/pools/%(pool_id)s/members'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

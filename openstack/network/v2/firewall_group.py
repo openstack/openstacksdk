@@ -21,6 +21,8 @@ class FirewallGroup(resource.Resource):
     resources_key = 'firewall_groups'
     base_path = '/fwaas/firewall_groups'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

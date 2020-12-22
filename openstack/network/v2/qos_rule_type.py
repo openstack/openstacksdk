@@ -18,6 +18,8 @@ class QoSRuleType(resource.Resource):
     resources_key = 'rule_types'
     base_path = '/qos/rule-types'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = False
     allow_fetch = True

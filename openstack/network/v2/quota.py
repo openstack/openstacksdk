@@ -18,6 +18,8 @@ class Quota(resource.Resource):
     resources_key = 'quotas'
     base_path = '/quotas'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_fetch = True
     allow_commit = True

@@ -21,6 +21,8 @@ class FirewallRule(resource.Resource):
     resources_key = 'firewall_rules'
     base_path = '/fwaas/firewall_rules'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

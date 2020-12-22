@@ -19,6 +19,8 @@ class AddressScope(resource.Resource):
     resources_key = 'address_scopes'
     base_path = '/address-scopes'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

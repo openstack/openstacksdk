@@ -19,6 +19,8 @@ class NetworkIPAvailability(resource.Resource):
     base_path = '/network-ip-availabilities'
     name_attribute = 'network_name'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = False
     allow_fetch = True

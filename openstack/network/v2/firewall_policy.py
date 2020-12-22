@@ -23,6 +23,8 @@ class FirewallPolicy(resource.Resource):
     resources_key = 'firewall_policies'
     base_path = '/fwaas/firewall_policies'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

@@ -18,6 +18,8 @@ class Segment(resource.Resource):
     resources_key = 'segments'
     base_path = '/segments'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

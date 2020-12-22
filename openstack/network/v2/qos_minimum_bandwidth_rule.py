@@ -18,6 +18,8 @@ class QoSMinimumBandwidthRule(resource.Resource):
     resources_key = 'minimum_bandwidth_rules'
     base_path = '/qos/policies/%(qos_policy_id)s/minimum_bandwidth_rules'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

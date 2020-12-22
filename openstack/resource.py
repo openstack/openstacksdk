@@ -491,6 +491,8 @@ class Resource(dict):
     _original_body = None
     _delete_response_class = None
     _store_unknown_attrs_as_properties = False
+    _allow_unknown_attrs_in_body = False
+    _unknown_attrs_in_body = None
 
     # Placeholder for aliases as dict of {__alias__:__original}
     _attr_aliases = {}
@@ -510,10 +512,16 @@ class Resource(dict):
         """
         self._connection = connection
         self.microversion = attrs.pop('microversion', None)
+
+        self._unknown_attrs_in_body = {}
+
         # NOTE: _collect_attrs modifies **attrs in place, removing
         # items as they match up with any of the body, header,
         # or uri mappings.
         body, header, uri, computed = self._collect_attrs(attrs)
+
+        if self._allow_unknown_attrs_in_body:
+            self._unknown_attrs_in_body.update(attrs)
 
         self._body = _ComponentManager(
             attributes=body,
@@ -630,6 +638,11 @@ class Resource(dict):
                     # Hmm - not found. But hey, the alias exists...
                     return object.__getattribute__(
                         self, self._attr_aliases[name])
+                if self._allow_unknown_attrs_in_body:
+                    # Last chance, maybe it's in body as attribute which isn't
+                    # in the mapping at all...
+                    if name in self._unknown_attrs_in_body:
+                        return self._unknown_attrs_in_body[name]
                 raise e
 
     def __getitem__(self, name):
@@ -654,6 +667,9 @@ class Resource(dict):
         if isinstance(real_item, _BaseComponent):
             self.__setattr__(name, value)
         else:
+            if self._allow_unknown_attrs_in_body:
+                self._unknown_attrs_in_body[name] = value
+                return
             raise KeyError(
                 "{name} is not found. {module}.{cls} objects do not support"
                 " setting arbitrary keys through the"
@@ -740,9 +756,12 @@ class Resource(dict):
         header = self._consume_header_attrs(attrs)
         uri = self._consume_uri_attrs(attrs)
 
-        if attrs and self._store_unknown_attrs_as_properties:
-            # Keep also remaining (unknown) attributes
-            body = self._pack_attrs_under_properties(body, attrs)
+        if attrs:
+            if self._allow_unknown_attrs_in_body:
+                body.update(attrs)
+            elif self._store_unknown_attrs_as_properties:
+                # Keep also remaining (unknown) attributes
+                body = self._pack_attrs_under_properties(body, attrs)
 
         if any([body, header, uri]):
             attrs = self._compute_attributes(body, header, uri)
@@ -1170,8 +1189,10 @@ class Resource(dict):
                 body.pop("self", None)
 
                 body_attrs = self._consume_body_attrs(body)
-
-                if self._store_unknown_attrs_as_properties:
+                if self._allow_unknown_attrs_in_body:
+                    body_attrs.update(body)
+                    self._unknown_attrs_in_body.update(body)
+                elif self._store_unknown_attrs_as_properties:
                     body_attrs = self._pack_attrs_under_properties(
                         body_attrs, body)
 
