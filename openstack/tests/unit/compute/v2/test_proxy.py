@@ -51,6 +51,13 @@ class TestFlavor(TestComputeProxy):
     def test_flavor_find(self):
         self.verify_find(self.proxy.find_flavor, flavor.Flavor)
 
+    def test_flavor_find_query(self):
+        self.verify_find(
+            self.proxy.find_flavor, flavor.Flavor,
+            method_kwargs={"a": "b"},
+            expected_kwargs={"a": "b", "ignore_missing": False}
+        )
+
     def test_flavor_find_fetch_extra(self):
         """fetch extra_specs is triggered"""
         with mock.patch(
@@ -133,17 +140,56 @@ class TestFlavor(TestComputeProxy):
             )
             mocked.assert_not_called()
 
-    def test_flavors_detailed(self):
-        self.verify_list(self.proxy.flavors, flavor.FlavorDetail,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1,
-                                          "base_path": "/flavors/detail"})
+    @mock.patch("openstack.proxy.Proxy._list", auto_spec=True)
+    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
+                auto_spec=True)
+    def test_flavors_detailed(self, fetch_mock, list_mock):
+        res = self.proxy.flavors(details=True)
+        for r in res:
+            self.assertIsNotNone(r)
+        fetch_mock.assert_not_called()
+        list_mock.assert_called_with(
+            flavor.Flavor,
+            base_path="/flavors/detail"
+        )
 
-    def test_flavors_not_detailed(self):
-        self.verify_list(self.proxy.flavors, flavor.Flavor,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1,
-                                          "base_path": "/flavors"})
+    @mock.patch("openstack.proxy.Proxy._list", auto_spec=True)
+    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
+                auto_spec=True)
+    def test_flavors_not_detailed(self, fetch_mock, list_mock):
+        res = self.proxy.flavors(details=False)
+        for r in res:
+            self.assertIsNotNone(r)
+        fetch_mock.assert_not_called()
+        list_mock.assert_called_with(
+            flavor.Flavor,
+            base_path="/flavors"
+        )
+
+    @mock.patch("openstack.proxy.Proxy._list", auto_spec=True)
+    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
+                auto_spec=True)
+    def test_flavors_query(self, fetch_mock, list_mock):
+        res = self.proxy.flavors(details=False, get_extra_specs=True, a="b")
+        for r in res:
+            fetch_mock.assert_called_with(self.proxy)
+        list_mock.assert_called_with(
+            flavor.Flavor,
+            base_path="/flavors",
+            a="b"
+        )
+
+    @mock.patch("openstack.proxy.Proxy._list", auto_spec=True)
+    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
+                auto_spec=True)
+    def test_flavors_get_extra(self, fetch_mock, list_mock):
+        res = self.proxy.flavors(details=False, get_extra_specs=True)
+        for r in res:
+            fetch_mock.assert_called_with(self.proxy)
+        list_mock.assert_called_with(
+            flavor.Flavor,
+            base_path="/flavors"
+        )
 
     def test_flavor_get_access(self):
         self._verify("openstack.compute.v2.flavor.Flavor.get_access",

@@ -62,7 +62,7 @@ class Proxy(proxy.Proxy):
     # ========== Flavors ==========
 
     def find_flavor(self, name_or_id, ignore_missing=True,
-                    get_extra_specs=False):
+                    get_extra_specs=False, **query):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
@@ -73,10 +73,14 @@ class Proxy(proxy.Proxy):
         :param bool get_extra_specs: When set to ``True`` and extra_specs not
             present in the response will invoke additional API call to fetch
             extra_specs.
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the flavors being returned.
+
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
         """
-        flavor = self._find(_flavor.Flavor, name_or_id,
-                            ignore_missing=ignore_missing)
+        flavor = self._find(
+            _flavor.Flavor, name_or_id, ignore_missing=ignore_missing, **query)
         if flavor and get_extra_specs and not flavor.extra_specs:
             flavor = flavor.fetch_extra_specs(self)
         return flavor
@@ -139,19 +143,25 @@ class Proxy(proxy.Proxy):
             flavor = flavor.fetch_extra_specs(self)
         return flavor
 
-    def flavors(self, details=True, **query):
+    def flavors(self, details=True, get_extra_specs=False, **query):
         """Return a generator of flavors
 
         :param bool details: When ``True``, returns
             :class:`~openstack.compute.v2.flavor.Flavor` objects,
             with additional attributes filled.
+        :param bool get_extra_specs: When set to ``True`` and extra_specs not
+            present in the response will invoke additional API call to fetch
+            extra_specs.
         :param kwargs query: Optional query parameters to be sent to limit
             the flavors being returned.
 
         :returns: A generator of flavor objects
         """
         base_path = '/flavors/detail' if details else '/flavors'
-        return self._list(_flavor.Flavor, base_path=base_path, **query)
+        for flv in self._list(_flavor.Flavor, base_path=base_path, **query):
+            if get_extra_specs and not flv.extra_specs:
+                flv = flv.fetch_extra_specs(self)
+            yield flv
 
     def flavor_add_tenant_access(self, flavor, tenant):
         """Adds tenant/project access to flavor.

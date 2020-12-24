@@ -66,10 +66,8 @@ class TestFlavor(base.BaseFunctionalTest):
 
         # We should also always have ephemeral and public attributes
         self.assertIn('ephemeral', flavor)
-        self.assertIn('OS-FLV-EXT-DATA:ephemeral', flavor)
         self.assertEqual(5, flavor['ephemeral'])
         self.assertIn('is_public', flavor)
-        self.assertIn('os-flavor-access:is_public', flavor)
         self.assertTrue(flavor['is_public'])
 
         for key in flavor_kwargs.keys():
