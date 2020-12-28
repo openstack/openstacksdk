@@ -84,3 +84,16 @@ class BaseBaremetalTest(base.BaseFunctionalTest):
             self.conn.baremetal.delete_volume_target(volume_target.id,
                                                      ignore_missing=True))
         return volume_target
+
+    def create_deploy_template(self, **kwargs):
+        """Create a new deploy_template from attributes.
+        """
+
+        deploy_template = self.conn.baremetal.create_deploy_template(
+            **kwargs)
+
+        self.addCleanup(
+            lambda: self.conn.baremetal.delete_deploy_template(
+                deploy_template.id,
+                ignore_missing=True))
+        return deploy_template
