@@ -50,7 +50,7 @@ class AcceleratorRequest(resource.Resource):
         # This overrides the default behavior of _convert_patch because
         # the PATCH method consumes JSON, its key is the ARQ uuid
         # and its value is an ordinary JSON patch. spec:
-        # https://specs.openstack.org/openstack/cyborg-specs/specs/train/approved/cyborg-api
+        # https://specs.openstack.org/openstack/cyborg-specs/specs/train/implemented/cyborg-api
 
         converted = super(AcceleratorRequest, self)._convert_patch(patch)
         converted = {self.id: converted}
@@ -60,7 +60,7 @@ class AcceleratorRequest(resource.Resource):
               retry_on_conflict=None, base_path=None):
         # This overrides the default behavior of patch because
         # the PATCH method consumes a dict rather than a list. spec:
-        # https://specs.openstack.org/openstack/cyborg-specs/specs/train/approved/cyborg-api
+        # https://specs.openstack.org/openstack/cyborg-specs/specs/train/implemented/cyborg-api
 
         # The id cannot be dirty for an commit
         self._body._dirty.discard("id")
@@ -85,7 +85,7 @@ class AcceleratorRequest(resource.Resource):
     def _consume_attrs(self, mapping, attrs):
         # This overrides the default behavior of _consume_attrs because
         # cyborg api returns an ARQ as list. spec:
-        # https://specs.openstack.org/openstack/cyborg-specs/specs/train/approved/cyborg-api
+        # https://specs.openstack.org/openstack/cyborg-specs/specs/train/implemented/cyborg-api
         if isinstance(self, AcceleratorRequest):
             if self.resources_key in attrs:
                 attrs = attrs[self.resources_key][0]
