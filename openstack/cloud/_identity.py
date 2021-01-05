@@ -1061,7 +1061,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         self.list_groups.invalidate(self)
         return True
 
-    @_utils.valid_kwargs('domain_id')
+    @_utils.valid_kwargs('domain_id', 'name')
     def list_roles(self, **kwargs):
         """List Keystone roles.
 
