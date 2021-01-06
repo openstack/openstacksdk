@@ -51,6 +51,30 @@ class TestStack(base.TestCase):
 
         self.assert_calls()
 
+    def test_list_stacks_filters(self):
+        fake_stacks = [
+            self.stack,
+            fakes.make_fake_stack(
+                self.getUniqueString('id'),
+                self.getUniqueString('name'))
+        ]
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'orchestration', 'public',
+                     append=['stacks'],
+                     qs_elements=['name=a', 'status=b'],
+                 ),
+                 json={"stacks": fake_stacks}),
+        ])
+        stacks = self.cloud.list_stacks(name='a', status='b')
+        self.assertEqual(
+            [f.toDict() for f in self.cloud._normalize_stacks(
+                stack.Stack(**st) for st in fake_stacks)],
+            [f.toDict() for f in stacks])
+
+        self.assert_calls()
+
     def test_list_stacks_exception(self):
         self.register_uris([
             dict(method='GET',

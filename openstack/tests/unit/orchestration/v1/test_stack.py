@@ -135,6 +135,23 @@ class TestStack(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual(
+            {
+                'action': 'action',
+                'any_tags': 'tags-any',
+                'limit': 'limit',
+                'marker': 'marker',
+                'name': 'name',
+                'not_any_tags': 'not-tags-any',
+                'not_tags': 'not-tags',
+                'owner_id': 'owner_id',
+                'project_id': 'tenant_id',
+                'status': 'status',
+                'tags': 'tags',
+                'username': 'username',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = stack.Stack(**FAKE)
         self.assertEqual(FAKE['capabilities'], sot.capabilities)
