@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.block_storage import _base_proxy
+from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import stats as _stats
@@ -454,6 +455,16 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         backup = self._get_resource(_backup.Backup, backup)
         return backup.restore(self, volume_id=volume_id, name=name)
+
+    def availability_zones(self):
+        """Return a generator of availability zones
+
+        :returns: A generator of availability zone
+        :rtype: :class:`~openstack.block_storage.v3.availability_zone.\
+                        AvailabilityZone`
+        """
+
+        return self._list(availability_zone.AvailabilityZone)
 
     def wait_for_status(self, res, status='ACTIVE', failures=None,
                         interval=2, wait=120):
