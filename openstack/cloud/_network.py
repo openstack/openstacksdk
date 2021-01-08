@@ -2364,7 +2364,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                          'allowed_address_pairs', 'extra_dhcp_opts',
                          'device_owner', 'device_id', 'binding:vnic_type',
                          'binding:profile', 'port_security_enabled',
-                         'qos_policy_id')
+                         'qos_policy_id', 'binding:host_id')
     def create_port(self, network_id, **kwargs):
         """Create a port
 
@@ -2434,7 +2434,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
                          'security_groups', 'allowed_address_pairs',
                          'extra_dhcp_opts', 'device_owner', 'device_id',
                          'binding:vnic_type', 'binding:profile',
-                         'port_security_enabled', 'qos_policy_id')
+                         'port_security_enabled', 'qos_policy_id',
+                         'binding:host_id')
     def update_port(self, name_or_id, **kwargs):
         """Update a port
 
