@@ -78,7 +78,8 @@ Service Operations
 
 .. autoclass:: openstack.compute.v2._proxy.Proxy
   :noindex:
-  :members: services, enable_service, disable_service, force_service_down
+  :members: services, enable_service, disable_service, update_service_forced_down,
+            delete_service, update_service, find_service
 
 Volume Attachment Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

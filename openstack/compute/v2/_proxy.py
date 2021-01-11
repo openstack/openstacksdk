@@ -29,6 +29,7 @@ from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack.network.v2 import security_group as _sg
+from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 from openstack import utils
@@ -1402,57 +1403,140 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_hypervisor.Hypervisor, hypervisor)
 
-    def force_service_down(self, service, host, binary):
-        """Force a service down
+    # ========== Services ==========
+
+    def update_service_forced_down(
+        self, service, host=None, binary=None, forced=True
+    ):
+        """Update service forced_down information
 
         :param service: Either the ID of a service or a
-                       :class:`~openstack.compute.v2.server.Service` instance.
+            :class:`~openstack.compute.v2.service.Service` instance.
         :param str host: The host where service runs.
         :param str binary: The name of service.
+        :param bool forced: Whether or not this service was forced down
+            manually by an administrator after the service was fenced.
 
-        :returns: None
+        :returns: Updated service instance
+        :rtype: class: `~openstack.compute.v2.service.Service`
         """
-        service = self._get_resource(_service.Service, service)
-        service.force_down(self, host, binary)
+        if utils.supports_microversion(self, '2.53'):
+            return self.update_service(
+                service, forced_down=forced)
 
-    def disable_service(self, service, host, binary, disabled_reason=None):
+        service = self._get_resource(_service.Service, service)
+        if (
+            (not host or not binary)
+            and (not service.host or not service.binary)
+        ):
+            raise ValueError(
+                'Either service instance should have host and binary '
+                'or they should be passed')
+        service.set_forced_down(self, host, binary, forced)
+
+    force_service_down = update_service_forced_down
+
+    def disable_service(
+        self, service, host=None, binary=None, disabled_reason=None
+    ):
         """Disable a service
 
         :param service: Either the ID of a service or a
-                       :class:`~openstack.compute.v2.server.Service` instance.
+            :class:`~openstack.compute.v2.service.Service` instance.
         :param str host: The host where service runs.
         :param str binary: The name of service.
         :param str disabled_reason: The reason of force down a service.
 
-        :returns: None
+        :returns: Updated service instance
+        :rtype: class: `~openstack.compute.v2.service.Service`
         """
-        service = self._get_resource(_service.Service, service)
-        service.disable(self,
-                        host, binary,
-                        disabled_reason)
+        if utils.supports_microversion(self, '2.53'):
+            attrs = {
+                'status': 'disabled'
+            }
+            if disabled_reason:
+                attrs['disabled_reason'] = disabled_reason
+            return self.update_service(
+                service, **attrs)
 
-    def enable_service(self, service, host, binary):
+        service = self._get_resource(_service.Service, service)
+        return service.disable(
+            self, host, binary, disabled_reason)
+
+    def enable_service(self, service, host=None, binary=None):
         """Enable a service
 
         :param service: Either the ID of a service or a
-                       :class:`~openstack.compute.v2.server.Service` instance.
+            :class:`~openstack.compute.v2.service.Service` instance.
         :param str host: The host where service runs.
         :param str binary: The name of service.
 
-
-        :returns: None
+        :returns: Updated service instance
+        :rtype: class: `~openstack.compute.v2.service.Service`
         """
-        service = self._get_resource(_service.Service, service)
-        service.enable(self, host, binary)
+        if utils.supports_microversion(self, '2.53'):
+            return self.update_service(
+                service, status='enabled')
 
-    def services(self):
+        service = self._get_resource(_service.Service, service)
+        return service.enable(self, host, binary)
+
+    def services(self, **query):
         """Return a generator of service
 
+        :params dict query: Query parameters
         :returns: A generator of service
         :rtype: class: `~openstack.compute.v2.service.Service`
         """
+        return self._list(_service.Service, **query)
 
-        return self._list(_service.Service)
+    def find_service(self, name_or_id, ignore_missing=True, **attrs):
+        """Find a service from name or id to get the corresponding info
+
+        :param name_or_id: The name or id of a service
+        :param dict attrs: Additional attributes like 'host'
+
+        :returns:
+            One: class:`~openstack.compute.v2.hypervisor.Hypervisor` object
+            or None
+        """
+        return self._find(_service.Service, name_or_id,
+                          ignore_missing=ignore_missing, **attrs)
+
+    def delete_service(self, service, ignore_missing=True):
+        """Delete a service
+
+        :param service:
+            The value can be either the ID of a service or a
+            :class:`~openstack.compute.v2.service.Service` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the volume attachment does not exist.  When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            volume attachment.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _service.Service, service, ignore_missing=ignore_missing)
+
+    def update_service(self, service, **attrs):
+        """Update a service
+
+        :param server: Either the ID of a service or a
+            :class:`~openstack.compute.v2.service.Service` instance.
+        :attrs kwargs: The attributes to update on the service represented
+            by ``service``.
+
+        :returns: The updated service
+        :rtype: :class:`~openstack.compute.v2.service.Service`
+        """
+        if utils.supports_microversion(self, '2.53'):
+            return self._update(_service.Service, service, **attrs)
+
+        raise exceptions.SDKException(
+            'Method require at least microversion 2.53'
+        )
 
     def create_volume_attachment(self, server, **attrs):
         """Create a new volume attachment from attributes
