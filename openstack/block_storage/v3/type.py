@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class Type(resource.Resource):
@@ -38,6 +40,59 @@ class Type(resource.Resource):
     extra_specs = resource.Body("extra_specs", type=dict)
     #: a private volume-type. *Type: bool*
     is_public = resource.Body('os-volume-type-access:is_public', type=bool)
+
+    def _extra_specs(self, method, key=None, delete=False,
+                     extra_specs=None):
+        extra_specs = extra_specs or {}
+        for k, v in extra_specs.items():
+            if not isinstance(v, str):
+                raise ValueError("The value for %s (%s) must be "
+                                 "a text string" % (k, v))
+
+        if key is not None:
+            url = utils.urljoin(self.base_path, self.id, "extra_specs", key)
+        else:
+            url = utils.urljoin(self.base_path, self.id, "extra_specs")
+
+        kwargs = {}
+        if extra_specs:
+            kwargs["json"] = {"extra_specs": extra_specs}
+
+        response = method(url, headers={}, **kwargs)
+
+        # ensure Cinder API has not returned us an error
+        exceptions.raise_from_response(response)
+        # DELETE doesn't return a JSON body while everything else does.
+        return response.json() if not delete else None
+
+    def set_extra_specs(self, session, **extra_specs):
+        """Update extra_specs
+
+        This call will replace only the extra_specs with the same keys
+        given here.  Other keys will not be modified.
+
+        :param session: The session to use for this request.
+        :param kwargs extra_specs: key/value extra_specs pairs to be update on
+                                   this volume type. All keys and values
+        """
+        if not extra_specs:
+            return dict()
+
+        result = self._extra_specs(session.post, extra_specs=extra_specs)
+        return result["extra_specs"]
+
+    def delete_extra_specs(self, session, keys):
+        """Delete extra_specs
+
+        Note: This method will do a HTTP DELETE request for every key in keys.
+
+        :param session: The session to use for this request.
+        :param list keys: The keys to delete.
+
+        :rtype: ``None``
+        """
+        for key in keys:
+            self._extra_specs(session.delete, key=key, delete=True)
 
 
 class TypeEncryption(resource.Resource):
