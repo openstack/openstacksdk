@@ -84,10 +84,15 @@ class TestAggregate(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(
-                    'compute', 'public', append=['os-aggregates']
+                    'compute', 'public', append=['os-aggregates',
+                                                 self.aggregate_name]
                 ),
-                json={'aggregates': [self.fake_aggregate]},
+                status_code=404,
             ),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-aggregates']),
+                 json={'aggregates': [self.fake_aggregate]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['os-aggregates', '1'])),
@@ -101,8 +106,8 @@ class TestAggregate(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregates': [self.fake_aggregate]}),
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json=self.fake_aggregate),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['os-aggregates', '1']),
@@ -122,8 +127,8 @@ class TestAggregate(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregates': [self.fake_aggregate]}),
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json=self.fake_aggregate),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['os-aggregates', '1']),
@@ -144,8 +149,8 @@ class TestAggregate(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregates': [self.fake_aggregate]}),
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json=self.fake_aggregate),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -163,8 +168,8 @@ class TestAggregate(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregates': [self.fake_aggregate]}),
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json=self.fake_aggregate),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -182,8 +187,8 @@ class TestAggregate(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['os-aggregates']),
-                 json={'aggregates': [self.fake_aggregate]}),
+                     'compute', 'public', append=['os-aggregates', '1']),
+                 json=self.fake_aggregate),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
