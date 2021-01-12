@@ -41,7 +41,7 @@ class Proxy(proxy.Proxy):
         """Reconfig the FPGA with new bitstream.
 
         :param uuid: The value can be the UUID of a deployable
-        :param patch: The infomation of to reconfig.
+        :param patch: The information to reconfig.
         :returns: The results of FPGA reconfig.
         """
         return self._get_resource(_deployable.Deployable,
@@ -75,7 +75,7 @@ class Proxy(proxy.Proxy):
         :param uuid: The value can be the UUID of a device.
         :returns: One :class:`~openstack.accelerator.v2.device.Device`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
-            deployable matching the criteria could be found.
+            device matching the criteria could be found.
         """
         return self._get(_device.Device, uuid)
 
@@ -89,7 +89,7 @@ class Proxy(proxy.Proxy):
         return self._list(_device_profile.DeviceProfile, **query)
 
     def create_device_profile(self, **attrs):
-        """Create a device_profiles.
+        """Create a device_profile.
 
         :param kwargs attrs: a list of device_profiles.
         :returns: The list of created device profiles
@@ -97,10 +97,10 @@ class Proxy(proxy.Proxy):
         return self._create(_device_profile.DeviceProfile, **attrs)
 
     def delete_device_profile(self, name_or_id, ignore_missing=True):
-        """Delete an device profile
+        """Delete a device profile
 
-        :param name_or_id: The value can be either the ID of
-            an device profile.
+        :param name_or_id: The value can be either the ID or name of
+            a device profile.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the device profile does not exist.
@@ -135,12 +135,13 @@ class Proxy(proxy.Proxy):
         """Create an ARQs for a single device profile.
 
         :param kwargs attrs: request body.
+        :returns: The created accelerator request instance.
         """
         return self._create(_arq.AcceleratorRequest, **attrs)
 
     def delete_accelerator_request(self, name_or_id, ignore_missing=True):
-        """Delete an device profile
-        :param name_or_id: The value can be either the ID of
+        """Delete a device profile
+        :param name_or_id: The value can be either the ID or name of
         an accelerator request.
         :param bool ignore_missing: When set to ``False``
         :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -164,7 +165,7 @@ class Proxy(proxy.Proxy):
 
     def update_accelerator_request(self, uuid, properties):
         """Bind/Unbind an accelerator to VM.
-        :param uuid: The uuid of the accelerator_request to be binded/unbinded.
+        :param uuid: The uuid of the accelerator_request to be bound/unbound.
         :param properties: The info of VM
         that will bind/unbind the accelerator.
         :returns: True if bind/unbind succeeded, False otherwise.
