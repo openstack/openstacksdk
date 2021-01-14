@@ -209,15 +209,16 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
         return _utils._filter_list(stacks, name_or_id, filters)
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_stacks)
-    def list_stacks(self):
+    def list_stacks(self, **query):
         """List all stacks.
 
+        :param dict query: Query parameters to limit stacks.
         :returns: a list of ``munch.Munch`` containing the stack description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        data = self.orchestration.stacks()
+        data = self.orchestration.stacks(**query)
         return self._normalize_stacks(data)
 
     def get_stack(self, name_or_id, filters=None, resolve_outputs=True):

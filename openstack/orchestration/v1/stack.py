@@ -29,7 +29,10 @@ class Stack(resource.Resource):
     allow_delete = True
 
     _query_mapping = resource.QueryParameters(
-        'resolve_outputs'
+        'action', 'name', 'status',
+        'project_id', 'owner_id', 'username',
+        project_id='tenant_id',
+        **resource.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -84,7 +87,7 @@ class Stack(resource.Resource):
     #: A text explaining how the stack transits to its current status.
     status_reason = resource.Body('stack_status_reason')
     #: A list of strings used as tags on the stack
-    tags = resource.Body('tags')
+    tags = resource.Body('tags', type=list, default=[])
     #: A dict containing the template use for stack creation.
     template = resource.Body('template', type=dict)
     #: Stack template description text. Currently contains the same text
