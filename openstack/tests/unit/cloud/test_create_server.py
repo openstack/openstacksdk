@@ -555,7 +555,14 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', 'network-name']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=network-name']),
                  json={'networks': [network]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -600,7 +607,14 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', 'network-name']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=network-name']),
                  json={'networks': [network]}),
             dict(method='POST',
                  uri=self.get_mock_url(

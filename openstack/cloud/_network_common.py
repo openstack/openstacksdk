@@ -94,9 +94,8 @@ class NetworkCommonCloudMixin(_normalize.Normalizer):
             if (network['name'] in self._external_ipv4_names
                     or network['id'] in self._external_ipv4_names):
                 external_ipv4_networks.append(network)
-            elif ((('router:external' in network
-                    and network['router:external'])
-                   or network.get('provider:physical_network'))
+            elif ((network.is_router_external
+                   or network.provider_physical_network)
                   and network['name'] not in self._internal_ipv4_names
                   and network['id'] not in self._internal_ipv4_names):
                 external_ipv4_networks.append(network)
@@ -105,8 +104,8 @@ class NetworkCommonCloudMixin(_normalize.Normalizer):
             if (network['name'] in self._internal_ipv4_names
                     or network['id'] in self._internal_ipv4_names):
                 internal_ipv4_networks.append(network)
-            elif (not network.get('router:external', False)
-                  and not network.get('provider:physical_network')
+            elif (not network.is_router_external
+                  and not network.provider_physical_network
                   and network['name'] not in self._external_ipv4_names
                   and network['id'] not in self._external_ipv4_names):
                 internal_ipv4_networks.append(network)
@@ -115,7 +114,7 @@ class NetworkCommonCloudMixin(_normalize.Normalizer):
             if (network['name'] in self._external_ipv6_names
                     or network['id'] in self._external_ipv6_names):
                 external_ipv6_networks.append(network)
-            elif (network.get('router:external')
+            elif (network.is_router_external
                   and network['name'] not in self._internal_ipv6_names
                   and network['id'] not in self._internal_ipv6_names):
                 external_ipv6_networks.append(network)
@@ -124,7 +123,7 @@ class NetworkCommonCloudMixin(_normalize.Normalizer):
             if (network['name'] in self._internal_ipv6_names
                     or network['id'] in self._internal_ipv6_names):
                 internal_ipv6_networks.append(network)
-            elif (not network.get('router:external', False)
+            elif (not network.is_router_external
                   and network['name'] not in self._external_ipv6_names
                   and network['id'] not in self._external_ipv6_names):
                 internal_ipv6_networks.append(network)
@@ -144,7 +143,7 @@ class NetworkCommonCloudMixin(_normalize.Normalizer):
                 external_ipv4_floating_networks.append(network)
                 nat_source = network
             elif self._nat_source is None:
-                if network.get('router:external'):
+                if network.is_router_external:
                     external_ipv4_floating_networks.append(network)
                     nat_source = nat_source or network
 

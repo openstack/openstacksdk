@@ -20,6 +20,7 @@ Test port resource (managed by neutron)
 """
 
 from openstack.cloud.exc import OpenStackCloudException
+from openstack.network.v2 import port as _port
 from openstack.tests.unit import base
 
 
@@ -139,6 +140,11 @@ class TestPort(base.TestCase):
         ]
     }
 
+    def _compare_ports(self, exp, real):
+        self.assertDictEqual(
+            _port.Port(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_create_port(self):
         self.register_uris([
             dict(method="POST",
@@ -154,7 +160,7 @@ class TestPort(base.TestCase):
         port = self.cloud.create_port(
             network_id='test-net-id', name='test-port-name',
             admin_state_up=True)
-        self.assertEqual(self.mock_neutron_port_create_rep['port'], port)
+        self._compare_ports(self.mock_neutron_port_create_rep['port'], port)
         self.assert_calls()
 
     def test_create_port_parameters(self):
@@ -187,7 +193,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports']),
+                     'network', 'public', append=['v2.0', 'ports', port_id]),
                  json=self.mock_neutron_port_list_rep),
             dict(method='PUT',
                  uri=self.get_mock_url(
@@ -200,7 +206,7 @@ class TestPort(base.TestCase):
         port = self.cloud.update_port(
             name_or_id=port_id, name='test-port-name-updated')
 
-        self.assertEqual(self.mock_neutron_port_update_rep['port'], port)
+        self._compare_ports(self.mock_neutron_port_update_rep['port'], port)
         self.assert_calls()
 
     def test_update_port_parameters(self):
@@ -214,7 +220,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports']),
+                     'network', 'public', append=['v2.0', 'ports', port_id]),
                  json=self.mock_neutron_port_list_rep),
             dict(method='PUT',
                  uri=self.get_mock_url(
@@ -238,7 +244,8 @@ class TestPort(base.TestCase):
                  json=self.mock_neutron_port_list_rep)
         ])
         ports = self.cloud.list_ports()
-        self.assertCountEqual(self.mock_neutron_port_list_rep['ports'], ports)
+        for a, b in zip(self.mock_neutron_port_list_rep['ports'], ports):
+            self._compare_ports(a, b)
         self.assert_calls()
 
     def test_list_ports_filtered(self):
@@ -250,7 +257,8 @@ class TestPort(base.TestCase):
                  json=self.mock_neutron_port_list_rep)
         ])
         ports = self.cloud.list_ports(filters={'status': 'DOWN'})
-        self.assertCountEqual(self.mock_neutron_port_list_rep['ports'], ports)
+        for a, b in zip(self.mock_neutron_port_list_rep['ports'], ports):
+            self._compare_ports(a, b)
         self.assert_calls()
 
     def test_list_ports_exception(self):
@@ -306,7 +314,13 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports']),
+                     'network', 'public',
+                     append=['v2.0', 'ports', 'first-port']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports'],
+                     qs_elements=['name=first-port']),
                  json=self.mock_neutron_port_list_rep),
             dict(method='DELETE',
                  uri=self.get_mock_url(
@@ -321,8 +335,14 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports']),
-                 json=self.mock_neutron_port_list_rep)
+                     'network', 'public', append=['v2.0', 'ports',
+                                                  'non-existent']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports'],
+                     qs_elements=['name=non-existent']),
+                 json={'ports': []})
         ])
         self.assertFalse(self.cloud.delete_port(name_or_id='non-existent'))
         self.assert_calls()
@@ -334,7 +354,12 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports']),
+                     'network', 'public', append=['v2.0', 'ports', port_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'ports'],
+                     qs_elements=['name=%s' % port_name]),
                  json={'ports': [port1, port2]})
         ])
         self.assertRaises(OpenStackCloudException,
@@ -348,7 +373,8 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports']),
+                     'network', 'public',
+                     append=['v2.0', 'ports', port1['id']]),
                  json={'ports': [port1, port2]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
@@ -371,5 +397,5 @@ class TestPort(base.TestCase):
         ])
         r = self.cloud.get_port_by_id(fake_port['id'])
         self.assertIsNotNone(r)
-        self.assertDictEqual(fake_port, r)
+        self._compare_ports(fake_port, r)
         self.assert_calls()

@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.cloud import exc
+from openstack.network.v2 import quota as _quota
 from openstack.tests.unit import base
 
 fake_quota_set = {
@@ -183,8 +184,16 @@ class TestQuotas(base.TestCase):
                      append=['v2.0', 'quotas', project.project_id]),
                  json={'quota': quota})
         ])
-        received_quota = self.cloud.get_network_quotas(project.project_id)
-        self.assertDictEqual(quota, received_quota)
+        received_quota = self.cloud.get_network_quotas(
+            project.project_id).to_dict(computed=False)
+        expected_quota = _quota.Quota(**quota).to_dict(computed=False)
+        received_quota.pop('id')
+        received_quota.pop('name')
+        expected_quota.pop('id')
+        expected_quota.pop('name')
+
+        self.assertDictEqual(expected_quota, received_quota)
+
         self.assert_calls()
 
     def test_neutron_get_quotas_details(self):
@@ -233,12 +242,14 @@ class TestQuotas(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'quotas',
-                             '%s/details' % project.project_id]),
+                             project.project_id, 'details']),
                  json={'quota': quota_details})
         ])
         received_quota_details = self.cloud.get_network_quotas(
             project.project_id, details=True)
-        self.assertDictEqual(quota_details, received_quota_details)
+        self.assertDictEqual(
+            _quota.QuotaDetails(**quota_details).to_dict(computed=False),
+            received_quota_details.to_dict(computed=False))
         self.assert_calls()
 
     def test_neutron_delete_quotas(self):
