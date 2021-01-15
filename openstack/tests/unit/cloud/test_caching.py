@@ -455,7 +455,8 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual([], self.cloud.list_flavors())
 
         fake_flavor_dicts = [
-            _flavor.Flavor(connection=self.cloud, **f)
+            _flavor.Flavor(connection=self.cloud,
+                           **f)._to_munch(original_names=False)
             for f in fakes.FAKE_FLAVOR_LIST
         ]
 

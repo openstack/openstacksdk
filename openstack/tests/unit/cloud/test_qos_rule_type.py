@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from openstack.cloud import exc
+from openstack.network.v2 import qos_rule_type
 from openstack.tests.unit import base
 
 
@@ -66,6 +67,11 @@ class TestQosRuleType(base.TestCase):
         'type': rule_type_name
     }
 
+    def _compare_rule_types(self, exp, real):
+        self.assertDictEqual(
+            qos_rule_type.QoSRuleType(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_list_qos_rule_types(self):
         self.register_uris([
             dict(method='GET',
@@ -79,7 +85,8 @@ class TestQosRuleType(base.TestCase):
                  json={'rule_types': self.mock_rule_types})
         ])
         rule_types = self.cloud.list_qos_rule_types()
-        self.assertEqual(self.mock_rule_types, rule_types)
+        for a, b in zip(self.mock_rule_types, rule_types):
+            self._compare_rule_types(a, b)
         self.assert_calls()
 
     def test_list_qos_rule_types_no_qos_extension(self):
@@ -114,7 +121,8 @@ class TestQosRuleType(base.TestCase):
                              self.rule_type_name]),
                      json={'rule_type': self.mock_rule_type_details})
         ])
-        self.assertEqual(
+
+        self._compare_rule_types(
             self.mock_rule_type_details,
             self.cloud.get_qos_rule_type_details(self.rule_type_name)
         )

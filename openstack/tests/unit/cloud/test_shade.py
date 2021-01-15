@@ -17,6 +17,7 @@ import testtools
 
 from openstack.cloud import exc
 from openstack import connection
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
 from openstack import utils
@@ -637,8 +638,7 @@ class TestShade(base.TestCase):
                  status_code=404)
         ])
         with testtools.ExpectedException(
-            exc.OpenStackCloudURINotFound,
-            "Error fetching extension list for neutron"
+            exceptions.ResourceNotFound
         ):
             self.cloud._neutron_extensions()
 

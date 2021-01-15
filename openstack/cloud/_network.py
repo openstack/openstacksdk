@@ -34,11 +34,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
     @_utils.cache_on_arguments()
     def _neutron_extensions(self):
         extensions = set()
-        resp = self.network.get('/extensions')
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching extension list for neutron")
-        for extension in self._get_and_munchify('extensions', data):
+        for extension in self.network.extensions():
             extensions.add(extension['alias'])
         return extensions
 
@@ -232,8 +228,15 @@ class NetworkCloudMixin(_normalize.Normalizer):
                  found.
 
         """
-        return _utils._get_entity(
-            self, 'qos_policie', name_or_id, filters)
+        if not self._has_neutron_extension('qos'):
+            raise exc.OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+        if not filters:
+            filters = {}
+        return self.network.find_qos_policy(
+            name_or_id=name_or_id,
+            ignore_missing=True,
+            **filters)
 
     def search_qos_policies(self, name_or_id=None, filters=None):
         """Search QoS policies
@@ -247,8 +250,15 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        policies = self.list_qos_policies(filters)
-        return _utils._filter_list(policies, name_or_id, filters)
+        if not self._has_neutron_extension('qos'):
+            raise exc.OpenStackCloudUnavailableExtension(
+                'QoS extension is not available on target cloud')
+        query = {}
+        if name_or_id:
+            query['name'] = name_or_id
+        if filters:
+            query.update(filters)
+        return list(self.network.qos_policies(**query))
 
     def list_qos_rule_types(self, filters=None):
         """List all available QoS rule types.
@@ -264,11 +274,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        resp = self.network.get("/qos/rule-types", params=filters)
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS rule types list")
-        return self._get_and_munchify('rule_types', data)
+        return list(self.network.qos_rule_types(**filters))
 
     def get_qos_rule_type_details(self, rule_type, filters=None):
         """Get a QoS rule type details by rule type name.
@@ -288,13 +294,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 'qos-rule-type-details extension is not available '
                 'on target cloud')
 
-        resp = self.network.get(
-            "/qos/rule-types/{rule_type}".format(rule_type=rule_type))
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS details of {rule_type} "
-                          "rule type".format(rule_type=rule_type))
-        return self._get_and_munchify('rule_type', data)
+        return self.network.get_qos_rule_type(rule_type)
 
     def list_qos_policies(self, filters=None):
         """List all available QoS policies.
@@ -309,11 +309,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        resp = self.network.get("/qos/policies", params=filters)
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS policies list")
-        return self._get_and_munchify('policies', data)
+        return list(self.network.qos_policies(**filters))
 
     def get_network(self, name_or_id, filters=None):
         """Get a network by name or ID.
@@ -1193,8 +1189,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 self.log.debug("'qos-default' extension is not available on "
                                "target cloud")
 
-        data = self.network.post("/qos/policies", json={'policy': kwargs})
-        return self._get_and_munchify('policy', data)
+        return self.network.create_qos_policy(**kwargs)
 
     @_utils.valid_kwargs("name", "description", "shared", "default",
                          "project_id")
@@ -1231,16 +1226,11 @@ class NetworkCloudMixin(_normalize.Normalizer):
             self.log.debug("No QoS policy data to update")
             return
 
-        curr_policy = self.get_qos_policy(name_or_id)
+        curr_policy = self.network.find_qos_policy(name_or_id)
         if not curr_policy:
             raise exc.OpenStackCloudException(
                 "QoS policy %s not found." % name_or_id)
-
-        data = self.network.put(
-            "/qos/policies/{policy_id}".format(
-                policy_id=curr_policy['id']),
-            json={'policy': kwargs})
-        return self._get_and_munchify('policy', data)
+        return self.network.update_qos_policy(curr_policy, **kwargs)
 
     def delete_qos_policy(self, name_or_id):
         """Delete a QoS policy.
@@ -1254,18 +1244,17 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
-        policy = self.get_qos_policy(name_or_id)
+        policy = self.network.find_qos_policy(name_or_id)
         if not policy:
             self.log.debug("QoS policy %s not found for deleting", name_or_id)
             return False
-
-        exceptions.raise_from_response(self.network.delete(
-            "/qos/policies/{policy_id}".format(policy_id=policy['id'])))
+        self.network.delete_qos_policy(policy)
 
         return True
 
-    def search_qos_bandwidth_limit_rules(self, policy_name_or_id, rule_id=None,
-                                         filters=None):
+    def search_qos_bandwidth_limit_rules(
+        self, policy_name_or_id, rule_id=None, filters=None
+    ):
         """Search QoS bandwidth limit rules
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1298,7 +1287,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1308,15 +1297,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not filters:
             filters = {}
 
-        resp = self.network.get(
-            "/qos/policies/{policy_id}/bandwidth_limit_rules".format(
-                policy_id=policy['id']),
-            params=filters)
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS bandwidth limit rules from "
-                          "{policy}".format(policy=policy['id']))
-        return self._get_and_munchify('bandwidth_limit_rules', data)
+        return list(self.network.qos_bandwidth_limit_rules(
+            qos_policy=policy, **filters))
 
     def get_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
         """Get a QoS bandwidth limit rule by name or ID.
@@ -1333,21 +1315,14 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        resp = self.network.get(
-            "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}".
-            format(policy_id=policy['id'], rule_id=rule_id))
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS bandwidth limit rule {rule_id} "
-                          "from {policy}".format(rule_id=rule_id,
-                                                 policy=policy['id']))
-        return self._get_and_munchify('bandwidth_limit_rule', data)
+        return self.network.get_qos_bandwidth_limit_rule(
+            rule_id, policy)
 
     @_utils.valid_kwargs("max_burst_kbps", "direction")
     def create_qos_bandwidth_limit_rule(self, policy_name_or_id, max_kbps,
@@ -1369,7 +1344,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1383,11 +1358,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                     "target cloud")
 
         kwargs['max_kbps'] = max_kbps
-        data = self.network.post(
-            "/qos/policies/{policy_id}/bandwidth_limit_rules".format(
-                policy_id=policy['id']),
-            json={'bandwidth_limit_rule': kwargs})
-        return self._get_and_munchify('bandwidth_limit_rule', data)
+        return self.network.create_qos_bandwidth_limit_rule(policy, **kwargs)
 
     @_utils.valid_kwargs("max_kbps", "max_burst_kbps", "direction")
     def update_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id,
@@ -1410,7 +1381,9 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id,
+            ignore_missing=True)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1427,19 +1400,16 @@ class NetworkCloudMixin(_normalize.Normalizer):
             self.log.debug("No QoS bandwidth limit rule data to update")
             return
 
-        curr_rule = self.get_qos_bandwidth_limit_rule(
-            policy_name_or_id, rule_id)
+        curr_rule = self.network.get_qos_bandwidth_limit_rule(
+            qos_rule=rule_id, qos_policy=policy)
         if not curr_rule:
             raise exc.OpenStackCloudException(
                 "QoS bandwidth_limit_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
 
-        data = self.network.put(
-            "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}".
-            format(policy_id=policy['id'], rule_id=rule_id),
-            json={'bandwidth_limit_rule': kwargs})
-        return self._get_and_munchify('bandwidth_limit_rule', data)
+        return self.network.update_qos_bandwidth_limit_rule(
+            qos_rule=curr_rule, qos_policy=policy, **kwargs)
 
     def delete_qos_bandwidth_limit_rule(self, policy_name_or_id, rule_id):
         """Delete a QoS bandwidth limit rule.
@@ -1454,17 +1424,16 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
         try:
-            exceptions.raise_from_response(self.network.delete(
-                "/qos/policies/{policy}/bandwidth_limit_rules/{rule}".
-                format(policy=policy['id'], rule=rule_id)))
-        except exc.OpenStackCloudURINotFound:
+            self.network.delete_qos_bandwidth_limit_rule(
+                rule_id, policy, ignore_missing=False)
+        except exceptions.ResourceNotFound:
             self.log.debug(
                 "QoS bandwidth limit rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(rule_id=rule_id,
@@ -1507,7 +1476,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(
+            policy_name_or_id, ignore_missing=True)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1517,15 +1487,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not filters:
             filters = {}
 
-        resp = self.network.get(
-            "/qos/policies/{policy_id}/dscp_marking_rules".format(
-                policy_id=policy['id']),
-            params=filters)
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS DSCP marking rules from "
-                          "{policy}".format(policy=policy['id']))
-        return self._get_and_munchify('dscp_marking_rules', data)
+        return list(self.network.qos_dscp_marking_rules(policy, **filters))
 
     def get_qos_dscp_marking_rule(self, policy_name_or_id, rule_id):
         """Get a QoS DSCP marking rule by name or ID.
@@ -1542,21 +1504,13 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        resp = self.network.get(
-            "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}".
-            format(policy_id=policy['id'], rule_id=rule_id))
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS DSCP marking rule {rule_id} "
-                          "from {policy}".format(rule_id=rule_id,
-                                                 policy=policy['id']))
-        return self._get_and_munchify('dscp_marking_rule', data)
+        return self.network.get_qos_dscp_marking_rule(rule_id, policy)
 
     def create_qos_dscp_marking_rule(self, policy_name_or_id, dscp_mark):
         """Create a QoS DSCP marking rule.
@@ -1572,20 +1526,14 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        body = {
-            'dscp_mark': dscp_mark
-        }
-        data = self.network.post(
-            "/qos/policies/{policy_id}/dscp_marking_rules".format(
-                policy_id=policy['id']),
-            json={'dscp_marking_rule': body})
-        return self._get_and_munchify('dscp_marking_rule', data)
+        return self.network.create_qos_dscp_marking_rule(
+            policy, dscp_mark=dscp_mark)
 
     @_utils.valid_kwargs("dscp_mark")
     def update_qos_dscp_marking_rule(self, policy_name_or_id, rule_id,
@@ -1604,7 +1552,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1614,19 +1562,16 @@ class NetworkCloudMixin(_normalize.Normalizer):
             self.log.debug("No QoS DSCP marking rule data to update")
             return
 
-        curr_rule = self.get_qos_dscp_marking_rule(
-            policy_name_or_id, rule_id)
+        curr_rule = self.network.get_qos_dscp_marking_rule(
+            rule_id, policy)
         if not curr_rule:
             raise exc.OpenStackCloudException(
                 "QoS dscp_marking_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
 
-        data = self.network.put(
-            "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}".
-            format(policy_id=policy['id'], rule_id=rule_id),
-            json={'dscp_marking_rule': kwargs})
-        return self._get_and_munchify('dscp_marking_rule', data)
+        return self.network.update_qos_dscp_marking_rule(
+            curr_rule, policy, **kwargs)
 
     def delete_qos_dscp_marking_rule(self, policy_name_or_id, rule_id):
         """Delete a QoS DSCP marking rule.
@@ -1641,17 +1586,16 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
         try:
-            exceptions.raise_from_response(self.network.delete(
-                "/qos/policies/{policy}/dscp_marking_rules/{rule}".
-                format(policy=policy['id'], rule=rule_id)))
-        except exc.OpenStackCloudURINotFound:
+            self.network.delete_qos_dscp_marking_rule(
+                rule_id, policy, ignore_missing=False)
+        except exceptions.ResourceNotFound:
             self.log.debug(
                 "QoS DSCP marking rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(rule_id=rule_id,
@@ -1696,7 +1640,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1706,15 +1650,9 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not filters:
             filters = {}
 
-        resp = self.network.get(
-            "/qos/policies/{policy_id}/minimum_bandwidth_rules".format(
-                policy_id=policy['id']),
-            params=filters)
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS minimum bandwidth rules from "
-                          "{policy}".format(policy=policy['id']))
-        return self._get_and_munchify('minimum_bandwidth_rules', data)
+        return list(
+            self.network.qos_minimum_bandwidth_rules(
+                policy, **filters))
 
     def get_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
         """Get a QoS minimum bandwidth rule by name or ID.
@@ -1731,25 +1669,18 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
-        resp = self.network.get(
-            "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}".
-            format(policy_id=policy['id'], rule_id=rule_id))
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching QoS minimum_bandwidth rule {rule_id}"
-                          " from {policy}".format(rule_id=rule_id,
-                                                  policy=policy['id']))
-        return self._get_and_munchify('minimum_bandwidth_rule', data)
+        return self.network.get_qos_minimum_bandwidth_rule(rule_id, policy)
 
     @_utils.valid_kwargs("direction")
-    def create_qos_minimum_bandwidth_rule(self, policy_name_or_id, min_kbps,
-                                          **kwargs):
+    def create_qos_minimum_bandwidth_rule(
+        self, policy_name_or_id, min_kbps, **kwargs
+    ):
         """Create a QoS minimum bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1765,22 +1696,19 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
         kwargs['min_kbps'] = min_kbps
-        data = self.network.post(
-            "/qos/policies/{policy_id}/minimum_bandwidth_rules".format(
-                policy_id=policy['id']),
-            json={'minimum_bandwidth_rule': kwargs})
-        return self._get_and_munchify('minimum_bandwidth_rule', data)
+        return self.network.create_qos_minimum_bandwidth_rule(policy, **kwargs)
 
     @_utils.valid_kwargs("min_kbps", "direction")
-    def update_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id,
-                                          **kwargs):
+    def update_qos_minimum_bandwidth_rule(
+        self, policy_name_or_id, rule_id, **kwargs
+    ):
         """Update a QoS minimum bandwidth rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1797,7 +1725,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
@@ -1807,19 +1735,16 @@ class NetworkCloudMixin(_normalize.Normalizer):
             self.log.debug("No QoS minimum bandwidth rule data to update")
             return
 
-        curr_rule = self.get_qos_minimum_bandwidth_rule(
-            policy_name_or_id, rule_id)
+        curr_rule = self.network.get_qos_minimum_bandwidth_rule(
+            rule_id, policy)
         if not curr_rule:
             raise exc.OpenStackCloudException(
                 "QoS minimum_bandwidth_rule {rule_id} not found in policy "
                 "{policy_id}".format(rule_id=rule_id,
                                      policy_id=policy['id']))
 
-        data = self.network.put(
-            "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}".
-            format(policy_id=policy['id'], rule_id=rule_id),
-            json={'minimum_bandwidth_rule': kwargs})
-        return self._get_and_munchify('minimum_bandwidth_rule', data)
+        return self.network.update_qos_minimum_bandwidth_rule(
+            curr_rule, policy, **kwargs)
 
     def delete_qos_minimum_bandwidth_rule(self, policy_name_or_id, rule_id):
         """Delete a QoS minimum bandwidth rule.
@@ -1834,17 +1759,16 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
 
-        policy = self.get_qos_policy(policy_name_or_id)
+        policy = self.network.find_qos_policy(policy_name_or_id)
         if not policy:
             raise exc.OpenStackCloudResourceNotFound(
                 "QoS policy {name_or_id} not Found.".format(
                     name_or_id=policy_name_or_id))
 
         try:
-            exceptions.raise_from_response(self.network.delete(
-                "/qos/policies/{policy}/minimum_bandwidth_rules/{rule}".
-                format(policy=policy['id'], rule=rule_id)))
-        except exc.OpenStackCloudURINotFound:
+            self.network.delete_qos_minimum_bandwidth_rule(
+                rule_id, policy, ignore_missing=False)
+        except exceptions.ResourceNotFound:
             self.log.debug(
                 "QoS minimum bandwidth rule {rule_id} not found in policy "
                 "{policy_id}. Ignoring.".format(rule_id=rule_id,

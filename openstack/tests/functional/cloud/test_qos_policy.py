@@ -49,7 +49,7 @@ class TestQosPolicy(base.BaseFunctionalTest):
         policy = self.operator_cloud.create_qos_policy(name=self.policy_name)
         self.assertIn('id', policy)
         self.assertEqual(self.policy_name, policy['name'])
-        self.assertFalse(policy['shared'])
+        self.assertFalse(policy['is_shared'])
         self.assertFalse(policy['is_default'])
 
     def test_create_qos_policy_shared(self):
@@ -57,7 +57,7 @@ class TestQosPolicy(base.BaseFunctionalTest):
             name=self.policy_name, shared=True)
         self.assertIn('id', policy)
         self.assertEqual(self.policy_name, policy['name'])
-        self.assertTrue(policy['shared'])
+        self.assertTrue(policy['is_shared'])
         self.assertFalse(policy['is_default'])
 
     def test_create_qos_policy_default(self):
@@ -68,19 +68,19 @@ class TestQosPolicy(base.BaseFunctionalTest):
             name=self.policy_name, default=True)
         self.assertIn('id', policy)
         self.assertEqual(self.policy_name, policy['name'])
-        self.assertFalse(policy['shared'])
+        self.assertFalse(policy['is_shared'])
         self.assertTrue(policy['is_default'])
 
     def test_update_qos_policy(self):
         policy = self.operator_cloud.create_qos_policy(name=self.policy_name)
         self.assertEqual(self.policy_name, policy['name'])
-        self.assertFalse(policy['shared'])
+        self.assertFalse(policy['is_shared'])
         self.assertFalse(policy['is_default'])
 
         updated_policy = self.operator_cloud.update_qos_policy(
             policy['id'], shared=True, default=True)
         self.assertEqual(self.policy_name, updated_policy['name'])
-        self.assertTrue(updated_policy['shared'])
+        self.assertTrue(updated_policy['is_shared'])
         self.assertTrue(updated_policy['is_default'])
 
     def test_list_qos_policies_filtered(self):

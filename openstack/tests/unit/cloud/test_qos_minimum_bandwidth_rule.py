@@ -16,6 +16,7 @@
 import copy
 
 from openstack.cloud import exc
+from openstack.network.v2 import qos_minimum_bandwidth_rule
 from openstack.tests.unit import base
 
 
@@ -55,6 +56,12 @@ class TestQosMinimumBandwidthRule(base.TestCase):
 
     enabled_neutron_extensions = [qos_extension]
 
+    def _compare_rules(self, exp, real):
+        self.assertDictEqual(
+            qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule(
+                **exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_get_qos_minimum_bandwidth_rule(self):
         self.register_uris([
             dict(method='GET',
@@ -63,13 +70,16 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
+                     'network', 'public',
+                     append=['v2.0', 'qos', 'policies', self.policy_name]),
+                 status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies']),
+                     append=['v2.0', 'qos', 'policies'],
+                     qs_elements=['name=%s' % self.policy_name]),
                  json={'policies': [self.mock_policy]}),
+
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -79,7 +89,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
         ])
         r = self.cloud.get_qos_minimum_bandwidth_rule(self.policy_name,
                                                       self.rule_id)
-        self.assertDictEqual(self.mock_rule, r)
+        self._compare_rules(self.mock_rule, r)
         self.assert_calls()
 
     def test_get_qos_minimum_bandwidth_rule_no_qos_policy_found(self):
@@ -90,13 +100,15 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
+                     'network', 'public',
+                     append=['v2.0', 'qos', 'policies', self.policy_name]),
+                 status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies']),
-                 json={'policies': []})
+                     append=['v2.0', 'qos', 'policies'],
+                     qs_elements=['name=%s' % self.policy_name]),
+                 json={'policies': []}),
         ])
         self.assertRaises(
             exc.OpenStackCloudResourceNotFound,
@@ -125,12 +137,14 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
+                     'network', 'public',
+                     append=['v2.0', 'qos', 'policies', self.policy_name]),
+                 status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies']),
+                     append=['v2.0', 'qos', 'policies'],
+                     qs_elements=['name=%s' % self.policy_name]),
                  json={'policies': [self.mock_policy]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -141,7 +155,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
         ])
         rule = self.cloud.create_qos_minimum_bandwidth_rule(
             self.policy_name, min_kbps=self.rule_min_kbps)
-        self.assertDictEqual(self.mock_rule, rule)
+        self._compare_rules(self.mock_rule, rule)
         self.assert_calls()
 
     def test_create_qos_minimum_bandwidth_rule_no_qos_extension(self):
@@ -167,26 +181,9 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies']),
-                 json={'policies': [self.mock_policy]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'qos', 'policies']),
-                 json={'policies': [self.mock_policy]}),
+                     append=['v2.0', 'qos', 'policies', self.policy_id]),
+                 json=self.mock_policy),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -205,7 +202,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
         ])
         rule = self.cloud.update_qos_minimum_bandwidth_rule(
             self.policy_id, self.rule_id, min_kbps=self.rule_min_kbps + 100)
-        self.assertDictEqual(expected_rule, rule)
+        self._compare_rules(expected_rule, rule)
         self.assert_calls()
 
     def test_update_qos_minimum_bandwidth_rule_no_qos_extension(self):
@@ -229,12 +226,14 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
+                     'network', 'public',
+                     append=['v2.0', 'qos', 'policies', self.policy_name]),
+                 status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies']),
+                     append=['v2.0', 'qos', 'policies'],
+                     qs_elements=['name=%s' % self.policy_name]),
                  json={'policies': [self.mock_policy]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
@@ -269,12 +268,14 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions']),
-                 json={'extensions': self.enabled_neutron_extensions}),
+                     'network', 'public',
+                     append=['v2.0', 'qos', 'policies', self.policy_name]),
+                 status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies']),
+                     append=['v2.0', 'qos', 'policies'],
+                     qs_elements=['name=%s' % self.policy_name]),
                  json={'policies': [self.mock_policy]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
