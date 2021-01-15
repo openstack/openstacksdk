@@ -195,12 +195,12 @@ class TestZone(base.TestCase):
                        'links': {
                            'next': self.get_mock_url(
                                'dns', 'public',
-                               append=['v2', 'zones',
-                                       '?limit=1&marker=asd']),
+                               append=['v2', 'zones/'],
+                               qs_elements=['limit=1', 'marker=asd']),
                            'self': self.get_mock_url(
                                'dns', 'public',
-                               append=['v2', 'zones',
-                                       '?limit=1'])},
+                               append=['v2', 'zones/'],
+                               qs_elements=['limit=1'])},
                        'metadata':{'total_count': 2}}),
             dict(method='GET',
                  uri=self.get_mock_url(

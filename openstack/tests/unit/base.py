@@ -187,10 +187,13 @@ class TestCase(base.TestCase):
             to_join.append(base_url_append)
         if resource:
             to_join.append(resource)
-        to_join.extend(append or [])
+        if append:
+            to_join.extend([urllib.parse.quote(i) for i in append])
         if qs_elements is not None:
             qs = '?%s' % '&'.join(qs_elements)
-        return '%(uri)s%(qs)s' % {'uri': '/'.join(to_join), 'qs': qs}
+        return '%(uri)s%(qs)s' % {
+            'uri': '/'.join(to_join),
+            'qs': qs}
 
     def mock_for_keystone_projects(self, project=None, v3=True,
                                    list_get=False, id_get=False,
