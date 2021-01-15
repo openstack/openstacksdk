@@ -29,9 +29,8 @@ class SubnetPool(resource.Resource, resource.TagMixin):
 
     _query_mapping = resource.QueryParameters(
         'address_scope_id', 'description', 'ip_version', 'is_default',
-        'name',
+        'name', 'project_id',
         is_shared='shared',
-        project_id='tenant_id',
         **resource.TagMixin._tag_query_parameters
     )
 
@@ -69,7 +68,9 @@ class SubnetPool(resource.Resource, resource.TagMixin):
     #: The subnet pool name.
     name = resource.Body('name')
     #: The ID of the project that owns the subnet pool.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: A list of subnet prefixes that are assigned to the subnet pool.
     #: The adjacent prefixes are merged and treated as a single prefix.
     #: *Type: list*

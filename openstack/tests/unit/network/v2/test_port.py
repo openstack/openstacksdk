@@ -53,7 +53,7 @@ EXAMPLE = {
     'revision_number': 22,
     'security_groups': ['23'],
     'status': '25',
-    'tenant_id': '26',
+    'project_id': '26',
     'trunk_details': {
         'trunk_id': '27',
         'sub_ports': [{
@@ -98,7 +98,7 @@ class TestPort(base.TestCase):
                               "is_admin_state_up": "admin_state_up",
                               "is_port_security_enabled":
                                   "port_security_enabled",
-                              "project_id": "tenant_id",
+                              "project_id": "project_id",
                               "limit": "limit",
                               "marker": "marker",
                               "any_tags": "tags-any",
@@ -146,6 +146,6 @@ class TestPort(base.TestCase):
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_group_ids)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['trunk_details'], sot.trunk_details)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

@@ -33,7 +33,7 @@ class AddressGroup(resource.Resource):
     _query_mapping = resource.QueryParameters(
         "sort_key", "sort_dir",
         'name', 'description',
-        project_id='tenant_id'
+        'project_id'
     )
 
     # Properties
@@ -44,7 +44,9 @@ class AddressGroup(resource.Resource):
     #: The address group name.
     description = resource.Body('description')
     #: The ID of the project that owns the address group.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The IP addresses of the address group.
     addresses = resource.Body('addresses', type=list)
 

@@ -25,7 +25,7 @@ EXAMPLE = {
     "router_id": "5",
     "status": "6",
     "subnet_id": "7",
-    "tenant_id": "8",
+    "project_id": "8",
 }
 
 
@@ -53,4 +53,4 @@ class TestVPNService(base.TestCase):
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
         self.assertEqual(EXAMPLE['status'], sot.status)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)

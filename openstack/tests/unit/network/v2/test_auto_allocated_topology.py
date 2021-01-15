@@ -15,7 +15,7 @@ from openstack.tests.unit import base
 
 
 EXAMPLE = {
-    'tenant_id': '1',
+    'project_id': '1',
     'dry_run': False,
 }
 
@@ -34,4 +34,4 @@ class TestAutoAllocatedTopology(base.TestCase):
 
     def test_make_it(self):
         topo = auto_allocated_topology.AutoAllocatedTopology(**EXAMPLE)
-        self.assertEqual(EXAMPLE['tenant_id'], topo.project_id)
+        self.assertEqual(EXAMPLE['project_id'], topo.project_id)

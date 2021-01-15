@@ -19,7 +19,7 @@ EXAMPLE = {
     'id': IDENTIFIER,
     'name': '1',
     'description': '2',
-    'tenant_id': '3',
+    'project_id': '3',
     'addresses': ['10.0.0.1/32']
 }
 
@@ -39,7 +39,7 @@ class TestAddressGroup(base.TestCase):
 
         self.assertDictEqual({"name": "name",
                               "description": "description",
-                              "project_id": "tenant_id",
+                              "project_id": "project_id",
                               "sort_key": "sort_key",
                               "sort_dir": "sort_dir",
                               "limit": "limit",
@@ -51,5 +51,5 @@ class TestAddressGroup(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertCountEqual(EXAMPLE['addresses'], sot.addresses)

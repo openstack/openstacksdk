@@ -20,7 +20,7 @@ EXAMPLE = {
     'floatingip': 1,
     'network': 2,
     'port': 3,
-    'tenant_id': '4',
+    'project_id': '4',
     'router': 5,
     'subnet': 6,
     'subnetpool': 7,
@@ -53,7 +53,7 @@ class TestQuota(base.TestCase):
         self.assertEqual(EXAMPLE['floatingip'], sot.floating_ips)
         self.assertEqual(EXAMPLE['network'], sot.networks)
         self.assertEqual(EXAMPLE['port'], sot.ports)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router'], sot.routers)
         self.assertEqual(EXAMPLE['subnet'], sot.subnets)
         self.assertEqual(EXAMPLE['subnetpool'], sot.subnet_pools)
@@ -74,10 +74,10 @@ class TestQuota(base.TestCase):
         self.assertNotIn('id', response)
 
     def test_alternate_id(self):
-        my_tenant_id = 'my-tenant-id'
-        body = {'tenant_id': my_tenant_id, 'network': 12345}
+        my_project_id = 'my-tenant-id'
+        body = {'project_id': my_project_id, 'network': 12345}
         quota_obj = quota.Quota(**body)
-        self.assertEqual(my_tenant_id,
+        self.assertEqual(my_project_id,
                          resource.Resource._get_id(quota_obj))
 
 
@@ -99,7 +99,7 @@ class TestQuotaDefault(base.TestCase):
         self.assertEqual(EXAMPLE['floatingip'], sot.floating_ips)
         self.assertEqual(EXAMPLE['network'], sot.networks)
         self.assertEqual(EXAMPLE['port'], sot.ports)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router'], sot.routers)
         self.assertEqual(EXAMPLE['subnet'], sot.subnets)
         self.assertEqual(EXAMPLE['subnetpool'], sot.subnet_pools)

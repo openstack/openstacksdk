@@ -34,7 +34,7 @@ EXAMPLE = {
     'revision': 7,
     'routes': ['8'],
     'status': '9',
-    'tenant_id': '10',
+    'project_id': '10',
     'updated_at': 'timestamp2',
 }
 
@@ -57,7 +57,7 @@ EXAMPLE_WITH_OPTIONAL = {
         'destination': '10.0.3.1/24'
     }],
     'status': 'ACTIVE',
-    'tenant_id': '2',
+    'project_id': '2',
 }
 
 
@@ -93,7 +93,7 @@ class TestRouter(base.TestCase):
         self.assertEqual(EXAMPLE['revision'], sot.revision_number)
         self.assertEqual(EXAMPLE['routes'], sot.routes)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
 
     def test_make_it_with_optional(self):
@@ -113,7 +113,7 @@ class TestRouter(base.TestCase):
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['name'], sot.name)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['routes'], sot.routes)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['status'], sot.status)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['project_id'], sot.project_id)
 
     def test_add_interface_subnet(self):
         # Add subnet to a router

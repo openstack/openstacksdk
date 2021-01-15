@@ -32,10 +32,9 @@ class Port(_base.NetworkResource, resource.TagMixin):
         'binding:vif_type', 'binding:vnic_type',
         'description', 'device_id', 'device_owner', 'fields', 'fixed_ips',
         'id', 'ip_address', 'mac_address', 'name', 'network_id', 'status',
-        'subnet_id',
+        'subnet_id', 'project_id',
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
-        project_id='tenant_id',
         **resource.TagMixin._tag_query_parameters
     )
 
@@ -112,7 +111,9 @@ class Port(_base.NetworkResource, resource.TagMixin):
     numa_affinity_policy = resource.Body('numa_affinity_policy')
     #: The ID of the project who owns the network. Only administrative
     #: users can specify a project ID other than their own.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: Whether to propagate uplink status of the port. *Type: bool*
     propagate_uplink_status = resource.Body('propagate_uplink_status',
                                             type=bool)

@@ -30,7 +30,7 @@ class NetworkIPAvailability(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'ip_version', 'network_id', 'network_name',
-        project_id='tenant_id'
+        'project_id'
     )
 
     # Properties
@@ -42,7 +42,9 @@ class NetworkIPAvailability(resource.Resource):
     #: *Type: list*
     subnet_ip_availability = resource.Body('subnet_ip_availability', type=list)
     #: The ID of the project this network IP availability is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The total ips of a network.
     #: *Type: int*
     total_ips = resource.Body('total_ips', type=int)

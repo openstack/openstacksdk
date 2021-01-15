@@ -19,7 +19,7 @@ EXAMPLE = {
     'network_id': IDENTIFIER,
     'network_name': 'private',
     'subnet_ip_availability': [],
-    'tenant_id': '5',
+    'project_id': '5',
     'total_ips': 6,
     'used_ips': 10,
 }
@@ -32,7 +32,7 @@ EXAMPLE_WITH_OPTIONAL = {
                                 "subnet_name": "private-subnet",
                                 "ip_version": 6, "cidr": "fd91:c3ba:e818::/64",
                                 "total_ips": 18446744073709551614}],
-    'tenant_id': '2',
+    'project_id': '2',
     'total_ips': 1844,
     'used_ips': 6,
 }
@@ -58,7 +58,7 @@ class TestNetworkIPAvailability(base.TestCase):
         self.assertEqual(EXAMPLE['network_name'], sot.network_name)
         self.assertEqual(EXAMPLE['subnet_ip_availability'],
                          sot.subnet_ip_availability)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['total_ips'], sot.total_ips)
         self.assertEqual(EXAMPLE['used_ips'], sot.used_ips)
 
@@ -70,6 +70,6 @@ class TestNetworkIPAvailability(base.TestCase):
                          sot.network_name)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['subnet_ip_availability'],
                          sot.subnet_ip_availability)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['total_ips'], sot.total_ips)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['used_ips'], sot.used_ips)

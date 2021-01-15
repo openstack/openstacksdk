@@ -48,6 +48,6 @@ class SecurityGroup(_base.NetworkResource, resource.TagMixin):
     #: objects. *Type: list*
     security_group_rules = resource.Body('security_group_rules', type=list)
     #: The ID of the project this security group is associated with.
-    tenant_id = resource.Body('tenant_id')
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: Timestamp when the security group was last updated.
     updated_at = resource.Body('updated_at')

@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Stop sending tenant_id attribute to Neutron.

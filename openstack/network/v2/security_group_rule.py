@@ -84,7 +84,7 @@ class SecurityGroupRule(_base.NetworkResource, resource.TagMixin):
     #: The security group ID to associate with this security group rule.
     security_group_id = resource.Body('security_group_id')
     #: The ID of the project this security group rule is associated with.
-    tenant_id = resource.Body('tenant_id')
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: Timestamp when the security group rule was last updated.
     updated_at = resource.Body('updated_at')
 

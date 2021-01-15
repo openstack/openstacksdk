@@ -19,7 +19,7 @@ EXAMPLE = {
     'description': '1',
     'id': IDENTIFIER,
     'name': '3',
-    'tenant_id': '4',
+    'project_id': '4',
     'shared': False,
 }
 
@@ -42,5 +42,5 @@ class TestMeteringLabel(base.TestCase):
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['shared'], sot.is_shared)
