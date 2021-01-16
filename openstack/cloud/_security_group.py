@@ -238,6 +238,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
                                    protocol=None,
                                    remote_ip_prefix=None,
                                    remote_group_id=None,
+                                   remote_address_group_id=None,
                                    direction='ingress',
                                    ethertype='IPv4',
                                    project_id=None):
@@ -269,6 +270,9 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
         :param string remote_group_id:
             The remote group ID to be associated with this security group
             rule.
+        :param string remote_address_group_id:
+            The remote address group ID to be associated with this security
+            group rule.
         :param string direction:
             Ingress or egress: The direction in which the security group
             rule is applied. For a compute instance, an ingress security
@@ -309,6 +313,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
                 'protocol': protocol,
                 'remote_ip_prefix': remote_ip_prefix,
                 'remote_group_id': remote_group_id,
+                'remote_address_group_id': remote_address_group_id,
                 'direction': direction,
                 'ethertype': ethertype
             }

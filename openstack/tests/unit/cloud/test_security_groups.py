@@ -347,6 +347,7 @@ class TestSecurityGroups(base.TestCase):
             protocol='tcp',
             remote_ip_prefix='0.0.0.0/0',
             remote_group_id='456',
+            remote_address_group_id=None,
             direction='egress',
             ethertype='IPv6'
         )
@@ -398,6 +399,7 @@ class TestSecurityGroups(base.TestCase):
             protocol='tcp',
             remote_ip_prefix='0.0.0.0/0',
             remote_group_id='456',
+            remote_address_group_id=None,
             direction='egress',
             ethertype='IPv6',
             project_id='861808a93da0484ea1767967c4df8a23'

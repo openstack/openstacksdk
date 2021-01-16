@@ -29,6 +29,7 @@ class SecurityGroupRule(_base.NetworkResource, resource.TagMixin):
     _query_mapping = resource.QueryParameters(
         'description', 'direction', 'protocol',
         'remote_group_id', 'security_group_id',
+        'remote_address_group_id',
         'port_range_max', 'port_range_min',
         'remote_ip_prefix', 'revision_number',
         'project_id', 'tenant_id',
@@ -68,12 +69,17 @@ class SecurityGroupRule(_base.NetworkResource, resource.TagMixin):
     protocol = resource.Body('protocol')
     #: The remote security group ID to be associated with this security
     #: group rule. You can specify either ``remote_group_id`` or
-    #: ``remote_ip_prefix`` in the request body.
+    #: ``remote_address_group_id`` or ``remote_ip_prefix`` in the request body.
     remote_group_id = resource.Body('remote_group_id')
+    #: The remote address group ID to be associated with this security
+    #: group rule. You can specify either ``remote_group_id`` or
+    #: ``remote_address_group_id`` or ``remote_ip_prefix`` in the request body.
+    remote_address_group_id = resource.Body('remote_address_group_id')
     #: The remote IP prefix to be associated with this security group rule.
-    #: You can specify either ``remote_group_id`` or ``remote_ip_prefix``
-    #: in the request body. This attribute matches the specified IP prefix
-    #: as the source IP address of the IP packet.
+    #: You can specify either ``remote_group_id`` or
+    # ``remote_address_group_id``or ``remote_ip_prefix`` in the request body.
+    # This attribute matches the specified IP prefix as the source IP address
+    # of the IP packet.
     remote_ip_prefix = resource.Body('remote_ip_prefix')
     #: The security group ID to associate with this security group rule.
     security_group_id = resource.Body('security_group_id')
