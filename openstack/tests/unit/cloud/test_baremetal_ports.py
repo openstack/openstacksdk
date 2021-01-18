@@ -64,10 +64,13 @@ class TestBaremetalPort(base.IronicTestCase):
         self.assert_calls()
 
     def test_list_nics_for_machine(self):
-        query = 'detail?node_uuid=%s' % self.fake_baremetal_node['uuid']
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(resource='ports', append=[query]),
+                 uri=self.get_mock_url(
+                     resource='ports',
+                     append=['detail'],
+                     qs_elements=['node_uuid=%s' %
+                                  self.fake_baremetal_node['uuid']]),
                  json={'ports': [self.fake_baremetal_port,
                                  self.fake_baremetal_port2]}),
         ])
@@ -79,10 +82,13 @@ class TestBaremetalPort(base.IronicTestCase):
         self.assert_calls()
 
     def test_list_nics_for_machine_failure(self):
-        query = 'detail?node_uuid=%s' % self.fake_baremetal_node['uuid']
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(resource='ports', append=[query]),
+                 uri=self.get_mock_url(
+                     resource='ports',
+                     append=['detail'],
+                     qs_elements=['node_uuid=%s' %
+                                  self.fake_baremetal_node['uuid']]),
                  status_code=400)
         ])
 
@@ -93,10 +99,12 @@ class TestBaremetalPort(base.IronicTestCase):
 
     def test_get_nic_by_mac(self):
         mac = self.fake_baremetal_port['address']
-        query = 'detail?address=%s' % mac
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(resource='ports', append=[query]),
+                 uri=self.get_mock_url(
+                     resource='ports',
+                     append=['detail'],
+                     qs_elements=['address=%s' % mac]),
                  json={'ports': [self.fake_baremetal_port]}),
         ])
 
@@ -107,10 +115,12 @@ class TestBaremetalPort(base.IronicTestCase):
 
     def test_get_nic_by_mac_failure(self):
         mac = self.fake_baremetal_port['address']
-        query = 'detail?address=%s' % mac
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(resource='ports', append=[query]),
+                 uri=self.get_mock_url(
+                     resource='ports',
+                     append=['detail'],
+                     qs_elements=['address=%s' % mac]),
                  json={'ports': []}),
         ])
 

@@ -71,13 +71,13 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def test_get_machine_by_mac(self):
         mac_address = '00:01:02:03:04:05'
-        url_address = 'detail?address=%s' % mac_address
         node_uuid = self.fake_baremetal_node['uuid']
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='ports',
-                     append=[url_address]),
+                     append=['detail'],
+                     qs_elements=['address=%s' % mac_address]),
                  json={'ports': [{'address': mac_address,
                                   'node_uuid': node_uuid}]}),
             dict(method='GET',

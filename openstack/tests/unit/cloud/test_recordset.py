@@ -208,7 +208,8 @@ class TestRecordset(base.TestCase):
                            'next': self.get_mock_url(
                                'dns', 'public',
                                append=['v2', 'zones', fake_zone['id'],
-                                       'recordsets?limit=1&marker=asd']),
+                                       'recordsets'],
+                               qs_elements=['limit=1', 'marker=asd']),
                            'self': self.get_mock_url(
                                'dns', 'public',
                                append=['v2', 'zones', fake_zone['id'],
