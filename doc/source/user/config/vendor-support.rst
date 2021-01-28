@@ -129,14 +129,14 @@ Open Telekom Cloud
 
 https://iam.%(region_name)s.otc.t-systems.com/v3
 
-============== ================
+============== ===================
 Region Name    Location
-============== ================
-eu-de          Germany
-============== ================
+============== ===================
+eu-de          Biere/Magdeburg, DE
+eu-nl          Amsterdam, NL
+============== ===================
 
 * Identity API Version is 3
-* Images must be in `vhd` format
 * Public IPv4 is provided via NAT with Neutron Floating IP
 
 ELASTX
