@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import collections
+import collections.abc
 import json
 from urllib import parse
 from urllib import request
@@ -40,8 +40,7 @@ def get_template_contents(template_file=None, template_url=None,
     elif template_object:
         is_object = True
         template_url = template_object
-        tpl = object_request and object_request('GET',
-                                                template_object)
+        tpl = object_request and object_request('GET', template_object)
     elif existing:
         return {}, None
     else:
@@ -150,7 +149,7 @@ def deep_update(old, new):
         old = {}
 
     for k, v in new.items():
-        if isinstance(v, collections.Mapping):
+        if isinstance(v, collections.abc.Mapping):
             r = deep_update(old.get(k, {}), v)
             old[k] = r
         else:
