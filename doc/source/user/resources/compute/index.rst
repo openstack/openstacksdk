@@ -12,3 +12,4 @@ Compute Resources
    v2/server
    v2/server_interface
    v2/server_ip
+   v2/hypervisor

@@ -445,6 +445,74 @@ class TestService(TestComputeProxy):
         )
 
 
+class TestHypervisor(TestComputeProxy):
+
+    def test_hypervisors_not_detailed(self):
+        self.verify_list(self.proxy.hypervisors, hypervisor.Hypervisor,
+                         method_kwargs={"details": False})
+
+    def test_hypervisors_detailed(self):
+        self.verify_list(self.proxy.hypervisors, hypervisor.HypervisorDetail,
+                         method_kwargs={"details": True})
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=False)
+    def test_hypervisors_search_before_253_no_qp(self, sm):
+        self.verify_list(
+            self.proxy.hypervisors,
+            hypervisor.Hypervisor,
+            method_kwargs={'details': True},
+            base_path='/os-hypervisors/detail'
+        )
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=False)
+    def test_hypervisors_search_before_253(self, sm):
+        self.verify_list(
+            self.proxy.hypervisors,
+            hypervisor.Hypervisor,
+            method_kwargs={'hypervisor_hostname_pattern': 'substring'},
+            base_path='/os-hypervisors/substring/search'
+        )
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=True)
+    def test_hypervisors_search_after_253(self, sm):
+        self.verify_list(
+            self.proxy.hypervisors,
+            hypervisor.Hypervisor,
+            method_kwargs={'hypervisor_hostname_pattern': 'substring'},
+            base_path=None,
+            expected_kwargs={'hypervisor_hostname_pattern': 'substring'}
+        )
+
+    def test_find_hypervisor_detail(self):
+        self.verify_find(self.proxy.find_hypervisor,
+                         hypervisor.Hypervisor,
+                         expected_kwargs={
+                             'list_base_path': '/os-hypervisors/detail',
+                             'ignore_missing': False})
+
+    def test_find_hypervisor_no_detail(self):
+        self.verify_find(self.proxy.find_hypervisor,
+                         hypervisor.Hypervisor,
+                         method_kwargs={'details': False},
+                         expected_kwargs={
+                             'list_base_path': None,
+                             'ignore_missing': False})
+
+    def test_get_hypervisor(self):
+        self.verify_get(self.proxy.get_hypervisor,
+                        hypervisor.Hypervisor)
+
+    def test_get_hypervisor_uptime(self):
+        self._verify(
+            "openstack.compute.v2.hypervisor.Hypervisor.get_uptime",
+            self.proxy.get_hypervisor_uptime,
+            method_args=["value"],
+            expected_args=[])
+
+
 class TestCompute(TestComputeProxy):
     def test_extension_find(self):
         self.verify_find(self.proxy.find_extension, extension.Extension)
@@ -869,22 +937,6 @@ class TestCompute(TestComputeProxy):
 
     def test_server_groups(self):
         self.verify_list(self.proxy.server_groups, server_group.ServerGroup)
-
-    def test_hypervisors_not_detailed(self):
-        self.verify_list(self.proxy.hypervisors, hypervisor.Hypervisor,
-                         method_kwargs={"details": False})
-
-    def test_hypervisors_detailed(self):
-        self.verify_list(self.proxy.hypervisors, hypervisor.HypervisorDetail,
-                         method_kwargs={"details": True})
-
-    def test_find_hypervisor(self):
-        self.verify_find(self.proxy.find_hypervisor,
-                         hypervisor.Hypervisor)
-
-    def test_get_hypervisor(self):
-        self.verify_get(self.proxy.get_hypervisor,
-                        hypervisor.Hypervisor)
 
     def test_live_migrate_server(self):
         self._verify('openstack.compute.v2.server.Server.live_migrate',

@@ -9,40 +9,78 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import copy
+from unittest import mock
 
+from keystoneauth1 import adapter
+
+from openstack import exceptions
 from openstack.tests.unit import base
 
 from openstack.compute.v2 import hypervisor
 
 EXAMPLE = {
-    "status": "enabled",
-    "service": {
-        "host": "fake-mini",
-        "disabled_reason": None,
-        "id": 6
+    "cpu_info": {
+        "arch": "x86_64",
+        "model": "Nehalem",
+        "vendor": "Intel",
+        "features": [
+            "pge",
+            "clflush"
+        ],
+        "topology": {
+            "cores": 1,
+            "threads": 1,
+            "sockets": 4
+        }
     },
+    "state": "up",
+    "status": "enabled",
+    "servers": [
+        {
+            "name": "test_server1",
+            "uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+        },
+        {
+            "name": "test_server2",
+            "uuid": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+        }
+    ],
+    "host_ip": "1.1.1.1",
+    "hypervisor_hostname": "fake-mini",
+    "hypervisor_type": "fake",
+    "hypervisor_version": 1000,
+    "id": "b1e43b5f-eec1-44e0-9f10-7b4945c0226d",
+    "uptime": (
+        " 08:32:11 up 93 days, 18:25, 12 users,  "
+        "load average: 0.20, 0.12, 0.14"),
+    "service": {
+        "host": "043b3cacf6f34c90a7245151fc8ebcda",
+        "id": "5d343e1d-938e-4284-b98b-6a2b5406ba76",
+        "disabled_reason": None
+    },
+    # deprecated attributes
     "vcpus_used": 0,
-    "hypervisor_type": "QEMU",
     "local_gb_used": 0,
     "vcpus": 8,
-    "hypervisor_hostname": "fake-mini",
     "memory_mb_used": 512,
     "memory_mb": 7980,
     "current_workload": 0,
-    "state": "up",
-    "host_ip": "23.253.248.171",
-    "cpu_info": "some cpu info",
     "running_vms": 0,
     "free_disk_gb": 157,
-    "hypervisor_version": 2000000,
     "disk_available_least": 140,
     "local_gb": 157,
     "free_ram_mb": 7468,
-    "id": 1
 }
 
 
 class TestHypervisor(base.TestCase):
+
+    def setUp(self):
+        super(TestHypervisor, self).setUp()
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = 1
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
 
     def test_basic(self):
         sot = hypervisor.Hypervisor()
@@ -62,10 +100,17 @@ class TestHypervisor(base.TestCase):
     def test_make_it(self):
         sot = hypervisor.Hypervisor(**EXAMPLE)
         self.assertEqual(EXAMPLE['id'], sot.id)
+        self.assertEqual(EXAMPLE['cpu_info'], sot.cpu_info)
+        self.assertEqual(EXAMPLE['host_ip'], sot.host_ip)
+        self.assertEqual(EXAMPLE['hypervisor_type'], sot.hypervisor_type)
+        self.assertEqual(EXAMPLE['hypervisor_version'], sot.hypervisor_version)
         self.assertEqual(EXAMPLE['hypervisor_hostname'], sot.name)
+        self.assertEqual(EXAMPLE['service'], sot.service_details)
+        self.assertEqual(EXAMPLE['servers'], sot.servers)
         self.assertEqual(EXAMPLE['state'], sot.state)
         self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['service'], sot.service_details)
+        self.assertEqual(EXAMPLE['uptime'], sot.uptime)
+        # Verify deprecated attributes
         self.assertEqual(EXAMPLE['vcpus_used'], sot.vcpus_used)
         self.assertEqual(EXAMPLE['hypervisor_type'], sot.hypervisor_type)
         self.assertEqual(EXAMPLE['local_gb_used'], sot.local_disk_used)
@@ -74,11 +119,46 @@ class TestHypervisor(base.TestCase):
         self.assertEqual(EXAMPLE['memory_mb_used'], sot.memory_used)
         self.assertEqual(EXAMPLE['memory_mb'], sot.memory_size)
         self.assertEqual(EXAMPLE['current_workload'], sot.current_workload)
-        self.assertEqual(EXAMPLE['host_ip'], sot.host_ip)
-        self.assertEqual(EXAMPLE['cpu_info'], sot.cpu_info)
         self.assertEqual(EXAMPLE['running_vms'], sot.running_vms)
         self.assertEqual(EXAMPLE['free_disk_gb'], sot.local_disk_free)
-        self.assertEqual(EXAMPLE['hypervisor_version'], sot.hypervisor_version)
         self.assertEqual(EXAMPLE['disk_available_least'], sot.disk_available)
         self.assertEqual(EXAMPLE['local_gb'], sot.local_disk_size)
         self.assertEqual(EXAMPLE['free_ram_mb'], sot.memory_free)
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=False)
+    def test_get_uptime(self, mv_mock):
+        sot = hypervisor.Hypervisor(**copy.deepcopy(EXAMPLE))
+        rsp = {
+            "hypervisor": {
+                "hypervisor_hostname": "fake-mini",
+                "id": sot.id,
+                "state": "up",
+                "status": "enabled",
+                "uptime": "08:32:11 up 93 days, 18:25, 12 users"
+            }
+        }
+        resp = mock.Mock()
+        resp.body = copy.deepcopy(rsp)
+        resp.json = mock.Mock(return_value=resp.body)
+        resp.headers = {}
+        resp.status_code = 200
+        self.sess.get = mock.Mock(return_value=resp)
+
+        hyp = sot.get_uptime(self.sess)
+        self.sess.get.assert_called_with(
+            'os-hypervisors/{id}/uptime'.format(id=sot.id),
+            microversion=self.sess.default_microversion
+        )
+        self.assertEqual(rsp['hypervisor']['uptime'], hyp.uptime)
+        self.assertEqual(rsp['hypervisor']['status'], sot.status)
+
+    @mock.patch('openstack.utils.supports_microversion', autospec=True,
+                return_value=True)
+    def test_get_uptime_after_2_88(self, mv_mock):
+        sot = hypervisor.Hypervisor(**copy.deepcopy(EXAMPLE))
+        self.assertRaises(
+            exceptions.SDKException,
+            sot.get_uptime,
+            self.sess
+        )
