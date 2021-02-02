@@ -48,6 +48,7 @@ approach, this is where you'll want to begin.
    Network <guides/network>
    Object Store <guides/object_store>
    Orchestration <guides/orchestration>
+   Shared File System <guides/shared_file_system>
 
 API Documentation
 -----------------
@@ -113,6 +114,7 @@ control which services can be used.
    Network <proxies/network>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
+   Shared File System <proxies/shared_file_system>
    Workflow <proxies/workflow>
 
 Resource Interface
@@ -145,6 +147,7 @@ The following services have exposed *Resource* classes.
    Network <resources/network/index>
    Orchestration <resources/orchestration/index>
    Object Store <resources/object_store/index>
+   Shared File System <resources/shared_file_system/index>
    Workflow <resources/workflow/index>
 
 Low-Level Classes

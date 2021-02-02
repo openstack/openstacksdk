@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Support for the OpenStack Shared File System API (manila) has been
+    introduced.
+  - |
+    Added support to list Shared File System Service API Versions
+    and Availability Zones.
