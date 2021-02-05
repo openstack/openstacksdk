@@ -214,7 +214,7 @@ class Proxy(adapter.Adapter):
             [self._statsd_prefix, self.service_type, method]
             + name_parts)
         if response is not None:
-            duration = int(response.elapsed.microseconds / 1000)
+            duration = int(response.elapsed.total_seconds() * 1000)
             self._statsd_client.timing(key, duration)
             self._statsd_client.incr(key)
         elif exc is not None:
@@ -235,7 +235,7 @@ class Proxy(adapter.Adapter):
             )
             self._prometheus_counter.labels(**labels).inc()
             self._prometheus_histogram.labels(**labels).observe(
-                response.elapsed.microseconds / 1000)
+                response.elapsed.total_seconds() * 1000)
 
     def _report_stats_influxdb(self, response, url=None, method=None,
                                exc=None):
@@ -257,7 +257,7 @@ class Proxy(adapter.Adapter):
             attempted=1
         )
         if response is not None:
-            fields['duration'] = int(response.elapsed.microseconds / 1000)
+            fields['duration'] = int(response.elapsed.total_seconds() * 1000)
             tags['status_code'] = str(response.status_code)
             # Note(gtema): emit also status_code as a value (counter)
             fields[str(response.status_code)] = 1
