@@ -2106,7 +2106,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                       gateway_ip=None, disable_gateway_ip=False,
                       dns_nameservers=None, host_routes=None,
                       ipv6_ra_mode=None, ipv6_address_mode=None,
-                      prefixlen=None, use_default_subnetpool=False, **kwargs):
+                      prefixlen=None, use_default_subnetpool=False, subnetpool_id=None, **kwargs):
         """Create a subnet on a specified network.
 
         :param string network_name_or_id:
@@ -2174,6 +2174,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
            Use the default subnetpool for ``ip_version`` to obtain a CIDR. It
            is required to pass ``None`` to the ``cidr`` argument when enabling
            this option.
+        :param string subnetpool_id:
+           Subnetpool ID for subnet allocation from a pool.
         :param kwargs: Key value pairs to be passed to the Neutron API.
 
         :returns: The new subnet object.
@@ -2244,6 +2246,8 @@ class NetworkCloudMixin(_normalize.Normalizer):
             subnet['prefixlen'] = prefixlen
         if use_default_subnetpool:
             subnet['use_default_subnetpool'] = True
+        if subnetpool_id:
+            subnet['subnetpool_id'] = subnetpool_id
 
         response = self.network.post("/subnets.json", json={"subnet": subnet})
 
