@@ -58,12 +58,12 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policies': [self.mock_policy]})
         ])
         r = self.cloud.get_qos_policy(self.policy_name)
@@ -75,7 +75,7 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': []})
         ])
         self.assertRaises(
@@ -87,12 +87,12 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policy': self.mock_policy})
         ])
         policy = self.cloud.create_qos_policy(
@@ -104,7 +104,7 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': []})
         ])
         self.assertRaises(
@@ -116,16 +116,16 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [self.qos_extension]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [self.qos_extension]}),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policy': self.mock_policy},
                  validate=dict(
                      json={'policy': {
@@ -141,22 +141,22 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policies': [self.mock_policy]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies',
-                             '%s.json' % self.policy_id]),
+                             '%s' % self.policy_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_qos_policy(self.policy_name))
@@ -166,7 +166,7 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': []})
         ])
         self.assertRaises(
@@ -178,16 +178,16 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policies': []})
         ])
         self.assertFalse(self.cloud.delete_qos_policy('goofy'))
@@ -199,16 +199,16 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policies': [policy1, policy2]})
         ])
         self.assertRaises(exc.OpenStackCloudException,
@@ -222,22 +222,22 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policies': [policy1, policy2]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies',
-                             '%s.json' % self.policy_id]),
+                             '%s' % self.policy_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_qos_policy(policy1['id']))
@@ -249,22 +249,22 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policies': [self.mock_policy]}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies',
-                             '%s.json' % self.policy_id]),
+                             '%s' % self.policy_id]),
                  json={'policy': expected_policy},
                  validate=dict(
                      json={'policy': {'name': 'goofy'}}))
@@ -278,7 +278,7 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': []})
         ])
         self.assertRaises(
@@ -292,26 +292,26 @@ class TestQosPolicy(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [self.qos_extension]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [self.qos_extension]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [self.qos_extension]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies.json']),
+                     append=['v2.0', 'qos', 'policies']),
                  json={'policies': [self.mock_policy]}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies',
-                             '%s.json' % self.policy_id]),
+                             '%s' % self.policy_id]),
                  json={'policy': expected_policy},
                  validate=dict(
                      json={'policy': {'name': "goofy"}}))

@@ -38,7 +38,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -71,7 +71,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -104,7 +104,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -144,7 +144,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -181,7 +181,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -218,7 +218,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -257,7 +257,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -298,7 +298,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -338,7 +338,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -385,7 +385,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -458,7 +458,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -497,7 +497,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -521,7 +521,7 @@ class TestCreateServer(base.TestCase):
                  json={'servers': [fake_server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
+                     'network', 'public', append=['v2.0', 'ports'],
                      qs_elements=['device_id=1234']),
                  json={'ports': []}),
             dict(method='DELETE',
@@ -555,7 +555,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -575,11 +575,11 @@ class TestCreateServer(base.TestCase):
                  json={'server': build_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []}),
         ])
         self.cloud.create_server(
@@ -600,7 +600,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -620,11 +620,11 @@ class TestCreateServer(base.TestCase):
                  json={'server': build_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []}),
         ])
         self.cloud.create_server(
@@ -662,11 +662,11 @@ class TestCreateServer(base.TestCase):
                  json={'server': build_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []}),
         ])
         self.cloud.create_server(
@@ -704,11 +704,11 @@ class TestCreateServer(base.TestCase):
                  json={'server': build_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []}),
         ])
         self.cloud.create_server(
@@ -748,11 +748,11 @@ class TestCreateServer(base.TestCase):
                  json={'server': build_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []}),
         ])
         self.cloud.create_server(
@@ -815,7 +815,7 @@ class TestCreateServer(base.TestCase):
                  json={'server': active_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
         ])
 
@@ -851,7 +851,7 @@ class TestCreateServer(base.TestCase):
                  json={'server': active_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
         ])
 
@@ -872,7 +872,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -924,7 +924,7 @@ class TestCreateServer(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
             dict(method='POST',
                  uri=self.get_mock_url(

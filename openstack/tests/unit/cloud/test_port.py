@@ -143,7 +143,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method="POST",
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_create_rep,
                  validate=dict(
                      json={'port': {
@@ -168,7 +168,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method="POST",
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  status_code=500,
                  validate=dict(
                      json={'port': {
@@ -187,12 +187,12 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_list_rep),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'ports', '%s.json' % port_id]),
+                     append=['v2.0', 'ports', '%s' % port_id]),
                  json=self.mock_neutron_port_update_rep,
                  validate=dict(
                      json={'port': {'name': 'test-port-name-updated'}}))
@@ -214,12 +214,12 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_list_rep),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'ports', '%s.json' % port_id]),
+                     append=['v2.0', 'ports', '%s' % port_id]),
                  status_code=500,
                  validate=dict(
                      json={'port': {'name': 'test-port-name-updated'}}))
@@ -234,7 +234,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_list_rep)
         ])
         ports = self.cloud.list_ports()
@@ -245,7 +245,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
+                     'network', 'public', append=['v2.0', 'ports'],
                      qs_elements=['status=DOWN']),
                  json=self.mock_neutron_port_list_rep)
         ])
@@ -257,7 +257,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  status_code=500)
         ])
         self.assertRaises(OpenStackCloudException, self.cloud.list_ports)
@@ -267,7 +267,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_list_rep)
         ])
         ports = self.cloud.search_ports(name_or_id=port_id)
@@ -281,7 +281,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_list_rep)
         ])
         ports = self.cloud.search_ports(name_or_id=port_name)
@@ -294,7 +294,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_list_rep)
         ])
         ports = self.cloud.search_ports(name_or_id='non-existent')
@@ -306,12 +306,12 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_list_rep),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'ports', '%s.json' % port_id]),
+                     append=['v2.0', 'ports', '%s' % port_id]),
                  json={})
         ])
 
@@ -321,7 +321,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json=self.mock_neutron_port_list_rep)
         ])
         self.assertFalse(self.cloud.delete_port(name_or_id='non-existent'))
@@ -334,7 +334,7 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json={'ports': [port1, port2]})
         ])
         self.assertRaises(OpenStackCloudException,
@@ -348,12 +348,12 @@ class TestPort(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json={'ports': [port1, port2]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'ports', '%s.json' % port1['id']]),
+                     append=['v2.0', 'ports', '%s' % port1['id']]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_port(name_or_id=port1['id']))

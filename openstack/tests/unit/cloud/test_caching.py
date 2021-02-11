@@ -557,7 +557,7 @@ class TestMemoryCache(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json']),
+                     'network', 'public', append=['v2.0', 'ports']),
                  json={'ports': [
                      down_port,
                      active_port,

@@ -34,7 +34,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
     @_utils.cache_on_arguments()
     def _neutron_extensions(self):
         extensions = set()
-        resp = self.network.get('/extensions.json')
+        resp = self.network.get('/extensions')
         data = proxy._json_response(
             resp,
             error_message="Error fetching extension list for neutron")
@@ -128,7 +128,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self.network.get("/networks.json", params=filters)
+        data = self.network.get("/networks", params=filters)
         return self._get_and_munchify('networks', data)
 
     def list_routers(self, filters=None):
@@ -144,7 +144,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        resp = self.network.get("/routers.json", params=filters)
+        resp = self.network.get("/routers", params=filters)
         data = proxy._json_response(
             resp,
             error_message="Error fetching router list")
@@ -163,7 +163,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self.network.get("/subnets.json", params=filters)
+        data = self.network.get("/subnets", params=filters)
         return self._get_and_munchify('subnets', data)
 
     def list_ports(self, filters=None):
@@ -203,7 +203,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
             return []
-        resp = self.network.get("/ports.json", params=filters)
+        resp = self.network.get("/ports", params=filters)
         data = proxy._json_response(
             resp,
             error_message="Error fetching port list")
@@ -264,7 +264,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        resp = self.network.get("/qos/rule-types.json", params=filters)
+        resp = self.network.get("/qos/rule-types", params=filters)
         data = proxy._json_response(
             resp,
             error_message="Error fetching QoS rule types list")
@@ -289,7 +289,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 'on target cloud')
 
         resp = self.network.get(
-            "/qos/rule-types/{rule_type}.json".format(rule_type=rule_type))
+            "/qos/rule-types/{rule_type}".format(rule_type=rule_type))
         data = proxy._json_response(
             resp,
             error_message="Error fetching QoS details of {rule_type} "
@@ -309,7 +309,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        resp = self.network.get("/qos/policies.json", params=filters)
+        resp = self.network.get("/qos/policies", params=filters)
         data = proxy._json_response(
             resp,
             error_message="Error fetching QoS policies list")
@@ -539,7 +539,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if dns_domain:
             network['dns_domain'] = dns_domain
 
-        data = self.network.post("/networks.json", json={'network': network})
+        data = self.network.post("/networks", json={'network': network})
 
         # Reset cache so the new network is picked up
         self._reset_network_caches()
@@ -603,7 +603,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 "Network %s not found." % name_or_id)
 
         data = proxy._json_response(self.network.put(
-            "/networks/{net_id}.json".format(net_id=network.id),
+            "/networks/{net_id}".format(net_id=network.id),
             json={"network": kwargs}),
             error_message="Error updating network {0}".format(name_or_id))
 
@@ -626,7 +626,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             return False
 
         exceptions.raise_from_response(self.network.delete(
-            "/networks/{network_id}.json".format(network_id=network['id'])))
+            "/networks/{network_id}".format(network_id=network['id'])))
 
         # Reset cache so the deleted network is removed
         self._reset_network_caches()
@@ -649,7 +649,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         exceptions.raise_from_response(
             self.network.put(
-                '/quotas/{project_id}.json'.format(project_id=proj.id),
+                '/quotas/{project_id}'.format(project_id=proj.id),
                 json={'quota': kwargs}),
             error_message=("Error setting Neutron's quota for "
                            "project {0}".format(proj.id)))
@@ -670,7 +670,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         url = '/quotas/{project_id}'.format(project_id=proj.id)
         if details:
             url = url + "/details"
-        url = url + ".json"
+        url = url + ""
         data = proxy._json_response(
             self.network.get(url),
             error_message=("Error fetching Neutron's quota for "
@@ -698,7 +698,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException("project does not exist")
         exceptions.raise_from_response(
             self.network.delete(
-                '/quotas/{project_id}.json'.format(project_id=proj.id)),
+                '/quotas/{project_id}'.format(project_id=proj.id)),
             error_message=("Error deleting Neutron's quota for "
                            "project {0}".format(proj.id)))
 
@@ -1194,7 +1194,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 self.log.debug("'qos-default' extension is not available on "
                                "target cloud")
 
-        data = self.network.post("/qos/policies.json", json={'policy': kwargs})
+        data = self.network.post("/qos/policies", json={'policy': kwargs})
         return self._get_and_munchify('policy', data)
 
     @_utils.valid_kwargs("name", "description", "shared", "default",
@@ -1238,7 +1238,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 "QoS policy %s not found." % name_or_id)
 
         data = self.network.put(
-            "/qos/policies/{policy_id}.json".format(
+            "/qos/policies/{policy_id}".format(
                 policy_id=curr_policy['id']),
             json={'policy': kwargs})
         return self._get_and_munchify('policy', data)
@@ -1261,7 +1261,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             return False
 
         exceptions.raise_from_response(self.network.delete(
-            "/qos/policies/{policy_id}.json".format(policy_id=policy['id'])))
+            "/qos/policies/{policy_id}".format(policy_id=policy['id'])))
 
         return True
 
@@ -1310,7 +1310,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             filters = {}
 
         resp = self.network.get(
-            "/qos/policies/{policy_id}/bandwidth_limit_rules.json".format(
+            "/qos/policies/{policy_id}/bandwidth_limit_rules".format(
                 policy_id=policy['id']),
             params=filters)
         data = proxy._json_response(
@@ -1341,7 +1341,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                     name_or_id=policy_name_or_id))
 
         resp = self.network.get(
-            "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
+            "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}".
             format(policy_id=policy['id'], rule_id=rule_id))
         data = proxy._json_response(
             resp,
@@ -1437,7 +1437,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                                      policy_id=policy['id']))
 
         data = self.network.put(
-            "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}.json".
+            "/qos/policies/{policy_id}/bandwidth_limit_rules/{rule_id}".
             format(policy_id=policy['id'], rule_id=rule_id),
             json={'bandwidth_limit_rule': kwargs})
         return self._get_and_munchify('bandwidth_limit_rule', data)
@@ -1463,7 +1463,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         try:
             exceptions.raise_from_response(self.network.delete(
-                "/qos/policies/{policy}/bandwidth_limit_rules/{rule}.json".
+                "/qos/policies/{policy}/bandwidth_limit_rules/{rule}".
                 format(policy=policy['id'], rule=rule_id)))
         except exc.OpenStackCloudURINotFound:
             self.log.debug(
@@ -1519,7 +1519,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             filters = {}
 
         resp = self.network.get(
-            "/qos/policies/{policy_id}/dscp_marking_rules.json".format(
+            "/qos/policies/{policy_id}/dscp_marking_rules".format(
                 policy_id=policy['id']),
             params=filters)
         data = proxy._json_response(
@@ -1550,7 +1550,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                     name_or_id=policy_name_or_id))
 
         resp = self.network.get(
-            "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}.json".
+            "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}".
             format(policy_id=policy['id'], rule_id=rule_id))
         data = proxy._json_response(
             resp,
@@ -1624,7 +1624,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                                      policy_id=policy['id']))
 
         data = self.network.put(
-            "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}.json".
+            "/qos/policies/{policy_id}/dscp_marking_rules/{rule_id}".
             format(policy_id=policy['id'], rule_id=rule_id),
             json={'dscp_marking_rule': kwargs})
         return self._get_and_munchify('dscp_marking_rule', data)
@@ -1650,7 +1650,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         try:
             exceptions.raise_from_response(self.network.delete(
-                "/qos/policies/{policy}/dscp_marking_rules/{rule}.json".
+                "/qos/policies/{policy}/dscp_marking_rules/{rule}".
                 format(policy=policy['id'], rule=rule_id)))
         except exc.OpenStackCloudURINotFound:
             self.log.debug(
@@ -1708,7 +1708,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             filters = {}
 
         resp = self.network.get(
-            "/qos/policies/{policy_id}/minimum_bandwidth_rules.json".format(
+            "/qos/policies/{policy_id}/minimum_bandwidth_rules".format(
                 policy_id=policy['id']),
             params=filters)
         data = proxy._json_response(
@@ -1739,7 +1739,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                     name_or_id=policy_name_or_id))
 
         resp = self.network.get(
-            "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}.json".
+            "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}".
             format(policy_id=policy['id'], rule_id=rule_id))
         data = proxy._json_response(
             resp,
@@ -1817,7 +1817,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                                      policy_id=policy['id']))
 
         data = self.network.put(
-            "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}.json".
+            "/qos/policies/{policy_id}/minimum_bandwidth_rules/{rule_id}".
             format(policy_id=policy['id'], rule_id=rule_id),
             json={'minimum_bandwidth_rule': kwargs})
         return self._get_and_munchify('minimum_bandwidth_rule', data)
@@ -1843,7 +1843,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         try:
             exceptions.raise_from_response(self.network.delete(
-                "/qos/policies/{policy}/minimum_bandwidth_rules/{rule}.json".
+                "/qos/policies/{policy}/minimum_bandwidth_rules/{rule}".
                 format(policy=policy['id'], rule=rule_id)))
         except exc.OpenStackCloudURINotFound:
             self.log.debug(
@@ -1878,7 +1878,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         return proxy._json_response(
             self.network.put(
-                "/routers/{router_id}/add_router_interface.json".format(
+                "/routers/{router_id}/add_router_interface".format(
                     router_id=router['id']),
                 json=json_body),
             error_message="Error attaching interface to router {0}".format(
@@ -1913,7 +1913,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         exceptions.raise_from_response(
             self.network.put(
-                "/routers/{router_id}/remove_router_interface.json".format(
+                "/routers/{router_id}/remove_router_interface".format(
                     router_id=router['id']),
                 json=json_body),
             error_message="Error detaching interface from router {0}".format(
@@ -2001,7 +2001,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             router['availability_zone_hints'] = availability_zone_hints
 
         data = proxy._json_response(
-            self.network.post("/routers.json", json={"router": router}),
+            self.network.post("/routers", json={"router": router}),
             error_message="Error creating router {0}".format(name))
         return self._get_and_munchify('router', data)
 
@@ -2069,7 +2069,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 "Router %s not found." % name_or_id)
 
         resp = self.network.put(
-            "/routers/{router_id}.json".format(router_id=curr_router['id']),
+            "/routers/{router_id}".format(router_id=curr_router['id']),
             json={"router": router})
         data = proxy._json_response(
             resp,
@@ -2095,7 +2095,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             return False
 
         exceptions.raise_from_response(self.network.delete(
-            "/routers/{router_id}.json".format(router_id=router['id']),
+            "/routers/{router_id}".format(router_id=router['id']),
             error_message="Error deleting router {0}".format(name_or_id)))
 
         return True
@@ -2245,7 +2245,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if use_default_subnetpool:
             subnet['use_default_subnetpool'] = True
 
-        response = self.network.post("/subnets.json", json={"subnet": subnet})
+        response = self.network.post("/subnets", json={"subnet": subnet})
 
         return self._get_and_munchify('subnet', response)
 
@@ -2268,7 +2268,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             return False
 
         exceptions.raise_from_response(self.network.delete(
-            "/subnets/{subnet_id}.json".format(subnet_id=subnet['id'])))
+            "/subnets/{subnet_id}".format(subnet_id=subnet['id'])))
         return True
 
     def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
@@ -2354,7 +2354,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                 "Subnet %s not found." % name_or_id)
 
         response = self.network.put(
-            "/subnets/{subnet_id}.json".format(subnet_id=curr_subnet['id']),
+            "/subnets/{subnet_id}".format(subnet_id=curr_subnet['id']),
             json={"subnet": subnet})
         return self._get_and_munchify('subnet', response)
 
@@ -2424,7 +2424,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         kwargs['network_id'] = network_id
 
         data = proxy._json_response(
-            self.network.post("/ports.json", json={'port': kwargs}),
+            self.network.post("/ports", json={'port': kwargs}),
             error_message="Error creating port for network {0}".format(
                 network_id))
         return self._get_and_munchify('port', data)
@@ -2496,7 +2496,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         data = proxy._json_response(
             self.network.put(
-                "/ports/{port_id}.json".format(port_id=port['id']),
+                "/ports/{port_id}".format(port_id=port['id']),
                 json={"port": kwargs}),
             error_message="Error updating port {0}".format(name_or_id))
         return self._get_and_munchify('port', data)
@@ -2517,7 +2517,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         exceptions.raise_from_response(
             self.network.delete(
-                "/ports/{port_id}.json".format(port_id=port['id'])),
+                "/ports/{port_id}".format(port_id=port['id'])),
             error_message="Error deleting port {0}".format(name_or_id))
         return True
 

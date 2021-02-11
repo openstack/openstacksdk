@@ -409,11 +409,11 @@ class TestShade(base.TestCase):
                  json={'servers': [fake_server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json=fake_networks),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json=fake_subnets)
         ])
 
@@ -621,7 +621,7 @@ class TestShade(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json=dict(extensions=body))
         ])
         extensions = self.cloud._neutron_extensions()
@@ -633,7 +633,7 @@ class TestShade(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  status_code=404)
         ])
         with testtools.ExpectedException(
@@ -665,7 +665,7 @@ class TestShade(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json=dict(extensions=body))
         ])
         self.assertTrue(self.cloud._has_neutron_extension('dvr'))
@@ -692,7 +692,7 @@ class TestShade(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json=dict(extensions=body))
         ])
         self.assertFalse(self.cloud._has_neutron_extension('invalid'))

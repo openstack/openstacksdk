@@ -1656,7 +1656,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 method='GET',
                 uri=self.get_mock_url(
                     service_type='network',
-                    resource='ports.json',
+                    resource='ports',
                     base_url_append='v2.0'),
                 json={'ports': [{'id': vif_id}]}),
             dict(
@@ -1682,7 +1682,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 method='GET',
                 uri=self.get_mock_url(
                     service_type='network',
-                    resource='ports.json',
+                    resource='ports',
                     base_url_append='v2.0'),
                 json={'ports': [{'id': vif_id}]}),
             dict(
@@ -1716,7 +1716,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 method='GET',
                 uri=self.get_mock_url(
                     service_type='network',
-                    resource='ports.json',
+                    resource='ports',
                     base_url_append='v2.0'),
                 json={'ports': [fake_port]}),
         ])

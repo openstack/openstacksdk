@@ -70,7 +70,7 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': [self.mock_subnet_rep]})
         ])
         r = self.cloud.get_subnet(self.subnet_name)
@@ -103,11 +103,11 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnet': mock_subnet_rep},
                  validate=dict(
                      json={'subnet': {
@@ -131,11 +131,11 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnet': self.mock_subnet_rep},
                  validate=dict(
                      json={'subnet': {
@@ -154,7 +154,7 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_network_rep]})
         ])
         with testtools.ExpectedException(
@@ -175,11 +175,11 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnet': mock_subnet_rep},
                  validate=dict(
                      json={'subnet': {
@@ -209,11 +209,11 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnet': mock_subnet_rep},
                  validate=dict(
                      json={'subnet': {
@@ -236,7 +236,7 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_network_rep]})
         ])
         gateway = '192.168.200.3'
@@ -250,7 +250,7 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_network_rep]})
         ])
         self.assertRaises(exc.OpenStackCloudException,
@@ -264,7 +264,7 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [net1, net2]})
         ])
         self.assertRaises(exc.OpenStackCloudException,
@@ -289,11 +289,11 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnet': mock_subnet_rep},
                  validate=dict(
                      json={'subnet': {
@@ -319,12 +319,12 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': [self.mock_subnet_rep]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s.json' % self.subnet_id]),
+                     append=['v2.0', 'subnets', '%s' % self.subnet_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_subnet(self.subnet_name))
@@ -334,7 +334,7 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []})
         ])
         self.assertFalse(self.cloud.delete_subnet('goofy'))
@@ -346,7 +346,7 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': [subnet1, subnet2]})
         ])
         self.assertRaises(exc.OpenStackCloudException,
@@ -360,12 +360,12 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': [subnet1, subnet2]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s.json' % subnet1['id']]),
+                     append=['v2.0', 'subnets', '%s' % subnet1['id']]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_subnet(subnet1['id']))
@@ -377,12 +377,12 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': [self.mock_subnet_rep]}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s.json' % self.subnet_id]),
+                     append=['v2.0', 'subnets', '%s' % self.subnet_id]),
                  json={'subnet': expected_subnet},
                  validate=dict(
                      json={'subnet': {'name': 'goofy'}}))
@@ -398,12 +398,12 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': [self.mock_subnet_rep]}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s.json' % self.subnet_id]),
+                     append=['v2.0', 'subnets', '%s' % self.subnet_id]),
                  json={'subnet': expected_subnet},
                  validate=dict(
                      json={'subnet': {'gateway_ip': gateway}}))
@@ -418,12 +418,12 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': [self.mock_subnet_rep]}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s.json' % self.subnet_id]),
+                     append=['v2.0', 'subnets', '%s' % self.subnet_id]),
                  json={'subnet': expected_subnet},
                  validate=dict(
                      json={'subnet': {'gateway_ip': None}}))

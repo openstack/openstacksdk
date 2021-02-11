@@ -79,7 +79,7 @@ class TestUpdateServer(base.TestCase):
                      json={'server': {'name': self.updated_server_name}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
         ])
         self.assertEqual(

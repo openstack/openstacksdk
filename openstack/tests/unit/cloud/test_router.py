@@ -82,7 +82,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'routers': [self.mock_router_rep]})
         ])
         r = self.cloud.get_router(self.router_name)
@@ -94,7 +94,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'routers': []})
         ])
         r = self.cloud.get_router('mickey')
@@ -105,7 +105,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'router': self.mock_router_rep},
                  validate=dict(
                      json={'router': {
@@ -125,7 +125,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'router': mock_router_rep},
                  validate=dict(
                      json={'router': {
@@ -142,11 +142,11 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'router': self.mock_router_rep},
                  validate=dict(
                      json={'router': {
@@ -164,7 +164,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'router': self.mock_router_rep},
                  validate=dict(
                      json={'router': {
@@ -180,7 +180,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'router': self.mock_router_rep},
                  validate=dict(
                      json={'router': {
@@ -197,7 +197,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'router': self.mock_router_rep},
                  validate=dict(
                      json={'router': {
@@ -225,7 +225,7 @@ class TestRouter(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'routers', self.router_id,
-                             'add_router_interface.json']),
+                             'add_router_interface']),
                  json={'port': self.mock_router_interface_rep},
                  validate=dict(
                      json={'subnet_id': self.subnet_id}))
@@ -240,7 +240,7 @@ class TestRouter(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'routers', self.router_id,
-                             'remove_router_interface.json']),
+                             'remove_router_interface']),
                  json={'port': self.mock_router_interface_rep},
                  validate=dict(
                      json={'subnet_id': self.subnet_id}))
@@ -265,16 +265,16 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'routers': [self.mock_router_rep]}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'routers', '%s.json' % self.router_id]),
+                     append=['v2.0', 'routers', '%s' % self.router_id]),
                  json={'router': expected_router_rep},
                  validate=dict(
                      json={'router': {
@@ -290,12 +290,12 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'routers': [self.mock_router_rep]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'routers', '%s.json' % self.router_id]),
+                     append=['v2.0', 'routers', '%s' % self.router_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_router(self.router_name))
@@ -305,7 +305,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'routers': []}),
         ])
         self.assertFalse(self.cloud.delete_router(self.router_name))
@@ -317,7 +317,7 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'routers': [router1, router2]}),
         ])
         self.assertRaises(exc.OpenStackCloudException,
@@ -331,12 +331,12 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers.json']),
+                     'network', 'public', append=['v2.0', 'routers']),
                  json={'routers': [router1, router2]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'routers', '123.json']),
+                     append=['v2.0', 'routers', '123']),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_router("123"))
@@ -345,7 +345,7 @@ class TestRouter(base.TestCase):
     def _get_mock_dict(self, owner, json):
         return dict(method='GET',
                     uri=self.get_mock_url(
-                        'network', 'public', append=['v2.0', 'ports.json'],
+                        'network', 'public', append=['v2.0', 'ports'],
                         qs_elements=["device_id=%s" % self.router_id,
                                      "device_owner=network:%s" % owner]),
                     json=json)

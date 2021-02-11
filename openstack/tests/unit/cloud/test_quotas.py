@@ -155,7 +155,7 @@ class TestQuotas(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'quotas',
-                             '%s.json' % project.project_id]),
+                             '%s' % project.project_id]),
                  json={},
                  validate=dict(
                      json={'quota': {'network': 1}}))
@@ -182,7 +182,7 @@ class TestQuotas(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'quotas',
-                             '%s.json' % project.project_id]),
+                             '%s' % project.project_id]),
                  json={'quota': quota})
         ])
         received_quota = self.cloud.get_network_quotas(project.project_id)
@@ -235,7 +235,7 @@ class TestQuotas(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'quotas',
-                             '%s/details.json' % project.project_id]),
+                             '%s/details' % project.project_id]),
                  json={'quota': quota_details})
         ])
         received_quota_details = self.cloud.get_network_quotas(
@@ -251,7 +251,7 @@ class TestQuotas(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'quotas',
-                             '%s.json' % project.project_id]),
+                             '%s' % project.project_id]),
                  json={})
         ])
         self.cloud.delete_network_quotas(project.project_id)

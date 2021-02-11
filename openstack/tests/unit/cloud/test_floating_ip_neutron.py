@@ -164,7 +164,7 @@ class TestFloatingIP(base.TestCase):
     def test_list_floating_ips(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/floatingips.json',
+                 uri='https://network.example.com/v2.0/floatingips',
                  json=self.mock_floating_ip_list_rep)])
 
         floating_ips = self.cloud.list_floating_ips()
@@ -179,7 +179,7 @@ class TestFloatingIP(base.TestCase):
 
         self.register_uris([
             dict(method='GET',
-                 uri=('https://network.example.com/v2.0/floatingips.json?'
+                 uri=('https://network.example.com/v2.0/floatingips?'
                       'Foo=42'),
                  json={'floatingips': []})])
 
@@ -190,7 +190,7 @@ class TestFloatingIP(base.TestCase):
     def test_search_floating_ips(self):
         self.register_uris([
             dict(method='GET',
-                 uri=('https://network.example.com/v2.0/floatingips.json'),
+                 uri=('https://network.example.com/v2.0/floatingips'),
                  json=self.mock_floating_ip_list_rep)])
 
         floating_ips = self.cloud.search_floating_ips(
@@ -204,7 +204,7 @@ class TestFloatingIP(base.TestCase):
     def test_get_floating_ip(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/floatingips.json',
+                 uri='https://network.example.com/v2.0/floatingips',
                  json=self.mock_floating_ip_list_rep)])
 
         floating_ip = self.cloud.get_floating_ip(
@@ -226,7 +226,7 @@ class TestFloatingIP(base.TestCase):
     def test_get_floating_ip_not_found(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/floatingips.json',
+                 uri='https://network.example.com/v2.0/floatingips',
                  json=self.mock_floating_ip_list_rep)])
 
         floating_ip = self.cloud.get_floating_ip(id='non-existent')
@@ -260,10 +260,10 @@ class TestFloatingIP(base.TestCase):
     def test_create_floating_ip(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips.json',
+                 uri='https://network.example.com/v2.0/floatingips',
                  json=self.mock_floating_ip_new_rep,
                  validate=dict(
                      json={'floatingip': {
@@ -279,10 +279,10 @@ class TestFloatingIP(base.TestCase):
     def test_create_floating_ip_port_bad_response(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips.json',
+                 uri='https://network.example.com/v2.0/floatingips',
                  json=self.mock_floating_ip_new_rep,
                  validate=dict(
                      json={'floatingip': {
@@ -300,10 +300,10 @@ class TestFloatingIP(base.TestCase):
     def test_create_floating_ip_port(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips.json',
+                 uri='https://network.example.com/v2.0/floatingips',
                  json=self.mock_floating_ip_port_rep,
                  validate=dict(
                      json={'floatingip': {
@@ -323,13 +323,13 @@ class TestFloatingIP(base.TestCase):
         """
         Test without specifying a network name.
         """
-        fips_mock_uri = 'https://network.example.com/v2.0/floatingips.json'
+        fips_mock_uri = 'https://network.example.com/v2.0/floatingips'
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': []}),
             dict(method='GET', uri=fips_mock_uri, json={'floatingips': []}),
             dict(method='POST', uri=fips_mock_uri,
@@ -348,13 +348,13 @@ class TestFloatingIP(base.TestCase):
         """
         Test with specifying a network name.
         """
-        fips_mock_uri = 'https://network.example.com/v2.0/floatingips.json'
+        fips_mock_uri = 'https://network.example.com/v2.0/floatingips'
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': []}),
             dict(method='GET', uri=fips_mock_uri, json={'floatingips': []}),
             dict(method='POST', uri=fips_mock_uri,
@@ -377,10 +377,10 @@ class TestFloatingIP(base.TestCase):
         """
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': []})
         ])
 
@@ -395,7 +395,7 @@ class TestFloatingIP(base.TestCase):
         # payloads taken from citycloud
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={"networks": [{
                      "status": "ACTIVE",
                      "subnets": [
@@ -436,7 +436,7 @@ class TestFloatingIP(base.TestCase):
                      "description": ""
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/ports.json'
+                 uri='https://network.example.com/v2.0/ports'
                      '?device_id=f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
                  json={"ports": [{
                      "status": "ACTIVE",
@@ -463,7 +463,7 @@ class TestFloatingIP(base.TestCase):
                  }]}),
 
             dict(method='POST',
-                 uri='https://network.example.com/v2.0/floatingips.json',
+                 uri='https://network.example.com/v2.0/floatingips',
                  json={"floatingip": {
                      "router_id": "9de9c787-8f89-4a53-8468-a5533d6d7fd1",
                      "status": "DOWN",
@@ -525,7 +525,7 @@ class TestFloatingIP(base.TestCase):
                      "metadata": {}
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={"networks": [{
                      "status": "ACTIVE",
                      "subnets": [
@@ -566,7 +566,7 @@ class TestFloatingIP(base.TestCase):
                      "description": ""
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={"subnets": [{
                      "description": "",
                      "enable_dhcp": True,
@@ -609,19 +609,19 @@ class TestFloatingIP(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': []}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  validate=dict(
                      json={'floatingip': {
                          'floating_network_id': 'my-network-id'}}),
@@ -646,29 +646,29 @@ class TestFloatingIP(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [fake_fip]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [fake_fip]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': []}),
         ])
 
@@ -692,20 +692,20 @@ class TestFloatingIP(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [fake_fip]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [down_fip]}),
         ])
 
@@ -724,29 +724,29 @@ class TestFloatingIP(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [fake_fip]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [fake_fip]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(fip_id)]),
+                     append=['v2.0', 'floatingips/{0}'.format(fip_id)]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [fake_fip]}),
         ])
         self.assertRaises(
@@ -759,7 +759,7 @@ class TestFloatingIP(base.TestCase):
         self.register_uris([
             dict(method='DELETE',
                  uri=('https://network.example.com/v2.0/floatingips/'
-                      'a-wild-id-appears.json'),
+                      'a-wild-id-appears'),
                  status_code=404)])
 
         ret = self.cloud.delete_floating_ip(
@@ -776,13 +776,13 @@ class TestFloatingIP(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
+                     'network', 'public', append=['v2.0', 'ports'],
                      qs_elements=["device_id={0}".format(device_id)]),
                  json={'ports': self.mock_search_ports_rep}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(
+                     append=['v2.0', 'floatingips/{0}'.format(
                          fip['id'])]),
                  json={'floatingip':
                        self.mock_floating_ip_list_rep['floatingips'][0]},
@@ -805,12 +805,12 @@ class TestFloatingIP(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [attached_fip]}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(
+                     append=['v2.0', 'floatingips/{0}'.format(
                          fip['id'])]),
                  json={'floatingip': fip},
                  validate=dict(
@@ -829,33 +829,33 @@ class TestFloatingIP(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [fip]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingip': fip},
                  validate=dict(
                      json={'floatingip': {
                          'floating_network_id': network['id']}})),
             dict(method="GET",
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
+                     'network', 'public', append=['v2.0', 'ports'],
                      qs_elements=[
                         "device_id={0}".format(self.fake_server['id'])]),
                  json={'ports': self.mock_search_ports_rep}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(
+                     append=['v2.0', 'floatingips/{0}'.format(
                          fip['id'])]),
                  json={'floatingip': fip},
                  validate=dict(
@@ -902,28 +902,28 @@ class TestFloatingIP(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': floating_ips}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(
+                     append=['v2.0', 'floatingips/{0}'.format(
                          floating_ips[0]['id'])]),
                  json={}),
             # First IP has been deleted now, return just the second
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': floating_ips[1:]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips/{0}.json'.format(
+                     append=['v2.0', 'floatingips/{0}'.format(
                          floating_ips[1]['id'])]),
                  json={}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingips': [floating_ips[2]]}),
         ])
         cleaned_up = self.cloud.delete_unattached_floating_ips()
@@ -949,20 +949,20 @@ class TestFloatingIP(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets.json']),
+                     'network', 'public', append=['v2.0', 'subnets']),
                  json={'subnets': []}),
             dict(method="GET",
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports.json'],
+                     'network', 'public', append=['v2.0', 'ports'],
                      qs_elements=['device_id=some-server']),
                  json={'ports': [server_port]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  json={'floatingip': floating_ip})
         ])
 
@@ -976,7 +976,7 @@ class TestFloatingIP(base.TestCase):
         # payloads contrived but based on ones from citycloud
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={"networks": [{
                      "status": "ACTIVE",
                      "subnets": [
@@ -1037,7 +1037,7 @@ class TestFloatingIP(base.TestCase):
                      "description": ""
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={"subnets": [{
                      "description": "",
                      "enable_dhcp": True,
@@ -1074,7 +1074,7 @@ class TestFloatingIP(base.TestCase):
         # payloads contrived but based on ones from citycloud
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={"networks": [{
                      "status": "ACTIVE",
                      "subnets": [
@@ -1135,7 +1135,7 @@ class TestFloatingIP(base.TestCase):
                      "description": ""
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={"subnets": [{
                      "description": "",
                      "enable_dhcp": True,

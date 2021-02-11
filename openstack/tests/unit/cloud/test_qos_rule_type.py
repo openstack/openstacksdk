@@ -70,12 +70,12 @@ class TestQosRuleType(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [self.qos_extension]}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'rule-types.json']),
+                     append=['v2.0', 'qos', 'rule-types']),
                  json={'rule_types': self.mock_rule_types})
         ])
         rule_types = self.cloud.list_qos_rule_types()
@@ -86,7 +86,7 @@ class TestQosRuleType(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': []})
         ])
         self.assertRaises(exc.OpenStackCloudException,
@@ -97,13 +97,13 @@ class TestQosRuleType(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [
                      self.qos_extension,
                      self.qos_rule_type_details_extension]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [
                      self.qos_extension,
                      self.qos_rule_type_details_extension]}),
@@ -111,7 +111,7 @@ class TestQosRuleType(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'rule-types',
-                             '%s.json' % self.rule_type_name]),
+                             '%s' % self.rule_type_name]),
                      json={'rule_type': self.mock_rule_type_details})
         ])
         self.assertEqual(
@@ -124,7 +124,7 @@ class TestQosRuleType(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': []})
         ])
         self.assertRaises(
@@ -136,11 +136,11 @@ class TestQosRuleType(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [self.qos_extension]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': [self.qos_extension]})
         ])
         self.assertRaises(

@@ -163,7 +163,7 @@ class TestDeleteServer(base.TestCase):
                  json={'servers': [server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json'],
+                     'network', 'public', append=['v2.0', 'floatingips'],
                      qs_elements=['floating_ip_address=172.24.5.5']),
                  complete_qs=True,
                  json={'floatingips': [{
@@ -179,10 +179,10 @@ class TestDeleteServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'floatingips',
-                             '{fip_id}.json'.format(fip_id=fip_id)])),
+                             '{fip_id}'.format(fip_id=fip_id)])),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json']),
+                     'network', 'public', append=['v2.0', 'floatingips']),
                  complete_qs=True,
                  json={'floatingips': []}),
             dict(method='DELETE',
@@ -212,7 +212,7 @@ class TestDeleteServer(base.TestCase):
                  json={'servers': [server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'floatingips.json'],
+                     'network', 'public', append=['v2.0', 'floatingips'],
                      qs_elements=['floating_ip_address=172.24.5.5']),
                  complete_qs=True,
                  status_code=404),

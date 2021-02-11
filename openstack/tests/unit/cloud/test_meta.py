@@ -296,13 +296,13 @@ class TestMeta(base.TestCase):
     def test_get_server_private_ip(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [{
                      'id': 'test-net-id',
                      'name': 'test-net-name'}]}
                  ),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
 
@@ -323,13 +323,13 @@ class TestMeta(base.TestCase):
     def test_get_server_multiple_private_ip(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [{
                      'id': 'test-net-id',
                      'name': 'test-net'}]}
                  ),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
 
@@ -385,7 +385,7 @@ class TestMeta(base.TestCase):
 
         self.register_uris([
             dict(method='GET',
-                 uri=('https://network.example.com/v2.0/ports.json?'
+                 uri=('https://network.example.com/v2.0/ports?'
                       'device_id=test-id'),
                  json={'ports': [{
                      'id': 'test_port_id',
@@ -394,11 +394,11 @@ class TestMeta(base.TestCase):
                  ),
             dict(method='GET',
                  uri=('https://network.example.com/v2.0/'
-                      'floatingips.json?port_id=test_port_id'),
+                      'floatingips?port_id=test_port_id'),
                  json={'floatingips': []}),
 
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [
                      {'id': 'test_pnztt_net',
                       'name': 'test_pnztt_net',
@@ -408,7 +408,7 @@ class TestMeta(base.TestCase):
                       'name': 'private'}]}
                  ),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT}),
 
             self.get_nova_discovery_mock_dict(),
@@ -457,7 +457,7 @@ class TestMeta(base.TestCase):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [
                      {'id': 'test_pnztt_net',
                       'name': 'test_pnztt_net',
@@ -467,7 +467,7 @@ class TestMeta(base.TestCase):
                       'name': 'private'}]}
                  ),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT}),
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
@@ -512,7 +512,7 @@ class TestMeta(base.TestCase):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [
                      {
                          'id': 'test_pnztt_net',
@@ -524,7 +524,7 @@ class TestMeta(base.TestCase):
                          'name': 'private'}]}
                  ),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT}),
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
@@ -572,7 +572,7 @@ class TestMeta(base.TestCase):
         self.register_uris([
             # self.get_nova_discovery_mock_dict(),
             dict(method='GET',
-                 uri=('https://network.example.com/v2.0/ports.json?'
+                 uri=('https://network.example.com/v2.0/ports?'
                       'device_id=test-id'),
                  json={'ports': [{
                      'id': 'test_port_id',
@@ -580,7 +580,7 @@ class TestMeta(base.TestCase):
                      'device_id': 'test-id'}]}
                  ),
             dict(method='GET',
-                 uri=('https://network.example.com/v2.0/floatingips.json'
+                 uri=('https://network.example.com/v2.0/floatingips'
                       '?port_id=test_port_id'),
                  json={'floatingips': [{
                      'id': 'floating-ip-id',
@@ -589,7 +589,7 @@ class TestMeta(base.TestCase):
                      'floating_ip_address': PUBLIC_V4,
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [
                      {
                          'id': 'test_pnztt_net',
@@ -602,7 +602,7 @@ class TestMeta(base.TestCase):
                      }
                  ]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT}),
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
@@ -718,10 +718,10 @@ class TestMeta(base.TestCase):
 
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': OSIC_NETWORKS}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': OSIC_SUBNETS}),
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
@@ -749,14 +749,14 @@ class TestMeta(base.TestCase):
         # Testing Clouds with Neutron
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [{
                      'id': 'test-net-id',
                      'name': 'test-net',
                      'router:external': True
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
         srv = fakes.make_fake_server(
@@ -774,7 +774,7 @@ class TestMeta(base.TestCase):
         # Testing Clouds with Neutron
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [{
                      'id': 'test-net-id',
                      'name': 'test-net',
@@ -782,7 +782,7 @@ class TestMeta(base.TestCase):
                      'provider:physical_network': 'vlan',
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
 
@@ -801,7 +801,7 @@ class TestMeta(base.TestCase):
         # Testing Clouds with Neutron
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [{
                      'id': 'test-net-id',
                      'name': 'test-net',
@@ -810,7 +810,7 @@ class TestMeta(base.TestCase):
                      'provider:physical_network': None,
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
         srv = fakes.make_fake_server(
@@ -830,14 +830,14 @@ class TestMeta(base.TestCase):
         # Testing Clouds with Neutron
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  json={'networks': [{
                      'id': 'test-net-id',
                      'name': 'test-net',
                      'router:external': False,
                  }]}),
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/subnets.json',
+                 uri='https://network.example.com/v2.0/subnets',
                  json={'subnets': SUBNETS_WITH_NAT})
         ])
 
@@ -872,7 +872,7 @@ class TestMeta(base.TestCase):
         # Testing Clouds with a non working Neutron
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks.json',
+                 uri='https://network.example.com/v2.0/networks',
                  status_code=404)])
 
         srv = fakes.make_fake_server(

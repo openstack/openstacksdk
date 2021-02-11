@@ -136,7 +136,7 @@ class TestRebuildServer(base.TestCase):
                              'imageRef': 'a'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
         ])
         self.assertEqual(
@@ -166,7 +166,7 @@ class TestRebuildServer(base.TestCase):
                              'adminPass': password}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
         ])
         self.assertEqual(
@@ -207,7 +207,7 @@ class TestRebuildServer(base.TestCase):
                  json={'servers': [self.fake_server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
         ])
 
@@ -245,7 +245,7 @@ class TestRebuildServer(base.TestCase):
                  json={'servers': [self.fake_server]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
         ])
         self.assertEqual(

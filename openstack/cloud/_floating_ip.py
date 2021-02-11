@@ -82,7 +82,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
     def _neutron_list_floating_ips(self, filters=None):
         if not filters:
             filters = {}
-        data = self.network.get('/floatingips.json', params=filters)
+        data = self.network.get('/floatingips', params=filters)
         return self._get_and_munchify('floatingips', data)
 
     def _nova_list_floating_ips(self):
@@ -462,7 +462,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
         data = self.network.post(
-            "/floatingips.json", json={"floatingip": kwargs})
+            "/floatingips", json={"floatingip": kwargs})
         return self._normalize_floating_ip(
             self._get_and_munchify('floatingip', data))
 
@@ -613,7 +613,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
             proxy._json_response(self.network.delete(
-                "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
+                "/floatingips/{fip_id}".format(fip_id=floating_ip_id),
                 error_message="unable to delete floating IP"))
         except exc.OpenStackCloudResourceNotFound:
             return False
@@ -753,7 +753,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
 
         return proxy._json_response(
             self.network.put(
-                "/floatingips/{fip_id}.json".format(fip_id=floating_ip['id']),
+                "/floatingips/{fip_id}".format(fip_id=floating_ip['id']),
                 json={'floatingip': floating_ip_args}),
             error_message=("Error attaching IP {ip} to "
                            "server {server_id}".format(
@@ -811,7 +811,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
             return False
         exceptions.raise_from_response(
             self.network.put(
-                "/floatingips/{fip_id}.json".format(fip_id=floating_ip_id),
+                "/floatingips/{fip_id}".format(fip_id=floating_ip_id),
                 json={"floatingip": {"port_id": None}}),
             error_message=("Error detaching IP {ip} from "
                            "server {server_id}".format(

@@ -882,7 +882,7 @@ class TestFirewallGroup(FirewallTestCase):
 
             dict(method='GET',
                  uri=self.get_mock_url('network', 'public',
-                                       append=['v2.0', 'ports.json']),
+                                       append=['v2.0', 'ports']),
                  json={'ports': [self.mock_port]}),
             dict(method='POST',
                  uri=self._make_mock_url('firewall_groups'),
@@ -1079,7 +1079,7 @@ class TestFirewallGroup(FirewallTestCase):
 
             dict(method='GET',
                  uri=self.get_mock_url('network', 'public',
-                                       append=['v2.0', 'ports.json']),
+                                       append=['v2.0', 'ports']),
                  json={'ports': [self.mock_port]}),
             dict(method='PUT',
                  uri=self._make_mock_url('firewall_groups',

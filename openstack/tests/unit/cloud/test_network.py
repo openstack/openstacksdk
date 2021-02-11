@@ -65,7 +65,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [net1, net2]})
         ])
         nets = self.cloud.list_networks()
@@ -76,7 +76,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json'],
+                     'network', 'public', append=['v2.0', 'networks'],
                      qs_elements=["name=test"]),
                  json={'networks': []})
         ])
@@ -87,7 +87,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'network': self.mock_new_network_rep},
                  validate=dict(
                      json={'network': {
@@ -105,7 +105,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'network': mock_new_network_rep},
                  validate=dict(
                      json={'network': {
@@ -123,7 +123,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'network': mock_new_network_rep},
                  validate=dict(
                      json={'network': {
@@ -154,7 +154,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'network': mock_new_network_rep},
                  validate=dict(
                      json={'network': expected_send_params}))
@@ -167,11 +167,11 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'extensions.json']),
+                     'network', 'public', append=['v2.0', 'extensions']),
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'network': self.mock_new_network_rep},
                  validate=dict(
                      json={'network': {
@@ -204,7 +204,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'network': mock_new_network_rep},
                  validate=dict(
                      json={'network': expected_send_params}))
@@ -237,7 +237,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'network': mock_new_network_rep},
                  validate=dict(
                      json={'network': {
@@ -259,7 +259,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'network': mock_new_network_rep},
                  validate=dict(
                      json={'network': {
@@ -294,12 +294,12 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'networks', "%s.json" % network_id]),
+                     append=['v2.0', 'networks', "%s" % network_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_network(network_name))
@@ -309,7 +309,7 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
         ])
         self.assertFalse(self.cloud.delete_network('test-net'))
@@ -322,12 +322,12 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks.json']),
+                     'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': [network]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'networks', "%s.json" % network_id]),
+                     append=['v2.0', 'networks', "%s" % network_id]),
                  status_code=503)
         ])
         self.assertRaises(openstack.cloud.OpenStackCloudException,
