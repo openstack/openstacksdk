@@ -19,6 +19,7 @@ from openstack.baremetal.v1 import port as _port
 from openstack.baremetal.v1 import port_group as _portgroup
 from openstack.baremetal.v1 import volume_connector as _volumeconnector
 from openstack.baremetal.v1 import volume_target as _volumetarget
+from openstack.baremetal.v1 import deploy_templates as _deploytemplates
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
@@ -1309,3 +1310,108 @@ class Proxy(proxy.Proxy):
         """
         return self._delete(_volumetarget.VolumeTarget,
                             volume_target, ignore_missing=ignore_missing)
+
+    def deploy_templates(self, details=False, **query):
+        """Retrieve a generator of deploy_templates.
+
+        :param details: A boolean indicating whether the detailed information
+                        for every deploy_templates should be returned.
+        :param dict query: Optional query parameters to be sent to
+                           restrict the deploy_templates to be returned.
+
+        :returns: A generator of Deploy templates instances.
+        """
+        if details:
+            query['detail'] = True
+        return _deploytemplates.DeployTemplate.list(self, **query)
+
+    def create_deploy_template(self, **attrs):
+        """Create a new deploy_template from attributes.
+
+        :param dict attrs: Keyword arguments that will be used to create a
+                :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
+
+        :returns: The results of deploy_template creation.
+        :rtype:
+                :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
+        """
+        return self._create(_deploytemplates.DeployTemplate, **attrs)
+
+    def update_deploy_template(self, deploy_template, **attrs):
+        """Update a deploy_template.
+
+        :param deploy_template: Either the ID of a deploy_template,
+                                or an instance of
+                                :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
+        :param dict attrs: The attributes to update on
+                           the deploy_template represented
+                           by the ``deploy_template`` parameter.
+
+        :returns: The updated deploy_template.
+        :rtype::class:
+                       `~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+        """
+        return self._update(_deploytemplates.DeployTemplate,
+                            deploy_template, **attrs)
+
+    def delete_deploy_template(self, deploy_template,
+                               ignore_missing=True):
+        """Delete a deploy_template.
+
+        :param deploy_template:The value can be
+                               either the ID of a deploy_template or a
+        :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+                instance.
+
+        :param bool ignore_missing: When set to ``False``,
+            an exception:class:`~openstack.exceptions.ResourceNotFound`
+            will be raised when the deploy_template
+            could not be found.
+            When set to ``True``, no
+            exception will be raised when attempting
+            to delete a non-existent
+            deploy_template.
+
+        :returns: The instance of the deploy_template which was deleted.
+        :rtype::class:
+                        `~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
+        """
+
+        return self._delete(_deploytemplates.DeployTemplate,
+                            deploy_template, ignore_missing=ignore_missing)
+
+    def get_deploy_template(self, deploy_template, fields=None):
+        """Get a specific deployment template.
+
+        :param deploy_template: The value can be the name or ID
+            of a deployment template
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+            instance.
+
+        :param fields: Limit the resource fields to fetch.
+
+        :returns: One
+                  :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                        when no deployment template matching the name or
+                        ID could be found.
+        """
+        return self._get_with_fields(_deploytemplates.DeployTemplate,
+                                     deploy_template, fields=fields)
+
+    def patch_deploy_template(self, deploy_template, patch):
+        """Apply a JSON patch to the deploy_templates.
+
+        :param deploy_templates: The value can be the ID of a
+            deploy_template or a
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+            instance.
+
+        :param patch: JSON patch to apply.
+
+        :returns: The updated deploy_template.
+        :rtype::class:
+                        `~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+        """
+        return self._get_resource(_deploytemplates.DeployTemplate,
+                                  deploy_template).patch(self, patch)

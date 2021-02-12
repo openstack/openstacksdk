@@ -77,6 +77,14 @@ Volume Target Operations
             create_volume_target, update_volume_target,
             patch_volume_target, delete_volume_target
 
+Deploy Template Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.baremetal.v1._proxy.Proxy
+  :noindex:
+  :members: deploy_templates, get_deploy_template,
+            create_deploy_template, update_deploy_template,
+            patch_deploy_template, delete_deploy_template
+
 Utilities
 ---------
 
