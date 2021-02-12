@@ -155,8 +155,7 @@ class TestQosPolicy(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies',
-                             '%s' % self.policy_id]),
+                     append=['v2.0', 'qos', 'policies', self.policy_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_qos_policy(self.policy_name))
@@ -236,8 +235,7 @@ class TestQosPolicy(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies',
-                             '%s' % self.policy_id]),
+                     append=['v2.0', 'qos', 'policies', self.policy_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_qos_policy(policy1['id']))
@@ -263,8 +261,7 @@ class TestQosPolicy(base.TestCase):
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies',
-                             '%s' % self.policy_id]),
+                     append=['v2.0', 'qos', 'policies', self.policy_id]),
                  json={'policy': expected_policy},
                  validate=dict(
                      json={'policy': {'name': 'goofy'}}))
@@ -310,8 +307,7 @@ class TestQosPolicy(base.TestCase):
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'qos', 'policies',
-                             '%s' % self.policy_id]),
+                     append=['v2.0', 'qos', 'policies', self.policy_id]),
                  json={'policy': expected_policy},
                  validate=dict(
                      json={'policy': {'name': "goofy"}}))

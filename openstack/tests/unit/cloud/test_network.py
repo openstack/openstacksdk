@@ -299,7 +299,7 @@ class TestNetwork(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'networks', "%s" % network_id]),
+                     append=['v2.0', 'networks', network_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_network(network_name))
@@ -327,7 +327,7 @@ class TestNetwork(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'networks', "%s" % network_id]),
+                     append=['v2.0', 'networks', network_id]),
                  status_code=503)
         ])
         self.assertRaises(openstack.cloud.OpenStackCloudException,
@@ -342,7 +342,7 @@ class TestNetwork(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'networks', "%s" % network_id]),
+                     append=['v2.0', 'networks', network_id]),
                  json={'network': network})
         ])
         self.assertTrue(self.cloud.get_network_by_id(network_id))

@@ -178,8 +178,7 @@ class TestDeleteServer(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'floatingips',
-                             '{fip_id}'.format(fip_id=fip_id)])),
+                     append=['v2.0', 'floatingips', fip_id])),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'floatingips']),

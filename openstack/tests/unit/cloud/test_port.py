@@ -192,7 +192,7 @@ class TestPort(base.TestCase):
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'ports', '%s' % port_id]),
+                     append=['v2.0', 'ports', port_id]),
                  json=self.mock_neutron_port_update_rep,
                  validate=dict(
                      json={'port': {'name': 'test-port-name-updated'}}))
@@ -219,7 +219,7 @@ class TestPort(base.TestCase):
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'ports', '%s' % port_id]),
+                     append=['v2.0', 'ports', port_id]),
                  status_code=500,
                  validate=dict(
                      json={'port': {'name': 'test-port-name-updated'}}))
@@ -311,7 +311,7 @@ class TestPort(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'ports', '%s' % port_id]),
+                     append=['v2.0', 'ports', port_id]),
                  json={})
         ])
 
@@ -353,7 +353,7 @@ class TestPort(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'ports', '%s' % port1['id']]),
+                     append=['v2.0', 'ports', port1['id']]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_port(name_or_id=port1['id']))

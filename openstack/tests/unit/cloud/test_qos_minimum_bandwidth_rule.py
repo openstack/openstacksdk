@@ -74,8 +74,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'minimum_bandwidth_rules',
-                             '%s' % self.rule_id]),
+                             'minimum_bandwidth_rules', self.rule_id]),
                  json={'minimum_bandwidth_rule': self.mock_rule})
         ])
         r = self.cloud.get_qos_minimum_bandwidth_rule(self.policy_name,
@@ -192,15 +191,13 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'minimum_bandwidth_rules',
-                             '%s' % self.rule_id]),
+                             'minimum_bandwidth_rules', self.rule_id]),
                  json={'minimum_bandwidth_rule': self.mock_rule}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'minimum_bandwidth_rules',
-                             '%s' % self.rule_id]),
+                             'minimum_bandwidth_rules', self.rule_id]),
                  json={'minimum_bandwidth_rule': expected_rule},
                  validate=dict(
                      json={'minimum_bandwidth_rule': {
@@ -243,8 +240,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'minimum_bandwidth_rules',
-                             '%s' % self.rule_id]),
+                             'minimum_bandwidth_rules', self.rule_id]),
                  json={})
         ])
         self.assertTrue(
@@ -284,8 +280,7 @@ class TestQosMinimumBandwidthRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'minimum_bandwidth_rules',
-                             '%s' % self.rule_id]),
+                             'minimum_bandwidth_rules', self.rule_id]),
                  status_code=404)
         ])
         self.assertFalse(

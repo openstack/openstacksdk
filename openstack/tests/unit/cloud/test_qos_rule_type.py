@@ -111,7 +111,7 @@ class TestQosRuleType(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'rule-types',
-                             '%s' % self.rule_type_name]),
+                             self.rule_type_name]),
                      json={'rule_type': self.mock_rule_type_details})
         ])
         self.assertEqual(
