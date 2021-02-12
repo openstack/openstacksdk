@@ -86,8 +86,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules',
-                             '%s' % self.rule_id]),
+                             'bandwidth_limit_rules', self.rule_id]),
                  json={'bandwidth_limit_rule': self.mock_rule})
         ])
         r = self.cloud.get_qos_bandwidth_limit_rule(self.policy_name,
@@ -235,15 +234,13 @@ class TestQosBandwidthLimitRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules',
-                             '%s' % self.rule_id]),
+                             'bandwidth_limit_rules', self.rule_id]),
                  json={'bandwidth_limit_rule': self.mock_rule}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules',
-                             '%s' % self.rule_id]),
+                             'bandwidth_limit_rules', self.rule_id]),
                  json={'bandwidth_limit_rule': expected_rule},
                  validate=dict(
                      json={'bandwidth_limit_rule': {
@@ -306,14 +303,14 @@ class TestQosBandwidthLimitRule(base.TestCase):
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
                              'bandwidth_limit_rules',
-                             '%s' % self.rule_id]),
+                             self.rule_id]),
                  json={'bandwidth_limit_rule': self.mock_rule}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
                              'bandwidth_limit_rules',
-                             '%s' % self.rule_id]),
+                             self.rule_id]),
                  json={'bandwidth_limit_rule': expected_rule},
                  validate=dict(
                      json={'bandwidth_limit_rule': {
@@ -346,8 +343,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules',
-                             '%s' % self.rule_id]),
+                             'bandwidth_limit_rules', self.rule_id]),
                  json={})
         ])
         self.assertTrue(
@@ -387,8 +383,7 @@ class TestQosBandwidthLimitRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'bandwidth_limit_rules',
-                             '%s' % self.rule_id]),
+                             'bandwidth_limit_rules', self.rule_id]),
                  status_code=404)
         ])
         self.assertFalse(

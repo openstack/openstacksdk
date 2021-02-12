@@ -670,7 +670,6 @@ class NetworkCloudMixin(_normalize.Normalizer):
         url = '/quotas/{project_id}'.format(project_id=proj.id)
         if details:
             url = url + "/details"
-        url = url + ""
         data = proxy._json_response(
             self.network.get(url),
             error_message=("Error fetching Neutron's quota for "

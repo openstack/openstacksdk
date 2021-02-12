@@ -324,7 +324,7 @@ class TestSubnet(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s' % self.subnet_id]),
+                     append=['v2.0', 'subnets', self.subnet_id]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_subnet(self.subnet_name))
@@ -365,7 +365,7 @@ class TestSubnet(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s' % subnet1['id']]),
+                     append=['v2.0', 'subnets', subnet1['id']]),
                  json={})
         ])
         self.assertTrue(self.cloud.delete_subnet(subnet1['id']))
@@ -382,7 +382,7 @@ class TestSubnet(base.TestCase):
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s' % self.subnet_id]),
+                     append=['v2.0', 'subnets', self.subnet_id]),
                  json={'subnet': expected_subnet},
                  validate=dict(
                      json={'subnet': {'name': 'goofy'}}))
@@ -403,7 +403,7 @@ class TestSubnet(base.TestCase):
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s' % self.subnet_id]),
+                     append=['v2.0', 'subnets', self.subnet_id]),
                  json={'subnet': expected_subnet},
                  validate=dict(
                      json={'subnet': {'gateway_ip': gateway}}))
@@ -423,7 +423,7 @@ class TestSubnet(base.TestCase):
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
-                     append=['v2.0', 'subnets', '%s' % self.subnet_id]),
+                     append=['v2.0', 'subnets', self.subnet_id]),
                  json={'subnet': expected_subnet},
                  validate=dict(
                      json={'subnet': {'gateway_ip': None}}))

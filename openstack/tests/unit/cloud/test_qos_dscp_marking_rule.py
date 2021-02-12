@@ -73,8 +73,7 @@ class TestQosDscpMarkingRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'dscp_marking_rules',
-                             '%s' % self.rule_id]),
+                             'dscp_marking_rules', self.rule_id]),
                  json={'dscp_marking_rule': self.mock_rule})
         ])
         r = self.cloud.get_qos_dscp_marking_rule(self.policy_name,
@@ -192,15 +191,13 @@ class TestQosDscpMarkingRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'dscp_marking_rules',
-                             '%s' % self.rule_id]),
+                             'dscp_marking_rules', self.rule_id]),
                  json={'dscp_marking_rule': self.mock_rule}),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'dscp_marking_rules',
-                             '%s' % self.rule_id]),
+                             'dscp_marking_rules', self.rule_id]),
                  json={'dscp_marking_rule': expected_rule},
                  validate=dict(
                      json={'dscp_marking_rule': {
@@ -244,7 +241,7 @@ class TestQosDscpMarkingRule(base.TestCase):
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
                              'dscp_marking_rules',
-                             '%s' % self.rule_id]),
+                             self.rule_id]),
                  json={})
         ])
         self.assertTrue(
@@ -284,8 +281,7 @@ class TestQosDscpMarkingRule(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'qos', 'policies', self.policy_id,
-                             'dscp_marking_rules',
-                             '%s' % self.rule_id]),
+                             'dscp_marking_rules', self.rule_id]),
                  status_code=404)
         ])
         self.assertFalse(
