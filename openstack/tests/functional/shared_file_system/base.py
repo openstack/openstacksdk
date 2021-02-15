@@ -21,3 +21,10 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         super(BaseSharedFileSystemTest, self).setUp()
         self.require_service('shared-file-system',
                              min_microversion=self.min_microversion)
+
+    def create_share(self, **kwargs):
+        share = self.conn.share.create_share(**kwargs)
+        self.addCleanup(self.conn.share.delete_share, share.id,
+                        ignore_missing=True)
+        self.assertIsNotNone(share.id)
+        return share

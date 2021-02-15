@@ -22,3 +22,14 @@ service.
 .. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
   :noindex:
   :members: availability_zones
+
+
+Shared File System Shares
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Interact with Shares supported by the Shared File Systems
+service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: shares, get_share, delete_share, update_share, create_share
