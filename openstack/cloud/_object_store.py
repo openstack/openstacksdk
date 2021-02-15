@@ -28,6 +28,7 @@ from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack import exceptions
 from openstack import proxy
+from openstack import utils
 
 
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
@@ -218,7 +219,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
                 self._file_hash_cache[file_key]['sha256'])
 
     def _calculate_data_hashes(self, data):
-        md5 = hashlib.md5()
+        md5 = utils.md5(usedforsecurity=False)
         sha256 = hashlib.sha256()
 
         if hasattr(data, 'read'):
