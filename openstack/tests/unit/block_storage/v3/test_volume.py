@@ -127,3 +127,23 @@ class TestVolume(base.TestCase):
         body = {"os-extend": {"new_size": "20"}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(url, json=body, headers=headers)
+
+    def test_set_volume_readonly(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.set_readonly(self.sess, True))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-update_readonly_flag': {'readonly': True}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(url, json=body, headers=headers)
+
+    def test_set_volume_readonly_false(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.set_readonly(self.sess, False))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-update_readonly_flag': {'readonly': False}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(url, json=body, headers=headers)
