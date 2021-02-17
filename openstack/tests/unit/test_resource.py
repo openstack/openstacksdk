@@ -2113,6 +2113,8 @@ class TestResourceActions(base.TestCase):
                                  query_param=qp, something=uri_param))
 
         self.assertEqual(1, len(results))
+        # Verify URI attribute is set on the resource
+        self.assertEqual(results[0].something, uri_param)
 
         # Look at the `params` argument to each of the get calls that
         # were made.
