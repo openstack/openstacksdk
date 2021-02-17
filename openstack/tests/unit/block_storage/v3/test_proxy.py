@@ -15,6 +15,7 @@ from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import backup
 from openstack.block_storage.v3 import capabilities
 from openstack.block_storage.v3 import limits
+from openstack.block_storage.v3 import resource_filter
 from openstack.block_storage.v3 import snapshot
 from openstack.block_storage.v3 import stats
 from openstack.block_storage.v3 import type
@@ -240,3 +241,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_capabilites_get(self):
         self.verify_get(self.proxy.get_capabilities, capabilities.Capabilities)
+
+    def test_resource_filters(self):
+        self.verify_list(self.proxy.resource_filters,
+                         resource_filter.ResourceFilter)

@@ -15,6 +15,7 @@ from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import capabilities as _capabilities
 from openstack.block_storage.v3 import limits as _limits
+from openstack.block_storage.v3 import resource_filter as _resource_filter
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import stats as _stats
 from openstack.block_storage.v3 import type as _type
@@ -588,6 +589,13 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                  to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
+
+    def resource_filters(self, **query):
+        """Retrieve a generator of resource filters
+
+        :returns: A generator of resource filters.
+        """
+        return self._list(_resource_filter.ResourceFilter, **query)
 
     def _get_cleanup_dependencies(self):
         return {
