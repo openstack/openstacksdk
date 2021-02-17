@@ -239,6 +239,10 @@ try:
     # Python distributions that support a hashlib.md5 with the usedforsecurity
     # keyword can just use that md5 definition as-is
     # See https://bugs.python.org/issue9216
+    #
+    # TODO(alee) Remove this wrapper when the minimum python version is bumped
+    # to 3.9 (which is the first upstream version to support this keyword)
+    # See https://docs.python.org/3.9/library/hashlib.html
     md5 = hashlib.md5
 except TypeError:
     def md5(string=b'', usedforsecurity=True):
