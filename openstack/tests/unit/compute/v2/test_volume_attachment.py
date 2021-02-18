@@ -18,6 +18,7 @@ EXAMPLE = {
     'device': '1',
     'id': '2',
     'volume_id': '3',
+    'tag': '4',
 }
 
 
@@ -44,3 +45,4 @@ class TestServerInterface(base.TestCase):
         self.assertEqual(EXAMPLE['device'], sot.device)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['volume_id'], sot.volume_id)
+        self.assertEqual(EXAMPLE['tag'], sot.tag)

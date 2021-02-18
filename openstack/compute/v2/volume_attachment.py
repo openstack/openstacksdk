@@ -37,3 +37,7 @@ class VolumeAttachment(resource.Resource):
     volume_id = resource.Body('volumeId')
     #: The ID of the attachment you want to delete or update.
     attachment_id = resource.Body('attachment_id', alternate_id=True)
+    #: Virtual device tags for the attachment.
+    tag = resource.Body('tag')
+    # tag introduced in 2.70
+    _max_microversion = '2.70'

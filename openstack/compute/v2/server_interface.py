@@ -37,3 +37,7 @@ class ServerInterface(resource.Resource):
     port_state = resource.Body('port_state')
     #: The ID for the server.
     server_id = resource.URI('server_id')
+    #: Tags for the virtual interfaces.
+    tag = resource.Body('tag')
+    # tag introduced in 2.70
+    _max_microversion = '2.70'
