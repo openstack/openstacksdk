@@ -17,6 +17,7 @@ from openstack.message import message_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
+from openstack.shared_file_system import shared_file_system_service
 from openstack.workflow import workflow_service
 
 
@@ -68,7 +69,7 @@ class ServicesMixin:
     operator_policy = service_description.ServiceDescription(service_type='operator-policy')
     policy = operator_policy
 
-    shared_file_system = service_description.ServiceDescription(service_type='shared-file-system')
+    shared_file_system = shared_file_system_service.SharedFilesystemService(service_type='shared-file-system')
     share = shared_file_system
 
     data_protection_orchestration = service_description.ServiceDescription(service_type='data-protection-orchestration')

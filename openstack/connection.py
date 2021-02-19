@@ -208,6 +208,7 @@ from openstack.cloud import _network_common
 from openstack.cloud import _object_store
 from openstack.cloud import _orchestration
 from openstack.cloud import _security_group
+from openstack.cloud import _shared_file_system
 from openstack import config as _config
 from openstack.config import cloud_region
 from openstack import exceptions
@@ -271,7 +272,8 @@ class Connection(
     _network_common.NetworkCommonCloudMixin,
     _object_store.ObjectStoreCloudMixin,
     _orchestration.OrchestrationCloudMixin,
-    _security_group.SecurityGroupCloudMixin
+    _security_group.SecurityGroupCloudMixin,
+    _shared_file_system.SharedFileSystemCloudMixin,
 ):
 
     def __init__(self, cloud=None, config=None, session=None,
@@ -415,6 +417,7 @@ class Connection(
         _object_store.ObjectStoreCloudMixin.__init__(self)
         _orchestration.OrchestrationCloudMixin.__init__(self)
         _security_group.SecurityGroupCloudMixin.__init__(self)
+        _shared_file_system.SharedFileSystemCloudMixin.__init__(self)
 
         # Allow vendors to provide hooks. They will normally only receive a
         # connection object and a responsible to register additional services

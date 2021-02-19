@@ -1,0 +1,28 @@
+{
+  "versions": [
+    {
+      "id": "v2.0",
+      "status": "CURRENT",
+      "version": "2.58",
+      "min_version": "2.0",
+      "updated": "2015-08-27T11:33:21Z",
+      "links": [
+        {
+          "rel": "describedby",
+          "type": "text/html",
+          "href": "http://docs.openstack.org/"
+        },
+        {
+          "rel": "self",
+          "href": "https://shared-file-system.example.com/v2/"
+        }
+      ],
+      "media-types": [
+        {
+          "base": "application/json",
+          "type": "application/vnd.openstack.share+json;version=1"
+        }
+      ]
+    }
+  ]
+}
