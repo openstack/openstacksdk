@@ -781,7 +781,6 @@ class CloudRegion:
                     raise exceptions.ConfigException(
                         "A default microversion for service {service_type} of"
                         " {default_microversion} was requested, but the cloud"
-                        " only supports a maximum of"
                         " only supports a minimum of {min_microversion} and"
                         " a maximum of {max_microversion}. The default"
                         " microversion was set because a microversion"
