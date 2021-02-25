@@ -29,6 +29,7 @@ from openstack.block_storage.v3 import group as _group
 from openstack.block_storage.v3 import group_snapshot as _group_snapshot
 from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import limits as _limits
+from openstack.block_storage.v3 import message as _message
 from openstack.block_storage.v3 import qos_spec as _qos_spec
 from openstack.block_storage.v3 import quota_class_set as _quota_class_set
 from openstack.block_storage.v3 import quota_set as _quota_set
@@ -2490,6 +2491,43 @@ class Proxy(proxy.Proxy):
             if not ignore_missing:
                 raise
 
+    # ====== Messages ======
+
+    def get_message(self, message: str | _message.Message) -> _message.Message:
+        """Get a message
+
+        :param message: The value can be the ID of a message or a
+            :class:`~openstack.block_storage.v3.message.Message` instance.
+
+        :returns: Message instance
+        """
+        return self._get(_message.Message, message)
+
+    def delete_message(
+        self, message: str | _message.Message, ignore_missing: bool = True
+    ) -> None:
+        """Delete a message
+
+        :param message: The value can be either the ID of a message or a
+            :class:`~openstack.volume.v3.message.Message` instance.
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the message does not exist. When set to ``True``, no exception will
+            be set when attempting to delete a nonexistent message.
+
+        :returns: ``None``
+        """
+        self._delete(_message.Message, message, ignore_missing=ignore_missing)
+
+    def messages(
+        self, **query: Any
+    ) -> Generator[_message.Message, None, None]:
+        """Retrieve a generator of messages
+
+        :returns: A generator of message objects
+        """
+        return self._list(_message.Message, **query)
+
     # ====== QoS ======
 
     def create_qos_spec(self, **attrs: Any) -> _qos_spec.QoSSpec:
@@ -2500,7 +2538,6 @@ class Proxy(proxy.Proxy):
             of the properties on the QoSSpec class.
 
         :returns: The results of a QoS spec creation
-        :rtype: :class:`~openstack.block_storage.v2.qos_spec.QoSSpec`
         """
         return self._create(_qos_spec.QoSSpec, **attrs)
 
@@ -2543,7 +2580,6 @@ class Proxy(proxy.Proxy):
         :param dict attrs: The attributes to update on the QoS spec
 
         :returns: The updated QoS spec
-        :rtype: :class:`~openstack.block_storage.v2.qos_spec.QoSSpec`
         """
         return self._update(_qos_spec.QoSSpec, qos_spec, **attrs)
 

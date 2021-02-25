@@ -20,6 +20,7 @@ from openstack.block_storage.v3 import extension
 from openstack.block_storage.v3 import group
 from openstack.block_storage.v3 import group_snapshot
 from openstack.block_storage.v3 import group_type
+from openstack.block_storage.v3 import message
 from openstack.block_storage.v3 import qos_spec
 from openstack.block_storage.v3 import quota_class_set
 from openstack.block_storage.v3 import quota_set
@@ -1176,6 +1177,17 @@ class TestTransfer(TestVolumeProxy):
             expected_args=[self.proxy],
             expected_kwargs={'auth_key': 'auth_key'},
         )
+
+
+class TestMessage(TestVolumeProxy):
+    def test_message_get(self):
+        self.verify_get(self.proxy.get_message, message.Message)
+
+    def test_message_delete(self):
+        self.verify_delete(self.proxy.delete_message, message.Message, False)
+
+    def test_messages(self):
+        self.verify_list(self.proxy.messages, message.Message)
 
 
 class TestQosSpec(TestVolumeProxy):
