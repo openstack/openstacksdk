@@ -13,6 +13,7 @@ from unittest import mock
 
 from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import backup
+from openstack.block_storage.v3 import capabilities
 from openstack.block_storage.v3 import limits
 from openstack.block_storage.v3 import snapshot
 from openstack.block_storage.v3 import stats
@@ -236,3 +237,6 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.verify_get(
             self.proxy.get_limits, limits.Limit, ignore_value=True,
             expected_kwargs={'requires_id': False})
+
+    def test_capabilites_get(self):
+        self.verify_get(self.proxy.get_capabilities, capabilities.Capabilities)

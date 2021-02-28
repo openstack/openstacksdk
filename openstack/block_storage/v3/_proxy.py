@@ -13,6 +13,7 @@
 from openstack.block_storage import _base_proxy
 from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
+from openstack.block_storage.v3 import capabilities as _capabilities
 from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import stats as _stats
@@ -524,6 +525,18 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :rtype: :class:`~openstack.block_storage.v3.limits.Limit`
         """
         return self._get(_limits.Limit, requires_id=False)
+
+    def get_capabilities(self, host):
+        """Get a backend's capabilites
+
+        :param host: Specified backend to obtain volume stats and properties.
+
+        :returns: One :class:
+            `~openstack.block_storage.v3.capabilites.Capabilities` instance.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        return self._get(_capabilities.Capabilities, host)
 
     def availability_zones(self):
         """Return a generator of availability zones
