@@ -1729,8 +1729,17 @@ class Resource(dict):
             allow_unknown_params=allow_unknown_params)
         query_params = cls._query_mapping._transpose(params, cls)
         uri = base_path % params
+        uri_params = {}
 
         limit = query_params.get('limit')
+
+        for k, v in params.items():
+            # We need to gather URI parts to set them on the resource later
+            if (
+                hasattr(cls, k)
+                and isinstance(getattr(cls, k), URI)
+            ):
+                uri_params[k] = v
 
         # Track the total number of resources yielded so we can paginate
         # swift objects
@@ -1765,6 +1774,8 @@ class Resource(dict):
                 # Resource initializer. "self" is already the first
                 # argument and is practically a reserved word.
                 raw_resource.pop("self", None)
+                # We want that URI props are available on the resource
+                raw_resource.update(uri_params)
 
                 value = cls.existing(
                     microversion=microversion,
