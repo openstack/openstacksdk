@@ -1755,7 +1755,7 @@ class Resource(dict):
             data = response.json()
 
             # Discard any existing pagination keys
-            query_params.pop('marker', None)
+            last_marker = query_params.pop('marker', None)
             query_params.pop('limit', None)
 
             if cls.resources_key:
@@ -1788,6 +1788,17 @@ class Resource(dict):
             if resources and paginated:
                 uri, next_params = cls._get_next_link(
                     uri, response, data, marker, limit, total_yielded)
+                try:
+                    if next_params['marker'] == last_marker:
+                        # If next page marker is same as what we were just
+                        # asked something went terribly wrong. Some ancient
+                        # services had bugs.
+                        raise exceptions.SDKException(
+                            'Endless pagination loop detected, aborting'
+                        )
+                except KeyError:
+                    # do nothing, exception handling is cheaper then "if"
+                    pass
                 query_params.update(next_params)
             else:
                 return
