@@ -945,6 +945,16 @@ class TestResource(base.TestCase):
         self.assertDictEqual(expected, res)
         self.assertDictEqual(expected, dict(res))
 
+    def test_access_by_resource_name(self):
+
+        class Test(resource.Resource):
+            blah = resource.Body("blah_resource")
+
+        sot = Test(blah='dummy')
+
+        result = sot["blah_resource"]
+        self.assertEqual(result, sot.blah)
+
     def test_to_dict_value_error(self):
 
         class Test(resource.Resource):
