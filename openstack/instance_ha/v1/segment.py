@@ -32,6 +32,9 @@ class Segment(resource.Resource):
     allow_commit = True
     allow_delete = True
 
+    # add enabled flag to segment in 1.2
+    _max_microversion = '1.2'
+
     #: A ID of representing this segment.
     id = resource.Body("id")
     #: A Uuid of representing this segment.
@@ -48,7 +51,9 @@ class Segment(resource.Resource):
     recovery_method = resource.Body("recovery_method")
     #: The service type of this segment.
     service_type = resource.Body("service_type")
+    #: The enabled flag of this segment.
+    is_enabled = resource.Body("enabled", type=bool)
 
     _query_mapping = resource.QueryParameters(
         "sort_key", "sort_dir", recovery_method="recovery_method",
-        service_type="service_type")
+        service_type="service_type", is_enabled="enabled")

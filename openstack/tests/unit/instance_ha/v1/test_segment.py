@@ -25,7 +25,8 @@ SEGMENT = {
     "name": "my_segment",
     "description": "something",
     "recovery_method": "auto",
-    "service_type": "COMPUTE_HOST"
+    "service_type": "COMPUTE_HOST",
+    "enabled": True,
 }
 
 
@@ -46,6 +47,7 @@ class TestSegment(base.TestCase):
                               "marker": "marker",
                               "recovery_method": "recovery_method",
                               "service_type": "service_type",
+                              "is_enabled": "enabled",
                               "sort_dir": "sort_dir",
                               "sort_key": "sort_key"},
                              sot._query_mapping._mapping)
@@ -60,3 +62,4 @@ class TestSegment(base.TestCase):
         self.assertEqual(SEGMENT["description"], sot.description)
         self.assertEqual(SEGMENT["recovery_method"], sot.recovery_method)
         self.assertEqual(SEGMENT["service_type"], sot.service_type)
+        self.assertEqual(SEGMENT["enabled"], sot.is_enabled)
