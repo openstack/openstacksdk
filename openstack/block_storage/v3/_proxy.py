@@ -93,6 +93,19 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._create(_snapshot.Snapshot, **attrs)
 
+    def update_snapshot(self, snapshot, **attrs):
+        """Update a snapshot
+
+        :param snapshot: Either the ID of a snapshot or a
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot` instance.
+        :attrs kwargs: The attributes to update on the snapshot represented
+            by ``snapshot``.
+
+        :returns: The updated snapshot
+        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
+        """
+        return self._update(_snapshot.Snapshot, snapshot, **attrs)
+
     def delete_snapshot(self, snapshot, ignore_missing=True, force=False):
         """Delete a snapshot
 
