@@ -19,29 +19,28 @@ import types  # noqa
 import warnings
 
 import dogpile.cache
+import keystoneauth1.exceptions
+import keystoneauth1.session
 import munch
 import requests.models
 import requestsexceptions
 
-import keystoneauth1.exceptions
-import keystoneauth1.session
-
 from openstack import _log
-from openstack.cloud import exc
 from openstack.cloud import _floating_ip
 from openstack.cloud import _object_store
-from openstack.cloud import meta
 from openstack.cloud import _utils
+from openstack.cloud import exc
+from openstack.cloud import meta
 import openstack.config
 from openstack.config import cloud_region as cloud_region_mod
 from openstack import proxy
 from openstack import utils
 
+
 DEFAULT_SERVER_AGE = 5
 DEFAULT_PORT_AGE = 5
 DEFAULT_FLOAT_AGE = 5
 _CONFIG_DOC_URL = _floating_ip._CONFIG_DOC_URL
-
 DEFAULT_OBJECT_SEGMENT_SIZE = _object_store.DEFAULT_OBJECT_SEGMENT_SIZE
 # This halves the current default for Swift
 DEFAULT_MAX_FILE_SIZE = _object_store.DEFAULT_MAX_FILE_SIZE

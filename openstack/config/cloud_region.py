@@ -14,8 +14,8 @@
 
 import copy
 import os.path
-import warnings
 import urllib
+import warnings
 
 from keystoneauth1 import discover
 import keystoneauth1.exceptions.catalog
@@ -36,13 +36,12 @@ try:
 except ImportError:
     influxdb = None
 
-
-from openstack import version as openstack_version
 from openstack import _log
 from openstack.config import _util
 from openstack.config import defaults as config_defaults
 from openstack import exceptions
 from openstack import proxy
+from openstack import version as openstack_version
 
 
 _logger = _log.setup_logging('openstack')
@@ -52,7 +51,6 @@ SCOPE_KEYS = {
     'project_id', 'project_name',
     'system_scope'
 }
-
 
 # Sentinel for nonexistence
 _ENOENT = object()

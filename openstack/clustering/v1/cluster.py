@@ -10,10 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.clustering.v1 import _async_resource
 from openstack import resource
 from openstack import utils
-
-from openstack.clustering.v1 import _async_resource
 
 
 class Cluster(_async_resource.AsyncResource):

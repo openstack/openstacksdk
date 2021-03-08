@@ -17,9 +17,9 @@ import types  # noqa
 
 import munch
 
-from openstack.cloud import exc
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
+from openstack.cloud import exc
 from openstack import utils
 
 

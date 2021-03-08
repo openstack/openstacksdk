@@ -9,11 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack import proxy
+
+from openstack.accelerator.v2 import accelerator_request as _arq
 from openstack.accelerator.v2 import deployable as _deployable
 from openstack.accelerator.v2 import device as _device
 from openstack.accelerator.v2 import device_profile as _device_profile
-from openstack.accelerator.v2 import accelerator_request as _arq
+from openstack import proxy
 
 
 class Proxy(proxy.Proxy):

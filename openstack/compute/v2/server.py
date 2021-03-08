@@ -11,8 +11,8 @@
 # under the License.
 
 from openstack.compute.v2 import metadata
-from openstack.image.v2 import image
 from openstack import exceptions
+from openstack.image.v2 import image
 from openstack import resource
 from openstack import utils
 

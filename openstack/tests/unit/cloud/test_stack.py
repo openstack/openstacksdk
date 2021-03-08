@@ -256,7 +256,7 @@ class TestStack(base.TestCase):
             dict(method='GET',
                  uri='{endpoint}/stacks/{name}?{resolve}'.format(
                      endpoint=fakes.ORCHESTRATION_ENDPOINT,
-                     id=self.stack_id, name=self.stack_name, resolve=resolve),
+                     name=self.stack_name, resolve=resolve),
                  status_code=404),
         ])
 

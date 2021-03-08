@@ -34,10 +34,10 @@ and then returned to the caller.
 import collections
 import inspect
 import itertools
+import operator
 import urllib.parse
 
 import jsonpatch
-import operator
 from keystoneauth1 import adapter
 from keystoneauth1 import discover
 import munch

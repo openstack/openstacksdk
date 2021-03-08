@@ -15,11 +15,11 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
-from openstack import exceptions
-from openstack import resource
-from openstack.cloud import exc
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
+from openstack.cloud import exc
+from openstack import exceptions
+from openstack import resource
 
 
 class DnsCloudMixin(_normalize.Normalizer):

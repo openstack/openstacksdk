@@ -17,10 +17,10 @@ import json
 from urllib import parse
 from urllib import request
 
+from openstack import exceptions
 from openstack.orchestration.util import environment_format
 from openstack.orchestration.util import template_format
 from openstack.orchestration.util import utils
-from openstack import exceptions
 
 
 def get_template_contents(template_file=None, template_url=None,

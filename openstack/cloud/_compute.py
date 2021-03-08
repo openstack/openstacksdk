@@ -16,16 +16,17 @@
 import base64
 import datetime
 import functools
-import iso8601
 import operator
 import threading
 import time
 import types  # noqa
 
-from openstack.cloud import exc
-from openstack.cloud import meta
+import iso8601
+
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
+from openstack.cloud import exc
+from openstack.cloud import meta
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils

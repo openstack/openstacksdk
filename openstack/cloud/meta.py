@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import munch
 import ipaddress
 import socket
 
+import munch
+
 from openstack import _log
-from openstack import utils
 from openstack.cloud import exc
+from openstack import utils
 
 
 NON_CALLABLES = (str, bool, dict, int, float, list, type(None))

@@ -176,6 +176,7 @@ try to find it and if that fails, you would create it::
 Additional information about the services can be found in the
 :ref:`service-proxies` documentation.
 """
+import concurrent.futures
 import warnings
 import weakref
 
@@ -185,20 +186,17 @@ try:
 except ImportError:
     # For everyone else
     import importlib_metadata
-
-import concurrent.futures
 import keystoneauth1.exceptions
 import requestsexceptions
 
 from openstack import _log
 from openstack import _services_mixin
-from openstack.cloud import openstackcloud as _cloud
 from openstack.cloud import _accelerator
 from openstack.cloud import _baremetal
 from openstack.cloud import _block_storage
-from openstack.cloud import _compute
 from openstack.cloud import _clustering
 from openstack.cloud import _coe
+from openstack.cloud import _compute
 from openstack.cloud import _dns
 from openstack.cloud import _floating_ip
 from openstack.cloud import _identity
@@ -209,6 +207,7 @@ from openstack.cloud import _object_store
 from openstack.cloud import _orchestration
 from openstack.cloud import _security_group
 from openstack.cloud import _shared_file_system
+from openstack.cloud import openstackcloud as _cloud
 from openstack import config as _config
 from openstack.config import cloud_region
 from openstack import exceptions

@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import warnings
 
 from openstack.compute.v2 import aggregate as _aggregate
@@ -23,13 +24,12 @@ from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_diagnostics as _server_diagnostics
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
-from openstack.compute.v2 import (
-    server_remote_console as _server_remote_console)
 from openstack.compute.v2 import server_ip
+from openstack.compute.v2 import server_remote_console as _src
 from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import volume_attachment as _volume_attachment
-from openstack.network.v2 import security_group as _sg
 from openstack import exceptions
+from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
 from openstack import utils
@@ -1768,7 +1768,7 @@ class Proxy(proxy.Proxy):
                     ServerRemoteConsole`
         """
         server_id = resource.Resource._get_id(server)
-        return self._create(_server_remote_console.ServerRemoteConsole,
+        return self._create(_src.ServerRemoteConsole,
                             server_id=server_id, **attrs)
 
     def get_server_console_url(self, server, console_type):
@@ -1806,7 +1806,7 @@ class Proxy(proxy.Proxy):
         # historically by OSC. We support it, but do not document either.
         if utils.supports_microversion(self, '2.6'):
             console = self._create(
-                _server_remote_console.ServerRemoteConsole,
+                _src.ServerRemoteConsole,
                 server_id=server.id,
                 type=console_type,
                 protocol=console_protocol)

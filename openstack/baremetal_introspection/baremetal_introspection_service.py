@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import service_description
 from openstack.baremetal_introspection.v1 import _proxy
+from openstack import service_description
 
 
 class BaremetalIntrospectionService(service_description.ServiceDescription):

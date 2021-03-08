@@ -16,19 +16,20 @@ import contextlib
 import fnmatch
 import functools
 import inspect
-import jmespath
-import munch
-import netifaces
 import re
-import sre_constants
 import time
 import uuid
 
 from decorator import decorator
+import jmespath
+import munch
+import netifaces
+import sre_constants
 
 from openstack import _log
 from openstack.cloud import exc
 from openstack.cloud import meta
+
 
 _decorated_methods = []
 

@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack import resource
-
 from openstack import utils
 
 CONSOLE_TYPE_PROTOCOL_MAPPING = {

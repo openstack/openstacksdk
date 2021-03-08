@@ -19,14 +19,14 @@ import os
 import time
 from urllib import parse
 
+from openstack import _log
+from openstack.cloud import _utils
+from openstack import exceptions
 from openstack.object_store.v1 import account as _account
 from openstack.object_store.v1 import container as _container
-from openstack.object_store.v1 import obj as _obj
 from openstack.object_store.v1 import info as _info
-from openstack import exceptions
-from openstack import _log
+from openstack.object_store.v1 import obj as _obj
 from openstack import proxy
-from openstack.cloud import _utils
 
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2

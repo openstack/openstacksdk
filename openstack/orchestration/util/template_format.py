@@ -11,6 +11,7 @@
 # under the License.
 
 import json
+
 import yaml
 
 if hasattr(yaml, 'CSafeLoader'):

@@ -9,13 +9,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack import proxy
+
+from openstack.dns.v2 import floating_ip as _fip
 from openstack.dns.v2 import recordset as _rs
 from openstack.dns.v2 import zone as _zone
-from openstack.dns.v2 import zone_import as _zone_import
 from openstack.dns.v2 import zone_export as _zone_export
+from openstack.dns.v2 import zone_import as _zone_import
 from openstack.dns.v2 import zone_transfer as _zone_transfer
-from openstack.dns.v2 import floating_ip as _fip
+from openstack import proxy
 
 
 class Proxy(proxy.Proxy):

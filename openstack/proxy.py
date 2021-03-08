@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import urllib
+
 try:
     import simplejson
     JSONDecodeError = simplejson.scanner.JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
 import iso8601
-import urllib
-
 from keystoneauth1 import adapter
 
 from openstack import _log

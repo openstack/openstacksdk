@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import format
-
 from urllib import parse
+
+from openstack import format
 
 
 class HREFToUUID(format.Formatter):

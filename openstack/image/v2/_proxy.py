@@ -18,8 +18,8 @@ from openstack.image import _base_proxy
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import schema as _schema
-from openstack.image.v2 import task as _task
 from openstack.image.v2 import service_info as _si
+from openstack.image.v2 import task as _task
 from openstack import resource
 from openstack import utils
 

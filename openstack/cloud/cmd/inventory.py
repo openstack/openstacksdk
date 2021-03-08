@@ -16,6 +16,7 @@
 import argparse
 import json
 import sys
+
 import yaml
 
 import openstack.cloud
