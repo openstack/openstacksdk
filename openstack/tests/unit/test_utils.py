@@ -15,9 +15,9 @@
 import concurrent.futures
 import hashlib
 import logging
+import sys
 from unittest import mock
 from unittest import skipIf
-import sys
 
 import fixtures
 import os_service_types

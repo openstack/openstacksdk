@@ -10,9 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
-
 from openstack import format
+from openstack.tests.unit import base
 
 
 class TestBoolStrFormatter(base.TestCase):

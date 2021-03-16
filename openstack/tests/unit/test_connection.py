@@ -17,9 +17,9 @@ import fixtures
 from keystoneauth1 import session
 from testtools import matchers
 
+import openstack.config
 from openstack import connection
 from openstack import proxy
-import openstack.config
 from openstack import service_description
 from openstack.tests import fakes
 from openstack.tests.unit import base
