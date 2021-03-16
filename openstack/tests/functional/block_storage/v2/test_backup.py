@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.block_storage.v2 import volume as _volume
 from openstack.block_storage.v2 import backup as _backup
+from openstack.block_storage.v2 import volume as _volume
 from openstack.tests.functional.block_storage.v2 import base
 
 

@@ -19,8 +19,8 @@ test_services
 Functional tests for `shade` service resource.
 """
 
-import string
 import random
+import string
 
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.cloud.exc import OpenStackCloudUnavailableFeature

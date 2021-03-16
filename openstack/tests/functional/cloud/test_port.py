@@ -19,8 +19,8 @@ test_port
 Functional tests for `shade` port resource.
 """
 
-import string
 import random
+import string
 
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.tests.functional import base

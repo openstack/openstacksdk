@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.functional import base
-
 from examples import connect
 from examples.identity import list as identity_list
+
+from openstack.tests.functional import base
 
 
 class TestIdentity(base.BaseFunctionalTest):

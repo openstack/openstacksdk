@@ -10,12 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.functional import base
-
 from examples import connect
 from examples.image import create as image_create
 from examples.image import delete as image_delete
 from examples.image import list as image_list
+
+from openstack.tests.functional import base
 
 
 class TestImage(base.BaseFunctionalTest):

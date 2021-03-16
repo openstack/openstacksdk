@@ -13,8 +13,8 @@
 
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import network
-from openstack.network.v2 import port_forwarding as _port_forwarding
 from openstack.network.v2 import port
+from openstack.network.v2 import port_forwarding as _port_forwarding
 from openstack.network.v2 import router
 from openstack.network.v2 import subnet
 from openstack.tests.functional import base
