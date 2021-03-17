@@ -71,6 +71,14 @@ Group Operations
   :members: create_group, create_group_from_source, delete_group, update_group,
             get_group, find_group, groups, reset_group_state
 
+Group Snapshot Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: create_group_snapshot, delete_group_snapshot, get_group_snapshot,
+            find_group_snapshot, group_snapshots, reset_group_snapshot_state
+
 Group Type Operations
 ^^^^^^^^^^^^^^^^^^^^^
 

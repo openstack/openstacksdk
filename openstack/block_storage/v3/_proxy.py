@@ -16,6 +16,7 @@ from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import capabilities as _capabilities
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import group as _group
+from openstack.block_storage.v3 import group_snapshot as _group_snapshot
 from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import quota_set as _quota_set
@@ -1103,6 +1104,91 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         return self._list(availability_zone.AvailabilityZone)
 
+    # ====== GROUP SNAPSHOT ======
+    def get_group_snapshot(self, group_snapshot_id):
+        """Get a group snapshot
+
+        :param group_snapshot_id: The ID of the group snapshot to get.
+
+        :returns: A GroupSnapshot instance.
+        :rtype: :class:`~openstack.block_storage.v3.group_snapshot`
+        """
+        return self._get(_group_snapshot.GroupSnapshot, group_snapshot_id)
+
+    def find_group_snapshot(self, name_or_id, ignore_missing=True):
+        """Find a single group snapshot
+
+        :param name_or_id: The name or ID of a group snapshot.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the group snapshot does not exist.
+
+        :returns: One :class:`~openstack.block_storage.v3.group_snapshot`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._find(
+            _group_snapshot.GroupSnapshot, name_or_id,
+            ignore_missing=ignore_missing)
+
+    def group_snapshots(self, details=True, **query):
+        """Retrieve a generator of group snapshots
+
+        :param bool details: When ``True``, returns
+            :class:`~openstack.block_storage.v3.group_snapshot.GroupSnapshot`
+            objects with additional attributes filled.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the group snapshots being returned.
+        :returns: A generator of group snapshtos.
+        """
+        base_path = '/group_snapshots'
+        if details:
+            base_path = '/group_snapshots/detail'
+
+        return self._list(
+            _group_snapshot.GroupSnapshot,
+            base_path=base_path,
+            **query,
+        )
+
+    def create_group_snapshot(self, **attrs):
+        """Create a group snapshot
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.block_storage.v3.group_snapshot.GroupSnapshot`
+            comprised of the properties on the GroupSnapshot class.
+
+        :returns: The results of group snapshot creation.
+        :rtype: :class:`~openstack.block_storage.v3.group_snapshot`.
+        """
+        return self._create(_group_snapshot.GroupSnapshot, **attrs)
+
+    def reset_group_snapshot_state(self, group_snapshot, state):
+        """Reset group snapshot status
+
+        :param group_snapshot: The
+            :class:`~openstack.block_storage.v3.group_snapshot.GroupSnapshot`
+            to set the state.
+        :param state: The state of the group snapshot to be set.
+
+        :returns: None
+        """
+        resource = self._get_resource(
+            _group_snapshot.GroupSnapshot, group_snapshot)
+        resource.reset_state(self, state)
+
+    def delete_group_snapshot(self, group_snapshot, ignore_missing=True):
+        """Delete a group snapshot
+
+        :param group_snapshot: The :class:`~openstack.block_storage.v3.
+            group_snapshot.GroupSnapshot` to delete.
+
+        :returns: None
+        """
+        self._delete(
+            _group_snapshot.GroupSnapshot, group_snapshot,
+            ignore_missing=ignore_missing)
+
     # ====== GROUP TYPE ======
     def get_group_type(self, group_type):
         """Get a specific group type
@@ -1180,7 +1266,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone.
 
-        :returns: ''None''
+        :returns: None
         """
         self._delete(
             _group_type.GroupType, group_type, ignore_missing=ignore_missing)
