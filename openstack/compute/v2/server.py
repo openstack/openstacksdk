@@ -148,11 +148,6 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     #: networks parameter, the server attaches to the only network
     #: created for the current tenant.
     networks = resource.Body('networks')
-    #: The file path and contents, text only, to inject into the server at
-    #: launch. The maximum size of the file path data is 255 bytes.
-    #: The maximum limit is The number of allowed bytes in the decoded,
-    #: rather than encoded, data.
-    personality = resource.Body('personality')
     #: The power state of this server.
     power_state = resource.Body('OS-EXT-STS:power_state')
     #: While the server is building, this value represents the percentage
@@ -272,7 +267,7 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     def rebuild(self, session, name=None, admin_password=None,
                 preserve_ephemeral=False, image=None,
                 access_ipv4=None, access_ipv6=None,
-                metadata=None, personality=None):
+                metadata=None, user_data=None):
         """Rebuild the server with the given arguments."""
         action = {
             'preserve_ephemeral': preserve_ephemeral
@@ -289,8 +284,8 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
             action['accessIPv6'] = access_ipv6
         if metadata is not None:
             action['metadata'] = metadata
-        if personality is not None:
-            action['personality'] = personality
+        if user_data is not None:
+            action['user_data'] = user_data
 
         body = {'rebuild': action}
         response = self._action(session, body)
