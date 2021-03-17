@@ -10,9 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
-
 from openstack.object_store.v1 import account
+from openstack.tests.unit import base
 
 
 CONTAINER_NAME = "mycontainer"

@@ -9,7 +9,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from hashlib import sha1
 import random
@@ -17,6 +16,8 @@ import string
 import tempfile
 import time
 from unittest import mock
+
+from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack.object_store.v1 import account
 from openstack.object_store.v1 import container

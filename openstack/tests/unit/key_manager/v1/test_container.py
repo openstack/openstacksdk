@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.key_manager.v1 import container
 from openstack.tests.unit import base
 
-from openstack.key_manager.v1 import container
 
 ID_VAL = "123"
 IDENTIFIER = 'http://localhost/containers/%s' % ID_VAL

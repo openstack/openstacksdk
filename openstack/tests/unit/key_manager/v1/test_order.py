@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.key_manager.v1 import order
 from openstack.tests.unit import base
 
-from openstack.key_manager.v1 import order
 
 ID_VAL = "123"
 SECRET_ID = "5"
