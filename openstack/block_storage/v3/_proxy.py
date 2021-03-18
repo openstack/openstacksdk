@@ -384,6 +384,34 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.extend(self, size)
 
+    def set_volume_readonly(self, volume, readonly=True):
+        """Set a volume's read-only flag.
+
+        :param name_or_id: Name, unique ID of the volume or a volume dict.
+        :param bool readonly: Whether the volume should be a read-only volume
+            or not
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.set_readonly(self, readonly)
+
+    def retype_volume(self, volume, new_type, migration_policy="never"):
+        """Retype the volume.
+
+        :param name_or_id: Name, unique ID of the volume or a volume dict.
+        :param new_type: The new volume type that volume is changed with.
+        :param migration_policy: Specify if the volume should be migrated when
+                                 it is re-typed. Possible values are on-demand
+                                 or never. Default: never.
+
+        :raises: OpenStackCloudTimeout if wait time exceeded.
+        :raises: OpenStackCloudException on operation error.
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.retype(self, new_type, migration_policy)
+
     def backend_pools(self):
         """Returns a generator of cinder Back-end storage pools
 

@@ -114,5 +114,10 @@ class Volume(resource.Resource):
         body = {'os-extend': {'new_size': size}}
         self._action(session, body)
 
+    def set_readonly(self, session, readonly):
+        """Set volume readonly flag"""
+        body = {'os-update_readonly_flag': {'readonly': readonly}}
+        self._action(session, body)
+
 
 VolumeDetail = Volume
