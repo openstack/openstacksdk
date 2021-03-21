@@ -99,7 +99,8 @@ control which services can be used.
    Accelerator <proxies/accelerator>
    Baremetal <proxies/baremetal>
    Baremetal Introspection <proxies/baremetal_introspection>
-   Block Storage <proxies/block_storage>
+   Block Storage v2 <proxies/block_storage_v2>
+   Block Storage v3 <proxies/block_storage_v3>
    Clustering <proxies/clustering>
    Compute <proxies/compute>
    Database <proxies/database>
