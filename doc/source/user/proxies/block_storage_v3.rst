@@ -63,6 +63,14 @@ Capabilities Operations
   :noindex:
   :members: get_capabilities
 
+Group Operations
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: create_group, create_group_from_source, delete_group, update_group,
+            get_group, find_group, groups, reset_group_state
+
 Group Type Operations
 ^^^^^^^^^^^^^^^^^^^^^
 

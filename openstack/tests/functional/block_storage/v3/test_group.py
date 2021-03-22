@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_storage.v3 import group as _group
 from openstack.block_storage.v3 import group_type as _group_type
 from openstack.tests.functional.block_storage.v3 import base
 
@@ -22,20 +23,41 @@ class TestGroup(base.BaseBlockStorageTest):
         if not self.user_cloud.has_service('block-storage'):
             self.skipTest('block-storage service not supported by cloud')
 
+        # there will always be at least one volume type, i.e. the default one
+        volume_types = list(self.conn.block_storage.types())
+        self.volume_type = volume_types[0]
+
         group_type_name = self.getUniqueString()
         self.group_type = self.conn.block_storage.create_group_type(
             name=group_type_name,
         )
-        self.addCleanup(
-            self.conn.block_storage.delete_group_type,
-            self.group_type,
-        )
         self.assertIsInstance(self.group_type, _group_type.GroupType)
         self.assertEqual(group_type_name, self.group_type.name)
 
+        group_name = self.getUniqueString()
+        self.group = self.conn.block_storage.create_group(
+            name=group_name,
+            group_type=self.group_type.id,
+            volume_types=[self.volume_type.id],
+        )
+        self.assertIsInstance(self.group, _group.Group)
+        self.assertEqual(group_name, self.group.name)
+
+    def tearDown(self):
+        # we do this in tearDown rather than via 'addCleanup' since we need to
+        # wait for the deletion of the group before moving onto the deletion of
+        # the group type
+        self.conn.block_storage.delete_group(self.group, delete_volumes=True)
+        self.conn.block_storage.wait_for_delete(self.group)
+
+        self.conn.block_storage.delete_group_type(self.group_type)
+        self.conn.block_storage.wait_for_delete(self.group_type)
+
+        super().tearDown()
+
     def test_group_type(self):
         # get
-        group_type = self.conn.block_storage.get_group_type(self.group_type)
+        group_type = self.conn.block_storage.get_group_type(self.group_type.id)
         self.assertEqual(self.group_type.name, group_type.name)
 
         # find
@@ -101,3 +123,31 @@ class TestGroup(base.BaseBlockStorageTest):
         )
         group_type = self.conn.block_storage.get_group_type(self.group_type.id)
         self.assertEqual({'acme': 'buzz'}, group_type.group_specs)
+
+    def test_group(self):
+        # get
+        group = self.conn.block_storage.get_group(self.group.id)
+        self.assertEqual(self.group.name, group.name)
+
+        # find
+        group = self.conn.block_storage.find_group(self.group.name)
+        self.assertEqual(self.group.id, group.id)
+
+        # list
+        groups = self.conn.block_storage.groups()
+        # other tests may have created groups and there can be defaults so we
+        # don't assert that this is the *only* group present
+        self.assertIn(self.group.id, {g.id for g in groups})
+
+        # update
+        group_name = self.getUniqueString()
+        group_description = self.getUniqueString()
+        group = self.conn.block_storage.update_group(
+            self.group,
+            name=group_name,
+            description=group_description,
+        )
+        self.assertIsInstance(group, _group.Group)
+        group = self.conn.block_storage.get_group(self.group.id)
+        self.assertEqual(group_name, group.name)
+        self.assertEqual(group_description, group.description)

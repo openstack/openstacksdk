@@ -15,6 +15,7 @@ from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import capabilities as _capabilities
 from openstack.block_storage.v3 import extension as _extension
+from openstack.block_storage.v3 import group as _group
 from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import quota_set as _quota_set
@@ -977,6 +978,121 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_capabilities.Capabilities, host)
 
+    # ====== GROUPS ======
+    def get_group(self, group_id, **attrs):
+        """Get a group
+
+        :param group_id: The ID of the group to get.
+        :param dict attrs:  Optional query parameters to be sent to limit the
+            resources being returned.
+
+        :returns: A Group instance.
+        :rtype: :class:`~openstack.block_storage.v3.group`
+        """
+        return self._get(_group.Group, group_id, **attrs)
+
+    def find_group(self, name_or_id, ignore_missing=True, **attrs):
+        """Find a single group
+
+        :param name_or_id: The name or ID of a group.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the group snapshot does not exist.
+
+        :returns: One :class:`~openstack.block_storage.v3.group.Group`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._find(
+            _group.Group, name_or_id, ignore_missing=ignore_missing)
+
+    def groups(self, details=True, **query):
+        """Retrieve a generator of groups
+
+        :param bool details: When set to ``False``, no additional details will
+            be returned. The default, ``True``, will cause additional details
+            to be returned.
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned:
+
+            * all_tenants: Shows details for all project.
+            * sort: Comma-separated list of sort keys and optional sort
+              directions.
+            * limit: Returns a number of items up to the limit value.
+            * offset: Used in conjunction with limit to return a slice of
+              items. Specifies where to start in the list.
+            * marker: The ID of the last-seen item.
+            * list_volume: Show volume ids in this group.
+            * detailed: If True, will list groups with details.
+            * search_opts: Search options.
+
+        :returns: A generator of group objects.
+        """
+        base_path = '/groups/detail' if details else '/groups'
+        return self._list(_group.Group, base_path=base_path, **query)
+
+    def create_group(self, **attrs):
+        """Create a new group from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v3.group.Group` comprised of
+            the properties on the Group class.
+
+        :returns: The results of group creation.
+        :rtype: :class:`~openstack.block_storage.v3.group.Group`.
+        """
+        return self._create(_group.Group, **attrs)
+
+    def create_group_from_source(self, **attrs):
+        """Creates a new group from source
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v3.group.Group` comprised of
+            the properties on the Group class.
+
+        :returns: The results of group creation.
+        :rtype: :class:`~openstack.block_storage.v3.group.Group`.
+        """
+        return _group.Group.create_from_source(self, **attrs)
+
+    def reset_group_state(self, group, status):
+        """Reset group status
+
+        :param group: The :class:`~openstack.block_storage.v3.group.Group`
+            to set the state.
+        :param status: The status for a group.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_group.Group, group)
+        return res.reset_status(self, status)
+
+    def delete_group(self, group, delete_volumes=False):
+        """Delete a group
+
+        :param group: The :class:`~openstack.block_storage.v3.group.Group` to
+            delete.
+        :param bool delete_volumes: When set to ``True``, volumes in group
+            will be deleted.
+
+        :returns: ``None``.
+        """
+        res = self._get_resource(_group.Group, group)
+        res.delete(self, delete_volumes=delete_volumes)
+
+    def update_group(self, group, **attrs):
+        """Update a group
+
+        :param group: The value can be the ID of a group or a
+            :class:`~openstack.block_storage.v3.group.Group` instance.
+        :param dict attrs: The attributes to update on the group.
+
+        :returns: The updated group
+        :rtype: :class:`~openstack.volume.v3.group.Group`
+        """
+        return self._update(_group.Group, group, **attrs)
+
+    # ====== AVAILABILITY ZONES ======
     def availability_zones(self):
         """Return a generator of availability zones
 
@@ -987,6 +1103,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         return self._list(availability_zone.AvailabilityZone)
 
+    # ====== GROUP TYPE ======
     def get_group_type(self, group_type):
         """Get a specific group type
 
