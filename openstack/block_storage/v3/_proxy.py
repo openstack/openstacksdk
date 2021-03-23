@@ -13,6 +13,7 @@
 from openstack.block_storage import _base_proxy
 from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
+from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import stats as _stats
 from openstack.block_storage.v3 import type as _type
@@ -513,6 +514,16 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         backup = self._get_resource(_backup.Backup, backup)
         return backup.restore(self, volume_id=volume_id, name=name)
+
+    def get_limits(self):
+        """Retrieves limits
+
+        :returns: A Limit object, including both
+            :class:`~openstack.block_storage.v3.limits.AbsoluteLimit` and
+            :class:`~openstack.block_storage.v3.limits.RateLimit`
+        :rtype: :class:`~openstack.block_storage.v3.limits.Limit`
+        """
+        return self._get(_limits.Limit, requires_id=False)
 
     def availability_zones(self):
         """Return a generator of availability zones
