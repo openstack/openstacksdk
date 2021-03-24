@@ -1,21 +1,13 @@
-Getting started with the OpenStack SDK
-======================================
+=======================
+Using the OpenStack SDK
+=======================
+
+This section of documentation pertains to those who wish to use this SDK in
+their own application. If you're looking for documentation on how to contribute
+to or extend the SDK, refer to the `contributor <../contributor>`_ section.
 
 For a listing of terms used throughout the SDK, including the names of
 projects and services supported by it, see the :doc:`glossary <../glossary>`.
-
-Installation
-------------
-
-The OpenStack SDK is available on
-`PyPI <https://pypi.org/project/openstacksdk>`_ under the name
-**openstacksdk**. To install it, use ``pip``::
-
-   $ pip install openstacksdk
-
-To check the installed version you can call the module with ::
-
-   $ python -m openstack version
 
 .. _user_guides:
 
@@ -29,6 +21,7 @@ approach, this is where you'll want to begin.
 .. toctree::
    :maxdepth: 1
 
+   Introduction <guides/intro>
    Configuration <config/index>
    Connect to an OpenStack Cloud <guides/connect>
    Connect to an OpenStack Cloud Using a Config File <guides/connect_from_config>
@@ -167,7 +160,7 @@ can be customized.
    utils
 
 Presentations
-=============
+-------------
 
 .. toctree::
    :maxdepth: 1

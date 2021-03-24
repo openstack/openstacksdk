@@ -1,9 +1,10 @@
+=================================
 Contributing to the OpenStack SDK
 =================================
 
 This section of documentation pertains to those who wish to contribute to the
 development of this SDK. If you're looking for documentation on how to use
-the SDK to build applications, please see the `user <../user>`_ section.
+the SDK to build applications, refer to the `user <../user>`_ section.
 
 About the Project
 -----------------
@@ -30,21 +31,23 @@ Contacting the Developers
 -------------------------
 
 IRC
-***
+~~~
 
-The developers of this project are available in the
-`#openstack-sdks <http://webchat.freenode.net?channels=%23openstack-sdks>`_
-channel on Freenode. This channel includes conversation on SDKs and tools
-within the general OpenStack community, including OpenStackClient as well
-as occasional talk about SDKs created for languages outside of Python.
+The developers of this project are available in the `#openstack-sdks`__ channel
+on Freenode. This channel includes conversation on SDKs and tools within the
+general OpenStack community, including OpenStackClient as well as occasional
+talk about SDKs created for languages outside of Python.
+
+.. __: http://webchat.freenode.net?channels=%23openstack-sdks
 
 Email
-*****
+~~~~~
 
-The `openstack-discuss <mailto:openstack-discuss@openstack.org?subject=[sdk]%20Question%20about%20openstacksdk>`_
-mailing list fields questions of all types on OpenStack. Using the
-``[sdk]`` filter to begin your email subject will ensure
+The `openstack-discuss`__ mailing list fields questions of all types on
+OpenStack. Using the ``[sdk]`` filter to begin your email subject will ensure
 that the message gets to SDK developers.
+
+.. __: mailto:openstack-discuss@openstack.org?subject=[sdk]%20Question%20about%20openstacksdk
 
 Coding Standards
 ----------------

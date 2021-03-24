@@ -1,12 +1,18 @@
-============
-Installation
-============
+==================
+Installation guide
+==================
 
-At the command line::
+The OpenStack SDK is available on `PyPI`__ under the name **openstacksdk**. To
+install it, use ``pip``:
 
-    $ pip install openstacksdk
+.. code-block:: bash
 
-Or, if you have virtualenv wrapper installed::
+   $ pip install openstacksdk
 
-    $ mkvirtualenv openstacksdk
-    $ pip install openstacksdk
+To check the installed version you can call the module with:
+
+.. code-block:: bash
+
+   $ python -m openstack version
+
+.. __: https://pypi.org/project/openstacksdk
