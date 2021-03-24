@@ -10,9 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
-
 from openstack.dns.v2 import recordset
+from openstack.tests.unit import base
 
 
 IDENTIFIER = 'NAME'

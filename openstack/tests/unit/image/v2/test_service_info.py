@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.image.v2 import service_info as si
 from openstack.tests.unit import base
 
-from openstack.image.v2 import service_info as si
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE_IMPORT = {

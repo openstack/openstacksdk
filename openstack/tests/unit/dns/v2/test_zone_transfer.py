@@ -9,9 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack.tests.unit import base
 
 from openstack.dns.v2 import zone_transfer
+from openstack.tests.unit import base
 
 
 IDENTIFIER = '074e805e-fe87-4cbb-b10b-21a06e215d41'

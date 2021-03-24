@@ -20,8 +20,8 @@ from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import schema
-from openstack.image.v2 import task
 from openstack.image.v2 import service_info as si
+from openstack.image.v2 import task
 from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base
 
