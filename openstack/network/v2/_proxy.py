@@ -24,6 +24,7 @@ from openstack.network.v2 import firewall_rule as _firewall_rule
 from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import floating_ip as _floating_ip
 from openstack.network.v2 import health_monitor as _health_monitor
+from openstack.network.v2 import l3_conntrack_helper as _l3_conntrack_helper
 from openstack.network.v2 import listener as _listener
 from openstack.network.v2 import load_balancer as _load_balancer
 from openstack.network.v2 import metering_label as _metering_label
@@ -4119,6 +4120,101 @@ class Proxy(proxy.Proxy):
         floatingip = self._get_resource(_floating_ip.FloatingIP, floating_ip)
         return self._update(_port_forwarding.PortForwarding, port_forwarding,
                             floatingip_id=floatingip.id, **attrs)
+
+    def create_conntrack_helper(self, router, **attrs):
+        """Create a new L3 conntrack helper from attributes
+
+        :param router: Either the router ID or an instance of
+            :class:`~openstack.network.v2.router.Router`
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`,
+            comprised of the properties on the ConntrackHelper class.
+
+        :returns: The results of conntrack helper creation
+        :rtype:
+            :class: `~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
+        """
+        router = self._get_resource(_router.Router, router)
+        return self._create(_l3_conntrack_helper.ConntrackHelper,
+                            router_id=router.id, **attrs)
+
+    def conntrack_helpers(self, router, **query):
+        """Return a generator of conntrack helpers
+
+        :param router: Either the router ID or an instance of
+            :class:`~openstack.network.v2.router.Router`
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
+        :returns: A generator of conntrack helper objects
+        :rtype:
+            :class: `~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
+        """
+        router = self._get_resource(_router.Router, router)
+        return self._list(_l3_conntrack_helper.ConntrackHelper,
+                          router_id=router.id, **query)
+
+    def get_conntrack_helper(self, conntrack_helper, router):
+        """Get a single L3 conntrack helper
+
+        :param conntrack_helper: The value can be the ID of a L3 conntrack
+            helper or a
+            :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`,
+            instance.
+        :param router: The value can be the ID of a Router or a
+            :class:`~openstack.network.v2.router.Router` instance.
+
+        :returns: One
+            :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        router = self._get_resource(_router.Router, router)
+        return self._get(_l3_conntrack_helper.ConntrackHelper,
+                         conntrack_helper, router_id=router.id)
+
+    def update_conntrack_helper(self, conntrack_helper, router, **attrs):
+        """Update a L3 conntrack_helper
+
+        :param conntrack_helper: The value can be the ID of a L3 conntrack
+            helper or a
+            :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`,
+            instance.
+        :param router: The value can be the ID of a Router or a
+            :class:`~openstack.network.v2.router.Router` instance.
+        :attrs kwargs: The attributes to update on the L3 conntrack helper
+            represented by ``value``.
+
+        :returns: The updated conntrack helper
+        :rtype:
+            :class: `~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`
+
+        """
+        router = self._get_resource(_router.Router, router)
+        return self._update(_l3_conntrack_helper.ConntrackHelper,
+                            conntrack_helper, router_id=router.id, **attrs)
+
+    def delete_conntrack_helper(self, conntrack_helper, router,
+                                ignore_missing=True):
+        """Delete a L3 conntrack_helper
+
+        :param conntrack_helper: The value can be the ID of a L3 conntrack
+            helper or a
+            :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`,
+            instance.
+        :param router: The value can be the ID of a Router or a
+            :class:`~openstack.network.v2.router.Router` instance.
+        :param bool ignore_missing: When set to ``False``
+                    :class:`~openstack.exceptions.ResourceNotFound` will be
+                    raised when the floating ip does not exist.
+                    When set to ``True``, no exception will be set when
+                    attempting to delete a nonexistent ip.
+
+        :returns: ``None``
+        """
+        router = self._get_resource(_router.Router, router)
+        self._delete(_l3_conntrack_helper.ConntrackHelper,
+                     conntrack_helper, router_id=router.id,
+                     ignore_missing=ignore_missing)
 
     def _get_cleanup_dependencies(self):
         return {

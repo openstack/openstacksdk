@@ -40,7 +40,11 @@ Router Operations
             find_router, routers,
             add_gateway_to_router, remove_gateway_from_router,
             add_interface_to_router, remove_interface_from_router,
-            add_extra_routes_to_router, remove_extra_routes_from_router
+            add_extra_routes_to_router, remove_extra_routes_from_router,
+            create_conntrack_helper, update_conntrack_helper,
+            delete_conntrack_helper, get_conntrack_helper, conntrack_helpers
+
+
 
 Floating IP Operations
 ^^^^^^^^^^^^^^^^^^^^^^

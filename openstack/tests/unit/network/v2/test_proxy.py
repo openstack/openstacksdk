@@ -26,6 +26,7 @@ from openstack.network.v2 import firewall_rule
 from openstack.network.v2 import flavor
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import health_monitor
+from openstack.network.v2 import l3_conntrack_helper
 from openstack.network.v2 import listener
 from openstack.network.v2 import load_balancer
 from openstack.network.v2 import metering_label
@@ -63,6 +64,7 @@ NETWORK_ID = 'network-id-' + uuid.uuid4().hex
 AGENT_ID = 'agent-id-' + uuid.uuid4().hex
 ROUTER_ID = 'router-id-' + uuid.uuid4().hex
 FIP_ID = 'fip-id-' + uuid.uuid4().hex
+CT_HELPER_ID = 'ct-helper-id-' + uuid.uuid4().hex
 
 
 class TestNetworkProxy(test_proxy_base.TestProxyBase):
@@ -1376,4 +1378,54 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           port_forwarding.PortForwarding,
                           'port_forwarding_id'],
                       expected_kwargs={'floatingip_id': FIP_ID,
+                                       'foo': 'bar'})
+
+    def test_create_l3_conntrack_helper(self):
+        self.verify_create(self.proxy.create_conntrack_helper,
+                           l3_conntrack_helper.ConntrackHelper,
+                           method_kwargs={'router': ROUTER_ID},
+                           expected_kwargs={'router_id': ROUTER_ID})
+
+    def test_delete_l3_conntrack_helper(self):
+        r = router.Router.new(id=ROUTER_ID)
+        self.verify_delete(
+            self.proxy.delete_conntrack_helper,
+            l3_conntrack_helper.ConntrackHelper,
+            False, input_path_args=['resource_or_id', r],
+            expected_path_args={'router_id': ROUTER_ID},)
+
+    def test_delete_l3_conntrack_helper_ignore(self):
+        r = router.Router.new(id=ROUTER_ID)
+        self.verify_delete(
+            self.proxy.delete_conntrack_helper,
+            l3_conntrack_helper.ConntrackHelper,
+            True, input_path_args=['resource_or_id', r],
+            expected_path_args={'router_id': ROUTER_ID}, )
+
+    def test_get_l3_conntrack_helper(self):
+        r = router.Router.new(id=ROUTER_ID)
+        self._verify2('openstack.proxy.Proxy._get',
+                      self.proxy.get_conntrack_helper,
+                      method_args=['conntrack_helper_id', r],
+                      expected_args=[
+                          l3_conntrack_helper.ConntrackHelper,
+                          'conntrack_helper_id'],
+                      expected_kwargs={'router_id': ROUTER_ID})
+
+    def test_l3_conntrack_helpers(self):
+        self.verify_list(self.proxy.conntrack_helpers,
+                         l3_conntrack_helper.ConntrackHelper,
+                         method_args=[ROUTER_ID],
+                         expected_kwargs={'router_id': ROUTER_ID})
+
+    def test_update_l3_conntrack_helper(self):
+        r = router.Router.new(id=ROUTER_ID)
+        self._verify2('openstack.network.v2._proxy.Proxy._update',
+                      self.proxy.update_conntrack_helper,
+                      method_args=['conntrack_helper_id', r],
+                      method_kwargs={'foo': 'bar'},
+                      expected_args=[
+                          l3_conntrack_helper.ConntrackHelper,
+                          'conntrack_helper_id'],
+                      expected_kwargs={'router_id': ROUTER_ID,
                                        'foo': 'bar'})
