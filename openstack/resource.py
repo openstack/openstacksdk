@@ -1380,7 +1380,7 @@ class Resource(dict):
                                     microversion=microversion, params=params)
         else:
             raise exceptions.ResourceFailure(
-                msg="Invalid create method: %s" % self.create_method)
+                "Invalid create method: %s" % self.create_method)
 
         has_body = (self.has_body if self.create_returns_body is None
                     else self.create_returns_body)
@@ -1435,7 +1435,7 @@ class Resource(dict):
             method = session.post
         else:
             raise exceptions.ResourceFailure(
-                msg="Invalid create method: %s" % cls.create_method)
+                "Invalid create method: %s" % cls.create_method)
 
         body = []
         resources = []
@@ -1625,7 +1625,7 @@ class Resource(dict):
             call = getattr(session, method.lower())
         except AttributeError:
             raise exceptions.ResourceFailure(
-                msg="Invalid commit method: %s" % method)
+                "Invalid commit method: %s" % method)
 
         response = call(request.url, json=request.body,
                         headers=request.headers, microversion=microversion,

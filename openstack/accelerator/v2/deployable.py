@@ -52,11 +52,13 @@ class Deployable(resource.Resource):
             # The baremetal proxy defaults to retrying on conflict, allow
             # overriding it via an explicit retry_on_conflict=False.
             kwargs['retriable_status_codes'] = retriable_status_codes - {409}
+
         try:
             call = getattr(session, method.lower())
         except AttributeError:
             raise exceptions.ResourceFailure(
-                msg="Invalid commit method: %s" % method)
+                "Invalid commit method: %s" % method)
+
         request.url = request.url + "/program"
         response = call(request.url, json=request.body,
                         headers=request.headers, microversion=microversion,

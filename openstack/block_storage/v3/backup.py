@@ -132,7 +132,7 @@ class Backup(resource.Resource):
         else:
             # Just for safety of the implementation (since PUT removed)
             raise exceptions.ResourceFailure(
-                msg="Invalid create method: %s" % self.create_method)
+                "Invalid create method: %s" % self.create_method)
 
         has_body = (self.has_body if self.create_returns_body is None
                     else self.create_returns_body)
