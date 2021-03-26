@@ -161,12 +161,14 @@ def pick_microversion(session, required):
 
     :param session: The session to use for making this request.
     :type session: :class:`~keystoneauth1.adapter.Adapter`
-    :param required: Version that is required for an action.
+    :param required: Minimum version that is required for an action.
     :type required: String or tuple or None.
     :return: ``required`` as a string if the ``session``'s default is too low,
-        the ``session``'s default otherwise. Returns ``None`` of both
+        otherwise the ``session``'s default. Returns ``None`` if both
         are ``None``.
     :raises: TypeError if ``required`` is invalid.
+    :raises: :class:`~openstack.exceptions.SDKException` if requested
+        microversion is not supported.
     """
     if required is not None:
         required = discover.normalize_version_number(required)
@@ -190,7 +192,7 @@ def pick_microversion(session, required):
 
 
 def maximum_supported_microversion(adapter, client_maximum):
-    """Determinte the maximum microversion supported by both client and server.
+    """Determine the maximum microversion supported by both client and server.
 
     :param adapter: :class:`~keystoneauth1.adapter.Adapter` instance.
     :param client_maximum: Maximum microversion supported by the client.
