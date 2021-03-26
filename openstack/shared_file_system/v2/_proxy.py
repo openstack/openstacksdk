@@ -11,6 +11,7 @@
 # under the License.
 
 from collections.abc import Callable, Generator, Iterable
+import json
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -53,6 +54,7 @@ from openstack.shared_file_system.v2 import (
     share_snapshot_instance as _share_snapshot_instance,
 )
 from openstack.shared_file_system.v2 import share_transfer as _share_transfer
+from openstack.shared_file_system.v2 import share_type as _share_type
 from openstack.shared_file_system.v2 import storage_pool as _storage_pool
 from openstack.shared_file_system.v2 import user_message as _user_message
 from openstack import warnings as os_warnings
@@ -82,6 +84,7 @@ class Proxy(proxy.Proxy):
         "share_snapshot": _share_snapshot.ShareSnapshot,
         "share_snapshot_instance": _share_snapshot_instance.ShareSnapshotInstance,  # noqa: E501
         "share_transfer": _share_transfer.ShareTransfer,
+        "share_type": _share_type.ShareType,
         "storage_pool": _storage_pool.StoragePool,
         "user_message": _user_message.UserMessage,
     }
@@ -1800,6 +1803,113 @@ class Proxy(proxy.Proxy):
             share_transfer,
             ignore_missing=ignore_missing,
         )
+
+    # ========= Share Types ==========
+
+    def share_types(
+        self, **query: Any
+    ) -> Generator[_share_type.ShareType, None, None]:
+        """List shared file system share types
+
+        :param query: Optional query parameters to be sent to limit the share
+            types being returned. Available parameters include:
+
+            * extra_specs: The extra specifications as a set of one or more
+              key-value pairs.
+            * is_public: A boolean query parameter that, when set to true,
+              allows retrieving public resources that belong to all projects.
+
+        :returns: A generator of share type resources
+        """
+        if 'extra_specs' in query:
+            query['extra_specs'] = json.dumps(query['extra_specs'])
+
+        return self._list(_share_type.ShareType, **query)
+
+    def get_share_type(
+        self, share_type: str | _share_type.ShareType
+    ) -> _share_type.ShareType:
+        """List details of a single share type
+
+        :param share_type: The ID of the share type
+        :returns: Details of identified share type
+        """
+        return self._get(_share_type.ShareType, share_type)
+
+    def create_share_type(
+        self, name: str, **attrs: Any
+    ) -> _share_type.ShareType:
+        """Creates a share from attributes
+
+        :returns: Details of the new share type
+        :param name: Name of the new share type
+        :param attrs: Attributes which will be used to create a
+            :class:`~openstack.shared_file_system.v2.share_type.ShareType`,
+            comprised of the properties on the ShareType class. Currently
+            "description" and "extra_specs" are allowed attributes.
+        """
+        return self._create(_share_type.ShareType, name=name, **attrs)
+
+    def delete_share_type(
+        self,
+        share_type: str | _share_type.ShareType,
+        ignore_missing: bool = True,
+    ) -> None:
+        """Deletes a single share type
+
+        :param share_type: The ID of the share type
+        :returns: None
+        """
+        self._delete(
+            _share_type.ShareType, share_type, ignore_missing=ignore_missing
+        )
+
+    def update_share_type(
+        self, share_type: str | _share_type.ShareType, **attrs: Any
+    ) -> _share_type.ShareType:
+        """Updates details of a single share type
+
+        :param share_type: The ID of the share type to update.
+        :param attrs: The attributes to update on the share type
+        :returns: Updated details of the identified share type
+        """
+        return self._update(_share_type.ShareType, share_type, **attrs)
+
+    def update_share_type_extra_specs(
+        self, share_type: str | _share_type.ShareType, **attrs: Any
+    ) -> _share_type.ShareType:
+        """Update the extra_specs for a type.
+
+        :param share_type: The ID of the share type.
+        :param extra_specs: The extra specs to update on the share type.
+        :returns: The updated share type.
+        """
+        res = self._get_resource(_share_type.ShareType, share_type)
+        return res.set_extra_specs(self, **attrs)
+
+    def delete_share_type_extra_spec_property(
+        self,
+        share_type: str | _share_type.ShareType,
+        prop: str,
+        ignore_missing: bool = False,
+    ) -> None:
+        """Delete the extra_specs for a share type
+
+        :param share_type_id: The ID of the share type.
+        :param prop: The extra spec to delete
+        :param ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.NotFoundException` will be raised
+            when the flavor or extra spec does not exist. When set to ``True``,
+            no exception will be set when attempting to delete a nonexistent
+            flavor extra spec.
+        :returns: None
+        """
+        res = self._get_resource(_share_type.ShareType, share_type)
+        try:
+            res.delete_extra_specs_property(self, prop)
+        except exceptions.NotFoundException:
+            if not ignore_missing:
+                raise
 
     # ========= Storage Pools ==========
 

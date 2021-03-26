@@ -135,7 +135,7 @@ class Flavor(resource.Resource):
         microversion: str | None = None,
     ) -> requests.Response:
         """Preform flavor actions given the message body."""
-        url = utils.urljoin(Flavor.base_path, self.id, 'action')
+        url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}
         attrs = {}
         if microversion:
@@ -177,7 +177,7 @@ class Flavor(resource.Resource):
         :param session: The session to use for making this request.
         :return: List of dicts with flavor_id and tenant_id attributes
         """
-        url = utils.urljoin(Flavor.base_path, self.id, 'os-flavor-access')
+        url = utils.urljoin(self.base_path, self.id, 'os-flavor-access')
         response = session.get(url)
         exceptions.raise_from_response(response)
         data: list[Any] = response.json().get('flavor_access', [])
@@ -192,7 +192,7 @@ class Flavor(resource.Resource):
         :param session: The session to use for making this request.
         :returns: The updated flavor.
         """
-        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
+        url = utils.urljoin(self.base_path, self.id, 'os-extra_specs')
         microversion = self._get_microversion(session)
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
@@ -209,7 +209,7 @@ class Flavor(resource.Resource):
         :param specs:
         :returns: The updated flavor.
         """
-        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
+        url = utils.urljoin(self.base_path, self.id, 'os-extra_specs')
         microversion = self._get_microversion(session)
         response = session.post(
             url, json={'extra_specs': specs}, microversion=microversion
@@ -228,7 +228,7 @@ class Flavor(resource.Resource):
         :param prop: The property to fetch.
         :returns: The value of the property if it exists, else ``None``.
         """
-        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
+        url = utils.urljoin(self.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session)
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
@@ -244,7 +244,7 @@ class Flavor(resource.Resource):
         :param val: The value to update with.
         :returns: The updated value of the property.
         """
-        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
+        url = utils.urljoin(self.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session)
         response = session.put(
             url, json={prop: val}, microversion=microversion
@@ -261,7 +261,7 @@ class Flavor(resource.Resource):
         :param prop: The property to delete.
         :returns: None
         """
-        url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs', prop)
+        url = utils.urljoin(self.base_path, self.id, 'os-extra_specs', prop)
         microversion = self._get_microversion(session)
         response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)

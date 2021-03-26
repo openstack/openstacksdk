@@ -26,6 +26,7 @@ from openstack.shared_file_system.v2 import share_network_subnet
 from openstack.shared_file_system.v2 import share_replica
 from openstack.shared_file_system.v2 import share_snapshot
 from openstack.shared_file_system.v2 import share_snapshot_instance
+from openstack.shared_file_system.v2 import share_type
 from openstack.shared_file_system.v2 import storage_pool
 from openstack.shared_file_system.v2 import user_message
 from openstack.tests.unit import test_proxy_base
@@ -691,4 +692,70 @@ class TestServicesResource(test_proxy_base.TestProxyBase):
             self.proxy.disable_service,
             method_args=["value", "host1", "manila-share"],
             expected_args=[self.proxy],
+        )
+
+
+class TestShareTypeResource(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super().setUp()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_share_types(self):
+        self.verify_list(self.proxy.share_types, share_type.ShareType)
+
+    def test_share_types_query(self):
+        self.verify_list(
+            self.proxy.share_types,
+            share_type.ShareType,
+            method_kwargs={"name": "my_share_type"},
+            expected_kwargs={"name": "my_share_type"},
+        )
+
+    def test_share_type_get(self):
+        self.verify_get(self.proxy.get_share_type, share_type.ShareType)
+
+    def test_share_type_delete(self):
+        self.verify_delete(
+            self.proxy.delete_share_type, share_type.ShareType, False
+        )
+
+    def test_share_type_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_share_type, share_type.ShareType, True
+        )
+
+    def test_share_type_create(self):
+        self.verify_create(
+            self.proxy.create_share_type,
+            share_type.ShareType,
+            method_kwargs={
+                "extra_specs": {"driver_handles_share_servers": "False"},
+                "name": "my_share_type",
+            },
+            expected_kwargs={
+                "extra_specs": {"driver_handles_share_servers": "False"},
+                "name": "my_share_type",
+            },
+        )
+
+    def test_share_type_update(self):
+        self.verify_update(self.proxy.update_share_type, share_type.ShareType)
+
+    def test_share_type_extra_specs_update(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_type.ShareType.set_extra_specs",
+            self.proxy.update_share_type_extra_specs,
+            method_args=["value"],
+            method_kwargs={"a": "b"},
+            expected_args=[self.proxy],
+            expected_kwargs={"a": "b"},
+        )
+
+    def test_share_type_extra_spec_property_delete(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_type.ShareType.delete_extra_specs_property",
+            self.proxy.delete_share_type_extra_spec_property,
+            expected_result=None,
+            method_args=["value", "key"],
+            expected_args=[self.proxy, "key"],
         )

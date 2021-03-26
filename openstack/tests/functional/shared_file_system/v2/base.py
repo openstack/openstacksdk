@@ -41,6 +41,16 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         self.assertIsNotNone(share.id)
         return share
 
+    def create_share_group(self, **kwargs):
+        share_group = self.user_cloud.share.create_share_group(**kwargs)
+        self.addCleanup(
+            self.operator_cloud.share.delete_share_group,
+            share_group.id,
+            ignore_missing=True,
+        )
+        self.assertIsNotNone(share_group.id)
+        return share_group
+
     def create_share_snapshot(self, share_id, **kwargs):
         share_snapshot = self.user_cloud.share.create_share_snapshot(
             share_id=share_id, force=True
@@ -67,15 +77,17 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         self.assertIsNotNone(share_snapshot.id)
         return share_snapshot
 
-    def create_share_group(self, **kwargs):
-        share_group = self.user_cloud.share.create_share_group(**kwargs)
+    def create_share_type(self, name, **kwargs):
+        share_type = self.operator_cloud.share.create_share_type(
+            name, **kwargs
+        )
         self.addCleanup(
-            self.operator_cloud.share.delete_share_group,
-            share_group.id,
+            self.operator_cloud.share.delete_share_type,
+            share_type.id,
             ignore_missing=True,
         )
-        self.assertIsNotNone(share_group.id)
-        return share_group
+        self.assertIsNotNone(share_type.id)
+        return share_type
 
     def create_resource_lock(self, **kwargs):
         resource_lock = self.user_cloud.share.create_resource_lock(**kwargs)
