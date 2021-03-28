@@ -21,6 +21,9 @@ from openstack.shared_file_system.v2 import (
     share_network as _share_network
 )
 from openstack.shared_file_system.v2 import (
+    share_network_subnet as _share_network_subnet
+)
+from openstack.shared_file_system.v2 import (
     share_snapshot as _share_snapshot
 )
 from openstack.shared_file_system.v2 import (
@@ -46,6 +49,7 @@ class Proxy(proxy.Proxy):
         "limit": _limit.Limit,
         "share": _share.Share,
         "share_network": _share_network.ShareNetwork,
+        "share_network_subnet": _share_network_subnet.ShareNetworkSubnet,
         "share_snapshot_instance":
             _share_snapshot_instance.ShareSnapshotInstance,
         "share_instance": _share_instance.ShareInstance,
@@ -316,8 +320,8 @@ class Proxy(proxy.Proxy):
             * project_id: The ID of the user or service making the API request.
 
         :returns: A generator of manila share snapshot resources
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share_snapshot.ShareSnapshot`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
         """
         base_path = '/snapshots/detail' if details else None
         return self._list(
@@ -328,8 +332,8 @@ class Proxy(proxy.Proxy):
 
         :param snapshot_id: The ID of the snapshot to get
         :returns: Details of the identified share snapshot
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share_snapshot.ShareSnapshot`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
         """
         return self._get(_share_snapshot.ShareSnapshot, snapshot_id)
 
@@ -337,8 +341,8 @@ class Proxy(proxy.Proxy):
         """Creates a share snapshot from attributes
 
         :returns: Details of the new share snapshot
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share_snapshot.ShareSnapshot`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
         """
         return self._create(_share_snapshot.ShareSnapshot, **attrs)
 
@@ -348,8 +352,8 @@ class Proxy(proxy.Proxy):
         :param snapshot_id: The ID of the snapshot to update
         :pram dict attrs: The attributes to update on the snapshot
         :returns: the updated share snapshot
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share_snapshot.ShareSnapshot`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share_snapshot.ShareSnapshot`
         """
         return self._update(_share_snapshot.ShareSnapshot, snapshot_id,
                             **attrs)
@@ -364,8 +368,77 @@ class Proxy(proxy.Proxy):
         self._delete(_share_snapshot.ShareSnapshot, snapshot_id,
                      ignore_missing=ignore_missing)
 
+    # ========= Network Subnets ==========
+    def share_network_subnets(self, share_network_id):
+        """Lists all share network subnets with details.
+
+        :param share_network_id: The id of the share network for which
+            Share Network Subnets should be listed.
+        :returns: A generator of manila share network subnets
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+        """
+        return self._list(
+            _share_network_subnet.ShareNetworkSubnet,
+            share_network_id=share_network_id)
+
+    def get_share_network_subnet(
+        self, share_network_id, share_network_subnet_id,
+    ):
+        """Lists details of a single share network subnet.
+
+        :param share_network_id: The id of the share network associated
+            with the Share Network Subnet.
+        :param share_network_subnet_id: The id of the Share Network Subnet
+            to retrieve.
+        :returns: Details of the identified share network subnet
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+        """
+
+        return self._get(
+            _share_network_subnet.ShareNetworkSubnet,
+            share_network_subnet_id,
+            share_network_id=share_network_id)
+
+    def create_share_network_subnet(self, share_network_id, **attrs):
+        """Creates a share network subnet from attributes
+
+        :param share_network_id: The id of the share network wthin which the
+            the Share Network Subnet should be created.
+        :param dict attrs: Attributes which will be used to create
+            a share network subnet.
+        :returns: Details of the new share network subnet.
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.share_network_subnet.ShareNetworkSubnet`
+        """
+        return self._create(
+            _share_network_subnet.ShareNetworkSubnet,
+            **attrs,
+            share_network_id=share_network_id)
+
+    def delete_share_network_subnet(
+        self, share_network_id, share_network_subnet, ignore_missing=True
+    ):
+        """Deletes a share network subnet.
+
+        :param share_network_id: The id of the Share Network associated with
+            the Share Network Subnet.
+        :param share_network_subnet: The id of the Share Network Subnet
+            which should be deleted.
+        :returns: Result of the ``delete``
+        :rtype: None
+        """
+
+        self._delete(
+            _share_network_subnet.ShareNetworkSubnet,
+            share_network_subnet,
+            share_network_id=share_network_id,
+            ignore_missing=ignore_missing)
+
     def wait_for_delete(self, res, interval=2, wait=120):
         """Wait for a resource to be deleted.
+
         :param res: The resource to wait on to be deleted.
         :type resource: A :class:`~openstack.resource.Resource` object.
         :param interval: Number of seconds to wait before to consecutive
@@ -374,7 +447,7 @@ class Proxy(proxy.Proxy):
             Default to 120.
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-                 to delete failed to occur in the specified seconds.
+            to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
 

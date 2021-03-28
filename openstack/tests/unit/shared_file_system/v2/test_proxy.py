@@ -17,6 +17,7 @@ from openstack.shared_file_system.v2 import limit
 from openstack.shared_file_system.v2 import share
 from openstack.shared_file_system.v2 import share_instance
 from openstack.shared_file_system.v2 import share_network
+from openstack.shared_file_system.v2 import share_network_subnet
 from openstack.shared_file_system.v2 import share_snapshot
 from openstack.shared_file_system.v2 import share_snapshot_instance
 from openstack.shared_file_system.v2 import storage_pool
@@ -299,3 +300,46 @@ class TestShareNetworkResource(test_proxy_base.TestProxyBase):
     def test_share_network_update(self):
         self.verify_update(
             self.proxy.update_share_network, share_network.ShareNetwork)
+
+
+class TestShareNetworkSubnetResource(test_proxy_base.TestProxyBase):
+
+    def setUp(self):
+        super(TestShareNetworkSubnetResource, self).setUp()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_share_network_subnets(self):
+        self.verify_list(
+            self.proxy.share_network_subnets,
+            share_network_subnet.ShareNetworkSubnet,
+            method_args=["test_share"],
+            expected_args=[],
+            expected_kwargs={"share_network_id": "test_share"})
+
+    def test_share_network_subnet_get(self):
+        self.verify_get(
+            self.proxy.get_share_network_subnet,
+            share_network_subnet.ShareNetworkSubnet,
+            method_args=["fake_network_id", "fake_sub_network_id"],
+            expected_args=['fake_sub_network_id'],
+            expected_kwargs={'share_network_id': 'fake_network_id'})
+
+    def test_share_network_subnet_create(self):
+        self.verify_create(
+            self.proxy.create_share_network_subnet,
+            share_network_subnet.ShareNetworkSubnet,
+            method_args=["fake_network_id"],
+            method_kwargs={"p1": "v1"},
+            expected_args=[],
+            expected_kwargs={
+                "share_network_id": "fake_network_id",
+                "p1": "v1"})
+
+    def test_share_network_subnet_delete(self):
+        self.verify_delete(
+            self.proxy.delete_share_network_subnet,
+            share_network_subnet.ShareNetworkSubnet,
+            False,
+            method_args=["fake_network_id", "fake_sub_network_id"],
+            expected_args=["fake_sub_network_id"],
+            expected_kwargs={'share_network_id': 'fake_network_id'})
