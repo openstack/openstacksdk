@@ -42,6 +42,7 @@ class TestImage(base.BaseFunctionalTest):
                 container_format='bare',
                 min_disk=10,
                 min_ram=1024,
+                tags=['custom'],
                 wait=True)
         finally:
             self.user_cloud.delete_image(image_name, wait=True)
