@@ -14,6 +14,7 @@ from openstack.block_storage import _base_proxy
 from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import capabilities as _capabilities
+from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import resource_filter as _resource_filter
 from openstack.block_storage.v3 import snapshot as _snapshot
@@ -548,6 +549,101 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
 
         return self._list(availability_zone.AvailabilityZone)
+
+    def get_group_type(self, group_type):
+        """Get a specific group type
+
+        :param group_type: The value can be the ID of a group type
+            or a :class:`~openstack.block_storage.v3.group_type.GroupType`
+            instance.
+
+        :returns: One :class:
+            `~openstack.block_storage.v3.group_type.GroupType` instance.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        return self._get(_group_type.GroupType, group_type)
+
+    def find_group_type(self, name_or_id, ignore_missing=True):
+        """Find a single group type
+
+        :param name_or_id: The name or ID of a group type.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the group type does not exist.
+
+        :returns: One :class:`~openstack.block_storage.v3.group_type
+            .GroupType'
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._find(
+            _group_type.GroupType, name_or_id, ignore_missing=ignore_missing)
+
+    def group_types(self, **query):
+        """Retrive a generator of group types
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned:
+
+            * sort: Comma-separated list of sort keys and optional sort
+                directions in the form of <key> [:<direction>]. A valid
+                direction is asc (ascending) or desc (descending).
+            * limit: Requests a page size of items. Returns a number of items
+                up to a limit value. Use the limit parameter to make an
+                initial limited request and use the ID of the last-seen item
+                from the response as the marker parameter value in a
+                subsequent limited request.
+            * offset: Used in conjunction with limit to return a slice of
+                items. Is where to start in the list.
+            * marker: The ID of the last-seen item.
+
+        :returns: A generator of group type objects.
+        """
+        return self._list(_group_type.GroupType, **query)
+
+    def create_group_type(self, **attrs):
+        """Create a group type
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.block_storage.v3.group_type.GroupType'
+            comprised of the properties on the GroupType class.
+
+        :returns: The results of group type creation.
+        :rtype: :class:`~openstack.block_storage.v3.group_type.GroupTye'.
+        """
+        return self._create(_group_type.GroupType, **attrs)
+
+    def delete_group_type(self, group_type, ignore_missing=True):
+        """Delete a group type
+
+        :param group_type: The value can be the ID of a group type
+            or a :class:`~openstack.block_storage.v3.group_type.GroupType`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the zone does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent zone.
+
+        :returns: ''None''
+        """
+        self._delete(
+            _group_type.GroupType, group_type, ignore_missing=ignore_missing)
+
+    def update_group_type(self, group_type, **attrs):
+        """Update a group_type
+
+        :param group_type: The value can be the ID of a group type or a
+            :class:`~openstack.block_storage.v3.group_type.GroupType`
+            instance.
+        :param dict attrs: The attributes to update on the group type.
+
+        :returns: The updated group type.
+        :rtype: :class:`~openstack.block_storage.v3.group_type.GroupType`
+        """
+        return self._update(
+            _group_type.GroupType, group_type, **attrs)
 
     def wait_for_status(self, res, status='ACTIVE', failures=None,
                         interval=2, wait=120):
