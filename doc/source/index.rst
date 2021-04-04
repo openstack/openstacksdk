@@ -1,12 +1,13 @@
-Welcome to the OpenStack SDK!
-=============================
+============
+openstacksdk
+============
 
 This documentation is split into three sections:
 
-* an :doc:`installation <install/index>` guide
-* a section for :doc:`users <user/index>` looking to build applications
+* An :doc:`installation <install/index>` guide
+* A section for :doc:`users <user/index>` looking to build applications
   which make use of OpenStack
-* a section for those looking to :doc:`contribute <contributor/index>`
+* A section for those looking to :doc:`contribute <contributor/index>`
   to this project
 
 Installation
@@ -32,8 +33,6 @@ For Contributors
    :maxdepth: 2
 
    contributor/index
-
-.. include:: ../../README.rst
 
 General Information
 -------------------
