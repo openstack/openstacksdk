@@ -11,6 +11,7 @@
 # under the License.
 
 import urllib
+from urllib.parse import urlparse
 
 try:
     import simplejson
@@ -226,10 +227,13 @@ class Proxy(adapter.Adapter):
             url = response.request.url
         if response is not None and not method:
             method = response.request.method
+        parsed_url = urlparse(url)
+        endpoint = "{}://{}{}".format(
+            parsed_url.scheme, parsed_url.netloc, parsed_url.path)
         if response is not None:
             labels = dict(
                 method=method,
-                endpoint=url,
+                endpoint=endpoint,
                 service_type=self.service_type,
                 status_code=response.status_code,
             )
