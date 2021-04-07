@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.database.v1 import flavor
 from openstack.tests.unit import base
 
-from openstack.database.v1 import flavor
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.database.v1 import user
 from openstack.tests.unit import base
 
-from openstack.database.v1 import user
 
 INSTANCE_ID = 'INSTANCE_ID'
 
