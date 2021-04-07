@@ -11,9 +11,10 @@
 # under the License.
 
 import os
-import openstack.config
 
 from keystoneauth1 import discover
+
+import openstack.config
 from openstack import connection
 from openstack.tests import base
 

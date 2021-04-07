@@ -10,13 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.functional import base
-
 from examples import connect
 from examples.network import create as network_create
 from examples.network import delete as network_delete
 from examples.network import find as network_find
 from examples.network import list as network_list
+
+from openstack.tests.functional import base
 
 
 class TestNetwork(base.BaseFunctionalTest):

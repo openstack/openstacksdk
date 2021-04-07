@@ -13,15 +13,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from io import StringIO
+import logging
 import os
+import pprint
 import sys
 
 import fixtures
-from io import StringIO
-import logging
 import munch
 from oslotest import base
-import pprint
 import testtools.content
 
 _TRUE_VALUES = ('true', '1', 'yes')

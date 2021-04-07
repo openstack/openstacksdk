@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.functional import base
 from openstack import exceptions
+from openstack.tests.functional import base
 
 
 class TestApplicationCredentials(base.BaseFunctionalTest):

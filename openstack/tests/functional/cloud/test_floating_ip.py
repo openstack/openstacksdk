@@ -24,8 +24,8 @@ import sys
 
 from testtools import content
 
-from openstack.cloud import meta
 from openstack.cloud.exc import OpenStackCloudException
+from openstack.cloud import meta
 from openstack import proxy
 from openstack.tests.functional import base
 from openstack.tests.functional.cloud.util import pick_flavor

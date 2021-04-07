@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.functional import base
-
 from examples.compute import create
 from examples.compute import delete
 from examples.compute import find as compute_find
@@ -19,6 +17,8 @@ from examples.compute import list as compute_list
 from examples import connect
 from examples.network import find as network_find
 from examples.network import list as network_list
+
+from openstack.tests.functional import base
 
 
 class TestCompute(base.BaseFunctionalTest):

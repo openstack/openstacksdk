@@ -17,11 +17,11 @@ test_clustering
 Functional tests for `shade` clustering methods.
 """
 
+import time
+
 from testtools import content
 
 from openstack.tests.functional import base
-
-import time
 
 
 def wait_for_status(client, client_args, field, value, check_interval=1,

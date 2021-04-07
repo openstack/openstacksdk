@@ -17,12 +17,12 @@ test_cluster_templates
 Functional tests for `openstack.cloud` cluster_template methods.
 """
 
+import subprocess
+
 import fixtures
 from testtools import content
 
 from openstack.tests.functional import base
-
-import subprocess
 
 
 class TestClusterTemplate(base.BaseFunctionalTest):

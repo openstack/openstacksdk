@@ -10,9 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from openstack.tests.functional.block_storage.v3 import base
 from openstack import proxy
+from openstack.tests.functional.block_storage.v3 import base
 
 
 class TestCapabilities(base.BaseBlockStorageTest):

@@ -19,8 +19,8 @@ test_endpoint
 Functional tests for `shade` endpoint resource.
 """
 
-import string
 import random
+import string
 
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.cloud.exc import OpenStackCloudUnavailableFeature

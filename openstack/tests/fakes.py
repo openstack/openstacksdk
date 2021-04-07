@@ -18,12 +18,12 @@ Fakes used for testing
 """
 
 import datetime
-import json
 import hashlib
+import json
 import uuid
 
-from openstack.orchestration.util import template_format
 from openstack.cloud import meta
+from openstack.orchestration.util import template_format
 from openstack import utils
 
 PROJECT_ID = '1c36b64c840a42cd9e9b931a369337f0'
