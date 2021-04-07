@@ -17,10 +17,10 @@
 import itertools
 import os
 import pprint
-import threading
-import time
 import select
 import socket
+import threading
+import time
 
 import fixtures
 import prometheus_client
