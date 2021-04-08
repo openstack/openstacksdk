@@ -516,7 +516,7 @@ class Proxy(adapter.Adapter):
               paginated=True, base_path=None, **attrs):
         """List a resource
 
-        :param resource_type: The type of resource to delete. This should
+        :param resource_type: The type of resource to list. This should
                               be a :class:`~openstack.resource.Resource`
                               subclass with a ``from_id`` method.
         :param value: The resource to list. It can be the ID of a resource, or
