@@ -454,6 +454,10 @@ class Connection(
             self.config._influxdb_config['additional_metric_tags'] = \
                 self.config.config['additional_metric_tags']
 
+    def __del__(self):
+        # try to force release of resources and save authorization
+        self.close()
+
     @property
     def session(self):
         if not self._session:
@@ -530,6 +534,7 @@ class Connection(
         """Release any resources held open."""
         if self.__pool_executor:
             self.__pool_executor.shutdown()
+        self.config.set_auth_cache()
 
     def set_global_request_id(self, global_request_id):
         self._global_request_id = global_request_id

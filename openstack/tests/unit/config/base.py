@@ -194,7 +194,7 @@ NO_CONF = {
 
 def _write_yaml(obj):
     # Assume NestedTempfile so we don't have to cleanup
-    with tempfile.NamedTemporaryFile(delete=False) as obj_yaml:
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.yaml') as obj_yaml:
         obj_yaml.write(yaml.safe_dump(obj).encode('utf-8'))
         return obj_yaml.name
 

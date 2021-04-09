@@ -250,6 +250,17 @@ are connecting to OpenStack can share a cache should you desire.
       region_name: ca-ymq-1
       dns_api_version: 1
 
+`openstacksdk` can also cache authorization state (token) in the keyring.
+That allow the consequent connections to the same cloud to skip fetching new
+token. When the token gets expired or gets invalid `openstacksdk` will
+establish new connection.
+
+
+.. code-block:: yaml
+
+  cache:
+    auth: true
+
 
 IPv6
 ----
