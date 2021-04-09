@@ -327,7 +327,7 @@ class Proxy(proxy.Proxy):
 
     def set_node_provision_state(self, node, target, config_drive=None,
                                  clean_steps=None, rescue_password=None,
-                                 wait=False, timeout=None):
+                                 wait=False, timeout=None, deploy_steps=None):
         """Run an action modifying node's provision state.
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -350,16 +350,20 @@ class Proxy(proxy.Proxy):
         :param timeout: If ``wait`` is set to ``True``, specifies how much (in
             seconds) to wait for the expected state to be reached. The value of
             ``None`` (the default) means no client-side timeout.
+        :param deploy_steps: Deploy steps to execute, only valid for ``active``
+            and ``rebuild`` target.
 
         :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
-        :raises: ValueError if ``config_drive``, ``clean_steps`` or
-            ``rescue_password`` are provided with an invalid ``target``.
+        :raises: ValueError if ``config_drive``, ``clean_steps``,
+            ``deploy_steps`` or ``rescue_password`` are provided with an
+            invalid ``target``.
         """
         res = self._get_resource(_node.Node, node)
         return res.set_provision_state(self, target, config_drive=config_drive,
                                        clean_steps=clean_steps,
                                        rescue_password=rescue_password,
-                                       wait=wait, timeout=timeout)
+                                       wait=wait, timeout=timeout,
+                                       deploy_steps=deploy_steps)
 
     def set_node_boot_device(self, node, boot_device, persistent=False):
         """Set node boot device

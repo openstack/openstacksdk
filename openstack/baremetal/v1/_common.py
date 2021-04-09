@@ -76,6 +76,9 @@ RESET_INTERFACES_VERSION = '1.45'
 CONFIG_DRIVE_DICT_VERSION = '1.56'
 """API version in which configdrive can be a dictionary."""
 
+DEPLOY_STEPS_VERSION = '1.69'
+"""API version in which deploy_steps was added to node provisioning."""
+
 
 class ListMixin:
 

@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Adds ``deploy_steps`` to baremetal node provisioning.
