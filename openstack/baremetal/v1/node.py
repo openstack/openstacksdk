@@ -91,8 +91,8 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # The retired and retired_reason fields introduced in 1.61 (Ussuri).
-    _max_microversion = '1.61'
+    # Provision state deploy_steps introduced in 1.69 (Wallaby).
+    _max_microversion = '1.69'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -346,7 +346,7 @@ class Node(_common.ListMixin, resource.Resource):
 
     def set_provision_state(self, session, target, config_drive=None,
                             clean_steps=None, rescue_password=None,
-                            wait=False, timeout=None):
+                            wait=False, timeout=None, deploy_steps=None):
         """Run an action modifying this node's provision state.
 
         This call is asynchronous, it will return success as soon as the Bare
@@ -366,10 +366,13 @@ class Node(_common.ListMixin, resource.Resource):
         :param wait: Whether to wait for the target state to be reached.
         :param timeout: Timeout (in seconds) to wait for the target state to be
             reached. If ``None``, wait without timeout.
+        :param deploy_steps: Deploy steps to execute, only valid for ``active``
+            and ``rebuild`` target.
 
         :return: This :class:`Node` instance.
-        :raises: ValueError if ``config_drive``, ``clean_steps`` or
-            ``rescue_password`` are provided with an invalid ``target``.
+        :raises: ValueError if ``config_drive``, ``clean_steps``,
+            ``deploy_steps`` or ``rescue_password`` are provided with an
+            invalid ``target``.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the node
             reaches an error state while waiting for the state.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if timeout
@@ -388,6 +391,9 @@ class Node(_common.ListMixin, resource.Resource):
             elif target == 'rebuild':
                 version = _common.CONFIG_DRIVE_REBUILD_VERSION
 
+        if deploy_steps:
+            version = _common.DEPLOY_STEPS_VERSION
+
         version = self._assert_microversion_for(session, 'commit', version)
 
         body = {'target': target}
@@ -403,6 +409,12 @@ class Node(_common.ListMixin, resource.Resource):
                 raise ValueError('Clean steps can only be provided with '
                                  '"clean" target')
             body['clean_steps'] = clean_steps
+
+        if deploy_steps is not None:
+            if target not in ('active', 'rebuild'):
+                raise ValueError('Deploy steps can only be provided with '
+                                 '"deploy" and "rebuild" target')
+            body['deploy_steps'] = deploy_steps
 
         if rescue_password is not None:
             if target != 'rescue':

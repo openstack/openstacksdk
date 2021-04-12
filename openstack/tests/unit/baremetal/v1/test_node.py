@@ -296,6 +296,34 @@ class TestNodeSetProvisionState(base.TestCase):
                 headers=mock.ANY, microversion='1.56',
                 retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
+    def test_deploy_with_deploy_steps(self):
+        deploy_steps = [{'interface': 'deploy', 'step': 'upgrade_fw'}]
+        result = self.node.set_provision_state(
+            self.session, 'active',
+            deploy_steps=deploy_steps)
+
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'active', 'deploy_steps': deploy_steps},
+            headers=mock.ANY, microversion='1.69',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES
+        )
+
+    def test_rebuild_with_deploy_steps(self):
+        deploy_steps = [{'interface': 'deploy', 'step': 'upgrade_fw'}]
+        result = self.node.set_provision_state(
+            self.session, 'rebuild',
+            deploy_steps=deploy_steps)
+
+        self.assertIs(result, self.node)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/provision' % self.node.id,
+            json={'target': 'rebuild', 'deploy_steps': deploy_steps},
+            headers=mock.ANY, microversion='1.69',
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES
+        )
+
 
 @mock.patch.object(node.Node, '_translate_response', mock.Mock())
 @mock.patch.object(node.Node, '_get_session', lambda self, x: x)
