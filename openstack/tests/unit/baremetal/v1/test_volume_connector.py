@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.baremetal.v1 import volume_connector
 from openstack.tests.unit import base
 
-from openstack.baremetal.v1 import volume_connector
 
 FAKE = {
     "connector_id": "iqn.2017-07.org.openstack:01:d9a51732c3f",

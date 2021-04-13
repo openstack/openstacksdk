@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.baremetal.v1 import port_group
 from openstack.tests.unit import base
 
-from openstack.baremetal.v1 import port_group
 
 FAKE = {
     "address": "11:11:11:11:11:11",

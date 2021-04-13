@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.baremetal.v1 import chassis
 from openstack.tests.unit import base
 
-from openstack.baremetal.v1 import chassis
 
 FAKE = {
     "created_at": "2016-08-18T22:28:48.165105+00:00",

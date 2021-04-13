@@ -18,8 +18,8 @@ from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import node
 from openstack import exceptions
 from openstack import resource
-from openstack import utils
 from openstack.tests.unit import base
+from openstack import utils
 
 # NOTE: Sample data from api-ref doc
 FAKE = {

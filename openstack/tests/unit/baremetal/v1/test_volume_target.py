@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.baremetal.v1 import volume_target
 from openstack.tests.unit import base
 
-from openstack.baremetal.v1 import volume_target
 
 FAKE = {
     "boot_index": 0,
