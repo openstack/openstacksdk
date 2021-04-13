@@ -347,7 +347,7 @@ class TestSecurityGroups(base.TestCase):
             protocol='tcp',
             remote_ip_prefix='0.0.0.0/0',
             remote_group_id='456',
-            remote_address_group_id=None,
+            remote_address_group_id='1234-5678',
             direction='egress',
             ethertype='IPv6'
         )
@@ -414,6 +414,10 @@ class TestSecurityGroups(base.TestCase):
         expected_new_rule = copy.copy(expected_args)
         expected_new_rule['id'] = '1234'
         expected_new_rule['project_id'] = expected_new_rule['tenant_id']
+
+        # This is not sent in body if == None so should not be in the
+        # JSON; see SecurityGroupRule where it is removed.
+        expected_args.pop('remote_address_group_id')
 
         self.register_uris([
             dict(method='GET',
