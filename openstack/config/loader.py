@@ -1145,6 +1145,21 @@ class OpenStackConfig:
         if not prefer_ipv6:
             force_ipv4 = True
 
+        # Override global metrics config with more specific per-cloud
+        # details.
+        metrics_config = config.get('metrics', {})
+        statsd_config = metrics_config.get('statsd', {})
+        statsd_host = statsd_config.get('host') or self._statsd_host
+        statsd_port = statsd_config.get('port') or self._statsd_port
+        statsd_prefix = statsd_config.get('prefix') or self._statsd_prefix
+        influxdb_config = metrics_config.get('influxdb', {})
+        if influxdb_config:
+            merged_influxdb = copy.deepcopy(self._influxdb_config)
+            merged_influxdb.update(influxdb_config)
+            influxdb_config = merged_influxdb
+        else:
+            influxdb_config = self._influxdb_config
+
         if cloud is None:
             cloud_name = ''
         else:
@@ -1167,10 +1182,10 @@ class OpenStackConfig:
             cache_class=self._cache_class,
             cache_arguments=self._cache_arguments,
             password_callback=self._pw_callback,
-            statsd_host=self._statsd_host,
-            statsd_port=self._statsd_port,
-            statsd_prefix=self._statsd_prefix,
-            influxdb_config=self._influxdb_config,
+            statsd_host=statsd_host,
+            statsd_port=statsd_port,
+            statsd_prefix=statsd_prefix,
+            influxdb_config=influxdb_config,
         )
     # TODO(mordred) Backwards compat for OSC transition
     get_one_cloud = get_one

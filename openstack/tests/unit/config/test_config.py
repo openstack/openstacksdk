@@ -313,7 +313,7 @@ class TestConfig(base.TestCase):
     def test_get_cloud_names(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    secure_files=[self.no_yaml])
-        self.assertEqual(
+        self.assertCountEqual(
             ['_test-cloud-domain-id_',
              '_test-cloud-domain-scoped_',
              '_test-cloud-int-project_',
@@ -323,8 +323,9 @@ class TestConfig(base.TestCase):
              '_test_cloud_hyphenated',
              '_test_cloud_no_vendor',
              '_test_cloud_regions',
+             '_test-cloud-override-metrics',
              ],
-            sorted(c.get_cloud_names()))
+            c.get_cloud_names())
         c = config.OpenStackConfig(config_files=[self.no_yaml],
                                    vendor_files=[self.no_yaml],
                                    secure_files=[self.no_yaml])
@@ -512,6 +513,60 @@ class TestConfig(base.TestCase):
         kr_mock.set_password.assert_called_with(
             'openstacksdk', region._auth.get_cache_id(),
             region._auth.get_auth_state())
+
+    def test_metrics_global(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.secure_yaml])
+        self.assertIsInstance(c.cloud_config, dict)
+        cc = c.get_one('_test-cloud_')
+        statsd = {
+            'host': '127.0.0.1',
+            'port': '1234',
+        }
+        # NOTE(ianw) we don't test/call get_<stat>_client() because we
+        # don't want to instantiate the client, which tries to
+        # connect / do hostname lookups.
+        self.assertEqual(statsd['host'], cc._statsd_host)
+        self.assertEqual(statsd['port'], cc._statsd_port)
+        self.assertEqual('openstack.api', cc.get_statsd_prefix())
+        influxdb = {
+            'use_udp': True,
+            'host': '127.0.0.1',
+            'port': '1234',
+            'username': 'username',
+            'password': 'password',
+            'database': 'database',
+            'measurement': 'measurement.name',
+            'timeout': 10
+        }
+        self.assertEqual(influxdb, cc._influxdb_config)
+
+    def test_metrics_override(self):
+        c = config.OpenStackConfig(config_files=[self.cloud_yaml],
+                                   vendor_files=[self.vendor_yaml],
+                                   secure_files=[self.secure_yaml])
+        self.assertIsInstance(c.cloud_config, dict)
+        cc = c.get_one('_test-cloud-override-metrics')
+        statsd = {
+            'host': '127.0.0.1',
+            'port': '4321',
+            'prefix': 'statsd.override.prefix'
+        }
+        self.assertEqual(statsd['host'], cc._statsd_host)
+        self.assertEqual(statsd['port'], cc._statsd_port)
+        self.assertEqual(statsd['prefix'], cc.get_statsd_prefix())
+        influxdb = {
+            'use_udp': True,
+            'host': '127.0.0.1',
+            'port': '1234',
+            'username': 'override-username',
+            'password': 'override-password',
+            'database': 'override-database',
+            'measurement': 'measurement.name',
+            'timeout': 10
+        }
+        self.assertEqual(influxdb, cc._influxdb_config)
 
 
 class TestExcludedFormattedConfigValue(base.TestCase):

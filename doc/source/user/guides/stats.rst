@@ -2,28 +2,23 @@
 Statistics reporting
 ====================
 
-`openstacksdk` offers possibility to report statistics on individual API
-requests/responses in different formats. `Statsd` allows reporting of the
-response times in the statsd format. `InfluxDB` allows a more event-oriented
-reporting of the same data. `Prometheus` reporting is a bit different and
-requires the application using SDK to take care of the metrics exporting, while
-`openstacksdk` prepares the metrics.
+`openstacksdk` can report statistics on individual API
+requests/responses in several different formats.
 
-Due to the nature of the `statsd` protocol lots of tools consuming the metrics
-do the data aggregation and processing in the configurable time frame (mean
-value calculation for a 1 minute time frame). For the case of periodic tasks
-this might not be very useful. A better fit for using `openstacksdk` as a
-library is an 'event'-recording, where duration of an individual request is
-stored and all required calculations are done if necessary in the monitoring
-system based required timeframe, or the data is simply shown as is with no
-analytics. A `comparison
-<https://prometheus.io/docs/introduction/comparison/>`_ article describes
-differences in those approaches.
+Note that metrics will be reported only when corresponding client
+libraries (`statsd` for 'statsd' reporting, `influxdb` for influxdb,
+etc.).  If libraries are not available reporting will be silently
+ignored.
 
-Simple Usage
-------------
+statsd
+------
 
-To receive metrics add a following section to the config file (clouds.yaml):
+`statsd` can be configured via configuration entries or environment
+variables.
+
+A global `metrics` entry defines defaults for all clouds.  Each cloud
+can specify a `metrics` section to override variables; this may be
+useful to separate results reported for each cloud.
 
 .. code-block:: yaml
 
@@ -31,12 +26,26 @@ To receive metrics add a following section to the config file (clouds.yaml):
      statsd:
        host: __statsd_server_host__
        port: __statsd_server_port__
+       prefix: __statsd_prefix__ (default 'openstack.api')
    clouds:
-     ..
+     a-cloud:
+       auth:
+        ...
+       metrics:
+         statsd:
+           prefix: 'openstack.api.a-cloud'
 
+If the `STATSD_HOST` or `STATSD_PORT` environment variables are set,
+they will be taken as the default values (and enable `statsd`
+reporting if no other configuration is specified).
 
-In order to enable InfluxDB reporting following configuration need to be done
-in the `clouds.yaml` file
+InfluxDB
+--------
+
+`InfluxDB <https://www.influxdata.com/>`__ is supported via
+configuration in the `metrics` field.  Similar to `statsd`, each cloud
+can provide it's own `metrics` section to override any global
+defaults.
 
 .. code-block:: yaml
 
@@ -53,11 +62,6 @@ in the `clouds.yaml` file
    clouds:
      ..
 
-Metrics will be reported only when corresponding client libraries (
-`statsd` for 'statsd' reporting, `influxdb` for influxdb reporting
-correspondingly). When those libraries are not available reporting will be
-silently ignored.
-
 InfluxDB reporting allows setting additional tags into the metrics based on the
 selected cloud.
 
@@ -69,3 +73,16 @@ selected cloud.
       ...
       additional_metric_tags:
         environment: production
+
+prometheus
+----------
+..
+   NOTE(ianw) 2021-04-19 : examples here would be great; this is just terse
+   description taken from
+   https://review.opendev.org/c/openstack/openstacksdk/+/614834
+
+The prometheus support does not read from config, and does not run an
+http service since OpenstackSDK is a library. It is expected that an
+application that uses OpenstackSDK and wants request stats be
+collected will pass a `prometheus_client.CollectorRegistry` to
+`collector_registry`.
