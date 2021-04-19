@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import l3_conntrack_helper
 from openstack.tests.unit import base
 
-from openstack.network.v2 import l3_conntrack_helper
 
 EXAMPLE = {
     'id': 'ct_helper_id',

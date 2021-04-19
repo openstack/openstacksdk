@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import auto_allocated_topology
 from openstack.tests.unit import base
 
-from openstack.network.v2 import auto_allocated_topology
 
 EXAMPLE = {
     'tenant_id': '1',

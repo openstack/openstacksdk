@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import network_ip_availability
 from openstack.tests.unit import base
 
-from openstack.network.v2 import network_ip_availability
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

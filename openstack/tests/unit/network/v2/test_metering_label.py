@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import metering_label
 from openstack.tests.unit import base
 
-from openstack.network.v2 import metering_label
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

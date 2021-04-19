@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network import version
 from openstack.tests.unit import base
 
-from openstack.network import version
 
 IDENTIFIER = 'v2.0'
 EXAMPLE = {

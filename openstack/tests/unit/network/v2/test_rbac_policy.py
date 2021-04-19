@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import rbac_policy
 from openstack.tests.unit import base
 
-from openstack.network.v2 import rbac_policy
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

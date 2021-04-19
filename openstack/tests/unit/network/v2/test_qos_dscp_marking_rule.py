@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
 import uuid
 
 from openstack.network.v2 import qos_dscp_marking_rule
+from openstack.tests.unit import base
+
 
 EXAMPLE = {
     'id': 'IDENTIFIER',
