@@ -154,7 +154,7 @@ class TestImage(base.TestCase):
                               'sort_dir': 'sort_dir',
                               'sort_key': 'sort_key',
                               'status': 'status',
-                              'tag': 'tag',
+                              'tags': 'tags',
                               'updated_at': 'updated_at',
                               'visibility': 'visibility'
                               },

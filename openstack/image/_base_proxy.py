@@ -43,6 +43,7 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
         data=None, validate_checksum=False,
         use_import=False,
         stores=None,
+        tags=None,
         all_stores=None,
         all_stores_must_succeed=None,
         **kwargs,
@@ -68,6 +69,8 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
         :param str container_format: The container format the image is in.
             (optional, defaults to the os-client-config config value for this
             cloud)
+        :param list tags: List of tags for this image. Each tag is a string
+                          of at most 255 chars.
         :param bool disable_vendor_agent: Whether or not to append metadata
             flags to the image to inform the cloud in question to not expect a
             vendor agent to be runing. (optional, defaults to True)
@@ -195,6 +198,8 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
             image_kwargs['disk_format'] = disk_format
         if container_format:
             image_kwargs['container_format'] = container_format
+        if tags:
+            image_kwargs['tags'] = tags
 
         if filename or data:
             image = self._upload_image(
