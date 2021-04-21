@@ -20,8 +20,6 @@ from openstack.tests.unit import base
 
 ABSOLUTE_LIMITS = {
     "maxImageMeta": 128,
-    "maxPersonality": 5,
-    "maxPersonalitySize": 10240,
     "maxSecurityGroupRules": 20,
     "maxSecurityGroups": 10,
     "maxServerMeta": 128,
@@ -78,9 +76,6 @@ class TestAbsoluteLimits(base.TestCase):
     def test_make_it(self):
         sot = limits.AbsoluteLimits(**ABSOLUTE_LIMITS)
         self.assertEqual(ABSOLUTE_LIMITS["maxImageMeta"], sot.image_meta)
-        self.assertEqual(ABSOLUTE_LIMITS["maxPersonality"], sot.personality)
-        self.assertEqual(ABSOLUTE_LIMITS["maxPersonalitySize"],
-                         sot.personality_size)
         self.assertEqual(ABSOLUTE_LIMITS["maxSecurityGroupRules"],
                          sot.security_group_rules)
         self.assertEqual(ABSOLUTE_LIMITS["maxSecurityGroups"],
@@ -157,10 +152,6 @@ class TestLimits(base.TestCase):
 
         self.assertEqual(ABSOLUTE_LIMITS["maxImageMeta"],
                          sot.absolute.image_meta)
-        self.assertEqual(ABSOLUTE_LIMITS["maxPersonality"],
-                         sot.absolute.personality)
-        self.assertEqual(ABSOLUTE_LIMITS["maxPersonalitySize"],
-                         sot.absolute.personality_size)
         self.assertEqual(ABSOLUTE_LIMITS["maxSecurityGroupRules"],
                          sot.absolute.security_group_rules)
         self.assertEqual(ABSOLUTE_LIMITS["maxSecurityGroups"],

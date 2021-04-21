@@ -97,7 +97,6 @@ EXAMPLE = {
     'name': 'new-server-test',
     'networks': 'auto',
     'os-extended-volumes:volumes_attached': [],
-    'personality': '28',
     'progress': 0,
     'security_groups': [
         {
@@ -225,7 +224,6 @@ class TestServer(base.TestCase):
                          sot.terminated_at)
         self.assertEqual(EXAMPLE['security_groups'], sot.security_groups)
         self.assertEqual(EXAMPLE['adminPass'], sot.admin_password)
-        self.assertEqual(EXAMPLE['personality'], sot.personality)
         self.assertEqual(EXAMPLE['block_device_mapping_v2'],
                          sot.block_device_mapping)
         self.assertEqual(EXAMPLE['OS-EXT-SRV-ATTR:host'],
@@ -318,8 +316,7 @@ class TestServer(base.TestCase):
                              image='http://image/1', access_ipv4="12.34.56.78",
                              access_ipv6="fe80::100",
                              metadata={"meta var": "meta val"},
-                             personality=[{"path": "/etc/motd",
-                                           "contents": "foo"}])
+                             user_data="ZWNobyAiaGVsbG8gd29ybGQi")
 
         self.assertIsInstance(result, server.Server)
 
@@ -332,7 +329,7 @@ class TestServer(base.TestCase):
                 "accessIPv4": "12.34.56.78",
                 "accessIPv6": "fe80::100",
                 "metadata": {"meta var": "meta val"},
-                "personality": [{"path": "/etc/motd", "contents": "foo"}],
+                "user_data": "ZWNobyAiaGVsbG8gd29ybGQi",
                 "preserve_ephemeral": False
             }
         }

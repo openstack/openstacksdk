@@ -15,12 +15,14 @@ from openstack import resource
 
 class AbsoluteLimits(resource.Resource):
 
+    _max_microversion = '2.57'
+
     #: The number of key-value pairs that can be set as image metadata.
     image_meta = resource.Body("maxImageMeta")
     #: The maximum number of personality contents that can be supplied.
-    personality = resource.Body("maxPersonality")
+    personality = resource.Body("maxPersonality", deprecated=True)
     #: The maximum size, in bytes, of a personality.
-    personality_size = resource.Body("maxPersonalitySize")
+    personality_size = resource.Body("maxPersonalitySize", deprecated=True)
     #: The maximum amount of security group rules allowed.
     security_group_rules = resource.Body("maxSecurityGroupRules")
     #: The maximum amount of security groups allowed.
