@@ -87,3 +87,15 @@ class SecurityGroupRule(_base.NetworkResource, resource.TagMixin):
     tenant_id = resource.Body('tenant_id')
     #: Timestamp when the security group rule was last updated.
     updated_at = resource.Body('updated_at')
+
+    def _prepare_request(self, *args, **kwargs):
+        _request = super(SecurityGroupRule, self)._prepare_request(
+            *args, **kwargs)
+        # Old versions of Neutron do not handle being passed a
+        # remote_address_group_id and raise and error.  Remove it from
+        # the body if it is blank.
+        if not self.remote_address_group_id:
+            if 'security_group_rule' in _request.body:
+                _rule = _request.body['security_group_rule']
+                _rule.pop('remote_address_group_id', None)
+        return _request
