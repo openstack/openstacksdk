@@ -18,6 +18,8 @@ class AutoAllocatedTopology(resource.Resource):
     resource_key = 'auto_allocated_topology'
     base_path = '/auto-allocated-topology'
 
+    _allow_unknown_attrs_in_body = True
+
     # Capabilities
     allow_create = False
     allow_fetch = True

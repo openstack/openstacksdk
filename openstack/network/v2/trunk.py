@@ -20,6 +20,8 @@ class Trunk(resource.Resource, resource.TagMixin):
     resources_key = 'trunks'
     base_path = '/trunks'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

@@ -19,6 +19,8 @@ class Flavor(resource.Resource):
     resources_key = 'flavors'
     base_path = '/flavors'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

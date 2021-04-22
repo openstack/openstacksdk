@@ -18,6 +18,8 @@ class Extension(resource.Resource):
     resources_key = 'extensions'
     base_path = '/extensions'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_fetch = True
     allow_list = True

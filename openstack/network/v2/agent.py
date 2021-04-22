@@ -20,6 +20,8 @@ class Agent(resource.Resource):
     resources_key = 'agents'
     base_path = '/agents'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = False
     allow_fetch = True

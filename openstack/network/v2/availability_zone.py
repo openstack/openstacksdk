@@ -18,6 +18,8 @@ class AvailabilityZone(_resource.Resource):
     resources_key = 'availability_zones'
     base_path = '/availability_zones'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = False
     allow_fetch = False

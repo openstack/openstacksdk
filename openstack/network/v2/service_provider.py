@@ -17,6 +17,8 @@ class ServiceProvider(resource.Resource):
     resources_key = 'service_providers'
     base_path = '/service-providers'
 
+    _allow_unknown_attrs_in_body = True
+
     # Capabilities
     allow_create = False
     allow_fetch = False

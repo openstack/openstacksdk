@@ -18,6 +18,8 @@ class MeteringLabel(resource.Resource):
     resources_key = 'metering_labels'
     base_path = '/metering/metering-labels'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

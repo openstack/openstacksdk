@@ -21,6 +21,8 @@ class NetworkSegmentRange(resource.Resource):
     resources_key = 'network_segment_ranges'
     base_path = '/network_segment_ranges'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

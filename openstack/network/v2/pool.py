@@ -18,6 +18,8 @@ class Pool(resource.Resource):
     resources_key = 'pools'
     base_path = '/lbaas/pools'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

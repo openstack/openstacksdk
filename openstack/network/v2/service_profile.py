@@ -18,6 +18,8 @@ class ServiceProfile(resource.Resource):
     resources_key = 'service_profiles'
     base_path = '/service_profiles'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

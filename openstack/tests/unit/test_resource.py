@@ -1368,6 +1368,88 @@ class TestResource(base.TestCase):
             sot.properties
         )
 
+    def test_unknown_attrs_in_body_create(self):
+        class Test(resource.Resource):
+            known_param = resource.Body("known_param")
+            _allow_unknown_attrs_in_body = True
+
+        sot = Test.new(**{
+            'known_param': 'v1',
+            'unknown_param': 'v2'
+        })
+        self.assertEqual('v1', sot.known_param)
+        self.assertEqual('v2', sot.unknown_param)
+
+    def test_unknown_attrs_in_body_not_stored(self):
+        class Test(resource.Resource):
+            known_param = resource.Body("known_param")
+            properties = resource.Body("properties")
+
+        sot = Test.new(**{
+            'known_param': 'v1',
+            'unknown_param': 'v2'
+        })
+        self.assertEqual('v1', sot.known_param)
+        self.assertNotIn('unknown_param', sot)
+
+    def test_unknown_attrs_in_body_set(self):
+        class Test(resource.Resource):
+            known_param = resource.Body("known_param")
+            _allow_unknown_attrs_in_body = True
+
+        sot = Test.new(**{
+            'known_param': 'v1',
+        })
+        sot['unknown_param'] = 'v2'
+
+        self.assertEqual('v1', sot.known_param)
+        self.assertEqual('v2', sot.unknown_param)
+
+    def test_unknown_attrs_in_body_not_allowed_to_set(self):
+        class Test(resource.Resource):
+            known_param = resource.Body("known_param")
+            _allow_unknown_attrs_in_body = False
+
+        sot = Test.new(**{
+            'known_param': 'v1',
+        })
+        try:
+            sot['unknown_param'] = 'v2'
+        except KeyError:
+            self.assertEqual('v1', sot.known_param)
+            self.assertNotIn('unknown_param', sot)
+            return
+        self.fail("Parameter 'unknown_param' unexpectedly set through the "
+                  "dict interface")
+
+    def test_unknown_attrs_in_body_translate_response(self):
+        class Test(resource.Resource):
+            known_param = resource.Body("known_param")
+            _allow_unknown_attrs_in_body = True
+
+        body = {'known_param': 'v1', 'unknown_param': 'v2'}
+        response = FakeResponse(body)
+
+        sot = Test()
+        sot._translate_response(response, has_body=True)
+
+        self.assertEqual('v1', sot.known_param)
+        self.assertEqual('v2', sot.unknown_param)
+
+    def test_unknown_attrs_not_in_body_translate_response(self):
+        class Test(resource.Resource):
+            known_param = resource.Body("known_param")
+            _allow_unknown_attrs_in_body = False
+
+        body = {'known_param': 'v1', 'unknown_param': 'v2'}
+        response = FakeResponse(body)
+
+        sot = Test()
+        sot._translate_response(response, has_body=True)
+
+        self.assertEqual('v1', sot.known_param)
+        self.assertNotIn('unknown_param', sot)
+
 
 class TestResourceActions(base.TestCase):
 

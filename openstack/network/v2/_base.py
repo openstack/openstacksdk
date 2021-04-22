@@ -16,6 +16,8 @@ class NetworkResource(resource.Resource):
     #: Revision number of the resource. *Type: int*
     revision_number = resource.Body('revision_number', type=int)
 
+    _allow_unknown_attrs_in_body = True
+
     def _prepare_request(self, requires_id=None, prepend_key=False,
                          patch=False, base_path=None, params=None,
                          if_revision=None, **kwargs):

@@ -18,6 +18,8 @@ class Listener(resource.Resource):
     resources_key = 'listeners'
     base_path = '/lbaas/listeners'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

@@ -20,6 +20,8 @@ class VPNService(resource.Resource):
     resources_key = 'vpnservices'
     base_path = '/vpn/vpnservices'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True

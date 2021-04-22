@@ -18,6 +18,8 @@ class RBACPolicy(resource.Resource):
     resources_key = 'rbac_policies'
     base_path = '/rbac-policies'
 
+    _allow_unknown_attrs_in_body = True
+
     # capabilities
     allow_create = True
     allow_fetch = True
