@@ -12,8 +12,8 @@
 
 from unittest import mock
 
-from openstack import exceptions
 from openstack.compute.v2 import service
+from openstack import exceptions
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'
