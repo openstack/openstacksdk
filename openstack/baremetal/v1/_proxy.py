@@ -1018,6 +1018,25 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.remove_trait(self, trait, ignore_missing=ignore_missing)
 
+    def call_node_vendor_passthru(self, node, verb, method, body=None):
+        """Calls vendor_passthru for a node.
+
+        :param session: The session to use for making this request.
+        :param verb: The HTTP verb, one of GET, SET, POST, DELETE.
+        :param method: The method to call using vendor_passthru.
+        :param body: The JSON body in the HTTP call.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.call_vendor_passthru(self, verb, method, body)
+
+    def list_node_vendor_passthru(self, node):
+        """Lists vendor_passthru for a node.
+
+        :param session: The session to use for making this request.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.list_vendor_passthru(self)
+
     def set_node_traits(self, node, traits):
         """Set traits for a node.
 

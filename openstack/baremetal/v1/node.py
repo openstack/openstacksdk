@@ -932,6 +932,55 @@ class Node(_common.ListMixin, resource.Resource):
 
         self.traits = traits
 
+    def call_vendor_passthru(self, session, verb, method, body=None):
+        """Call a vendor passthru method.
+
+        :param session: The session to use for making this request.
+        :param verb: The HTTP verb, one of GET, SET, POST, DELETE.
+        :param method: The method to call using vendor_passthru.
+        :param body: The JSON body in the HTTP call.
+        :returns: The HTTP response.
+        """
+        session = self._get_session(session)
+        version = self._get_microversion_for(session, 'commit')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'vendor_passthru?method={}'
+                                    .format(method))
+
+        call = getattr(session, verb.lower())
+        response = call(
+            request.url, json=body,
+            headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to call vendor_passthru for node {node}, verb {verb}"
+               " and method {method}"
+               .format(node=self.id, verb=verb, method=method))
+        exceptions.raise_from_response(response, error_message=msg)
+
+        return response
+
+    def list_vendor_passthru(self, session):
+        """List vendor passthru methods.
+
+        :param session: The session to use for making this request.
+        :returns: The HTTP response.
+        """
+        session = self._get_session(session)
+        version = self._get_microversion_for(session, 'fetch')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'vendor_passthru/methods')
+
+        response = session.get(
+            request.url, headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to list vendor_passthru methods for node {node}"
+               .format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+
+        return response.json()
+
     def patch(self, session, patch=None, prepend_key=True, has_body=True,
               retry_on_conflict=None, base_path=None, reset_interfaces=None):
 
