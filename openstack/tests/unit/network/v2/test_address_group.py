@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import address_group
 from openstack.tests.unit import base
 
-from openstack.network.v2 import address_group
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

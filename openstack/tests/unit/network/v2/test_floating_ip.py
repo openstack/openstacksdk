@@ -12,8 +12,8 @@
 
 from unittest import mock
 
-from openstack import proxy
 from openstack.network.v2 import floating_ip
+from openstack import proxy
 from openstack.tests.unit import base
 
 IDENTIFIER = 'IDENTIFIER'

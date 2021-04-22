@@ -10,9 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
-
 from openstack.network.v2 import vpn_service
+from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'

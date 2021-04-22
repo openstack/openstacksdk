@@ -13,9 +13,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.network.v2 import network_segment_range
 from openstack.tests.unit import base
 
-from openstack.network.v2 import network_segment_range
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
