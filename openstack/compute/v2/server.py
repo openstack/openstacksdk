@@ -445,8 +445,10 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         body = {"shelve": None}
         self._action(session, body)
 
-    def unshelve(self, session):
+    def unshelve(self, session, availability_zone=None):
         body = {"unshelve": None}
+        if availability_zone:
+            body["unshelve"] = {"availability_zone": availability_zone}
         self._action(session, body)
 
     def migrate(self, session):

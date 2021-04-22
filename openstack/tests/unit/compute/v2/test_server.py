@@ -769,6 +769,20 @@ class TestServer(base.TestCase):
         self.sess.post.assert_called_with(
             url, json=body, headers=headers, microversion=None)
 
+    def test_unshelve_availability_zone(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.unshelve(self.sess, sot.availability_zone)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"unshelve": {
+            "availability_zone": sot.availability_zone
+        }}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=None)
+
     def test_migrate(self):
         sot = server.Server(**EXAMPLE)
 
