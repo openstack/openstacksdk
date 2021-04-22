@@ -27,3 +27,14 @@ Resource Providers
   :members: create_resource_provider, update_resource_provider,
             delete_resource_provider, get_resource_provider,
             find_resource_provider, resource_providers
+
+Resource Provider Inventories
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.placement.v1._proxy.Proxy
+   :noindex:
+   :members: create_resource_provider_inventory,
+             update_resource_provider_inventory,
+             delete_resource_provider_inventory,
+             get_resource_provider_inventory,
+             resource_provider_inventories
