@@ -579,16 +579,18 @@ class Proxy(_base_proxy.BaseImageProxy):
         image_id = resource.Resource._get_id(image)
         return self._create(_member.Member, image_id=image_id, **attrs)
 
-    def remove_member(self, member, image, ignore_missing=True):
+    def remove_member(self, member, image=None, ignore_missing=True):
         """Delete a member
 
         :param member: The value can be either the ID of a member or a
-                       :class:`~openstack.image.v2.member.Member` instance.
+            :class:`~openstack.image.v2.member.Member` instance.
+        :param image: The value can be either the ID of an image or a
+            :class:`~openstack.image.v2.image.Image` instance that the member
+            is part of. This is required if ``member`` is an ID.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the member does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent member.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the member does not exist. When set to ``True``, no exception will
+            be set when attempting to delete a nonexistent member.
 
         :returns: ``None``
         """
@@ -632,12 +634,14 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._get(_member.Member, member_id=member_id,
                          image_id=image_id)
 
-    def members(self, image):
+    def members(self, image, **query):
         """Return a generator of members
 
         :param image: This is the image that the member belongs to,
-                      the value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            the value can be the ID of a image or a
+            :class:`~openstack.image.v2.image.Image` instance.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
 
         :returns: A generator of member objects
         :rtype: :class:`~openstack.image.v2.member.Member`

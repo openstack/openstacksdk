@@ -364,7 +364,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
 
     def test_members(self):
         self.verify_list(self.proxy.members, member.Member,
-                         method_args=('image_1',),
+                         method_kwargs={'image': 'image_1'},
                          expected_kwargs={'image_id': 'image_1'})
 
     def test_images_schema_get(self):

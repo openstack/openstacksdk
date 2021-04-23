@@ -51,7 +51,7 @@ class TestPlacementProxy(test_proxy_base.TestProxyBase):
         )
 
     def test_resource_classes(self):
-        self.verify_list_no_kwargs(
+        self.verify_list(
             self.proxy.resource_classes,
             resource_class.ResourceClass,
         )
@@ -85,7 +85,7 @@ class TestPlacementProxy(test_proxy_base.TestProxyBase):
         )
 
     def test_resource_providers(self):
-        self.verify_list_no_kwargs(
+        self.verify_list(
             self.proxy.resource_providers,
             resource_provider.ResourceProvider,
         )

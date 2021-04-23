@@ -24,21 +24,24 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
     def test_database_create_attrs(self):
-        self.verify_create(self.proxy.create_database, database.Database,
+        self.verify_create(self.proxy.create_database,
+                           database.Database,
                            method_kwargs={"instance": "id"},
                            expected_kwargs={"instance_id": "id"})
 
     def test_database_delete(self):
         self.verify_delete(self.proxy.delete_database,
-                           database.Database, False,
-                           input_path_args={"instance": "test_id"},
-                           expected_path_args={"instance_id": "test_id"})
+                           database.Database,
+                           ignore_missing=False,
+                           method_kwargs={"instance": "test_id"},
+                           expected_kwargs={"instance_id": "test_id"})
 
     def test_database_delete_ignore(self):
         self.verify_delete(self.proxy.delete_database,
-                           database.Database, True,
-                           input_path_args={"instance": "test_id"},
-                           expected_path_args={"instance_id": "test_id"})
+                           database.Database,
+                           ignore_missing=True,
+                           method_kwargs={"instance": "test_id"},
+                           expected_kwargs={"instance_id": "test_id"})
 
     def test_database_find(self):
         self._verify2('openstack.proxy.Proxy._find',
@@ -51,6 +54,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
     def test_databases(self):
         self.verify_list(self.proxy.databases, database.Database,
                          method_args=["id"],
+                         expected_args=[],
                          expected_kwargs={"instance_id": "id"})
 
     def test_database_get(self):
@@ -95,13 +99,13 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
 
     def test_user_delete(self):
         self.verify_delete(self.proxy.delete_user, user.User, False,
-                           input_path_args={"instance": "id"},
-                           expected_path_args={"instance_id": "id"})
+                           method_kwargs={"instance": "id"},
+                           expected_kwargs={"instance_id": "id"})
 
     def test_user_delete_ignore(self):
         self.verify_delete(self.proxy.delete_user, user.User, True,
-                           input_path_args={"instance": "id"},
-                           expected_path_args={"instance_id": "id"})
+                           method_kwargs={"instance": "id"},
+                           expected_kwargs={"instance_id": "id"})
 
     def test_user_find(self):
         self._verify2('openstack.proxy.Proxy._find',
@@ -114,6 +118,7 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
     def test_users(self):
         self.verify_list(self.proxy.users, user.User,
                          method_args=["test_instance"],
+                         expected_args=[],
                          expected_kwargs={"instance_id": "test_instance"})
 
     def test_user_get(self):

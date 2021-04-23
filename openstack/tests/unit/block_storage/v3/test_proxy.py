@@ -103,9 +103,9 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_type_encryption_get(self):
         self.verify_get(self.proxy.get_type_encryption,
                         type.TypeEncryption,
-                        expected_args=[type.TypeEncryption],
+                        expected_args=[],
                         expected_kwargs={
-                            'volume_type_id': 'value',
+                            'volume_type_id': 'resource_id',
                             'requires_id': False
                         })
 
@@ -237,7 +237,8 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_limits_get(self):
         self.verify_get(
-            self.proxy.get_limits, limits.Limit, ignore_value=True,
+            self.proxy.get_limits, limits.Limit,
+            method_args=[],
             expected_kwargs={'requires_id': False})
 
     def test_capabilites_get(self):

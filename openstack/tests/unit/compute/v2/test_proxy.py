@@ -56,7 +56,7 @@ class TestFlavor(TestComputeProxy):
         self.verify_find(
             self.proxy.find_flavor, flavor.Flavor,
             method_kwargs={"a": "b"},
-            expected_kwargs={"a": "b", "ignore_missing": False}
+            expected_kwargs={"a": "b", "ignore_missing": True}
         )
 
     def test_flavor_find_fetch_extra(self):
@@ -286,7 +286,7 @@ class TestKeyPair(TestComputeProxy):
         )
 
     def test_keypairs(self):
-        self.verify_list_no_kwargs(self.proxy.keypairs, keypair.Keypair)
+        self.verify_list(self.proxy.keypairs, keypair.Keypair)
 
     def test_keypairs_user_id(self):
         self.verify_list(
@@ -312,7 +312,7 @@ class TestAggregate(TestComputeProxy):
         self.verify_find(self.proxy.find_aggregate, aggregate.Aggregate)
 
     def test_aggregates(self):
-        self.verify_list_no_kwargs(self.proxy.aggregates, aggregate.Aggregate)
+        self.verify_list(self.proxy.aggregates, aggregate.Aggregate)
 
     def test_aggregate_get(self):
         self.verify_get(self.proxy.get_aggregate, aggregate.Aggregate)
@@ -355,8 +355,7 @@ class TestAggregate(TestComputeProxy):
 
 class TestService(TestComputeProxy):
     def test_services(self):
-        self.verify_list_no_kwargs(
-            self.proxy.services, service.Service)
+        self.verify_list(self.proxy.services, service.Service)
 
     @mock.patch('openstack.utils.supports_microversion', autospec=True,
                 return_value=False)
@@ -450,11 +449,13 @@ class TestHypervisor(TestComputeProxy):
 
     def test_hypervisors_not_detailed(self):
         self.verify_list(self.proxy.hypervisors, hypervisor.Hypervisor,
-                         method_kwargs={"details": False})
+                         method_kwargs={"details": False},
+                         expected_kwargs={})
 
     def test_hypervisors_detailed(self):
         self.verify_list(self.proxy.hypervisors, hypervisor.HypervisorDetail,
-                         method_kwargs={"details": True})
+                         method_kwargs={"details": True},
+                         expected_kwargs={})
 
     @mock.patch('openstack.utils.supports_microversion', autospec=True,
                 return_value=False)
@@ -462,8 +463,9 @@ class TestHypervisor(TestComputeProxy):
         self.verify_list(
             self.proxy.hypervisors,
             hypervisor.Hypervisor,
+            base_path='/os-hypervisors/detail',
             method_kwargs={'details': True},
-            base_path='/os-hypervisors/detail'
+            expected_kwargs={},
         )
 
     @mock.patch('openstack.utils.supports_microversion', autospec=True,
@@ -472,8 +474,9 @@ class TestHypervisor(TestComputeProxy):
         self.verify_list(
             self.proxy.hypervisors,
             hypervisor.Hypervisor,
+            base_path='/os-hypervisors/substring/search',
             method_kwargs={'hypervisor_hostname_pattern': 'substring'},
-            base_path='/os-hypervisors/substring/search'
+            expected_kwargs={},
         )
 
     @mock.patch('openstack.utils.supports_microversion', autospec=True,
@@ -492,7 +495,7 @@ class TestHypervisor(TestComputeProxy):
                          hypervisor.Hypervisor,
                          expected_kwargs={
                              'list_base_path': '/os-hypervisors/detail',
-                             'ignore_missing': False})
+                             'ignore_missing': True})
 
     def test_find_hypervisor_no_detail(self):
         self.verify_find(self.proxy.find_hypervisor,
@@ -500,7 +503,7 @@ class TestHypervisor(TestComputeProxy):
                          method_kwargs={'details': False},
                          expected_kwargs={
                              'list_base_path': None,
-                             'ignore_missing': False})
+                             'ignore_missing': True})
 
     def test_get_hypervisor(self):
         self.verify_get(self.proxy.get_hypervisor,
@@ -519,7 +522,7 @@ class TestCompute(TestComputeProxy):
         self.verify_find(self.proxy.find_extension, extension.Extension)
 
     def test_extensions(self):
-        self.verify_list_no_kwargs(self.proxy.extensions, extension.Extension)
+        self.verify_list(self.proxy.extensions, extension.Extension)
 
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)
@@ -544,7 +547,7 @@ class TestCompute(TestComputeProxy):
                          expected_kwargs={"query": 1})
 
     def test_limits_get(self):
-        self.verify_get(self.proxy.get_limits, limits.Limits, value=[])
+        self.verify_get(self.proxy.get_limits, limits.Limits, method_args=[])
 
     def test_server_interface_create(self):
         self.verify_create(self.proxy.create_server_interface,
@@ -565,9 +568,9 @@ class TestCompute(TestComputeProxy):
                       self.proxy.delete_server_interface,
                       method_args=[test_interface],
                       method_kwargs={"server": server_id},
-                      expected_args=[server_interface.ServerInterface],
+                      expected_args=[
+                          server_interface.ServerInterface, interface_id],
                       expected_kwargs={"server_id": server_id,
-                                       "port_id": interface_id,
                                        "ignore_missing": True})
 
         # Case2: ServerInterface ID is provided as value
@@ -575,9 +578,9 @@ class TestCompute(TestComputeProxy):
                       self.proxy.delete_server_interface,
                       method_args=[interface_id],
                       method_kwargs={"server": server_id},
-                      expected_args=[server_interface.ServerInterface],
+                      expected_args=[
+                          server_interface.ServerInterface, interface_id],
                       expected_kwargs={"server_id": server_id,
-                                       "port_id": interface_id,
                                        "ignore_missing": True})
 
     def test_server_interface_delete_ignore(self):
@@ -585,9 +588,8 @@ class TestCompute(TestComputeProxy):
         self.verify_delete(self.proxy.delete_server_interface,
                            server_interface.ServerInterface, True,
                            method_kwargs={"server": "test_id"},
-                           expected_args=[server_interface.ServerInterface],
-                           expected_kwargs={"server_id": "test_id",
-                                            "port_id": "resource_or_id"})
+                           expected_args=[],
+                           expected_kwargs={"server_id": "test_id"})
 
     def test_server_interface_get(self):
         self.proxy._get_uri_attribute = lambda *args: args[1]
@@ -619,18 +621,21 @@ class TestCompute(TestComputeProxy):
         self.verify_list(self.proxy.server_interfaces,
                          server_interface.ServerInterface,
                          method_args=["test_id"],
+                         expected_args=[],
                          expected_kwargs={"server_id": "test_id"})
 
     def test_server_ips_with_network_label(self):
         self.verify_list(self.proxy.server_ips, server_ip.ServerIP,
                          method_args=["test_id"],
                          method_kwargs={"network_label": "test_label"},
+                         expected_args=[],
                          expected_kwargs={"server_id": "test_id",
                                           "network_label": "test_label"})
 
     def test_server_ips_without_network_label(self):
         self.verify_list(self.proxy.server_ips, server_ip.ServerIP,
                          method_args=["test_id"],
+                         expected_args=[],
                          expected_kwargs={"server_id": "test_id",
                                           "network_label": None})
 
@@ -854,12 +859,14 @@ class TestCompute(TestComputeProxy):
     def test_availability_zones_not_detailed(self):
         self.verify_list(self.proxy.availability_zones,
                          az.AvailabilityZone,
-                         method_kwargs={"details": False})
+                         method_kwargs={"details": False},
+                         expected_kwargs={})
 
     def test_availability_zones_detailed(self):
         self.verify_list(self.proxy.availability_zones,
                          az.AvailabilityZoneDetail,
-                         method_kwargs={"details": True})
+                         method_kwargs={"details": True},
+                         expected_kwargs={})
 
     def test_get_all_server_metadata(self):
         self._verify2("openstack.compute.v2.server.Server.get_metadata",
