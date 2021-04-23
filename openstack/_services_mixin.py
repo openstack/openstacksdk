@@ -17,6 +17,7 @@ from openstack.message import message_service
 from openstack.network import network_service
 from openstack.object_store import object_store_service
 from openstack.orchestration import orchestration_service
+from openstack.placement import placement_service
 from openstack.shared_file_system import shared_file_system_service
 from openstack.workflow import workflow_service
 
@@ -117,7 +118,7 @@ class ServicesMixin:
 
     monitoring_events = service_description.ServiceDescription(service_type='monitoring-events')
 
-    placement = service_description.ServiceDescription(service_type='placement')
+    placement = placement_service.PlacementService(service_type='placement')
 
     instance_ha = instance_ha_service.InstanceHaService(service_type='instance-ha')
     ha = instance_ha

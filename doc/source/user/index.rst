@@ -108,6 +108,7 @@ control which services can be used.
    Network <proxies/network>
    Object Store <proxies/object_store>
    Orchestration <proxies/orchestration>
+   Placement <proxies/placement>
    Shared File System <proxies/shared_file_system>
    Workflow <proxies/workflow>
 
@@ -141,6 +142,7 @@ The following services have exposed *Resource* classes.
    Network <resources/network/index>
    Orchestration <resources/orchestration/index>
    Object Store <resources/object_store/index>
+   Placement <resources/placement/index>
    Shared File System <resources/shared_file_system/index>
    Workflow <resources/workflow/index>
 
