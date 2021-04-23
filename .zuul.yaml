@@ -408,10 +408,6 @@
             voting: false
         - ansible-collections-openstack-functional-devstack:
             voting: false
-        - openstacksdk-ansible-stable-2.8-functional-devstack:
-            voting: false
-        - openstacksdk-ansible-stable-2.9-functional-devstack:
-            voting: false
     gate:
       jobs:
         - opendev-buildset-registry
