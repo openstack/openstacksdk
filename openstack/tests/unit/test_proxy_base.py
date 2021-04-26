@@ -20,39 +20,11 @@ class TestProxyBase(base.TestCase):
         super(TestProxyBase, self).setUp()
         self.session = mock.Mock()
 
-    def _verify(self, mock_method, test_method,
-                method_args=None, method_kwargs=None,
-                expected_args=None, expected_kwargs=None,
-                expected_result=None):
-        with mock.patch(mock_method) as mocked:
-            mocked.return_value = expected_result
-            if any([method_args, method_kwargs,
-                    expected_args, expected_kwargs]):
-                method_args = method_args or ()
-                method_kwargs = method_kwargs or {}
-                expected_args = expected_args or ()
-                expected_kwargs = expected_kwargs or {}
-
-                self.assertEqual(expected_result, test_method(*method_args,
-                                 **method_kwargs))
-                mocked.assert_called_with(test_method.__self__,
-                                          *expected_args, **expected_kwargs)
-            else:
-                self.assertEqual(expected_result, test_method())
-                mocked.assert_called_with(test_method.__self__)
-
-    # NOTE(briancurtin): This is a duplicate version of _verify that is
-    # temporarily here while we shift APIs. The difference is that
-    # calls from the Proxy classes aren't going to be going directly into
-    # the Resource layer anymore, so they don't pass in the session which
-    # was tested in assert_called_with.
-    # This is being done in lieu of adding logic and complicating
-    # the _verify method. It will be removed once there is one API to
-    # be verifying.
-    def _verify2(self, mock_method, test_method,
-                 method_args=None, method_kwargs=None, method_result=None,
-                 expected_args=None, expected_kwargs=None,
-                 expected_result=None):
+    def _verify(
+        self, mock_method, test_method, *,
+        method_args=None, method_kwargs=None, method_result=None,
+        expected_args=None, expected_kwargs=None, expected_result=None,
+    ):
         with mock.patch(mock_method) as mocked:
             mocked.return_value = expected_result
             if any([
@@ -120,7 +92,7 @@ class TestProxyBase(base.TestCase):
             expected_kwargs = method_kwargs.copy()
         expected_kwargs["base_path"] = base_path
 
-        self._verify2(
+        self._verify(
             mock_method,
             test_method,
             method_args=method_args,
@@ -142,7 +114,7 @@ class TestProxyBase(base.TestCase):
         expected_args = expected_args or method_args.copy()
         expected_kwargs = expected_kwargs or method_kwargs.copy()
 
-        self._verify2(
+        self._verify(
             mock_method,
             test_method,
             method_args=method_args,
@@ -166,7 +138,7 @@ class TestProxyBase(base.TestCase):
         if expected_kwargs is None:
             expected_kwargs = method_kwargs.copy()
 
-        self._verify2(
+        self._verify(
             mock_method,
             test_method,
             method_args=method_args,
@@ -197,7 +169,7 @@ class TestProxyBase(base.TestCase):
         expected_args = expected_args or method_args.copy()
         expected_kwargs = expected_kwargs or method_kwargs.copy()
 
-        self._verify2(
+        self._verify(
             mock_method,
             test_method,
             method_args=method_args,
@@ -219,7 +191,7 @@ class TestProxyBase(base.TestCase):
         expected_args = expected_args or method_args.copy()
         expected_kwargs = expected_kwargs or method_kwargs.copy()
 
-        self._verify2(
+        self._verify(
             mock_method,
             test_method,
             method_args=method_args,
@@ -247,7 +219,7 @@ class TestProxyBase(base.TestCase):
         if base_path is not None:
             expected_kwargs["base_path"] = base_path
 
-        self._verify2(
+        self._verify(
             mock_method,
             test_method,
             method_args=method_args,
@@ -272,7 +244,7 @@ class TestProxyBase(base.TestCase):
         if expected_kwargs is None:
             expected_kwargs = method_kwargs.copy()
 
-        self._verify2(
+        self._verify(
             mock_method,
             test_method,
             method_args=method_args,
@@ -286,4 +258,4 @@ class TestProxyBase(base.TestCase):
         mock_method="openstack.resource.wait_for_status",
         **kwargs,
     ):
-        self._verify2(mock_method, test_method, **kwargs)
+        self._verify(mock_method, test_method, **kwargs)

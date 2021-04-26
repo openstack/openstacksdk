@@ -50,16 +50,18 @@ class TestDnsZone(TestDnsProxy):
         self.verify_update(self.proxy.update_zone, zone.Zone)
 
     def test_zone_abandon(self):
-        self._verify2("openstack.dns.v2.zone.Zone.abandon",
-                      self.proxy.abandon_zone,
-                      method_args=[{'zone': 'id'}],
-                      expected_args=[self.proxy])
+        self._verify(
+            "openstack.dns.v2.zone.Zone.abandon",
+            self.proxy.abandon_zone,
+            method_args=[{'zone': 'id'}],
+            expected_args=[self.proxy])
 
     def test_zone_xfr(self):
-        self._verify2("openstack.dns.v2.zone.Zone.xfr",
-                      self.proxy.xfr_zone,
-                      method_args=[{'zone': 'id'}],
-                      expected_args=[self.proxy])
+        self._verify(
+            "openstack.dns.v2.zone.Zone.xfr",
+            self.proxy.xfr_zone,
+            method_args=[{'zone': 'id'}],
+            expected_args=[self.proxy])
 
 
 class TestDnsRecordset(TestDnsProxy):
@@ -92,13 +94,13 @@ class TestDnsRecordset(TestDnsProxy):
                          expected_kwargs={'zone_id': 'zid'})
 
     def test_recordset_find(self):
-        self._verify2("openstack.proxy.Proxy._find",
-                      self.proxy.find_recordset,
-                      method_args=['zone', 'rs'],
-                      method_kwargs={},
-                      expected_args=[recordset.Recordset, 'rs'],
-                      expected_kwargs={'ignore_missing': True,
-                                       'zone_id': 'zone'})
+        self._verify(
+            "openstack.proxy.Proxy._find",
+            self.proxy.find_recordset,
+            method_args=['zone', 'rs'],
+            method_kwargs={},
+            expected_args=[recordset.Recordset, 'rs'],
+            expected_kwargs={'ignore_missing': True, 'zone_id': 'zone'})
 
 
 class TestDnsFloatIP(TestDnsProxy):

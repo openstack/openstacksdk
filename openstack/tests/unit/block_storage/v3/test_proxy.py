@@ -82,7 +82,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_type_extra_specs_update(self):
         kwargs = {"a": "1", "b": "2"}
         id = "an_id"
-        self._verify2(
+        self._verify(
             "openstack.block_storage.v3.type.Type.set_extra_specs",
             self.proxy.update_type_extra_specs,
             method_args=[id],
@@ -94,7 +94,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
             expected_result=kwargs)
 
     def test_type_extra_specs_delete(self):
-        self._verify2(
+        self._verify(
             "openstack.block_storage.v3.type.Type.delete_extra_specs",
             self.proxy.delete_type_extra_specs,
             expected_result=None,
@@ -156,21 +156,21 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_volume, volume.Volume, True)
 
     def test_volume_extend(self):
-        self._verify2(
+        self._verify(
             "openstack.block_storage.v3.volume.Volume.extend",
             self.proxy.extend_volume,
             method_args=["value", "new-size"],
             expected_args=[self.proxy, "new-size"])
 
     def test_volume_set_readonly_no_argument(self):
-        self._verify2(
+        self._verify(
             "openstack.block_storage.v3.volume.Volume.set_readonly",
             self.proxy.set_volume_readonly,
             method_args=["value"],
             expected_args=[self.proxy, True])
 
     def test_volume_set_readonly_false(self):
-        self._verify2(
+        self._verify(
             "openstack.block_storage.v3.volume.Volume.set_readonly",
             self.proxy.set_volume_readonly,
             method_args=["value", False],
@@ -180,13 +180,13 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self._verify("openstack.block_storage.v3.volume.Volume.retype",
                      self.proxy.retype_volume,
                      method_args=["value", "rbd"],
-                     expected_args=["rbd", "never"])
+                     expected_args=[self.proxy, "rbd", "never"])
 
     def test_volume_retype_with_migration_policy(self):
         self._verify("openstack.block_storage.v3.volume.Volume.retype",
                      self.proxy.retype_volume,
                      method_args=["value", "rbd", "on-demand"],
-                     expected_args=["rbd", "on-demand"])
+                     expected_args=[self.proxy, "rbd", "on-demand"])
 
     def test_backend_pools(self):
         self.verify_list(self.proxy.backend_pools, stats.Pools)
@@ -242,7 +242,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
-        self._verify2(
+        self._verify(
             'openstack.block_storage.v3.backup.Backup.restore',
             self.proxy.restore_backup,
             method_args=['volume_id'],

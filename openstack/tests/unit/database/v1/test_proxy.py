@@ -44,12 +44,13 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                            expected_kwargs={"instance_id": "test_id"})
 
     def test_database_find(self):
-        self._verify2('openstack.proxy.Proxy._find',
-                      self.proxy.find_database,
-                      method_args=["db", "instance"],
-                      expected_args=[database.Database, "db"],
-                      expected_kwargs={"instance_id": "instance",
-                                       "ignore_missing": True})
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_database,
+            method_args=["db", "instance"],
+            expected_args=[database.Database, "db"],
+            expected_kwargs={
+                "instance_id": "instance", "ignore_missing": True})
 
     def test_databases(self):
         self.verify_list(self.proxy.databases, database.Database,
@@ -108,12 +109,13 @@ class TestDatabaseProxy(test_proxy_base.TestProxyBase):
                            expected_kwargs={"instance_id": "id"})
 
     def test_user_find(self):
-        self._verify2('openstack.proxy.Proxy._find',
-                      self.proxy.find_user,
-                      method_args=["user", "instance"],
-                      expected_args=[user.User, "user"],
-                      expected_kwargs={"instance_id": "instance",
-                                       "ignore_missing": True})
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_user,
+            method_args=["user", "instance"],
+            expected_args=[user.User, "user"],
+            expected_kwargs={
+                "instance_id": "instance", "ignore_missing": True})
 
     def test_users(self):
         self.verify_list(self.proxy.users, user.User,

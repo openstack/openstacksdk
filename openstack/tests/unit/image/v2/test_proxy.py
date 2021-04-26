@@ -54,7 +54,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
 
     def test_image_import(self):
         original_image = image.Image(**EXAMPLE)
-        self._verify2(
+        self._verify(
             "openstack.image.v2.image.Image.import_image",
             self.proxy.import_image,
             method_args=[original_image, "method", "uri"],
@@ -219,7 +219,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
 
     def test_image_download(self):
         original_image = image.Image(**EXAMPLE)
-        self._verify2(
+        self._verify(
             'openstack.image.v2.image.Image.download',
             self.proxy.download_image,
             method_args=[original_image],
@@ -294,28 +294,28 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.images, image.Image)
 
     def test_add_tag(self):
-        self._verify2(
+        self._verify(
             "openstack.image.v2.image.Image.add_tag",
             self.proxy.add_tag,
             method_args=["image", "tag"],
             expected_args=[self.proxy, "tag"])
 
     def test_remove_tag(self):
-        self._verify2(
+        self._verify(
             "openstack.image.v2.image.Image.remove_tag",
             self.proxy.remove_tag,
             method_args=["image", "tag"],
             expected_args=[self.proxy, "tag"])
 
     def test_deactivate_image(self):
-        self._verify2(
+        self._verify(
             "openstack.image.v2.image.Image.deactivate",
             self.proxy.deactivate_image,
             method_args=["image"],
             expected_args=[self.proxy])
 
     def test_reactivate_image(self):
-        self._verify2(
+        self._verify(
             "openstack.image.v2.image.Image.reactivate",
             self.proxy.reactivate_image,
             method_args=["image"],
@@ -327,51 +327,54 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                            expected_kwargs={"image_id": "test_id"})
 
     def test_member_delete(self):
-        self._verify2("openstack.proxy.Proxy._delete",
-                      self.proxy.remove_member,
-                      method_args=["member_id"],
-                      method_kwargs={"image": "image_id",
-                                     "ignore_missing": False},
-                      expected_args=[member.Member],
-                      expected_kwargs={"member_id": "member_id",
-                                       "image_id": "image_id",
-                                       "ignore_missing": False})
+        self._verify(
+            "openstack.proxy.Proxy._delete",
+            self.proxy.remove_member,
+            method_args=["member_id"],
+            method_kwargs={"image": "image_id", "ignore_missing": False},
+            expected_args=[member.Member],
+            expected_kwargs={
+                "member_id": "member_id",
+                "image_id": "image_id",
+                "ignore_missing": False})
 
     def test_member_delete_ignore(self):
-        self._verify2("openstack.proxy.Proxy._delete",
-                      self.proxy.remove_member,
-                      method_args=["member_id"],
-                      method_kwargs={"image": "image_id"},
-                      expected_args=[member.Member],
-                      expected_kwargs={"member_id": "member_id",
-                                       "image_id": "image_id",
-                                       "ignore_missing": True})
+        self._verify(
+            "openstack.proxy.Proxy._delete",
+            self.proxy.remove_member,
+            method_args=["member_id"],
+            method_kwargs={"image": "image_id"},
+            expected_args=[member.Member],
+            expected_kwargs={
+                "member_id": "member_id",
+                "image_id": "image_id",
+                "ignore_missing": True})
 
     def test_member_update(self):
-        self._verify2("openstack.proxy.Proxy._update",
-                      self.proxy.update_member,
-                      method_args=['member_id', 'image_id'],
-                      expected_args=[member.Member],
-                      expected_kwargs={'member_id': 'member_id',
-                                       'image_id': 'image_id'})
+        self._verify(
+            "openstack.proxy.Proxy._update",
+            self.proxy.update_member,
+            method_args=['member_id', 'image_id'],
+            expected_args=[member.Member],
+            expected_kwargs={'member_id': 'member_id', 'image_id': 'image_id'})
 
     def test_member_get(self):
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_member,
-                      method_args=['member_id'],
-                      method_kwargs={"image": "image_id"},
-                      expected_args=[member.Member],
-                      expected_kwargs={'member_id': 'member_id',
-                                       'image_id': 'image_id'})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_member,
+            method_args=['member_id'],
+            method_kwargs={"image": "image_id"},
+            expected_args=[member.Member],
+            expected_kwargs={'member_id': 'member_id', 'image_id': 'image_id'})
 
     def test_member_find(self):
-        self._verify2("openstack.proxy.Proxy._find",
-                      self.proxy.find_member,
-                      method_args=['member_id'],
-                      method_kwargs={"image": "image_id"},
-                      expected_args=[member.Member, "member_id"],
-                      expected_kwargs={'ignore_missing': True,
-                                       'image_id': 'image_id'})
+        self._verify(
+            "openstack.proxy.Proxy._find",
+            self.proxy.find_member,
+            method_args=['member_id'],
+            method_kwargs={"image": "image_id"},
+            expected_args=[member.Member, "member_id"],
+            expected_kwargs={'ignore_missing': True, 'image_id': 'image_id'})
 
     def test_members(self):
         self.verify_list(self.proxy.members, member.Member,
@@ -379,32 +382,36 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                          expected_kwargs={'image_id': 'image_1'})
 
     def test_images_schema_get(self):
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_images_schema,
-                      expected_args=[schema.Schema],
-                      expected_kwargs={'base_path': '/schemas/images',
-                                       'requires_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_images_schema,
+            expected_args=[schema.Schema],
+            expected_kwargs={
+                'base_path': '/schemas/images', 'requires_id': False})
 
     def test_image_schema_get(self):
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_image_schema,
-                      expected_args=[schema.Schema],
-                      expected_kwargs={'base_path': '/schemas/image',
-                                       'requires_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_image_schema,
+            expected_args=[schema.Schema],
+            expected_kwargs={
+                'base_path': '/schemas/image', 'requires_id': False})
 
     def test_members_schema_get(self):
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_members_schema,
-                      expected_args=[schema.Schema],
-                      expected_kwargs={'base_path': '/schemas/members',
-                                       'requires_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_members_schema,
+            expected_args=[schema.Schema],
+            expected_kwargs={
+                'base_path': '/schemas/members', 'requires_id': False})
 
     def test_member_schema_get(self):
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_member_schema,
-                      expected_args=[schema.Schema],
-                      expected_kwargs={'base_path': '/schemas/member',
-                                       'requires_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_member_schema,
+            expected_args=[schema.Schema],
+            expected_kwargs={
+                'base_path': '/schemas/member', 'requires_id': False})
 
     def test_task_get(self):
         self.verify_get(self.proxy.get_task, task.Task)
@@ -488,26 +495,29 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
             self.assertEqual('success', result.status)
 
     def test_tasks_schema_get(self):
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_tasks_schema,
-                      expected_args=[schema.Schema],
-                      expected_kwargs={'base_path': '/schemas/tasks',
-                                       'requires_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_tasks_schema,
+            expected_args=[schema.Schema],
+            expected_kwargs={
+                'base_path': '/schemas/tasks', 'requires_id': False})
 
     def test_task_schema_get(self):
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_task_schema,
-                      expected_args=[schema.Schema],
-                      expected_kwargs={'base_path': '/schemas/task',
-                                       'requires_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_task_schema,
+            expected_args=[schema.Schema],
+            expected_kwargs={
+                'base_path': '/schemas/task', 'requires_id': False})
 
     def test_stores(self):
         self.verify_list(self.proxy.stores, si.Store)
 
     def test_import_info(self):
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_import_info,
-                      method_args=[],
-                      method_kwargs={},
-                      expected_args=[si.Import],
-                      expected_kwargs={'require_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_import_info,
+            method_args=[],
+            method_kwargs={},
+            expected_args=[si.Import],
+            expected_kwargs={'require_id': False})

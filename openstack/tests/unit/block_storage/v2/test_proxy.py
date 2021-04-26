@@ -88,7 +88,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_volume, volume.Volume, True)
 
     def test_volume_extend(self):
-        self._verify2(
+        self._verify(
             "openstack.block_storage.v2.volume.Volume.extend",
             self.proxy.extend_volume,
             method_args=["value", "new-size"],
@@ -142,7 +142,7 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
-        self._verify2(
+        self._verify(
             'openstack.block_storage.v2.backup.Backup.restore',
             self.proxy.restore_backup,
             method_args=['volume_id'],

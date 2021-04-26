@@ -64,12 +64,13 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={'name': 'container_name', "x": 1, "y": 2, "z": 3})
 
     def test_object_metadata_get(self):
-        self._verify2("openstack.proxy.Proxy._head",
-                      self.proxy.get_object_metadata,
-                      method_args=['object'],
-                      method_kwargs={'container': 'container'},
-                      expected_args=[obj.Object, 'object'],
-                      expected_kwargs={'container': 'container'})
+        self._verify(
+            "openstack.proxy.Proxy._head",
+            self.proxy.get_object_metadata,
+            method_args=['object'],
+            method_kwargs={'container': 'container'},
+            expected_args=[obj.Object, 'object'],
+            expected_kwargs={'container': 'container'})
 
     def _test_object_delete(self, ignore):
         expected_kwargs = {
@@ -77,12 +78,13 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
             "container": "name",
         }
 
-        self._verify2("openstack.proxy.Proxy._delete",
-                      self.proxy.delete_object,
-                      method_args=["resource"],
-                      method_kwargs=expected_kwargs,
-                      expected_args=[obj.Object, "resource"],
-                      expected_kwargs=expected_kwargs)
+        self._verify(
+            "openstack.proxy.Proxy._delete",
+            self.proxy.delete_object,
+            method_args=["resource"],
+            method_kwargs=expected_kwargs,
+            expected_args=[obj.Object, "resource"],
+            expected_kwargs=expected_kwargs)
 
     def test_object_delete(self):
         self._test_object_delete(False)
@@ -93,11 +95,12 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
     def test_object_create_attrs(self):
         kwargs = {"name": "test", "data": "data", "container": "name"}
 
-        self._verify2("openstack.proxy.Proxy._create",
-                      self.proxy.upload_object,
-                      method_kwargs=kwargs,
-                      expected_args=[obj.Object],
-                      expected_kwargs=kwargs)
+        self._verify(
+            "openstack.proxy.Proxy._create",
+            self.proxy.upload_object,
+            method_kwargs=kwargs,
+            expected_args=[obj.Object],
+            expected_kwargs=kwargs)
 
     def test_object_create_no_container(self):
         self.assertRaises(TypeError, self.proxy.upload_object)

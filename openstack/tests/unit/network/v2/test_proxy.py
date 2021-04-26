@@ -366,13 +366,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_find(self.proxy.find_network, network.Network)
 
     def test_network_find_with_filter(self):
-        self._verify2('openstack.proxy.Proxy._find',
-                      self.proxy.find_network,
-                      method_args=["net1"],
-                      method_kwargs={"project_id": "1"},
-                      expected_args=[network.Network, "net1"],
-                      expected_kwargs={"project_id": "1",
-                                       "ignore_missing": True})
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_network,
+            method_args=["net1"],
+            method_kwargs={"project_id": "1"},
+            expected_args=[network.Network, "net1"],
+            expected_kwargs={"project_id": "1", "ignore_missing": True})
 
     def test_network_get(self):
         self.verify_get(self.proxy.get_network, network.Network)
@@ -469,19 +469,20 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={"pool_id": "test_id"})
 
     def test_pool_member_find(self):
-        self._verify2('openstack.proxy.Proxy._find',
-                      self.proxy.find_pool_member,
-                      method_args=["MEMBER", "POOL"],
-                      expected_args=[pool_member.PoolMember, "MEMBER"],
-                      expected_kwargs={"pool_id": "POOL",
-                                       "ignore_missing": True})
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_pool_member,
+            method_args=["MEMBER", "POOL"],
+            expected_args=[pool_member.PoolMember, "MEMBER"],
+            expected_kwargs={"pool_id": "POOL", "ignore_missing": True})
 
     def test_pool_member_get(self):
-        self._verify2('openstack.proxy.Proxy._get',
-                      self.proxy.get_pool_member,
-                      method_args=["MEMBER", "POOL"],
-                      expected_args=[pool_member.PoolMember, "MEMBER"],
-                      expected_kwargs={"pool_id": "POOL"})
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_pool_member,
+            method_args=["MEMBER", "POOL"],
+            expected_args=[pool_member.PoolMember, "MEMBER"],
+            expected_kwargs={"pool_id": "POOL"})
 
     def test_pool_members(self):
         self.verify_list(
@@ -491,11 +492,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={"pool_id": "test_id"})
 
     def test_pool_member_update(self):
-        self._verify2("openstack.network.v2._proxy.Proxy._update",
-                      self.proxy.update_pool_member,
-                      method_args=["MEMBER", "POOL"],
-                      expected_args=[pool_member.PoolMember, "MEMBER"],
-                      expected_kwargs={"pool_id": "POOL"})
+        self._verify(
+            "openstack.network.v2._proxy.Proxy._update",
+            self.proxy.update_pool_member,
+            method_args=["MEMBER", "POOL"],
+            expected_args=[pool_member.PoolMember, "MEMBER"],
+            expected_kwargs={"pool_id": "POOL"})
 
     def test_pool_create_attrs(self):
         self.verify_create(self.proxy.create_pool, pool.Pool)
@@ -590,14 +592,15 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_bandwidth_limit_rule_find(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.Proxy._find',
-                      self.proxy.find_qos_bandwidth_limit_rule,
-                      method_args=['rule_id', policy],
-                      expected_args=[
-                          qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
-                          'rule_id'],
-                      expected_kwargs={'ignore_missing': True,
-                                       'qos_policy_id': QOS_POLICY_ID})
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_qos_bandwidth_limit_rule,
+            method_args=['rule_id', policy],
+            expected_args=[
+                qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+                'rule_id'],
+            expected_kwargs={
+                'ignore_missing': True, 'qos_policy_id': QOS_POLICY_ID})
 
     def test_qos_bandwidth_limit_rule_get(self):
         self.verify_get(
@@ -615,15 +618,15 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_bandwidth_limit_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.network.v2._proxy.Proxy._update',
-                      self.proxy.update_qos_bandwidth_limit_rule,
-                      method_args=['rule_id', policy],
-                      method_kwargs={'foo': 'bar'},
-                      expected_args=[
-                          qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
-                          'rule_id'],
-                      expected_kwargs={'qos_policy_id': QOS_POLICY_ID,
-                                       'foo': 'bar'})
+        self._verify(
+            'openstack.network.v2._proxy.Proxy._update',
+            self.proxy.update_qos_bandwidth_limit_rule,
+            method_args=['rule_id', policy],
+            method_kwargs={'foo': 'bar'},
+            expected_args=[
+                qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+                'rule_id'],
+            expected_kwargs={'qos_policy_id': QOS_POLICY_ID, 'foo': 'bar'})
 
     def test_qos_dscp_marking_rule_create_attrs(self):
         self.verify_create(
@@ -652,13 +655,14 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_dscp_marking_rule_find(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.Proxy._find',
-                      self.proxy.find_qos_dscp_marking_rule,
-                      method_args=['rule_id', policy],
-                      expected_args=[qos_dscp_marking_rule.QoSDSCPMarkingRule,
-                                     'rule_id'],
-                      expected_kwargs={'ignore_missing': True,
-                                       'qos_policy_id': QOS_POLICY_ID})
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_qos_dscp_marking_rule,
+            method_args=['rule_id', policy],
+            expected_args=[
+                qos_dscp_marking_rule.QoSDSCPMarkingRule, 'rule_id'],
+            expected_kwargs={
+                'ignore_missing': True, 'qos_policy_id': QOS_POLICY_ID})
 
     def test_qos_dscp_marking_rule_get(self):
         self.verify_get(
@@ -676,15 +680,15 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_dscp_marking_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.network.v2._proxy.Proxy._update',
-                      self.proxy.update_qos_dscp_marking_rule,
-                      method_args=['rule_id', policy],
-                      method_kwargs={'foo': 'bar'},
-                      expected_args=[
-                          qos_dscp_marking_rule.QoSDSCPMarkingRule,
-                          'rule_id'],
-                      expected_kwargs={'qos_policy_id': QOS_POLICY_ID,
-                                       'foo': 'bar'})
+        self._verify(
+            'openstack.network.v2._proxy.Proxy._update',
+            self.proxy.update_qos_dscp_marking_rule,
+            method_args=['rule_id', policy],
+            method_kwargs={'foo': 'bar'},
+            expected_args=[
+                qos_dscp_marking_rule.QoSDSCPMarkingRule,
+                'rule_id'],
+            expected_kwargs={'qos_policy_id': QOS_POLICY_ID, 'foo': 'bar'})
 
     def test_qos_minimum_bandwidth_rule_create_attrs(self):
         self.verify_create(
@@ -713,14 +717,15 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_minimum_bandwidth_rule_find(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.proxy.Proxy._find',
-                      self.proxy.find_qos_minimum_bandwidth_rule,
-                      method_args=['rule_id', policy],
-                      expected_args=[
-                          qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
-                          'rule_id'],
-                      expected_kwargs={'ignore_missing': True,
-                                       'qos_policy_id': QOS_POLICY_ID})
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_qos_minimum_bandwidth_rule,
+            method_args=['rule_id', policy],
+            expected_args=[
+                qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+                'rule_id'],
+            expected_kwargs={
+                'ignore_missing': True, 'qos_policy_id': QOS_POLICY_ID})
 
     def test_qos_minimum_bandwidth_rule_get(self):
         self.verify_get(
@@ -738,15 +743,16 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_qos_minimum_bandwidth_rule_update(self):
         policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
-        self._verify2('openstack.network.v2._proxy.Proxy._update',
-                      self.proxy.update_qos_minimum_bandwidth_rule,
-                      method_args=['rule_id', policy],
-                      method_kwargs={'foo': 'bar'},
-                      expected_args=[
-                          qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
-                          'rule_id'],
-                      expected_kwargs={'qos_policy_id': QOS_POLICY_ID,
-                                       'foo': 'bar'})
+        self._verify(
+            'openstack.network.v2._proxy.Proxy._update',
+            self.proxy.update_qos_minimum_bandwidth_rule,
+            method_args=['rule_id', policy],
+            method_kwargs={'foo': 'bar'},
+            expected_args=[
+                qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+                'rule_id'],
+            expected_kwargs={
+                'qos_policy_id': QOS_POLICY_ID, 'foo': 'bar'})
 
     def test_qos_policy_create_attrs(self):
         self.verify_create(self.proxy.create_qos_policy, qos_policy.QoSPolicy)
@@ -795,25 +801,27 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_quota_get_details(self, mock_get):
         fake_quota = mock.Mock(project_id='PROJECT')
         mock_get.return_value = fake_quota
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_quota,
-                      method_args=['QUOTA_ID'],
-                      method_kwargs={'details': True},
-                      expected_args=[quota.QuotaDetails],
-                      expected_kwargs={'project': fake_quota.id,
-                                       'requires_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_quota,
+            method_args=['QUOTA_ID'],
+            method_kwargs={'details': True},
+            expected_args=[quota.QuotaDetails],
+            expected_kwargs={
+                'project': fake_quota.id, 'requires_id': False})
         mock_get.assert_called_once_with(quota.Quota, 'QUOTA_ID')
 
     @mock.patch.object(proxy_base.Proxy, "_get_resource")
     def test_quota_default_get(self, mock_get):
         fake_quota = mock.Mock(project_id='PROJECT')
         mock_get.return_value = fake_quota
-        self._verify2("openstack.proxy.Proxy._get",
-                      self.proxy.get_quota_default,
-                      method_args=['QUOTA_ID'],
-                      expected_args=[quota.QuotaDefault],
-                      expected_kwargs={'project': fake_quota.id,
-                                       'requires_id': False})
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_quota_default,
+            method_args=['QUOTA_ID'],
+            expected_args=[quota.QuotaDefault],
+            expected_kwargs={
+                'project': fake_quota.id, 'requires_id': False})
         mock_get.assert_called_once_with(quota.Quota, 'QUOTA_ID')
 
     def test_quotas(self):
@@ -891,7 +899,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify2(
+        self._verify(
             "openstack.network.v2.router.Router.add_interface",
             self.proxy.add_interface_to_router,
             method_args=["FAKE_ROUTER"],
@@ -907,7 +915,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify2(
+        self._verify(
             "openstack.network.v2.router.Router.add_interface",
             self.proxy.add_interface_to_router,
             method_args=["FAKE_ROUTER"],
@@ -923,7 +931,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify2(
+        self._verify(
             "openstack.network.v2.router.Router.remove_interface",
             self.proxy.remove_interface_from_router,
             method_args=["FAKE_ROUTER"],
@@ -939,7 +947,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify2(
+        self._verify(
             "openstack.network.v2.router.Router.remove_interface",
             self.proxy.remove_interface_from_router,
             method_args=["FAKE_ROUTER"],
@@ -955,7 +963,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify2(
+        self._verify(
             "openstack.network.v2.router.Router.add_extra_routes",
             self.proxy.add_extra_routes_to_router,
             method_args=["FAKE_ROUTER"],
@@ -971,7 +979,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify2(
+        self._verify(
             "openstack.network.v2.router.Router.remove_extra_routes",
             self.proxy.remove_extra_routes_from_router,
             method_args=["FAKE_ROUTER"],
@@ -986,7 +994,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify2(
+        self._verify(
             "openstack.network.v2.router.Router.add_gateway",
             self.proxy.add_gateway_to_router,
             method_args=["FAKE_ROUTER"],
@@ -1001,7 +1009,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify2(
+        self._verify(
             "openstack.network.v2.router.Router.remove_gateway",
             self.proxy.remove_gateway_from_router,
             method_args=["FAKE_ROUTER"],
@@ -1357,7 +1365,7 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_set_tags(self):
         x_network = network.Network.new(id='NETWORK_ID')
-        self._verify2(
+        self._verify(
             'openstack.network.v2.network.Network.set_tags',
             self.proxy.set_tags,
             method_args=[x_network, ['TAG1', 'TAG2']],
@@ -1398,24 +1406,26 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_find_floating_ip_port_forwarding(self):
         fip = floating_ip.FloatingIP.new(id=FIP_ID)
-        self._verify2('openstack.proxy.Proxy._find',
-                      self.proxy.find_floating_ip_port_forwarding,
-                      method_args=[fip, 'port_forwarding_id'],
-                      expected_args=[
-                          port_forwarding.PortForwarding,
-                          'port_forwarding_id'],
-                      expected_kwargs={'ignore_missing': True,
-                                       'floatingip_id': FIP_ID})
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_floating_ip_port_forwarding,
+            method_args=[fip, 'port_forwarding_id'],
+            expected_args=[
+                port_forwarding.PortForwarding,
+                'port_forwarding_id'],
+            expected_kwargs={
+                'ignore_missing': True, 'floatingip_id': FIP_ID})
 
     def test_get_floating_ip_port_forwarding(self):
         fip = floating_ip.FloatingIP.new(id=FIP_ID)
-        self._verify2('openstack.proxy.Proxy._get',
-                      self.proxy.get_floating_ip_port_forwarding,
-                      method_args=[fip, 'port_forwarding_id'],
-                      expected_args=[
-                          port_forwarding.PortForwarding,
-                          'port_forwarding_id'],
-                      expected_kwargs={'floatingip_id': FIP_ID})
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_floating_ip_port_forwarding,
+            method_args=[fip, 'port_forwarding_id'],
+            expected_args=[
+                port_forwarding.PortForwarding,
+                'port_forwarding_id'],
+            expected_kwargs={'floatingip_id': FIP_ID})
 
     def test_floating_ip_port_forwardings(self):
         self.verify_list(self.proxy.floating_ip_port_forwardings,
@@ -1425,15 +1435,15 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_update_floating_ip_port_forwarding(self):
         fip = floating_ip.FloatingIP.new(id=FIP_ID)
-        self._verify2('openstack.network.v2._proxy.Proxy._update',
-                      self.proxy.update_floating_ip_port_forwarding,
-                      method_args=[fip, 'port_forwarding_id'],
-                      method_kwargs={'foo': 'bar'},
-                      expected_args=[
-                          port_forwarding.PortForwarding,
-                          'port_forwarding_id'],
-                      expected_kwargs={'floatingip_id': FIP_ID,
-                                       'foo': 'bar'})
+        self._verify(
+            'openstack.network.v2._proxy.Proxy._update',
+            self.proxy.update_floating_ip_port_forwarding,
+            method_args=[fip, 'port_forwarding_id'],
+            method_kwargs={'foo': 'bar'},
+            expected_args=[
+                port_forwarding.PortForwarding,
+                'port_forwarding_id'],
+            expected_kwargs={'floatingip_id': FIP_ID, 'foo': 'bar'})
 
     def test_create_l3_conntrack_helper(self):
         self.verify_create(self.proxy.create_conntrack_helper,
@@ -1463,13 +1473,14 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_get_l3_conntrack_helper(self):
         r = router.Router.new(id=ROUTER_ID)
-        self._verify2('openstack.proxy.Proxy._get',
-                      self.proxy.get_conntrack_helper,
-                      method_args=['conntrack_helper_id', r],
-                      expected_args=[
-                          l3_conntrack_helper.ConntrackHelper,
-                          'conntrack_helper_id'],
-                      expected_kwargs={'router_id': ROUTER_ID})
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_conntrack_helper,
+            method_args=['conntrack_helper_id', r],
+            expected_args=[
+                l3_conntrack_helper.ConntrackHelper,
+                'conntrack_helper_id'],
+            expected_kwargs={'router_id': ROUTER_ID})
 
     def test_l3_conntrack_helpers(self):
         self.verify_list(self.proxy.conntrack_helpers,
@@ -1480,12 +1491,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_update_l3_conntrack_helper(self):
         r = router.Router.new(id=ROUTER_ID)
-        self._verify2('openstack.network.v2._proxy.Proxy._update',
-                      self.proxy.update_conntrack_helper,
-                      method_args=['conntrack_helper_id', r],
-                      method_kwargs={'foo': 'bar'},
-                      expected_args=[
-                          l3_conntrack_helper.ConntrackHelper,
-                          'conntrack_helper_id'],
-                      expected_kwargs={'router_id': ROUTER_ID,
-                                       'foo': 'bar'})
+        self._verify(
+            'openstack.network.v2._proxy.Proxy._update',
+            self.proxy.update_conntrack_helper,
+            method_args=['conntrack_helper_id', r],
+            method_kwargs={'foo': 'bar'},
+            expected_args=[
+                l3_conntrack_helper.ConntrackHelper,
+                'conntrack_helper_id'],
+            expected_kwargs={'router_id': ROUTER_ID, 'foo': 'bar'})
