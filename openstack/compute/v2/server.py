@@ -141,8 +141,12 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     launch_index = resource.Body('OS-EXT-SRV-ATTR:launch_index', type=int)
     #: The timestamp when the server was launched.
     launched_at = resource.Body('OS-SRV-USG:launched_at')
+    #: The maximum number of servers to create.
+    max_count = resource.Body('max_count')
     #: Metadata stored for this server. *Type: dict*
     metadata = resource.Body('metadata', type=dict)
+    #: The minimum number of servers to create.
+    min_count = resource.Body('min_count')
     #: A networks object. Required parameter when there are multiple
     #: networks defined for the tenant. When you do not specify the
     #: networks parameter, the server attaches to the only network

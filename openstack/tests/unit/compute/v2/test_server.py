@@ -257,7 +257,7 @@ class TestServer(base.TestCase):
         hints = {"hint": 3}
 
         sot = server.Server(id=1, availability_zone=zone, user_data=data,
-                            scheduler_hints=hints)
+                            scheduler_hints=hints, min_count=2, max_count=3)
         request = sot._prepare_request()
 
         self.assertNotIn("OS-EXT-AZ:availability_zone",
@@ -273,6 +273,9 @@ class TestServer(base.TestCase):
         self.assertNotIn("OS-SCH-HNT:scheduler_hints",
                          request.body[sot.resource_key])
         self.assertEqual(request.body["OS-SCH-HNT:scheduler_hints"], hints)
+
+        self.assertEqual(2, request.body[sot.resource_key]['min_count'])
+        self.assertEqual(3, request.body[sot.resource_key]['max_count'])
 
     def test_change_password(self):
         sot = server.Server(**EXAMPLE)

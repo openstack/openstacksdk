@@ -592,7 +592,9 @@ class TestNormalize(base.TestCase):
                 'region_name': u'RegionOne',
                 'zone': u'ca-ymq-2'},
             'locked': True,
+            'max_count': None,
             'metadata': {u'group': u'irc', u'groups': u'irc,enabled'},
+            'min_count': None,
             'name': u'mordred-irc',
             'networks': {
                 u'public': [
@@ -625,6 +627,8 @@ class TestNormalize(base.TestCase):
                 'OS-SRV-USG:terminated_at': None,
                 'host_status': None,
                 'locked': True,
+                'max_count': None,
+                'min_count': None,
                 'os-extended-volumes:volumes_attached': [],
                 'trusted_image_certificates': None},
             'public_v4': None,
@@ -1175,6 +1179,8 @@ class TestStrictNormalize(base.TestCase):
             'properties': {
                 'host_status': None,
                 'locked': True,
+                'max_count': None,
+                'min_count': None,
                 'trusted_image_certificates': None
             },
             'public_v4': None,
