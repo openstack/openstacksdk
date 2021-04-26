@@ -50,10 +50,11 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
     def test_message_post(self, mock_get_resource):
         message_obj = message.Message(queue_name="test_queue")
         mock_get_resource.return_value = message_obj
-        self._verify("openstack.message.v2.message.Message.post",
-                     self.proxy.post_message,
-                     method_args=["test_queue", ["msg1", "msg2"]],
-                     expected_args=[["msg1", "msg2"]])
+        self._verify2(
+            "openstack.message.v2.message.Message.post",
+            self.proxy.post_message,
+            method_args=["test_queue", ["msg1", "msg2"]],
+            expected_args=[self.proxy, ["msg1", "msg2"]])
         mock_get_resource.assert_called_once_with(message.Message, None,
                                                   queue_name="test_queue")
 
@@ -128,10 +129,12 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
                                                   queue_name="test_queue")
 
     def test_subscription_create(self):
-        self._verify("openstack.message.v2.subscription.Subscription.create",
-                     self.proxy.create_subscription,
-                     method_args=["test_queue"],
-                     expected_kwargs={"base_path": None})
+        self._verify2(
+            "openstack.message.v2.subscription.Subscription.create",
+            self.proxy.create_subscription,
+            method_args=["test_queue"],
+            expected_args=[self.proxy],
+            expected_kwargs={"base_path": None})
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
     def test_subscription_get(self, mock_get_resource):
@@ -178,10 +181,12 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
             queue_name="test_queue")
 
     def test_claim_create(self):
-        self._verify("openstack.message.v2.claim.Claim.create",
-                     self.proxy.create_claim,
-                     method_args=["test_queue"],
-                     expected_kwargs={"base_path": None})
+        self._verify2(
+            "openstack.message.v2.claim.Claim.create",
+            self.proxy.create_claim,
+            method_args=["test_queue"],
+            expected_args=[self.proxy],
+            expected_kwargs={"base_path": None})
 
     def test_claim_get(self):
         self._verify2("openstack.proxy.Proxy._get",
