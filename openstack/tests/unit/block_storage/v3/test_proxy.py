@@ -14,6 +14,7 @@ from unittest import mock
 from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import backup
 from openstack.block_storage.v3 import capabilities
+from openstack.block_storage.v3 import extension
 from openstack.block_storage.v3 import group_type
 from openstack.block_storage.v3 import limits
 from openstack.block_storage.v3 import resource_filter
@@ -269,3 +270,6 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
     def test_group_type_update(self):
         self.verify_update(self.proxy.update_group_type, group_type.GroupType)
+
+    def test_extensions(self):
+        self.verify_list(self.proxy.extensions, extension.Extension)
