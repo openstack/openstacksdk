@@ -10,7 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.baremetal.v1 import _common
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class Driver(resource.Resource):
@@ -117,3 +120,60 @@ class Driver(resource.Resource):
     #: Enabled vendor interface implementations.
     #: Introduced in API microversion 1.30.
     enabled_vendor_interfaces = resource.Body("enabled_vendor_interfaces")
+
+    def list_vendor_passthru(self, session):
+        """Fetch vendor specific methods exposed by driver
+
+        :param session: The session to use for making this request.
+        :returns: A dict of the available vendor passthru methods for driver.
+            Method names keys and corresponding usages in dict form as values
+            Usage dict properties:
+            * ``async``: bool # Is passthru function invoked asynchronously
+            * ``attach``: bool # Is return value attached to response object
+            * ``description``: str # Description of what the method does
+            * ``http_methods``: list # List of HTTP methods supported
+        """
+        session = self._get_session(session)
+        request = self._prepare_request()
+        request.url = utils.urljoin(
+            request.url, 'vendor_passthru', 'methods')
+        response = session.get(request.url, headers=request.headers)
+
+        msg = ("Failed to list list vendor_passthru methods for {driver_name}"
+               .format(driver_name=self.name))
+        exceptions.raise_from_response(response, error_message=msg)
+        return response.json()
+
+    def call_vendor_passthru(self, session,
+                             verb: str, method: str, body: dict = None):
+        """Call a vendor specific passthru method
+
+        Contents of body are params passed to the hardware driver
+        function. Validation happens there. Missing parameters, or
+        excess parameters will cause the request to be rejected
+
+        :param session: The session to use for making this request.
+        :param method: Vendor passthru method name.
+        :param verb: One of GET, POST, PUT, DELETE,
+            depending on the driver and method.
+        :param body: passed to the vendor function as json body.
+        :raises: :exc:`ValueError` if :data:`verb` is not one of
+            GET, POST, PUT, DELETE
+        :returns: response of method call.
+        """
+        if verb.upper() not in ['GET', 'PUT', 'POST', 'DELETE']:
+            raise ValueError('Invalid verb: {}'.format(verb))
+
+        session = self._get_session(session)
+        request = self._prepare_request()
+        request.url = utils.urljoin(
+            request.url, f'vendor_passthru?method={method}')
+        call = getattr(session, verb.lower())
+        response = call(
+            request.url, json=body, headers=request.headers,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed call to method {method} on driver {driver_name}"
+               .format(method=method, driver_name=self.name))
+        exceptions.raise_from_response(response, error_message=msg)
+        return response
