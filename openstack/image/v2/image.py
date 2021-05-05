@@ -37,7 +37,7 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
         "member_status", "owner",
         "status", "size_min", "size_max",
         "protected", "is_hidden",
-        "sort_key", "sort_dir", "sort", "tags",
+        "sort_key", "sort_dir", "sort", "tag",
         "created_at", "updated_at",
         is_hidden="os_hidden")
 
