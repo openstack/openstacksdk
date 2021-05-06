@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
 import uuid
 
 from openstack.load_balancer.v2 import l7_policy
+from openstack.tests.unit import base
+
 
 EXAMPLE = {
     'action': 'REJECT',
