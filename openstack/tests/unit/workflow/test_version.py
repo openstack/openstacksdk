@@ -11,8 +11,8 @@
 # under the License.
 
 from openstack.tests.unit import base
-
 from openstack.workflow import version
+
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
