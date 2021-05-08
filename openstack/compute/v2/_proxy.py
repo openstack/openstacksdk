@@ -708,7 +708,7 @@ class Proxy(proxy.Proxy):
         :returns: encrypted password.
         """
         server = self._get_resource(_server.Server, server)
-        return server.get_password(self._session)
+        return server.get_password(self)
 
     def reset_server_state(self, server, state):
         """Reset the state of server
