@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixes a regression sending an unsupported field
+    ``remote_address_group_id`` when creating security groups with an
+    older Neutron (introduced 0.53.0).
