@@ -55,6 +55,9 @@ class Project(resource.Resource, resource.TagMixin):
     is_enabled = resource.Body('enabled', type=bool)
     #: Unique project name, within the owning domain. *Type: string*
     name = resource.Body('name')
+    #: The resource options for the project. Available resource options are
+    #: immutable.
+    options = resource.Body('options', type=dict)
     #: The ID of the parent of the project.
     #: New in version 3.4
     parent_id = resource.Body('parent_id')
