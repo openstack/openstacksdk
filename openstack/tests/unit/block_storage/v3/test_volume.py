@@ -147,3 +147,18 @@ class TestVolume(base.TestCase):
         body = {'os-update_readonly_flag': {'readonly': False}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(url, json=body, headers=headers)
+
+    def test_retype(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.retype(self.sess, 'rbd', 'on-demand'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {
+            'os-retype': {
+                'new_type': 'rbd',
+                'migration_policy': 'on-demand'
+            }
+        }
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(url, json=body, headers=headers)

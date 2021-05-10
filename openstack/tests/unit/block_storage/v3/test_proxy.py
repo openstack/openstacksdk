@@ -173,6 +173,18 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
                      method_args=["value", False],
                      expected_args=[False])
 
+    def test_volume_retype_without_migration_policy(self):
+        self._verify("openstack.block_storage.v3.volume.Volume.retype",
+                     self.proxy.retype_volume,
+                     method_args=["value", "rbd"],
+                     expected_args=["rbd", "never"])
+
+    def test_volume_retype_with_migration_policy(self):
+        self._verify("openstack.block_storage.v3.volume.Volume.retype",
+                     self.proxy.retype_volume,
+                     method_args=["value", "rbd", "on-demand"],
+                     expected_args=["rbd", "on-demand"])
+
     def test_backend_pools(self):
         self.verify_list(self.proxy.backend_pools, stats.Pools)
 
