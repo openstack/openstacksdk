@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack.tests.unit import base
-
 from openstack.workflow.v2 import workflow
 
 
