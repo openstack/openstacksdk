@@ -28,7 +28,7 @@ class TestImage(base.BaseFunctionalTest):
         self.conn = connection.from_config(
             cloud_name=base.TEST_CLOUD_NAME, options=opts)
 
-        self.img = self.conn.image.upload_image(
+        self.img = self.conn.image.create_image(
             name=TEST_IMAGE_NAME,
             disk_format='raw',
             container_format='bare',
@@ -37,7 +37,9 @@ class TestImage(base.BaseFunctionalTest):
             # we need to just replace the image upload code with the stuff
             # from shade. Figuring out mapping the crap-tastic arbitrary
             # extra key-value pairs into Resource is going to be fun.
-            properties='{"description": "This is not an image"}',
+            properties=dict(
+                description="This is not an image"
+            ),
             data=open('CONTRIBUTING.rst', 'r')
         )
         self.addCleanup(self.conn.image.delete_image, self.img)
@@ -65,3 +67,18 @@ class TestImage(base.BaseFunctionalTest):
     def test_list_tasks(self):
         tasks = self.conn.image.tasks()
         self.assertIsNotNone(tasks)
+
+    def test_tags(self):
+        img = self.conn.image.get_image(self.img)
+        self.conn.image.add_tag(img, 't1')
+        self.conn.image.add_tag(img, 't2')
+        # Ensure list with array of tags return us our image
+        list_img = list(self.conn.image.images(tag=['t1', 't2']))[0]
+        self.assertEqual(img.id, list_img.id)
+        self.assertIn('t1', list_img.tags)
+        self.assertIn('t2', list_img.tags)
+        self.conn.image.remove_tag(img, 't1')
+        # Refetch img to verify tags
+        img = self.conn.image.get_image(self.img)
+        self.assertIn('t2', img.tags)
+        self.assertNotIn('t1', img.tags)
