@@ -14,6 +14,7 @@ from openstack.block_storage import _base_proxy
 from openstack.block_storage.v3 import availability_zone
 from openstack.block_storage.v3 import backup as _backup
 from openstack.block_storage.v3 import capabilities as _capabilities
+from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import limits as _limits
 from openstack.block_storage.v3 import resource_filter as _resource_filter
@@ -692,6 +693,15 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: A generator of resource filters.
         """
         return self._list(_resource_filter.ResourceFilter, **query)
+
+    def extensions(self):
+        """Return a generator of extensions
+
+        :returns: A generator of extension
+        :rtype: :class:`~openstack.block_storage.v3.extension.\
+                        Extension`
+        """
+        return self._list(_extension.Extension)
 
     def _get_cleanup_dependencies(self):
         return {
