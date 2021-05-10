@@ -11,10 +11,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
 import uuid
 
 from openstack.load_balancer.v2 import availability_zone_profile
+from openstack.tests.unit import base
+
 
 IDENTIFIER = uuid.uuid4()
 EXAMPLE = {

@@ -249,9 +249,9 @@
         IRONIC_CALLBACK_TIMEOUT: 600
         IRONIC_DEPLOY_DRIVER: ipmi
         IRONIC_RAMDISK_TYPE: tinyipa
-        IRONIC_VM_COUNT: 6
+        IRONIC_VM_COUNT: 2
         IRONIC_VM_LOG_DIR: '{{ devstack_base_dir }}/ironic-bm-logs'
-        IRONIC_VM_SPECS_RAM: 512
+        IRONIC_VM_SPECS_RAM: 1024
       devstack_plugins:
         ironic: https://opendev.org/openstack/ironic
       devstack_services:
@@ -376,7 +376,7 @@
 - project:
     templates:
       - check-requirements
-      - openstack-python3-ussuri-jobs
+      - openstack-python3-xena-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
       - os-client-config-tox-tips

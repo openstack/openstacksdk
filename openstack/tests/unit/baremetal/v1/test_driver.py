@@ -10,7 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from keystoneauth1 import adapter
+
+from openstack.baremetal.v1 import _common
 from openstack.baremetal.v1 import driver
+from openstack import exceptions
 from openstack.tests.unit import base
 
 
@@ -63,3 +69,63 @@ class TestDriver(base.TestCase):
         self.assertEqual(FAKE['hosts'], sot.hosts)
         self.assertEqual(FAKE['links'], sot.links)
         self.assertEqual(FAKE['properties'], sot.properties)
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_list_vendor_passthru(self):
+        self.session = mock.Mock(spec=adapter.Adapter)
+        sot = driver.Driver(**FAKE)
+        fake_vendor_passthru_info = {
+            'fake_vendor_method': {
+                'async': True,
+                'attach': False,
+                'description': "Fake function that does nothing in background",
+                'http_methods': ['GET', 'PUT', 'POST', 'DELETE']
+            }
+        }
+        self.session.get.return_value.json.return_value = (
+            fake_vendor_passthru_info)
+        result = sot.list_vendor_passthru(self.session)
+        self.session.get.assert_called_once_with(
+            'drivers/{driver_name}/vendor_passthru/methods'.format(
+                driver_name=FAKE["name"]),
+            headers=mock.ANY)
+        self.assertEqual(result, fake_vendor_passthru_info)
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_call_vendor_passthru(self):
+        self.session = mock.Mock(spec=adapter.Adapter)
+        sot = driver.Driver(**FAKE)
+        # GET
+        sot.call_vendor_passthru(self.session, 'GET', 'fake_vendor_method')
+        self.session.get.assert_called_once_with(
+            'drivers/{}/vendor_passthru?method={}'.format(
+                FAKE["name"], 'fake_vendor_method'),
+            json=None,
+            headers=mock.ANY,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+        # PUT
+        sot.call_vendor_passthru(self.session, 'PUT', 'fake_vendor_method',
+                                 body={"fake_param_key": "fake_param_value"})
+        self.session.put.assert_called_once_with(
+            'drivers/{}/vendor_passthru?method={}'.format(
+                FAKE["name"], 'fake_vendor_method'),
+            json={"fake_param_key": "fake_param_value"},
+            headers=mock.ANY,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+        # POST
+        sot.call_vendor_passthru(self.session, 'POST', 'fake_vendor_method',
+                                 body={"fake_param_key": "fake_param_value"})
+        self.session.post.assert_called_once_with(
+            'drivers/{}/vendor_passthru?method={}'.format(
+                FAKE["name"], 'fake_vendor_method'),
+            json={"fake_param_key": "fake_param_value"},
+            headers=mock.ANY,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+        # DELETE
+        sot.call_vendor_passthru(self.session, 'DELETE', 'fake_vendor_method')
+        self.session.delete.assert_called_once_with(
+            'drivers/{}/vendor_passthru?method={}'.format(
+                FAKE["name"], 'fake_vendor_method'),
+            json=None,
+            headers=mock.ANY,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)

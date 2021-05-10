@@ -214,12 +214,12 @@ class Proxy(adapter.Adapter):
         key = '.'.join(
             [self._statsd_prefix, self.service_type, method]
             + name_parts)
-        if response is not None:
-            duration = int(response.elapsed.total_seconds() * 1000)
-            self._statsd_client.timing(key, duration)
-            self._statsd_client.incr(key)
-        elif exc is not None:
-            self._statsd_client.incr('%s.failed' % key)
+        with self._statsd_client.pipeline() as pipe:
+            if response is not None:
+                pipe.timing(key, response.elapsed)
+                pipe.incr(key)
+            elif exc is not None:
+                pipe.incr('%s.failed' % key)
 
     def _report_stats_prometheus(self, response, url=None, method=None,
                                  exc=None):

@@ -17,7 +17,6 @@ import hashlib
 import logging
 import sys
 from unittest import mock
-from unittest import skipIf
 
 import fixtures
 import os_service_types
@@ -359,8 +358,6 @@ class Test_md5(base.TestCase):
         digest = test_md5.hexdigest()
         self.assertEqual(digest, self.md5_digest)
 
-    @skipIf(sys.version_info.major == 2,
-            "hashlib.md5 does not raise TypeError here in py2")
     def test_string_data_raises_type_error(self):
         if not self.fips_enabled:
             self.assertRaises(TypeError, hashlib.md5, u'foo')

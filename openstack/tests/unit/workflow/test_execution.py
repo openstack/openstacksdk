@@ -11,8 +11,8 @@
 # under the License.
 
 from openstack.tests.unit import base
-
 from openstack.workflow.v2 import execution
+
 
 FAKE_INPUT = {
     'cluster_id': '8c74607c-5a74-4490-9414-a3475b1926c2',

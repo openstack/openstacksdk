@@ -14,9 +14,9 @@ from unittest import mock
 
 from keystoneauth1 import adapter
 
+from openstack.compute.v2 import server_remote_console
 from openstack.tests.unit import base
 
-from openstack.compute.v2 import server_remote_console
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

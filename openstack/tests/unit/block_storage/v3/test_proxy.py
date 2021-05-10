@@ -14,6 +14,7 @@ from unittest import mock
 from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import backup
 from openstack.block_storage.v3 import capabilities
+from openstack.block_storage.v3 import group_type
 from openstack.block_storage.v3 import limits
 from openstack.block_storage.v3 import resource_filter
 from openstack.block_storage.v3 import snapshot
@@ -245,3 +246,26 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_resource_filters(self):
         self.verify_list(self.proxy.resource_filters,
                          resource_filter.ResourceFilter)
+
+    def test_group_type_get(self):
+        self.verify_get(self.proxy.get_group_type, group_type.GroupType)
+
+    def test_group_type_find(self):
+        self.verify_find(self.proxy.find_group_type, group_type.GroupType)
+
+    def test_group_types(self):
+        self.verify_list(self.proxy.group_types, group_type.GroupType)
+
+    def test_group_type_create(self):
+        self.verify_create(self.proxy.create_group_type, group_type.GroupType)
+
+    def test_group_type_delete(self):
+        self.verify_delete(
+            self.proxy.delete_group_type, group_type.GroupType, False)
+
+    def test_group_type_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_group_type, group_type.GroupType, True)
+
+    def test_group_type_update(self):
+        self.verify_update(self.proxy.update_group_type, group_type.GroupType)

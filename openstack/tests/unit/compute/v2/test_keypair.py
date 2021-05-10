@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.compute.v2 import keypair
 from openstack.tests.unit import base
 
-from openstack.compute.v2 import keypair
 
 EXAMPLE = {
     'created_at': 'some_time',

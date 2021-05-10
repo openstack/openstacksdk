@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.compute import version
 from openstack.tests.unit import base
 
-from openstack.compute import version
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

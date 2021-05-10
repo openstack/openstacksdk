@@ -194,6 +194,35 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_driver.Driver, driver)
 
+    def list_driver_vendor_passthru(self, driver):
+        """Get driver's vendor_passthru methods.
+
+        :param driver: The value can be the name of a driver or a
+            :class:`~openstack.baremetal.v1.driver.Driver` instance.
+
+        :returns: One :dict: of vendor methods with corresponding usages
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            driver matching the name could be found.
+        """
+        driver = self.get_driver(driver)
+        return driver.list_vendor_passthru(self)
+
+    def call_driver_vendor_passthru(self, driver,
+                                    verb: str, method: str, body=None):
+        """Call driver's vendor_passthru method.
+
+        :param driver: The value can be the name of a driver or a
+            :class:`~openstack.baremetal.v1.driver.Driver` instance.
+        :param verb: One of GET, POST, PUT, DELETE,
+            depending on the driver and method.
+        :param method: Name of vendor method.
+        :param body: passed to the vendor function as json body.
+
+        :returns: Server response
+        """
+        driver = self.get_driver(driver)
+        return driver.call_vendor_passthru(self, verb, method, body)
+
     def nodes(self, details=False, **query):
         """Retrieve a generator of nodes.
 
