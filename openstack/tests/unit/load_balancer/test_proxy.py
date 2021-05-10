@@ -10,8 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import uuid
 from unittest import mock
+import uuid
 
 from openstack.load_balancer.v2 import _proxy
 from openstack.load_balancer.v2 import amphora

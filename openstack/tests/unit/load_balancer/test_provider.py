@@ -12,9 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.load_balancer.v2 import provider
 from openstack.tests.unit import base
 
-from openstack.load_balancer.v2 import provider
 
 EXAMPLE = {
     'name': 'best',
