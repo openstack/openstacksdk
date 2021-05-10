@@ -205,6 +205,29 @@ class TestConfig(base.TestCase):
         self.assertNotIn('domain_id', cc.auth)
         self.assertNotIn('domain_id', cc)
 
+    def test_get_one_infer_passcode(self):
+        single_conf = base._write_yaml({
+            'clouds': {
+                'mfa': {
+                    'auth_type': 'v3multifactor',
+                    'auth_methods': ['v3password', 'v3totp'],
+                    'auth': {
+                        'auth_url': 'fake_url',
+                        'username': 'testuser',
+                        'password': 'testpass',
+                        'project_name': 'testproject',
+                        'project_domain_name': 'projectdomain',
+                        'user_domain_name': 'udn'
+                    },
+                    'region_name': 'test-region',
+                }
+            }
+        })
+
+        c = config.OpenStackConfig(config_files=[single_conf])
+        cc = c.get_one(cloud='mfa', passcode='123')
+        self.assertEqual('123', cc.auth['passcode'])
+
     def test_get_one_with_hyphenated_project_id(self):
         c = config.OpenStackConfig(config_files=[self.cloud_yaml],
                                    vendor_files=[self.vendor_yaml])
