@@ -158,9 +158,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        data = self._identity_client.get('/users', params=kwargs)
-        return _utils.normalize_users(
-            self._get_and_munchify('users', data))
+        return list(self.identity.users(**kwargs))
 
     @_utils.valid_kwargs('domain_id', 'name')
     def search_users(self, name_or_id=None, filters=None, **kwargs):
@@ -215,17 +213,10 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
         :returns: a single ``munch.Munch`` containing the user description
         """
-        data = self._identity_client.get(
-            '/users/{user}'.format(user=user_id),
-            error_message="Error getting user with ID {user_id}".format(
-                user_id=user_id))
+        user = self.identity.get_user(user_id)
 
-        user = self._get_and_munchify('user', data)
-        if user and normalize:
-            user = _utils.normalize_users(user)
         return user
 
-    # NOTE(Shrews): Keystone v2 supports updating only name, email and enabled.
     @_utils.valid_kwargs('name', 'email', 'enabled', 'domain_id', 'password',
                          'description', 'default_project')
     def update_user(self, name_or_id, **kwargs):
@@ -238,39 +229,14 @@ class IdentityCloudMixin(_normalize.Normalizer):
         # TODO(mordred) When this changes to REST, force interface=admin
         # in the adapter call if it's an admin force call (and figure out how
         # to make that disctinction)
-        if self._is_client_version('identity', 2):
-            # Do not pass v3 args to a v2 keystone.
-            kwargs.pop('domain_id', None)
-            kwargs.pop('description', None)
-            kwargs.pop('default_project', None)
-            password = kwargs.pop('password', None)
-            if password is not None:
-                with _utils.shade_exceptions(
-                        "Error updating password for {user}".format(
-                            user=name_or_id)):
-                    error_msg = "Error updating password for user {}".format(
-                        name_or_id)
-                    data = self._identity_client.put(
-                        '/users/{u}/OS-KSADM/password'.format(u=user['id']),
-                        json={'user': {'password': password}},
-                        error_message=error_msg)
+        # NOTE(samueldmq): now this is a REST call and domain_id is dropped
+        # if None. keystoneclient drops keys with None values.
+        if 'domain_id' in kwargs and kwargs['domain_id'] is None:
+            del kwargs['domain_id']
+        user = self.identity.update_user(user, **kwargs)
 
-            # Identity v2.0 implements PUT. v3 PATCH. Both work as PATCH.
-            data = self._identity_client.put(
-                '/users/{user}'.format(user=user['id']), json={'user': kwargs},
-                error_message="Error in updating user {}".format(name_or_id))
-        else:
-            # NOTE(samueldmq): now this is a REST call and domain_id is dropped
-            # if None. keystoneclient drops keys with None values.
-            if 'domain_id' in kwargs and kwargs['domain_id'] is None:
-                del kwargs['domain_id']
-            data = self._identity_client.patch(
-                '/users/{user}'.format(user=user['id']), json={'user': kwargs},
-                error_message="Error in updating user {}".format(name_or_id))
-
-        user = self._get_and_munchify('user', data)
         self.list_users.invalidate(self)
-        return _utils.normalize_users([user])[0]
+        return user
 
     def create_user(
             self, name, password=None, email=None, default_project=None,
@@ -278,41 +244,33 @@ class IdentityCloudMixin(_normalize.Normalizer):
         """Create a user."""
         params = self._get_identity_params(domain_id, default_project)
         params.update({'name': name, 'password': password, 'email': email,
-                       'enabled': enabled})
-        if self._is_client_version('identity', 3):
-            params['description'] = description
-        elif description is not None:
-            self.log.info(
-                "description parameter is not supported on Keystone v2")
+                       'enabled': enabled, 'description': description})
 
-        error_msg = "Error in creating user {user}".format(user=name)
-        data = self._identity_client.post('/users', json={'user': params},
-                                          error_message=error_msg)
-        user = self._get_and_munchify('user', data)
+        user = self.identity.create_user(**params)
 
         self.list_users.invalidate(self)
-        return _utils.normalize_users([user])[0]
+        return user
 
     @_utils.valid_kwargs('domain_id')
     def delete_user(self, name_or_id, **kwargs):
         # TODO(mordred) Why are we invalidating at the TOP?
         self.list_users.invalidate(self)
-        user = self.get_user(name_or_id, **kwargs)
-        if not user:
-            self.log.debug(
-                "User {0} not found for deleting".format(name_or_id))
+        try:
+            user = self.get_user(name_or_id, **kwargs)
+            if not user:
+                self.log.debug(
+                    "User {0} not found for deleting".format(name_or_id))
+                return False
+
+            self.identity.delete_user(user)
+            self.list_users.invalidate(self)
+            return True
+
+        except exceptions.SDKException:
+            self.log.exception("Error in deleting user {user}".format(
+                user=name_or_id
+            ))
             return False
-
-        # TODO(mordred) Extra GET only needed to support keystoneclient.
-        #               Can be removed as a follow-on.
-        user = self.get_user_by_id(user['id'], normalize=False)
-        self._identity_client.delete(
-            '/users/{user}'.format(user=user['id']),
-            error_message="Error in deleting user {user}".format(
-                user=name_or_id))
-
-        self.list_users.invalidate(self)
-        return True
 
     def _get_user_and_group(self, user_name_or_id, group_name_or_id):
         user = self.get_user(user_name_or_id)
@@ -909,9 +867,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        data = self._identity_client.get(
-            '/groups', params=kwargs, error_message="Failed to list groups")
-        return _utils.normalize_groups(self._get_and_munchify('groups', data))
+        return list(self.identity.groups(**kwargs))
 
     @_utils.valid_kwargs('domain_id')
     def search_groups(self, name_or_id=None, filters=None, **kwargs):
@@ -968,10 +924,8 @@ class IdentityCloudMixin(_normalize.Normalizer):
                 )
             group_ref['domain_id'] = dom['id']
 
-        error_msg = "Error creating group {group}".format(group=name)
-        data = self._identity_client.post(
-            '/groups', json={'group': group_ref}, error_message=error_msg)
-        group = self._get_and_munchify('group', data)
+        group = self.identity.create_group(**group_ref)
+
         self.list_groups.invalidate(self)
         return _utils.normalize_groups([group])[0]
 
@@ -990,7 +944,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
             the OpenStack API call.
         """
         self.list_groups.invalidate(self)
-        group = self.get_group(name_or_id, **kwargs)
+        group = self.identity.find_group(name_or_id, **kwargs)
         if group is None:
             raise exc.OpenStackCloudException(
                 "Group {0} not found for updating".format(name_or_id)
@@ -1002,11 +956,8 @@ class IdentityCloudMixin(_normalize.Normalizer):
         if description:
             group_ref['description'] = description
 
-        error_msg = "Unable to update group {name}".format(name=name_or_id)
-        data = self._identity_client.patch(
-            '/groups/{id}'.format(id=group['id']),
-            json={'group': group_ref}, error_message=error_msg)
-        group = self._get_and_munchify('group', data)
+        group = self.identity.update_group(group, **group_ref)
+
         self.list_groups.invalidate(self)
         return _utils.normalize_groups([group])[0]
 
@@ -1022,18 +973,22 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        group = self.get_group(name_or_id, **kwargs)
-        if group is None:
-            self.log.debug(
-                "Group %s not found for deleting", name_or_id)
+        try:
+            group = self.identity.find_group(name_or_id, **kwargs)
+            if group is None:
+                self.log.debug(
+                    "Group %s not found for deleting", name_or_id)
+                return False
+
+            self.identity.delete_group(group)
+
+            self.list_groups.invalidate(self)
+            return True
+
+        except exceptions.SDKException:
+            self.log.exception(
+                "Unable to delete group {name}".format(name=name_or_id))
             return False
-
-        error_msg = "Unable to delete group {name}".format(name=name_or_id)
-        self._identity_client.delete('/groups/{id}'.format(id=group['id']),
-                                     error_message=error_msg)
-
-        self.list_groups.invalidate(self)
-        return True
 
     @_utils.valid_kwargs('domain_id', 'name')
     def list_roles(self, **kwargs):
@@ -1129,7 +1084,11 @@ class IdentityCloudMixin(_normalize.Normalizer):
         # 'include_names' and 'include_subtree' whose do not need any renaming.
         for k in ('group', 'role', 'user'):
             if k in filters:
-                filters[k + '.id'] = filters[k]
+                try:
+                    filters[k + '.id'] = filters[k].id
+                except AttributeError:
+                    # Also this goes away in next patches
+                    filters[k + '.id'] = filters[k]
                 del filters[k]
         for k in ('project', 'domain'):
             if k in filters:
@@ -1199,14 +1158,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
             if isinstance(v, munch.Munch):
                 filters[k] = v['id']
 
-        if self._is_client_version('identity', 2):
-            if filters.get('project') is None or filters.get('user') is None:
-                raise exc.OpenStackCloudException(
-                    "Must provide project and user for keystone v2"
-                )
-            assignments = self._keystone_v2_role_assignments(**filters)
-        else:
-            assignments = self._keystone_v3_role_assignments(**filters)
+        assignments = self._keystone_v3_role_assignments(**filters)
 
         return _utils.normalize_role_assignments(assignments)
 
@@ -1302,9 +1254,8 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
         if user:
             if domain:
-                data['user'] = self.get_user(user,
-                                             domain_id=filters['domain_id'],
-                                             filters=filters)
+                data['user'] = self.get_user(
+                    user, domain_id=filters['domain_id'], filters=filters)
             else:
                 data['user'] = self.get_user(user, filters=filters)
 

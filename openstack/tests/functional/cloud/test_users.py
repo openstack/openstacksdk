@@ -75,7 +75,7 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
         self.assertIsNotNone(user)
         self.assertEqual(user_name, user['name'])
         self.assertEqual(user_email, user['email'])
-        self.assertTrue(user['enabled'])
+        self.assertTrue(user['is_enabled'])
 
     def test_delete_user(self):
         user_name = self.user_prefix + '_delete'
@@ -92,7 +92,7 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
         user_email = 'nobody@nowhere.com'
         user = self._create_user(name=user_name, email=user_email)
         self.assertIsNotNone(user)
-        self.assertTrue(user['enabled'])
+        self.assertTrue(user['is_enabled'])
 
         # Pass some keystone v3 params. This should work no matter which
         # version of keystone we are testing against.
@@ -107,7 +107,7 @@ class TestUsers(base.KeystoneBaseFunctionalTest):
         self.assertEqual(user['id'], new_user['id'])
         self.assertEqual(user_name + '2', new_user['name'])
         self.assertEqual('somebody@nowhere.com', new_user['email'])
-        self.assertFalse(new_user['enabled'])
+        self.assertFalse(new_user['is_enabled'])
 
     def test_update_user_password(self):
         user_name = self.user_prefix + '_password'

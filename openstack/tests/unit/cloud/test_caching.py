@@ -21,6 +21,7 @@ from openstack.cloud import meta
 from openstack.compute.v2 import flavor as _flavor
 from openstack.network.v2 import port as _port
 from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import user as _user
 from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -113,6 +114,12 @@ class TestMemoryCache(base.TestCase):
     def _compare_projects(self, exp, real):
         self.assertDictEqual(
             _project.Project(**exp).to_dict(computed=False),
+            real.to_dict(computed=False)
+        )
+
+    def _compare_users(self, exp, real):
+        self.assertDictEqual(
+            _user.User(**exp).to_dict(computed=False),
             real.to_dict(computed=False)
         )
 
@@ -329,7 +336,7 @@ class TestMemoryCache(base.TestCase):
         updated_users_list_resp = {'users': [new_resp['user']]}
 
         # Password is None in the original create below
-        user_data.json_request['user']['password'] = None
+        del user_data.json_request['user']['password']
 
         uris_to_mock = [
             # Inital User List is Empty
@@ -355,12 +362,9 @@ class TestMemoryCache(base.TestCase):
             dict(method='GET', uri=mock_users_url, status_code=200,
                  json=updated_users_list_resp),
             # List User to get ID for delete
-            # Get user using user_id from list
             # delete user
             dict(method='GET', uri=mock_users_url, status_code=200,
                  json=updated_users_list_resp),
-            dict(method='GET', uri=mock_user_resource_url, status_code=200,
-                 json=new_resp),
             dict(method='DELETE', uri=mock_user_resource_url, status_code=204),
             # List Users Call (empty post delete)
             dict(method='GET', uri=mock_users_url, status_code=200,
