@@ -469,10 +469,6 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :param region: Endpoint region.
         :param enabled: Whether the endpoint is enabled
 
-        NOTE: Both v2 (public_url, internal_url, admin_url) and v3
-              (url, interface) calling semantics are supported. But
-              you can only use one of them at a time.
-
         :returns: a list of ``munch.Munch`` containing the endpoint description
 
         :raises: OpenStackCloudException if the service cannot be found or if
@@ -493,91 +489,46 @@ class IdentityCloudMixin(_normalize.Normalizer):
                 "service {service} not found".format(
                     service=service_name_or_id))
 
-        if self._is_client_version('identity', 2):
-            if url:
-                # v2.0 in use, v3-like arguments, one endpoint created
-                if interface != 'public':
-                    raise exc.OpenStackCloudException(
-                        "Error adding endpoint for service {service}."
-                        " On a v2 cloud the url/interface API may only be"
-                        " used for public url. Try using the public_url,"
-                        " internal_url, admin_url parameters instead of"
-                        " url and interface".format(
-                            service=service_name_or_id))
-                endpoint_args = {'publicurl': url}
-            else:
-                # v2.0 in use, v2.0-like arguments, one endpoint created
-                endpoint_args = {}
-                if public_url:
-                    endpoint_args.update({'publicurl': public_url})
-                if internal_url:
-                    endpoint_args.update({'internalurl': internal_url})
-                if admin_url:
-                    endpoint_args.update({'adminurl': admin_url})
-
-            # keystone v2.0 requires 'region' arg even if it is None
-            endpoint_args.update(
-                {'service_id': service['id'], 'region': region})
-
-            data = self._identity_client.post(
-                '/endpoints', json={'endpoint': endpoint_args},
-                endpoint_filter={'interface': 'admin'},
-                error_message=("Failed to create endpoint for service"
-                               " {service}".format(service=service['name'])))
-            return [self._get_and_munchify('endpoint', data)]
+        endpoints_args = []
+        if url:
+            # v3 in use, v3-like arguments, one endpoint created
+            endpoints_args.append(
+                {'url': url, 'interface': interface,
+                 'service_id': service['id'], 'enabled': enabled,
+                 'region_id': region})
         else:
-            endpoints_args = []
-            if url:
-                # v3 in use, v3-like arguments, one endpoint created
-                endpoints_args.append(
-                    {'url': url, 'interface': interface,
-                     'service_id': service['id'], 'enabled': enabled,
-                     'region': region})
-            else:
-                # v3 in use, v2.0-like arguments, one endpoint created for each
-                # interface url provided
-                endpoint_args = {'region': region, 'enabled': enabled,
-                                 'service_id': service['id']}
-                if public_url:
-                    endpoint_args.update({'url': public_url,
-                                          'interface': 'public'})
-                    endpoints_args.append(endpoint_args.copy())
-                if internal_url:
-                    endpoint_args.update({'url': internal_url,
-                                          'interface': 'internal'})
-                    endpoints_args.append(endpoint_args.copy())
-                if admin_url:
-                    endpoint_args.update({'url': admin_url,
-                                          'interface': 'admin'})
-                    endpoints_args.append(endpoint_args.copy())
+            # v3 in use, v2.0-like arguments, one endpoint created for each
+            # interface url provided
+            endpoint_args = {'region_id': region, 'enabled': enabled,
+                             'service_id': service['id']}
+            if public_url:
+                endpoint_args.update({'url': public_url,
+                                      'interface': 'public'})
+                endpoints_args.append(endpoint_args.copy())
+            if internal_url:
+                endpoint_args.update({'url': internal_url,
+                                      'interface': 'internal'})
+                endpoints_args.append(endpoint_args.copy())
+            if admin_url:
+                endpoint_args.update({'url': admin_url,
+                                      'interface': 'admin'})
+                endpoints_args.append(endpoint_args.copy())
 
-            endpoints = []
-            error_msg = ("Failed to create endpoint for service"
-                         " {service}".format(service=service['name']))
-            for args in endpoints_args:
-                data = self._identity_client.post(
-                    '/endpoints', json={'endpoint': args},
-                    error_message=error_msg)
-                endpoints.append(self._get_and_munchify('endpoint', data))
-            return endpoints
+        endpoints = []
+        for args in endpoints_args:
+            endpoints.append(self.identity.create_endpoint(**args))
+        return endpoints
 
     @_utils.valid_kwargs('enabled', 'service_name_or_id', 'url', 'interface',
                          'region')
     def update_endpoint(self, endpoint_id, **kwargs):
-        # NOTE(SamYaple): Endpoint updates are only available on v3 api
-        if self._is_client_version('identity', 2):
-            raise exc.OpenStackCloudUnavailableFeature(
-                'Unavailable Feature: Endpoint update'
-            )
-
         service_name_or_id = kwargs.pop('service_name_or_id', None)
         if service_name_or_id is not None:
             kwargs['service_id'] = service_name_or_id
+        if 'region' in kwargs:
+            kwargs['region_id'] = kwargs.pop('region')
 
-        data = self._identity_client.patch(
-            '/endpoints/{}'.format(endpoint_id), json={'endpoint': kwargs},
-            error_message="Failed to update endpoint {}".format(endpoint_id))
-        return self._get_and_munchify('endpoint', data)
+        return self.identity.update_endpoint(endpoint_id, **kwargs)
 
     def list_endpoints(self):
         """List Keystone endpoints.
@@ -587,15 +538,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        # Force admin interface if v2.0 is in use
-        v2 = self._is_client_version('identity', 2)
-        kwargs = {'endpoint_filter': {'interface': 'admin'}} if v2 else {}
-
-        data = self._identity_client.get(
-            '/endpoints', error_message="Failed to list endpoints", **kwargs)
-        endpoints = self._get_and_munchify('endpoints', data)
-
-        return endpoints
+        return list(self.identity.endpoints())
 
     def search_endpoints(self, id=None, filters=None):
         """List Keystone endpoints.
@@ -654,15 +597,13 @@ class IdentityCloudMixin(_normalize.Normalizer):
             self.log.debug("Endpoint %s not found for deleting", id)
             return False
 
-        # Force admin interface if v2.0 is in use
-        v2 = self._is_client_version('identity', 2)
-        kwargs = {'endpoint_filter': {'interface': 'admin'}} if v2 else {}
-
-        error_msg = "Failed to delete endpoint {id}".format(id=id)
-        self._identity_client.delete('/endpoints/{id}'.format(id=id),
-                                     error_message=error_msg, **kwargs)
-
-        return True
+        try:
+            self.identity.delete_endpoint(id)
+            return True
+        except exceptions.SDKException:
+            self.log.exception(
+                "Failed to delete endpoint {id}".format(id=id))
+            return False
 
     def create_domain(self, name, description=None, enabled=True):
         """Create a domain.

@@ -45,10 +45,10 @@ class TestCloudEndpoints(base.TestCase):
             url=self._dummy_url(), enabled=False)
         admin_endpoint_data = self._get_endpoint_v3_data(
             service_id=service_data.service_id, interface='admin',
-            url=self._dummy_url(), region=public_endpoint_data.region)
+            url=self._dummy_url(), region=public_endpoint_data.region_id)
         internal_endpoint_data = self._get_endpoint_v3_data(
             service_id=service_data.service_id, interface='internal',
-            url=self._dummy_url(), region=public_endpoint_data.region)
+            url=self._dummy_url(), region=public_endpoint_data.region_id)
 
         self.register_uris([
             dict(method='GET',
@@ -86,7 +86,7 @@ class TestCloudEndpoints(base.TestCase):
 
         endpoints = self.cloud.create_endpoint(
             service_name_or_id=service_data.service_id,
-            region=public_endpoint_data_disabled.region,
+            region=public_endpoint_data_disabled.region_id,
             url=public_endpoint_data_disabled.url,
             interface=public_endpoint_data_disabled.interface,
             enabled=False)
@@ -101,17 +101,17 @@ class TestCloudEndpoints(base.TestCase):
             endpoints[0].interface,
             matchers.Equals(public_endpoint_data_disabled.interface))
         self.assertThat(
-            endpoints[0].region,
-            matchers.Equals(public_endpoint_data_disabled.region))
+            endpoints[0].region_id,
+            matchers.Equals(public_endpoint_data_disabled.region_id))
         self.assertThat(
             endpoints[0].region_id,
-            matchers.Equals(public_endpoint_data_disabled.region))
-        self.assertThat(endpoints[0].enabled,
+            matchers.Equals(public_endpoint_data_disabled.region_id))
+        self.assertThat(endpoints[0].is_enabled,
                         matchers.Equals(public_endpoint_data_disabled.enabled))
 
         endpoints_2on3 = self.cloud.create_endpoint(
             service_name_or_id=service_data.service_id,
-            region=public_endpoint_data.region,
+            region=public_endpoint_data.region_id,
             public_url=public_endpoint_data.url,
             internal_url=internal_endpoint_data.url,
             admin_url=admin_endpoint_data.url)
@@ -129,9 +129,10 @@ class TestCloudEndpoints(base.TestCase):
             self.assertThat(result.url, matchers.Equals(reference.url))
             self.assertThat(result.interface,
                             matchers.Equals(reference.interface))
-            self.assertThat(result.region,
-                            matchers.Equals(reference.region))
-            self.assertThat(result.enabled, matchers.Equals(reference.enabled))
+            self.assertThat(result.region_id,
+                            matchers.Equals(reference.region_id))
+            self.assertThat(result.is_enabled,
+                            matchers.Equals(reference.enabled))
         self.assert_calls()
 
     def test_update_endpoint_v3(self):
@@ -152,7 +153,7 @@ class TestCloudEndpoints(base.TestCase):
         endpoint = self.cloud.update_endpoint(
             endpoint_data.endpoint_id,
             service_name_or_id=service_data.service_id,
-            region=endpoint_data.region,
+            region=endpoint_data.region_id,
             url=dummy_url,
             interface=endpoint_data.interface,
             enabled=False
@@ -251,7 +252,7 @@ class TestCloudEndpoints(base.TestCase):
 
         # test we are getting the correct response for region/region_id compat
         endpoints = self.cloud.search_endpoints(
-            filters={'region': 'region1'})
+            filters={'region_id': 'region1'})
         # # test we are getting exactly 2 elements, this is v3
         self.assertEqual(2, len(endpoints))
 
