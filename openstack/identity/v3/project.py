@@ -53,8 +53,6 @@ class Project(resource.Resource, resource.TagMixin):
     #: for the project are immediately invalidated. Re-enabling a project
     #: does not re-enable pre-existing tokens. *Type: bool*
     is_enabled = resource.Body('enabled', type=bool)
-    #: Unique project name, within the owning domain. *Type: string*
-    name = resource.Body('name')
     #: The resource options for the project. Available resource options are
     #: immutable.
     options = resource.Body('options', type=dict)

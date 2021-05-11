@@ -644,7 +644,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
 
-        self.network.update_quota(proj, **kwargs)
+        self.network.update_quota(proj.id, **kwargs)
 
     def get_network_quotas(self, name_or_id, details=False):
         """ Get network quotas for a project
@@ -659,7 +659,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
-        return self.network.get_quota(proj, details)
+        return self.network.get_quota(proj.id, details)
 
     def get_network_extensions(self):
         """Get Cloud provided network extensions
@@ -680,7 +680,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
-        self.network.delete_quota(proj)
+        self.network.delete_quota(proj.id)
 
     @_utils.valid_kwargs(
         'action', 'description', 'destination_firewall_group_id',

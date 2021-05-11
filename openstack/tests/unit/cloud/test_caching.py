@@ -20,6 +20,7 @@ import openstack.cloud
 from openstack.cloud import meta
 from openstack.compute.v2 import flavor as _flavor
 from openstack.network.v2 import port as _port
+from openstack.identity.v3 import project as _project
 from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -109,6 +110,12 @@ class TestMemoryCache(base.TestCase):
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, openstack.connection.Connection)
 
+    def _compare_projects(self, exp, real):
+        self.assertDictEqual(
+            _project.Project(**exp).to_dict(computed=False),
+            real.to_dict(computed=False)
+        )
+
     def test_list_projects_v3(self):
         project_one = self._get_project_data()
         project_two = self._get_project_data()
@@ -128,57 +135,17 @@ class TestMemoryCache(base.TestCase):
             dict(method='GET', uri=mock_uri, status_code=200,
                  json=second_response)])
 
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(first_response['projects'])),
-            self.cloud.list_projects())
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(first_response['projects'])),
-            self.cloud.list_projects())
+        for a, b in zip(first_response['projects'],
+                        self.cloud.list_projects()):
+            self._compare_projects(a, b)
+
         # invalidate the list_projects cache
         self.cloud.list_projects.invalidate(self.cloud)
-        # ensure the new values are now retrieved
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(second_response['projects'])),
-            self.cloud.list_projects())
-        self.assert_calls()
 
-    def test_list_projects_v2(self):
-        self.use_keystone_v2()
-        project_one = self._get_project_data(v3=False)
-        project_two = self._get_project_data(v3=False)
-        project_list = [project_one, project_two]
+        for a, b in zip(second_response['projects'],
+                        self.cloud.list_projects()):
+            self._compare_projects(a, b)
 
-        first_response = {'tenants': [project_one.json_response['tenant']]}
-        second_response = {'tenants': [p.json_response['tenant']
-                                       for p in project_list]}
-
-        mock_uri = self.get_mock_url(
-            service_type='identity', interface='admin', resource='tenants')
-
-        self.register_uris([
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json=first_response),
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json=second_response)])
-
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(first_response['tenants'])),
-            self.cloud.list_projects())
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(first_response['tenants'])),
-            self.cloud.list_projects())
-        # invalidate the list_projects cache
-        self.cloud.list_projects.invalidate(self.cloud)
-        # ensure the new values are now retrieved
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(second_response['tenants'])),
-            self.cloud.list_projects())
         self.assert_calls()
 
     def test_list_servers_no_herd(self):

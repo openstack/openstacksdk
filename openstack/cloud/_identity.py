@@ -20,6 +20,7 @@ import munch
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
+from openstack import exceptions
 from openstack import utils
 
 
@@ -50,27 +51,16 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        kwargs = dict(
-            filters=filters,
-            domain_id=domain_id)
-        if self._is_client_version('identity', 3):
-            kwargs['obj_name'] = 'project'
+        if not filters:
+            filters = {}
+        query = dict(
+            **filters)
+        if name_or_id:
+            query['name'] = name_or_id
+        if domain_id:
+            query['domain_id'] = domain_id
 
-        pushdown, filters = _normalize._split_filters(**kwargs)
-
-        try:
-            if self._is_client_version('identity', 3):
-                key = 'projects'
-            else:
-                key = 'tenants'
-            data = self._identity_client.get(
-                '/{endpoint}'.format(endpoint=key), params=pushdown)
-            projects = self._normalize_projects(
-                self._get_and_munchify(key, data))
-        except Exception as e:
-            self.log.debug("Failed to list projects", exc_info=True)
-            raise exc.OpenStackCloudException(str(e))
-        return _utils._filter_list(projects, name_or_id, filters)
+        return list(self.identity.projects(**query))
 
     def search_projects(self, name_or_id=None, filters=None, domain_id=None):
         '''Backwards compatibility method for search_projects
@@ -80,8 +70,8 @@ class IdentityCloudMixin(_normalize.Normalizer):
         to allow code written with positional parameter to still work. But
         really, use keyword arguments.
         '''
-        return self.list_projects(
-            domain_id=domain_id, name_or_id=name_or_id, filters=filters)
+        projects = self.list_projects(domain_id=domain_id, filters=filters)
+        return _utils._filter_list(projects, name_or_id, filters)
 
     def get_project(self, name_or_id, filters=None, domain_id=None):
         """Get exactly one project.
@@ -100,48 +90,29 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
     def update_project(self, name_or_id, enabled=None, domain_id=None,
                        **kwargs):
-        with _utils.shade_exceptions(
-                "Error in updating project {project}".format(
-                    project=name_or_id)):
-            proj = self.get_project(name_or_id, domain_id=domain_id)
-            if not proj:
-                raise exc.OpenStackCloudException(
-                    "Project %s not found." % name_or_id)
-            if enabled is not None:
-                kwargs.update({'enabled': enabled})
-            # NOTE(samueldmq): Current code only allow updates of description
-            # or enabled fields.
-            if self._is_client_version('identity', 3):
-                data = self._identity_client.patch(
-                    '/projects/' + proj['id'], json={'project': kwargs})
-                project = self._get_and_munchify('project', data)
-            else:
-                data = self._identity_client.post(
-                    '/tenants/' + proj['id'], json={'tenant': kwargs})
-                project = self._get_and_munchify('tenant', data)
-            project = self._normalize_project(project)
+
+        project = self.identity.find_project(
+            name_or_id=name_or_id,
+            domain_id=domain_id)
+        if not project:
+            raise exceptions.SDKException(
+                "Project %s not found." % name_or_id)
+        if enabled is not None:
+            kwargs.update({'enabled': enabled})
+        project = self.identity.update_project(project, **kwargs)
         self.list_projects.invalidate(self)
         return project
 
     def create_project(
-            self, name, description=None, domain_id=None, enabled=True):
+            self, name, domain_id, description=None, enabled=True):
         """Create a project."""
-        with _utils.shade_exceptions(
-                "Error in creating project {project}".format(project=name)):
-            project_ref = self._get_domain_id_param_dict(domain_id)
-            project_ref.update({'name': name,
-                                'description': description,
-                                'enabled': enabled})
-            endpoint, key = ('tenants', 'tenant')
-            if self._is_client_version('identity', 3):
-                endpoint, key = ('projects', 'project')
-            data = self._identity_client.post(
-                '/{endpoint}'.format(endpoint=endpoint),
-                json={key: project_ref})
-            project = self._normalize_project(
-                self._get_and_munchify(key, data))
-        self.list_projects.invalidate(self)
-        return project
+        attrs = dict(
+            name=name,
+            description=description,
+            domain_id=domain_id,
+            is_enabled=enabled
+        )
+        return self.identity.create_project(**attrs)
 
     def delete_project(self, name_or_id, domain_id=None):
         """Delete a project.
@@ -155,22 +126,22 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
-
-        with _utils.shade_exceptions(
-                "Error in deleting project {project}".format(
-                    project=name_or_id)):
-            project = self.get_project(name_or_id, domain_id=domain_id)
-            if project is None:
+        try:
+            project = self.identity.find_project(
+                name_or_id=name_or_id,
+                ignore_missing=True,
+                domain_id=domain_id
+            )
+            if not project:
                 self.log.debug(
                     "Project %s not found for deleting", name_or_id)
                 return False
-
-            if self._is_client_version('identity', 3):
-                self._identity_client.delete('/projects/' + project['id'])
-            else:
-                self._identity_client.delete('/tenants/' + project['id'])
-
-        return True
+            self.identity.delete_project(project)
+            return True
+        except exceptions.SDKException:
+            self.log.exception("Error in deleting project {project}".format(
+                project=name_or_id))
+            return False
 
     @_utils.valid_kwargs('domain_id', 'name')
     @_utils.cache_on_arguments()
@@ -1159,7 +1130,12 @@ class IdentityCloudMixin(_normalize.Normalizer):
                 del filters[k]
         for k in ('project', 'domain'):
             if k in filters:
-                filters['scope.' + k + '.id'] = filters[k]
+                try:
+                    filters['scope.' + k + '.id'] = filters[k].id
+                except AttributeError:
+                    # NOTE(gtema): will be dropped once domains are switched to
+                    # proxy
+                    filters['scope.' + k + '.id'] = filters[k]
                 del filters[k]
         if 'os_inherit_extension_inherited_to' in filters:
             filters['scope.OS-INHERIT:inherited_to'] = (
@@ -1332,7 +1308,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         if project:
             # drop domain in favor of project
             data.pop('domain', None)
-            data['project'] = self.get_project(project, filters=filters)
+            data['project'] = self.identity.find_project(project, **filters)
 
         if not is_keystone_v2 and group:
             data['group'] = self.get_group(group, filters=filters)

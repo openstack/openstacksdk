@@ -91,302 +91,6 @@ class TestRoleAssignment(base.TestCase):
             service_type, interface, resource, append, base_url_append,
             qs_elements)
 
-    def test_grant_role_user_v2(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            # user name
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={'tenants': [
-                     self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            dict(method='PUT',
-                 status_code=201,
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id,
-                             'users', self.user_data.user_id, 'roles',
-                             'OS-KSADM', self.role_data.role_id])),
-            # user id
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users'),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={'tenants': [
-                     self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id,
-                             'users', self.user_data.user_id, 'roles',
-                             'OS-KSADM', self.role_data.role_id]),
-                 status_code=201)
-        ])
-        # user name
-        self.assertTrue(
-            self.cloud.grant_role(
-                self.role_data.role_name,
-                user=self.user_data.name,
-                project=self.project_data.project_id))
-        # user id
-        self.assertTrue(
-            self.cloud.grant_role(
-                self.role_data.role_name,
-                user=self.user_data.user_id,
-                project=self.project_data.project_id))
-        self.assert_calls()
-
-    def test_grant_role_user_project_v2(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            # role name and user name
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={'tenants': [
-                     self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id,
-                             'users', self.user_data.user_id, 'roles',
-                             'OS-KSADM', self.role_data.role_id]),
-                 status_code=201),
-            # role name and user id
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users'),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={'tenants': [
-                     self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id,
-                             'users', self.user_data.user_id, 'roles',
-                             'OS-KSADM', self.role_data.role_id]),
-                 status_code=201),
-            # role id and user name
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={'tenants': [
-                     self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id,
-                             'users', self.user_data.user_id, 'roles',
-                             'OS-KSADM', self.role_data.role_id]),
-                 status_code=201,
-                 ),
-            # role id and user id
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users'),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={'tenants': [
-                     self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id,
-                             'users', self.user_data.user_id, 'roles',
-                             'OS-KSADM', self.role_data.role_id]),
-                 status_code=201)
-        ])
-        # role name and user name
-        self.assertTrue(
-            self.cloud.grant_role(
-                self.role_data.role_name,
-                user=self.user_data.name,
-                project=self.project_data_v2.project_id))
-        # role name and user id
-        self.assertTrue(
-            self.cloud.grant_role(
-                self.role_data.role_name,
-                user=self.user_data.user_id,
-                project=self.project_data_v2.project_id))
-        # role id and user name
-        self.assertTrue(
-            self.cloud.grant_role(
-                self.role_data.role_id,
-                user=self.user_data.name,
-                project=self.project_data_v2.project_id))
-        # role id and user id
-        self.assertTrue(
-            self.cloud.grant_role(
-                self.role_data.role_id,
-                user=self.user_data.user_id,
-                project=self.project_data_v2.project_id))
-        self.assert_calls()
-
-    def test_grant_role_user_project_v2_exists(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={'tenants': [
-                     self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-        ])
-        self.assertFalse(self.cloud.grant_role(
-            self.role_data.role_name,
-            user=self.user_data.name,
-            project=self.project_data_v2.project_id))
-        self.assert_calls()
-
     def test_grant_role_user_project(self):
         self.register_uris([
             # user name
@@ -401,10 +105,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -432,10 +138,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -482,10 +190,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -512,10 +222,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -552,10 +264,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(resource='groups'),
                  status_code=200,
@@ -582,10 +296,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(resource='groups'),
                  status_code=200,
@@ -625,10 +341,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(resource='groups'),
                  status_code=200,
@@ -654,10 +372,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(resource='groups'),
                  status_code=200,
@@ -1309,284 +1029,6 @@ class TestRoleAssignment(base.TestCase):
             domain=self.domain_data.domain_name))
         self.assert_calls()
 
-    def test_revoke_role_user_v2(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            # user name
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     base_url_append='OS-KSADM',
-                     resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='users', qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id, 'users',
-                             self.user_data.user_id, 'roles']),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles', 'OS-KSADM',
-                                               self.role_data.role_id]),
-                 status_code=204),
-            # user id
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     base_url_append='OS-KSADM',
-                     resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='users'),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id, 'users',
-                             self.user_data.user_id, 'roles']),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles', 'OS-KSADM',
-                                               self.role_data.role_id]),
-                 status_code=204),
-        ])
-        # user name
-        self.assertTrue(self.cloud.revoke_role(
-            self.role_data.role_name,
-            user=self.user_data.name,
-            project=self.project_data.project_id))
-        # user id
-        self.assertTrue(self.cloud.revoke_role(
-            self.role_data.role_name,
-            user=self.user_data.user_id,
-            project=self.project_data.project_id))
-        self.assert_calls()
-
-    def test_revoke_role_user_project_v2(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            # role name and user name
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            # role name and user id
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users'),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            # role id and user name
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            # role id and user id
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users'),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []})
-        ])
-        # role name and user name
-        self.assertFalse(self.cloud.revoke_role(
-            self.role_data.role_name,
-            user=self.user_data.name,
-            project=self.project_data.project_id))
-        # role name and user id
-        self.assertFalse(self.cloud.revoke_role(
-            self.role_data.role_name,
-            user=self.user_data.user_id,
-            project=self.project_data.project_id))
-        # role id and user name
-        self.assertFalse(self.cloud.revoke_role(
-            self.role_data.role_id,
-            user=self.user_data.name,
-            project=self.project_data.project_id))
-        # role id and user id
-        self.assertFalse(self.cloud.revoke_role(
-            self.role_data.role_id,
-            user=self.user_data.user_id,
-            project=self.project_data.project_id))
-        self.assert_calls()
-
-    def test_revoke_role_user_project_v2_exists(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles', 'OS-KSADM',
-                                               self.role_data.role_id]),
-                 status_code=204),
-        ])
-        self.assertTrue(self.cloud.revoke_role(
-            self.role_data.role_name,
-            user=self.user_data.name,
-            project=self.project_data.project_id))
-        self.assert_calls()
-
     def test_revoke_role_user_project(self):
         self.register_uris([
             # user name
@@ -1601,10 +1043,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -1625,10 +1069,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -1666,10 +1112,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -1703,10 +1151,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -1750,10 +1200,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(resource='groups'),
                  status_code=200,
@@ -1773,10 +1225,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(resource='groups'),
                  status_code=200,
@@ -1809,10 +1263,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(resource='groups'),
                  status_code=200,
@@ -1845,10 +1301,12 @@ class TestRoleAssignment(base.TestCase):
                  status_code=200,
                  json={'roles': [self.role_data.json_response['role']]}),
             dict(method='GET',
-                 uri=self.get_mock_url(resource='projects'),
+                 uri=self.get_mock_url(
+                     resource='projects',
+                     append=[self.project_data.project_id]),
                  status_code=200,
-                 json={'projects': [
-                     self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(resource='groups'),
                  status_code=200,
@@ -2684,11 +2142,13 @@ class TestRoleAssignment(base.TestCase):
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     resource=('projects?domain_id=%s' %
-                               self.domain_data.domain_id)),
+                     resource='projects',
+                     append=[self.project_data.project_id],
+                     qs_elements=['domain_id=' + self.domain_data.domain_id]
+                 ),
                  status_code=200,
-                 json={'projects':
-                       [self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -2739,11 +2199,12 @@ class TestRoleAssignment(base.TestCase):
                  json={'users': [self.user_data.json_response['user']]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     resource=('projects?domain_id=%s' %
-                               self.domain_data.domain_id)),
+                     resource='projects',
+                     append=[self.project_data.project_id],
+                     qs_elements=['domain_id=' + self.domain_data.domain_id]),
                  status_code=200,
-                 json={'projects':
-                       [self.project_data.json_response['project']]}),
+                 json={'project':
+                       self.project_data.json_response['project']}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      resource='role_assignments',
@@ -2887,241 +2348,3 @@ class TestRoleAssignment(base.TestCase):
                 user=self.user_data.name,
                 domain='baddomain')
         self.assert_calls()
-
-    def test_grant_role_user_project_v2_wait(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={'tenants': [
-                     self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-            dict(method='PUT',
-                 uri=self.get_mock_url(
-                     base_url_append=None,
-                     resource='tenants',
-                     append=[self.project_data_v2.project_id,
-                             'users', self.user_data.user_id, 'roles',
-                             'OS-KSADM', self.role_data.role_id]),
-                 status_code=201),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-        ])
-        self.assertTrue(
-            self.cloud.grant_role(
-                self.role_data.role_name,
-                user=self.user_data.name,
-                project=self.project_data.project_id,
-                wait=True))
-        self.assert_calls()
-
-    def test_grant_role_user_project_v2_wait_exception(self):
-        self.use_keystone_v2()
-
-        with testtools.ExpectedException(
-            exc.OpenStackCloudTimeout,
-            'Timeout waiting for role to be granted'
-        ):
-            self.register_uris([
-                dict(method='GET',
-                     uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                           resource='roles'),
-                     status_code=200,
-                     json={'roles': [self.role_data.json_response['role']]}),
-                dict(method='GET',
-                     uri=self.get_mock_url(base_url_append=None,
-                                           resource='users',
-                                           qs_elements=['name=%s' %
-                                                        self.user_data.name]),
-                     status_code=200,
-                     json={'users': [self.user_data.json_response['user']]}),
-                dict(method='GET',
-                     uri=self.get_mock_url(base_url_append=None,
-                                           resource='tenants'),
-                     status_code=200,
-                     json={'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-                dict(method='GET',
-                     uri=self.get_mock_url(base_url_append=None,
-                                           resource='tenants',
-                                           append=[
-                                               self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                     status_code=200,
-                     json={'roles': []}),
-                dict(method='PUT',
-                     uri=self.get_mock_url(
-                         base_url_append=None,
-                         resource='tenants',
-                         append=[self.project_data_v2.project_id,
-                                 'users', self.user_data.user_id, 'roles',
-                                 'OS-KSADM', self.role_data.role_id]),
-                     status_code=201),
-                dict(method='GET',
-                     uri=self.get_mock_url(base_url_append=None,
-                                           resource='tenants',
-                                           append=[
-                                               self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                     status_code=200,
-                     json={'roles': []}),
-            ])
-            self.assertTrue(
-                self.cloud.grant_role(
-                    self.role_data.role_name,
-                    user=self.user_data.name,
-                    project=self.project_data.project_id,
-                    wait=True, timeout=0.01))
-        self.assert_calls(do_count=False)
-
-    def test_revoke_role_user_project_v2_wait(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles', 'OS-KSADM',
-                                               self.role_data.role_id]),
-                 status_code=204),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': []}),
-        ])
-        self.assertTrue(
-            self.cloud.revoke_role(
-                self.role_data.role_name,
-                user=self.user_data.name,
-                project=self.project_data.project_id,
-                wait=True))
-        self.assert_calls(do_count=False)
-
-    def test_revoke_role_user_project_v2_wait_exception(self):
-        self.use_keystone_v2()
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM',
-                                       resource='roles'),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='users',
-                                       qs_elements=['name=%s' %
-                                                    self.user_data.name]),
-                 status_code=200,
-                 json={'users': [self.user_data.json_response['user']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants'),
-                 status_code=200,
-                 json={
-                     'tenants': [
-                         self.project_data_v2.json_response['tenant']]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles', 'OS-KSADM',
-                                               self.role_data.role_id]),
-                 status_code=204),
-            dict(method='GET',
-                 uri=self.get_mock_url(base_url_append=None,
-                                       resource='tenants',
-                                       append=[self.project_data_v2.project_id,
-                                               'users',
-                                               self.user_data.user_id,
-                                               'roles']),
-                 status_code=200,
-                 json={'roles': [self.role_data.json_response['role']]}),
-        ])
-        with testtools.ExpectedException(
-            exc.OpenStackCloudTimeout,
-            'Timeout waiting for role to be revoked'
-        ):
-            self.assertTrue(self.cloud.revoke_role(
-                self.role_data.role_name,
-                user=self.user_data.name,
-                project=self.project_data.project_id,
-                wait=True, timeout=0.01))
-        self.assert_calls(do_count=False)

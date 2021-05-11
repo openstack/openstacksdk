@@ -266,13 +266,9 @@ class TestCase(base.TestCase):
             response['description'] = description
             request['description'] = description
         request.setdefault('description', None)
-        if v3:
-            project_key = 'project'
-        else:
-            project_key = 'tenant'
         return _ProjectData(project_id, project_name, enabled, domain_id,
-                            description, {project_key: response},
-                            {project_key: request})
+                            description, {'project': response},
+                            {'project': request})
 
     def _get_group_data(self, name=None, domain_id=None, description=None):
         group_id = uuid.uuid4().hex
