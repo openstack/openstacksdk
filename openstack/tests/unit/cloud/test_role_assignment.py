@@ -2316,10 +2316,7 @@ class TestRoleAssignment(base.TestCase):
                  headers={'Content-Type': 'text/plain'},
                  text='Could not find domain: baddomain')
         ])
-        with testtools.ExpectedException(
-            exc.OpenStackCloudURINotFound,
-            'Failed to get domain baddomain'
-        ):
+        with testtools.ExpectedException(exc.OpenStackCloudURINotFound):
             self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name,
@@ -2339,10 +2336,7 @@ class TestRoleAssignment(base.TestCase):
                  headers={'Content-Type': 'text/plain'},
                  text='Could not find domain: baddomain')
         ])
-        with testtools.ExpectedException(
-            exc.OpenStackCloudURINotFound,
-            'Failed to get domain baddomain'
-        ):
+        with testtools.ExpectedException(exc.OpenStackCloudURINotFound):
             self.cloud.revoke_role(
                 self.role_data.role_name,
                 user=self.user_data.name,

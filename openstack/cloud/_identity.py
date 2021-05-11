@@ -720,11 +720,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         domain_ref = {'name': name, 'enabled': enabled}
         if description is not None:
             domain_ref['description'] = description
-        msg = 'Failed to create domain {name}'.format(name=name)
-        data = self._identity_client.post(
-            '/domains', json={'domain': domain_ref}, error_message=msg)
-        domain = self._get_and_munchify('domain', data)
-        return _utils.normalize_domains([domain])[0]
+        return self.identity.create_domain(**domain_ref)
 
     def update_domain(
             self, domain_id=None, name=None, description=None,
@@ -745,13 +741,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         domain_ref.update({'name': name} if name else {})
         domain_ref.update({'description': description} if description else {})
         domain_ref.update({'enabled': enabled} if enabled is not None else {})
-
-        error_msg = "Error in updating domain {id}".format(id=domain_id)
-        data = self._identity_client.patch(
-            '/domains/{id}'.format(id=domain_id),
-            json={'domain': domain_ref}, error_message=error_msg)
-        domain = self._get_and_munchify('domain', data)
-        return _utils.normalize_domains([domain])[0]
+        return self.identity.update_domain(domain_id, **domain_ref)
 
     def delete_domain(self, domain_id=None, name_or_id=None):
         """Delete a domain.
@@ -764,25 +754,27 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call.
         """
-        if domain_id is None:
-            if name_or_id is None:
-                raise exc.OpenStackCloudException(
-                    "You must pass either domain_id or name_or_id value"
-                )
-            dom = self.get_domain(name_or_id=name_or_id)
-            if dom is None:
-                self.log.debug(
-                    "Domain %s not found for deleting", name_or_id)
-                return False
-            domain_id = dom['id']
+        try:
+            if domain_id is None:
+                if name_or_id is None:
+                    raise exc.OpenStackCloudException(
+                        "You must pass either domain_id or name_or_id value"
+                    )
+                dom = self.get_domain(name_or_id=name_or_id)
+                if dom is None:
+                    self.log.debug(
+                        "Domain %s not found for deleting", name_or_id)
+                    return False
+                domain_id = dom['id']
 
-        # A domain must be disabled before deleting
-        self.update_domain(domain_id, enabled=False)
-        error_msg = "Failed to delete domain {id}".format(id=domain_id)
-        self._identity_client.delete('/domains/{id}'.format(id=domain_id),
-                                     error_message=error_msg)
+            # A domain must be disabled before deleting
+            self.identity.update_domain(domain_id, is_enabled=False)
+            self.identity.delete_domain(domain_id, ignore_missing=False)
 
-        return True
+            return True
+        except exceptions.SDKException:
+            self.log.exception("Failed to delete domain %s" % domain_id)
+            raise
 
     def list_domains(self, **filters):
         """List Keystone domains.
@@ -792,10 +784,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        data = self._identity_client.get(
-            '/domains', params=filters, error_message="Failed to list domains")
-        domains = self._get_and_munchify('domains', data)
-        return _utils.normalize_domains(domains)
+        return list(self.identity.domains(**filters))
 
     def search_domains(self, filters=None, name_or_id=None):
         """Search Keystone domains.
@@ -840,20 +829,11 @@ class IdentityCloudMixin(_normalize.Normalizer):
             the OpenStack API call.
         """
         if domain_id is None:
-            # NOTE(SamYaple): search_domains() has filters and name_or_id
-            # in the wrong positional order which prevents _get_entity from
-            # being able to return quickly if passing a domain object so we
-            # duplicate that logic here
-            if hasattr(name_or_id, 'id'):
-                return name_or_id
-            return _utils._get_entity(self, 'domain', filters, name_or_id)
+            if not filters:
+                filters = {}
+            return self.identity.find_domain(name_or_id, **filters)
         else:
-            error_msg = 'Failed to get domain {id}'.format(id=domain_id)
-            data = self._identity_client.get(
-                '/domains/{id}'.format(id=domain_id),
-                error_message=error_msg)
-            domain = self._get_and_munchify('domain', data)
-            return _utils.normalize_domains([domain])[0]
+            return self.identity.get_domain(domain_id)
 
     @_utils.valid_kwargs('domain_id')
     @_utils.cache_on_arguments()
