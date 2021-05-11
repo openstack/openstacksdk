@@ -88,8 +88,9 @@ class IdentityCloudMixin(_normalize.Normalizer):
         return _utils._get_entity(self, 'project', name_or_id, filters,
                                   domain_id=domain_id)
 
-    def update_project(self, name_or_id, enabled=None, domain_id=None,
-                       **kwargs):
+    def update_project(
+        self, name_or_id, enabled=None, domain_id=None, **kwargs
+    ):
 
         project = self.identity.find_project(
             name_or_id=name_or_id,
@@ -104,7 +105,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         return project
 
     def create_project(
-            self, name, domain_id, description=None, enabled=True):
+            self, name, domain_id, description=None, enabled=True, **kwargs):
         """Create a project."""
         attrs = dict(
             name=name,
@@ -112,6 +113,8 @@ class IdentityCloudMixin(_normalize.Normalizer):
             domain_id=domain_id,
             is_enabled=enabled
         )
+        if kwargs:
+            attrs.update(kwargs)
         return self.identity.create_project(**attrs)
 
     def delete_project(self, name_or_id, domain_id=None):

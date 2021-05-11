@@ -37,7 +37,7 @@ from openstack.tests import fakes
 _ProjectData = collections.namedtuple(
     'ProjectData',
     'project_id, project_name, enabled, domain_id, description, '
-    'json_response, json_request')
+    'parent_id, json_response, json_request')
 
 
 _UserData = collections.namedtuple(
@@ -247,9 +247,11 @@ class TestCase(base.TestCase):
 
     def _get_project_data(self, project_name=None, enabled=None,
                           domain_id=None, description=None, v3=True,
-                          project_id=None):
+                          project_id=None, parent_id=None):
         project_name = project_name or self.getUniqueString('projectName')
         project_id = uuid.UUID(project_id or uuid.uuid4().hex).hex
+        if parent_id:
+            parent_id = uuid.UUID(parent_id).hex
         response = {'id': project_id, 'name': project_name}
         request = {'name': project_name}
         domain_id = (domain_id or uuid.uuid4().hex) if v3 else None
@@ -260,6 +262,9 @@ class TestCase(base.TestCase):
             enabled = bool(enabled)
             response['enabled'] = enabled
             request['enabled'] = enabled
+        if parent_id:
+            request['parent_id'] = parent_id
+            response['parent_id'] = parent_id
         response.setdefault('enabled', True)
         request.setdefault('enabled', True)
         if description:
@@ -267,8 +272,8 @@ class TestCase(base.TestCase):
             request['description'] = description
         request.setdefault('description', None)
         return _ProjectData(project_id, project_name, enabled, domain_id,
-                            description, {'project': response},
-                            {'project': request})
+                            description, parent_id,
+                            {'project': response}, {'project': request})
 
     def _get_group_data(self, name=None, domain_id=None, description=None):
         group_id = uuid.uuid4().hex

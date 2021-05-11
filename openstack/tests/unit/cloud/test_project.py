@@ -12,6 +12,7 @@
 
 import testtools
 from testtools import matchers
+import uuid
 
 import openstack.cloud
 import openstack.cloud._utils
@@ -36,7 +37,8 @@ class TestProject(base.TestCase):
 
     def test_create_project_v3(self,):
         project_data = self._get_project_data(
-            description=self.getUniqueString('projectDesc'))
+            description=self.getUniqueString('projectDesc'),
+            parent_id=uuid.uuid4().hex)
         reference_req = project_data.json_request.copy()
         reference_req['project']['enabled'] = True
         self.register_uris([
@@ -49,7 +51,8 @@ class TestProject(base.TestCase):
         project = self.cloud.create_project(
             name=project_data.project_name,
             description=project_data.description,
-            domain_id=project_data.domain_id)
+            domain_id=project_data.domain_id,
+            parent_id=project_data.parent_id)
         self.assertThat(project.id, matchers.Equals(project_data.project_id))
         self.assertThat(
             project.name, matchers.Equals(project_data.project_name))
