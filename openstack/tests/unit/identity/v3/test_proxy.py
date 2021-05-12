@@ -29,10 +29,13 @@ from openstack.tests.unit import test_proxy_base
 USER_ID = 'user-id-' + uuid.uuid4().hex
 
 
-class TestIdentityProxy(test_proxy_base.TestProxyBase):
+class TestIdentityProxyBase(test_proxy_base.TestProxyBase):
     def setUp(self):
-        super(TestIdentityProxy, self).setUp()
+        super(TestIdentityProxyBase, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
+
+
+class TestIdentityProxy(TestIdentityProxyBase):
 
     def test_credential_create_attrs(self):
         self.verify_create(self.proxy.create_credential,
@@ -274,3 +277,162 @@ class TestIdentityProxy(test_proxy_base.TestProxyBase):
 
     def test_role_update(self):
         self.verify_update(self.proxy.update_role, role.Role)
+
+
+class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
+
+    def test_assign_domain_role_to_user(self):
+        self._verify(
+            "openstack.identity.v3.domain.Domain.assign_role_to_user",
+            self.proxy.assign_domain_role_to_user,
+            method_args=['dom_id'],
+            method_kwargs={'user': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_unassign_domain_role_from_user(self):
+        self._verify(
+            "openstack.identity.v3.domain.Domain.unassign_role_from_user",
+            self.proxy.unassign_domain_role_from_user,
+            method_args=['dom_id'],
+            method_kwargs={'user': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_validate_user_has_domain_role(self):
+        self._verify(
+            "openstack.identity.v3.domain.Domain.validate_user_has_role",
+            self.proxy.validate_user_has_domain_role,
+            method_args=['dom_id'],
+            method_kwargs={'user': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_assign_domain_role_to_group(self):
+        self._verify(
+            "openstack.identity.v3.domain.Domain.assign_role_to_group",
+            self.proxy.assign_domain_role_to_group,
+            method_args=['dom_id'],
+            method_kwargs={'group': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_unassign_domain_role_from_group(self):
+        self._verify(
+            "openstack.identity.v3.domain.Domain.unassign_role_from_group",
+            self.proxy.unassign_domain_role_from_group,
+            method_args=['dom_id'],
+            method_kwargs={'group': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_validate_group_has_domain_role(self):
+        self._verify(
+            "openstack.identity.v3.domain.Domain.validate_group_has_role",
+            self.proxy.validate_group_has_domain_role,
+            method_args=['dom_id'],
+            method_kwargs={'group': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_assign_project_role_to_user(self):
+        self._verify(
+            "openstack.identity.v3.project.Project.assign_role_to_user",
+            self.proxy.assign_project_role_to_user,
+            method_args=['dom_id'],
+            method_kwargs={'user': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_unassign_project_role_from_user(self):
+        self._verify(
+            "openstack.identity.v3.project.Project.unassign_role_from_user",
+            self.proxy.unassign_project_role_from_user,
+            method_args=['dom_id'],
+            method_kwargs={'user': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_validate_user_has_project_role(self):
+        self._verify(
+            "openstack.identity.v3.project.Project.validate_user_has_role",
+            self.proxy.validate_user_has_project_role,
+            method_args=['dom_id'],
+            method_kwargs={'user': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_assign_project_role_to_group(self):
+        self._verify(
+            "openstack.identity.v3.project.Project.assign_role_to_group",
+            self.proxy.assign_project_role_to_group,
+            method_args=['dom_id'],
+            method_kwargs={'group': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_unassign_project_role_from_group(self):
+        self._verify(
+            "openstack.identity.v3.project.Project.unassign_role_from_group",
+            self.proxy.unassign_project_role_from_group,
+            method_args=['dom_id'],
+            method_kwargs={'group': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_validate_group_has_project_role(self):
+        self._verify(
+            "openstack.identity.v3.project.Project.validate_group_has_role",
+            self.proxy.validate_group_has_project_role,
+            method_args=['dom_id'],
+            method_kwargs={'group': 'uid', 'role': 'rid'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
