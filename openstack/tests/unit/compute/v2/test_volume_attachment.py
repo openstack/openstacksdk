@@ -19,6 +19,7 @@ EXAMPLE = {
     'id': '2',
     'volume_id': '3',
     'tag': '4',
+    'delete_on_termination': 'true',
 }
 
 
@@ -46,3 +47,5 @@ class TestServerInterface(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['volume_id'], sot.volume_id)
         self.assertEqual(EXAMPLE['tag'], sot.tag)
+        self.assertEqual(EXAMPLE['delete_on_termination'],
+                         sot.delete_on_termination)

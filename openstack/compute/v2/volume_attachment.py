@@ -39,5 +39,7 @@ class VolumeAttachment(resource.Resource):
     attachment_id = resource.Body('attachment_id', alternate_id=True)
     #: Virtual device tags for the attachment.
     tag = resource.Body('tag')
-    # tag introduced in 2.70
-    _max_microversion = '2.70'
+    #: Indicates whether to delete the volume when server is destroyed
+    delete_on_termination = resource.Body('delete_on_termination')
+    # delete_on_termination introduced in 2.79
+    _max_microversion = '2.79'
