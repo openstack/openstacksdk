@@ -329,7 +329,7 @@ def normalize_role_assignments(assignments):
             if scope in assignment['scope']:
                 new_val[scope] = assignment['scope'][scope]['id']
         for assignee in ('user', 'group'):
-            if assignee in assignment:
+            if assignment[assignee]:
                 new_val[assignee] = assignment[assignee]['id']
         new_assignments.append(new_val)
     return new_assignments
