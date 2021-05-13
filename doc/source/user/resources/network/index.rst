@@ -13,6 +13,7 @@ Network Resources
    v2/flavor
    v2/floating_ip
    v2/health_monitor
+   v2/ipsec_site_connection
    v2/listener
    v2/load_balancer
    v2/metering_label

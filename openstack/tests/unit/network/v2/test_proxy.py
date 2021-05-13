@@ -26,6 +26,7 @@ from openstack.network.v2 import firewall_rule
 from openstack.network.v2 import flavor
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import health_monitor
+from openstack.network.v2 import ipsec_site_connection
 from openstack.network.v2 import l3_conntrack_helper
 from openstack.network.v2 import listener
 from openstack.network.v2 import load_balancer
@@ -223,6 +224,34 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_health_monitor_update(self):
         self.verify_update(self.proxy.update_health_monitor,
                            health_monitor.HealthMonitor)
+
+    def test_ipsec_site_connection_create_attrs(self):
+        self.verify_create(self.proxy.create_vpn_ipsec_site_connection,
+                           ipsec_site_connection.IPSecSiteConnection)
+
+    def test_ipsec_site_connection_delete(self):
+        self.verify_delete(self.proxy.delete_vpn_ipsec_site_connection,
+                           ipsec_site_connection.IPSecSiteConnection, False)
+
+    def test_ipsec_site_connection_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_vpn_ipsec_site_connection,
+                           ipsec_site_connection.IPSecSiteConnection, True)
+
+    def test_ipsec_site_connection_find(self):
+        self.verify_find(self.proxy.find_vpn_ipsec_site_connection,
+                         ipsec_site_connection.IPSecSiteConnection)
+
+    def test_ipsec_site_connection_get(self):
+        self.verify_get(self.proxy.get_vpn_ipsec_site_connection,
+                        ipsec_site_connection.IPSecSiteConnection)
+
+    def test_ipsec_site_connections(self):
+        self.verify_list(self.proxy.vpn_ipsec_site_connections,
+                         ipsec_site_connection.IPSecSiteConnection)
+
+    def test_ipsec_site_connection_update(self):
+        self.verify_update(self.proxy.update_vpn_ipsec_site_connection,
+                           ipsec_site_connection.IPSecSiteConnection)
 
     def test_listener_create_attrs(self):
         self.verify_create(self.proxy.create_listener, listener.Listener)

@@ -24,6 +24,8 @@ from openstack.network.v2 import firewall_rule as _firewall_rule
 from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import floating_ip as _floating_ip
 from openstack.network.v2 import health_monitor as _health_monitor
+from openstack.network.v2 import ipsec_site_connection as \
+    _ipsec_site_connection
 from openstack.network.v2 import l3_conntrack_helper as _l3_conntrack_helper
 from openstack.network.v2 import listener as _listener
 from openstack.network.v2 import load_balancer as _load_balancer
@@ -950,6 +952,100 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_health_monitor.HealthMonitor, health_monitor,
                             **attrs)
+
+    def create_vpn_ipsec_site_connection(self, **attrs):
+        """Create a new ipsec site connection from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.ipsec_site_connection.
+            IPSecSiteConnection`, comprised of the properties on the
+            IPSecSiteConnection class.
+
+        :returns: The results of ipsec site connection creation :rtype:
+            :class:`~openstack.network.v2.ipsec_site_connection.
+            IPSecSiteConnection`
+        """
+        return self._create(_ipsec_site_connection.IPSecSiteConnection,
+                            **attrs)
+
+    def find_vpn_ipsec_site_connection(self, name_or_id,
+                                       ignore_missing=True, **args):
+        """Find a single ipsec site connection
+
+        :param name_or_id: The name or ID of an ipsec site connection.
+        :param bool ignore_missing: When set to ``False`` :class:`~openstack.
+            exceptions.ResourceNotFound` will be raised when the resource does
+            not exist.When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods such as query filters.
+        :returns: One :class:`~openstack.network.v2.ipsec_site_connection.
+            IPSecSiteConnection` or None
+        """
+        return self._find(_ipsec_site_connection.IPSecSiteConnection,
+                          name_or_id, ignore_missing=ignore_missing, **args)
+
+    def get_vpn_ipsec_site_connection(self, ipsec_site_connection):
+        """Get a single ipsec site connection
+
+        :param ipsec_site_connection: The value can be the ID of an ipsec site
+            connection or a :class:`~openstack.network.v2.
+            ipsec_site_connection.IPSecSiteConnection` instance.
+
+        :returns: One :class:`~openstack.network.v2.ipsec_site_connection.
+            IPSecSiteConnection`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_ipsec_site_connection.IPSecSiteConnection,
+                         ipsec_site_connection)
+
+    def vpn_ipsec_site_connections(self, **query):
+        """Return a generator of ipsec site connections
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned.
+
+        :returns: A generator of ipsec site connection objects
+        :rtype: :class:`~openstack.network.v2.ipsec_site_connection.
+            IPSecSiteConnection`
+        """
+        return self._list(_ipsec_site_connection.IPSecSiteConnection, **query)
+
+    def update_vpn_ipsec_site_connection(self, ipsec_site_connection, **attrs):
+        """Update a ipsec site connection
+
+        :ipsec_site_connection: Either the id of an ipsec site connection or
+            a :class:`~openstack.network.v2.ipsec_site_connection.
+            IPSecSiteConnection` instance.
+        :param dict attrs: The attributes to update on the ipsec site
+            connection represented by ``ipsec_site_connection``.
+
+        :returns: The updated ipsec site connection
+        :rtype: :class:`~openstack.network.v2.ipsec_site_connection.
+            IPSecSiteConnection`
+        """
+        return self._update(_ipsec_site_connection.IPSecSiteConnection,
+                            ipsec_site_connection, **attrs)
+
+    def delete_vpn_ipsec_site_connection(self, ipsec_site_connection,
+                                         ignore_missing=True):
+        """Delete a ipsec site connection
+
+        :param ipsec_site_connection: The value can be either the ID of an
+            ipsec site connection, or a :class:`~openstack.network.v2.
+            ipsec_site_connection.IPSecSiteConnection` instance.
+        :param bool ignore_missing:
+            When set to ``False`` :class:`~openstack.exceptions.
+            ResourceNotFound` will be raised when the ipsec site connection
+            does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent ipsec site connection.
+
+        :returns: ``None``
+        """
+        self._delete(_ipsec_site_connection.IPSecSiteConnection,
+                     ipsec_site_connection, ignore_missing=ignore_missing)
 
     def create_listener(self, **attrs):
         """Create a new listener from attributes
