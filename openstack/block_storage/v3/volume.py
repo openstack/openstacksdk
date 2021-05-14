@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import format
 from openstack import resource
 from openstack import utils
@@ -21,7 +22,8 @@ class Volume(resource.Resource):
     base_path = "/volumes"
 
     _query_mapping = resource.QueryParameters(
-        'name', 'status', 'project_id', all_projects='all_tenants')
+        'name', 'status', 'project_id', 'created_at', 'updated_at',
+        all_projects='all_tenants')
 
     # capabilities
     allow_fetch = True
@@ -93,18 +95,27 @@ class Volume(resource.Resource):
     #: The name of the associated volume type.
     volume_type = resource.Body("volume_type")
 
-    def _action(self, session, body):
+    _max_microversion = "3.60"
+
+    def _action(self, session, body, microversion=None):
         """Preform volume actions given the message body."""
         # NOTE: This is using Volume.base_path instead of self.base_path
         # as both Volume and VolumeDetail instances can be acted on, but
         # the URL used is sans any additional /detail/ part.
         url = utils.urljoin(Volume.base_path, self.id, 'action')
-        headers = {'Accept': ''}
-        return session.post(url, json=body, headers=headers)
+        resp = session.post(url, json=body,
+                            microversion=self._max_microversion)
+        exceptions.raise_from_response(resp)
+        return resp
 
     def extend(self, session, size):
         """Extend a volume size."""
         body = {'os-extend': {'new_size': size}}
+        self._action(session, body)
+
+    def set_bootable_status(self, session, bootable=True):
+        """Set volume bootable status flag"""
+        body = {'os-set_bootable': {'bootable': bootable}}
         self._action(session, body)
 
     def set_readonly(self, session, readonly):
@@ -112,14 +123,157 @@ class Volume(resource.Resource):
         body = {'os-update_readonly_flag': {'readonly': readonly}}
         self._action(session, body)
 
-    def retype(self, session, new_type, migration_policy):
-        """Retype volume considering the migration policy"""
-        body = {
-            'os-retype': {
-                'new_type': new_type,
-                'migration_policy': migration_policy
-            }
-        }
+    def reset_status(
+        self, session, status, attach_status, migration_status
+    ):
+        """Reset volume statuses (admin operation)"""
+        body = {'os-reset_status': {
+            'status': status,
+            'attach_status': attach_status,
+            'migration_status': migration_status
+        }}
+        self._action(session, body)
+
+    def revert_to_snapshot(self, session, snapshot_id):
+        """Revert volume to its snapshot"""
+        utils.require_microversion(session, "3.40")
+        body = {'revert': {'snapshot_id': snapshot_id}}
+        self._action(session, body)
+
+    def attach(
+        self, session, mountpoint, instance=None, host_name=None
+    ):
+        """Attach volume to server"""
+        body = {'os-attach': {
+            'mountpoint': mountpoint}}
+
+        if instance is not None:
+            body['os-attach']['instance_uuid'] = instance
+        elif host_name is not None:
+            body['os-attach']['host_name'] = host_name
+        else:
+            raise ValueError(
+                'Either instance_uuid or host_name must be specified')
+
+        self._action(session, body)
+
+    def detach(self, session, attachment, force=False, connector=None):
+        """Detach volume from server"""
+        if not force:
+            body = {'os-detach': {'attachment_id': attachment}}
+        if force:
+            body = {'os-force_detach': {
+                'attachment_id': attachment}}
+            if connector:
+                body['os-force_detach']['connector'] = connector
+
+        self._action(session, body)
+
+    def unmanage(self, session):
+        """Unmanage volume"""
+        body = {'os-unmanage': {}}
+
+        self._action(session, body)
+
+    def retype(self, session, new_type, migration_policy=None):
+        """Change volume type"""
+        body = {'os-retype': {
+            'new_type': new_type}}
+        if migration_policy:
+            body['os-retype']['migration_policy'] = migration_policy
+
+        self._action(session, body)
+
+    def migrate(
+        self, session, host=None, force_host_copy=False,
+        lock_volume=False, cluster=None
+    ):
+        """Migrate volume"""
+        req = dict()
+        if host is not None:
+            req['host'] = host
+        if force_host_copy:
+            req['force_host_copy'] = force_host_copy
+        if lock_volume:
+            req['lock_volume'] = lock_volume
+        if cluster is not None:
+            req['cluster'] = cluster
+            utils.require_microversion(session, "3.16")
+        body = {'os-migrate_volume': req}
+
+        self._action(session, body)
+
+    def complete_migration(self, session, new_volume_id, error=False):
+        """Complete volume migration"""
+        body = {'os-migrate_volume_completion': {
+            'new_volume': new_volume_id,
+            'error': error}}
+
+        self._action(session, body)
+
+    def force_delete(self, session):
+        """Force volume deletion"""
+        body = {'os-force_delete': {}}
+
+        self._action(session, body)
+
+    def upload_to_image(
+        self, session, image_name, force=False, disk_format=None,
+        container_format=None, visibility=None, protected=None
+    ):
+        """Upload the volume to image service"""
+        req = dict(image_name=image_name, force=force)
+        if disk_format is not None:
+            req['disk_format'] = disk_format
+        if container_format is not None:
+            req['container_format'] = container_format
+        if visibility is not None:
+            req['visibility'] = visibility
+        if protected is not None:
+            req['protected'] = protected
+
+        if visibility is not None or protected is not None:
+            utils.require_microversion(session, "3.1")
+
+        body = {'os-volume_upload_image': req}
+
+        resp = self._action(session, body).json()
+        return resp['os-volume_upload_image']
+
+    def reserve(self, session):
+        """Reserve volume"""
+        body = {'os-reserve': {}}
+
+        self._action(session, body)
+
+    def unreserve(self, session):
+        """Unreserve volume"""
+        body = {'os-unreserve': {}}
+
+        self._action(session, body)
+
+    def begin_detaching(self, session):
+        """Update volume status to 'detaching'"""
+        body = {'os-begin_detaching': {}}
+
+        self._action(session, body)
+
+    def abort_detaching(self, session):
+        """Roll back volume status to 'in-use'"""
+        body = {'os-roll_detaching': {}}
+
+        self._action(session, body)
+
+    def init_attachment(self, session, connector):
+        """Initialize volume attachment"""
+        body = {'os-initialize_connection': {'connector': connector}}
+
+        self._action(session, body)
+
+    def terminate_attachment(self, session, connector):
+        """Terminate volume attachment"""
+        body = {'os-terminate_connection': {'connector': connector}}
+
         self._action(session, body)
 
 

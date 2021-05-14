@@ -30,6 +30,8 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         super(TestVolumeProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+
+class TestVolume(TestVolumeProxy):
     def test_snapshot_get(self):
         self.verify_get(self.proxy.get_snapshot, snapshot.Snapshot)
 
@@ -155,38 +157,14 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_volume_delete_ignore(self):
         self.verify_delete(self.proxy.delete_volume, volume.Volume, True)
 
-    def test_volume_extend(self):
+    def test_volume_delete_force(self):
         self._verify(
-            "openstack.block_storage.v3.volume.Volume.extend",
-            self.proxy.extend_volume,
-            method_args=["value", "new-size"],
-            expected_args=[self.proxy, "new-size"])
-
-    def test_volume_set_readonly_no_argument(self):
-        self._verify(
-            "openstack.block_storage.v3.volume.Volume.set_readonly",
-            self.proxy.set_volume_readonly,
+            "openstack.block_storage.v3.volume.Volume.force_delete",
+            self.proxy.delete_volume,
             method_args=["value"],
-            expected_args=[self.proxy, True])
-
-    def test_volume_set_readonly_false(self):
-        self._verify(
-            "openstack.block_storage.v3.volume.Volume.set_readonly",
-            self.proxy.set_volume_readonly,
-            method_args=["value", False],
-            expected_args=[self.proxy, False])
-
-    def test_volume_retype_without_migration_policy(self):
-        self._verify("openstack.block_storage.v3.volume.Volume.retype",
-                     self.proxy.retype_volume,
-                     method_args=["value", "rbd"],
-                     expected_args=[self.proxy, "rbd", "never"])
-
-    def test_volume_retype_with_migration_policy(self):
-        self._verify("openstack.block_storage.v3.volume.Volume.retype",
-                     self.proxy.retype_volume,
-                     method_args=["value", "rbd", "on-demand"],
-                     expected_args=[self.proxy, "rbd", "on-demand"])
+            method_kwargs={"force": True},
+            expected_args=[self.proxy]
+        )
 
     def test_backend_pools(self):
         self.verify_list(self.proxy.backend_pools, stats.Pools)
@@ -296,3 +274,197 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
             self.proxy.wait_for_status,
             method_args=[value],
             expected_args=[self.proxy, value, 'available', ['error'], 2, 120])
+
+
+class TestVolumeActions(TestVolumeProxy):
+
+    def test_volume_extend(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.extend",
+            self.proxy.extend_volume,
+            method_args=["value", "new-size"],
+            expected_args=[self.proxy, "new-size"])
+
+    def test_volume_set_readonly_no_argument(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.set_readonly",
+            self.proxy.set_volume_readonly,
+            method_args=["value"],
+            expected_args=[self.proxy, True])
+
+    def test_volume_set_readonly_false(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.set_readonly",
+            self.proxy.set_volume_readonly,
+            method_args=["value", False],
+            expected_args=[self.proxy, False])
+
+    def test_volume_set_bootable(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.set_bootable_status",
+            self.proxy.set_volume_bootable_status,
+            method_args=["value", True],
+            expected_args=[self.proxy, True])
+
+    def test_volume_reset_volume_status(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.reset_status",
+            self.proxy.reset_volume_status,
+            method_args=["value", '1', '2', '3'],
+            expected_args=[self.proxy, '1', '2', '3'])
+
+    def test_volume_revert_to_snapshot(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.revert_to_snapshot",
+            self.proxy.revert_volume_to_snapshot,
+            method_args=["value", '1'],
+            expected_args=[self.proxy, '1'])
+
+    def test_attach_instance(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.attach",
+            self.proxy.attach_volume,
+            method_args=["value", '1'],
+            method_kwargs={'instance': '2'},
+            expected_args=[self.proxy, '1', '2', None])
+
+    def test_attach_host(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.attach",
+            self.proxy.attach_volume,
+            method_args=["value", '1'],
+            method_kwargs={'host_name': '3'},
+            expected_args=[self.proxy, '1', None, '3'])
+
+    def test_detach_defaults(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.detach",
+            self.proxy.detach_volume,
+            method_args=["value", '1'],
+            expected_args=[self.proxy, '1', False, None])
+
+    def test_detach_force(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.detach",
+            self.proxy.detach_volume,
+            method_args=["value", '1', True, {'a': 'b'}],
+            expected_args=[self.proxy, '1', True, {'a': 'b'}])
+
+    def test_unmanage(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.unmanage",
+            self.proxy.unmanage_volume,
+            method_args=["value"],
+            expected_args=[self.proxy])
+
+    def test_migrate_default(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.migrate",
+            self.proxy.migrate_volume,
+            method_args=["value", '1'],
+            expected_args=[self.proxy, '1', False, False, None])
+
+    def test_migrate_nondefault(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.migrate",
+            self.proxy.migrate_volume,
+            method_args=["value", '1', True, True],
+            expected_args=[self.proxy, '1', True, True, None])
+
+    def test_migrate_cluster(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.migrate",
+            self.proxy.migrate_volume,
+            method_args=["value"],
+            method_kwargs={'cluster': '3'},
+            expected_args=[self.proxy, None, False, False, '3'])
+
+    def test_complete_migration(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.complete_migration",
+            self.proxy.complete_volume_migration,
+            method_args=["value", '1'],
+            expected_args=[self.proxy, "1", False])
+
+    def test_complete_migration_error(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.complete_migration",
+            self.proxy.complete_volume_migration,
+            method_args=["value", "1", True],
+            expected_args=[self.proxy, "1", True])
+
+    def test_upload_to_image(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.upload_to_image",
+            self.proxy.upload_volume_to_image,
+            method_args=["value", "1"],
+            expected_args=[self.proxy, "1"],
+            expected_kwargs={
+                "force": False,
+                "disk_format": None,
+                "container_format": None,
+                "visibility": None,
+                "protected": None
+            })
+
+    def test_upload_to_image_extended(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.upload_to_image",
+            self.proxy.upload_volume_to_image,
+            method_args=["value", "1"],
+            method_kwargs={
+                "disk_format": "2",
+                "container_format": "3",
+                "visibility": "4",
+                "protected": "5"
+            },
+            expected_args=[self.proxy, "1"],
+            expected_kwargs={
+                "force": False,
+                "disk_format": "2",
+                "container_format": "3",
+                "visibility": "4",
+                "protected": "5"
+            })
+
+    def test_reserve(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.reserve",
+            self.proxy.reserve_volume,
+            method_args=["value"],
+            expected_args=[self.proxy])
+
+    def test_unreserve(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.unreserve",
+            self.proxy.unreserve_volume,
+            method_args=["value"],
+            expected_args=[self.proxy])
+
+    def test_begin_detaching(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.begin_detaching",
+            self.proxy.begin_volume_detaching,
+            method_args=["value"],
+            expected_args=[self.proxy])
+
+    def test_abort_detaching(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.abort_detaching",
+            self.proxy.abort_volume_detaching,
+            method_args=["value"],
+            expected_args=[self.proxy])
+
+    def test_init_attachment(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.init_attachment",
+            self.proxy.init_volume_attachment,
+            method_args=["value", "1"],
+            expected_args=[self.proxy, "1"])
+
+    def test_terminate_attachment(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.terminate_attachment",
+            self.proxy.terminate_volume_attachment,
+            method_args=["value", "1"],
+            expected_args=[self.proxy, "1"])

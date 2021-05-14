@@ -304,6 +304,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         return self._update(_type.TypeEncryption, encryption, **attrs)
 
+    # ====== VOLUMES ======
     def get_volume(self, volume):
         """Get a single volume
 
@@ -362,7 +363,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._create(_volume.Volume, **attrs)
 
-    def delete_volume(self, volume, ignore_missing=True):
+    def delete_volume(self, volume, ignore_missing=True, force=False):
         """Delete a volume
 
         :param volume: The value can be either the ID of a volume or a
@@ -372,16 +373,22 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                     raised when the volume does not exist.
                     When set to ``True``, no exception will be set when
                     attempting to delete a nonexistent volume.
+        :param bool force: Whether to try forcing volume deletion.
 
         :returns: ``None``
         """
-        self._delete(_volume.Volume, volume, ignore_missing=ignore_missing)
+        if not force:
+            self._delete(_volume.Volume, volume, ignore_missing=ignore_missing)
+        else:
+            volume = self._get_resource(_volume.Volume, volume)
+            volume.force_delete(self)
 
+    # ====== VOLUME ACTIONS ======
     def extend_volume(self, volume, size):
         """Extend a volume
 
         :param volume: The value can be either the ID of a volume or a
-                       :class:`~openstack.volume.v3.volume.Volume` instance.
+            :class:`~openstack.volume.v3.volume.Volume` instance.
         :param size: New volume size
 
         :returns: None
@@ -392,12 +399,12 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
     def set_volume_readonly(self, volume, readonly=True):
         """Set a volume's read-only flag.
 
-        :param name_or_id: Name, unique ID of the volume or a volume dict.
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
         :param bool readonly: Whether the volume should be a read-only volume
-            or not
+            or not.
 
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :returns: None
         """
         volume = self._get_resource(_volume.Volume, volume)
         volume.set_readonly(self, readonly)
@@ -405,18 +412,243 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
     def retype_volume(self, volume, new_type, migration_policy="never"):
         """Retype the volume.
 
-        :param name_or_id: Name, unique ID of the volume or a volume dict.
-        :param new_type: The new volume type that volume is changed with.
-        :param migration_policy: Specify if the volume should be migrated when
-                                 it is re-typed. Possible values are on-demand
-                                 or never. Default: never.
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param str new_type: The new volume type that volume is changed with.
+        :param str migration_policy: Specify if the volume should be migrated
+            when it is re-typed. Possible values are on-demand or never.
+            Default: never.
 
-        :raises: OpenStackCloudTimeout if wait time exceeded.
-        :raises: OpenStackCloudException on operation error.
+        :returns: None
         """
         volume = self._get_resource(_volume.Volume, volume)
         volume.retype(self, new_type, migration_policy)
 
+    def set_volume_bootable_status(self, volume, bootable):
+        """Set bootable status of the volume.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param bool bootable: Specifies whether the volume should be bootable
+            or not.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.set_bootable_status(self, bootable)
+
+    def reset_volume_status(
+        self, volume, status, attach_status, migration_status
+    ):
+        """Reset volume statuses.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param str status: The new volume status.
+        :param str attach_status: The new volume attach status.
+        :param str migration_status: The new volume migration status (admin
+            only).
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.reset_status(self, status, attach_status, migration_status)
+
+    def revert_volume_to_snapshot(
+        self, volume, snapshot
+    ):
+        """Revert a volume to its latest snapshot.
+
+        This method only support reverting a detached volume, and the
+        volume status must be available.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param snapshot:  The value can be either the ID of a snapshot or a
+            :class:`~openstack.volume.v3.snapshot.Snapshot` instance.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
+        volume.revert_to_snapshot(self, snapshot.id)
+
+    def attach_volume(
+        self, volume, mountpoint, instance=None, host_name=None
+    ):
+        """Attaches a volume to a server.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param str mountpoint: The attaching mount point.
+        :param str instance: The UUID of the attaching instance.
+        :param str host_name: The name of the attaching host.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.attach(self, mountpoint, instance, host_name)
+
+    def detach_volume(
+        self, volume, attachment, force=False, connector=None
+    ):
+        """Detaches a volume from a server.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param str attachment: The ID of the attachment.
+        :param bool force: Whether to force volume detach (Rolls back an
+            unsuccessful detach operation after you disconnect the volume.)
+        :param dict connector: The connector object.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.detach(self, attachment, force, connector)
+
+    def unmanage_volume(self, volume):
+        """Removes a volume from Block Storage management without removing the
+            back-end storage object that is associated with it.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+
+        :returns: None """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.unmanage(self)
+
+    def migrate_volume(
+        self, volume, host=None, force_host_copy=False,
+        lock_volume=False, cluster=None
+    ):
+        """Migrates a volume to the specified host.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param str host: The target host for the volume migration. Host
+            format is host@backend.
+        :param bool force_host_copy: If false (the default), rely on the volume
+            backend driver to perform the migration, which might be optimized.
+            If true, or the volume driver fails to migrate the volume itself,
+            a generic host-based migration is performed.
+        :param bool lock_volume: If true, migrating an available volume will
+            change its status to maintenance preventing other operations from
+            being performed on the volume such as attach, detach, retype, etc.
+        :param str cluster: The target cluster for the volume migration.
+            Cluster format is cluster@backend. Starting with microversion
+            3.16, either cluster or host must be specified. If host is
+            specified and is part of a cluster, the cluster is used as the
+            target for the migration.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.migrate(self, host, force_host_copy, lock_volume, cluster)
+
+    def complete_volume_migration(
+        self, volume, new_volume, error=False
+    ):
+        """Complete the migration of a volume.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param str new_volume: The UUID of the new volume.
+        :param bool error: Used to indicate if an error has occured elsewhere
+            that requires clean up.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.complete_migration(self, new_volume, error)
+
+    def upload_volume_to_image(
+        self, volume, image_name, force=False, disk_format=None,
+        container_format=None, visibility=None, protected=None
+    ):
+        """Uploads the specified volume to image service.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param str image name: The name for the new image.
+        :param bool force: Enables or disables upload of a volume that is
+            attached to an instance.
+        :param str disk_format: Disk format for the new image.
+        :param str container_format: Container format for the new image.
+        :param str visibility: The visibility property of the new image.
+        :param str protected: Whether the new image is protected.
+
+        :returns: dictionary describing the image.
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.upload_to_image(
+            self, image_name, force=force, disk_format=disk_format,
+            container_format=container_format, visibility=visibility,
+            protected=protected
+        )
+
+    def reserve_volume(self, volume):
+        """Mark volume as reserved.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+
+        :returns: None """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.reserve(self)
+
+    def unreserve_volume(self, volume):
+        """Unmark volume as reserved.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+
+        :returns: None """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.unreserve(self)
+
+    def begin_volume_detaching(self, volume):
+        """Update volume status to 'detaching'.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+
+        :returns: None """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.begin_detaching(self)
+
+    def abort_volume_detaching(self, volume):
+        """Update volume status to 'in-use'.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+
+        :returns: None """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.abort_detaching(self)
+
+    def init_volume_attachment(self, volume, connector):
+        """Initialize volume attachment.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param dict connector: The connector object.
+
+        :returns: None """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.init_attachment(self, connector)
+
+    def terminate_volume_attachment(self, volume, connector):
+        """Update volume status to 'in-use'.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.volume.v3.volume.Volume` instance.
+        :param dict connector: The connector object.
+
+        :returns: None """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.terminate_attachment(self, connector)
+
+    # ====== BACKEND POOLS ======
     def backend_pools(self, **query):
         """Returns a generator of cinder Back-end storage pools
 
