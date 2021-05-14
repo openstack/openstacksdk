@@ -14,11 +14,11 @@
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
-import warnings
 
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
+from openstack import exceptions
 from openstack import proxy
 from openstack import utils
 
@@ -40,56 +40,7 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :returns: A list of volume ``munch.Munch``.
 
         """
-        def _list(data):
-            volumes.extend(data.get('volumes', []))
-            endpoint = None
-            for link in data.get('volumes_links', []):
-                if 'rel' in link and 'next' == link['rel']:
-                    endpoint = link['href']
-                    break
-            if endpoint:
-                try:
-                    _list(proxy._json_response(
-                        self.block_storage.get(endpoint)))
-                except exc.OpenStackCloudURINotFound:
-                    # Catch and re-raise here because we are making recursive
-                    # calls and we just have context for the log here
-                    self.log.debug(
-                        "While listing volumes, could not find next link"
-                        " {link}.".format(link=data))
-                    raise
-
-        if not cache:
-            warnings.warn('cache argument to list_volumes is deprecated. Use '
-                          'invalidate instead.')
-
-        # Fetching paginated volumes can fails for several reasons, if
-        # something goes wrong we'll have to start fetching volumes from
-        # scratch
-        attempts = 5
-        for _ in range(attempts):
-            volumes = []
-            data = proxy._json_response(
-                self.block_storage.get('/volumes/detail'))
-            if 'volumes_links' not in data:
-                # no pagination needed
-                volumes.extend(data.get('volumes', []))
-                break
-
-            try:
-                _list(data)
-                break
-            except exc.OpenStackCloudURINotFound:
-                pass
-        else:
-            self.log.debug(
-                "List volumes failed to retrieve all volumes after"
-                " {attempts} attempts. Returning what we found.".format(
-                    attempts=attempts))
-        # list volumes didn't complete succesfully so just return what
-        # we found
-        return self._normalize_volumes(
-            self._get_and_munchify(key=None, data=volumes))
+        return list(self.block_storage.volumes())
 
     @_utils.cache_on_arguments()
     def list_volume_types(self, get_extra=True):
@@ -138,15 +89,7 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :param id: ID of the volume.
         :returns: A volume ``munch.Munch``.
         """
-        resp = self.block_storage.get('/volumes/{id}'.format(id=id))
-        data = proxy._json_response(
-            resp,
-            error_message="Error getting volume with ID {id}".format(id=id)
-        )
-        volume = self._normalize_volume(
-            self._get_and_munchify('volume', data))
-
-        return volume
+        return self.block_storage.get_volume(id)
 
     def get_volume_type(self, name_or_id, filters=None):
         """Get a volume type by name or ID.
@@ -208,43 +151,20 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             kwargs['imageRef'] = image_obj['id']
         kwargs = self._get_volume_kwargs(kwargs)
         kwargs['size'] = size
-        payload = dict(volume=kwargs)
-        if 'scheduler_hints' in kwargs:
-            payload['OS-SCH-HNT:scheduler_hints'] = kwargs.pop(
-                'scheduler_hints', None)
-        resp = self.block_storage.post(
-            '/volumes',
-            json=dict(payload))
-        data = proxy._json_response(
-            resp,
-            error_message='Error in creating volume')
-        volume = self._get_and_munchify('volume', data)
+
+        volume = self.block_storage.create_volume(**kwargs)
+
         self.list_volumes.invalidate(self)
 
         if volume['status'] == 'error':
             raise exc.OpenStackCloudException("Error in creating volume")
 
         if wait:
-            vol_id = volume['id']
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the volume to be available."):
-                volume = self.get_volume(vol_id)
+            self.block_storage.wait_for_status(volume, wait=timeout)
+            if bootable:
+                self.block_storage.set_volume_bootable_status(volume, True)
 
-                if not volume:
-                    continue
-
-                if volume['status'] == 'available':
-                    if bootable is not None:
-                        self.set_volume_bootable(volume, bootable=bootable)
-                        # no need to re-fetch to update the flag, just set it.
-                        volume['bootable'] = bootable
-                    return volume
-
-                if volume['status'] == 'error':
-                    raise exc.OpenStackCloudException("Error creating volume")
-
-        return self._normalize_volume(volume)
+        return volume
 
     def update_volume(self, name_or_id, **kwargs):
         kwargs = self._get_volume_kwargs(kwargs)
@@ -254,16 +174,12 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Volume %s not found." % name_or_id)
 
-        resp = self.block_storage.put(
-            '/volumes/{volume_id}'.format(volume_id=volume.id),
-            json=dict({'volume': kwargs}))
-        data = proxy._json_response(
-            resp,
-            error_message='Error updating volume')
+        volume = self.block_storage.update_volume(
+            volume, **kwargs)
 
         self.list_volumes.invalidate(self)
 
-        return self._normalize_volume(self._get_and_munchify('volume', data))
+        return volume
 
     def set_volume_bootable(self, name_or_id, bootable=True):
         """Set a volume's bootable flag.
@@ -283,14 +199,7 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
                 "Volume {name_or_id} does not exist".format(
                     name_or_id=name_or_id))
 
-        resp = self.block_storage.post(
-            'volumes/{id}/action'.format(id=volume['id']),
-            json={'os-set_bootable': {'bootable': bootable}})
-        proxy._json_response(
-            resp,
-            error_message="Error setting bootable on volume {volume}".format(
-                volume=volume['id'])
-        )
+        return self.block_storage.set_volume_bootable_status(volume, bootable)
 
     def delete_volume(self, name_or_id=None, wait=True, timeout=None,
                       force=False):
@@ -307,7 +216,7 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         """
 
         self.list_volumes.invalidate(self)
-        volume = self.get_volume(name_or_id)
+        volume = self.block_storage.find_volume(name_or_id)
 
         if not volume:
             self.log.debug(
@@ -315,30 +224,15 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
                 {'name_or_id': name_or_id},
                 exc_info=True)
             return False
-
-        with _utils.shade_exceptions("Error in deleting volume"):
-            try:
-                if force:
-                    proxy._json_response(self.block_storage.post(
-                        'volumes/{id}/action'.format(id=volume['id']),
-                        json={'os-force_delete': None}))
-                else:
-                    proxy._json_response(self.block_storage.delete(
-                        'volumes/{id}'.format(id=volume['id'])))
-            except exc.OpenStackCloudURINotFound:
-                self.log.debug(
-                    "Volume {id} not found when deleting. Ignoring.".format(
-                        id=volume['id']))
-                return False
+        try:
+            self.block_storage.delete_volume(volume, force=force)
+        except exceptions.SDKException:
+            self.log.exception("error in deleting volume")
+            raise
 
         self.list_volumes.invalidate(self)
         if wait:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the volume to be deleted."):
-
-                if not self.get_volume(volume['id']):
-                    break
+            self.block_storage.wait_for_delete(volume, wait=timeout)
 
         return True
 

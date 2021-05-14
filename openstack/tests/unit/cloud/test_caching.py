@@ -17,6 +17,7 @@ from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 import openstack
 import openstack.cloud
+from openstack.block_storage.v3 import volume as _volume
 from openstack.cloud import meta
 from openstack.compute.v2 import flavor as _flavor
 from openstack import exceptions
@@ -104,6 +105,12 @@ class TestMemoryCache(base.TestCase):
 
     def _munch_images(self, fake_image):
         return self.cloud._normalize_images([fake_image])
+
+    def _compare_volumes(self, exp, real):
+        self.assertDictEqual(
+            _volume.Volume(**exp).to_dict(computed=False),
+            real.to_dict(computed=False)
+        )
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, openstack.connection.Connection)
@@ -216,18 +223,18 @@ class TestMemoryCache(base.TestCase):
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict)],
-            self.cloud.list_volumes())
+
+        for a, b in zip([fake_volume_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         # this call should hit the cache
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volume_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.cloud.list_volumes.invalidate(self.cloud)
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict),
-             self.cloud._normalize_volume(fake_volume2_dict)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volume_dict, fake_volume2_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.assert_calls()
 
     def test_list_volumes_creating_invalidates(self):
@@ -247,13 +254,12 @@ class TestMemoryCache(base.TestCase):
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict)],
-            self.cloud.list_volumes())
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict),
-             self.cloud._normalize_volume(fake_volume2_dict)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volume_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
+        for a, b in zip([fake_volume_dict, fake_volume2_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.assert_calls()
 
     def test_create_volume_invalidates(self):
@@ -280,45 +286,52 @@ class TestMemoryCache(base.TestCase):
                  json={'volume': fake_vol_creating}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4, fake_vol_creating]}),
+                     'volumev2', 'public', append=['volumes', _id]),
+                 json={'volume': fake_vol_creating}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', _id]),
+                 json={'volume': fake_vol_avail}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volb4, fake_vol_avail]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4, fake_vol_avail]}),
+                     'volumev2', 'public',
+                     append=['volumes', _id]),
+                 json={'volume': fake_vol_avail}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', _id]),
                  json=now_deleting),
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', _id]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4]})])
+                 json={'volumes': [fake_volb4, fake_vol_avail]}),
+        ])
 
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volb4], self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         volume = dict(display_name='junk_vol',
                       size=1,
                       display_description='test junk volume')
-        self.cloud.create_volume(wait=True, timeout=None, **volume)
+        self.cloud.create_volume(wait=True, timeout=2, **volume)
         # If cache was not invalidated, we would not see our own volume here
         # because the first volume was available and thus would already be
         # cached.
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4),
-             self.cloud._normalize_volume(fake_vol_avail)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volb4, fake_vol_avail],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.cloud.delete_volume(_id)
         # And now delete and check same thing since list is cached as all
         # available
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volb4], self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.assert_calls()
 
     def test_list_users(self):
