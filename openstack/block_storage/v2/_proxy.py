@@ -290,7 +290,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         backup = self._get_resource(_backup.Backup, backup)
         return backup.restore(self, volume_id=volume_id, name=name)
 
-    def wait_for_status(self, res, status='ACTIVE', failures=None,
+    def wait_for_status(self, res, status='available', failures=None,
                         interval=2, wait=120):
         """Wait for a resource to be in a particular status.
 
@@ -312,7 +312,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :raises: :class:`~AttributeError` if the resource does not have a
                 ``status`` attribute.
         """
-        failures = ['Error'] if failures is None else failures
+        failures = ['error'] if failures is None else failures
         return resource.wait_for_status(
             self, res, status, failures, interval, wait)
 

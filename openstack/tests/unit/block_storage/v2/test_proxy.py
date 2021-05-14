@@ -150,3 +150,10 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
             expected_args=[self.proxy],
             expected_kwargs={'volume_id': 'vol_id', 'name': 'name'}
         )
+
+    def test_volume_wait_for(self):
+        value = volume.Volume(id='1234')
+        self.verify_wait_for_status(
+            self.proxy.wait_for_status,
+            method_args=[value],
+            expected_args=[self.proxy, value, 'available', ['error'], 2, 120])
