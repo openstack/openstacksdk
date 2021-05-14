@@ -143,6 +143,21 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_volume.Volume, volume)
 
+    def find_volume(self, name_or_id, ignore_missing=True, **attrs):
+        """Find a single volume
+
+        :param snapshot: The name or ID a volume
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the volume does not exist.
+
+        :returns: One :class:`~openstack.volume.v2.volume.Volume`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+                 when no resource can be found.
+        """
+        return self._find(_volume.Volume, name_or_id,
+                          ignore_missing=ignore_missing)
+
     def volumes(self, details=True, **query):
         """Retrieve a generator of volumes
 
