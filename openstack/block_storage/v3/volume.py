@@ -69,6 +69,8 @@ class Volume(resource.Resource):
         "os-volume-replication:driver_data")
     #: Status of replication on this volume.
     replication_status = resource.Body("replication_status")
+    #: Scheduler hints for the volume
+    scheduler_hints = resource.Body('OS-SCH-HNT:scheduler_hints', type=dict)
     #: The size of the volume, in GBs. *Type: int*
     size = resource.Body("size", type=int)
     #: To create a volume from an existing snapshot, specify the ID of
