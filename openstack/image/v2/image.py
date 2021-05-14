@@ -78,8 +78,6 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
     #: The algorithm used to compute a secure hash of the image data
     #: for this image
     hash_algo = resource.Body('os_hash_algo')
-    #: List of tags for this image.
-    tags = resource.Body('tags')
     #: The hexdigest of the secure hash of the image data computed using
     #: the algorithm whose name is the value of the os_hash_algo property.
     hash_value = resource.Body('os_hash_value')
