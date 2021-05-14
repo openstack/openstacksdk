@@ -31,31 +31,26 @@ class Snapshot(resource.Resource):
     allow_list = True
 
     # Properties
-    #: A ID representing this snapshot.
-    id = resource.Body("id")
-    #: Name of the snapshot. Default is None.
-    name = resource.Body("name")
-
-    #: The current status of this snapshot. Potential values are creating,
-    #: available, deleting, error, and error_deleting.
-    status = resource.Body("status")
-    #: Description of snapshot. Default is None.
-    description = resource.Body("description")
     #: The timestamp of this snapshot creation.
     created_at = resource.Body("created_at")
-    #: Metadata associated with this snapshot.
-    metadata = resource.Body("metadata", type=dict)
-    #: The ID of the volume this snapshot was taken of.
-    volume_id = resource.Body("volume_id")
-    #: The size of the volume, in GBs.
-    size = resource.Body("size", type=int)
+    #: Description of snapshot. Default is None.
+    description = resource.Body("description")
     #: Indicate whether to create snapshot, even if the volume is attached.
     #: Default is ``False``. *Type: bool*
     is_forced = resource.Body("force", type=format.BoolStr)
+    #: Metadata associated with this snapshot.
+    metadata = resource.Body("metadata", type=dict)
     #: The percentage of completeness the snapshot is currently at.
     progress = resource.Body("os-extended-snapshot-attributes:progress")
     #: The project ID this snapshot is associated with.
     project_id = resource.Body("os-extended-snapshot-attributes:project_id")
+    #: The size of the volume, in GBs.
+    size = resource.Body("size", type=int)
+    #: The current status of this snapshot. Potential values are creating,
+    #: available, deleting, error, and error_deleting.
+    status = resource.Body("status")
+    #: The ID of the volume this snapshot was taken of.
+    volume_id = resource.Body("volume_id")
 
 
 SnapshotDetail = Snapshot
