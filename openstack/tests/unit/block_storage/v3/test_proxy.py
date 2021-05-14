@@ -60,77 +60,6 @@ class TestVolume(TestVolumeProxy):
         self.verify_delete(self.proxy.delete_snapshot,
                            snapshot.Snapshot, True)
 
-    def test_type_get(self):
-        self.verify_get(self.proxy.get_type, type.Type)
-
-    def test_type_find(self):
-        self.verify_find(self.proxy.find_type, type.Type)
-
-    def test_types(self):
-        self.verify_list(self.proxy.types, type.Type)
-
-    def test_type_create_attrs(self):
-        self.verify_create(self.proxy.create_type, type.Type)
-
-    def test_type_delete(self):
-        self.verify_delete(self.proxy.delete_type, type.Type, False)
-
-    def test_type_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_type, type.Type, True)
-
-    def test_type_update(self):
-        self.verify_update(self.proxy.update_type, type.Type)
-
-    def test_type_extra_specs_update(self):
-        kwargs = {"a": "1", "b": "2"}
-        id = "an_id"
-        self._verify(
-            "openstack.block_storage.v3.type.Type.set_extra_specs",
-            self.proxy.update_type_extra_specs,
-            method_args=[id],
-            method_kwargs=kwargs,
-            method_result=type.Type.existing(id=id,
-                                             extra_specs=kwargs),
-            expected_args=[self.proxy],
-            expected_kwargs=kwargs,
-            expected_result=kwargs)
-
-    def test_type_extra_specs_delete(self):
-        self._verify(
-            "openstack.block_storage.v3.type.Type.delete_extra_specs",
-            self.proxy.delete_type_extra_specs,
-            expected_result=None,
-            method_args=["value", "key"],
-            expected_args=[self.proxy, "key"])
-
-    def test_type_encryption_get(self):
-        self.verify_get(self.proxy.get_type_encryption,
-                        type.TypeEncryption,
-                        expected_args=[],
-                        expected_kwargs={
-                            'volume_type_id': 'resource_id',
-                            'requires_id': False
-                        })
-
-    def test_type_encryption_create(self):
-        self.verify_create(self.proxy.create_type_encryption,
-                           type.TypeEncryption,
-                           method_kwargs={'volume_type': 'id'},
-                           expected_kwargs={'volume_type_id': 'id'}
-                           )
-
-    def test_type_encryption_update(self):
-        self.verify_update(self.proxy.update_type_encryption,
-                           type.TypeEncryption)
-
-    def test_type_encryption_delete(self):
-        self.verify_delete(self.proxy.delete_type_encryption,
-                           type.TypeEncryption, False)
-
-    def test_type_encryption_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_type_encryption,
-                           type.TypeEncryption, True)
-
     def test_volume_get(self):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
@@ -468,3 +397,100 @@ class TestVolumeActions(TestVolumeProxy):
             self.proxy.terminate_volume_attachment,
             method_args=["value", "1"],
             expected_args=[self.proxy, "1"])
+
+
+class TestType(TestVolumeProxy):
+    def test_type_get(self):
+        self.verify_get(self.proxy.get_type, type.Type)
+
+    def test_type_find(self):
+        self.verify_find(self.proxy.find_type, type.Type)
+
+    def test_types(self):
+        self.verify_list(self.proxy.types, type.Type)
+
+    def test_type_create_attrs(self):
+        self.verify_create(self.proxy.create_type, type.Type)
+
+    def test_type_delete(self):
+        self.verify_delete(self.proxy.delete_type, type.Type, False)
+
+    def test_type_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_type, type.Type, True)
+
+    def test_type_update(self):
+        self.verify_update(self.proxy.update_type, type.Type)
+
+    def test_type_extra_specs_update(self):
+        kwargs = {"a": "1", "b": "2"}
+        id = "an_id"
+        self._verify(
+            "openstack.block_storage.v3.type.Type.set_extra_specs",
+            self.proxy.update_type_extra_specs,
+            method_args=[id],
+            method_kwargs=kwargs,
+            method_result=type.Type.existing(id=id,
+                                             extra_specs=kwargs),
+            expected_args=[self.proxy],
+            expected_kwargs=kwargs,
+            expected_result=kwargs)
+
+    def test_type_extra_specs_delete(self):
+        self._verify(
+            "openstack.block_storage.v3.type.Type.delete_extra_specs",
+            self.proxy.delete_type_extra_specs,
+            expected_result=None,
+            method_args=["value", "key"],
+            expected_args=[self.proxy, "key"])
+
+    def test_type_get_private_access(self):
+        self._verify(
+            "openstack.block_storage.v3.type.Type.get_private_access",
+            self.proxy.get_type_access,
+            method_args=["value"],
+            expected_args=[self.proxy])
+
+    def test_type_add_private_access(self):
+        self._verify(
+            "openstack.block_storage.v3.type.Type.add_private_access",
+            self.proxy.add_type_access,
+            method_args=["value", "a"],
+            expected_args=[self.proxy, "a"])
+
+    def test_type_remove_private_access(self):
+        self._verify(
+            "openstack.block_storage.v3.type.Type.remove_private_access",
+            self.proxy.remove_type_access,
+            method_args=["value", "a"],
+            expected_args=[self.proxy, "a"])
+
+    def test_type_encryption_get(self):
+        self.verify_get(
+            self.proxy.get_type_encryption,
+            type.TypeEncryption,
+            method_args=['value'],
+            expected_args=[],
+            expected_kwargs={
+                'volume_type_id': 'value',
+                'requires_id': False
+            })
+
+    def test_type_encryption_create(self):
+        self.verify_create(
+            self.proxy.create_type_encryption,
+            type.TypeEncryption,
+            method_kwargs={'volume_type': 'id'},
+            expected_kwargs={'volume_type_id': 'id'}
+        )
+
+    def test_type_encryption_update(self):
+        self.verify_update(
+            self.proxy.update_type_encryption, type.TypeEncryption)
+
+    def test_type_encryption_delete(self):
+        self.verify_delete(
+            self.proxy.delete_type_encryption, type.TypeEncryption, False)
+
+    def test_type_encryption_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_type_encryption, type.TypeEncryption, True)
