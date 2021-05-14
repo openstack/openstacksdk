@@ -49,14 +49,7 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :returns: A list of volume ``munch.Munch``.
 
         """
-        resp = self.block_storage.get(
-            '/types',
-            params=dict(is_public='None'))
-        data = proxy._json_response(
-            resp,
-            error_message='Error fetching volume_type list')
-        return self._normalize_volume_types(
-            self._get_and_munchify('volume_types', data))
+        return list(self.block_storage.types())
 
     def get_volume(self, name_or_id, filters=None):
         """Get a volume by name or ID.
@@ -734,14 +727,8 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
 
-        resp = self.block_storage.get(
-            '/types/{id}/os-volume-type-access'.format(id=volume_type.id))
-        data = proxy._json_response(
-            resp,
-            error_message="Unable to get volume type access"
-                          " {name}".format(name=name_or_id))
         return self._normalize_volume_type_accesses(
-            self._get_and_munchify('volume_type_access', data))
+            self.block_storage.get_type_access(volume_type))
 
     def add_volume_type_access(self, name_or_id, project_id):
         """Grant access on a volume_type to a project.
@@ -757,15 +744,8 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         if not volume_type:
             raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
-        payload = {'project': project_id}
-        resp = self.block_storage.post(
-            '/types/{id}/action'.format(id=volume_type.id),
-            json=dict(addProjectAccess=payload))
-        proxy._json_response(
-            resp,
-            error_message="Unable to authorize {project} "
-                          "to use volume type {name}".format(
-                              name=name_or_id, project=project_id))
+
+        self.block_storage.add_type_access(volume_type, project_id)
 
     def remove_volume_type_access(self, name_or_id, project_id):
         """Revoke access on a volume_type to a project.
@@ -779,15 +759,7 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         if not volume_type:
             raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
-        payload = {'project': project_id}
-        resp = self.block_storage.post(
-            '/types/{id}/action'.format(id=volume_type.id),
-            json=dict(removeProjectAccess=payload))
-        proxy._json_response(
-            resp,
-            error_message="Unable to revoke {project} "
-                          "to use volume type {name}".format(
-                              name=name_or_id, project=project_id))
+        self.block_storage.remove_type_access(volume_type, project_id)
 
     def set_volume_quotas(self, name_or_id, **kwargs):
         """ Set a volume quota in a project
