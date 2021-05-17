@@ -17,6 +17,7 @@ test_create_volume_snapshot
 Tests for the `create_volume_snapshot` command.
 """
 
+from openstack.block_storage.v2 import snapshot
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.tests import fakes
@@ -28,6 +29,11 @@ class TestCreateVolumeSnapshot(base.TestCase):
     def setUp(self):
         super(TestCreateVolumeSnapshot, self).setUp()
         self.use_cinder()
+
+    def _compare_snapshots(self, exp, real):
+        self.assertDictEqual(
+            snapshot.Snapshot(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
 
     def test_create_volume_snapshot_wait(self):
         """
@@ -49,7 +55,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
                      'volumev2', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
                  validate=dict(json={
-                     'snapshot': {'force': False, 'volume_id': '1234'}})),
+                     'snapshot': {'volume_id': '1234'}})),
             dict(method='GET',
                  uri=self.get_mock_url('volumev2', 'public',
                                        append=['snapshots', snapshot_id]),
@@ -59,10 +65,9 @@ class TestCreateVolumeSnapshot(base.TestCase):
                                        append=['snapshots', snapshot_id]),
                  json={'snapshot': fake_snapshot_dict})])
 
-        self.assertEqual(
-            self.cloud._normalize_volume(fake_snapshot_dict),
-            self.cloud.create_volume_snapshot(volume_id=volume_id, wait=True)
-        )
+        self._compare_snapshots(
+            fake_snapshot_dict,
+            self.cloud.create_volume_snapshot(volume_id=volume_id, wait=True))
         self.assert_calls()
 
     def test_create_volume_snapshot_with_timeout(self):
@@ -82,7 +87,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
                      'volumev2', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
                  validate=dict(json={
-                     'snapshot': {'force': False, 'volume_id': '1234'}})),
+                     'snapshot': {'volume_id': '1234'}})),
             dict(method='GET',
                  uri=self.get_mock_url('volumev2', 'public',
                                        append=['snapshots', snapshot_id]),
@@ -114,7 +119,7 @@ class TestCreateVolumeSnapshot(base.TestCase):
                      'volumev2', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
                  validate=dict(json={
-                     'snapshot': {'force': False, 'volume_id': '1234'}})),
+                     'snapshot': {'volume_id': '1234'}})),
             dict(method='GET',
                  uri=self.get_mock_url('volumev2', 'public',
                                        append=['snapshots', snapshot_id]),
