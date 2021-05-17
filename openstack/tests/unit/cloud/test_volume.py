@@ -16,6 +16,7 @@ import testtools
 import openstack.cloud
 from openstack.block_storage.v3 import volume
 from openstack.cloud import meta
+from openstack.compute.v2 import volume_attachment
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -28,6 +29,12 @@ class TestVolume(base.TestCase):
             real.to_dict(computed=False)
         )
 
+    def _compare_volume_attachments(self, exp, real):
+        self.assertDictEqual(
+            volume_attachment.VolumeAttachment(**exp).to_dict(computed=False),
+            real.to_dict(computed=False)
+        )
+
     def test_attach_volume(self):
         server = dict(id='server001')
         vol = {'id': 'volume001', 'status': 'available',
@@ -36,6 +43,7 @@ class TestVolume(base.TestCase):
         rattach = {'server_id': server['id'], 'device': 'device001',
                    'volumeId': volume['id'], 'id': 'attachmentId'}
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -47,7 +55,7 @@ class TestVolume(base.TestCase):
                          'volumeId': vol['id']}})
                  )])
         ret = self.cloud.attach_volume(server, volume, wait=False)
-        self.assertEqual(rattach, ret)
+        self._compare_volume_attachments(rattach, ret)
         self.assert_calls()
 
     def test_attach_volume_exception(self):
@@ -56,6 +64,7 @@ class TestVolume(base.TestCase):
                'name': '', 'attachments': []}
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -67,9 +76,7 @@ class TestVolume(base.TestCase):
                          'volumeId': vol['id']}})
                  )])
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudURINotFound,
-            "Error attaching volume %s to server %s" % (
-                volume['id'], server['id'])
+            openstack.cloud.OpenStackCloudURINotFound
         ):
             self.cloud.attach_volume(server, volume, wait=False)
         self.assert_calls()
@@ -81,11 +88,12 @@ class TestVolume(base.TestCase):
         volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         vol['attachments'] = [{'server_id': server['id'],
                                'device': 'device001'}]
-        vol['status'] = 'attached'
+        vol['status'] = 'in-use'
         attached_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         rattach = {'server_id': server['id'], 'device': 'device001',
                    'volumeId': volume['id'], 'id': 'attachmentId'}
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -98,15 +106,16 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [volume]}),
+                     'volumev2', 'public', append=['volumes', vol['id']]),
+                 json={'volume': volume}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [attached_volume]})])
+                     'volumev2', 'public', append=['volumes', vol['id']]),
+                 json={'volume': attached_volume})
+        ])
         # defaults to wait=True
         ret = self.cloud.attach_volume(server, volume)
-        self.assertEqual(rattach, ret)
+        self._compare_volume_attachments(rattach, ret)
         self.assert_calls()
 
     def test_attach_volume_wait_error(self):
@@ -119,6 +128,7 @@ class TestVolume(base.TestCase):
         rattach = {'server_id': server['id'], 'device': 'device001',
                    'volumeId': volume['id'], 'id': 'attachmentId'}
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -131,12 +141,16 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [errored_volume]})])
+                     'volumev2', 'public', append=['volumes', volume['id']]),
+                 json={'volume': errored_volume}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', volume['id']]),
+                 json={'volume': errored_volume})
+        ])
 
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudException,
-            "Error in attaching volume %s" % errored_volume['id']
+            openstack.exceptions.ResourceFailure
         ):
             self.cloud.attach_volume(server, volume)
         self.assert_calls()
@@ -176,6 +190,7 @@ class TestVolume(base.TestCase):
                           {'server_id': 'server001', 'device': 'device001'}
                       ])
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -191,6 +206,7 @@ class TestVolume(base.TestCase):
                           {'server_id': 'server001', 'device': 'device001'}
                       ])
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -198,9 +214,7 @@ class TestVolume(base.TestCase):
                              'os-volume_attachments', volume['id']]),
                  status_code=404)])
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudURINotFound,
-            "Error detaching volume %s from server %s" % (
-                volume['id'], server['id'])
+            openstack.cloud.OpenStackCloudURINotFound
         ):
             self.cloud.detach_volume(server, volume, wait=False)
         self.assert_calls()
@@ -215,6 +229,7 @@ class TestVolume(base.TestCase):
         vol['attachments'] = []
         avail_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -238,6 +253,7 @@ class TestVolume(base.TestCase):
         vol['attachments'] = []
         errored_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -247,10 +263,15 @@ class TestVolume(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [errored_volume]})])
+                 json={'volumes': [errored_volume]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['volumes', errored_volume['id']]),
+                 json={'volume': errored_volume})
+        ])
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudException,
-            "Error in detaching volume %s" % errored_volume['id']
+            openstack.exceptions.ResourceFailure
         ):
             self.cloud.detach_volume(server, volume)
         self.assert_calls()
