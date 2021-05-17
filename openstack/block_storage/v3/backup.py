@@ -144,6 +144,14 @@ class Backup(resource.Resource):
             return self.fetch(session)
         return self
 
+    def _action(self, session, body, microversion=None):
+        """Preform backup actions given the message body."""
+        url = utils.urljoin(self.base_path, self.id, 'action')
+        resp = session.post(url, json=body,
+                            microversion=self._max_microversion)
+        exceptions.raise_from_response(resp)
+        return resp
+
     def restore(self, session, volume_id=None, name=None):
         """Restore current backup to volume
 
@@ -161,10 +169,21 @@ class Backup(resource.Resource):
         if not (volume_id or name):
             raise exceptions.SDKException('Either of `name` or `volume_id`'
                                           ' must be specified.')
-        response = session.post(url,
-                                json=body)
+        response = session.post(url, json=body)
         self._translate_response(response, has_body=False)
         return self
+
+    def force_delete(self, session):
+        """Force backup deletion
+        """
+        body = {'os-force_delete': {}}
+        self._action(session, body)
+
+    def reset(self, session, status):
+        """Reset the status of the backup
+        """
+        body = {'os-reset_status': {'status': status}}
+        self._action(session, body)
 
 
 BackupDetail = Backup

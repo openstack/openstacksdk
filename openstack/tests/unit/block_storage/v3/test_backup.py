@@ -175,3 +175,23 @@ class TestBackup(base.TestCase):
             sot.restore,
             self.sess
         )
+
+    def test_force_delete(self):
+        sot = backup.Backup(**BACKUP)
+
+        self.assertIsNone(sot.force_delete(self.sess))
+
+        url = 'backups/%s/action' % FAKE_ID
+        body = {'os-force_delete': {}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_reset(self):
+        sot = backup.Backup(**BACKUP)
+
+        self.assertIsNone(sot.reset(self.sess, 'new_status'))
+
+        url = 'backups/%s/action' % FAKE_ID
+        body = {'os-reset_status': {'status': 'new_status'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)

@@ -9,8 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from unittest import mock
 
 from openstack.tests.unit import base
+
+from keystoneauth1 import adapter
 
 from openstack.block_storage.v3 import snapshot
 
@@ -70,3 +73,49 @@ class TestSnapshot(base.TestCase):
             SNAPSHOT["os-extended-snapshot-attributes:project_id"],
             sot.project_id)
         self.assertTrue(sot.is_forced)
+
+
+class TestSnapshotActions(base.TestCase):
+
+    def setUp(self):
+        super(TestSnapshotActions, self).setUp()
+        self.resp = mock.Mock()
+        self.resp.body = None
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.resp.headers = {}
+        self.resp.status_code = 202
+
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.get = mock.Mock()
+        self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess.default_microversion = None
+
+    def test_force_delete(self):
+        sot = snapshot.Snapshot(**SNAPSHOT)
+
+        self.assertIsNone(sot.force_delete(self.sess))
+
+        url = 'snapshots/%s/action' % FAKE_ID
+        body = {'os-force_delete': {}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_reset(self):
+        sot = snapshot.Snapshot(**SNAPSHOT)
+
+        self.assertIsNone(sot.reset(self.sess, 'new_status'))
+
+        url = 'snapshots/%s/action' % FAKE_ID
+        body = {'os-reset_status': {'status': 'new_status'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_set_status(self):
+        sot = snapshot.Snapshot(**SNAPSHOT)
+
+        self.assertIsNone(sot.set_status(self.sess, 'new_status'))
+
+        url = 'snapshots/%s/action' % FAKE_ID
+        body = {'os-update_snapshot_status': {'status': 'new_status'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
