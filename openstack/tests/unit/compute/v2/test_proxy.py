@@ -918,12 +918,11 @@ class TestCompute(TestComputeProxy):
 
     def test_get_all_server_metadata(self):
         self._verify(
-            "openstack.compute.v2.server.Server.get_metadata",
+            "openstack.compute.v2.server.Server.fetch_metadata",
             self.proxy.get_server_metadata,
             method_args=["value"],
-            method_result=server.Server(id="value", metadata={}),
             expected_args=[self.proxy],
-            expected_result={})
+            expected_result=server.Server(id="value", metadata={}))
 
     def test_set_server_metadata(self):
         kwargs = {"a": "1", "b": "2"}
@@ -935,15 +934,16 @@ class TestCompute(TestComputeProxy):
             method_kwargs=kwargs,
             method_result=server.Server.existing(id=id, metadata=kwargs),
             expected_args=[self.proxy],
-            expected_kwargs=kwargs,
-            expected_result=kwargs)
+            expected_kwargs={'metadata': kwargs},
+            expected_result=server.Server.existing(id=id, metadata=kwargs)
+        )
 
     def test_delete_server_metadata(self):
         self._verify(
-            "openstack.compute.v2.server.Server.delete_metadata",
+            "openstack.compute.v2.server.Server.delete_metadata_item",
             self.proxy.delete_server_metadata,
             expected_result=None,
-            method_args=["value", "key"],
+            method_args=["value", ["key"]],
             expected_args=[self.proxy, "key"])
 
     def test_create_image(self):

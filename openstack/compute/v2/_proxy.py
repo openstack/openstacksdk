@@ -483,9 +483,7 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.image.Image`
         """
         res = self._get_base_resource(image, _image.Image)
-        metadata = res.get_metadata(self)
-        result = _image.Image.existing(id=res.id, metadata=metadata)
-        return result
+        return res.fetch_metadata(self)
 
     def set_image_metadata(self, image, **metadata):
         """Update metadata for an image
@@ -502,23 +500,28 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.image.Image`
         """
         res = self._get_base_resource(image, _image.Image)
-        metadata = res.set_metadata(self, **metadata)
-        result = _image.Image.existing(id=res.id, metadata=metadata)
-        return result
+        return res.set_metadata(self, metadata=metadata)
 
-    def delete_image_metadata(self, image, keys):
+    def delete_image_metadata(self, image, keys=None):
         """Delete metadata for an image
 
         Note: This method will do a HTTP DELETE request for every key in keys.
 
         :param image: Either the ID of an image or a
             :class:`~openstack.compute.v2.image.Image` instance.
-        :param keys: The keys to delete.
+        :param list keys: The keys to delete. If left empty complete metadata
+            will be removed.
 
         :rtype: ``None``
         """
         res = self._get_base_resource(image, _image.Image)
-        return res.delete_metadata(self, keys)
+        if keys is not None:
+            # Create a set as a snapshot of keys to avoid "changed during
+            # iteration"
+            for key in set(keys):
+                res.delete_metadata_item(self, key)
+        else:
+            res.delete_metadata(self)
 
     def create_keypair(self, **attrs):
         """Create a new keypair from attributes
@@ -1256,14 +1259,12 @@ class Proxy(proxy.Proxy):
                        :class:`~openstack.compute.v2.server.ServerDetail`
                        instance.
 
-        :returns: A :class:`~openstack.compute.v2.server.Server` with only the
+        :returns: A :class:`~openstack.compute.v2.server.Server` with the
                   server's metadata. All keys and values are Unicode text.
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
         res = self._get_base_resource(server, _server.Server)
-        metadata = res.get_metadata(self)
-        result = _server.Server.existing(id=res.id, metadata=metadata)
-        return result
+        return res.fetch_metadata(self)
 
     def set_server_metadata(self, server, **metadata):
         """Update metadata for a server
@@ -1280,23 +1281,28 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
         res = self._get_base_resource(server, _server.Server)
-        metadata = res.set_metadata(self, **metadata)
-        result = _server.Server.existing(id=res.id, metadata=metadata)
-        return result
+        return res.set_metadata(self, metadata=metadata)
 
-    def delete_server_metadata(self, server, keys):
+    def delete_server_metadata(self, server, keys=None):
         """Delete metadata for a server
 
         Note: This method will do a HTTP DELETE request for every key in keys.
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param keys: The keys to delete
+        :param list keys: The keys to delete. If left empty complete
+            metadata will be removed.
 
         :rtype: ``None``
         """
         res = self._get_base_resource(server, _server.Server)
-        return res.delete_metadata(self, keys)
+        if keys is not None:
+            # Create a set as a snapshot of keys to avoid "changed during
+            # iteration"
+            for key in set(keys):
+                res.delete_metadata_item(self, key)
+        else:
+            res.delete_metadata(self)
 
     def create_server_group(self, **attrs):
         """Create a new server group from attributes

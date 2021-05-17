@@ -104,7 +104,7 @@ class TagMixin:
         return self
 
     def remove_tag(self, session, tag):
-        """Removes a single tag from the specified server.
+        """Removes a single tag from the specified resource.
 
         :param session: The session to use for making this request.
         :param tag: The tag as a string.

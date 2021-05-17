@@ -9,8 +9,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from openstack.common import metadata
 from openstack.common import tag
-from openstack.compute.v2 import metadata
 from openstack import exceptions
 from openstack.image.v2 import image
 from openstack import resource
@@ -143,8 +143,6 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     launched_at = resource.Body('OS-SRV-USG:launched_at')
     #: The maximum number of servers to create.
     max_count = resource.Body('max_count')
-    #: Metadata stored for this server. *Type: dict*
-    metadata = resource.Body('metadata', type=dict)
     #: The minimum number of servers to create.
     min_count = resource.Body('min_count')
     #: A networks object. Required parameter when there are multiple
