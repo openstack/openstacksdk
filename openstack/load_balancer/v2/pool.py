@@ -9,11 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 
 
-class Pool(resource.Resource, resource.TagMixin):
+class Pool(resource.Resource, tag.TagMixin):
     resource_key = 'pool'
     resources_key = 'pools'
     base_path = '/lbaas/pools'
@@ -31,7 +31,7 @@ class Pool(resource.Resource, resource.TagMixin):
         'created_at', 'updated_at', 'provisioning_status', 'operating_status',
         'tls_enabled', 'tls_ciphers', 'tls_versions', 'alpn_protocols',
         is_admin_state_up='admin_state_up',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     #: Properties

@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 from openstack import utils
 
 
-class QoSPolicy(resource.Resource, resource.TagMixin):
+class QoSPolicy(resource.Resource, tag.TagMixin):
     resource_key = 'policy'
     resources_key = 'policies'
     base_path = '/qos/policies'
@@ -32,7 +32,7 @@ class QoSPolicy(resource.Resource, resource.TagMixin):
         'name', 'description', 'is_default',
         'project_id',
         is_shared='shared',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties

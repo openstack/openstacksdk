@@ -9,11 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 
 
-class Listener(resource.Resource, resource.TagMixin):
+class Listener(resource.Resource, tag.TagMixin):
     resource_key = 'listener'
     resources_key = 'listeners'
     base_path = '/lbaas/listeners'
@@ -34,7 +34,7 @@ class Listener(resource.Resource, resource.TagMixin):
         'timeout_member_data', 'timeout_tcp_inspect', 'allowed_cidrs',
         'tls_ciphers', 'tls_versions', 'alpn_protocols',
         is_admin_state_up='admin_state_up',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
