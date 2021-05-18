@@ -112,6 +112,37 @@ class TestVolume(TestVolumeProxy):
     def test_extensions(self):
         self.verify_list(self.proxy.extensions, extension.Extension)
 
+    def test_get_volume_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.fetch_metadata",
+            self.proxy.get_volume_metadata,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_result=volume.Volume(id="value", metadata={}))
+
+    def test_set_volume_metadata(self):
+        kwargs = {"a": "1", "b": "2"}
+        id = "an_id"
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.set_metadata",
+            self.proxy.set_volume_metadata,
+            method_args=[id],
+            method_kwargs=kwargs,
+            method_result=volume.Volume.existing(
+                id=id, metadata=kwargs),
+            expected_args=[self.proxy],
+            expected_kwargs={'metadata': kwargs},
+            expected_result=volume.Volume.existing(
+                id=id, metadata=kwargs))
+
+    def test_delete_volume_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.delete_metadata_item",
+            self.proxy.delete_volume_metadata,
+            expected_result=None,
+            method_args=["value", ["key"]],
+            expected_args=[self.proxy, "key"])
+
     def test_volume_wait_for(self):
         value = volume.Volume(id='1234')
         self.verify_wait_for_status(
@@ -450,6 +481,38 @@ class TestSnapshot(TestVolumeProxy):
             self.proxy.set_snapshot_status,
             method_args=["value", "new_status", "per"],
             expected_args=[self.proxy, "new_status", "per"])
+
+    def test_get_snapshot_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.snapshot.Snapshot.fetch_metadata",
+            self.proxy.get_snapshot_metadata,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_result=snapshot.Snapshot(id="value", metadata={}))
+
+    def test_set_snapshot_metadata(self):
+        kwargs = {"a": "1", "b": "2"}
+        id = "an_id"
+        self._verify(
+            "openstack.block_storage.v3.snapshot.Snapshot.set_metadata",
+            self.proxy.set_snapshot_metadata,
+            method_args=[id],
+            method_kwargs=kwargs,
+            method_result=snapshot.Snapshot.existing(
+                id=id, metadata=kwargs),
+            expected_args=[self.proxy],
+            expected_kwargs={'metadata': kwargs},
+            expected_result=snapshot.Snapshot.existing(
+                id=id, metadata=kwargs))
+
+    def test_delete_snapshot_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.snapshot.Snapshot."
+            "delete_metadata_item",
+            self.proxy.delete_snapshot_metadata,
+            expected_result=None,
+            method_args=["value", ["key"]],
+            expected_args=[self.proxy, "key"])
 
 
 class TestType(TestVolumeProxy):

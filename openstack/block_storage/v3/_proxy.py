@@ -1158,3 +1158,97 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 identified_resources=identified_resources,
                 filters=filters,
                 resource_evaluation_fn=resource_evaluation_fn)
+
+    def get_volume_metadata(self, volume):
+        """Return a dictionary of metadata for a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume`.
+
+        :returns: A :class:`~openstack.block_storage.v3.volume.Volume` with the
+            volume's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        return volume.fetch_metadata(self)
+
+    def set_volume_metadata(self, volume, **metadata):
+        """Update metadata for a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume`.
+        :param kwargs metadata: Key/value pairs to be updated in the volume's
+            metadata. No other metadata is modified by this call. All keys
+            and values are stored as Unicode.
+
+        :returns: A :class:`~openstack.block_storage.v3.volume.Volume` with the
+            volume's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        return volume.set_metadata(self, metadata=metadata)
+
+    def delete_volume_metadata(self, volume, keys=None):
+        """Delete metadata for a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume`.
+        :param list keys: The keys to delete. If left empty complete
+            metadata will be removed.
+
+        :rtype: ``None``
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        if keys is not None:
+            for key in keys:
+                volume.delete_metadata_item(self, key)
+        else:
+            volume.delete_metadata(self)
+
+    def get_snapshot_metadata(self, snapshot):
+        """Return a dictionary of metadata for a snapshot
+
+        :param snapshot: Either the ID of a snapshot or a
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
+
+        :returns: A
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot` with the
+            snapshot's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
+        """
+        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
+        return snapshot.fetch_metadata(self)
+
+    def set_snapshot_metadata(self, snapshot, **metadata):
+        """Update metadata for a snapshot
+
+        :param snapshot: Either the ID of a snapshot or a
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
+        :param kwargs metadata: Key/value pairs to be updated in the snapshot's
+            metadata. No other metadata is modified by this call. All keys
+            and values are stored as Unicode.
+
+        :returns: A
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot` with the
+            snapshot's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
+        """
+        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
+        return snapshot.set_metadata(self, metadata=metadata)
+
+    def delete_snapshot_metadata(self, snapshot, keys=None):
+        """Delete metadata for a snapshot
+
+        :param snapshot: Either the ID of a snapshot or a
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
+        :param list keys: The keys to delete. If left empty complete
+            metadata will be removed.
+
+        :rtype: ``None``
+        """
+        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
+        if keys is not None:
+            for key in keys:
+                snapshot.delete_metadata_item(self, key)
+        else:
+            snapshot.delete_metadata(self)

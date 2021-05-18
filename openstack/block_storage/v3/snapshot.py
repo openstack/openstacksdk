@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.common import metadata
 from openstack import exceptions
 from openstack import format
 from openstack import resource
 from openstack import utils
 
 
-class Snapshot(resource.Resource):
+class Snapshot(resource.Resource, metadata.MetadataMixin):
     resource_key = "snapshot"
     resources_key = "snapshots"
     base_path = "/snapshots"
@@ -40,8 +41,6 @@ class Snapshot(resource.Resource):
     #: Indicate whether to create snapshot, even if the volume is attached.
     #: Default is ``False``. *Type: bool*
     is_forced = resource.Body("force", type=format.BoolStr)
-    #: Metadata associated with this snapshot.
-    metadata = resource.Body("metadata", type=dict)
     #: The percentage of completeness the snapshot is currently at.
     progress = resource.Body("os-extended-snapshot-attributes:progress")
     #: The project ID this snapshot is associated with.

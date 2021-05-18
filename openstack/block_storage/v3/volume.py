@@ -10,13 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.common import metadata
 from openstack import exceptions
 from openstack import format
 from openstack import resource
 from openstack import utils
 
 
-class Volume(resource.Resource):
+class Volume(resource.Resource, metadata.MetadataMixin):
     resource_key = "volume"
     resources_key = "volumes"
     base_path = "/volumes"
@@ -57,8 +58,6 @@ class Volume(resource.Resource):
     #: ``True`` if this volume is encrypted, ``False`` if not.
     #: *Type: bool*
     is_encrypted = resource.Body("encrypted", type=format.BoolStr)
-    #: One or more metadata key and value pairs to associate with the volume.
-    metadata = resource.Body("metadata")
     #: The volume ID that this volume's name on the back-end is based on.
     migration_id = resource.Body("os-vol-mig-status-attr:name_id")
     #: The status of this volume's migration (None means that a migration

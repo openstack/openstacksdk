@@ -183,6 +183,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_profile.ProfileValidate, **attrs)
 
+    # ====== CLUSTERS ======
     def create_cluster(self, **attrs):
         """Create a new cluster from attributes.
 
@@ -281,6 +282,53 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.clustering.v1.cluster.Cluster`
         """
         return self._update(_cluster.Cluster, cluster, **attrs)
+
+    def get_cluster_metadata(self, cluster):
+        """Return a dictionary of metadata for a cluster
+
+        :param cluster: Either the ID of a cluster or a
+            :class:`~openstack.clustering.v3.cluster.Cluster`.
+
+        :returns: A :class:`~openstack.clustering.v3.cluster.Cluster` with the
+            cluster's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.clustering.v3.cluster.Cluster`
+        """
+        cluster = self._get_resource(_cluster.Cluster, cluster)
+        return cluster.fetch_metadata(self)
+
+    def set_cluster_metadata(self, cluster, **metadata):
+        """Update metadata for a cluster
+
+        :param cluster: Either the ID of a cluster or a
+            :class:`~openstack.clustering.v3.cluster.Cluster`.
+        :param kwargs metadata: Key/value pairs to be updated in the cluster's
+            metadata. No other metadata is modified by this call. All keys
+            and values are stored as Unicode.
+
+
+        :returns: A :class:`~openstack.clustering.v3.cluster.Cluster` with the
+            cluster's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.clustering.v3.cluster.Cluster`
+        """
+        cluster = self._get_resource(_cluster.Cluster, cluster)
+        return cluster.set_metadata(self, metadata=metadata)
+
+    def delete_cluster_metadata(self, cluster, keys=None):
+        """Delete metadata for a cluster
+
+        :param cluster: Either the ID of a cluster or a
+            :class:`~openstack.clustering.v3.cluster.Cluster`.
+        :param list keys: The keys to delete. If left empty complete
+            metadata will be removed.
+
+        :rtype: ``None``
+        """
+        cluster = self._get_resource(_cluster.Cluster, cluster)
+        if keys is not None:
+            for key in keys:
+                cluster.delete_metadata_item(self, key)
+        else:
+            cluster.delete_metadata(self)
 
     def add_nodes_to_cluster(self, cluster, nodes):
         """Add nodes to a cluster.

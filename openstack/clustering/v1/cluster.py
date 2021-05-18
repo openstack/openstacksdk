@@ -9,13 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 from openstack.clustering.v1 import _async_resource
+from openstack.common import metadata
 from openstack import resource
 from openstack import utils
 
 
-class Cluster(_async_resource.AsyncResource):
+class Cluster(_async_resource.AsyncResource, metadata.MetadataMixin):
     resource_key = 'cluster'
     resources_key = 'clusters'
     base_path = '/clusters'
