@@ -20,6 +20,7 @@ from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.compute.v2 import image as _image
 from openstack.compute.v2 import keypair as _keypair
 from openstack.compute.v2 import limits
+from openstack.compute.v2 import quota_set as _quota_set
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_diagnostics as _server_diagnostics
 from openstack.compute.v2 import server_group as _server_group
@@ -29,6 +30,7 @@ from openstack.compute.v2 import server_remote_console as _src
 from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack import exceptions
+from openstack.identity.v3 import project as _project
 from openstack.network.v2 import security_group as _sg
 from openstack import proxy
 from openstack import resource
@@ -1817,6 +1819,74 @@ class Proxy(proxy.Proxy):
             return console.to_dict()
         else:
             return server.get_console_url(self, console_type)
+
+    def get_quota_set(self, project, usage=False, **query):
+        """Show QuotaSet information for the project
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be retrieved
+        :param bool usage: When set to ``True`` quota usage and reservations
+            would be filled.
+        :param dict query: Additional query parameters to use.
+
+        :returns: One :class:`~openstack.compute.v2.quota_set.QuotaSet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+        return res.fetch(
+            self, usage=usage, **query)
+
+    def get_quota_set_defaults(self, project):
+        """Show QuotaSet defaults for the project
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be retrieved
+
+        :returns: One :class:`~openstack.compute.v2.quota_set.QuotaSet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+        return res.fetch(
+            self, base_path='/os-quota-sets/defaults')
+
+    def revert_quota_set(self, project, **query):
+        """Reset Quota for the project/user.
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be resetted.
+        :param dict query: Additional parameters to be used.
+
+        :returns: ``None``
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+
+        return res.delete(self, **query)
+
+    def update_quota_set(self, quota_set, query=None, **attrs):
+        """Update a QuotaSet.
+
+        :param quota_set: Either the ID of a quota_set or a
+            :class:`~openstack.compute.v2.quota_set.QuotaSet` instance.
+        :param dict query: Optional parameters to be used with update call.
+        :attrs kwargs: The attributes to update on the QuotaSet represented
+            by ``quota_set``.
+
+        :returns: The updated QuotaSet
+        :rtype: :class:`~openstack.compute.v2.quota_set.QuotaSet`
+        """
+        res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
+        return res.commit(self, **query)
 
     def _get_cleanup_dependencies(self):
         return {
