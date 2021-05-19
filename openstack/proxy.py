@@ -310,14 +310,13 @@ class Proxy(adapter.Adapter):
         """Get a resource object to work on
 
         :param resource_type: The type of resource to operate on. This should
-                              be a subclass of
-                              :class:`~openstack.resource.Resource` with a
-                              ``from_id`` method.
+            be a subclass of :class:`~openstack.resource.Resource` with a
+            ``from_id`` method.
         :param value: The ID of a resource or an object of ``resource_type``
-                      class if using an existing instance, or ``munch.Munch``,
-                      or None to create a new instance.
-        :param path_args: A dict containing arguments for forming the request
-                          URL, if needed.
+            class if using an existing instance, or ``munch.Munch``,
+            or None to create a new instance.
+        :param attrs: A dict containing arguments for forming the request
+            URL, if needed.
         """
         conn = self._get_connection()
         if value is None:
@@ -374,6 +373,7 @@ class Proxy(adapter.Adapter):
                                   ignore_missing=ignore_missing,
                                   **attrs)
 
+    # TODO(stephenfin): Update docstring for attrs since it's a lie
     @_check_resource(strict=False)
     def _delete(self, resource_type, value, ignore_missing=True, **attrs):
         """Delete a resource
@@ -512,16 +512,13 @@ class Proxy(adapter.Adapter):
             error_message="No {resource_type} found for {value}".format(
                 resource_type=resource_type.__name__, value=value))
 
-    def _list(self, resource_type, value=None,
+    def _list(self, resource_type,
               paginated=True, base_path=None, **attrs):
         """List a resource
 
         :param resource_type: The type of resource to list. This should
                               be a :class:`~openstack.resource.Resource`
                               subclass with a ``from_id`` method.
-        :param value: The resource to list. It can be the ID of a resource, or
-                      a :class:`~openstack.resource.Resource` object. When set
-                      to None, a new bare resource is created.
         :param bool paginated: When set to ``False``, expect all of the data
                                to be returned in one response. When set to
                                ``True``, the resource supports data being

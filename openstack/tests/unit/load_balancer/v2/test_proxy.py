@@ -56,8 +56,8 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_load_balancer_stats_get(self):
         self.verify_get(self.proxy.get_load_balancer_statistics,
                         lb.LoadBalancerStats,
-                        value=[self.LB_ID],
-                        expected_args=[lb.LoadBalancerStats],
+                        method_args=[self.LB_ID],
+                        expected_args=[],
                         expected_kwargs={'lb_id': self.LB_ID,
                                          'requires_id': False})
 
@@ -108,7 +108,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_load_balancer_failover(self):
         self.verify_update(self.proxy.failover_load_balancer,
                            lb.LoadBalancerFailover,
-                           value=[self.LB_ID],
+                           method_args=[self.LB_ID],
                            expected_args=[],
                            expected_kwargs={'lb_id': self.LB_ID})
 
@@ -123,8 +123,8 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_listener_stats_get(self):
         self.verify_get(self.proxy.get_listener_statistics,
                         listener.ListenerStats,
-                        value=[self.LISTENER_ID],
-                        expected_args=[listener.ListenerStats],
+                        method_args=[self.LISTENER_ID],
+                        expected_args=[],
                         expected_kwargs={'listener_id': self.LISTENER_ID,
                                          'requires_id': False})
 
@@ -189,9 +189,11 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_member_delete(self):
         self.verify_delete(self.proxy.delete_member,
                            member.Member,
-                           True,
+                           ignore_missing=True,
                            method_kwargs={'pool': self.POOL_ID},
-                           expected_kwargs={'pool_id': self.POOL_ID})
+                           expected_kwargs={
+                               'pool_id': self.POOL_ID,
+                               'ignore_missing': True})
 
     def test_member_find(self):
         self._verify2('openstack.proxy.Proxy._find',
@@ -277,7 +279,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_l7_rule_delete(self):
         self.verify_delete(self.proxy.delete_l7_rule,
                            l7_rule.L7Rule,
-                           True,
+                           ignore_missing=True,
                            method_kwargs={'l7_policy': self.L7_POLICY_ID},
                            expected_kwargs={'l7policy_id': self.L7_POLICY_ID})
 
@@ -324,6 +326,7 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.provider_flavor_capabilities,
                          provider.ProviderFlavorCapabilities,
                          method_args=[self.AMPHORA],
+                         expected_args=[],
                          expected_kwargs={'provider': self.AMPHORA})
 
     def test_flavor_profiles(self):
@@ -380,14 +383,14 @@ class TestLoadBalancerProxy(test_proxy_base.TestProxyBase):
     def test_amphora_configure(self):
         self.verify_update(self.proxy.configure_amphora,
                            amphora.AmphoraConfig,
-                           value=[self.AMPHORA_ID],
+                           method_args=[self.AMPHORA_ID],
                            expected_args=[],
                            expected_kwargs={'amphora_id': self.AMPHORA_ID})
 
     def test_amphora_failover(self):
         self.verify_update(self.proxy.failover_amphora,
                            amphora.AmphoraFailover,
-                           value=[self.AMPHORA_ID],
+                           method_args=[self.AMPHORA_ID],
                            expected_args=[],
                            expected_kwargs={'amphora_id': self.AMPHORA_ID})
 

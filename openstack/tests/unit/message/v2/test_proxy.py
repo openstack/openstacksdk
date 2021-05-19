@@ -73,7 +73,7 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
 
     def test_messages(self):
         self.verify_list(self.proxy.messages, message.Message,
-                         method_args=["test_queue"],
+                         method_kwargs={"queue_name": "test_queue"},
                          expected_kwargs={"queue_name": "test_queue"})
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -150,25 +150,29 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
 
     def test_subscriptions(self):
         self.verify_list(self.proxy.subscriptions, subscription.Subscription,
-                         method_args=["test_queue"],
+                         method_kwargs={"queue_name": "test_queue"},
                          expected_kwargs={"queue_name": "test_queue"})
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
     def test_subscription_delete(self, mock_get_resource):
-        mock_get_resource.return_value = "resource_or_id"
+        mock_get_resource.return_value = "test_subscription"
         self.verify_delete(self.proxy.delete_subscription,
-                           subscription.Subscription, False,
-                           ["test_queue", "resource_or_id"])
+                           subscription.Subscription,
+                           ignore_missing=False,
+                           method_args=["test_queue", "resource_or_id"],
+                           expected_args=["test_subscription"])
         mock_get_resource.assert_called_once_with(
             subscription.Subscription, "resource_or_id",
             queue_name="test_queue")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
     def test_subscription_delete_ignore(self, mock_get_resource):
-        mock_get_resource.return_value = "resource_or_id"
+        mock_get_resource.return_value = "test_subscription"
         self.verify_delete(self.proxy.delete_subscription,
-                           subscription.Subscription, True,
-                           ["test_queue", "resource_or_id"])
+                           subscription.Subscription,
+                           ignore_missing=True,
+                           method_args=["test_queue", "resource_or_id"],
+                           expected_args=["test_subscription"])
         mock_get_resource.assert_called_once_with(
             subscription.Subscription, "resource_or_id",
             queue_name="test_queue")
@@ -202,12 +206,21 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
 
     def test_claim_delete(self):
         self.verify_delete(self.proxy.delete_claim,
-                           claim.Claim, False,
-                           ["test_queue", "resource_or_id"],
-                           expected_kwargs={"queue_name": "test_queue"})
+                           claim.Claim,
+                           ignore_missing=False,
+                           method_args=["test_queue", "test_claim"],
+                           expected_args=["test_claim"],
+                           expected_kwargs={
+                               "queue_name": "test_queue",
+                               "ignore_missing": False})
 
     def test_claim_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_claim,
-                           claim.Claim, True,
-                           ["test_queue", "resource_or_id"],
-                           expected_kwargs={"queue_name": "test_queue"})
+        self.verify_delete(
+            self.proxy.delete_claim,
+            claim.Claim,
+            ignore_missing=True,
+            method_args=["test_queue", "test_claim"],
+            expected_args=["test_claim"],
+            expected_kwargs={
+                "queue_name": "test_queue", "ignore_missing": True,
+            })

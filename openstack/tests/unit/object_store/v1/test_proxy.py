@@ -39,11 +39,13 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
             endpoint=self.endpoint, container=self.container)
 
     def test_account_metadata_get(self):
-        self.verify_head(self.proxy.get_account_metadata, account.Account)
+        self.verify_head(
+            self.proxy.get_account_metadata, account.Account,
+            method_args=[])
 
     def test_container_metadata_get(self):
         self.verify_head(self.proxy.get_container_metadata,
-                         container.Container, value="container")
+                         container.Container, method_args=["container"])
 
     def test_container_delete(self):
         self.verify_delete(self.proxy.delete_container,
@@ -58,6 +60,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
             self.proxy.create_container,
             container.Container,
             method_args=['container_name'],
+            expected_args=[],
             expected_kwargs={'name': 'container_name', "x": 1, "y": 2, "z": 3})
 
     def test_object_metadata_get(self):
@@ -103,7 +106,7 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         kwargs = dict(container="container")
         self.verify_get(
             self.proxy.get_object, obj.Object,
-            value=["object"],
+            method_args=["object"],
             method_kwargs=kwargs,
             expected_kwargs=kwargs)
 

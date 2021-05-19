@@ -35,9 +35,11 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_stack, stack.Stack)
 
     def test_create_stack_preview(self):
-        method_kwargs = {"preview": True, "x": 1, "y": 2, "z": 3}
-        self.verify_create(self.proxy.create_stack, stack.Stack,
-                           method_kwargs=method_kwargs)
+        self.verify_create(
+            self.proxy.create_stack,
+            stack.Stack,
+            method_kwargs={"preview": True, "x": 1, "y": 2, "z": 3},
+            expected_kwargs={"x": 1, "y": 2, "z": 3})
 
     def test_find_stack(self):
         self.verify_find(self.proxy.find_stack, stack.Stack,
@@ -223,6 +225,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
         self.verify_list(self.proxy.resources, resource.Resource,
                          method_args=[stk],
+                         expected_args=[],
                          expected_kwargs={'stack_name': stack_name,
                                           'stack_id': stack_id})
 
@@ -237,6 +240,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
         self.verify_list(self.proxy.resources, resource.Resource,
                          method_args=[stack_id],
+                         expected_args=[],
                          expected_kwargs={'stack_name': stack_name,
                                           'stack_id': stack_id})
 

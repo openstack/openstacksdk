@@ -37,7 +37,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
 
     def test_build_info_get(self):
         self.verify_get(self.proxy.get_build_info, build_info.BuildInfo,
-                        ignore_value=True,
+                        method_args=[],
                         expected_kwargs={'requires_id': False})
 
     def test_profile_types(self):
@@ -137,6 +137,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.collect_cluster_attrs,
                          cluster_attr.ClusterAttr,
                          method_args=['FAKE_ID', 'path.to.attr'],
+                         expected_args=[],
                          expected_kwargs={'cluster_id': 'FAKE_ID',
                                           'path': 'path.to.attr'})
 
@@ -265,6 +266,7 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.cluster_policies,
                          cluster_policy.ClusterPolicy,
                          method_args=["FAKE_CLUSTER"],
+                         expected_args=[],
                          expected_kwargs={"cluster_id": "FAKE_CLUSTER"})
 
     def test_get_cluster_policy(self):

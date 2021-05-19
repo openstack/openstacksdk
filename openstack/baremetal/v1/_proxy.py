@@ -168,19 +168,20 @@ class Proxy(proxy.Proxy):
         return self._delete(_chassis.Chassis, chassis,
                             ignore_missing=ignore_missing)
 
-    def drivers(self, details=False):
+    def drivers(self, details=False, **query):
         """Retrieve a generator of drivers.
 
         :param bool details: A boolean indicating whether the detailed
             information for every driver should be returned.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
         :returns: A generator of driver instances.
         """
-        kwargs = {}
         # NOTE(dtantsur): details are available starting with API microversion
         # 1.30. Thus we do not send any value if not needed.
         if details:
-            kwargs['details'] = True
-        return self._list(_driver.Driver, **kwargs)
+            query['details'] = True
+        return self._list(_driver.Driver, **query)
 
     def get_driver(self, driver):
         """Get a specific driver.
