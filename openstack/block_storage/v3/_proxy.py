@@ -17,12 +17,14 @@ from openstack.block_storage.v3 import capabilities as _capabilities
 from openstack.block_storage.v3 import extension as _extension
 from openstack.block_storage.v3 import group_type as _group_type
 from openstack.block_storage.v3 import limits as _limits
+from openstack.block_storage.v3 import quota_set as _quota_set
 from openstack.block_storage.v3 import resource_filter as _resource_filter
 from openstack.block_storage.v3 import snapshot as _snapshot
 from openstack.block_storage.v3 import stats as _stats
 from openstack.block_storage.v3 import type as _type
 from openstack.block_storage.v3 import volume as _volume
 from openstack import exceptions
+from openstack.identity.v3 import project as _project
 from openstack import resource
 
 
@@ -1026,6 +1028,74 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                         Extension`
         """
         return self._list(_extension.Extension)
+
+    def get_quota_set(self, project, usage=False, **query):
+        """Show QuotaSet information for the project
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be retrieved
+        :param bool usage: When set to ``True`` quota usage and reservations
+            would be filled.
+        :param dict query: Additional query parameters to use.
+
+        :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+        return res.fetch(
+            self, usage=usage, **query)
+
+    def get_quota_set_defaults(self, project):
+        """Show QuotaSet defaults for the project
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be retrieved
+
+        :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+        return res.fetch(
+            self, base_path='/os-quota-sets/defaults')
+
+    def revert_quota_set(self, project, **query):
+        """Reset Quota for the project/user.
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be resetted.
+        :param dict query: Additional parameters to be used.
+
+        :returns: ``None``
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+
+        return res.delete(self, **query)
+
+    def update_quota_set(self, quota_set, query=None, **attrs):
+        """Update a QuotaSet.
+
+        :param quota_set: Either the ID of a quota_set or a
+            :class:`~openstack.block_storage.v3.quota_set.QuotaSet` instance.
+        :param dict query: Optional parameters to be used with update call.
+        :attrs kwargs: The attributes to update on the QuotaSet represented
+            by ``quota_set``.
+
+        :returns: The updated QuotaSet
+        :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
+        """
+        res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
+        return res.commit(self, **query)
 
     def _get_cleanup_dependencies(self):
         return {
