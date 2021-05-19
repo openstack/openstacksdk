@@ -362,7 +362,7 @@ def valid_kwargs(*valid_args):
     #
     @decorator
     def func_wrapper(func, *args, **kwargs):
-        argspec = inspect.getargspec(func)
+        argspec = inspect.getfullargspec(func)
         for k in kwargs:
             if k not in argspec.args[1:] and k not in valid_args:
                 raise TypeError(
