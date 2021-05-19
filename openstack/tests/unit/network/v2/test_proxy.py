@@ -891,11 +891,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify("openstack.network.v2.router.Router.add_interface",
-                     self.proxy.add_interface_to_router,
-                     method_args=["FAKE_ROUTER"],
-                     method_kwargs={"port_id": "PORT"},
-                     expected_kwargs={"port_id": "PORT"})
+        self._verify2(
+            "openstack.network.v2.router.Router.add_interface",
+            self.proxy.add_interface_to_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={"port_id": "PORT"},
+            expected_args=[self.proxy],
+            expected_kwargs={"port_id": "PORT"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -905,11 +907,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify("openstack.network.v2.router.Router.add_interface",
-                     self.proxy.add_interface_to_router,
-                     method_args=["FAKE_ROUTER"],
-                     method_kwargs={"subnet_id": "SUBNET"},
-                     expected_kwargs={"subnet_id": "SUBNET"})
+        self._verify2(
+            "openstack.network.v2.router.Router.add_interface",
+            self.proxy.add_interface_to_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={"subnet_id": "SUBNET"},
+            expected_args=[self.proxy],
+            expected_kwargs={"subnet_id": "SUBNET"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -919,11 +923,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify("openstack.network.v2.router.Router.remove_interface",
-                     self.proxy.remove_interface_from_router,
-                     method_args=["FAKE_ROUTER"],
-                     method_kwargs={"port_id": "PORT"},
-                     expected_kwargs={"port_id": "PORT"})
+        self._verify2(
+            "openstack.network.v2.router.Router.remove_interface",
+            self.proxy.remove_interface_from_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={"port_id": "PORT"},
+            expected_args=[self.proxy],
+            expected_kwargs={"port_id": "PORT"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -933,11 +939,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify("openstack.network.v2.router.Router.remove_interface",
-                     self.proxy.remove_interface_from_router,
-                     method_args=["FAKE_ROUTER"],
-                     method_kwargs={"subnet_id": "SUBNET"},
-                     expected_kwargs={"subnet_id": "SUBNET"})
+        self._verify2(
+            "openstack.network.v2.router.Router.remove_interface",
+            self.proxy.remove_interface_from_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={"subnet_id": "SUBNET"},
+            expected_args=[self.proxy],
+            expected_kwargs={"subnet_id": "SUBNET"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -947,11 +955,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify("openstack.network.v2.router.Router.add_extra_routes",
-                     self.proxy.add_extra_routes_to_router,
-                     method_args=["FAKE_ROUTER"],
-                     method_kwargs={"body": {"router": {"routes": []}}},
-                     expected_kwargs={"body": {"router": {"routes": []}}})
+        self._verify2(
+            "openstack.network.v2.router.Router.add_extra_routes",
+            self.proxy.add_extra_routes_to_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={"body": {"router": {"routes": []}}},
+            expected_args=[self.proxy],
+            expected_kwargs={"body": {"router": {"routes": []}}})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -961,11 +971,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify("openstack.network.v2.router.Router.remove_extra_routes",
-                     self.proxy.remove_extra_routes_from_router,
-                     method_args=["FAKE_ROUTER"],
-                     method_kwargs={"body": {"router": {"routes": []}}},
-                     expected_kwargs={"body": {"router": {"routes": []}}})
+        self._verify2(
+            "openstack.network.v2.router.Router.remove_extra_routes",
+            self.proxy.remove_extra_routes_from_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={"body": {"router": {"routes": []}}},
+            expected_args=[self.proxy],
+            expected_kwargs={"body": {"router": {"routes": []}}})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -974,11 +986,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify("openstack.network.v2.router.Router.add_gateway",
-                     self.proxy.add_gateway_to_router,
-                     method_args=["FAKE_ROUTER"],
-                     method_kwargs={"foo": "bar"},
-                     expected_kwargs={"foo": "bar"})
+        self._verify2(
+            "openstack.network.v2.router.Router.add_gateway",
+            self.proxy.add_gateway_to_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={"foo": "bar"},
+            expected_args=[self.proxy],
+            expected_kwargs={"foo": "bar"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
@@ -987,11 +1001,13 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         x_router = router.Router.new(id="ROUTER_ID")
         mock_get.return_value = x_router
 
-        self._verify("openstack.network.v2.router.Router.remove_gateway",
-                     self.proxy.remove_gateway_from_router,
-                     method_args=["FAKE_ROUTER"],
-                     method_kwargs={"foo": "bar"},
-                     expected_kwargs={"foo": "bar"})
+        self._verify2(
+            "openstack.network.v2.router.Router.remove_gateway",
+            self.proxy.remove_gateway_from_router,
+            method_args=["FAKE_ROUTER"],
+            method_kwargs={"foo": "bar"},
+            expected_args=[self.proxy],
+            expected_kwargs={"foo": "bar"})
         mock_get.assert_called_once_with(router.Router, "FAKE_ROUTER")
 
     def test_router_hosting_l3_agents_list(self):
@@ -1341,11 +1357,12 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
     def test_set_tags(self):
         x_network = network.Network.new(id='NETWORK_ID')
-        self._verify('openstack.network.v2.network.Network.set_tags',
-                     self.proxy.set_tags,
-                     method_args=[x_network, ['TAG1', 'TAG2']],
-                     expected_args=[['TAG1', 'TAG2']],
-                     expected_result=mock.sentinel.result_set_tags)
+        self._verify2(
+            'openstack.network.v2.network.Network.set_tags',
+            self.proxy.set_tags,
+            method_args=[x_network, ['TAG1', 'TAG2']],
+            expected_args=[self.proxy, ['TAG1', 'TAG2']],
+            expected_result=mock.sentinel.result_set_tags)
 
     @mock.patch('openstack.network.v2.network.Network.set_tags')
     def test_set_tags_resource_without_tag_suport(self, mock_set_tags):

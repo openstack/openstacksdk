@@ -156,22 +156,25 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_volume, volume.Volume, True)
 
     def test_volume_extend(self):
-        self._verify("openstack.block_storage.v3.volume.Volume.extend",
-                     self.proxy.extend_volume,
-                     method_args=["value", "new-size"],
-                     expected_args=["new-size"])
+        self._verify2(
+            "openstack.block_storage.v3.volume.Volume.extend",
+            self.proxy.extend_volume,
+            method_args=["value", "new-size"],
+            expected_args=[self.proxy, "new-size"])
 
     def test_volume_set_readonly_no_argument(self):
-        self._verify("openstack.block_storage.v3.volume.Volume.set_readonly",
-                     self.proxy.set_volume_readonly,
-                     method_args=["value"],
-                     expected_args=[True])
+        self._verify2(
+            "openstack.block_storage.v3.volume.Volume.set_readonly",
+            self.proxy.set_volume_readonly,
+            method_args=["value"],
+            expected_args=[self.proxy, True])
 
     def test_volume_set_readonly_false(self):
-        self._verify("openstack.block_storage.v3.volume.Volume.set_readonly",
-                     self.proxy.set_volume_readonly,
-                     method_args=["value", False],
-                     expected_args=[False])
+        self._verify2(
+            "openstack.block_storage.v3.volume.Volume.set_readonly",
+            self.proxy.set_volume_readonly,
+            method_args=["value", False],
+            expected_args=[self.proxy, False])
 
     def test_volume_retype_without_migration_policy(self):
         self._verify("openstack.block_storage.v3.volume.Volume.retype",

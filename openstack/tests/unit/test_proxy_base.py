@@ -55,22 +55,32 @@ class TestProxyBase(base.TestCase):
                  expected_result=None):
         with mock.patch(mock_method) as mocked:
             mocked.return_value = expected_result
-            if any([method_args, method_kwargs,
-                    expected_args, expected_kwargs]):
+            if any([
+                method_args,
+                method_kwargs,
+                expected_args,
+                expected_kwargs,
+            ]):
                 method_args = method_args or ()
                 method_kwargs = method_kwargs or {}
                 expected_args = expected_args or ()
                 expected_kwargs = expected_kwargs or {}
 
                 if method_result:
-                    self.assertEqual(method_result, test_method(*method_args,
-                                     **method_kwargs))
+                    self.assertEqual(
+                        method_result,
+                        test_method(*method_args, **method_kwargs),
+                    )
                 else:
-                    self.assertEqual(expected_result, test_method(*method_args,
-                                     **method_kwargs))
+                    self.assertEqual(
+                        expected_result,
+                        test_method(*method_args, **method_kwargs),
+                    )
+
                 # Check how the mock was called in detail
-                (called_args, called_kwargs) = mocked.call_args
+                called_args, called_kwargs = mocked.call_args
                 self.assertEqual(expected_args, list(called_args))
+
                 # NOTE(gtema): if base_path is not in expected_kwargs or empty
                 # exclude it from the comparison, since some methods might
                 # still invoke method with None value
@@ -88,6 +98,7 @@ class TestProxyBase(base.TestCase):
                 if ignore_missing is None:
                     expected_kwargs.pop('ignore_missing', None)
                     called_kwargs.pop('ignore_missing', None)
+
                 self.assertDictEqual(expected_kwargs, called_kwargs)
             else:
                 self.assertEqual(expected_result, test_method())
@@ -275,4 +286,4 @@ class TestProxyBase(base.TestCase):
         mock_method="openstack.resource.wait_for_status",
         **kwargs,
     ):
-        self._verify(mock_method, test_method, **kwargs)
+        self._verify2(mock_method, test_method, **kwargs)

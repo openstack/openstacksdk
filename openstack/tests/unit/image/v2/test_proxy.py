@@ -54,10 +54,11 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
 
     def test_image_import(self):
         original_image = image.Image(**EXAMPLE)
-        self._verify(
+        self._verify2(
             "openstack.image.v2.image.Image.import_image",
             self.proxy.import_image,
             method_args=[original_image, "method", "uri"],
+            expected_args=[self.proxy],
             expected_kwargs={
                 "method": "method",
                 "store": None,
@@ -218,17 +219,21 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
 
     def test_image_download(self):
         original_image = image.Image(**EXAMPLE)
-        self._verify('openstack.image.v2.image.Image.download',
-                     self.proxy.download_image,
-                     method_args=[original_image],
-                     method_kwargs={
-                         'output': 'some_output',
-                         'chunk_size': 1,
-                         'stream': True
-                     },
-                     expected_kwargs={'output': 'some_output',
-                                      'chunk_size': 1,
-                                      'stream': True})
+        self._verify2(
+            'openstack.image.v2.image.Image.download',
+            self.proxy.download_image,
+            method_args=[original_image],
+            method_kwargs={
+                'output': 'some_output',
+                'chunk_size': 1,
+                'stream': True
+            },
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'output': 'some_output',
+                'chunk_size': 1,
+                'stream': True,
+            })
 
     @mock.patch("openstack.image.v2.image.Image.fetch")
     def test_image_stage(self, mock_fetch):
@@ -289,26 +294,32 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.images, image.Image)
 
     def test_add_tag(self):
-        self._verify("openstack.image.v2.image.Image.add_tag",
-                     self.proxy.add_tag,
-                     method_args=["image", "tag"],
-                     expected_args=["tag"])
+        self._verify2(
+            "openstack.image.v2.image.Image.add_tag",
+            self.proxy.add_tag,
+            method_args=["image", "tag"],
+            expected_args=[self.proxy, "tag"])
 
     def test_remove_tag(self):
-        self._verify("openstack.image.v2.image.Image.remove_tag",
-                     self.proxy.remove_tag,
-                     method_args=["image", "tag"],
-                     expected_args=["tag"])
+        self._verify2(
+            "openstack.image.v2.image.Image.remove_tag",
+            self.proxy.remove_tag,
+            method_args=["image", "tag"],
+            expected_args=[self.proxy, "tag"])
 
     def test_deactivate_image(self):
-        self._verify("openstack.image.v2.image.Image.deactivate",
-                     self.proxy.deactivate_image,
-                     method_args=["image"])
+        self._verify2(
+            "openstack.image.v2.image.Image.deactivate",
+            self.proxy.deactivate_image,
+            method_args=["image"],
+            expected_args=[self.proxy])
 
     def test_reactivate_image(self):
-        self._verify("openstack.image.v2.image.Image.reactivate",
-                     self.proxy.reactivate_image,
-                     method_args=["image"])
+        self._verify2(
+            "openstack.image.v2.image.Image.reactivate",
+            self.proxy.reactivate_image,
+            method_args=["image"],
+            expected_args=[self.proxy])
 
     def test_member_create(self):
         self.verify_create(self.proxy.add_member, member.Member,
