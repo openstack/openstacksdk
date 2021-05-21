@@ -23,6 +23,9 @@ EXAMPLE = {
     'is_domain': False,
     'name': '5',
     'parent_id': '6',
+    'options': {
+        'foo': 'bar'
+    }
 }
 
 
@@ -65,6 +68,7 @@ class TestProject(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['parent_id'], sot.parent_id)
+        self.assertDictEqual(EXAMPLE['options'], sot.options)
 
 
 class TestUserProject(base.TestCase):

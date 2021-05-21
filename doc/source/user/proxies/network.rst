@@ -234,6 +234,15 @@ VPN Operations
   :members: create_vpn_service, update_vpn_service, delete_vpn_service,
             get_vpn_service, find_vpn_service, vpn_services
 
+IPSecSiteConnection Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_vpn_ipsec_site_connection, update_vpn_ipsec_site_connection,
+            delete_vpn_ipsec_site_connection, get_vpn_ipsec_site_connection,
+            find_vpn_ipsec_site_connection, vpn_ipsec_site_connections
+
 Extension Operations
 ^^^^^^^^^^^^^^^^^^^^
 

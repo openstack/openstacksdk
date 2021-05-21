@@ -420,12 +420,14 @@ class Proxy(proxy.Proxy):
             obj = self._find(_cluster.Cluster, cluster, ignore_missing=False)
         return obj.policy_update(self, policy, **params)
 
-    def collect_cluster_attrs(self, cluster, path):
+    def collect_cluster_attrs(self, cluster, path, **query):
         """Collect attribute values across a cluster.
 
         :param cluster: The value can be either the ID of a cluster or a
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
         :param path: A Json path string specifying the attribute to collect.
+        :param query: Optional query parameters to be sent to limit the
+            resources being returned.
 
         :returns: A dictionary containing the list of attribute values.
         """

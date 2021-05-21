@@ -31,12 +31,13 @@ class TestInstanceHaProxy(test_proxy_base.TestProxyBase):
         self.verify_list(self.proxy.hosts,
                          host.Host,
                          method_args=[SEGMENT_ID],
+                         expected_args=[],
                          expected_kwargs={"segment_id": SEGMENT_ID})
 
     def test_host_get(self):
         self.verify_get(self.proxy.get_host,
                         host.Host,
-                        value=[HOST_ID],
+                        method_args=[HOST_ID],
                         method_kwargs={"segment_id": SEGMENT_ID},
                         expected_kwargs={"segment_id": SEGMENT_ID})
 
@@ -45,6 +46,7 @@ class TestInstanceHaProxy(test_proxy_base.TestProxyBase):
                            host.Host,
                            method_args=[SEGMENT_ID],
                            method_kwargs={},
+                           expected_args=[],
                            expected_kwargs={"segment_id": SEGMENT_ID})
 
     def test_host_update(self):

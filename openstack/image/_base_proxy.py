@@ -251,7 +251,7 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
         converted to int.
         """
 
-        if image is None:
+        if isinstance(image, str):
             image = self._connection.get_image(image)
 
         if not meta:

@@ -201,12 +201,15 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.extend(self, size)
 
-    def backend_pools(self):
+    def backend_pools(self, **query):
         """Returns a generator of cinder Back-end storage pools
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the resources being returned.
 
         :returns A generator of cinder Back-end storage pools objects
         """
-        return self._list(_stats.Pools)
+        return self._list(_stats.Pools, **query)
 
     def backups(self, details=True, **query):
         """Retrieve a generator of backups

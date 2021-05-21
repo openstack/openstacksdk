@@ -1042,6 +1042,12 @@ class OpenStackConfig:
                 or ('token' in config and config['token'])):
             config.setdefault('token', config.pop('auth_token', None))
 
+        # Infer passcode if it was given separately
+        # This is generally absolutely impractical to require setting passcode
+        # in the clouds.yaml
+        if 'auth' in config and 'passcode' in config:
+            config['auth']['passcode'] = config.pop('passcode', None)
+
         # These backwards compat values are only set via argparse. If it's
         # there, it's because it was passed in explicitly, and should win
         config = self._fix_backwards_api_timeout(config)

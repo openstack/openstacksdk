@@ -256,7 +256,12 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     def get_password(self, session):
         """Get the encrypted administrator password."""
         url = utils.urljoin(Server.base_path, self.id, 'os-server-password')
-        return session.get(url)
+
+        response = session.get(url)
+        exceptions.raise_from_response(response)
+
+        data = response.json()
+        return data.get('password')
 
     def reboot(self, session, reboot_type):
         """Reboot server where reboot_type might be 'SOFT' or 'HARD'."""

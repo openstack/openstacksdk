@@ -35,9 +35,11 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_stack, stack.Stack)
 
     def test_create_stack_preview(self):
-        method_kwargs = {"preview": True, "x": 1, "y": 2, "z": 3}
-        self.verify_create(self.proxy.create_stack, stack.Stack,
-                           method_kwargs=method_kwargs)
+        self.verify_create(
+            self.proxy.create_stack,
+            stack.Stack,
+            method_kwargs={"preview": True, "x": 1, "y": 2, "z": 3},
+            expected_kwargs={"x": 1, "y": 2, "z": 3})
 
     def test_find_stack(self):
         self.verify_find(self.proxy.find_stack, stack.Stack,
@@ -49,23 +51,25 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         #     'ignore_missing': False
         # }
         # method_args=["name_or_id"]
-        # self._verify2(mock_method, test_method,
-        #               method_args=method_args,
-        #               method_kwargs=method_kwargs,
-        #               expected_args=[stack.Stack, "name_or_id"],
-        #               expected_kwargs=method_kwargs,
-        #               expected_result="result")
+        # self._verify(
+        #     mock_method, test_method,
+        #     method_args=method_args,
+        #     method_kwargs=method_kwargs,
+        #     expected_args=[stack.Stack, "name_or_id"],
+        #     expected_kwargs=method_kwargs,
+        #     expected_result="result")
         #
         # method_kwargs = {
         #     'resolve_outputs': True,
         #     'ignore_missing': True
         # }
-        # self._verify2(mock_method, test_method,
-        #               method_args=method_args,
-        #               method_kwargs=method_kwargs,
-        #               expected_args=[stack.Stack, "name_or_id"],
-        #               expected_kwargs=method_kwargs,
-        #               expected_result="result")
+        # self._verify(
+        #     mock_method, test_method,
+        #     method_args=method_args,
+        #     method_kwargs=method_kwargs,
+        #     expected_args=[stack.Stack, "name_or_id"],
+        #     expected_kwargs=method_kwargs,
+        #     expected_result="result")
 
     def test_stacks(self):
         self.verify_list(self.proxy.stacks, stack.Stack)
@@ -79,27 +83,30 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
             'openstack.orchestration.v1.stack.Stack')
 
     def test_update_stack(self):
-        self._verify2('openstack.orchestration.v1.stack.Stack.update',
-                      self.proxy.update_stack,
-                      expected_result='result',
-                      method_args=['stack'],
-                      method_kwargs={'preview': False},
-                      expected_args=[self.proxy, False])
+        self._verify(
+            'openstack.orchestration.v1.stack.Stack.update',
+            self.proxy.update_stack,
+            expected_result='result',
+            method_args=['stack'],
+            method_kwargs={'preview': False},
+            expected_args=[self.proxy, False])
 
     def test_update_stack_preview(self):
-        self._verify2('openstack.orchestration.v1.stack.Stack.update',
-                      self.proxy.update_stack,
-                      expected_result='result',
-                      method_args=['stack'],
-                      method_kwargs={'preview': True},
-                      expected_args=[self.proxy, True])
+        self._verify(
+            'openstack.orchestration.v1.stack.Stack.update',
+            self.proxy.update_stack,
+            expected_result='result',
+            method_args=['stack'],
+            method_kwargs={'preview': True},
+            expected_args=[self.proxy, True])
 
     def test_abandon_stack(self):
-        self._verify2('openstack.orchestration.v1.stack.Stack.abandon',
-                      self.proxy.abandon_stack,
-                      expected_result='result',
-                      method_args=['stack'],
-                      expected_args=[self.proxy])
+        self._verify(
+            'openstack.orchestration.v1.stack.Stack.abandon',
+            self.proxy.abandon_stack,
+            expected_result='result',
+            method_args=['stack'],
+            expected_args=[self.proxy])
 
     def test_delete_stack(self):
         self.verify_delete(self.proxy.delete_stack, stack.Stack, False)
@@ -134,13 +141,15 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stk = stack.Stack(id=stack_id, name=stack_name)
         mock_find.return_value = stk
 
-        self._verify2('openstack.proxy.Proxy._get',
-                      self.proxy.get_stack_environment,
-                      method_args=['IDENTITY'],
-                      expected_args=[stack_environment.StackEnvironment],
-                      expected_kwargs={'requires_id': False,
-                                       'stack_name': stack_name,
-                                       'stack_id': stack_id})
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_stack_environment,
+            method_args=['IDENTITY'],
+            expected_args=[stack_environment.StackEnvironment],
+            expected_kwargs={
+                'requires_id': False,
+                'stack_name': stack_name,
+                'stack_id': stack_id})
         mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
                                           ignore_missing=False)
 
@@ -149,13 +158,15 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
 
-        self._verify2('openstack.proxy.Proxy._get',
-                      self.proxy.get_stack_environment,
-                      method_args=[stk],
-                      expected_args=[stack_environment.StackEnvironment],
-                      expected_kwargs={'requires_id': False,
-                                       'stack_name': stack_name,
-                                       'stack_id': stack_id})
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_stack_environment,
+            method_args=[stk],
+            expected_args=[stack_environment.StackEnvironment],
+            expected_kwargs={
+                'requires_id': False,
+                'stack_name': stack_name,
+                'stack_id': stack_id})
 
     @mock.patch.object(stack_files.StackFiles, 'fetch')
     @mock.patch.object(stack.Stack, 'find')
@@ -192,13 +203,15 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stk = stack.Stack(id=stack_id, name=stack_name)
         mock_find.return_value = stk
 
-        self._verify2('openstack.proxy.Proxy._get',
-                      self.proxy.get_stack_template,
-                      method_args=['IDENTITY'],
-                      expected_args=[stack_template.StackTemplate],
-                      expected_kwargs={'requires_id': False,
-                                       'stack_name': stack_name,
-                                       'stack_id': stack_id})
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_stack_template,
+            method_args=['IDENTITY'],
+            expected_args=[stack_template.StackTemplate],
+            expected_kwargs={
+                'requires_id': False,
+                'stack_name': stack_name,
+                'stack_id': stack_id})
         mock_find.assert_called_once_with(mock.ANY, 'IDENTITY',
                                           ignore_missing=False)
 
@@ -207,13 +220,15 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         stack_name = 'test_stack'
         stk = stack.Stack(id=stack_id, name=stack_name)
 
-        self._verify2('openstack.proxy.Proxy._get',
-                      self.proxy.get_stack_template,
-                      method_args=[stk],
-                      expected_args=[stack_template.StackTemplate],
-                      expected_kwargs={'requires_id': False,
-                                       'stack_name': stack_name,
-                                       'stack_id': stack_id})
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_stack_template,
+            method_args=[stk],
+            expected_args=[stack_template.StackTemplate],
+            expected_kwargs={
+                'requires_id': False,
+                'stack_name': stack_name,
+                'stack_id': stack_id})
 
     @mock.patch.object(stack.Stack, 'find')
     def test_resources_with_stack_object(self, mock_find):
@@ -223,6 +238,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
         self.verify_list(self.proxy.resources, resource.Resource,
                          method_args=[stk],
+                         expected_args=[],
                          expected_kwargs={'stack_name': stack_name,
                                           'stack_id': stack_id})
 
@@ -237,6 +253,7 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
 
         self.verify_list(self.proxy.resources, resource.Resource,
                          method_args=[stack_id],
+                         expected_args=[],
                          expected_kwargs={'stack_name': stack_name,
                                           'stack_id': stack_id})
 

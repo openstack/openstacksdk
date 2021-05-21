@@ -119,5 +119,15 @@ class Volume(resource.Resource):
         body = {'os-update_readonly_flag': {'readonly': readonly}}
         self._action(session, body)
 
+    def retype(self, session, new_type, migration_policy):
+        """Retype volume considering the migration policy"""
+        body = {
+            'os-retype': {
+                'new_type': new_type,
+                'migration_policy': migration_policy
+            }
+        }
+        self._action(session, body)
+
 
 VolumeDetail = Volume

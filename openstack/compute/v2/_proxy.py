@@ -708,7 +708,7 @@ class Proxy(proxy.Proxy):
         :returns: encrypted password.
         """
         server = self._get_resource(_server.Server, server)
-        return server.get_password(self._session)
+        return server.get_password(self)
 
     def reset_server_state(self, server, state):
         """Reset the state of server
@@ -1144,6 +1144,8 @@ class Proxy(proxy.Proxy):
         return self._create(_server_interface.ServerInterface,
                             server_id=server_id, **attrs)
 
+    # TODO(stephenfin): Does this work? There's no 'value' parameter for the
+    # call to '_delete'
     def delete_server_interface(self, server_interface, server=None,
                                 ignore_missing=True):
         """Delete a server interface
@@ -1169,7 +1171,7 @@ class Proxy(proxy.Proxy):
         server_interface = resource.Resource._get_id(server_interface)
 
         self._delete(_server_interface.ServerInterface,
-                     port_id=server_interface,
+                     server_interface,
                      server_id=server_id,
                      ignore_missing=ignore_missing)
 
@@ -1197,18 +1199,20 @@ class Proxy(proxy.Proxy):
         return self._get(_server_interface.ServerInterface,
                          server_id=server_id, port_id=server_interface)
 
-    def server_interfaces(self, server):
+    def server_interfaces(self, server, **query):
         """Return a generator of server interfaces
 
         :param server: The server can be either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server`.
+            :class:`~openstack.compute.v2.server.Server`.
+        :param query: Optional query parameters to be sent to limit the
+            resources being returned.
 
         :returns: A generator of ServerInterface objects
         :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
         """
         server_id = resource.Resource._get_id(server)
         return self._list(_server_interface.ServerInterface,
-                          server_id=server_id)
+                          server_id=server_id, **query)
 
     def server_ips(self, server, network_label=None):
         """Return a generator of server IPs
