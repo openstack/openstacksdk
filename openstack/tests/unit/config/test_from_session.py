@@ -11,9 +11,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
-
 import uuid
+
+from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack.config import cloud_region
 from openstack import connection
