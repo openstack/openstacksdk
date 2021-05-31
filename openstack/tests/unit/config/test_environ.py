@@ -12,13 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import fixtures
 
 from openstack import config
 from openstack.config import cloud_region
 from openstack import exceptions
 from openstack.tests.unit.config import base
-
-import fixtures
 
 
 class TestEnviron(base.TestCase):

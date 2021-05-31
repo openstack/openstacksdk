@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.accelerator.v2 import accelerator_request as arq
 from openstack.tests.unit import base
 
-from openstack.accelerator.v2 import accelerator_request as arq
 
 FAKE_ID = '0725b527-e51a-41df-ad22-adad5f4546ad'
 FAKE_RP_UUID = 'f4b7fe6c-8ab4-4914-a113-547af022935b'

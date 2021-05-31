@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import requests.exceptions
 import uuid
 
 from keystoneauth1 import exceptions as ks_exc
+import requests.exceptions
 
 from openstack.config import cloud_region
 from openstack import connection

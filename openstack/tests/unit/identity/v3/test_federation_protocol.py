@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.identity.v3 import federation_protocol
 from openstack.tests.unit import base
 
-from openstack.identity.v3 import federation_protocol
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
