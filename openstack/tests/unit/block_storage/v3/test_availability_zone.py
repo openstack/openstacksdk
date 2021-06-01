@@ -11,8 +11,8 @@
 # under the License.
 
 from openstack.block_storage.v3 import availability_zone as az
-
 from openstack.tests.unit import base
+
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {

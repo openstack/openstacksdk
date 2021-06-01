@@ -11,11 +11,11 @@
 # under the License.
 from unittest import mock
 
-from openstack.tests.unit import base
-
 from keystoneauth1 import adapter
 
 from openstack.block_storage.v2 import snapshot
+from openstack.tests.unit import base
+
 
 FAKE_ID = "ffa9bc5e-1172-4021-acaf-cdcd78a9584d"
 
