@@ -10,15 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 import tempfile
+
 import testtools
 
 import openstack.cloud
+from openstack.orchestration.v1 import stack
 from openstack.tests import fakes
 from openstack.tests.unit import base
-
-from openstack.orchestration.v1 import stack
 
 
 class TestStack(base.TestCase):

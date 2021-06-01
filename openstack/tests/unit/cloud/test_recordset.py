@@ -9,9 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from openstack import exceptions
 from openstack.tests.unit import base
-
 from openstack.tests.unit.cloud import test_zone
 
 

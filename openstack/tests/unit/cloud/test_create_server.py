@@ -16,13 +16,14 @@ test_create_server
 
 Tests for the `create_server` command.
 """
+
 import base64
 from unittest import mock
 import uuid
 
-from openstack import connection
 from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack import connection
 from openstack.tests import fakes
 from openstack.tests.unit import base
 

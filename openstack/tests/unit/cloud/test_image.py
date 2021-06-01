@@ -11,16 +11,18 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import io
 import operator
 import tempfile
 import uuid
 
-from openstack import exceptions
 from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
+
 
 IMPORT_METHODS = 'glance-direct,web-download'
 

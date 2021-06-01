@@ -12,10 +12,10 @@
 # limitations under the License.
 
 import testtools
+from testtools import matchers
 
 import openstack.cloud
 from openstack.tests.unit import base
-from testtools import matchers
 
 
 RAW_ROLE_ASSIGNMENTS = [

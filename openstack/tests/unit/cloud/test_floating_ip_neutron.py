@@ -21,6 +21,7 @@ Tests Floating IP resource methods for Neutron
 
 import copy
 import datetime
+
 import munch
 
 from openstack.cloud import exc

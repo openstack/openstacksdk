@@ -11,9 +11,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
-from openstack.tests.unit import base
 from openstack.tests import fakes
+from openstack.tests.unit import base
 
 
 _fake_zone_list = {

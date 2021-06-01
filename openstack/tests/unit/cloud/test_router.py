@@ -14,11 +14,12 @@
 # limitations under the License.
 
 import copy
+
 import testtools
 
 from openstack.cloud import exc
-from openstack.network.v2 import router as _router
 from openstack.network.v2 import port as _port
+from openstack.network.v2 import router as _router
 from openstack.tests.unit import base
 
 

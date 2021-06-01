@@ -14,10 +14,11 @@
 
 from unittest import mock
 
-from openstack import connection
 from openstack.cloud import meta
+from openstack import connection
 from openstack.tests import fakes
 from openstack.tests.unit import base
+
 
 PRIVATE_V4 = '198.51.100.3'
 PUBLIC_V4 = '192.0.2.99'

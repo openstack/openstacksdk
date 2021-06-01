@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import copy
+
 import testtools
 
 import openstack

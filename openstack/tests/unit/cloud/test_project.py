@@ -10,9 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 import testtools
 from testtools import matchers
-import uuid
 
 import openstack.cloud
 import openstack.cloud._utils

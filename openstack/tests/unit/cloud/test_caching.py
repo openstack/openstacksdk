@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import concurrent
 import time
 
@@ -16,14 +17,14 @@ import testtools
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 import openstack
-import openstack.cloud
 from openstack.block_storage.v3 import volume as _volume
+import openstack.cloud
 from openstack.cloud import meta
 from openstack.compute.v2 import flavor as _flavor
-from openstack.network.v2 import port as _port
+from openstack import exceptions
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import user as _user
-from openstack import exceptions
+from openstack.network.v2 import port as _port
 from openstack.tests import fakes
 from openstack.tests.unit import base
 from openstack.tests.unit.cloud import test_port

@@ -10,9 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
 import copy
 import uuid
+
+from openstack.tests.unit import base
+
 
 DEP_UUID = uuid.uuid4().hex
 DEP_DICT = {

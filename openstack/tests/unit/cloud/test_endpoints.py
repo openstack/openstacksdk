@@ -21,8 +21,9 @@ Tests Keystone endpoints commands.
 
 import uuid
 
-from openstack.tests.unit import base
 from testtools import matchers
+
+from openstack.tests.unit import base
 
 
 class TestCloudEndpoints(base.TestCase):
