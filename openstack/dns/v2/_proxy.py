@@ -402,6 +402,17 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_fip.FloatingIP, floating_ip, **attrs)
 
+    def unset_floating_ip(self, floating_ip):
+        """Unset a Floating IP PTR record
+        :param floating_ip: ID for the floatingip associated with the
+            project.
+        :returns: FloatingIP PTR record.
+        :rtype: :class:`~openstack.dns.v2.fip.FloatipgIP`
+        """
+        # concat `region:floating_ip_id` as id
+        attrs = {'ptrdname': None}
+        return self._update(_fip.FloatingIP, floating_ip, **attrs)
+
     # ======== Zone Transfer ========
     def zone_transfer_requests(self, **query):
         """Retrieve a generator of zone transfer requests
@@ -524,4 +535,24 @@ class Proxy(proxy.Proxy):
     def _service_cleanup(self, dry_run=True, client_status_queue=False,
                          identified_resources=None,
                          filters=None, resource_evaluation_fn=None):
-        pass
+        # Delete all zones
+        for obj in self.zones():
+            self._service_cleanup_del_res(
+                self.delete_zone,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn)
+        # Unset all floatingIPs
+        # NOTE: FloatingIPs are not cleaned when filters are set
+        for obj in self.floating_ips():
+            self._service_cleanup_del_res(
+                self.unset_floating_ip,
+                obj,
+                dry_run=dry_run,
+                client_status_queue=client_status_queue,
+                identified_resources=identified_resources,
+                filters=filters,
+                resource_evaluation_fn=resource_evaluation_fn)
