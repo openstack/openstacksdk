@@ -14,6 +14,7 @@ from unittest import mock
 
 from openstack.shared_file_system.v2 import _proxy
 from openstack.shared_file_system.v2 import share
+from openstack.shared_file_system.v2 import storage_pool
 from openstack.tests.unit import test_proxy_base
 
 
@@ -62,3 +63,19 @@ class TestSharedFileSystemProxy(test_proxy_base.TestProxyBase):
 
         mock_wait.assert_called_once_with(self.proxy, mock_resource,
                                           'ACTIVE', [], 2, 120)
+
+    def test_storage_pools(self):
+        self.verify_list(
+            self.proxy.storage_pools, storage_pool.StoragePool)
+
+    def test_storage_pool_detailed(self):
+        self.verify_list(
+            self.proxy.storage_pools, storage_pool.StoragePool,
+            method_kwargs={"details": True, "backend": "alpha"},
+            expected_kwargs={"backend": "alpha"})
+
+    def test_storage_pool_not_detailed(self):
+        self.verify_list(
+            self.proxy.storage_pools, storage_pool.StoragePool,
+            method_kwargs={"details": False, "backend": "alpha"},
+            expected_kwargs={"backend": "alpha"})
