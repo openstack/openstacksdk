@@ -15,6 +15,7 @@ from unittest import mock
 from openstack.shared_file_system.v2 import _proxy
 from openstack.shared_file_system.v2 import limit
 from openstack.shared_file_system.v2 import share
+from openstack.shared_file_system.v2 import share_network
 from openstack.shared_file_system.v2 import share_snapshot
 from openstack.shared_file_system.v2 import storage_pool
 from openstack.shared_file_system.v2 import user_message
@@ -172,3 +173,43 @@ class TestShareSnapshotResource(test_proxy_base.TestProxyBase):
         self.proxy.wait_for_delete(mock_resource)
 
         mock_wait.assert_called_once_with(self.proxy, mock_resource, 2, 120)
+
+
+class TestShareNetworkResource(test_proxy_base.TestProxyBase):
+
+    def setUp(self):
+        super(TestShareNetworkResource, self).setUp()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_share_networks(self):
+        self.verify_list(self.proxy.share_networks, share_network.ShareNetwork)
+
+    def test_share_networks_detailed(self):
+        self.verify_list(self.proxy.share_networks, share_network.ShareNetwork,
+                         method_kwargs={"details": True, "name": "my_net"},
+                         expected_kwargs={"name": "my_net"})
+
+    def test_share_networks_not_detailed(self):
+        self.verify_list(self.proxy.share_networks, share_network.ShareNetwork,
+                         method_kwargs={"details": False, "name": "my_net"},
+                         expected_kwargs={"name": "my_net"})
+
+    def test_share_network_get(self):
+        self.verify_get(
+            self.proxy.get_share_network, share_network.ShareNetwork)
+
+    def test_share_network_delete(self):
+        self.verify_delete(
+            self.proxy.delete_share_network, share_network.ShareNetwork, False)
+
+    def test_share_network_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_share_network, share_network.ShareNetwork, True)
+
+    def test_share_network_create(self):
+        self.verify_create(
+            self.proxy.create_share_network, share_network.ShareNetwork)
+
+    def test_share_network_update(self):
+        self.verify_update(
+            self.proxy.update_share_network, share_network.ShareNetwork)
