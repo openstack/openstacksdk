@@ -15,6 +15,9 @@ from openstack import resource
 from openstack.shared_file_system.v2 import (
     availability_zone as _availability_zone)
 from openstack.shared_file_system.v2 import (
+    share_snapshot as _share_snapshot
+)
+from openstack.shared_file_system.v2 import (
     storage_pool as _storage_pool
 )
 from openstack.shared_file_system.v2 import (
@@ -238,3 +241,74 @@ class Proxy(proxy.Proxy):
         """
         return self._list(
             _limit.Limit, **query)
+
+    def share_snapshots(self, details=True, **query):
+        """Lists all share snapshots with details.
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the snapshots being returned.  Available parameters include:
+
+            * project_id: The ID of the user or service making the API request.
+
+        :returns: A generator of manila share snapshot resources
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_snapshot.ShareSnapshot`
+        """
+        base_path = '/snapshots/detail' if details else None
+        return self._list(
+            _share_snapshot.ShareSnapshot, base_path=base_path, **query)
+
+    def get_share_snapshot(self, snapshot_id):
+        """Lists details of a single share snapshot
+
+        :param snapshot_id: The ID of the snapshot to get
+        :returns: Details of the identified share snapshot
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_snapshot.ShareSnapshot`
+        """
+        return self._get(_share_snapshot.ShareSnapshot, snapshot_id)
+
+    def create_share_snapshot(self, **attrs):
+        """Creates a share snapshot from attributes
+
+        :returns: Details of the new share snapshot
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_snapshot.ShareSnapshot`
+        """
+        return self._create(_share_snapshot.ShareSnapshot, **attrs)
+
+    def update_share_snapshot(self, snapshot_id, **attrs):
+        """Updates details of a single share.
+
+        :param snapshot_id: The ID of the snapshot to update
+        :pram dict attrs: The attributes to update on the snapshot
+        :returns: the updated share snapshot
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_snapshot.ShareSnapshot`
+        """
+        return self._update(_share_snapshot.ShareSnapshot, snapshot_id,
+                            **attrs)
+
+    def delete_share_snapshot(self, snapshot_id, ignore_missing=True):
+        """Deletes a single share snapshot
+
+        :param snapshot_id: The ID of the snapshot to delete
+        :returns: Result of the ``delete``
+        :rtype: ``None``
+        """
+        self._delete(_share_snapshot.ShareSnapshot, snapshot_id,
+                     ignore_missing=ignore_missing)
+
+    def wait_for_delete(self, res, interval=2, wait=120):
+        """Wait for a resource to be deleted.
+        :param res: The resource to wait on to be deleted.
+        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param interval: Number of seconds to wait before to consecutive
+            checks. Default to 2.
+        :param wait: Maximum number of seconds to wait before the change.
+            Default to 120.
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+                 to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(self, res, interval, wait)
