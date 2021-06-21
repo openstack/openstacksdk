@@ -36,6 +36,7 @@ import inspect
 import itertools
 import operator
 import urllib.parse
+import warnings
 
 import jsonpatch
 from keystoneauth1 import adapter
@@ -657,6 +658,19 @@ class Resource(dict):
             real_item = getattr(self.__class__, name, None)
         if isinstance(real_item, _BaseComponent):
             return getattr(self, name)
+        if not real_item:
+            # In order to maintain backwards compatibility where we were
+            # returning Munch (and server side names) and Resource object with
+            # normalized attributes we can offer dict access via server side
+            # names.
+            for attr, component in self._attributes_iterator(tuple([Body])):
+                if component.name == name:
+                    warnings.warn(
+                        'Access to "%s[%s]" is deprecated. '
+                        'Please access using "%s.%s" attribute.' %
+                        (self.__class__, name, self.__class__, attr),
+                        DeprecationWarning)
+                    return getattr(self, attr)
         raise KeyError(name)
 
     def __delitem__(self, name):
