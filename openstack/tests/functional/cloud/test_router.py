@@ -24,8 +24,8 @@ from openstack.tests.functional import base
 
 
 EXPECTED_TOPLEVEL_FIELDS = (
-    'id', 'name', 'admin_state_up', 'external_gateway_info',
-    'tenant_id', 'routes', 'status'
+    'id', 'name', 'is_admin_state_up', 'external_gateway_info',
+    'project_id', 'routes', 'status'
 )
 
 EXPECTED_GW_INFO_FIELDS = ('network_id', 'enable_snat', 'external_fixed_ips')

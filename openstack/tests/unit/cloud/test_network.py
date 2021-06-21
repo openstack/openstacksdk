@@ -15,6 +15,7 @@ import testtools
 
 import openstack
 import openstack.cloud
+from openstack.network.v2 import network as _network
 from openstack.tests.unit import base
 
 
@@ -43,10 +44,11 @@ class TestNetwork(base.TestCase):
         'qos_policy_id': None,
         'name': 'netname',
         'admin_state_up': True,
-        'tenant_id': '861808a93da0484ea1767967c4df8a23',
         'created_at': '2017-04-22T19:22:53Z',
         'mtu': 0,
-        'dns_domain': 'sample.openstack.org.'
+        'dns_domain': 'sample.openstack.org.',
+        'vlan_transparent': None,
+        'segments': None,
     }
 
     network_availability_zone_extension = {
@@ -59,6 +61,11 @@ class TestNetwork(base.TestCase):
 
     enabled_neutron_extensions = [network_availability_zone_extension]
 
+    def _compare_networks(self, exp, real):
+        self.assertDictEqual(
+            _network.Network(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_list_networks(self):
         net1 = {'id': '1', 'name': 'net1'}
         net2 = {'id': '2', 'name': 'net2'}
@@ -69,7 +76,10 @@ class TestNetwork(base.TestCase):
                  json={'networks': [net1, net2]})
         ])
         nets = self.cloud.list_networks()
-        self.assertEqual([net1, net2], nets)
+        self.assertEqual(
+            [_network.Network(**i).to_dict(computed=False) for i in [
+                net1, net2]],
+            [i.to_dict(computed=False) for i in nets])
         self.assert_calls()
 
     def test_list_networks_filtered(self):
@@ -95,7 +105,8 @@ class TestNetwork(base.TestCase):
                          'name': 'netname'}}))
         ])
         network = self.cloud.create_network("netname")
-        self.assertEqual(self.mock_new_network_rep, network)
+        self._compare_networks(
+            self.mock_new_network_rep, network)
         self.assert_calls()
 
     def test_create_network_specific_tenant(self):
@@ -111,10 +122,10 @@ class TestNetwork(base.TestCase):
                      json={'network': {
                          'admin_state_up': True,
                          'name': 'netname',
-                         'tenant_id': project_id}}))
+                         'project_id': project_id}}))
         ])
         network = self.cloud.create_network("netname", project_id=project_id)
-        self.assertEqual(mock_new_network_rep, network)
+        self._compare_networks(mock_new_network_rep, network)
         self.assert_calls()
 
     def test_create_network_external(self):
@@ -132,7 +143,7 @@ class TestNetwork(base.TestCase):
                          'router:external': True}}))
         ])
         network = self.cloud.create_network("netname", external=True)
-        self.assertEqual(mock_new_network_rep, network)
+        self._compare_networks(mock_new_network_rep, network)
         self.assert_calls()
 
     def test_create_network_provider(self):
@@ -160,7 +171,7 @@ class TestNetwork(base.TestCase):
                      json={'network': expected_send_params}))
         ])
         network = self.cloud.create_network("netname", provider=provider_opts)
-        self.assertEqual(mock_new_network_rep, network)
+        self._compare_networks(mock_new_network_rep, network)
         self.assert_calls()
 
     def test_create_network_with_availability_zone_hints(self):
@@ -181,7 +192,7 @@ class TestNetwork(base.TestCase):
         ])
         network = self.cloud.create_network("netname",
                                             availability_zone_hints=['nova'])
-        self.assertEqual(self.mock_new_network_rep, network)
+        self._compare_networks(self.mock_new_network_rep, network)
         self.assert_calls()
 
     def test_create_network_provider_ignored_value(self):
@@ -210,7 +221,7 @@ class TestNetwork(base.TestCase):
                      json={'network': expected_send_params}))
         ])
         network = self.cloud.create_network("netname", provider=provider_opts)
-        self.assertEqual(mock_new_network_rep, network)
+        self._compare_networks(mock_new_network_rep, network)
         self.assert_calls()
 
     def test_create_network_wrong_availability_zone_hints_type(self):
@@ -249,7 +260,7 @@ class TestNetwork(base.TestCase):
             "netname",
             port_security_enabled=port_security_state
         )
-        self.assertEqual(mock_new_network_rep, network)
+        self._compare_networks(mock_new_network_rep, network)
         self.assert_calls()
 
     def test_create_network_with_mtu(self):
@@ -270,7 +281,7 @@ class TestNetwork(base.TestCase):
         network = self.cloud.create_network("netname",
                                             mtu_size=mtu_size
                                             )
-        self.assertEqual(mock_new_network_rep, network)
+        self._compare_networks(mock_new_network_rep, network)
         self.assert_calls()
 
     def test_create_network_with_wrong_mtu_size(self):
@@ -294,7 +305,13 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % network_name]),
                  json={'networks': [network]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
@@ -309,7 +326,13 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', 'test-net']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks'],
+                     qs_elements=['name=test-net']),
                  json={'networks': []}),
         ])
         self.assertFalse(self.cloud.delete_network('test-net'))
@@ -322,7 +345,13 @@ class TestNetwork(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % network_name]),
                  json={'networks': [network]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(

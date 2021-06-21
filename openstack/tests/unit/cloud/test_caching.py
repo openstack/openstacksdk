@@ -19,6 +19,7 @@ import openstack
 import openstack.cloud
 from openstack.cloud import meta
 from openstack.compute.v2 import flavor as _flavor
+from openstack.network.v2 import port as _port
 from openstack import exceptions
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -565,7 +566,10 @@ class TestMemoryCache(base.TestCase):
                  ]}),
         ])
         ports = self.cloud.list_ports(filters={'status': 'DOWN'})
-        self.assertCountEqual([down_port], ports)
+        for a, b in zip([down_port], ports):
+            self.assertDictEqual(
+                _port.Port(**a).to_dict(computed=False),
+                b.to_dict(computed=False))
         self.assert_calls()
 
 
