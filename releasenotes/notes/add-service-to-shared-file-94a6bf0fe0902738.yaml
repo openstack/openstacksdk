@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to list services associated with the shared file system
+    service.

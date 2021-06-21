@@ -2233,8 +2233,7 @@ class Proxy(proxy.Proxy):
         return service.enable(self, host, binary)
 
     def services(
-        self,
-        **query: Any,
+        self, **query: Any
     ) -> Generator[_service.Service, None, None]:
         """Return a generator of service
 

@@ -30,6 +30,7 @@ from openstack.shared_file_system.v2 import (
 from openstack.shared_file_system.v2 import limit as _limit
 from openstack.shared_file_system.v2 import quota_class_set as _quota_class_set
 from openstack.shared_file_system.v2 import resource_locks as _resource_locks
+from openstack.shared_file_system.v2 import service as _service
 from openstack.shared_file_system.v2 import share as _share
 from openstack.shared_file_system.v2 import share_group as _share_group
 from openstack.shared_file_system.v2 import (
@@ -68,6 +69,7 @@ class Proxy(proxy.Proxy):
         "limit": _limit.Limit,
         "quota_class_set": _quota_class_set.QuotaClassSet,
         "resource_locks": _resource_locks.ResourceLock,
+        "service": _service.Service,
         "share": _share.Share,
         "share_access_rule": _share_access_rule.ShareAccessRule,
         "share_export_locations": _share_export_locations.ShareExportLocation,
@@ -270,6 +272,65 @@ class Proxy(proxy.Proxy):
         return self._update(
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
         )
+
+    # ========= Services ==========
+
+    def services(
+        self, **query: Any
+    ) -> Generator[_service.Service, None, None]:
+        """Lists all services
+
+        :param query: Optional query parameters to be sent to limit the
+            services being returned. Available parameters include:
+
+            * host: The service host name.
+            * binary: The service binary name.
+            * zone: The availability zone.
+            * state: The current state of the service.A valid value is
+                up or down.
+            * status: The service status, which is enabled or disabled.
+
+        :returns: A generator of manila service resources.
+        """
+        return self._list(_service.Service, **query)
+
+    def disable_service(
+        self,
+        service: str | _service.Service,
+        host: str,
+        binary: str,
+    ) -> _service.Service:
+        """Disable a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.shared_file_system.v2.service.Service` instance.
+        :param host: The host where service runs.
+        :param binary: The name of service.
+        :returns: Updated service instance
+        """
+        service = self._get_resource(_service.Service, service)
+        service.host = host
+        service.binary = binary
+        return service.disable(self)
+
+    def enable_service(
+        self,
+        service: str | _service.Service,
+        host: str,
+        binary: str,
+    ) -> _service.Service:
+        """Enable a service
+
+        :param service: Either the ID of a service or a
+            :class:`~openstack.shared_file_system.v2.service.Service` instance.
+        :param host: The host where service runs.
+        :param binary: The name of service.
+        :returns: Updated service instance
+        """
+        service = self._get_resource(_service.Service, service)
+        service.host = host
+        service.binary = binary
+        return service.enable(self)
 
     # ========= Shares ==========
 

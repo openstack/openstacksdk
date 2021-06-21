@@ -15,6 +15,7 @@ from unittest import mock
 from openstack.shared_file_system.v2 import _proxy
 from openstack.shared_file_system.v2 import limit
 from openstack.shared_file_system.v2 import resource_locks
+from openstack.shared_file_system.v2 import service
 from openstack.shared_file_system.v2 import share
 from openstack.shared_file_system.v2 import share_access_rule
 from openstack.shared_file_system.v2 import share_group
@@ -656,5 +657,38 @@ class TestShareReplicaResource(test_proxy_base.TestProxyBase):
             "openstack.shared_file_system.v2.share_replica.ShareReplica.resync",
             self.proxy.resync_share_replica,
             method_args=['id'],
+            expected_args=[self.proxy],
+        )
+
+
+class TestServicesResource(test_proxy_base.TestProxyBase):
+    def setUp(self):
+        super().setUp()
+        self.proxy = _proxy.Proxy(self.session)
+
+    def test_services(self):
+        self.verify_list(self.proxy.services, service.Service)
+
+    def test_services_queried(self):
+        self.verify_list(
+            self.proxy.services,
+            service.Service,
+            method_kwargs={"name": "manila-share"},
+            expected_kwargs={"name": "manila-share"},
+        )
+
+    def test_service_enable(self):
+        self._verify(
+            'openstack.shared_file_system.v2.service.Service.enable',
+            self.proxy.enable_service,
+            method_args=["value", "host1", "manila-share"],
+            expected_args=[self.proxy],
+        )
+
+    def test_service_disable(self):
+        self._verify(
+            'openstack.shared_file_system.v2.service.Service.disable',
+            self.proxy.disable_service,
+            method_args=["value", "host1", "manila-share"],
             expected_args=[self.proxy],
         )
