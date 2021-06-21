@@ -114,7 +114,7 @@ class QuotaDetails(Quota):
     #: The maximum amount of ports you can create. *Type: dict*
     ports = resource.Body('port', type=dict)
     #: The ID of the project these quota values are for.
-    project_id = resource.Body('tenant_id', alternate_id=True)
+    project_id = resource.Body('project_id', alternate_id=True)
     #: The maximum amount of RBAC policies you can create. *Type: dict*
     rbac_policies = resource.Body('rbac_policy', type=dict)
     #: The maximum amount of routers you can create. *Type: int*

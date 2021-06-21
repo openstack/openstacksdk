@@ -36,7 +36,9 @@ class AutoAllocatedTopology(resource.Resource):
     #: Will return in error if resources have not been configured correctly
     #: To use this feature auto-allocated-topology, subnet_allocation,
     #: external-net and router extensions must be enabled and set up.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
 
 
 class ValidateTopology(AutoAllocatedTopology):

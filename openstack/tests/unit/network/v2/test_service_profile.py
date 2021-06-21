@@ -20,7 +20,7 @@ EXAMPLE_WITH_OPTIONAL = {
     'driver': 'neutron_lbaas.drivers.octavia.driver.OctaviaDriver',
     'enabled': True,
     'metainfo': {'foo': 'bar'},
-    'tenant_id': '5',
+    'project_id': '5',
 }
 
 EXAMPLE = {
@@ -55,5 +55,5 @@ class TestServiceProfile(base.TestCase):
                          service_profiles.is_enabled)
         self.assertEqual(EXAMPLE_WITH_OPTIONAL['metainfo'],
                          service_profiles.meta_info)
-        self.assertEqual(EXAMPLE_WITH_OPTIONAL['tenant_id'],
+        self.assertEqual(EXAMPLE_WITH_OPTIONAL['project_id'],
                          service_profiles.project_id)

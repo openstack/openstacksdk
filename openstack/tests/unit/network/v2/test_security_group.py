@@ -23,7 +23,7 @@ RULES = [
         "protocol": None,
         "ethertype":
         "IPv6",
-        "tenant_id": "4",
+        "project_id": "4",
         "port_range_max": None,
         "port_range_min": None,
         "id": "5",
@@ -38,7 +38,7 @@ RULES = [
         "remote_ip_prefix": None,
         "protocol": None,
         "ethertype": "IPv6",
-        "tenant_id": "4",
+        "project_id": "4",
         "port_range_max": None,
         "port_range_min": None,
         "id": "6",
@@ -57,7 +57,7 @@ EXAMPLE = {
     'stateful': True,
     'revision_number': 3,
     'security_group_rules': RULES,
-    'tenant_id': '4',
+    'project_id': '4',
     'project_id': '4',
     'updated_at': '2016-10-14T12:16:57.233772',
     'tags': ['5']
@@ -86,12 +86,12 @@ class TestSecurityGroup(base.TestCase):
                               'name': 'name',
                               'not_any_tags': 'not-tags-any',
                               'not_tags': 'not-tags',
-                              'project_id': 'project_id',
+                              'tenant_id': 'tenant_id',
                               'revision_number': 'revision_number',
                               'sort_dir': 'sort_dir',
                               'sort_key': 'sort_key',
                               'tags': 'tags',
-                              'tenant_id': 'tenant_id',
+                              'project_id': 'project_id',
                               'stateful': 'stateful',
                               },
                              sot._query_mapping._mapping)
@@ -106,7 +106,7 @@ class TestSecurityGroup(base.TestCase):
         self.assertEqual(EXAMPLE['security_group_rules'],
                          sot.security_group_rules)
         self.assertEqual(dict, type(sot.security_group_rules[0]))
-        self.assertEqual(EXAMPLE['tenant_id'], sot.tenant_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['tags'], sot.tags)

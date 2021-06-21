@@ -28,11 +28,13 @@ class FloatingIP(_base.NetworkResource, resource.TagMixin):
     allow_delete = True
     allow_list = True
 
+    # For backward compatibility include tenant_id as query param
     _query_mapping = resource.QueryParameters(
         'description', 'fixed_ip_address',
         'floating_ip_address', 'floating_network_id',
         'port_id', 'router_id', 'status', 'subnet_id',
-        project_id='tenant_id',
+        'project_id', 'tenant_id',
+        tenant_id='project_id',
         **resource.TagMixin._tag_query_parameters)
 
     # Properties
@@ -68,7 +70,9 @@ class FloatingIP(_base.NetworkResource, resource.TagMixin):
     #: The ID of the QoS policy attached to the floating IP.
     qos_policy_id = resource.Body('qos_policy_id')
     #: The ID of the project this floating IP is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The ID of an associated router.
     router_id = resource.Body('router_id')
     #: The floating IP status. Value is ``ACTIVE`` or ``DOWN``.

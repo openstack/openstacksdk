@@ -1887,7 +1887,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             'admin_state_up': admin_state_up
         }
         if project_id is not None:
-            router['tenant_id'] = project_id
+            router['project_id'] = project_id
         if name:
             router['name'] = name
         ext_gw_info = self._build_external_gateway_info(

@@ -151,7 +151,7 @@ class TestRouter(base.TestCase):
                      json={'router': {
                          'name': self.router_name,
                          'admin_state_up': True,
-                         'tenant_id': new_router_tenant_id}}))
+                         'project_id': new_router_tenant_id}}))
         ])
 
         self.cloud.create_router(self.router_name,

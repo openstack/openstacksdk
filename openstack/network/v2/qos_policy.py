@@ -30,7 +30,7 @@ class QoSPolicy(resource.Resource, resource.TagMixin):
 
     _query_mapping = resource.QueryParameters(
         'name', 'description', 'is_default',
-        project_id='tenant_id',
+        'project_id',
         is_shared='shared',
         **resource.TagMixin._tag_query_parameters
     )
