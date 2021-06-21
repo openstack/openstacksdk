@@ -114,6 +114,15 @@ class TestDnsFloatIP(TestDnsProxy):
         self.verify_update(self.proxy.update_floating_ip,
                            floating_ip.FloatingIP)
 
+    def test_floating_ip_unset(self):
+        self._verify(
+            'openstack.proxy.Proxy._update',
+            self.proxy.unset_floating_ip,
+            method_args=['value'],
+            method_kwargs={},
+            expected_args=[floating_ip.FloatingIP, 'value'],
+            expected_kwargs={'ptrdname': None})
+
 
 class TestDnsZoneImport(TestDnsProxy):
     def test_zone_import_delete(self):
