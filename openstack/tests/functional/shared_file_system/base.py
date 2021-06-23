@@ -65,3 +65,13 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         )
         self.assertIsNotNone(share_snapshot.id)
         return share_snapshot
+
+    def create_share_group(self, **kwargs):
+        share_group = self.user_cloud.share.create_share_group(**kwargs)
+        self.addCleanup(
+            self.conn.share.delete_share_group,
+            share_group.id,
+            ignore_missing=True,
+        )
+        self.assertIsNotNone(share_group.id)
+        return share_group
