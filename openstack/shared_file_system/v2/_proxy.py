@@ -21,6 +21,9 @@ from openstack.shared_file_system.v2 import (
     share_snapshot as _share_snapshot
 )
 from openstack.shared_file_system.v2 import (
+    share_snapshot_instance as _share_snapshot_instance
+)
+from openstack.shared_file_system.v2 import (
     storage_pool as _storage_pool
 )
 from openstack.shared_file_system.v2 import (
@@ -38,7 +41,9 @@ class Proxy(proxy.Proxy):
         "user_message": _user_message.UserMessage,
         "limit": _limit.Limit,
         "share": _share.Share,
-        "share_network": _share_network.ShareNetwork
+        "share_network": _share_network.ShareNetwork,
+        "share_snapshot_instance":
+            _share_snapshot_instance.ShareSnapshotInstance,
     }
 
     def availability_zones(self):
@@ -330,6 +335,39 @@ class Proxy(proxy.Proxy):
                  to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
+
+    def share_snapshot_instances(self, details=True, **query):
+        """Lists all share snapshot instances with details.
+
+        :param bool details: Whether to fetch detailed resource
+            descriptions. Defaults to True.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the share snapshot instance being returned.
+            Available parameters include:
+
+            * snapshot_id: The UUID of the share’s base snapshot to filter
+                the request based on.
+            * project_id: The project ID of the user or service making the
+                request.
+
+        :returns: A generator of share snapshot instance resources
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_snapshot_instance.ShareSnapshotInstance`
+        """
+        base_path = '/snapshot-instances/detail' if details else None
+        return self._list(_share_snapshot_instance.ShareSnapshotInstance,
+                          base_path=base_path, **query)
+
+    def get_share_snapshot_instance(self, snapshot_instance_id):
+        """Lists details of a single share snapshot instance
+
+        :param snapshot_instance_id: The ID of the snapshot instance to get
+        :returns: Details of the identified snapshot instance
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_snapshot_instance.ShareSnapshotInstance`
+        """
+        return self._get(_share_snapshot_instance.ShareSnapshotInstance,
+                         snapshot_instance_id)
 
     def share_networks(self, details=True, **query):
         """Lists all share networks with details.

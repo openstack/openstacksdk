@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to list and get share snapshot instances
+    on the shared file system service.
