@@ -11,7 +11,7 @@
 # under the License.
 
 import enum
-from typing import Any, Literal, Self, overload
+from typing import Any, Literal, Self, TypedDict, cast, overload
 from collections.abc import Generator
 
 from keystoneauth1 import adapter
@@ -51,6 +51,18 @@ class LogLevel(resource.Resource):
     host = resource.Body('host')
     #: The current log level that queried.
     levels = resource.Body('levels', type=dict)
+
+
+class WorkerCleanupServiceResponse(TypedDict):
+    id: str
+    host: str
+    binary: str
+    cluster_name: str | None
+
+
+class WorkerCleanupResponse(TypedDict):
+    cleaning: list[WorkerCleanupServiceResponse]
+    unavailable: list[WorkerCleanupServiceResponse]
 
 
 class Service(resource.Resource):
@@ -327,3 +339,54 @@ class Service(resource.Resource):
             action = 'failover'
 
         return self._action(session, action, body)
+
+    @classmethod
+    def cleanup_workers(
+        cls,
+        session: adapter.Adapter,
+        *,
+        binary: Literal['cinder-volume', 'cinder-scheduler'] | None,
+        host: str | None,
+        cluster_name: str | None,
+        disabled: bool | None = None,
+        is_up: bool | None = False,
+        resource_id: str | None = None,
+        resource_type: str | None = None,
+        service_id: int | None = None,
+    ) -> WorkerCleanupResponse:
+        """Trigger cleanup of stuck operations on Cinder resources
+
+        All filters are optional. Calling with no filters means "clean
+        everything on all services that are down".
+
+        :param session: The session to use for making this request.
+        :param binary: Limit to cinder-volume or cinder-scheduler
+        :param host: Target services on a specific host
+        :param cluster_name: Target services in a specific cluster
+        :param disabled: Filter by whether the service is admin-disabled
+        :param is_up: Filter by whether the service is up. Defaults to False,
+            meaning only clean up after crashed/stopped services)
+        :param resource_id:
+        :param resource_type: Only clean a specific type (Volume, Snapshot,
+            etc.)
+        :param service_id: Target a single specific service
+        :returns:
+        """
+        microversion = cls._assert_microversion_for(
+            session, '3.24', error_message="Cannot use workers API"
+        )
+        url = '/workers/cleanup'
+        body = {
+            'binary': binary,
+            'cluster_name': cluster_name,
+            'disabled': disabled,
+            'host': host,
+            'is_up': is_up,
+            'resource_id': resource_id,
+            'resource_type': resource_type,
+            'service_id': service_id,
+        }
+
+        response = session.put(url, json=body, microversion=microversion)
+        exceptions.raise_from_response(response)
+        return cast(WorkerCleanupResponse, response.json())

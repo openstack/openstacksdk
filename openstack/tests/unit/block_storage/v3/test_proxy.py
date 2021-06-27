@@ -474,6 +474,13 @@ class TestService(TestVolumeProxy):
             expected_kwargs={"backend_id": None, "cluster": None},
         )
 
+    def test_cleanup_service_workers(self):
+        self._verify(
+            "openstack.block_storage.v3.service.Service.cleanup_workers",
+            self.proxy.cleanup_service_workers,
+            expected_args=[self.proxy],
+        )
+
 
 class TestExtension(TestVolumeProxy):
     def test_extensions(self):

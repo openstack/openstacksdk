@@ -3069,6 +3069,18 @@ class Proxy(proxy.Proxy):
             self, cluster=cluster, backend_id=backend_id
         )
 
+    def cleanup_service_workers(
+        self, **attrs: Any
+    ) -> _service.WorkerCleanupResponse:
+        """Request cleanup of services with optional filtering
+
+        :param attrs: The attributes used to filter services.
+
+        :returns: The results of the cleanup request
+        """
+        service = self._get_resource(_service.Service, None)
+        return service.cleanup_workers(self, **attrs)
+
     # ====== RESOURCE FILTERS ======
     def resource_filters(
         self,
