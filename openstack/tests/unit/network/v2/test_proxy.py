@@ -26,6 +26,7 @@ from openstack.network.v2 import firewall_rule
 from openstack.network.v2 import flavor
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import health_monitor
+from openstack.network.v2 import ikepolicy
 from openstack.network.v2 import ipsec_site_connection
 from openstack.network.v2 import l3_conntrack_helper
 from openstack.network.v2 import listener
@@ -267,6 +268,34 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_ipsec_site_connection_update(self):
         self.verify_update(self.proxy.update_vpn_ipsec_site_connection,
                            ipsec_site_connection.IPSecSiteConnection)
+
+    def test_ikepolicy_create_attrs(self):
+        self.verify_create(self.proxy.create_vpn_ikepolicy,
+                           ikepolicy.IkePolicy)
+
+    def test_ikepolicy_delete(self):
+        self.verify_delete(self.proxy.delete_vpn_ikepolicy,
+                           ikepolicy.IkePolicy, False)
+
+    def test_ikepolicy_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_vpn_ikepolicy,
+                           ikepolicy.IkePolicy, True)
+
+    def test_ikepolicy_find(self):
+        self.verify_find(self.proxy.find_vpn_ikepolicy,
+                         ikepolicy.IkePolicy)
+
+    def test_ikepolicy_get(self):
+        self.verify_get(self.proxy.get_vpn_ikepolicy,
+                        ikepolicy.IkePolicy)
+
+    def test_ikepolicies(self):
+        self.verify_list(self.proxy.vpn_ikepolicies,
+                         ikepolicy.IkePolicy)
+
+    def test_ikepolicy_update(self):
+        self.verify_update(self.proxy.update_vpn_ikepolicy,
+                           ikepolicy.IkePolicy)
 
     def test_listener_create_attrs(self):
         self.verify_create(self.proxy.create_listener, listener.Listener)
