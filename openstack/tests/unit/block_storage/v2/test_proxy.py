@@ -67,6 +67,9 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
     def test_volume_get(self):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
+    def test_volume_find(self):
+        self.verify_find(self.proxy.find_volume, volume.Volume)
+
     def test_volumes_detailed(self):
         self.verify_list(self.proxy.volumes, volume.Volume,
                          method_kwargs={"details": True, "query": 1},
