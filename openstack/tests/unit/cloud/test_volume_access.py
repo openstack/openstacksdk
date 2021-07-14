@@ -32,8 +32,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'],
-                     qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]})])
         self.assertTrue(self.cloud.list_volume_types())
         self.assert_calls()
@@ -46,8 +45,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'],
-                     qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]})])
         volume_type_got = self.cloud.get_volume_type(volume_type['name'])
         self.assertEqual(volume_type_got.id, volume_type['id'])
@@ -64,8 +62,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'],
-                     qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]}),
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -90,8 +87,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'],
-                     qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]}),
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -102,7 +98,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'], qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -116,8 +112,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'],
-                     qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]}),
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -147,8 +142,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'],
-                     qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -162,8 +156,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'],
-                     qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]}),
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -187,8 +180,7 @@ class TestVolumeAccess(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['types'],
-                     qs_elements=['is_public=None']),
+                     append=['types']),
                  json={'volume_types': [volume_type]})])
         with testtools.ExpectedException(
                 openstack.cloud.OpenStackCloudException,
