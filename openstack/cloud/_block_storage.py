@@ -20,7 +20,6 @@ from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
 from openstack import proxy
-from openstack import utils
 
 
 def _no_pending_volumes(volumes):
@@ -300,33 +299,13 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudTimeout if wait time exceeded.
         :raises: OpenStackCloudException on operation error.
         """
-
-        proxy._json_response(self.compute.delete(
-            '/servers/{server_id}/os-volume_attachments/{volume_id}'.format(
-                server_id=server['id'], volume_id=volume['id'])),
-            error_message=(
-                "Error detaching volume {volume} from server {server}".format(
-                    volume=volume['id'], server=server['id'])))
+        self.compute.delete_volume_attachment(
+            volume['id'], server['id'],
+            ignore_missing=False)
 
         if wait:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for volume %s to detach." % volume['id']):
-                try:
-                    vol = self.get_volume(volume['id'])
-                except Exception:
-                    self.log.debug(
-                        "Error getting volume info %s", volume['id'],
-                        exc_info=True)
-                    continue
-
-                if vol['status'] == 'available':
-                    return
-
-                if vol['status'] == 'error':
-                    raise exc.OpenStackCloudException(
-                        "Error in detaching volume %s" % volume['id']
-                    )
+            vol = self.get_volume(volume['id'])
+            self.block_storage.wait_for_status(vol)
 
     def attach_volume(self, server, volume, device=None,
                       wait=True, timeout=None):
@@ -368,40 +347,17 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         payload = {'volumeId': volume['id']}
         if device:
             payload['device'] = device
-        data = proxy._json_response(
-            self.compute.post(
-                '/servers/{server_id}/os-volume_attachments'.format(
-                    server_id=server['id']),
-                json=dict(volumeAttachment=payload)),
-            error_message="Error attaching volume {volume_id} to server "
-                          "{server_id}".format(volume_id=volume['id'],
-                                               server_id=server['id']))
+        attachment = self.compute.create_volume_attachment(
+            server=server['id'], **payload)
 
         if wait:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for volume %s to attach." % volume['id']):
-                try:
-                    self.list_volumes.invalidate(self)
-                    vol = self.get_volume(volume['id'])
-                except Exception:
-                    self.log.debug(
-                        "Error getting volume info %s", volume['id'],
-                        exc_info=True)
-                    continue
-
-                if self.get_volume_attach_device(vol, server['id']):
-                    break
-
-                # TODO(Shrews) check to see if a volume can be in error status
-                #              and also attached. If so, we should move this
-                #              above the get_volume_attach_device call
-                if vol['status'] == 'error':
-                    raise exc.OpenStackCloudException(
-                        "Error in attaching volume %s" % volume['id']
-                    )
-        return self._normalize_volume_attachment(
-            self._get_and_munchify('volumeAttachment', data))
+            if not hasattr(volume, 'fetch'):
+                # If we got volume as dict we need to re-fetch it to be able to
+                # use wait_for_status.
+                volume = self.block_storage.get_volume(volume['id'])
+            self.block_storage.wait_for_status(
+                volume, 'in-use', wait=timeout)
+        return attachment
 
     def _get_volume_kwargs(self, kwargs):
         name = kwargs.pop('name', kwargs.pop('display_name', None))
