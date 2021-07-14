@@ -52,21 +52,6 @@ class TestVolume(TestVolumeProxy):
         self.verify_delete(self.proxy.delete_snapshot,
                            snapshot.Snapshot, True)
 
-    def test_type_get(self):
-        self.verify_get(self.proxy.get_type, type.Type)
-
-    def test_types(self):
-        self.verify_list(self.proxy.types, type.Type)
-
-    def test_type_create_attrs(self):
-        self.verify_create(self.proxy.create_type, type.Type)
-
-    def test_type_delete(self):
-        self.verify_delete(self.proxy.delete_type, type.Type, False)
-
-    def test_type_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_type, type.Type, True)
-
     def test_volume_get(self):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
@@ -254,3 +239,41 @@ class TestVolumeActions(TestVolumeProxy):
             self.proxy.complete_volume_migration,
             method_args=["value", "1", True],
             expected_args=[self.proxy, "1", True])
+
+
+class TestType(TestVolumeProxy):
+    def test_type_get(self):
+        self.verify_get(self.proxy.get_type, type.Type)
+
+    def test_types(self):
+        self.verify_list(self.proxy.types, type.Type)
+
+    def test_type_create_attrs(self):
+        self.verify_create(self.proxy.create_type, type.Type)
+
+    def test_type_delete(self):
+        self.verify_delete(self.proxy.delete_type, type.Type, False)
+
+    def test_type_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_type, type.Type, True)
+
+    def test_type_get_private_access(self):
+        self._verify(
+            "openstack.block_storage.v2.type.Type.get_private_access",
+            self.proxy.get_type_access,
+            method_args=["value"],
+            expected_args=[self.proxy])
+
+    def test_type_add_private_access(self):
+        self._verify(
+            "openstack.block_storage.v2.type.Type.add_private_access",
+            self.proxy.add_type_access,
+            method_args=["value", "a"],
+            expected_args=[self.proxy, "a"])
+
+    def test_type_remove_private_access(self):
+        self._verify(
+            "openstack.block_storage.v2.type.Type.remove_private_access",
+            self.proxy.remove_type_access,
+            method_args=["value", "a"],
+            expected_args=[self.proxy, "a"])

@@ -85,6 +85,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         self._delete(_snapshot.Snapshot, snapshot,
                      ignore_missing=ignore_missing)
 
+    # ====== TYPES ======
     def get_type(self, type):
         """Get a single type
 
@@ -131,6 +132,45 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         self._delete(_type.Type, type, ignore_missing=ignore_missing)
 
+    def get_type_access(self, type):
+        """Lists project IDs that have access to private volume type.
+
+        :param type: The value can be either the ID of a type or a
+            :class:`~openstack.volume.v2.type.Type` instance.
+
+        :returns: List of dictionaries describing projects that have access to
+            the specified type
+        """
+        res = self._get_resource(_type.Type, type)
+        return res.get_private_access(self)
+
+    def add_type_access(self, type, project_id):
+        """Adds private volume type access to a project.
+
+        :param type: The value can be either the ID of a type or a
+            :class:`~openstack.volume.v2.type.Type` instance.
+        :param str project_id: The ID of the project. Volume Type access to
+            be added to this project ID.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_type.Type, type)
+        return res.add_private_access(self, project_id)
+
+    def remove_type_access(self, type, project_id):
+        """Remove private volume type access from a project.
+
+        :param type: The value can be either the ID of a type or a
+            :class:`~openstack.volume.v2.type.Type` instance.
+        :param str project_id: The ID of the project. Volume Type access to
+            be removed to this project ID.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_type.Type, type)
+        return res.remove_private_access(self, project_id)
+
+    # ====== VOLUMES ======
     def get_volume(self, volume):
         """Get a single volume
 

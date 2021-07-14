@@ -90,6 +90,30 @@ class Type(resource.Resource):
         for key in keys:
             self._extra_specs(session.delete, key=key, delete=True)
 
+    def get_private_access(self, session):
+        url = utils.urljoin(self.base_path, self.id, "os-volume-type-access")
+        resp = session.get(url)
+
+        exceptions.raise_from_response(resp)
+
+        return resp.json().get("volume_type_access", [])
+
+    def add_private_access(self, session, project_id):
+        url = utils.urljoin(self.base_path, self.id, "action")
+        body = {"addProjectAccess": {"project": project_id}}
+
+        resp = session.post(url, json=body)
+
+        exceptions.raise_from_response(resp)
+
+    def remove_private_access(self, session, project_id):
+        url = utils.urljoin(self.base_path, self.id, "action")
+        body = {"removeProjectAccess": {"project": project_id}}
+
+        resp = session.post(url, json=body)
+
+        exceptions.raise_from_response(resp)
+
 
 class TypeEncryption(resource.Resource):
     resource_key = "encryption"
