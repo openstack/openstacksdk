@@ -14,12 +14,19 @@
 import testtools
 
 import openstack.cloud
+from openstack.block_storage.v3 import volume
 from openstack.cloud import meta
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
 
 class TestVolume(base.TestCase):
+
+    def _compare_volumes(self, exp, real):
+        self.assertDictEqual(
+            volume.Volume(**exp).to_dict(computed=False),
+            real.to_dict(computed=False)
+        )
 
     def test_attach_volume(self):
         server = dict(id='server001')
@@ -256,15 +263,15 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev2', 'public', append=['volumes', volume.id]),
                  json={'volumes': [volume]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', volume.id])),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': []})])
+                     'volumev2', 'public', append=['volumes', volume.id]),
+                 status_code=404)])
         self.assertTrue(self.cloud.delete_volume(volume['id']))
         self.assert_calls()
 
@@ -276,13 +283,18 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [volume]}),
+                     'volumev2', 'public', append=['volumes', volume.id]),
+                 json=volume),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'volumev2', 'public', append=['volumes', volume.id]),
-                 status_code=404)])
-        self.assertFalse(self.cloud.delete_volume(volume['id']))
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public', append=['volumes', volume.id]),
+                 status_code=404),
+        ])
+        self.assertTrue(self.cloud.delete_volume(volume['id']))
         self.assert_calls()
 
     def test_delete_volume_force(self):
@@ -293,18 +305,18 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev2', 'public', append=['volumes', volume['id']]),
                  json={'volumes': [volume]}),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
                      append=['volumes', volume.id, 'action']),
                  validate=dict(
-                     json={'os-force_delete': None})),
+                     json={'os-force_delete': {}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': []})])
+                     'volumev2', 'public', append=['volumes', volume['id']]),
+                 status_code=404)])
         self.assertTrue(self.cloud.delete_volume(volume['id'], force=True))
         self.assert_calls()
 
@@ -346,142 +358,6 @@ class TestVolume(base.TestCase):
         self.cloud.set_volume_bootable(volume['id'])
         self.assert_calls()
 
-    def test_list_volumes_with_pagination(self):
-        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
-        vol2 = meta.obj_to_munch(fakes.FakeVolume('02', 'available', 'vol2'))
-        self.register_uris([
-            self.get_cinder_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail']),
-                 json={
-                     'volumes': [vol1],
-                     'volumes_links': [
-                         {'href': self.get_mock_url(
-                             'volumev2', 'public',
-                             append=['volumes', 'detail'],
-                             qs_elements=['marker=01']),
-                          'rel': 'next'}]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail'],
-                     qs_elements=['marker=01']),
-                 json={
-                     'volumes': [vol2],
-                     'volumes_links': [
-                         {'href': self.get_mock_url(
-                             'volumev2', 'public',
-                             append=['volumes', 'detail'],
-                             qs_elements=['marker=02']),
-                          'rel': 'next'}]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail'],
-                     qs_elements=['marker=02']),
-                 json={'volumes': []})])
-        self.assertEqual(
-            [self.cloud._normalize_volume(vol1),
-             self.cloud._normalize_volume(vol2)],
-            self.cloud.list_volumes())
-        self.assert_calls()
-
-    def test_list_volumes_with_pagination_next_link_fails_once(self):
-        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
-        vol2 = meta.obj_to_munch(fakes.FakeVolume('02', 'available', 'vol2'))
-        self.register_uris([
-            self.get_cinder_discovery_mock_dict(),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail']),
-                 json={
-                     'volumes': [vol1],
-                     'volumes_links': [
-                         {'href': self.get_mock_url(
-                             'volumev2', 'public',
-                             append=['volumes', 'detail'],
-                             qs_elements=['marker=01']),
-                          'rel': 'next'}]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail'],
-                     qs_elements=['marker=01']),
-                 status_code=404),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail']),
-                 json={
-                     'volumes': [vol1],
-                     'volumes_links': [
-                         {'href': self.get_mock_url(
-                             'volumev2', 'public',
-                             append=['volumes', 'detail'],
-                             qs_elements=['marker=01']),
-                          'rel': 'next'}]}),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail'],
-                     qs_elements=['marker=01']),
-                 json={
-                     'volumes': [vol2],
-                     'volumes_links': [
-                         {'href': self.get_mock_url(
-                             'volumev2', 'public',
-                             append=['volumes', 'detail'],
-                             qs_elements=['marker=02']),
-                          'rel': 'next'}]}),
-
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail'],
-                     qs_elements=['marker=02']),
-                 json={'volumes': []})])
-        self.assertEqual(
-            [self.cloud._normalize_volume(vol1),
-             self.cloud._normalize_volume(vol2)],
-            self.cloud.list_volumes())
-        self.assert_calls()
-
-    def test_list_volumes_with_pagination_next_link_fails_all_attempts(self):
-        vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
-        uris = [self.get_cinder_discovery_mock_dict()]
-        attempts = 5
-        for i in range(attempts):
-            uris.extend([
-                dict(method='GET',
-                     uri=self.get_mock_url(
-                         'volumev2', 'public',
-                         append=['volumes', 'detail']),
-                     json={
-                         'volumes': [vol1],
-                         'volumes_links': [
-                             {'href': self.get_mock_url(
-                                 'volumev2', 'public',
-                                 append=['volumes', 'detail'],
-                                 qs_elements=['marker=01']),
-                              'rel': 'next'}]}),
-                dict(method='GET',
-                     uri=self.get_mock_url(
-                         'volumev2', 'public',
-                         append=['volumes', 'detail'],
-                         qs_elements=['marker=01']),
-                     status_code=404)])
-        self.register_uris(uris)
-        # Check that found volumes are returned even if pagination didn't
-        # complete because call to get next link 404'ed for all the allowed
-        # attempts
-        self.assertEqual(
-            [self.cloud._normalize_volume(vol1)],
-            self.cloud.list_volumes())
-        self.assert_calls()
-
     def test_get_volume_by_id(self):
         vol1 = meta.obj_to_munch(fakes.FakeVolume('01', 'available', 'vol1'))
         self.register_uris([
@@ -493,9 +369,7 @@ class TestVolume(base.TestCase):
                  json={'volume': vol1}
                  )
         ])
-        self.assertEqual(
-            self.cloud._normalize_volume(vol1),
-            self.cloud.get_volume_by_id('01'))
+        self._compare_volumes(vol1, self.cloud.get_volume_by_id('01'))
         self.assert_calls()
 
     def test_create_volume(self):
@@ -511,11 +385,6 @@ class TestVolume(base.TestCase):
                          'size': 50,
                          'name': 'vol1',
                      }})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail']),
-                 json={'volumes': [vol1]}),
         ])
 
         self.cloud.create_volume(50, name='vol1')
@@ -534,11 +403,6 @@ class TestVolume(base.TestCase):
                          'size': 50,
                          'name': 'vol1',
                      }})),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['volumes', 'detail']),
-                 json={'volumes': [vol1]}),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
