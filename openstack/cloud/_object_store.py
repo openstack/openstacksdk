@@ -60,9 +60,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        params = dict(format='json', prefix=prefix)
-        response = self.object_store.get('/', params=params)
-        return self._get_and_munchify(None, proxy._json_response(response))
+        return list(self.object_store.containers(prefix=prefix))
 
     def search_containers(self, name=None, filters=None):
         """Search containers.
@@ -92,13 +90,10 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         """
         if skip_cache or name not in self._container_cache:
             try:
-                response = self.object_store.head(
-                    self._get_object_endpoint(name)
-                )
-                exceptions.raise_from_response(response)
-                self._container_cache[name] = response.headers
-            except exc.OpenStackCloudHTTPError as e:
-                if e.response.status_code == 404:
+                container = self.object_store.get_container_metadata(name)
+                self._container_cache[name] = container
+            except exceptions.HttpException as ex:
+                if ex.response.status_code == 404:
                     return None
                 raise
         return self._container_cache[name]
@@ -114,11 +109,12 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         container = self.get_container(name)
         if container:
             return container
-        exceptions.raise_from_response(self.object_store.put(
-            self._get_object_endpoint(name)
-        ))
+        attrs = dict(
+            name=name
+        )
         if public:
-            self.set_container_access(name, 'public')
+            attrs['read_ACL'] = OBJECT_CONTAINER_ACLS['public']
+        container = self.object_store.create_container(**attrs)
         return self.get_container(name, skip_cache=True)
 
     def delete_container(self, name):
@@ -127,21 +123,17 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         :param str name: Name of the container to delete.
         """
         try:
-            exceptions.raise_from_response(self.object_store.delete(
-                self._get_object_endpoint(name)
-            ))
+            self.object_store.delete_container(name, ignore_missing=False)
             self._container_cache.pop(name, None)
             return True
-        except exc.OpenStackCloudHTTPError as e:
-            if e.response.status_code == 404:
-                return False
-            if e.response.status_code == 409:
-                raise exc.OpenStackCloudException(
-                    'Attempt to delete container {container} failed. The'
-                    ' container is not empty. Please delete the objects'
-                    ' inside it before deleting the container'.format(
-                        container=name))
-            raise
+        except exceptions.NotFoundException:
+            return False
+        except exceptions.ConflictException:
+            raise exc.OpenStackCloudException(
+                'Attempt to delete container {container} failed. The'
+                ' container is not empty. Please delete the objects'
+                ' inside it before deleting the container'.format(
+                    container=name))
 
     def update_container(self, name, headers):
         """Update the metadata in a container.
@@ -158,12 +150,14 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         :param dict headers:
             Key/Value headers to set on the container.
         """
+        # TODO(gtema): Decide on whether to deprecate this or change i/f to the
+        # container metadata names
         exceptions.raise_from_response(
             self.object_store.post(
                 self._get_object_endpoint(name), headers=headers)
         )
 
-    def set_container_access(self, name, access):
+    def set_container_access(self, name, access, refresh=False):
         """Set the access control list on a container.
 
         :param str name:
@@ -172,13 +166,17 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             ACL string to set on the container. Can also be ``public``
             or ``private`` which will be translated into appropriate ACL
             strings.
+        :param refresh: Flag to trigger refresh of the container properties
         """
         if access not in OBJECT_CONTAINER_ACLS:
             raise exc.OpenStackCloudException(
                 "Invalid container access specified: %s.  Must be one of %s"
                 % (access, list(OBJECT_CONTAINER_ACLS.keys())))
-        header = {'x-container-read': OBJECT_CONTAINER_ACLS[access]}
-        self.update_container(name, header)
+        return self.object_store.set_container_metadata(
+            name,
+            read_ACL=OBJECT_CONTAINER_ACLS[access],
+            refresh=refresh
+        )
 
     def get_container_access(self, name):
         """Get the control list from a container.
@@ -188,7 +186,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         container = self.get_container(name, skip_cache=True)
         if not container:
             raise exc.OpenStackCloudException("Container not found: %s" % name)
-        acl = container.get('x-container-read', '')
+        acl = container.read_ACL
         for key, value in OBJECT_CONTAINER_ACLS.items():
             # Convert to string for the comparison because swiftclient
             # returns byte values as bytes sometimes and apparently ==
@@ -636,9 +634,10 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        params = dict(format='json', prefix=prefix)
-        data = self._object_store_client.get(container, params=params)
-        return self._get_and_munchify(None, data)
+        return list(self.object_store.objects(
+            container=container,
+            prefix=prefix
+        ))
 
     def search_objects(self, container, name=None, filters=None):
         """Search objects.
@@ -727,10 +726,8 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         try:
             return self._object_store_client.head(
                 self._get_object_endpoint(container, name)).headers
-        except exc.OpenStackCloudException as e:
-            if e.response.status_code == 404:
-                return None
-            raise
+        except exceptions.NotFoundException:
+            return None
 
     def get_object_raw(self, container, obj, query_string=None, stream=False):
         """Get a raw response object for an object.
