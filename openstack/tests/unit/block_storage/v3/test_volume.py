@@ -50,7 +50,13 @@ VOLUME = {
     "consistencygroup_id": "123asf-asdf123",
     "os-volume-replication:driver_data": "ahasadfasdfasdfasdfsdf",
     "snapshot_id": "93c2e2aa-7744-4fd6-a31a-80c4726b08d7",
-    "encrypted": "false"
+    "encrypted": "false",
+    "OS-SCH-HNT:scheduler_hints": {
+        "same_host": [
+            "a0cf03a5-d921-4877-bb5c-86d26cf818e1",
+            "8c19174f-4220-44f0-824a-cd1eeef10287"
+        ]
+    }
 }
 
 
@@ -117,6 +123,8 @@ class TestVolume(base.TestCase):
         self.assertEqual(VOLUME["os-volume-replication:driver_data"],
                          sot.replication_driver_data)
         self.assertFalse(sot.is_encrypted)
+        self.assertDictEqual(VOLUME["OS-SCH-HNT:scheduler_hints"],
+                             sot.scheduler_hints)
 
     def test_extend(self):
         sot = volume.Volume(**VOLUME)
