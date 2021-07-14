@@ -99,12 +99,92 @@ class Volume(resource.Resource):
         # as both Volume and VolumeDetail instances can be acted on, but
         # the URL used is sans any additional /detail/ part.
         url = utils.urljoin(Volume.base_path, self.id, 'action')
-        headers = {'Accept': ''}
-        return session.post(url, json=body, headers=headers)
+        return session.post(url, json=body, microversion=None)
 
     def extend(self, session, size):
         """Extend a volume size."""
         body = {'os-extend': {'new_size': size}}
+        self._action(session, body)
+
+    def set_bootable_status(self, session, bootable=True):
+        """Set volume bootable status flag"""
+        body = {'os-set_bootable': {'bootable': bootable}}
+        self._action(session, body)
+
+    def reset_status(
+        self, session, status, attach_status, migration_status
+    ):
+        """Reset volume statuses (admin operation)"""
+        body = {'os-reset_status': {
+            'status': status,
+            'attach_status': attach_status,
+            'migration_status': migration_status
+        }}
+        self._action(session, body)
+
+    def attach(
+        self, session, mountpoint, instance
+    ):
+        """Attach volume to server"""
+        body = {'os-attach': {
+            'mountpoint': mountpoint,
+            'instance_uuid': instance}}
+
+        self._action(session, body)
+
+    def detach(self, session, attachment, force=False):
+        """Detach volume from server"""
+        if not force:
+            body = {'os-detach': {'attachment_id': attachment}}
+        if force:
+            body = {'os-force_detach': {
+                'attachment_id': attachment}}
+
+        self._action(session, body)
+
+    def unmanage(self, session):
+        """Unmanage volume"""
+        body = {'os-unmanage': {}}
+
+        self._action(session, body)
+
+    def retype(self, session, new_type, migration_policy=None):
+        """Change volume type"""
+        body = {'os-retype': {
+            'new_type': new_type}}
+        if migration_policy:
+            body['os-retype']['migration_policy'] = migration_policy
+
+        self._action(session, body)
+
+    def migrate(
+        self, session, host=None, force_host_copy=False,
+        lock_volume=False
+    ):
+        """Migrate volume"""
+        req = dict()
+        if host is not None:
+            req['host'] = host
+        if force_host_copy:
+            req['force_host_copy'] = force_host_copy
+        if lock_volume:
+            req['lock_volume'] = lock_volume
+        body = {'os-migrate_volume': req}
+
+        self._action(session, body)
+
+    def complete_migration(self, session, new_volume_id, error=False):
+        """Complete volume migration"""
+        body = {'os-migrate_volume_completion': {
+            'new_volume': new_volume_id,
+            'error': error}}
+
+        self._action(session, body)
+
+    def force_delete(self, session):
+        """Force volume deletion"""
+        body = {'os-force_delete': {}}
+
         self._action(session, body)
 
 

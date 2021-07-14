@@ -12,6 +12,8 @@
 
 from unittest import mock
 
+from keystoneauth1 import adapter
+
 from openstack.block_storage.v2 import volume
 from openstack.tests.unit import base
 
@@ -61,14 +63,6 @@ VOLUME = {
 
 
 class TestVolume(base.TestCase):
-
-    def setUp(self):
-        super(TestVolume, self).setUp()
-        self.resp = mock.Mock()
-        self.resp.body = None
-        self.resp.json = mock.Mock(return_value=self.resp.body)
-        self.sess = mock.Mock()
-        self.sess.post = mock.Mock(return_value=self.resp)
 
     def test_basic(self):
         sot = volume.Volume(VOLUME)
@@ -126,6 +120,20 @@ class TestVolume(base.TestCase):
                              sot.scheduler_hints)
         self.assertFalse(sot.is_encrypted)
 
+
+class TestVolumeActions(TestVolume):
+
+    def setUp(self):
+        super(TestVolumeActions, self).setUp()
+        self.resp = mock.Mock()
+        self.resp.body = None
+        self.resp.status_code = 200
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = '3.0'
+        self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
+
     def test_extend(self):
         sot = volume.Volume(**VOLUME)
 
@@ -133,5 +141,152 @@ class TestVolume(base.TestCase):
 
         url = 'volumes/%s/action' % FAKE_ID
         body = {"os-extend": {"new_size": "20"}}
-        headers = {'Accept': ''}
-        self.sess.post.assert_called_with(url, json=body, headers=headers)
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_set_volume_bootable(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.set_bootable_status(self.sess))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-set_bootable': {'bootable': True}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_set_volume_bootable_false(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.set_bootable_status(self.sess, False))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-set_bootable': {'bootable': False}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_reset_status(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.reset_status(self.sess, '1', '2', '3'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-reset_status': {'status': '1', 'attach_status': '2',
+                                    'migration_status': '3'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_attach_instance(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.attach(self.sess, '1', '2'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-attach': {'mountpoint': '1', 'instance_uuid': '2'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_detach(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.detach(self.sess, '1'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-detach': {'attachment_id': '1'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_detach_force(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(
+            sot.detach(self.sess, '1', force=True))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-force_detach': {'attachment_id': '1'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_unmanage(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.unmanage(self.sess))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-unmanage': {}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_retype(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.retype(self.sess, '1'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-retype': {'new_type': '1'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_retype_mp(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.retype(self.sess, '1', migration_policy='2'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-retype': {'new_type': '1', 'migration_policy': '2'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_migrate(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.migrate(self.sess, host='1'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-migrate_volume': {'host': '1'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_migrate_flags(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.migrate(self.sess, host='1',
+                                      force_host_copy=True, lock_volume=True))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-migrate_volume': {'host': '1', 'force_host_copy': True,
+                                      'lock_volume': True}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_complete_migration(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.complete_migration(self.sess, new_volume_id='1'))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-migrate_volume_completion': {'new_volume': '1', 'error':
+                                                 False}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_complete_migration_error(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.complete_migration(
+            self.sess, new_volume_id='1', error=True))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-migrate_volume_completion': {'new_volume': '1', 'error':
+                                                 True}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_force_delete(self):
+        sot = volume.Volume(**VOLUME)
+
+        self.assertIsNone(sot.force_delete(self.sess))
+
+        url = 'volumes/%s/action' % FAKE_ID
+        body = {'os-force_delete': {}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
