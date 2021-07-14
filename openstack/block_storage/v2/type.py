@@ -27,10 +27,6 @@ class Type(resource.Resource):
     _query_mapping = resource.QueryParameters("is_public")
 
     # Properties
-    #: A ID representing this type.
-    id = resource.Body("id")
-    #: Name of the type.
-    name = resource.Body("name")
     #: A dict of extra specifications. "capabilities" is a usual key.
     extra_specs = resource.Body("extra_specs", type=dict)
     #: a private volume-type. *Type: bool*
