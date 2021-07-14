@@ -96,7 +96,13 @@ class TestDeleteVolumeSnapshot(base.TestCase):
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'volumev2', 'public',
-                     append=['snapshots', fake_snapshot_dict['id']]))])
+                     append=['snapshots', fake_snapshot_dict['id']])),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev2', 'public',
+                     append=['snapshots', '1234']),
+                 json={'snapshot': fake_snapshot_dict}),
+        ])
 
         self.assertRaises(
             exc.OpenStackCloudTimeout,

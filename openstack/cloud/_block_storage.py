@@ -443,34 +443,13 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         """
 
         kwargs = self._get_volume_kwargs(kwargs)
-        payload = {'volume_id': volume_id, 'force': force}
+        payload = {'volume_id': volume_id}
         payload.update(kwargs)
-        resp = self.block_storage.post(
-            '/snapshots',
-            json=dict(snapshot=payload))
-        data = proxy._json_response(
-            resp,
-            error_message="Error creating snapshot of volume "
-                          "{volume_id}".format(volume_id=volume_id))
-        snapshot = self._get_and_munchify('snapshot', data)
+        snapshot = self.block_storage.create_snapshot(**payload)
         if wait:
-            snapshot_id = snapshot['id']
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the volume snapshot to be available."
-            ):
-                snapshot = self.get_volume_snapshot_by_id(snapshot_id)
+            snapshot = self.block_storage.wait_for_status(
+                snapshot, wait=timeout)
 
-                if snapshot['status'] == 'available':
-                    break
-
-                if snapshot['status'] == 'error':
-                    raise exc.OpenStackCloudException(
-                        "Error in creating volume snapshot")
-
-        # TODO(mordred) need to normalize snapshots. We were normalizing them
-        # as volumes, which is an error. They need to be normalized as
-        # volume snapshots, which are completely different objects
         return snapshot
 
     def get_volume_snapshot_by_id(self, snapshot_id):
@@ -482,14 +461,7 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         param: snapshot_id: ID of the volume snapshot.
 
         """
-        resp = self.block_storage.get(
-            '/snapshots/{snapshot_id}'.format(snapshot_id=snapshot_id))
-        data = proxy._json_response(
-            resp,
-            error_message="Error getting snapshot "
-                          "{snapshot_id}".format(snapshot_id=snapshot_id))
-        return self._normalize_volume(
-            self._get_and_munchify('snapshot', data))
+        return self.block_storage.get_snapshot(snapshot_id)
 
     def get_volume_snapshot(self, name_or_id, filters=None):
         """Get a volume by name or ID.
@@ -545,32 +517,14 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             'volume_id': volume_id,
             'description': description,
             'force': force,
-            'incremental': incremental,
+            'is_incremental': incremental,
             'snapshot_id': snapshot_id,
         }
 
-        resp = self.block_storage.post(
-            '/backups', json=dict(backup=payload))
-        data = proxy._json_response(
-            resp,
-            error_message="Error creating backup of volume "
-                          "{volume_id}".format(volume_id=volume_id))
-        backup = self._get_and_munchify('backup', data)
+        backup = self.block_storage.create_backup(**payload)
 
         if wait:
-            backup_id = backup['id']
-            msg = ("Timeout waiting for the volume backup {} to be "
-                   "available".format(backup_id))
-            for _ in utils.iterate_timeout(timeout, msg):
-                backup = self.get_volume_backup(backup_id)
-
-                if backup['status'] == 'available':
-                    break
-
-                if backup['status'] == 'error':
-                    raise exc.OpenStackCloudException(
-                        "Error in creating volume backup {id}".format(
-                            id=backup_id))
+            backup = self.block_storage.wait_for_status(backup, wait=timeout)
 
         return backup
 
@@ -589,14 +543,10 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         :returns: A list of volume snapshots ``munch.Munch``.
 
         """
-        endpoint = '/snapshots/detail' if detailed else '/snapshots'
-        resp = self.block_storage.get(
-            endpoint,
-            params=search_opts)
-        data = proxy._json_response(
-            resp,
-            error_message="Error getting a list of snapshots")
-        return self._get_and_munchify('snapshots', data)
+        if not search_opts:
+            search_opts = {}
+        return list(self.block_storage.snapshots(
+            details=detailed, **search_opts))
 
     def list_volume_backups(self, detailed=True, search_opts=None):
         """
@@ -615,13 +565,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
 
         :returns: A list of volume backups ``munch.Munch``.
         """
-        endpoint = '/backups/detail' if detailed else '/backups'
-        resp = self.block_storage.get(
-            endpoint, params=search_opts)
-        data = proxy._json_response(
-            resp,
-            error_message="Error getting a list of backups")
-        return self._get_and_munchify('backups', data)
+        if not search_opts:
+            search_opts = {}
+
+        return list(self.block_storage.backups(details=detailed,
+                                               **search_opts))
 
     def delete_volume_backup(self, name_or_id=None, force=False, wait=False,
                              timeout=None):
@@ -642,22 +590,10 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         if not volume_backup:
             return False
 
-        msg = "Error in deleting volume backup"
-        if force:
-            resp = self.block_storage.post(
-                '/backups/{backup_id}/action'.format(
-                    backup_id=volume_backup['id']),
-                json={'os-force_delete': None})
-        else:
-            resp = self.block_storage.delete(
-                '/backups/{backup_id}'.format(
-                    backup_id=volume_backup['id']))
-        proxy._json_response(resp, error_message=msg)
+        self.block_storage.delete_backup(
+            volume_backup, ignore_missing=False, force=force)
         if wait:
-            msg = "Timeout waiting for the volume backup to be deleted."
-            for count in utils.iterate_timeout(timeout, msg):
-                if not self.get_volume_backup(volume_backup['id']):
-                    break
+            self.block_storage.wait_for_delete(volume_backup, wait=timeout)
 
         return True
 
@@ -679,19 +615,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         if not volumesnapshot:
             return False
 
-        resp = self.block_storage.delete(
-            '/snapshots/{snapshot_id}'.format(
-                snapshot_id=volumesnapshot['id']))
-        proxy._json_response(
-            resp,
-            error_message="Error in deleting volume snapshot")
+        self.block_storage.delete_snapshot(
+            volumesnapshot, ignore_missing=False)
 
         if wait:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for the volume snapshot to be deleted."):
-                if not self.get_volume_snapshot(volumesnapshot['id']):
-                    break
+            self.block_storage.wait_for_delete(volumesnapshot, wait=timeout)
 
         return True
 
