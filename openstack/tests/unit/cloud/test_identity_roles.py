@@ -119,22 +119,21 @@ class TestIdentityRoles(base.TestCase):
 
     def test_update_role(self):
         role_data = self._get_role_data()
-        req = {'role_id': role_data.role_id,
-               'role': {'name': role_data.role_name}}
+        req = {'role': {'name': 'new_name'}}
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(),
                  status_code=200,
                  json={'roles': [role_data.json_response['role']]}),
             dict(method='PATCH',
-                 uri=self.get_mock_url(),
+                 uri=self.get_mock_url(append=[role_data.role_id]),
                  status_code=200,
                  json=role_data.json_response,
                  validate=dict(json=req))
         ])
 
         role = self.cloud.update_role(
-            role_data.role_id, role_data.role_name)
+            role_data.role_id, 'new_name')
 
         self.assertIsNotNone(role)
         self.assertThat(role.name, matchers.Equals(role_data.role_name))
@@ -242,8 +241,7 @@ class TestIdentityRoles(base.TestCase):
                  status_code=403)
         ])
         with testtools.ExpectedException(
-            openstack.cloud.exc.OpenStackCloudHTTPError,
-            "Failed to list role assignments"
+            openstack.cloud.exc.OpenStackCloudHTTPError
         ):
             self.cloud.list_role_assignments()
         self.assert_calls()

@@ -309,7 +309,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_group.Group, group, ignore_missing=ignore_missing)
 
-    def find_group(self, name_or_id, ignore_missing=True):
+    def find_group(self, name_or_id, ignore_missing=True, **kwargs):
         """Find a single group
 
         :param name_or_id: The name or ID of a group.
@@ -321,7 +321,8 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.identity.v3.group.Group` or None
         """
         return self._find(_group.Group, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing,
+                          **kwargs)
 
     def get_group(self, group):
         """Get a single group
@@ -858,7 +859,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_role.Role, role, ignore_missing=ignore_missing)
 
-    def find_role(self, name_or_id, ignore_missing=True):
+    def find_role(self, name_or_id, ignore_missing=True, **kwargs):
         """Find a single role
 
         :param name_or_id: The name or ID of a role.
@@ -870,7 +871,8 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.identity.v3.role.Role` or None
         """
         return self._find(_role.Role, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing,
+                          **kwargs)
 
     def get_role(self, role):
         """Get a single role

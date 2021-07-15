@@ -21,7 +21,6 @@ from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
-from openstack import utils
 
 
 class IdentityCloudMixin(_normalize.Normalizer):
@@ -873,18 +872,14 @@ class IdentityCloudMixin(_normalize.Normalizer):
     def list_roles(self, **kwargs):
         """List Keystone roles.
 
-        :param domain_id: domain id for listing roles (v3)
+        :param domain_id: domain id for listing roles
 
         :returns: a list of ``munch.Munch`` containing the role description.
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        v2 = self._is_client_version('identity', 2)
-        url = '/OS-KSADM/roles' if v2 else '/roles'
-        data = self._identity_client.get(
-            url, params=kwargs, error_message="Failed to list roles")
-        return self._normalize_roles(self._get_and_munchify('roles', data))
+        return list(self.identity.roles(**kwargs))
 
     @_utils.valid_kwargs('domain_id')
     def search_roles(self, name_or_id=None, filters=None, **kwargs):
@@ -927,34 +922,6 @@ class IdentityCloudMixin(_normalize.Normalizer):
         """
         return _utils._get_entity(self, 'role', name_or_id, filters, **kwargs)
 
-    def _keystone_v2_role_assignments(self, user, project=None,
-                                      role=None, **kwargs):
-        data = self._identity_client.get(
-            "/tenants/{tenant}/users/{user}/roles".format(
-                tenant=project, user=user),
-            error_message="Failed to list role assignments")
-
-        roles = self._get_and_munchify('roles', data)
-
-        ret = []
-        for tmprole in roles:
-            if role is not None and role != tmprole.id:
-                continue
-            ret.append({
-                'role': {
-                    'id': tmprole.id
-                },
-                'scope': {
-                    'project': {
-                        'id': project,
-                    }
-                },
-                'user': {
-                    'id': user,
-                }
-            })
-        return ret
-
     def _keystone_v3_role_assignments(self, **filters):
         # NOTE(samueldmq): different parameters have different representation
         # patterns as query parameters in the call to the list role assignments
@@ -983,10 +950,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
                 filters['os_inherit_extension_inherited_to'])
             del filters['os_inherit_extension_inherited_to']
 
-        data = self._identity_client.get(
-            '/role_assignments', params=filters,
-            error_message="Failed to list role assignments")
-        return self._get_and_munchify('role_assignments', data)
+        return list(self.identity.role_assignments(**filters))
 
     def list_role_assignments(self, filters=None):
         """List Keystone role assignments
@@ -1005,9 +969,6 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
             'user' and 'group' are mutually exclusive, as are 'domain' and
             'project'.
-
-            NOTE: For keystone v2, only user, project, and role are used.
-                  Project and user are both required in filters.
 
         :returns: a list of ``munch.Munch`` containing the role assignment
             description. Contains the following attributes::
@@ -1037,7 +998,15 @@ class IdentityCloudMixin(_normalize.Normalizer):
             if isinstance(v, munch.Munch):
                 filters[k] = v['id']
 
-        assignments = self._keystone_v3_role_assignments(**filters)
+        for k in ['role', 'group', 'user']:
+            if k in filters:
+                filters['%s_id' % k] = filters.pop(k)
+
+        for k in ['domain', 'project']:
+            if k in filters:
+                filters['scope_%s_id' % k] = filters.pop(k)
+
+        assignments = self.identity.role_assignments(**filters)
 
         return _utils.normalize_role_assignments(assignments)
 
@@ -1052,14 +1021,8 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
         :raise OpenStackCloudException: if the role cannot be created
         """
-        v2 = self._is_client_version('identity', 2)
-        url = '/OS-KSADM/roles' if v2 else '/roles'
         kwargs['name'] = name
-        msg = 'Failed to create role {name}'.format(name=name)
-        data = self._identity_client.post(
-            url, json={'role': kwargs}, error_message=msg)
-        role = self._get_and_munchify('role', data)
-        return self._normalize_role(role)
+        return self.identity.create_role(**kwargs)
 
     @_utils.valid_kwargs('domain_id')
     def update_role(self, name_or_id, name, **kwargs):
@@ -1073,22 +1036,13 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
         :raise OpenStackCloudException: if the role cannot be created
         """
-        if self._is_client_version('identity', 2):
-            raise exc.OpenStackCloudUnavailableFeature(
-                'Unavailable Feature: Role update requires Identity v3'
-            )
-        kwargs['name_or_id'] = name_or_id
-        role = self.get_role(**kwargs)
+        role = self.get_role(name_or_id, **kwargs)
         if role is None:
             self.log.debug(
                 "Role %s not found for updating", name_or_id)
             return False
-        msg = 'Failed to update role {name}'.format(name=name_or_id)
-        json_kwargs = {'role_id': role.id, 'role': {'name': name}}
-        data = self._identity_client.patch('/roles', error_message=msg,
-                                           json=json_kwargs)
-        role = self._get_and_munchify('role', data)
-        return self._normalize_role(role)
+
+        return self.identity.update_role(role, name=name, **kwargs)
 
     @_utils.valid_kwargs('domain_id')
     def delete_role(self, name_or_id, **kwargs):
@@ -1108,44 +1062,51 @@ class IdentityCloudMixin(_normalize.Normalizer):
                 "Role %s not found for deleting", name_or_id)
             return False
 
-        v2 = self._is_client_version('identity', 2)
-        url = '{preffix}/{id}'.format(
-            preffix='/OS-KSADM/roles' if v2 else '/roles', id=role['id'])
-        error_msg = "Unable to delete role {name}".format(name=name_or_id)
-        self._identity_client.delete(url, error_message=error_msg)
-
-        return True
+        try:
+            self.identity.delete_role(role)
+            return True
+        except exceptions.SDKExceptions:
+            self.log.exception(
+                "Unable to delete role {name}".format(
+                    name=name_or_id))
+            raise
 
     def _get_grant_revoke_params(self, role, user=None, group=None,
                                  project=None, domain=None):
-        role = self.get_role(role)
-        if role is None:
-            return {}
-        data = {'role': role.id}
+        data = {}
+        search_args = {}
+        if domain:
+            data['domain'] = self.identity.find_domain(
+                domain, ignore_missing=False)
+            # We have domain. We should use it for further searching user,
+            # group, role, project
+            search_args['domain_id'] = data['domain'].id
 
-        # domain and group not available in keystone v2.0
-        is_keystone_v2 = self._is_client_version('identity', 2)
-
-        filters = {}
-        if not is_keystone_v2 and domain:
-            filters['domain_id'] = data['domain'] = \
-                self.get_domain(domain)['id']
+        data['role'] = self.identity.find_role(name_or_id=role)
+        if not data['role']:
+            raise exc.OpenStackCloudException(
+                'Role {0} not found.'.format(role))
 
         if user:
-            if domain:
-                data['user'] = self.get_user(
-                    user, domain_id=filters['domain_id'], filters=filters)
-            else:
-                data['user'] = self.get_user(user, filters=filters)
+            # use cloud.get_user to save us from bad searching by name
+            data['user'] = self.get_user(user, filters=search_args)
+        if group:
+            data['group'] = self.identity.find_group(
+                group, ignore_missing=False, **search_args)
+
+        if data.get('user') and data.get('group'):
+            raise exc.OpenStackCloudException(
+                'Specify either a group or a user, not both')
+        if data.get('user') is None and data.get('group') is None:
+            raise exc.OpenStackCloudException(
+                'Must specify either a user or a group')
+        if project is None and domain is None:
+            raise exc.OpenStackCloudException(
+                'Must specify either a domain or project')
 
         if project:
-            # drop domain in favor of project
-            data.pop('domain', None)
-            data['project'] = self.identity.find_project(project, **filters)
-
-        if not is_keystone_v2 and group:
-            data['group'] = self.get_group(group, filters=filters)
-
+            data['project'] = self.identity.find_project(
+                project, ignore_missing=False, **search_args)
         return data
 
     def grant_role(self, name_or_id, user=None, group=None,
@@ -1168,66 +1129,56 @@ class IdentityCloudMixin(_normalize.Normalizer):
         NOTE: for wait and timeout, sometimes granting roles is not
               instantaneous.
 
-        NOTE: project is required for keystone v2
-
         :returns: True if the role is assigned, otherwise False
 
         :raise OpenStackCloudException: if the role cannot be granted
         """
-        data = self._get_grant_revoke_params(name_or_id, user, group,
-                                             project, domain)
-        filters = data.copy()
-        if not data:
-            raise exc.OpenStackCloudException(
-                'Role {0} not found.'.format(name_or_id))
+        data = self._get_grant_revoke_params(
+            name_or_id, user=user, group=group,
+            project=project, domain=domain)
 
-        if data.get('user') is not None and data.get('group') is not None:
-            raise exc.OpenStackCloudException(
-                'Specify either a group or a user, not both')
-        if data.get('user') is None and data.get('group') is None:
-            raise exc.OpenStackCloudException(
-                'Must specify either a user or a group')
-        if self._is_client_version('identity', 2) and \
-                data.get('project') is None:
-            raise exc.OpenStackCloudException(
-                'Must specify project for keystone v2')
+        user = data.get('user')
+        group = data.get('group')
+        project = data.get('project')
+        domain = data.get('domain')
+        role = data.get('role')
 
-        if self.list_role_assignments(filters=filters):
-            self.log.debug('Assignment already exists')
-            return False
-
-        error_msg = "Error granting access to role: {0}".format(data)
-        if self._is_client_version('identity', 2):
-            # For v2.0, only tenant/project assignment is supported
-            url = "/tenants/{t}/users/{u}/roles/OS-KSADM/{r}".format(
-                t=data['project']['id'], u=data['user']['id'], r=data['role'])
-
-            self._identity_client.put(url, error_message=error_msg,
-                                      endpoint_filter={'interface': 'admin'})
+        if project:
+            # Proceed with project - precedence over domain
+            if user:
+                has_role = self.identity.validate_user_has_project_role(
+                    project, user, role)
+                if has_role:
+                    self.log.debug('Assignment already exists')
+                    return False
+                self.identity.assign_project_role_to_user(
+                    project, user, role)
+            else:
+                has_role = self.identity.validate_group_has_project_role(
+                    project, group, role)
+                if has_role:
+                    self.log.debug('Assignment already exists')
+                    return False
+                self.identity.assign_project_role_to_group(
+                    project, group, role)
         else:
-            if data.get('project') is None and data.get('domain') is None:
-                raise exc.OpenStackCloudException(
-                    'Must specify either a domain or project')
-
-            # For v3, figure out the assignment type and build the URL
-            if data.get('domain'):
-                url = "/domains/{}".format(data['domain'])
+            # Proceed with domain
+            if user:
+                has_role = self.identity.validate_user_has_domain_role(
+                    domain, user, role)
+                if has_role:
+                    self.log.debug('Assignment already exists')
+                    return False
+                self.identity.assign_domain_role_to_user(
+                    domain, user, role)
             else:
-                url = "/projects/{}".format(data['project']['id'])
-            if data.get('group'):
-                url += "/groups/{}".format(data['group']['id'])
-            else:
-                url += "/users/{}".format(data['user']['id'])
-            url += "/roles/{}".format(data.get('role'))
-
-            self._identity_client.put(url, error_message=error_msg)
-
-        if wait:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for role to be granted"):
-                if self.list_role_assignments(filters=filters):
-                    break
+                has_role = self.identity.validate_group_has_domain_role(
+                    domain, group, role)
+                if has_role:
+                    self.log.debug('Assignment already exists')
+                    return False
+                self.identity.assign_domain_role_to_group(
+                    domain, group, role)
         return True
 
     def revoke_role(self, name_or_id, user=None, group=None,
@@ -1251,92 +1202,53 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
         :raise OpenStackCloudException: if the role cannot be removed
         """
-        data = self._get_grant_revoke_params(name_or_id, user, group,
-                                             project, domain)
-        filters = data.copy()
+        data = self._get_grant_revoke_params(
+            name_or_id, user=user, group=group,
+            project=project, domain=domain)
 
-        if not data:
-            raise exc.OpenStackCloudException(
-                'Role {0} not found.'.format(name_or_id))
+        user = data.get('user')
+        group = data.get('group')
+        project = data.get('project')
+        domain = data.get('domain')
+        role = data.get('role')
 
-        if data.get('user') is not None and data.get('group') is not None:
-            raise exc.OpenStackCloudException(
-                'Specify either a group or a user, not both')
-        if data.get('user') is None and data.get('group') is None:
-            raise exc.OpenStackCloudException(
-                'Must specify either a user or a group')
-        if self._is_client_version('identity', 2) and \
-                data.get('project') is None:
-            raise exc.OpenStackCloudException(
-                'Must specify project for keystone v2')
-
-        if not self.list_role_assignments(filters=filters):
-            self.log.debug('Assignment does not exist')
-            return False
-
-        error_msg = "Error revoking access to role: {0}".format(data)
-        if self._is_client_version('identity', 2):
-            # For v2.0, only tenant/project assignment is supported
-            url = "/tenants/{t}/users/{u}/roles/OS-KSADM/{r}".format(
-                t=data['project']['id'], u=data['user']['id'], r=data['role'])
-
-            self._identity_client.delete(
-                url, error_message=error_msg,
-                endpoint_filter={'interface': 'admin'})
+        if project:
+            # Proceed with project - precedence over domain
+            if user:
+                has_role = self.identity.validate_user_has_project_role(
+                    project, user, role)
+                if not has_role:
+                    self.log.debug('Assignment does not exists')
+                    return False
+                self.identity.unassign_project_role_from_user(
+                    project, user, role)
+            else:
+                has_role = self.identity.validate_group_has_project_role(
+                    project, group, role)
+                if not has_role:
+                    self.log.debug('Assignment does not exists')
+                    return False
+                self.identity.unassign_project_role_from_group(
+                    project, group, role)
         else:
-            if data.get('project') is None and data.get('domain') is None:
-                raise exc.OpenStackCloudException(
-                    'Must specify either a domain or project')
-
-            # For v3, figure out the assignment type and build the URL
-            if data.get('domain'):
-                url = "/domains/{}".format(data['domain'])
+            # Proceed with domain
+            if user:
+                has_role = self.identity.validate_user_has_domain_role(
+                    domain, user, role)
+                if not has_role:
+                    self.log.debug('Assignment does not exists')
+                    return False
+                self.identity.unassign_domain_role_from_user(
+                    domain, user, role)
             else:
-                url = "/projects/{}".format(data['project']['id'])
-            if data.get('group'):
-                url += "/groups/{}".format(data['group']['id'])
-            else:
-                url += "/users/{}".format(data['user']['id'])
-            url += "/roles/{}".format(data.get('role'))
-
-            self._identity_client.delete(url, error_message=error_msg)
-
-        if wait:
-            for count in utils.iterate_timeout(
-                    timeout,
-                    "Timeout waiting for role to be revoked"):
-                if not self.list_role_assignments(filters=filters):
-                    break
+                has_role = self.identity.validate_group_has_domain_role(
+                    domain, group, role)
+                if not has_role:
+                    self.log.debug('Assignment does not exists')
+                    return False
+                self.identity.unassign_domain_role_from_group(
+                    domain, group, role)
         return True
-
-    def _get_project_id_param_dict(self, name_or_id):
-        if name_or_id:
-            project = self.get_project(name_or_id)
-            if not project:
-                return {}
-            if self._is_client_version('identity', 3):
-                return {'default_project_id': project['id']}
-            else:
-                return {'tenant_id': project['id']}
-        else:
-            return {}
-
-    def _get_domain_id_param_dict(self, domain_id):
-        """Get a useable domain."""
-
-        # Keystone v3 requires domains for user and project creation. v2 does
-        # not. However, keystone v2 does not allow user creation by non-admin
-        # users, so we can throw an error to the user that does not need to
-        # mention api versions
-        if self._is_client_version('identity', 3):
-            if not domain_id:
-                raise exc.OpenStackCloudException(
-                    "User or project creation requires an explicit"
-                    " domain_id argument.")
-            else:
-                return {'domain_id': domain_id}
-        else:
-            return {}
 
     def _get_identity_params(self, domain_id=None, project=None):
         """Get the domain and project/tenant parameters if needed.
@@ -1345,6 +1257,17 @@ class IdentityCloudMixin(_normalize.Normalizer):
         pass project or tenant_id or domain or nothing in a sane manner.
         """
         ret = {}
-        ret.update(self._get_domain_id_param_dict(domain_id))
+        if not domain_id:
+            raise exc.OpenStackCloudException(
+                "User or project creation requires an explicit"
+                " domain_id argument.")
+        else:
+            ret.update({'domain_id': domain_id})
+
         ret.update(self._get_project_id_param_dict(project))
+        if project:
+            project_obj = self.get_project(project)
+            if project_obj:
+                ret.update({'default_project_id': project['id']})
+
         return ret
