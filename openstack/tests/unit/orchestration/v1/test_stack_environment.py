@@ -10,9 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
-
 from openstack.orchestration.v1 import stack_environment as se
+from openstack.tests.unit import base
 
 
 FAKE = {

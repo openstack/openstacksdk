@@ -9,9 +9,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from unittest import mock
+
+from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack import exceptions
 from openstack.orchestration.v1 import _proxy
