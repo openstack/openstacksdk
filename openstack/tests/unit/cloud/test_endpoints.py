@@ -21,8 +21,6 @@ Tests Keystone endpoints commands.
 
 import uuid
 
-from openstack.cloud.exc import OpenStackCloudException
-from openstack.cloud.exc import OpenStackCloudUnavailableFeature
 from openstack.tests.unit import base
 from testtools import matchers
 
@@ -36,97 +34,6 @@ class TestCloudEndpoints(base.TestCase):
 
     def _dummy_url(self):
         return 'https://%s.example.com/' % uuid.uuid4().hex
-
-    def test_create_endpoint_v2(self):
-        self.use_keystone_v2()
-        service_data = self._get_service_data()
-        endpoint_data = self._get_endpoint_v2_data(
-            service_data.service_id, public_url=self._dummy_url(),
-            internal_url=self._dummy_url(), admin_url=self._dummy_url())
-        other_endpoint_data = self._get_endpoint_v2_data(
-            service_data.service_id, region=endpoint_data.region,
-            public_url=endpoint_data.public_url)
-        # correct the keys
-
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='services', base_url_append='OS-KSADM'),
-                 status_code=200,
-                 json={'OS-KSADM:services': [
-                     service_data.json_response_v2['OS-KSADM:service']]}),
-            dict(method='POST',
-                 uri=self.get_mock_url(base_url_append=None),
-                 status_code=200,
-                 json=endpoint_data.json_response,
-                 validate=dict(json=endpoint_data.json_request)),
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='services', base_url_append='OS-KSADM'),
-                 status_code=200,
-                 json={'OS-KSADM:services': [
-                     service_data.json_response_v2['OS-KSADM:service']]}),
-            # NOTE(notmorgan): There is a stupid happening here, we do two
-            # gets on the services for some insane reason (read: keystoneclient
-            # is bad and should feel bad).
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='services', base_url_append='OS-KSADM'),
-                 status_code=200,
-                 json={'OS-KSADM:services': [
-                     service_data.json_response_v2['OS-KSADM:service']]}),
-            dict(method='POST',
-                 uri=self.get_mock_url(base_url_append=None),
-                 status_code=200,
-                 json=other_endpoint_data.json_response,
-                 validate=dict(json=other_endpoint_data.json_request))
-        ])
-
-        endpoints = self.cloud.create_endpoint(
-            service_name_or_id=service_data.service_id,
-            region=endpoint_data.region,
-            public_url=endpoint_data.public_url,
-            internal_url=endpoint_data.internal_url,
-            admin_url=endpoint_data.admin_url
-        )
-
-        self.assertThat(endpoints[0].id,
-                        matchers.Equals(endpoint_data.endpoint_id))
-        self.assertThat(endpoints[0].region,
-                        matchers.Equals(endpoint_data.region))
-        self.assertThat(endpoints[0].publicURL,
-                        matchers.Equals(endpoint_data.public_url))
-        self.assertThat(endpoints[0].internalURL,
-                        matchers.Equals(endpoint_data.internal_url))
-        self.assertThat(endpoints[0].adminURL,
-                        matchers.Equals(endpoint_data.admin_url))
-
-        # test v3 semantics on v2.0 endpoint
-        self.assertRaises(OpenStackCloudException,
-                          self.cloud.create_endpoint,
-                          service_name_or_id='service1',
-                          interface='mock_admin_url',
-                          url='admin')
-
-        endpoints_3on2 = self.cloud.create_endpoint(
-            service_name_or_id=service_data.service_id,
-            region=endpoint_data.region,
-            interface='public',
-            url=endpoint_data.public_url
-        )
-
-        # test keys and values are correct
-        self.assertThat(
-            endpoints_3on2[0].region,
-            matchers.Equals(other_endpoint_data.region))
-        self.assertThat(
-            endpoints_3on2[0].publicURL,
-            matchers.Equals(other_endpoint_data.public_url))
-        self.assertThat(endpoints_3on2[0].get('internalURL'),
-                        matchers.Equals(None))
-        self.assertThat(endpoints_3on2[0].get('adminURL'),
-                        matchers.Equals(None))
-        self.assert_calls()
 
     def test_create_endpoint_v3(self):
         service_data = self._get_service_data()
@@ -226,11 +133,6 @@ class TestCloudEndpoints(base.TestCase):
                             matchers.Equals(reference.region))
             self.assertThat(result.enabled, matchers.Equals(reference.enabled))
         self.assert_calls()
-
-    def test_update_endpoint_v2(self):
-        self.use_keystone_v2()
-        self.assertRaises(OpenStackCloudUnavailableFeature,
-                          self.cloud.update_endpoint, 'endpoint_id')
 
     def test_update_endpoint_v3(self):
         service_data = self._get_service_data()

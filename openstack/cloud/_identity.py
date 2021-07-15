@@ -368,29 +368,15 @@ class IdentityCloudMixin(_normalize.Normalizer):
 
         # TODO(mordred) When this changes to REST, force interface=admin
         # in the adapter call
-        if self._is_client_version('identity', 2):
-            url, key = '/OS-KSADM/services', 'OS-KSADM:service'
-            kwargs['type'] = type_ or service_type
-        else:
-            url, key = '/services', 'service'
-            kwargs['type'] = type_ or service_type
-            kwargs['enabled'] = enabled
+        kwargs['type'] = type_ or service_type
+        kwargs['is_enabled'] = enabled
         kwargs['name'] = name
 
-        msg = 'Failed to create service {name}'.format(name=name)
-        data = self._identity_client.post(
-            url, json={key: kwargs}, error_message=msg)
-        service = self._get_and_munchify(key, data)
-        return _utils.normalize_keystone_services([service])[0]
+        return self.identity.create_service(**kwargs)
 
     @_utils.valid_kwargs('name', 'enabled', 'type', 'service_type',
                          'description')
     def update_service(self, name_or_id, **kwargs):
-        # NOTE(SamYaple): Service updates are only available on v3 api
-        if self._is_client_version('identity', 2):
-            raise exc.OpenStackCloudUnavailableFeature(
-                'Unavailable Feature: Service update requires Identity v3'
-            )
 
         # NOTE(SamYaple): Keystone v3 only accepts 'type' but shade accepts
         #                 both 'type' and 'service_type' with a preference
@@ -400,18 +386,8 @@ class IdentityCloudMixin(_normalize.Normalizer):
         if type_ or service_type:
             kwargs['type'] = type_ or service_type
 
-        if self._is_client_version('identity', 2):
-            url, key = '/OS-KSADM/services', 'OS-KSADM:service'
-        else:
-            url, key = '/services', 'service'
-
         service = self.get_service(name_or_id)
-        msg = 'Error in updating service {service}'.format(service=name_or_id)
-        data = self._identity_client.patch(
-            '{url}/{id}'.format(url=url, id=service['id']), json={key: kwargs},
-            error_message=msg)
-        service = self._get_and_munchify(key, data)
-        return _utils.normalize_keystone_services([service])[0]
+        return self.identity.update_service(service, **kwargs)
 
     def list_services(self):
         """List all Keystone services.
@@ -421,18 +397,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        if self._is_client_version('identity', 2):
-            url, key = '/OS-KSADM/services', 'OS-KSADM:services'
-            endpoint_filter = {'interface': 'admin'}
-        else:
-            url, key = '/services', 'services'
-            endpoint_filter = {}
-
-        data = self._identity_client.get(
-            url, endpoint_filter=endpoint_filter,
-            error_message="Failed to list services")
-        services = self._get_and_munchify(key, data)
-        return _utils.normalize_keystone_services(services)
+        return list(self.identity.services())
 
     def search_services(self, name_or_id=None, filters=None):
         """Search Keystone services.
@@ -482,20 +447,13 @@ class IdentityCloudMixin(_normalize.Normalizer):
         if service is None:
             self.log.debug("Service %s not found for deleting", name_or_id)
             return False
-
-        if self._is_client_version('identity', 2):
-            url = '/OS-KSADM/services'
-            endpoint_filter = {'interface': 'admin'}
-        else:
-            url = '/services'
-            endpoint_filter = {}
-
-        error_msg = 'Failed to delete service {id}'.format(id=service['id'])
-        self._identity_client.delete(
-            '{url}/{id}'.format(url=url, id=service['id']),
-            endpoint_filter=endpoint_filter, error_message=error_msg)
-
-        return True
+        try:
+            self.identity.delete_service(service)
+            return True
+        except exceptions.SDKException:
+            self.log.exception(
+                'Failed to delete service {id}'.format(id=service['id']))
+            return False
 
     @_utils.valid_kwargs('public_url', 'internal_url', 'admin_url')
     def create_endpoint(self, service_name_or_id, url=None, interface=None,
