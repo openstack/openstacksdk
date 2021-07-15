@@ -66,15 +66,8 @@ _ServiceData = collections.namedtuple(
 
 _EndpointDataV3 = collections.namedtuple(
     'EndpointData',
-    'endpoint_id, service_id, interface, region, url, enabled, '
+    'endpoint_id, service_id, interface, region_id, url, enabled, '
     'json_response, json_request')
-
-
-_EndpointDataV2 = collections.namedtuple(
-    'EndpointData',
-    'endpoint_id, service_id, region, public_url, internal_url, '
-    'admin_url, v3_endpoint_list, json_response, '
-    'json_request')
 
 
 # NOTE(notmorgan): Shade does not support domain-specific roles
@@ -361,46 +354,13 @@ class TestCase(base.TestCase):
         interface = interface or uuid.uuid4().hex
 
         response = {'id': endpoint_id, 'service_id': service_id,
-                    'region': region, 'interface': interface,
+                    'region_id': region, 'interface': interface,
                     'url': url, 'enabled': enabled}
         request = response.copy()
         request.pop('id')
-        response['region_id'] = response['region']
         return _EndpointDataV3(endpoint_id, service_id, interface, region,
                                url, enabled, {'endpoint': response},
                                {'endpoint': request})
-
-    def _get_endpoint_v2_data(self, service_id=None, region=None,
-                              public_url=None, admin_url=None,
-                              internal_url=None):
-        endpoint_id = uuid.uuid4().hex
-        service_id = service_id or uuid.uuid4().hex
-        region = region or uuid.uuid4().hex
-        response = {'id': endpoint_id, 'service_id': service_id,
-                    'region': region}
-        v3_endpoints = {}
-        request = response.copy()
-        request.pop('id')
-        if admin_url:
-            response['adminURL'] = admin_url
-            v3_endpoints['admin'] = self._get_endpoint_v3_data(
-                service_id, region, public_url, interface='admin')
-        if internal_url:
-            response['internalURL'] = internal_url
-            v3_endpoints['internal'] = self._get_endpoint_v3_data(
-                service_id, region, internal_url, interface='internal')
-        if public_url:
-            response['publicURL'] = public_url
-            v3_endpoints['public'] = self._get_endpoint_v3_data(
-                service_id, region, public_url, interface='public')
-        request = response.copy()
-        request.pop('id')
-        for u in ('publicURL', 'internalURL', 'adminURL'):
-            if request.get(u):
-                request[u.lower()] = request.pop(u)
-        return _EndpointDataV2(endpoint_id, service_id, region, public_url,
-                               internal_url, admin_url, v3_endpoints,
-                               {'endpoint': response}, {'endpoint': request})
 
     def _get_role_data(self, role_name=None):
         role_id = uuid.uuid4().hex
