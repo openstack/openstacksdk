@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 from openstack import utils
 
 
-class Project(resource.Resource, resource.TagMixin):
+class Project(resource.Resource, tag.TagMixin):
     resource_key = 'project'
     resources_key = 'projects'
     base_path = '/projects'
@@ -33,7 +33,7 @@ class Project(resource.Resource, resource.TagMixin):
         'name',
         'parent_id',
         is_enabled='enabled',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties

@@ -9,11 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 
 
-class L7Policy(resource.Resource, resource.TagMixin):
+class L7Policy(resource.Resource, tag.TagMixin):
     resource_key = 'l7policy'
     resources_key = 'l7policies'
     base_path = '/lbaas/l7policies'
@@ -30,7 +30,7 @@ class L7Policy(resource.Resource, resource.TagMixin):
         'redirect_pool_id', 'redirect_url', 'provisioning_status',
         'operating_status', 'redirect_prefix', 'project_id',
         is_admin_state_up='admin_state_up',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     #: Properties

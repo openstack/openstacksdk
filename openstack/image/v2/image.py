@@ -9,13 +9,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from openstack.common import tag
 from openstack import exceptions
 from openstack.image import _download
 from openstack import resource
 from openstack import utils
 
 
-class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
+class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     resources_key = 'images'
     base_path = '/images'
 

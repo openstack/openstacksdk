@@ -9,11 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 
 
-class SubnetPool(resource.Resource, resource.TagMixin):
+class SubnetPool(resource.Resource, tag.TagMixin):
     resource_key = 'subnetpool'
     resources_key = 'subnetpools'
     base_path = '/subnetpools'
@@ -31,7 +31,7 @@ class SubnetPool(resource.Resource, resource.TagMixin):
         'address_scope_id', 'description', 'ip_version', 'is_default',
         'name', 'project_id',
         is_shared='shared',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties

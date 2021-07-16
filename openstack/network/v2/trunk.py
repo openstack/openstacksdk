@@ -9,13 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
 
-class Trunk(resource.Resource, resource.TagMixin):
+class Trunk(resource.Resource, tag.TagMixin):
     resource_key = 'trunk'
     resources_key = 'trunks'
     base_path = '/trunks'
@@ -33,7 +33,7 @@ class Trunk(resource.Resource, resource.TagMixin):
         'name', 'description', 'port_id', 'status', 'sub_ports',
         'project_id',
         is_admin_state_up='admin_state_up',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties

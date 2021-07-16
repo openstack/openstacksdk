@@ -9,7 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack.compute.v2 import metadata
 from openstack import exceptions
 from openstack.image.v2 import image
@@ -26,7 +26,7 @@ CONSOLE_TYPE_ACTION_MAPPING = {
 }
 
 
-class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
+class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     resource_key = 'server'
     resources_key = 'servers'
     base_path = '/servers'
@@ -60,7 +60,7 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         changes_before="changes-before",
         id="uuid",
         all_projects="all_tenants",
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     _max_microversion = '2.72'

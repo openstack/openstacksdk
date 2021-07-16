@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack.network.v2 import _base
 from openstack import resource
 
 
-class Port(_base.NetworkResource, resource.TagMixin):
+class Port(_base.NetworkResource, tag.TagMixin):
     resource_key = 'port'
     resources_key = 'ports'
     base_path = '/ports'
@@ -35,7 +35,7 @@ class Port(_base.NetworkResource, resource.TagMixin):
         'subnet_id', 'project_id',
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
