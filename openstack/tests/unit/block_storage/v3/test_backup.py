@@ -14,9 +14,10 @@ from unittest import mock
 
 from keystoneauth1 import adapter
 
-from openstack import exceptions
 from openstack.block_storage.v3 import backup
+from openstack import exceptions
 from openstack.tests.unit import base
+
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 

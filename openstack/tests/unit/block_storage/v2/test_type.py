@@ -14,9 +14,9 @@ from unittest import mock
 from keystoneauth1 import adapter
 
 
+from openstack.block_storage.v2 import type
 from openstack.tests.unit import base
 
-from openstack.block_storage.v2 import type
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 TYPE = {

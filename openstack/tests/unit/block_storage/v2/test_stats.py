@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_storage.v2 import stats
 from openstack.tests.unit import base
 
-from openstack.block_storage.v2 import stats
 
 POOLS = {"name": "pool1",
          "capabilities": {
