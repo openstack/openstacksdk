@@ -149,3 +149,10 @@ Extension Operations
 .. autoclass:: openstack.compute.v2._proxy.Proxy
   :noindex:
   :members: find_extension, extensions
+
+QuotaSet Operations
+^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.compute.v2._proxy.Proxy
+  :noindex:
+  :members: get_quota_set, get_quota_set_defaults,
+            revert_quota_set, update_quota_set

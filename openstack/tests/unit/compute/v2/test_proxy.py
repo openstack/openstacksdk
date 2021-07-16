@@ -21,12 +21,14 @@ from openstack.compute.v2 import hypervisor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
 from openstack.compute.v2 import limits
+from openstack.compute.v2 import quota_set
 from openstack.compute.v2 import server
 from openstack.compute.v2 import server_group
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import server_remote_console
 from openstack.compute.v2 import service
+from openstack import resource
 from openstack.tests.unit import test_proxy_base
 
 
@@ -1079,3 +1081,86 @@ class TestCompute(TestComputeProxy):
                                type='fake_type',
                                protocol=None)
         self.assertEqual(console_fake['url'], ret['url'])
+
+
+class TestQuota(TestComputeProxy):
+    def test_get(self):
+        self._verify(
+            'openstack.resource.Resource.fetch',
+            self.proxy.get_quota_set,
+            method_args=['prj'],
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'error_message': None,
+                'requires_id': False,
+                'usage': False,
+            },
+            method_result=quota_set.QuotaSet(),
+            expected_result=quota_set.QuotaSet()
+        )
+
+    def test_get_query(self):
+        self._verify(
+            'openstack.resource.Resource.fetch',
+            self.proxy.get_quota_set,
+            method_args=['prj'],
+            method_kwargs={
+                'usage': True,
+                'user_id': 'uid'
+            },
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'error_message': None,
+                'requires_id': False,
+                'usage': True,
+                'user_id': 'uid'
+            }
+        )
+
+    def test_get_defaults(self):
+        self._verify(
+            'openstack.resource.Resource.fetch',
+            self.proxy.get_quota_set_defaults,
+            method_args=['prj'],
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'error_message': None,
+                'requires_id': False,
+                'base_path': '/os-quota-sets/defaults'
+            }
+        )
+
+    def test_reset(self):
+        self._verify(
+            'openstack.resource.Resource.delete',
+            self.proxy.revert_quota_set,
+            method_args=['prj'],
+            method_kwargs={'user_id': 'uid'},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'user_id': 'uid'
+            }
+        )
+
+    @mock.patch('openstack.proxy.Proxy._get_resource', autospec=True)
+    def test_update(self, gr_mock):
+        gr_mock.return_value = resource.Resource()
+        gr_mock.commit = mock.Mock()
+        self._verify(
+            'openstack.resource.Resource.commit',
+            self.proxy.update_quota_set,
+            method_args=['qs'],
+            method_kwargs={
+                'query': {'user_id': 'uid'},
+                'a': 'b',
+            },
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'user_id': 'uid'
+            }
+        )
+        gr_mock.assert_called_with(
+            self.proxy,
+            quota_set.QuotaSet,
+            'qs', a='b'
+        )
