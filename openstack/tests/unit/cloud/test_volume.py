@@ -13,8 +13,8 @@
 
 import testtools
 
-import openstack.cloud
 from openstack.block_storage.v3 import volume
+import openstack.cloud
 from openstack.cloud import meta
 from openstack.compute.v2 import volume_attachment
 from openstack.tests import fakes

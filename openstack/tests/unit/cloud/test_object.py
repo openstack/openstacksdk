@@ -18,8 +18,8 @@ from unittest import mock
 import testtools
 
 import openstack.cloud
-import openstack.cloud.openstackcloud as oc_oc
 from openstack.cloud import exc
+import openstack.cloud.openstackcloud as oc_oc
 from openstack import exceptions
 from openstack.object_store.v1 import _proxy
 from openstack.object_store.v1 import container

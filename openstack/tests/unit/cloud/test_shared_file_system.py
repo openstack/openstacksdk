@@ -10,8 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.tests.unit import base
 import uuid
+
+from openstack.tests.unit import base
+
 
 IDENTIFIER = str(uuid.uuid4())
 MANILA_AZ_DICT = {

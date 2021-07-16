@@ -19,9 +19,10 @@ test_cloud_services
 Tests Keystone services commands.
 """
 
+from testtools import matchers
+
 from openstack.cloud.exc import OpenStackCloudException
 from openstack.tests.unit import base
-from testtools import matchers
 
 
 class CloudServices(base.TestCase):

@@ -14,8 +14,9 @@
 import copy
 
 import openstack.cloud
-from openstack.tests.unit import base
 from openstack.tests import fakes
+from openstack.tests.unit import base
+
 
 # TODO(mordred): Move id and name to using a getUniqueString() value
 

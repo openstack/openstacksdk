@@ -21,8 +21,8 @@ Tests floating IP resource methods for Neutron and Nova-network.
 
 from unittest.mock import patch
 
-from openstack import connection
 from openstack.cloud import meta
+from openstack import connection
 from openstack.tests import fakes
 from openstack.tests.unit import base
 

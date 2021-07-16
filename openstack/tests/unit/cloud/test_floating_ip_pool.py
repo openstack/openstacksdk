@@ -20,8 +20,8 @@ Test floating IP pool resource (managed by nova)
 """
 
 from openstack.cloud.exc import OpenStackCloudException
-from openstack.tests.unit import base
 from openstack.tests import fakes
+from openstack.tests.unit import base
 
 
 class TestFloatingIPPool(base.TestCase):

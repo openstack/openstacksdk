@@ -11,10 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openstack.cloud import exc
-from openstack.tests.unit import base
 import testtools
 from testtools import matchers
+
+from openstack.cloud import exc
+from openstack.tests.unit import base
 
 
 class TestRoleAssignment(base.TestCase):
