@@ -712,9 +712,11 @@ class _OpenStackCloudMixin:
     def get_name(self):
         return self.name
 
-    def get_session_endpoint(self, service_key):
+    def get_session_endpoint(self, service_key, **kwargs):
+        if not kwargs:
+            kwargs = {}
         try:
-            return self.config.get_session_endpoint(service_key)
+            return self.config.get_session_endpoint(service_key, **kwargs)
         except keystoneauth1.exceptions.catalog.EndpointNotFound as e:
             self.log.debug(
                 "Endpoint not found in %s cloud: %s", self.name, str(e))
@@ -731,7 +733,7 @@ class _OpenStackCloudMixin:
                     error=str(e)))
         return endpoint
 
-    def has_service(self, service_key):
+    def has_service(self, service_key, version=None):
         if not self.config.has_service(service_key):
             # TODO(mordred) add a stamp here so that we only report this once
             if not (service_key in self._disable_warnings
@@ -742,7 +744,12 @@ class _OpenStackCloudMixin:
                 self._disable_warnings[service_key] = True
             return False
         try:
-            endpoint = self.get_session_endpoint(service_key)
+            kwargs = dict()
+            # If a specific version was requested - try it
+            if version is not None:
+                kwargs['min_version'] = version
+                kwargs['max_version'] = version
+            endpoint = self.get_session_endpoint(service_key, **kwargs)
         except exc.OpenStackCloudException:
             return False
         if endpoint:
