@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support to display node fields ``boot_mode`` and ``secure_boot``
+    which are introduced in API 1.75.

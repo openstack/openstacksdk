@@ -23,6 +23,7 @@ from openstack import utils
 
 # NOTE: Sample data from api-ref doc
 FAKE = {
+    "boot_mode": "uefi",
     "chassis_uuid": "1",  # NOTE: missed in api-ref sample
     "clean_step": {},
     "console_enabled": False,
@@ -81,6 +82,7 @@ FAKE = {
     "raid_config": {},
     "reservation": None,
     "resource_class": None,
+    "secure_boot": True,
     "states": [
         {
             "href": "http://127.0.0.1:6385/v1/nodes/<NODE_ID>/states",
@@ -119,6 +121,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['uuid'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
 
+        self.assertEqual(FAKE['boot_mode'], sot.boot_mode)
         self.assertEqual(FAKE['chassis_uuid'], sot.chassis_id)
         self.assertEqual(FAKE['clean_step'], sot.clean_step)
         self.assertEqual(FAKE['created_at'], sot.created_at)
@@ -145,6 +148,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['raid_config'], sot.raid_config)
         self.assertEqual(FAKE['reservation'], sot.reservation)
         self.assertEqual(FAKE['resource_class'], sot.resource_class)
+        self.assertEqual(FAKE['secure_boot'], sot.is_secure_boot)
         self.assertEqual(FAKE['states'], sot.states)
         self.assertEqual(FAKE['target_provision_state'],
                          sot.target_provision_state)
