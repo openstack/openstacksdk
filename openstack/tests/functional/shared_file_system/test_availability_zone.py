@@ -18,7 +18,7 @@ class AvailabilityZoneTest(base.BaseSharedFileSystemTest):
     min_microversion = '2.7'
 
     def test_availability_zones(self):
-        azs = self.conn.shared_file_system.availability_zones()
+        azs = self.user_cloud.shared_file_system.availability_zones()
         self.assertGreater(len(list(azs)), 0)
         for az in azs:
             for attribute in ('id', 'name', 'created_at', 'updated_at'):

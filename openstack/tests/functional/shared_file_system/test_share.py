@@ -20,41 +20,26 @@ class ShareTest(base.BaseSharedFileSystemTest):
         super(ShareTest, self).setUp()
 
         self.SHARE_NAME = self.getUniqueString()
-        my_share = self.conn.shared_file_system.create_share(
+        my_share = self.create_share(
             name=self.SHARE_NAME, size=2, share_type="dhss_false",
             share_protocol='NFS', description=None)
-        self.conn.shared_file_system.wait_for_status(
-            my_share,
-            status='available',
-            failures=['error'],
-            interval=5,
-            wait=self._wait_for_timeout)
-        self.assertIsNotNone(my_share)
-        self.assertIsNotNone(my_share.id)
         self.SHARE_ID = my_share.id
 
-    def tearDown(self):
-        sot = self.conn.shared_file_system.delete_share(
-            self.SHARE_ID,
-            ignore_missing=True)
-        self.assertIsNone(sot)
-        super(ShareTest, self).tearDown()
-
     def test_get(self):
-        sot = self.conn.shared_file_system.get_share(self.SHARE_ID)
+        sot = self.user_cloud.share.get_share(self.SHARE_ID)
         assert isinstance(sot, _share.Share)
         self.assertEqual(self.SHARE_ID, sot.id)
 
     def test_list_share(self):
-        shares = self.conn.shared_file_system.shares(details=False)
+        shares = self.user_cloud.share.shares(details=False)
         self.assertGreater(len(list(shares)), 0)
         for share in shares:
             for attribute in ('id', 'name', 'created_at', 'updated_at'):
                 self.assertTrue(hasattr(share, attribute))
 
     def test_update(self):
-        updated_share = self.conn.shared_file_system.update_share(
+        updated_share = self.user_cloud.share.update_share(
             self.SHARE_ID, display_description='updated share')
-        get_updated_share = self.conn.shared_file_system.get_share(
+        get_updated_share = self.user_cloud.share.get_share(
             updated_share.id)
         self.assertEqual('updated share', get_updated_share.description)

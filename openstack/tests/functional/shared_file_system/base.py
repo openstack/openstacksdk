@@ -21,10 +21,19 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         super(BaseSharedFileSystemTest, self).setUp()
         self.require_service('shared-file-system',
                              min_microversion=self.min_microversion)
+        self._set_operator_cloud(shared_file_system_api_version='2.63')
+        self._set_user_cloud(shared_file_system_api_version='2.63')
 
     def create_share(self, **kwargs):
-        share = self.conn.share.create_share(**kwargs)
-        self.addCleanup(self.conn.share.delete_share, share.id,
+        share = self.user_cloud.share.create_share(**kwargs)
+        self.addCleanup(self.user_cloud.share.delete_share,
+                        share.id,
                         ignore_missing=True)
+        self.user_cloud.share.wait_for_status(
+            share,
+            status='available',
+            failures=['error'],
+            interval=5,
+            wait=self._wait_for_timeout)
         self.assertIsNotNone(share.id)
         return share
