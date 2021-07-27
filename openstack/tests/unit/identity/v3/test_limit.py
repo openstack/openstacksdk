@@ -29,7 +29,6 @@ class TestLimit(base.TestCase):
 
     def test_basic(self):
         sot = limit.Limit()
-        self.assertEqual('limit', sot.resource_key)
         self.assertEqual('limits', sot.resources_key)
         self.assertEqual('/limits', sot.base_path)
         self.assertTrue(sot.allow_create)

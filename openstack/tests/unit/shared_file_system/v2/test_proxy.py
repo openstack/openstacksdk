@@ -13,6 +13,7 @@
 from unittest import mock
 
 from openstack.shared_file_system.v2 import _proxy
+from openstack.shared_file_system.v2 import limit
 from openstack.shared_file_system.v2 import share
 from openstack.shared_file_system.v2 import storage_pool
 from openstack.shared_file_system.v2 import user_message
@@ -107,3 +108,6 @@ class TestUserMessageProxy(test_proxy_base.TestProxyBase):
     def test_delete_user_message_true(self):
         self.verify_delete(
             self.proxy.delete_user_message, user_message.UserMessage, True)
+
+    def test_limit(self):
+        self.verify_list(self.proxy.limits, limit.Limit)

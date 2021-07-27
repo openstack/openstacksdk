@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to list absolute resource limits on the shared
+    file system service.
