@@ -331,7 +331,8 @@ class _OpenStackCloudMixin:
             name_key = '%s:%s' % (self.name, namespace)
 
         def generate_key(*args, **kwargs):
-            arg_key = ','.join(args)
+            # TODO(frickler): make handling arg keys actually work
+            arg_key = ''
             kw_keys = sorted(kwargs.keys())
             kwargs_key = ','.join(
                 ['%s:%s' % (k, kwargs[k]) for k in kw_keys if k != 'cache'])
