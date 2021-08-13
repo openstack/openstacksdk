@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for changing node states ``boot_mode`` and ``secure_boot``
+    in sync with functionality introduced in API 1.76.
