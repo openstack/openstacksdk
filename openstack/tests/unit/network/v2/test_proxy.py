@@ -31,6 +31,8 @@ from openstack.network.v2 import ipsec_site_connection
 from openstack.network.v2 import l3_conntrack_helper
 from openstack.network.v2 import listener
 from openstack.network.v2 import load_balancer
+from openstack.network.v2 import local_ip
+from openstack.network.v2 import local_ip_association
 from openstack.network.v2 import metering_label
 from openstack.network.v2 import metering_label_rule
 from openstack.network.v2 import network
@@ -67,6 +69,7 @@ AGENT_ID = 'agent-id-' + uuid.uuid4().hex
 ROUTER_ID = 'router-id-' + uuid.uuid4().hex
 FIP_ID = 'fip-id-' + uuid.uuid4().hex
 CT_HELPER_ID = 'ct-helper-id-' + uuid.uuid4().hex
+LOCAL_IP_ID = 'lip-id-' + uuid.uuid4().hex
 
 
 class TestNetworkProxy(test_proxy_base.TestProxyBase):
@@ -491,6 +494,104 @@ class TestNetworkFlavor(TestNetworkProxy):
 
     def test_flavors(self):
         self.verify_list(self.proxy.flavors, flavor.Flavor)
+
+
+class TestNetworkLocalIp(TestNetworkProxy):
+    def test_local_ip_create_attrs(self):
+        self.verify_create(self.proxy.create_local_ip, local_ip.LocalIP)
+
+    def test_local_ip_delete(self):
+        self.verify_delete(self.proxy.delete_local_ip, local_ip.LocalIP,
+                           False, expected_kwargs={'if_revision': None})
+
+    def test_local_ip_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_local_ip, local_ip.LocalIP,
+                           True, expected_kwargs={'if_revision': None})
+
+    def test_local_ip_delete_if_revision(self):
+        self.verify_delete(self.proxy.delete_local_ip, local_ip.LocalIP,
+                           True, method_kwargs={'if_revision': 42},
+                           expected_kwargs={'if_revision': 42})
+
+    def test_local_ip_find(self):
+        self.verify_find(self.proxy.find_local_ip, local_ip.LocalIP)
+
+    def test_local_ip_get(self):
+        self.verify_get(self.proxy.get_local_ip, local_ip.LocalIP)
+
+    def test_local_ips(self):
+        self.verify_list(self.proxy.local_ips, local_ip.LocalIP)
+
+    def test_local_ip_update(self):
+        self.verify_update(self.proxy.update_local_ip, local_ip.LocalIP,
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': None})
+
+    def test_local_ip_update_if_revision(self):
+        self.verify_update(self.proxy.update_local_ip, local_ip.LocalIP,
+                           method_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                          'if_revision': 42},
+                           expected_kwargs={'x': 1, 'y': 2, 'z': 3,
+                                            'if_revision': 42})
+
+
+class TestNetworkLocalIpAssociation(TestNetworkProxy):
+    def test_local_ip_association_create_attrs(self):
+        self.verify_create(self.proxy.create_local_ip_association,
+                           local_ip_association.LocalIPAssociation,
+                           method_kwargs={'local_ip': LOCAL_IP_ID},
+                           expected_kwargs={'local_ip_id': LOCAL_IP_ID})
+
+    def test_local_ip_association_delete(self):
+        self.verify_delete(
+            self.proxy.delete_local_ip_association,
+            local_ip_association.LocalIPAssociation,
+            ignore_missing=False,
+            method_args=[LOCAL_IP_ID, "resource_or_id"],
+            expected_args=["resource_or_id"],
+            expected_kwargs={'if_revision': None,
+                             'local_ip_id': LOCAL_IP_ID})
+
+    def test_local_ip_association_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_local_ip_association,
+            local_ip_association.LocalIPAssociation,
+            ignore_missing=True,
+            method_args=[LOCAL_IP_ID, "resource_or_id"],
+            expected_args=["resource_or_id"],
+            expected_kwargs={'if_revision': None,
+                             'local_ip_id': LOCAL_IP_ID})
+
+    def test_local_ip_association_find(self):
+        lip = local_ip.LocalIP.new(id=LOCAL_IP_ID)
+
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_local_ip_association,
+            method_args=['local_ip_association_id', lip],
+            expected_args=[
+                local_ip_association.LocalIPAssociation,
+                'local_ip_association_id'],
+            expected_kwargs={
+                'ignore_missing': True, 'local_ip_id': LOCAL_IP_ID})
+
+    def test_local_ip_association_get(self):
+        lip = local_ip.LocalIP.new(id=LOCAL_IP_ID)
+
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_local_ip_association,
+            method_args=['local_ip_association_id', lip],
+            expected_args=[
+                local_ip_association.LocalIPAssociation,
+                'local_ip_association_id'],
+            expected_kwargs={'local_ip_id': LOCAL_IP_ID})
+
+    def test_local_ip_associations(self):
+        self.verify_list(self.proxy.local_ip_associations,
+                         local_ip_association.LocalIPAssociation,
+                         method_kwargs={'local_ip': LOCAL_IP_ID},
+                         expected_kwargs={'local_ip_id': LOCAL_IP_ID})
 
 
 class TestNetworkServiceProfile(TestNetworkProxy):

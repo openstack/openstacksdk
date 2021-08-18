@@ -30,6 +30,8 @@ from openstack.network.v2 import ipsec_site_connection as \
 from openstack.network.v2 import l3_conntrack_helper as _l3_conntrack_helper
 from openstack.network.v2 import listener as _listener
 from openstack.network.v2 import load_balancer as _load_balancer
+from openstack.network.v2 import local_ip as _local_ip
+from openstack.network.v2 import local_ip_association as _local_ip_association
 from openstack.network.v2 import metering_label as _metering_label
 from openstack.network.v2 import metering_label_rule as _metering_label_rule
 from openstack.network.v2 import network as _network
@@ -621,6 +623,206 @@ class Proxy(proxy.Proxy):
             _service_profile.ServiceProfile, service_profile)
         return flavor.disassociate_flavor_from_service_profile(
             self, service_profile.id)
+
+    def create_local_ip(self, **attrs):
+        """Create a new local ip from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.local_ip.LocalIP`,
+            comprised of the properties on the LocalIP class.
+
+        :returns: The results of local ip creation
+        :rtype: :class:`~openstack.network.v2.local_ip.LocalIP`
+        """
+        return self._create(_local_ip.LocalIP, **attrs)
+
+    def delete_local_ip(self, local_ip, ignore_missing=True, if_revision=None):
+        """Delete a local ip
+
+        :param local_ip: The value can be either the ID of a local ip or a
+            :class:`~openstack.network.v2.local_ip.LocalIP`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the local ip does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent ip.
+        :param int if_revision: Revision to put in If-Match header of update
+            request to perform compare-and-swap update.
+
+        :returns: ``None``
+        """
+        self._delete(_local_ip.LocalIP, local_ip,
+                     ignore_missing=ignore_missing, if_revision=if_revision)
+
+    def find_local_ip(self, name_or_id, ignore_missing=True, **args):
+        """Find a local IP
+
+        :param name_or_id: The name or ID of an local IP.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.local_ip.LocalIP`
+            or None
+        """
+        return self._find(_local_ip.LocalIP, name_or_id,
+                          ignore_missing=ignore_missing, **args)
+
+    def get_local_ip(self, local_ip):
+        """Get a single local ip
+
+        :param local_ip: The value can be the ID of a local ip or a
+            :class:`~openstack.network.v2.local_ip.LocalIP`
+            instance.
+
+        :returns: One :class:`~openstack.network.v2.local_ip.LocalIP`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_local_ip.LocalIP, local_ip)
+
+    def local_ips(self, **query):
+        """Return a generator of local ips
+
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+            * ``name``: Local IP name
+            * ``description``: Local IP description
+            * ``project_id``: Owner project ID
+
+        :returns: A generator of local ip objects
+        :rtype: :class:`~openstack.network.v2.local_ip.LocalIP`
+        """
+        return self._list(_local_ip.LocalIP, **query)
+
+    def update_local_ip(self, local_ip, if_revision=None, **attrs):
+        """Update a local ip
+
+        :param local_ip: Either the id of a local ip or a
+            :class:`~openstack.network.v2.local_ip.LocalIP`
+            instance.
+        :param int if_revision: Revision to put in If-Match header of update
+            request to perform compare-and-swap update.
+        :param dict attrs: The attributes to update on the ip represented
+            by ``value``.
+
+        :returns: The updated ip
+        :rtype: :class:`~openstack.network.v2.local_ip.LocalIP`
+        """
+        return self._update(_local_ip.LocalIP, local_ip,
+                            if_revision=if_revision, **attrs)
+
+    def create_local_ip_association(self, local_ip, **attrs):
+        """Create a new local ip association from attributes
+
+        :param local_ip: The value can be the ID of a Local IP or a
+            :class:`~openstack.network.v2.local_ip.LocalIP`
+            instance.
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.
+            local_ip_association.LocalIPAssociation`,
+            comprised of the properties on the LocalIP class.
+
+        :returns: The results of local ip association creation
+        :rtype: :class:`~openstack.network.v2.local_ip_association.
+            LocalIPAssociation`
+        """
+        local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
+        return self._create(_local_ip_association.LocalIPAssociation,
+                            local_ip_id=local_ip.id, **attrs)
+
+    def delete_local_ip_association(self, local_ip, fixed_port_id,
+                                    ignore_missing=True, if_revision=None):
+        """Delete a local ip association
+
+        :param local_ip: The value can be the ID of a Local IP or a
+            :class:`~openstack.network.v2.local_ip.LocalIP`
+            instance.
+        :param fixed_port_id: The value can be either the fixed port ID
+            or a :class:
+            `~openstack.network.v2.local_ip_association.LocalIPAssociation`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the local ip association does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent ip.
+        :param int if_revision: Revision to put in If-Match header of update
+            request to perform compare-and-swap update.
+
+        :returns: ``None``
+        """
+        local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
+        self._delete(_local_ip_association.LocalIPAssociation, fixed_port_id,
+                     local_ip_id=local_ip.id,
+                     ignore_missing=ignore_missing, if_revision=if_revision)
+
+    def find_local_ip_association(self, name_or_id, local_ip,
+                                  ignore_missing=True, **args):
+        """Find a local ip association
+
+        :param name_or_id: The name or ID of  local ip association.
+        :param local_ip: The value can be the ID of a Local IP or a
+            :class:`~openstack.network.v2.local_ip.LocalIP`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.
+            local_ip_association.LocalIPAssociation`
+            or None
+        """
+        local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
+        return self._find(_local_ip_association.LocalIPAssociation, name_or_id,
+                          local_ip_id=local_ip.id,
+                          ignore_missing=ignore_missing, **args)
+
+    def get_local_ip_association(self, local_ip_association, local_ip):
+        """Get a single local ip association
+
+        :param local_ip: The value can be the ID of a Local IP or a
+            :class:`~openstack.network.v2.local_ip.LocalIP`
+            instance.
+        :param local_ip_association: The value can be the ID
+            of a local ip association or a
+            :class:`~openstack.network.v2.
+            local_ip_association.LocalIPAssociation`
+            instance.
+
+        :returns: One :class:`~openstack.network.v2.
+            local_ip_association.LocalIPAssociation`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
+        return self._get(_local_ip_association.LocalIPAssociation,
+                         local_ip_association,
+                         local_ip_id=local_ip.id)
+
+    def local_ip_associations(self, local_ip, **query):
+        """Return a generator of local ip associations
+
+        :param local_ip: The value can be the ID of a Local IP or a
+            :class:`~openstack.network.v2.local_ip.LocalIP` instance.
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of local ip association objects
+        :rtype: :class:`~openstack.network.v2.
+            local_ip_association.LocalIPAssociation`
+        """
+        local_ip = self._get_resource(_local_ip.LocalIP, local_ip)
+        return self._list(_local_ip_association.LocalIPAssociation,
+                          local_ip_id=local_ip.id, **query)
 
     def create_ip(self, **attrs):
         """Create a new floating ip from attributes

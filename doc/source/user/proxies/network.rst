@@ -265,3 +265,13 @@ Service Provider Operations
 .. autoclass:: openstack.network.v2._proxy.Proxy
   :noindex:
   :members: service_providers
+
+Local IP Operations
+^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_local_ip, delete_local_ip, find_local_ip, get_local_ip,
+            local_ips, update_local_ip, create_local_ip_association,
+            delete_local_ip_association, find_local_ip_association,
+            get_local_ip_association, local_ip_associations
