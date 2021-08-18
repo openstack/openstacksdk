@@ -36,6 +36,7 @@ class Port(_base.NetworkResource, resource.TagMixin):
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
         project_id='tenant_id',
+        security_group_ids='security_groups',
         **resource.TagMixin._tag_query_parameters
     )
 
