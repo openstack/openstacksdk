@@ -232,11 +232,13 @@ class TestStack(base.TestCase):
         self.assertEqual(sot, sot.fetch(sess))
         sess.get.assert_called_with(
             'stacks/{id}'.format(id=sot.id),
-            microversion=None)
+            microversion=None,
+            skip_cache=False)
         sot.fetch(sess, resolve_outputs=False)
         sess.get.assert_called_with(
             'stacks/{id}?resolve_outputs=False'.format(id=sot.id),
-            microversion=None)
+            microversion=None,
+            skip_cache=False)
         ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)
         self.assertEqual('oops', str(ex))
         ex = self.assertRaises(exceptions.ResourceNotFound, sot.fetch, sess)

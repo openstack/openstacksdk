@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
 import queue
 from unittest import mock
 
@@ -35,7 +36,7 @@ class CreateableResource(resource.Resource):
 
 
 class RetrieveableResource(resource.Resource):
-    allow_retrieve = True
+    allow_fetch = True
 
 
 class ListableResource(resource.Resource):
@@ -380,6 +381,7 @@ class TestProxyGet(base.TestCase):
         self.res.fetch.assert_called_with(
             self.sot, requires_id=True,
             base_path=None,
+            skip_cache=mock.ANY,
             error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
@@ -390,6 +392,7 @@ class TestProxyGet(base.TestCase):
         self.res._update.assert_called_once_with(**args)
         self.res.fetch.assert_called_with(
             self.sot, requires_id=True, base_path=None,
+            skip_cache=mock.ANY,
             error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
@@ -400,6 +403,7 @@ class TestProxyGet(base.TestCase):
             connection=self.cloud, id=self.fake_id)
         self.res.fetch.assert_called_with(
             self.sot, requires_id=True, base_path=None,
+            skip_cache=mock.ANY,
             error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
@@ -412,6 +416,7 @@ class TestProxyGet(base.TestCase):
             connection=self.cloud, id=self.fake_id)
         self.res.fetch.assert_called_with(
             self.sot, requires_id=True, base_path=base_path,
+            skip_cache=mock.ANY,
             error_message=mock.ANY)
         self.assertEqual(rv, self.fake_result)
 
@@ -519,6 +524,116 @@ class TestExtractName(base.TestCase):
 
         results = proxy.Proxy(mock.Mock())._extract_name(self.url)
         self.assertEqual(self.parts, results)
+
+
+class TestProxyCache(base.TestCase):
+
+    class Res(resource.Resource):
+        base_path = 'fake'
+
+        allow_commit = True
+        allow_fetch = True
+
+        foo = resource.Body('foo')
+
+    def setUp(self):
+        super(TestProxyCache, self).setUp(
+            cloud_config_fixture='clouds_cache.yaml')
+
+        self.session = mock.Mock()
+        self.session._sdk_connection = self.cloud
+        self.session.get_project_id = mock.Mock(return_value='fake_prj')
+
+        self.response = mock.Mock()
+        self.response.status_code = 200
+        self.response.history = []
+        self.response.headers = {}
+        self.response.body = {}
+        self.response.json = mock.Mock(
+            return_value=self.response.body)
+        self.session.request = mock.Mock(
+            return_value=self.response)
+
+        self.sot = proxy.Proxy(self.session)
+        self.sot._connection = self.cloud
+        self.sot.service_type = 'srv'
+
+    def _get_key(self, id):
+        return (
+            f"srv.fake.fake/{id}."
+            "{'microversion': None, 'params': {}}")
+
+    def test_get_not_in_cache(self):
+        self.cloud._cache_expirations['srv.fake'] = 5
+        self.sot._get(self.Res, '1')
+
+        self.session.request.assert_called_with(
+            'fake/1',
+            'GET',
+            connect_retries=mock.ANY, raise_exc=mock.ANY,
+            global_request_id=mock.ANY,
+            endpoint_filter=mock.ANY,
+            headers=mock.ANY,
+            microversion=mock.ANY, params=mock.ANY
+        )
+        self.assertIn(
+            self._get_key(1),
+            self.cloud._api_cache_keys)
+
+    def test_get_from_cache(self):
+        key = self._get_key(2)
+
+        self.cloud._cache.set(key, self.response)
+        # set expiration for the resource to respect cache
+        self.cloud._cache_expirations['srv.fake'] = 5
+
+        self.sot._get(self.Res, '2')
+        self.session.request.assert_not_called()
+
+    def test_modify(self):
+        key = self._get_key(3)
+
+        self.cloud._cache.set(key, self.response)
+        self.cloud._api_cache_keys.add(key)
+        self.cloud._cache_expirations['srv.fake'] = 5
+
+        # Ensure first call gets value from cache
+        self.sot._get(self.Res, '3')
+        self.session.request.assert_not_called()
+
+        # update call invalidates the cache and triggers API
+        rs = self.Res.existing(id='3')
+        self.sot._update(self.Res, rs, foo='bar')
+
+        self.session.request.assert_called()
+        self.assertIsNotNone(self.cloud._cache.get(key))
+        self.assertEqual(
+            'NoValue',
+            type(self.cloud._cache.get(key)).__name__)
+        self.assertNotIn(key, self.cloud._api_cache_keys)
+
+        # next get call again triggers API
+        self.sot._get(self.Res, '3')
+        self.session.request.assert_called()
+
+    def test_get_bypass_cache(self):
+        key = self._get_key(4)
+
+        resp = copy.deepcopy(self.response)
+        resp.body = {'foo': 'bar'}
+        self.cloud._api_cache_keys.add(key)
+        self.cloud._cache.set(key, resp)
+        # set expiration for the resource to respect cache
+        self.cloud._cache_expirations['srv.fake'] = 5
+
+        self.sot._get(self.Res, '4', skip_cache=True)
+        self.session.request.assert_called()
+        # validate we got empty body as expected, and not what is in cache
+        self.assertEqual(dict(), self.response.body)
+        self.assertNotIn(key, self.cloud._api_cache_keys)
+        self.assertEqual(
+            'NoValue',
+            type(self.cloud._cache.get(key)).__name__)
 
 
 class TestProxyCleanup(base.TestCase):

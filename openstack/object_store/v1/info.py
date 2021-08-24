@@ -33,8 +33,10 @@ class Info(resource.Resource):
     staticweb = resource.Body("staticweb", type=dict)
     tempurl = resource.Body("tempurl", type=dict)
 
-    def fetch(self, session, requires_id=False,
-              base_path=None, error_message=None):
+    def fetch(
+        self, session, requires_id=False,
+        base_path=None, skip_cache=False, error_message=None
+    ):
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.

@@ -158,7 +158,8 @@ class TestProxyBase(base.TestCase):
             res.fetch.assert_called_once_with(
                 proxy, requires_id=True,
                 base_path=None,
-                error_message=mock.ANY)
+                error_message=mock.ANY,
+                skip_cache=False)
 
     def verify_head(
         self, test_method, resource_type, base_path=None, *,

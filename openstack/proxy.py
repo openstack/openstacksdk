@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import functools
 import urllib
 from urllib.parse import urlparse
 
@@ -84,21 +85,79 @@ class Proxy(adapter.Adapter):
             log_name = 'openstack'
         self.log = _log.setup_logging(log_name)
 
+    def _get_cache_key_prefix(self, url):
+        """Calculate cache prefix for the url"""
+        name_parts = self._extract_name(
+            url, self.service_type,
+            self.session.get_project_id())
+
+        return '.'.join(
+            [self.service_type]
+            + name_parts)
+
+    def _invalidate_cache(self, conn, key_prefix):
+        """Invalidate all cache entries starting with given prefix"""
+        for k in set(conn._api_cache_keys):
+            if k.startswith(key_prefix):
+                conn._cache.delete(k)
+                conn._api_cache_keys.remove(k)
+
     def request(
             self, url, method, error_message=None,
             raise_exc=False, connect_retries=1,
-            global_request_id=None, *args, **kwargs):
+            global_request_id=None,
+            *args, **kwargs):
+        conn = self._get_connection()
         if not global_request_id:
-            conn = self._get_connection()
-            if conn:
-                # Per-request setting should take precedence
-                global_request_id = conn._global_request_id
+            # Per-request setting should take precedence
+            global_request_id = conn._global_request_id
+
+        key = None
+        key_prefix = self._get_cache_key_prefix(url)
+        # The caller might want to force cache bypass.
+        skip_cache = kwargs.pop('skip_cache', False)
+        if conn.cache_enabled:
+            # Construct cache key. It consists of:
+            # service.name_parts.URL.str(kwargs)
+            key = '.'.join(
+                [key_prefix, url, str(kwargs)]
+            )
+
+            # Track cache key for invalidating possibility
+            conn._api_cache_keys.add(key)
+
         try:
-            response = super(Proxy, self).request(
-                url, method,
-                connect_retries=connect_retries, raise_exc=raise_exc,
-                global_request_id=global_request_id,
-                **kwargs)
+            if conn.cache_enabled and not skip_cache and method == 'GET':
+                # Get the object expiration time from config
+                # default to 0 to disable caching for this resource type
+                expiration_time = int(
+                    conn._cache_expirations.get(key_prefix, 0))
+                # Get from cache or execute and cache
+                response = conn._cache.get_or_create(
+                    key=key,
+                    creator=super(Proxy, self).request,
+                    creator_args=(
+                        [url, method],
+                        dict(
+                            connect_retries=connect_retries,
+                            raise_exc=raise_exc,
+                            global_request_id=global_request_id,
+                            **kwargs
+                        )
+                    ),
+                    expiration_time=expiration_time
+                )
+            else:
+                # invalidate cache if we send modification request or user
+                # asked for cache bypass
+                self._invalidate_cache(conn, key_prefix)
+                # Pass through the API request bypassing cache
+                response = super(Proxy, self).request(
+                    url, method,
+                    connect_retries=connect_retries, raise_exc=raise_exc,
+                    global_request_id=global_request_id,
+                    **kwargs)
+
             for h in response.history:
                 self._report_stats(h)
             self._report_stats(response)
@@ -111,6 +170,7 @@ class Proxy(adapter.Adapter):
             self._report_stats(None, url, method, e)
             raise
 
+    @functools.lru_cache(maxsize=256)
     def _extract_name(self, url, service_type=None, project_id=None):
         '''Produce a key name to use in logging/metrics from the URL path.
 
@@ -484,7 +544,7 @@ class Proxy(adapter.Adapter):
 
     @_check_resource(strict=False)
     def _get(self, resource_type, value=None, requires_id=True,
-             base_path=None, **attrs):
+             base_path=None, skip_cache=False, **attrs):
         """Fetch a resource
 
         :param resource_type: The type of resource to get.
@@ -495,6 +555,8 @@ class Proxy(adapter.Adapter):
         :param str base_path: Base part of the URI for fetching resources, if
             different from
             :data:`~openstack.resource.Resource.base_path`.
+        :param bool skip_cache: A boolean indicating whether optional API
+            cache should be skipped for this invocation.
         :param dict attrs: Attributes to be passed onto the
             :meth:`~openstack.resource.Resource.get`
             method. These should correspond
@@ -509,6 +571,7 @@ class Proxy(adapter.Adapter):
 
         return res.fetch(
             self, requires_id=requires_id, base_path=base_path,
+            skip_cache=skip_cache,
             error_message="No {resource_type} found for {value}".format(
                 resource_type=resource_type.__name__, value=value))
 

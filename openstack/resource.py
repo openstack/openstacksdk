@@ -1480,6 +1480,7 @@ class Resource(dict):
         requires_id=True,
         base_path=None,
         error_message=None,
+        skip_cache=False,
         **params,
     ):
         """Get a remote resource based on this instance.
@@ -1492,6 +1493,8 @@ class Resource(dict):
             different from :data:`~openstack.resource.Resource.base_path`.
         :param str error_message: An Error message to be returned if
             requested object does not exist.
+        :param bool skip_cache: A boolean indicating whether optional API
+            cache should be skipped for this invocation.
         :param dict params: Additional parameters that can be consumed.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1507,7 +1510,8 @@ class Resource(dict):
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'fetch')
         response = session.get(request.url, microversion=microversion,
-                               params=params)
+                               params=params,
+                               skip_cache=skip_cache)
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
@@ -2078,7 +2082,7 @@ def wait_for_status(
             timeout=wait,
             message=msg,
             wait=interval):
-        resource = resource.fetch(session)
+        resource = resource.fetch(session, skip_cache=True)
 
         if not resource:
             raise exceptions.ResourceFailure(
@@ -2120,7 +2124,7 @@ def wait_for_delete(session, resource, interval, wait):
                 id=resource.id),
             wait=interval):
         try:
-            resource = resource.fetch(session)
+            resource = resource.fetch(session, skip_cache=True)
             if not resource:
                 return orig_resource
             if resource.status.lower() == 'deleted':

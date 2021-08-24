@@ -535,12 +535,13 @@ class TestMemoryCache(base.TestCase):
         down_port = test_port.TestPort.mock_neutron_port_create_rep['port']
         active_port = down_port.copy()
         active_port['status'] = 'ACTIVE'
-        # We're testing to make sure a query string isn't passed when we're
-        # caching, but that the results are still filtered.
+        # We're testing to make sure a query string is passed when we're
+        # caching (cache by url), and that the results are still filtered.
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'ports']),
+                     'network', 'public', append=['v2.0', 'ports'],
+                     qs_elements=['status=DOWN']),
                  json={'ports': [
                      down_port,
                      active_port,

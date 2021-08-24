@@ -407,7 +407,8 @@ class TestImage(base.TestCase):
         self.sess.get.assert_has_calls(
             [mock.call('images/IDENTIFIER/file',
                        stream=False),
-             mock.call('images/IDENTIFIER', microversion=None, params={})])
+             mock.call('images/IDENTIFIER', microversion=None, params={},
+                       skip_cache=False)])
 
         self.assertEqual(rv, resp1)
 
@@ -436,7 +437,8 @@ class TestImage(base.TestCase):
         self.sess.get.assert_has_calls(
             [mock.call('images/IDENTIFIER/file',
                        stream=False),
-             mock.call('images/IDENTIFIER', microversion=None, params={})])
+             mock.call('images/IDENTIFIER', microversion=None, params={},
+                       skip_cache=False)])
 
         self.assertEqual(rv, resp1)
 
@@ -536,7 +538,7 @@ class TestImage(base.TestCase):
 
         self.sess.get.assert_has_calls([
             mock.call('images/' + EXAMPLE['name'], microversion=None,
-                      params={}),
+                      params={}, skip_cache=False),
             mock.call('/images', headers={'Accept': 'application/json'},
                       microversion=None, params={'name': EXAMPLE['name']}),
             mock.call('/images', headers={'Accept': 'application/json'},
