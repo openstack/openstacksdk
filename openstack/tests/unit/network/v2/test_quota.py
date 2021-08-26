@@ -32,6 +32,7 @@ EXAMPLE = {
     'loadbalancer': 13,
     'l7policy': 14,
     'pool': 15,
+    'check_limit': True,
 }
 
 
@@ -66,6 +67,7 @@ class TestQuota(base.TestCase):
         self.assertEqual(EXAMPLE['loadbalancer'], sot.load_balancers)
         self.assertEqual(EXAMPLE['l7policy'], sot.l7_policies)
         self.assertEqual(EXAMPLE['pool'], sot.pools)
+        self.assertEqual(EXAMPLE['check_limit'], sot.check_limit)
 
     def test_prepare_request(self):
         body = {'id': 'ABCDEFGH', 'network': '12345'}
@@ -112,4 +114,5 @@ class TestQuotaDefault(base.TestCase):
         self.assertEqual(EXAMPLE['loadbalancer'], sot.load_balancers)
         self.assertEqual(EXAMPLE['l7policy'], sot.l7_policies)
         self.assertEqual(EXAMPLE['pool'], sot.pools)
+        self.assertEqual(EXAMPLE['check_limit'], sot.check_limit)
         self.assertEqual('FAKE_PROJECT', sot.project)
