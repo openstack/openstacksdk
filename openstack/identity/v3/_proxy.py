@@ -362,6 +362,45 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_group.Group, group, **attrs)
 
+    def add_user_to_group(self, user, group):
+        """Add user to group
+
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
+        :param group: Either the ID of a group or a
+            :class:`~openstack.identity.v3.group.Group` instance.
+        :return: ``None``
+        """
+        user = self._get_resource(_user.User, user)
+        group = self._get_resource(_group.Group, group)
+        group.add_user(self, user)
+
+    def remove_user_from_group(self, user, group):
+        """Remove user to group
+
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
+        :param group: Either the ID of a group or a
+            :class:`~openstack.identity.v3.group.Group` instance.
+        :return: ``None``
+        """
+        user = self._get_resource(_user.User, user)
+        group = self._get_resource(_group.Group, group)
+        group.remove_user(self, user)
+
+    def check_user_in_group(self, user, group):
+        """Check whether user belongsto group
+
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
+        :param group: Either the ID of a group or a
+            :class:`~openstack.identity.v3.group.Group` instance.
+        :return: A boolean representing current relation
+        """
+        user = self._get_resource(_user.User, user)
+        group = self._get_resource(_group.Group, group)
+        return group.check_user(self, user)
+
     def create_policy(self, **attrs):
         """Create a new policy from attributes
 

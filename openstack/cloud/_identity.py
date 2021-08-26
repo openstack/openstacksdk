@@ -295,11 +295,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
-        error_msg = "Error adding user {user} to group {group}".format(
-            user=name_or_id, group=group_name_or_id)
-        self._identity_client.put(
-            '/groups/{g}/users/{u}'.format(g=group['id'], u=user['id']),
-            error_message=error_msg)
+        self.identity.add_user_to_group(user, group)
 
     def is_user_in_group(self, name_or_id, group_name_or_id):
         """Check to see if a user is in a group.
@@ -314,14 +310,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
-        try:
-            self._identity_client.head(
-                '/groups/{g}/users/{u}'.format(g=group['id'], u=user['id']))
-            return True
-        except exc.OpenStackCloudURINotFound:
-            # NOTE(samueldmq): knowing this URI exists, let's interpret this as
-            # user not found in group rather than URI not found.
-            return False
+        return self.identity.check_user_in_group(user, group)
 
     def remove_user_from_group(self, name_or_id, group_name_or_id):
         """Remove a user from a group.
@@ -334,11 +323,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         """
         user, group = self._get_user_and_group(name_or_id, group_name_or_id)
 
-        error_msg = "Error removing user {user} from group {group}".format(
-            user=name_or_id, group=group_name_or_id)
-        self._identity_client.delete(
-            '/groups/{g}/users/{u}'.format(g=group['id'], u=user['id']),
-            error_message=error_msg)
+        self.identity.remove_user_from_group(user, group)
 
     @_utils.valid_kwargs('type', 'service_type', 'description')
     def create_service(self, name, enabled=True, **kwargs):

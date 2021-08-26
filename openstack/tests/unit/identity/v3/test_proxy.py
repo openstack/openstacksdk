@@ -35,7 +35,7 @@ class TestIdentityProxyBase(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
 
 
-class TestIdentityProxy(TestIdentityProxyBase):
+class TestIdentityProxyCredential(TestIdentityProxyBase):
 
     def test_credential_create_attrs(self):
         self.verify_create(self.proxy.create_credential,
@@ -61,6 +61,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
     def test_credential_update(self):
         self.verify_update(self.proxy.update_credential, credential.Credential)
 
+
+class TestIdentityProxyDomain(TestIdentityProxyBase):
+
     def test_domain_create_attrs(self):
         self.verify_create(self.proxy.create_domain, domain.Domain)
 
@@ -81,6 +84,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
 
     def test_domain_update(self):
         self.verify_update(self.proxy.update_domain, domain.Domain)
+
+
+class TestIdentityProxyEndpoint(TestIdentityProxyBase):
 
     def test_endpoint_create_attrs(self):
         self.verify_create(self.proxy.create_endpoint, endpoint.Endpoint)
@@ -105,6 +111,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
     def test_endpoint_update(self):
         self.verify_update(self.proxy.update_endpoint, endpoint.Endpoint)
 
+
+class TestIdentityProxyGroup(TestIdentityProxyBase):
+
     def test_group_create_attrs(self):
         self.verify_create(self.proxy.create_group, group.Group)
 
@@ -126,6 +135,42 @@ class TestIdentityProxy(TestIdentityProxyBase):
     def test_group_update(self):
         self.verify_update(self.proxy.update_group, group.Group)
 
+    def test_add_user_to_group(self):
+        self._verify(
+            "openstack.identity.v3.group.Group.add_user",
+            self.proxy.add_user_to_group,
+            method_args=['uid', 'gid'],
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+            ]
+        )
+
+    def test_remove_user_from_group(self):
+        self._verify(
+            "openstack.identity.v3.group.Group.remove_user",
+            self.proxy.remove_user_from_group,
+            method_args=['uid', 'gid'],
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+            ]
+        )
+
+    def test_check_user_in_group(self):
+        self._verify(
+            "openstack.identity.v3.group.Group.check_user",
+            self.proxy.check_user_in_group,
+            method_args=['uid', 'gid'],
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+            ]
+        )
+
+
+class TestIdentityProxyPolicy(TestIdentityProxyBase):
+
     def test_policy_create_attrs(self):
         self.verify_create(self.proxy.create_policy, policy.Policy)
 
@@ -146,6 +191,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
 
     def test_policy_update(self):
         self.verify_update(self.proxy.update_policy, policy.Policy)
+
+
+class TestIdentityProxyProject(TestIdentityProxyBase):
 
     def test_project_create_attrs(self):
         self.verify_create(self.proxy.create_project, project.Project)
@@ -176,6 +224,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
     def test_project_update(self):
         self.verify_update(self.proxy.update_project, project.Project)
 
+
+class TestIdentityProxyService(TestIdentityProxyBase):
+
     def test_service_create_attrs(self):
         self.verify_create(self.proxy.create_service, service.Service)
 
@@ -196,6 +247,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
 
     def test_service_update(self):
         self.verify_update(self.proxy.update_service, service.Service)
+
+
+class TestIdentityProxyUser(TestIdentityProxyBase):
 
     def test_user_create_attrs(self):
         self.verify_create(self.proxy.create_user, user.User)
@@ -218,6 +272,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
     def test_user_update(self):
         self.verify_update(self.proxy.update_user, user.User)
 
+
+class TestIdentityProxyTrust(TestIdentityProxyBase):
+
     def test_trust_create_attrs(self):
         self.verify_create(self.proxy.create_trust, trust.Trust)
 
@@ -235,6 +292,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
 
     def test_trusts(self):
         self.verify_list(self.proxy.trusts, trust.Trust)
+
+
+class TestIdentityProxyRegion(TestIdentityProxyBase):
 
     def test_region_create_attrs(self):
         self.verify_create(self.proxy.create_region, region.Region)
@@ -256,6 +316,9 @@ class TestIdentityProxy(TestIdentityProxyBase):
 
     def test_region_update(self):
         self.verify_update(self.proxy.update_region, region.Region)
+
+
+class TestIdentityProxyRole(TestIdentityProxyBase):
 
     def test_role_create_attrs(self):
         self.verify_create(self.proxy.create_role, role.Role)

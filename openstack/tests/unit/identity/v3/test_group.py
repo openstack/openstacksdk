@@ -10,7 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from keystoneauth1 import adapter
+
 from openstack.identity.v3 import group
+from openstack.identity.v3 import user
 from openstack.tests.unit import base
 
 
@@ -24,6 +29,16 @@ EXAMPLE = {
 
 
 class TestGroup(base.TestCase):
+
+    def setUp(self):
+        super(TestGroup, self).setUp()
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = 1
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
+        self.good_resp = mock.Mock()
+        self.good_resp.body = None
+        self.good_resp.json = mock.Mock(return_value=self.good_resp.body)
+        self.good_resp.status_code = 204
 
     def test_basic(self):
         sot = group.Group()
@@ -52,3 +67,38 @@ class TestGroup(base.TestCase):
         self.assertEqual(EXAMPLE['domain_id'], sot.domain_id)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
+
+    def test_add_user(self):
+        sot = group.Group(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.put = mock.Mock(return_value=resp)
+
+        sot.add_user(
+            self.sess, user.User(id='1'))
+
+        self.sess.put.assert_called_with(
+            'groups/IDENTIFIER/users/1')
+
+    def test_remove_user(self):
+        sot = group.Group(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.delete = mock.Mock(return_value=resp)
+
+        sot.remove_user(
+            self.sess, user.User(id='1'))
+
+        self.sess.delete.assert_called_with(
+            'groups/IDENTIFIER/users/1')
+
+    def test_check_user(self):
+        sot = group.Group(**EXAMPLE)
+        resp = self.good_resp
+        self.sess.head = mock.Mock(return_value=resp)
+
+        self.assertTrue(
+            sot.check_user(
+                self.sess,
+                user.User(id='1')))
+
+        self.sess.head.assert_called_with(
+            'groups/IDENTIFIER/users/1')

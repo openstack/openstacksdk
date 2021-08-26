@@ -42,7 +42,8 @@ Group Operations
 .. autoclass:: openstack.identity.v3._proxy.Proxy
   :noindex:
   :members: create_group, update_group, delete_group, get_group, find_group,
-            groups
+            groups, add_user_to_group, remove_user_from_group,
+            check_user_in_group
 
 Policy Operations
 ^^^^^^^^^^^^^^^^^
