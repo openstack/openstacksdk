@@ -27,6 +27,7 @@ from openstack.object_store.v1 import container as _container
 from openstack.object_store.v1 import info as _info
 from openstack.object_store.v1 import obj as _obj
 from openstack import proxy
+from openstack import utils
 
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 DEFAULT_MAX_FILE_SIZE = (5 * 1024 * 1024 * 1024 + 2) / 2
@@ -353,7 +354,7 @@ class Proxy(proxy.Proxy):
             filename = name
 
         if generate_checksums and (md5 is None or sha256 is None):
-            (md5, sha256) = self._connection._get_file_hashes(filename)
+            (md5, sha256) = utils._get_file_hashes(filename)
         if md5:
             headers[self._connection._OBJECT_MD5_KEY] = md5 or ''
         if sha256:
@@ -513,14 +514,14 @@ class Proxy(proxy.Proxy):
 
         if not (file_md5 or file_sha256):
             (file_md5, file_sha256) = \
-                self._connection._get_file_hashes(filename)
+                utils._get_file_hashes(filename)
         md5_key = metadata.get(
             self._connection._OBJECT_MD5_KEY,
             metadata.get(self._connection._SHADE_OBJECT_MD5_KEY, ''))
         sha256_key = metadata.get(
             self._connection._OBJECT_SHA256_KEY, metadata.get(
                 self._connection._SHADE_OBJECT_SHA256_KEY, ''))
-        up_to_date = self._connection._hashes_up_to_date(
+        up_to_date = utils._hashes_up_to_date(
             md5=file_md5, sha256=file_sha256,
             md5_key=md5_key, sha256_key=sha256_key)
 

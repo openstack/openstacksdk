@@ -15,7 +15,6 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import collections
 import concurrent.futures
-import hashlib
 import json
 import os
 import types  # noqa
@@ -196,39 +195,6 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         raise exc.OpenStackCloudException(
             "Could not determine container access for ACL: %s." % acl)
 
-    def _get_file_hashes(self, filename):
-        file_key = "{filename}:{mtime}".format(
-            filename=filename,
-            mtime=os.stat(filename).st_mtime)
-        if file_key not in self._file_hash_cache:
-            self.log.debug(
-                'Calculating hashes for %(filename)s', {'filename': filename})
-            (md5, sha256) = (None, None)
-            with open(filename, 'rb') as file_obj:
-                (md5, sha256) = self._calculate_data_hashes(file_obj)
-            self._file_hash_cache[file_key] = dict(
-                md5=md5, sha256=sha256)
-            self.log.debug(
-                "Image file %(filename)s md5:%(md5)s sha256:%(sha256)s",
-                {'filename': filename,
-                 'md5': self._file_hash_cache[file_key]['md5'],
-                 'sha256': self._file_hash_cache[file_key]['sha256']})
-        return (self._file_hash_cache[file_key]['md5'],
-                self._file_hash_cache[file_key]['sha256'])
-
-    def _calculate_data_hashes(self, data):
-        md5 = utils.md5(usedforsecurity=False)
-        sha256 = hashlib.sha256()
-
-        if hasattr(data, 'read'):
-            for chunk in iter(lambda: data.read(8192), b''):
-                md5.update(chunk)
-                sha256.update(chunk)
-        else:
-            md5.update(data)
-            sha256.update(data)
-        return (md5.hexdigest(), sha256.hexdigest())
-
     @_utils.cache_on_arguments()
     def get_object_capabilities(self):
         """Get infomation about the object-storage service
@@ -293,13 +259,13 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             return True
 
         if not (file_md5 or file_sha256):
-            (file_md5, file_sha256) = self._get_file_hashes(filename)
+            (file_md5, file_sha256) = utils._get_file_hashes(filename)
         md5_key = metadata.get(
             self._OBJECT_MD5_KEY, metadata.get(self._SHADE_OBJECT_MD5_KEY, ''))
         sha256_key = metadata.get(
             self._OBJECT_SHA256_KEY, metadata.get(
                 self._SHADE_OBJECT_SHA256_KEY, ''))
-        up_to_date = self._hashes_up_to_date(
+        up_to_date = utils._hashes_up_to_date(
             md5=file_md5, sha256=file_sha256,
             md5_key=md5_key, sha256_key=sha256_key)
 
@@ -405,7 +371,7 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             filename = name
 
         if generate_checksums and (md5 is None or sha256 is None):
-            (md5, sha256) = self._get_file_hashes(filename)
+            (md5, sha256) = utils._get_file_hashes(filename)
         if md5:
             headers[self._OBJECT_MD5_KEY] = md5 or ''
         if sha256:
@@ -857,20 +823,3 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
                 # can try again
                 retries.append(completed.result())
         return results, retries
-
-    def _hashes_up_to_date(self, md5, sha256, md5_key, sha256_key):
-        '''Compare md5 and sha256 hashes for being up to date
-
-        md5 and sha256 are the current values.
-        md5_key and sha256_key are the previous values.
-        '''
-        up_to_date = False
-        if md5 and md5_key == md5:
-            up_to_date = True
-        if sha256 and sha256_key == sha256:
-            up_to_date = True
-        if md5 and md5_key != md5:
-            up_to_date = False
-        if sha256 and sha256_key != sha256:
-            up_to_date = False
-        return up_to_date
