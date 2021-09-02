@@ -60,9 +60,9 @@ class _OpenStackCloudMixin:
     :param bool strict: Only return documented attributes for each resource
                         as per the Data Model contract. (Default False)
     """
-    _OBJECT_MD5_KEY = 'x-object-meta-x-sdk-md5'
-    _OBJECT_SHA256_KEY = 'x-object-meta-x-sdk-sha256'
-    _OBJECT_AUTOCREATE_KEY = 'x-object-meta-x-sdk-autocreated'
+    _OBJECT_MD5_KEY = 'x-sdk-md5'
+    _OBJECT_SHA256_KEY = 'x-sdk-sha256'
+    _OBJECT_AUTOCREATE_KEY = 'x-sdk-autocreated'
     _OBJECT_AUTOCREATE_CONTAINER = 'images'
 
     # NOTE(shade) shade keys were x-object-meta-x-shade-md5 - we need to check

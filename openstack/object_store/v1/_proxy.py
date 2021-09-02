@@ -236,24 +236,70 @@ class Proxy(proxy.Proxy):
 
         raise ValueError("container must be specified")
 
-    def get_object(self, obj, container=None):
+    def get_object(
+        self, obj, container=None, resp_chunk_size=1024,
+        outfile=None, remember_content=False
+    ):
         """Get the data associated with an object
 
         :param obj: The value can be the name of an object or a
-                       :class:`~openstack.object_store.v1.obj.Object` instance.
+            :class:`~openstack.object_store.v1.obj.Object` instance.
         :param container: The value can be the name of a container or a
-               :class:`~openstack.object_store.v1.container.Container`
-               instance.
+            :class:`~openstack.object_store.v1.container.Container`
+            instance.
+        :param int resp_chunk_size:
+            chunk size of data to read. Only used if the results are
+            being written to a file or stream is True.
+            (optional, defaults to 1k)
+        :param outfile:
+            Write the object to a file instead of returning the contents.
+            If this option is given, body in the return tuple will be None.
+            outfile can either be a file path given as a string, or a
+            File like object.
+        :param bool remember_content: Flag whether object data should be saved
+            as `data` property of the Object. When left as `false` and
+            `outfile` is not defined data will not be saved and need to be
+            fetched separately.
 
-        :returns: The contents of the object.  Use the
-                  :func:`~get_object_metadata`
-                  method if you want an object resource.
+        :returns: Instance of the
+            :class:`~openstack.object_store.v1.obj.Object` objects.
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         container_name = self._get_container_name(
             obj=obj, container=container)
-        return self._get(_obj.Object, obj, container=container_name)
+
+        _object = self._get_resource(
+            _obj.Object, obj,
+            container=container_name)
+        request = _object._prepare_request()
+
+        get_stream = (outfile is not None)
+
+        response = self.get(
+            request.url,
+            headers=request.headers,
+            stream=get_stream
+        )
+        exceptions.raise_from_response(response)
+        _object._translate_response(response, has_body=False)
+
+        if outfile:
+            if isinstance(outfile, str):
+                outfile_handle = open(outfile, 'wb')
+            else:
+                outfile_handle = outfile
+            for chunk in response.iter_content(
+                    resp_chunk_size, decode_unicode=False):
+                outfile_handle.write(chunk)
+            if isinstance(outfile, str):
+                outfile_handle.close()
+            else:
+                outfile_handle.flush()
+        elif remember_content:
+            _object.data = response.text
+
+        return _object
 
     def download_object(self, obj, container=None, **attrs):
         """Download the data contained inside an object.
@@ -288,7 +334,6 @@ class Proxy(proxy.Proxy):
         """
         container_name = self._get_container_name(
             obj=obj, container=container)
-        container_name = self._get_container_name(container=container)
         obj = self._get_resource(
             _obj.Object, obj, container=container_name, **attrs)
         return obj.stream(self, chunk_size=chunk_size)
@@ -356,9 +401,9 @@ class Proxy(proxy.Proxy):
         if generate_checksums and (md5 is None or sha256 is None):
             (md5, sha256) = utils._get_file_hashes(filename)
         if md5:
-            headers[self._connection._OBJECT_MD5_KEY] = md5 or ''
+            metadata[self._connection._OBJECT_MD5_KEY] = md5
         if sha256:
-            headers[self._connection._OBJECT_SHA256_KEY] = sha256 or ''
+            metadata[self._connection._OBJECT_SHA256_KEY] = sha256
 
         container_name = self._get_container_name(container=container)
         endpoint = '{container}/{name}'.format(container=container_name,
@@ -368,7 +413,6 @@ class Proxy(proxy.Proxy):
             self.log.debug(
                 "swift uploading data to %(endpoint)s",
                 {'endpoint': endpoint})
-            # TODO(gtema): custom headers need to be somehow injected
             return self._create(
                 _obj.Object, container=container_name,
                 name=name, data=data, metadata=metadata,
@@ -387,10 +431,14 @@ class Proxy(proxy.Proxy):
                 "swift uploading %(filename)s to %(endpoint)s",
                 {'filename': filename, 'endpoint': endpoint})
 
+            if metadata is not None:
+                # Rely on the class headers calculation for requested metadata
+                meta_headers = _obj.Object()._calculate_headers(metadata)
+                headers.update(meta_headers)
+
             if file_size <= segment_size:
-                # TODO(gtema): replace with regular resource put, but
-                # custom headers need to be somehow injected
                 self._upload_object(endpoint, filename, headers)
+
             else:
                 self._upload_large_object(
                     endpoint, filename, headers,
@@ -501,8 +549,9 @@ class Proxy(proxy.Proxy):
             Pre-calculated sha256 of the file contents. Defaults to None which
             means calculate locally.
         """
-        metadata = self._connection.get_object_metadata(container, name)
-        if not metadata:
+        try:
+            metadata = self.get_object_metadata(name, container).metadata
+        except exceptions.NotFoundException:
             self._connection.log.debug(
                 "swift stale check, no object: {container}/{name}".format(
                     container=container, name=name))
@@ -592,29 +641,61 @@ class Proxy(proxy.Proxy):
 
         self._add_etag_to_manifest(segment_results, manifest)
 
-        if use_slo:
-            return self._finish_large_object_slo(endpoint, headers, manifest)
-        else:
-            return self._finish_large_object_dlo(endpoint, headers)
+        try:
+            if use_slo:
+                return self._finish_large_object_slo(
+                    endpoint, headers, manifest)
+            else:
+                return self._finish_large_object_dlo(
+                    endpoint, headers)
+        except Exception:
+            try:
+                segment_prefix = endpoint.split('/')[-1]
+                self.log.debug(
+                    "Failed to upload large object manifest for %s. "
+                    "Removing segment uploads.", segment_prefix)
+                self._delete_autocreated_image_objects(
+                    segment_prefix=segment_prefix)
+            except Exception:
+                self.log.exception(
+                    "Failed to cleanup image objects for %s:",
+                    segment_prefix)
+            raise
 
     def _finish_large_object_slo(self, endpoint, headers, manifest):
         # TODO(mordred) send an etag of the manifest, which is the md5sum
         # of the concatenation of the etags of the results
         headers = headers.copy()
-        return self.put(
-            endpoint,
-            params={'multipart-manifest': 'put'},
-            headers=headers, data=json.dumps(manifest))
+        retries = 3
+        while True:
+            try:
+                return exceptions.raise_from_response(self.put(
+                    endpoint,
+                    params={'multipart-manifest': 'put'},
+                    headers=headers, data=json.dumps(manifest))
+                )
+            except Exception:
+                retries -= 1
+                if retries == 0:
+                    raise
 
     def _finish_large_object_dlo(self, endpoint, headers):
         headers = headers.copy()
         headers['X-Object-Manifest'] = endpoint
-        return self.put(endpoint, headers=headers)
+        retries = 3
+        while True:
+            try:
+                return exceptions.raise_from_response(
+                    self.put(endpoint, headers=headers))
+            except Exception:
+                retries -= 1
+                if retries == 0:
+                    raise
 
     def _upload_object(self, endpoint, filename, headers):
         with open(filename, 'rb') as dt:
-            return proxy._json_response(self.put(
-                endpoint, headers=headers, data=dt))
+            return self.put(
+                endpoint, headers=headers, data=dt)
 
     def _get_file_segments(self, endpoint, filename, file_size, segment_size):
         # Use an ordered dict here so that testing can replicate things
@@ -926,3 +1007,33 @@ class Proxy(proxy.Proxy):
             return temp_url.encode('utf-8')
         else:
             return temp_url
+
+    def _delete_autocreated_image_objects(
+        self, container=None, segment_prefix=None
+    ):
+        """Delete all objects autocreated for image uploads.
+
+        This method should generally not be needed, as shade should clean up
+        the objects it uses for object-based image creation. If something
+        goes wrong and it is found that there are leaked objects, this method
+        can be used to delete any objects that shade has created on the user's
+        behalf in service of image uploads.
+
+        :param str container: Name of the container. Defaults to 'images'.
+        :param str segment_prefix: Prefix for the image segment names to
+            delete. If not given, all image upload segments present are
+            deleted.
+        """
+        if container is None:
+            container = self._connection._OBJECT_AUTOCREATE_CONTAINER
+        # This method only makes sense on clouds that use tasks
+        if not self._connection.image_api_use_tasks:
+            return False
+
+        deleted = False
+        for obj in self.objects(container, prefix=segment_prefix):
+            meta = self.get_object_metadata(obj).metadata
+            if meta.get(self._connection._OBJECT_AUTOCREATE_KEY) == 'true':
+                self.delete_object(obj, ignore_missing=True)
+                deleted = True
+        return deleted

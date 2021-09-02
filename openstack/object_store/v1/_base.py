@@ -25,6 +25,7 @@ class BaseResource(resource.Resource):
 
     _custom_metadata_prefix = None
     _system_metadata = dict()
+    _last_headers = dict()
 
     def __init__(self, metadata=None, **attrs):
         """Process and save metadata known at creation stage
@@ -88,6 +89,11 @@ class BaseResource(resource.Resource):
                 self.metadata[key] = headers[header]
 
     def _translate_response(self, response, has_body=None, error_message=None):
+        # Save headers of the last operation for potential use (get_object of
+        # cloud layer).
+        # This must happen before invoking parent _translate_response, cause it
+        # pops known headers.
+        self._last_headers = response.headers.copy()
         super(BaseResource, self)._translate_response(
             response, has_body=has_body, error_message=error_message)
         self._set_metadata(response.headers)

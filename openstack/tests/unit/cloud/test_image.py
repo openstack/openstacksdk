@@ -615,10 +615,10 @@ class TestImage(BaseTestImage):
                      object=self.image_name),
                  status_code=201,
                  validate=dict(
-                     headers={'x-object-meta-x-sdk-md5':
+                     headers={'X-Object-Meta-x-sdk-md5':
                               self.fake_image_dict[
                                   'owner_specified.openstack.md5'],
-                              'x-object-meta-x-sdk-sha256':
+                              'X-Object-Meta-x-sdk-sha256':
                               self.fake_image_dict[
                                   'owner_specified.openstack.sha256']})
                  ),
@@ -711,12 +711,12 @@ class TestImage(BaseTestImage):
         self.assert_calls()
 
     def test_delete_autocreated_no_tasks(self):
-        self.use_nothing()
+        self.use_keystone_v3()
         self.cloud.image_api_use_tasks = False
         deleted = self.cloud.delete_autocreated_image_objects(
             container=self.container_name)
         self.assertFalse(deleted)
-        self.assert_calls()
+        self.assert_calls([])
 
     def test_delete_image_task(self):
         self.cloud.image_api_use_tasks = True
@@ -823,8 +823,10 @@ class TestImage(BaseTestImage):
                      'Date': 'Thu, 16 Nov 2017 15:24:30 GMT',
                      'Accept-Ranges': 'bytes',
                      'Content-Type': 'application/octet-stream',
-                     self.cloud._OBJECT_AUTOCREATE_KEY: 'true',
-                     'Etag': fakes.NO_MD5}),
+                     ('X-Object-Meta-'
+                      + self.cloud._OBJECT_AUTOCREATE_KEY): 'true',
+                     'Etag': fakes.NO_MD5,
+                     'X-Static-Large-Object': 'false'}),
             dict(method='DELETE',
                  uri='{endpoint}/{container}/{object}'.format(
                      endpoint=endpoint, container=self.container_name,

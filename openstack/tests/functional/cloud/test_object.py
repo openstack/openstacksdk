@@ -71,13 +71,13 @@ class TestObject(base.BaseFunctionalTest):
                 ))
             self.assertEqual(
                 'bar', self.user_cloud.get_object_metadata(
-                    container_name, name)['x-object-meta-foo']
+                    container_name, name)['foo']
             )
             self.user_cloud.update_object(container=container_name, name=name,
                                           metadata={'testk': 'testv'})
             self.assertEqual(
                 'testv', self.user_cloud.get_object_metadata(
-                    container_name, name)['x-object-meta-testk']
+                    container_name, name)['testk']
             )
             try:
                 self.assertIsNotNone(
@@ -139,13 +139,13 @@ class TestObject(base.BaseFunctionalTest):
                 ))
             self.assertEqual(
                 'bar', self.user_cloud.get_object_metadata(
-                    container_name, name)['x-object-meta-foo']
+                    container_name, name)['foo']
             )
             self.user_cloud.update_object(container=container_name, name=name,
                                           metadata={'testk': 'testv'})
             self.assertEqual(
                 'testv', self.user_cloud.get_object_metadata(
-                    container_name, name)['x-object-meta-testk']
+                    container_name, name)['testk']
             )
             try:
                 with tempfile.NamedTemporaryFile() as fake_file:
