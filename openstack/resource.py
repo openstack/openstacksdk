@@ -625,12 +625,9 @@ class Resource(dict):
             if name in self._body:
                 return self._body[name]
             else:
-                try:
-                    return self._body[self._alternate_id()]
-                except KeyError as e:
-                    LOG.debug("Attribute [%s] not found in [%s]: %s.",
-                              self._alternate_id(), self._body, e)
-                    return None
+                key = self._alternate_id()
+                if key:
+                    return self._body.get(key)
         else:
             try:
                 return object.__getattribute__(self, name)
