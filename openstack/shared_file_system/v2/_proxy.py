@@ -14,6 +14,9 @@ from openstack import proxy
 from openstack import resource
 from openstack.shared_file_system.v2 import (
     availability_zone as _availability_zone)
+from openstack.shared_file_system.v2 import (
+    storage_pool as _storage_pool
+)
 from openstack.shared_file_system.v2 import share as _share
 
 
@@ -146,3 +149,22 @@ class Proxy(proxy.Proxy):
         failures = [] if failures is None else failures
         return resource.wait_for_status(
             self, res, status, failures, interval, wait)
+
+    def storage_pools(self, details=True, **query):
+        """Lists all back-end storage pools with details
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the storage pools being returned.  Available parameters include:
+
+            * pool_name: The pool name for the back end.
+            * host_name: The host name for the back end.
+            * backend_name: The name of the back end.
+            * capabilities: The capabilities for the storage back end.
+            * share_type: The share type name or UUID.
+        :returns: A generator of manila storage pool resources
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            storage_pool.StoragePool`
+        """
+        base_path = '/scheduler-stats/pools/detail' if details else None
+        return self._list(
+            _storage_pool.StoragePool, base_path=base_path, **query)
