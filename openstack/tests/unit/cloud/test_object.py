@@ -25,6 +25,7 @@ from openstack.object_store.v1 import _proxy
 from openstack.object_store.v1 import container
 from openstack.object_store.v1 import obj
 from openstack.tests.unit import base
+from openstack import utils
 
 
 class BaseTestObject(base.TestCase):
@@ -654,7 +655,7 @@ class TestObjectUploads(BaseTestObject):
         self.object_file = tempfile.NamedTemporaryFile(delete=False)
         self.object_file.write(self.content)
         self.object_file.close()
-        (self.md5, self.sha256) = self.cloud._get_file_hashes(
+        (self.md5, self.sha256) = utils._get_file_hashes(
             self.object_file.name)
         self.endpoint = self.cloud._object_store_client.get_endpoint()
 
