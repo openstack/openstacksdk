@@ -175,7 +175,7 @@ class Object(_base.BaseResource):
     has_body = False
 
     def __init__(self, data=None, **attrs):
-        super(_base.BaseResource, self).__init__(**attrs)
+        super().__init__(**attrs)
         self.data = data
 
     # The Object Store treats the metadata for its resources inconsistently so
@@ -290,7 +290,8 @@ class Object(_base.BaseResource):
         response = session.put(
             request.url,
             data=self.data,
-            headers=request.headers)
+            headers=request.headers
+        )
         self._translate_response(response, has_body=False)
         return self
 

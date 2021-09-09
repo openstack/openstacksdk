@@ -359,11 +359,6 @@ class Proxy(proxy.Proxy):
             headers[self._connection._OBJECT_MD5_KEY] = md5 or ''
         if sha256:
             headers[self._connection._OBJECT_SHA256_KEY] = sha256 or ''
-        for (k, v) in metadata.items():
-            if not k.lower().startswith('x-object-meta-'):
-                headers['x-object-meta-' + k] = v
-            else:
-                headers[k] = v
 
         container_name = self._get_container_name(container=container)
         endpoint = '{container}/{name}'.format(container=container_name,
@@ -376,7 +371,8 @@ class Proxy(proxy.Proxy):
             # TODO(gtema): custom headers need to be somehow injected
             return self._create(
                 _obj.Object, container=container_name,
-                name=name, data=data, **headers)
+                name=name, data=data, metadata=metadata,
+                **headers)
 
         # segment_size gets used as a step value in a range call, so needs
         # to be an int
