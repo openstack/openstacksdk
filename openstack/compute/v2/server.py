@@ -555,6 +555,22 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         self._action(
             session, {'os-migrateLive': body}, microversion=microversion)
 
+    def fetch_topology(self, session):
+        utils.require_microversion(session, 2.78)
+
+        url = utils.urljoin(Server.base_path, self.id, 'topology')
+
+        response = session.get(url)
+
+        exceptions.raise_from_response(response)
+
+        try:
+            data = response.json()
+            if 'topology' in data:
+                return data['topology']
+        except ValueError:
+            pass
+
     def fetch_security_groups(self, session):
         """Fetch security groups of a server.
 
