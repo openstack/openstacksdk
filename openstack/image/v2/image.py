@@ -224,8 +224,9 @@ class Image(resource.Resource, resource.TagMixin, _download.DownloadMixin):
     os_type = resource.Body('os_type')
     #: The operating system admin username.
     os_admin_user = resource.Body('os_admin_user')
-    #: If true, QEMU guest agent will be exposed to the instance.
-    hw_qemu_guest_agent = resource.Body('hw_qemu_guest_agent', type=bool)
+    #: A string boolean, which if "true", QEMU guest agent will be exposed
+    #: to the instance.
+    hw_qemu_guest_agent = resource.Body('hw_qemu_guest_agent', type=str)
     #: If true, require quiesce on snapshot via QEMU guest agent.
     os_require_quiesce = resource.Body('os_require_quiesce', type=bool)
     #: The URL for the schema describing a virtual machine image.
