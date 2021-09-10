@@ -91,8 +91,8 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # Provision state deploy_steps introduced in 1.69 (Wallaby).
-    _max_microversion = '1.69'
+    # Node states boot_mode and secure_boot introduced in 1.75 (Xena).
+    _max_microversion = '1.75'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -101,6 +101,8 @@ class Node(_common.ListMixin, resource.Resource):
     #: A string or UUID of the tenant who owns the baremetal node. Added in API
     #: microversion 1.50.
     owner = resource.Body("owner")
+    #: The current boot mode state (uefi/bios). Added in API microversion 1.75.
+    boot_mode = resource.Body("boot_mode")
     #: The UUID of the chassis associated wit this node. Can be empty or None.
     chassis_id = resource.Body("chassis_uuid")
     #: The current clean step.
@@ -148,6 +150,9 @@ class Node(_common.ListMixin, resource.Resource):
     #: Whether the node is marked for retirement. Added in API microversion
     #: 1.61.
     is_retired = resource.Body("retired", type=bool)
+    #: Whether the node is currently booted with secure boot turned on.
+    #: Added in API microversion 1.75.
+    is_secure_boot = resource.Body("secure_boot", type=bool)
     #: Any error from the most recent transaction that started but failed to
     #: finish.
     last_error = resource.Body("last_error")
