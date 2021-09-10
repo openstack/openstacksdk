@@ -7,3 +7,4 @@ Shared File System service resources
    v2/availability_zone
    v2/storage_pool
    v2/share
+   v2/user_message

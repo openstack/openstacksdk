@@ -17,6 +17,9 @@ from openstack.shared_file_system.v2 import (
 from openstack.shared_file_system.v2 import (
     storage_pool as _storage_pool
 )
+from openstack.shared_file_system.v2 import (
+    user_message as _user_message
+)
 from openstack.shared_file_system.v2 import share as _share
 
 
@@ -168,3 +171,56 @@ class Proxy(proxy.Proxy):
         base_path = '/scheduler-stats/pools/detail' if details else None
         return self._list(
             _storage_pool.StoragePool, base_path=base_path, **query)
+
+    def user_messages(self, **query):
+        """List shared file system user messages
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the messages being returned.  Available parameters include:
+
+            * action_id: The ID of the action during which the message
+                was created.
+            * detail_id: The ID of the message detail.
+            * limit: The maximum number of shares to return.
+            * message_level: The message level.
+            * offset: The offset to define start point of share or share
+                group listing.
+            * sort_key: The key to sort a list of messages.
+            * sort_dir: The direction to sort a list of shares.
+            * project_id: The ID of the project for which the message
+                was created.
+            * request_id: The ID of the request during which the message
+                was created.
+            * resource_id: The UUID of the resource for which the message
+                was created.
+            * resource_type: The type of the resource for which the message
+                was created.
+
+        :returns: A generator of user message resources
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            user_message.UserMessage`
+        """
+        return self._list(
+            _user_message.UserMessage, **query)
+
+    def get_user_message(self, message_id):
+        """List details of a single user message
+
+        :param message_id: The ID of the user message
+        :returns: Details of the identified user message
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            user_message.UserMessage`
+        """
+        return self._get(_user_message.UserMessage, message_id)
+
+    def delete_user_message(self, message_id, ignore_missing=True):
+        """Deletes a single user message
+
+        :param message_id: The ID of the user message
+        :returns: Result of the "delete" on the user message
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            user_message.UserMessage`
+        """
+        return self._delete(
+            _user_message.UserMessage, message_id,
+            ignore_missing=ignore_missing)
