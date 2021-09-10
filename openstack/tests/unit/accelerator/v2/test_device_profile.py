@@ -27,7 +27,8 @@ FAKE = {
          "resources:CUSTOM_MEMORY": "200",
          "trait:CUSTOM_TRAIT_ALWAYS": "required",
          }
-    ]
+    ],
+    'description': 'description_test'
 }
 
 
@@ -51,3 +52,4 @@ class TestDeviceProfile(base.TestCase):
         self.assertEqual(FAKE['uuid'], sot.uuid)
         self.assertEqual(FAKE['name'], sot.name)
         self.assertEqual(FAKE['groups'], sot.groups)
+        self.assertEqual(FAKE['description'], sot.description)

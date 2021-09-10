@@ -25,6 +25,8 @@ class DeviceProfile(resource.Resource):
 
     #: The timestamp when this device_profile was created.
     created_at = resource.Body('created_at')
+    #: The description of the device profile
+    description = resource.Body('description')
     #: The groups of the device profile
     groups = resource.Body('groups')
     #: The name of the device profile

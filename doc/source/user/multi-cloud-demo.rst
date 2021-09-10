@@ -29,7 +29,7 @@ Monty Taylor
 What are we going to talk about?
 ================================
 
-`shade`
+`OpenStackSDK`
 
 * a task and end-user oriented Python library
 * abstracts deployment differences
@@ -42,12 +42,12 @@ What are we going to talk about?
 * Initial logic/design extracted from nodepool
 * Librified to re-use in Ansible
 
-shade is Free Software
-======================
+OpenStackSDK is Free Software
+=============================
 
-* https://opendev.org/openstack/shade
+* https://opendev.org/openstack/openstacksdk
 * openstack-discuss@lists.openstack.org
-* #openstack-shade on freenode
+* #openstack-sdks on oftc
 
 This talk is Free Software, too
 ===============================

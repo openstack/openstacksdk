@@ -34,11 +34,11 @@ IRC
 ~~~
 
 The developers of this project are available in the `#openstack-sdks`__ channel
-on Freenode. This channel includes conversation on SDKs and tools within the
+on OFTC IRC. This channel includes conversation on SDKs and tools within the
 general OpenStack community, including OpenStackClient as well as occasional
 talk about SDKs created for languages outside of Python.
 
-.. __: http://webchat.freenode.net?channels=%23openstack-sdks
+.. __: http://webchat.oftc.net?channels=%23openstack-sdks
 
 Email
 ~~~~~
