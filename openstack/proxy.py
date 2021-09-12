@@ -689,7 +689,6 @@ class Proxy(adapter.Adapter, Generic[T]):
             :class:`~openstack.resource.Resource` that doesn't match
             the ``resource_type``.
         """
-
         data = resource_type.list(
             self, paginated=paginated, base_path=base_path,
             **attrs

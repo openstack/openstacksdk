@@ -126,3 +126,15 @@ service.
   :noindex:
   :members: share_network_subnets, get_share_network_subnet,
             create_share_network_subnet, delete_share_network_subnet
+
+
+Shared File System Share Access Rules
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create, View, and Delete access rules for shares from the
+Shared File Systems service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: access_rules, get_access_rule, create_access_rule,
+            delete_access_rule

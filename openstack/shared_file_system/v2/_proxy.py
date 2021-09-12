@@ -15,6 +15,9 @@ from openstack import resource
 from openstack.shared_file_system.v2 import (
     availability_zone as _availability_zone)
 from openstack.shared_file_system.v2 import (
+    share_access_rule as _share_access_rule
+)
+from openstack.shared_file_system.v2 import (
     share_export_locations as _share_export_locations
 )
 from openstack.shared_file_system.v2 import (
@@ -55,6 +58,7 @@ class Proxy(proxy.Proxy):
         "share_instance": _share_instance.ShareInstance,
         "share_export_locations":
             _share_export_locations.ShareExportLocation,
+        "share_access_rule": _share_access_rule.ShareAccessRule,
     }
 
     def availability_zones(self):
@@ -628,3 +632,54 @@ class Proxy(proxy.Proxy):
         return self._get(
             _share_export_locations.ShareExportLocation,
             export_location_id, share_id=share_id)
+
+    def access_rules(self, share, **query):
+        """Lists the access rules on a share.
+
+        :returns: A generator of the share access rules.
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_access_rules.ShareAccessRules`
+        """
+        share = self._get_resource(_share.Share, share)
+        return self._list(
+            _share_access_rule.ShareAccessRule,
+            share_id=share.id, **query)
+
+    def get_access_rule(self, access_id):
+        """List details of an access rule.
+
+        :param access_id: The id of the access rule to get
+        :returns: Details of the identified access rule.
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_access_rules.ShareAccessRules`
+        """
+        return self._get(
+            _share_access_rule.ShareAccessRule, access_id)
+
+    def create_access_rule(self, share_id, **attrs):
+        """Creates an access rule from attributes
+
+        :returns: Details of the new access rule
+        :param share_id: The ID of the share
+        :param dict attrs: Attributes which will be used to create
+            a :class:`~openstack.shared_file_system.v2.
+            share_access_rules.ShareAccessRules`, comprised of the
+            properties on the ShareAccessRules class.
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_access_rules.ShareAccessRules`
+        """
+        base_path = "/shares/%s/action" % (share_id,)
+        return self._create(
+            _share_access_rule.ShareAccessRule, base_path=base_path, **attrs)
+
+    def delete_access_rule(self, access_id, share_id, ignore_missing=True):
+        """Deletes an access rule
+
+        :param access_id: The id of the access rule to get
+        :param share_id: The ID of the share
+
+        :rtype: ``None``
+        """
+        res = self._get_resource(
+            _share_access_rule.ShareAccessRule, access_id)
+        res.delete(self, share_id, ignore_missing=ignore_missing)
