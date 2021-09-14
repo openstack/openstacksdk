@@ -55,3 +55,14 @@ File Systems service.
 .. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
   :noindex:
   :members: user_messages, get_user_message, delete_user_message
+
+
+Shared File System Limits
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Get absolute limits of resources supported by the Shared File Systems
+service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: limits

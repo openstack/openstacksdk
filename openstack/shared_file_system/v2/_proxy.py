@@ -20,6 +20,7 @@ from openstack.shared_file_system.v2 import (
 from openstack.shared_file_system.v2 import (
     user_message as _user_message
 )
+from openstack.shared_file_system.v2 import limit as _limit
 from openstack.shared_file_system.v2 import share as _share
 
 
@@ -224,3 +225,16 @@ class Proxy(proxy.Proxy):
         return self._delete(
             _user_message.UserMessage, message_id,
             ignore_missing=ignore_missing)
+
+    def limits(self, **query):
+        """Lists all share limits.
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the share limits being returned.
+
+        :returns: A generator of manila share limits resources
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            limit.Limit`
+        """
+        return self._list(
+            _limit.Limit, **query)
