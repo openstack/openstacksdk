@@ -30,17 +30,20 @@ _MOCK_METHOD = 'openstack.baremetal.v1._proxy.Proxy._get_with_fields'
 
 
 class TestBaremetalProxy(test_proxy_base.TestProxyBase):
-
     def setUp(self):
         super(TestBaremetalProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+
+class TestDrivers(TestBaremetalProxy):
     def test_drivers(self):
         self.verify_list(self.proxy.drivers, driver.Driver)
 
     def test_get_driver(self):
         self.verify_get(self.proxy.get_driver, driver.Driver)
 
+
+class TestChassis(TestBaremetalProxy):
     @mock.patch.object(chassis.Chassis, 'list')
     def test_chassis_detailed(self, mock_list):
         result = self.proxy.chassis(details=True, query=1)
@@ -73,6 +76,8 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_delete_chassis_ignore(self):
         self.verify_delete(self.proxy.delete_chassis, chassis.Chassis, True)
 
+
+class TestNode(TestBaremetalProxy):
     @mock.patch.object(node.Node, 'list')
     def test_nodes_detailed(self, mock_list):
         result = self.proxy.nodes(details=True, query=1)
@@ -117,6 +122,8 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_delete_node_ignore(self):
         self.verify_delete(self.proxy.delete_node, node.Node, True)
 
+
+class TestPort(TestBaremetalProxy):
     @mock.patch.object(port.Port, 'list')
     def test_ports_detailed(self, mock_list):
         result = self.proxy.ports(details=True, query=1)
@@ -149,6 +156,8 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
     def test_delete_port_ignore(self):
         self.verify_delete(self.proxy.delete_port, port.Port, True)
 
+
+class TestPortGroups(TestBaremetalProxy):
     @mock.patch.object(port_group.PortGroup, 'list')
     def test_port_groups_detailed(self, mock_list):
         result = self.proxy.port_groups(details=True, query=1)
@@ -166,6 +175,8 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
                         mock_method=_MOCK_METHOD,
                         expected_kwargs={'fields': None})
 
+
+class TestAllocation(TestBaremetalProxy):
     def test_create_allocation(self):
         self.verify_create(self.proxy.create_allocation, allocation.Allocation)
 
@@ -182,6 +193,8 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_allocation, allocation.Allocation,
                            True)
 
+
+class TestVolumeConnector(TestBaremetalProxy):
     def test_create_volume_connector(self):
         self.verify_create(self.proxy.create_volume_connector,
                            volume_connector.VolumeConnector)
@@ -206,6 +219,8 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
                            volume_connector.VolumeConnector,
                            True)
 
+
+class TestVolumeTarget(TestBaremetalProxy):
     @mock.patch.object(volume_target.VolumeTarget, 'list')
     def test_volume_target_detailed(self, mock_list):
         result = self.proxy.volume_targets(details=True, query=1)
@@ -242,6 +257,8 @@ class TestBaremetalProxy(test_proxy_base.TestProxyBase):
                            volume_target.VolumeTarget,
                            True)
 
+
+class TestMisc(TestBaremetalProxy):
     @mock.patch.object(node.Node, 'fetch', autospec=True)
     def test__get_with_fields_none(self, mock_fetch):
         result = self.proxy._get_with_fields(node.Node, 'value')
@@ -287,7 +304,7 @@ class TestWaitForNodesProvisionState(base.TestCase):
         for i, n in enumerate(nodes):
             # 1st attempt on 1st node, 2nd attempt on 2nd node
             n._check_state_reached.return_value = not (i % 2)
-        mock_get.side_effect = nodes
+            mock_get.side_effect = nodes
 
         result = self.proxy.wait_for_nodes_provision_state(
             ['abcd', node.Node(id='1234')], 'fake state')
@@ -304,7 +321,7 @@ class TestWaitForNodesProvisionState(base.TestCase):
         for i, n in enumerate(nodes):
             # 1st attempt on 1st node, 2nd attempt on 2nd node
             n._check_state_reached.return_value = not (i % 2)
-        mock_get.side_effect = nodes
+            mock_get.side_effect = nodes
 
         result = self.proxy.wait_for_nodes_provision_state(
             ['abcd', node.Node(id='1234')], 'fake state', fail=False)
