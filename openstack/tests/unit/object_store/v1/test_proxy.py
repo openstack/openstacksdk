@@ -93,7 +93,12 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self._test_object_delete(True)
 
     def test_object_create_attrs(self):
-        kwargs = {"name": "test", "data": "data", "container": "name"}
+        kwargs = {
+            "name": "test",
+            "data": "data",
+            "container": "name",
+            "metadata": {}
+        }
 
         self._verify(
             "openstack.proxy.Proxy._create",

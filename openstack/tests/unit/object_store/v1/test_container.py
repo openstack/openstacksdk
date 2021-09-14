@@ -137,6 +137,7 @@ class TestContainer(base.TestCase):
             "x-container-read": "some ACL",
             "x-container-write": "another ACL",
             "x-detect-content-type": 'True',
+            "X-Container-Meta-foo": "bar"
         }
         self.register_uris([
             dict(method=sess_method, uri=self.container_endpoint,
@@ -148,11 +149,13 @@ class TestContainer(base.TestCase):
         self.assert_calls()
 
     def test_create(self):
-        sot = container.Container.new(name=self.container)
+        sot = container.Container.new(
+            name=self.container, metadata={'foo': 'bar'})
         self._test_create_update(sot, sot.create, 'PUT')
 
     def test_commit(self):
-        sot = container.Container.new(name=self.container)
+        sot = container.Container.new(
+            name=self.container, metadata={'foo': 'bar'})
         self._test_create_update(sot, sot.commit, 'POST')
 
     def test_to_dict_recursion(self):

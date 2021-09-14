@@ -128,10 +128,14 @@ class TestObject(base_test_object.BaseTestObject):
         self.assert_calls()
 
     def _test_create(self, method, data):
-        sot = obj.Object.new(container=self.container, name=self.object,
-                             data=data)
+        sot = obj.Object.new(
+            container=self.container, name=self.object,
+            data=data, metadata={'foo': 'bar'})
         sot.is_newest = True
-        sent_headers = {"x-newest": 'True'}
+        sent_headers = {
+            "x-newest": 'True',
+            "X-Object-Meta-foo": "bar"
+        }
         self.register_uris([
             dict(method=method, uri=self.object_endpoint,
                  headers=self.headers,

@@ -26,6 +26,23 @@ class BaseResource(resource.Resource):
     _custom_metadata_prefix = None
     _system_metadata = dict()
 
+    def __init__(self, metadata=None, **attrs):
+        """Process and save metadata known at creation stage
+        """
+        super().__init__(**attrs)
+        if metadata is not None:
+            for k, v in metadata.items():
+                if not k.lower().startswith(
+                        self._custom_metadata_prefix.lower()):
+                    self.metadata[self._custom_metadata_prefix + k] = v
+                else:
+                    self.metadata[k] = v
+
+    def _prepare_request(self, **kwargs):
+        request = super()._prepare_request(**kwargs)
+        request.headers.update(self._calculate_headers(self.metadata))
+        return request
+
     def _calculate_headers(self, metadata):
         headers = {}
         for key in metadata:
