@@ -21,12 +21,14 @@ from openstack import resource
 class Object(_base.BaseResource):
     _custom_metadata_prefix = "X-Object-Meta-"
     _system_metadata = {
+        "accept_ranges": "accept-ranges",
         "content_disposition": "content-disposition",
         "content_encoding": "content-encoding",
         "content_type": "content-type",
         "delete_after": "x-delete-after",
         "delete_at": "x-delete-at",
         "is_content_type_detected": "x-detect-content-type",
+        "manifest": "x-object-manifest"
     }
 
     base_path = "/%(container)s"
@@ -40,7 +42,10 @@ class Object(_base.BaseResource):
     allow_head = True
 
     _query_mapping = resource.QueryParameters(
-        'prefix', 'format'
+        'prefix', 'format',
+        'temp_url_sig', 'temp_url_expires',
+        'filename', 'multipart_manifest', 'symlink',
+        multipart_manifest='multipart-manifest'
     )
 
     # Data to be passed during a POST call to create an object on the server.
@@ -93,6 +98,10 @@ class Object(_base.BaseResource):
     #: signature. For more information about temporary URLs, see
     #: OpenStack Object Storage API v1 Reference.
     expires_at = resource.Header("expires")
+    #: If present, this is a dynamic large object manifest object.
+    #: The value is the container and object name prefix of the segment
+    #: objects in the form container/prefix.
+    manifest = resource.Header("x-object-manifest")
     #: If you include the multipart-manifest=get query parameter and
     #: the object is a large object, the object contents are not
     #: returned. Instead, the manifest is returned in the
@@ -171,6 +180,13 @@ class Object(_base.BaseResource):
     #: Using PUT with X-Copy-From has the same effect as using the
     #: COPY operation to copy an object.
     copy_from = resource.Header("x-copy-from")
+    #: If present, this is a symlink object. The value is the relative path
+    #: of the target object in the format <container>/<object>.
+    symlink_target = resource.Header("x-symlink-target")
+    #: If present, and X-Symlink-Target is present, then this is a
+    #: cross-account symlink to an object in the account specified in the
+    #: value.
+    symlink_target_account = resource.Header("x-symlink-target-account")
 
     has_body = False
 
