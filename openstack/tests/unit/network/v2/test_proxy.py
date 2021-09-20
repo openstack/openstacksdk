@@ -107,6 +107,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_kwargs=expected_kwargs,
             mock_method=mock_method)
 
+
+class TestNetworkAddressScope(TestNetworkProxy):
     def test_address_scope_create_attrs(self):
         self.verify_create(self.proxy.create_address_scope,
                            address_scope.AddressScope)
@@ -137,6 +139,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_address_scope,
                            address_scope.AddressScope)
 
+
+class TestNetworkAgent(TestNetworkProxy):
     def test_agent_delete(self):
         self.verify_delete(self.proxy.delete_agent, agent.Agent, True)
 
@@ -149,6 +153,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_agent_update(self):
         self.verify_update(self.proxy.update_agent, agent.Agent)
 
+
+class TestNetworkAvailability(TestNetworkProxy):
     def test_availability_zones(self):
         self.verify_list(
             self.proxy.availability_zones,
@@ -170,6 +176,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={'network_id': NETWORK_ID}
         )
 
+
+class TestNetworkExtension(TestNetworkProxy):
     def test_extension_find(self):
         self.verify_find(self.proxy.find_extension, extension.Extension)
 
@@ -213,6 +221,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            expected_kwargs={'x': 1, 'y': 2, 'z': 3,
                                             'if_revision': 42})
 
+
+class TestNetworkHealthMonitor(TestNetworkProxy):
     def test_health_monitor_create_attrs(self):
         self.verify_create(self.proxy.create_health_monitor,
                            health_monitor.HealthMonitor)
@@ -241,6 +251,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_health_monitor,
                            health_monitor.HealthMonitor)
 
+
+class TestNetworkSiteConnection(TestNetworkProxy):
     def test_ipsec_site_connection_create_attrs(self):
         self.verify_create(self.proxy.create_vpn_ipsec_site_connection,
                            ipsec_site_connection.IPSecSiteConnection)
@@ -269,6 +281,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_vpn_ipsec_site_connection,
                            ipsec_site_connection.IPSecSiteConnection)
 
+
+class TestNetworkIkePolicy(TestNetworkProxy):
     def test_ikepolicy_create_attrs(self):
         self.verify_create(self.proxy.create_vpn_ikepolicy,
                            ikepolicy.IkePolicy)
@@ -297,6 +311,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_vpn_ikepolicy,
                            ikepolicy.IkePolicy)
 
+
+class TestNetworkListener(TestNetworkProxy):
     def test_listener_create_attrs(self):
         self.verify_create(self.proxy.create_listener, listener.Listener)
 
@@ -320,6 +336,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_listener_update(self):
         self.verify_update(self.proxy.update_listener, listener.Listener)
 
+
+class TestNetworkLoadBalancer(TestNetworkProxy):
     def test_load_balancer_create_attrs(self):
         self.verify_create(self.proxy.create_load_balancer,
                            load_balancer.LoadBalancer)
@@ -348,6 +366,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_load_balancer,
                            load_balancer.LoadBalancer)
 
+
+class TestNetworkMeteringLabel(TestNetworkProxy):
     def test_metering_label_create_attrs(self):
         self.verify_create(self.proxy.create_metering_label,
                            metering_label.MeteringLabel)
@@ -404,6 +424,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_metering_label_rule,
                            metering_label_rule.MeteringLabelRule)
 
+
+class TestNetworkNetwork(TestNetworkProxy):
     def test_network_create_attrs(self):
         self.verify_create(self.proxy.create_network, network.Network)
 
@@ -450,6 +472,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            expected_kwargs={'x': 1, 'y': 2, 'z': 3,
                                             'if_revision': 42})
 
+
+class TestNetworkFlavor(TestNetworkProxy):
     def test_flavor_create_attrs(self):
         self.verify_create(self.proxy.create_flavor, flavor.Flavor)
 
@@ -468,6 +492,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_flavors(self):
         self.verify_list(self.proxy.flavors, flavor.Flavor)
 
+
+class TestNetworkServiceProfile(TestNetworkProxy):
     def test_service_profile_create_attrs(self):
         self.verify_create(self.proxy.create_service_profile,
                            service_profile.ServiceProfile)
@@ -492,6 +518,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_service_profile,
                            service_profile.ServiceProfile)
 
+
+class TestNetworkIpAvailability(TestNetworkProxy):
     def test_network_ip_availability_find(self):
         self.verify_find(self.proxy.find_network_ip_availability,
                          network_ip_availability.NetworkIPAvailability)
@@ -510,6 +538,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                            method_kwargs={"pool": "test_id"},
                            expected_kwargs={"pool_id": "test_id"})
 
+
+class TestNetworkPoolMember(TestNetworkProxy):
     def test_pool_member_delete(self):
         self.verify_delete(
             self.proxy.delete_pool_member,
@@ -557,6 +587,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_args=[pool_member.PoolMember, "MEMBER"],
             expected_kwargs={"pool_id": "POOL"})
 
+
+class TestNetworkPool(TestNetworkProxy):
     def test_pool_create_attrs(self):
         self.verify_create(self.proxy.create_pool, pool.Pool)
 
@@ -623,6 +655,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
         bc.assert_called_once_with(port.Port, data)
 
+
+class TestNetworkQosBandwidth(TestNetworkProxy):
     def test_qos_bandwidth_limit_rule_create_attrs(self):
         self.verify_create(
             self.proxy.create_qos_bandwidth_limit_rule,
@@ -686,6 +720,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                 'rule_id'],
             expected_kwargs={'qos_policy_id': QOS_POLICY_ID, 'foo': 'bar'})
 
+
+class TestNetworkQosDscpMarking(TestNetworkProxy):
     def test_qos_dscp_marking_rule_create_attrs(self):
         self.verify_create(
             self.proxy.create_qos_dscp_marking_rule,
@@ -748,6 +784,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                 'rule_id'],
             expected_kwargs={'qos_policy_id': QOS_POLICY_ID, 'foo': 'bar'})
 
+
+class TestNetworkQosMinimumBandwidth(TestNetworkProxy):
     def test_qos_minimum_bandwidth_rule_create_attrs(self):
         self.verify_create(
             self.proxy.create_qos_minimum_bandwidth_rule,
@@ -812,6 +850,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={
                 'qos_policy_id': QOS_POLICY_ID, 'foo': 'bar'})
 
+
+class TestNetworkQosPolicy(TestNetworkProxy):
     def test_qos_policy_create_attrs(self):
         self.verify_create(self.proxy.create_qos_policy, qos_policy.QoSPolicy)
 
@@ -835,6 +875,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_qos_policy_update(self):
         self.verify_update(self.proxy.update_qos_policy, qos_policy.QoSPolicy)
 
+
+class TestNetworkQosRuleType(TestNetworkProxy):
     def test_qos_rule_type_find(self):
         self.verify_find(self.proxy.find_qos_rule_type,
                          qos_rule_type.QoSRuleType)
@@ -846,6 +888,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_qos_rule_types(self):
         self.verify_list(self.proxy.qos_rule_types, qos_rule_type.QoSRuleType)
 
+
+class TestNetworkQuota(TestNetworkProxy):
     def test_quota_delete(self):
         self.verify_delete(self.proxy.delete_quota, quota.Quota, False)
 
@@ -888,6 +932,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_quota_update(self):
         self.verify_update(self.proxy.update_quota, quota.Quota)
 
+
+class TestNetworkRbacPolicy(TestNetworkProxy):
     def test_rbac_policy_create_attrs(self):
         self.verify_create(self.proxy.create_rbac_policy,
                            rbac_policy.RBACPolicy)
@@ -913,6 +959,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_rbac_policy,
                            rbac_policy.RBACPolicy)
 
+
+class TestNetworkRouter(TestNetworkProxy):
     def test_router_create_attrs(self):
         self.verify_create(self.proxy.create_router, router.Router)
 
@@ -1092,6 +1140,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={'agent_id': AGENT_ID},
         )
 
+
+class TestNetworkFirewallGroup(TestNetworkProxy):
     def test_firewall_group_create_attrs(self):
         self.verify_create(self.proxy.create_firewall_group,
                            firewall_group.FirewallGroup)
@@ -1120,6 +1170,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_firewall_group,
                            firewall_group.FirewallGroup)
 
+
+class TestNetworkPolicy(TestNetworkProxy):
     def test_firewall_policy_create_attrs(self):
         self.verify_create(self.proxy.create_firewall_policy,
                            firewall_policy.FirewallPolicy)
@@ -1148,6 +1200,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_firewall_policy,
                            firewall_policy.FirewallPolicy)
 
+
+class TestNetworkRule(TestNetworkProxy):
     def test_firewall_rule_create_attrs(self):
         self.verify_create(self.proxy.create_firewall_rule,
                            firewall_rule.FirewallRule)
@@ -1176,6 +1230,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_firewall_rule,
                            firewall_rule.FirewallRule)
 
+
+class TestNetworkNetworkSegment(TestNetworkProxy):
     def test_network_segment_range_create_attrs(self):
         self.verify_create(self.proxy.create_network_segment_range,
                            network_segment_range.NetworkSegmentRange)
@@ -1204,6 +1260,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_network_segment_range,
                            network_segment_range.NetworkSegmentRange)
 
+
+class TestNetworkSecurityGroup(TestNetworkProxy):
     def test_security_group_create_attrs(self):
         self.verify_create(self.proxy.create_security_group,
                            security_group.SecurityGroup)
@@ -1290,6 +1348,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
 
         bc.assert_called_once_with(security_group_rule.SecurityGroupRule, data)
 
+
+class TestNetworkSegment(TestNetworkProxy):
     def test_segment_create_attrs(self):
         self.verify_create(self.proxy.create_segment, segment.Segment)
 
@@ -1311,6 +1371,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
     def test_segment_update(self):
         self.verify_update(self.proxy.update_segment, segment.Segment)
 
+
+class TestNetworkSubnet(TestNetworkProxy):
     def test_subnet_create_attrs(self):
         self.verify_create(self.proxy.create_subnet, subnet.Subnet)
 
@@ -1369,6 +1431,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_subnet_pool,
                            subnet_pool.SubnetPool)
 
+
+class TestNetworkVpnService(TestNetworkProxy):
     def test_vpn_service_create_attrs(self):
         self.verify_create(self.proxy.create_vpn_service,
                            vpn_service.VPNService)
@@ -1395,10 +1459,14 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
         self.verify_update(self.proxy.update_vpn_service,
                            vpn_service.VPNService)
 
+
+class TestNetworkServiceProvider(TestNetworkProxy):
     def test_service_provider(self):
         self.verify_list(self.proxy.service_providers,
                          service_provider.ServiceProvider)
 
+
+class TestNetworkAutoAllocatedTopology(TestNetworkProxy):
     def test_auto_allocated_topology_get(self):
         self.verify_get(self.proxy.get_auto_allocated_topology,
                         auto_allocated_topology.AutoAllocatedTopology)
@@ -1421,6 +1489,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                         expected_kwargs={"project": mock.sentinel.project_id,
                                          "requires_id": False})
 
+
+class TestNetworkTags(TestNetworkProxy):
     def test_set_tags(self):
         x_network = network.Network.new(id='NETWORK_ID')
         self._verify(
@@ -1438,6 +1508,8 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
                           no_tag_resource, ['TAG1', 'TAG2'])
         self.assertEqual(0, mock_set_tags.call_count)
 
+
+class TestNetworkFloatingIp(TestNetworkProxy):
     def test_create_floating_ip_port_forwarding(self):
         self.verify_create(self.proxy.create_floating_ip_port_forwarding,
                            port_forwarding.PortForwarding,
