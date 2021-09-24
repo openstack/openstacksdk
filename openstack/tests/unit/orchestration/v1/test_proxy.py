@@ -32,6 +32,8 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         super(TestOrchestrationProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+
+class TestOrchestrationStack(TestOrchestrationProxy):
     def test_create_stack(self):
         self.verify_create(self.proxy.create_stack, stack.Stack)
 
@@ -135,6 +137,8 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         mock_stack.assert_called_once_with(id='FAKE_ID')
         stk.check.assert_called_once_with(self.proxy)
 
+
+class TestOrchestrationStackEnvironment(TestOrchestrationProxy):
     @mock.patch.object(stack.Stack, 'find')
     def test_get_stack_environment_with_stack_identity(self, mock_find):
         stack_id = '1234'
@@ -169,6 +173,8 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                 'stack_name': stack_name,
                 'stack_id': stack_id})
 
+
+class TestOrchestrationStackFiles(TestOrchestrationProxy):
     @mock.patch.object(stack_files.StackFiles, 'fetch')
     @mock.patch.object(stack.Stack, 'find')
     def test_get_stack_files_with_stack_identity(self, mock_find, mock_fetch):
@@ -197,6 +203,8 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.assertEqual({'file': 'content'}, res)
         mock_fetch.assert_called_once_with(self.proxy)
 
+
+class TestOrchestrationStackTemplate(TestOrchestrationProxy):
     @mock.patch.object(stack.Stack, 'find')
     def test_get_stack_template_with_stack_identity(self, mock_find):
         stack_id = '1234'
@@ -231,6 +239,8 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                 'stack_name': stack_name,
                 'stack_id': stack_id})
 
+
+class TestOrchestrationResource(TestOrchestrationProxy):
     @mock.patch.object(stack.Stack, 'find')
     def test_resources_with_stack_object(self, mock_find):
         stack_id = '1234'
@@ -272,6 +282,8 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
                                self.proxy.resources, stack_name)
         self.assertEqual('No stack found for test_stack', str(ex))
 
+
+class TestOrchestrationSoftwareConfig(TestOrchestrationProxy):
     def test_create_software_config(self):
         self.verify_create(self.proxy.create_software_config,
                            sc.SoftwareConfig)
@@ -288,6 +300,8 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_software_config,
                            sc.SoftwareConfig, False)
 
+
+class TestOrchestrationSoftwareDeployment(TestOrchestrationProxy):
     def test_create_software_deployment(self):
         self.verify_create(self.proxy.create_software_deployment,
                            sd.SoftwareDeployment)
@@ -310,6 +324,8 @@ class TestOrchestrationProxy(test_proxy_base.TestProxyBase):
         self.verify_delete(self.proxy.delete_software_deployment,
                            sd.SoftwareDeployment, False)
 
+
+class TestOrchestrationTemplate(TestOrchestrationProxy):
     @mock.patch.object(template.Template, 'validate')
     def test_validate_template(self, mock_validate):
         tmpl = mock.Mock()
