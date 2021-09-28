@@ -24,6 +24,8 @@ class TestSharedFileSystemProxy(test_proxy_base.TestProxyBase):
         super(TestSharedFileSystemProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+
+class TestSharedFileSystemShare(TestSharedFileSystemProxy):
     def test_shares(self):
         self.verify_list(self.proxy.shares, share.Share)
 
@@ -64,6 +66,8 @@ class TestSharedFileSystemProxy(test_proxy_base.TestProxyBase):
         mock_wait.assert_called_once_with(self.proxy, mock_resource,
                                           'ACTIVE', [], 2, 120)
 
+
+class TestSharedFileSystemStoragePool(TestSharedFileSystemProxy):
     def test_storage_pools(self):
         self.verify_list(
             self.proxy.storage_pools, storage_pool.StoragePool)
