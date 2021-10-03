@@ -241,7 +241,8 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
                                    remote_address_group_id=None,
                                    direction='ingress',
                                    ethertype='IPv4',
-                                   project_id=None):
+                                   project_id=None,
+                                   description=None):
         """Create a new security group rule
 
         :param string secgroup_name_or_id:
@@ -285,7 +286,8 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
         :param string project_id:
             Specify the project ID this security group will be created
             on (admin-only).
-
+        :param string description:
+            Description of the rule, max 255 characters.
         :returns: A ``munch.Munch`` representing the new security group rule.
 
         :raises: OpenStackCloudException on operation error.
@@ -319,7 +321,8 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
             }
             if project_id is not None:
                 rule_def['tenant_id'] = project_id
-
+            if description is not None:
+                rule_def["description"] = description
             return self.network.create_security_group_rule(
                 **rule_def
             )
