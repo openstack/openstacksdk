@@ -72,13 +72,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
     @_utils.cache_on_arguments()
     def _nova_extensions(self):
-        extensions = set()
-        data = proxy._json_response(
-            self.compute.get('/extensions'),
-            error_message="Error fetching extension list for nova")
-
-        for extension in self._get_and_munchify('extensions', data):
-            extensions.add(extension['alias'])
+        extensions = set([e.alias for e in self.compute.extensions()])
         return extensions
 
     def _has_nova_extension(self, extension_name):
@@ -160,13 +154,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :returns: A list of flavor ``munch.Munch``.
 
         """
-        data = self.compute.flavors(details=True)
-        flavors = []
-
-        for flavor in data:
-            if not flavor.extra_specs and get_extra:
-                flavor.fetch_extra_specs(self.compute)
-            flavors.append(flavor._to_munch(original_names=False))
+        flavors = list(self.compute.flavors(
+            details=True, get_extra_specs=get_extra))
         return flavors
 
     def list_server_security_groups(self, server):
@@ -429,9 +418,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         if not filters:
             filters = {}
         flavor = self.compute.find_flavor(
-            name_or_id, get_extra_specs=get_extra, **filters)
-        if flavor:
-            return flavor._to_munch(original_names=False)
+            name_or_id, get_extra_specs=get_extra,
+            ignore_missing=True, **filters)
+        return flavor
 
     def get_flavor_by_id(self, id, get_extra=False):
         """ Get a flavor by ID
@@ -442,8 +431,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
              specs.
         :returns: A flavor ``munch.Munch``.
         """
-        flavor = self.compute.get_flavor(id, get_extra_specs=get_extra)
-        return flavor._to_munch(original_names=False)
+        return self.compute.get_flavor(id, get_extra_specs=get_extra)
 
     def get_server_console(self, server, length=None):
         """Get the console log for a server.
@@ -1393,9 +1381,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         if flavorid == 'auto':
             attrs['id'] = None
 
-        flavor = self.compute.create_flavor(**attrs)
-
-        return flavor._to_munch(original_names=False)
+        return self.compute.create_flavor(**attrs)
 
     def delete_flavor(self, name_or_id):
         """Delete a flavor

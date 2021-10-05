@@ -535,11 +535,9 @@ class TestShade(base.TestCase):
                      endpoint=fakes.COMPUTE_ENDPOINT),
                  status_code=404),
         ])
-        with testtools.ExpectedException(
-            exc.OpenStackCloudURINotFound,
-            "Error fetching extension list for nova"
-        ):
-            self.cloud._nova_extensions()
+        self.assertRaises(
+            exceptions.ResourceNotFound,
+            self.cloud._nova_extensions)
 
         self.assert_calls()
 

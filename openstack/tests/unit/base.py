@@ -745,6 +745,35 @@ class TestCase(base.TestCase):
             self.assertEqual(
                 len(self.calls), len(self.adapter.request_history))
 
+    def assertResourceEqual(self, actual, expected, resource_type):
+        """Helper for the assertEqual which compares Resource object against
+        dictionary representing expected state.
+
+        :param Resource actual: actual object.
+        :param dict expected: dictionary representing expected object.
+        :param class resource_type: class type to be applied for the expected
+            resource.
+        """
+        return self.assertEqual(
+            resource_type(**expected).to_dict(computed=False),
+            actual.to_dict(computed=False)
+        )
+
+    def assertResourceListEqual(self, actual, expected, resource_type):
+        """Helper for the assertEqual which compares Resource lists object against
+        dictionary representing expected state.
+
+        :param list actual: List of actual objects.
+        :param listexpected: List of dictionaries representing expected
+            objects.
+        :param class resource_type: class type to be applied for the expected
+            resource.
+        """
+        self.assertEqual(
+            [resource_type(**f).to_dict(computed=False) for f in expected],
+            [f.to_dict(computed=False) for f in actual]
+        )
+
 
 class IronicTestCase(TestCase):
 
