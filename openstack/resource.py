@@ -10,7 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""
+"""Base resource class.
+
 The :class:`~openstack.resource.Resource` class is a base
 class that represent a remote resource. The attributes that
 comprise a request or response for this resource are specified
@@ -969,7 +970,7 @@ class Resource(dict):
         modified on the server.
 
         :param dict kwargs: Each of the named arguments will be set as
-                            attributes on the resulting Resource object.
+            attributes on the resulting Resource object.
         """
         return cls(_synchronized=True, connection=connection, **kwargs)
 
@@ -986,26 +987,33 @@ class Resource(dict):
         """
         return cls(_synchronized=synchronized, connection=connection, **obj)
 
-    def to_dict(self, body=True, headers=True, computed=True,
-                ignore_none=False, original_names=False, _to_munch=False):
+    def to_dict(
+        self,
+        body=True,
+        headers=True,
+        computed=True,
+        ignore_none=False,
+        original_names=False,
+        _to_munch=False,
+    ):
         """Return a dictionary of this resource's contents
 
         :param bool body: Include the :class:`~openstack.resource.Body`
-                          attributes in the returned dictionary.
+            attributes in the returned dictionary.
         :param bool headers: Include the :class:`~openstack.resource.Header`
-                             attributes in the returned dictionary.
+            attributes in the returned dictionary.
         :param bool computed: Include the :class:`~openstack.resource.Computed`
-                              attributes in the returned dictionary.
+            attributes in the returned dictionary.
         :param bool ignore_none: When True, exclude key/value pairs where
-                                 the value is None. This will exclude
-                                 attributes that the server hasn't returned.
+            the value is None. This will exclude attributes that the server
+            hasn't returned.
         :param bool original_names: When True, use attribute names as they
-                                    were received from the server.
+            were received from the server.
         :param bool _to_munch: For internal use only. Converts to `munch.Munch`
-                               instead of dict.
+            instead of dict.
 
         :return: A dictionary of key/value pairs where keys are named
-                 as they exist as attributes of this class.
+            as they exist as attributes of this class.
         """
         if _to_munch:
             mapping = munch.Munch()
@@ -1061,6 +1069,7 @@ class Resource(dict):
                         mapping[key] = value
 
         return mapping
+
     # Compatibility with the munch.Munch.toDict method
     toDict = to_dict
     # Make the munch copy method use to_dict
@@ -1125,8 +1134,15 @@ class Resource(dict):
                 body = {self.resource_key: body}
         return body
 
-    def _prepare_request(self, requires_id=None, prepend_key=False,
-                         patch=False, base_path=None, params=None, **kwargs):
+    def _prepare_request(
+        self,
+        requires_id=None,
+        prepend_key=False,
+        patch=False,
+        base_path=None,
+        params=None,
+        **kwargs,
+    ):
         """Prepare a request to be sent to the server
 
         Create operations don't require an ID, but all others do,
@@ -1247,6 +1263,7 @@ class Resource(dict):
         """Get microversion to use when listing resources.
 
         The base version uses the following logic:
+
         1. If the session has a default microversion for the current service,
            just use it.
         2. If ``self._max_microversion`` is not ``None``, use minimum between
@@ -1280,8 +1297,9 @@ class Resource(dict):
 
         return self._get_microversion_for_list(session)
 
-    def _assert_microversion_for(self, session, action, expected,
-                                 error_message=None):
+    def _assert_microversion_for(
+        self, session, action, expected, error_message=None,
+    ):
         """Enforce that the microversion for action satisfies the requirement.
 
         :param session: :class`keystoneauth1.adapter.Adapter`
@@ -1325,15 +1343,14 @@ class Resource(dict):
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param prepend_key: A boolean indicating whether the resource_key
-                            should be prepended in a resource creation
-                            request. Default to True.
+            should be prepended in a resource creation request. Default to
+            True.
         :param str base_path: Base part of the URI for creating resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from :data:`~openstack.resource.Resource.base_path`.
         :param dict params: Additional params to pass.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_create` is not set to ``True``.
+            :data:`Resource.allow_create` is not set to ``True``.
         """
         if not self.allow_create:
             raise exceptions.MethodNotSupported(self, "create")
@@ -1376,24 +1393,29 @@ class Resource(dict):
         return self
 
     @classmethod
-    def bulk_create(cls, session, data, prepend_key=True, base_path=None,
-                    **params):
+    def bulk_create(
+        cls,
+        session,
+        data,
+        prepend_key=True,
+        base_path=None,
+        **params,
+    ):
         """Create multiple remote resources based on this class and data.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param data: list of dicts, which represent resources to create.
         :param prepend_key: A boolean indicating whether the resource_key
-                            should be prepended in a resource creation
-                            request. Default to True.
+            should be prepended in a resource creation request. Default to
+            True.
         :param str base_path: Base part of the URI for creating resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from :data:`~openstack.resource.Resource.base_path`.
         :param dict params: Additional params to pass.
 
         :return: A generator of :class:`Resource` objects.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_create` is not set to ``True``.
+            :data:`Resource.allow_create` is not set to ``True``.
         """
         if not cls.allow_create:
             raise exceptions.MethodNotSupported(cls, "create")
@@ -1452,25 +1474,30 @@ class Resource(dict):
                                  connection=session._get_connection(),
                                  **res_dict) for res_dict in data)
 
-    def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None, **params):
+    def fetch(
+        self,
+        session,
+        requires_id=True,
+        base_path=None,
+        error_message=None,
+        **params,
+    ):
         """Get a remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param boolean requires_id: A boolean indicating whether resource ID
-                                    should be part of the requested URI.
+            should be part of the requested URI.
         :param str base_path: Base part of the URI for fetching resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from :data:`~openstack.resource.Resource.base_path`.
         :param str error_message: An Error message to be returned if
-                                  requested object does not exist.
+            requested object does not exist.
         :param dict params: Additional parameters that can be consumed.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_fetch` is not set to ``True``.
+            :data:`Resource.allow_fetch` is not set to ``True``.
         :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
-                 the resource was not found.
+            the resource was not found.
         """
         if not self.allow_fetch:
             raise exceptions.MethodNotSupported(self, "fetch")
@@ -1495,14 +1522,13 @@ class Resource(dict):
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param str base_path: Base part of the URI for fetching resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from :data:`~openstack.resource.Resource.base_path`.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_head` is not set to ``True``.
-        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
-                 the resource was not found.
+            :data:`Resource.allow_head` is not set to ``True``.
+        :raises: :exc:`~openstack.exceptions.ResourceNotFound` if the resource
+            was not found.
         """
         if not self.allow_head:
             raise exceptions.MethodNotSupported(self, "head")
@@ -1524,27 +1550,32 @@ class Resource(dict):
         return (self._body.dirty or self._header.dirty
                 or self.allow_empty_commit)
 
-    def commit(self, session, prepend_key=True, has_body=True,
-               retry_on_conflict=None, base_path=None, **kwargs):
+    def commit(
+        self,
+        session,
+        prepend_key=True,
+        has_body=True,
+        retry_on_conflict=None,
+        base_path=None,
+        **kwargs,
+    ):
         """Commit the state of the instance to the remote resource.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param prepend_key: A boolean indicating whether the resource_key
-                            should be prepended in a resource update request.
-                            Default to True.
+            should be prepended in a resource update request.
+            Default to True.
         :param bool retry_on_conflict: Whether to enable retries on HTTP
-                                       CONFLICT (409). Value of ``None`` leaves
-                                       the `Adapter` defaults.
+            CONFLICT (409). Value of ``None`` leaves the `Adapter` defaults.
         :param str base_path: Base part of the URI for modifying resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from :data:`~openstack.resource.Resource.base_path`.
         :param dict kwargs: Parameters that will be passed to
-                            _prepare_request()
+            _prepare_request()
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_commit` is not set to ``True``.
+            :data:`Resource.allow_commit` is not set to ``True``.
         """
         # The id cannot be dirty for an commit
         self._body._dirty.discard("id")
@@ -1570,8 +1601,15 @@ class Resource(dict):
                             has_body=has_body,
                             retry_on_conflict=retry_on_conflict)
 
-    def _commit(self, session, request, method, microversion, has_body=True,
-                retry_on_conflict=None):
+    def _commit(
+        self,
+        session,
+        request,
+        method,
+        microversion,
+        has_body=True,
+        retry_on_conflict=None,
+    ):
         session = self._get_session(session)
 
         kwargs = {}
@@ -1625,8 +1663,15 @@ class Resource(dict):
 
         return converted
 
-    def patch(self, session, patch=None, prepend_key=True, has_body=True,
-              retry_on_conflict=None, base_path=None):
+    def patch(
+        self,
+        session,
+        patch=None,
+        prepend_key=True,
+        has_body=True,
+        retry_on_conflict=None,
+        base_path=None,
+    ):
         """Patch the remote resource.
 
         Allows modifying the resource by providing a list of JSON patches to
@@ -1636,21 +1681,18 @@ class Resource(dict):
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param patch: Additional JSON patch as a list or one patch item.
-                      If provided, it is applied on top of any changes to the
-                      current resource.
+            If provided, it is applied on top of any changes to the current
+            resource.
         :param prepend_key: A boolean indicating whether the resource_key
-                            should be prepended in a resource update request.
-                            Default to True.
+            should be prepended in a resource update request. Default to True.
         :param bool retry_on_conflict: Whether to enable retries on HTTP
-                                       CONFLICT (409). Value of ``None`` leaves
-                                       the `Adapter` defaults.
+            CONFLICT (409). Value of ``None`` leaves the `Adapter` defaults.
         :param str base_path: Base part of the URI for modifying resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from :data:`~openstack.resource.Resource.base_path`.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_patch` is not set to ``True``.
+            :data:`Resource.allow_patch` is not set to ``True``.
         """
         # The id cannot be dirty for an commit
         self._body._dirty.discard("id")
@@ -1678,13 +1720,13 @@ class Resource(dict):
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param dict kwargs: Parameters that will be passed to
-                            _prepare_request()
+            _prepare_request()
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_commit` is not set to ``True``.
+            :data:`Resource.allow_commit` is not set to ``True``.
         :raises: :exc:`~openstack.exceptions.ResourceNotFound` if
-                 the resource was not found.
+            the resource was not found.
         """
 
         response = self._raw_delete(session, **kwargs)
@@ -1708,8 +1750,14 @@ class Resource(dict):
             microversion=microversion)
 
     @classmethod
-    def list(cls, session, paginated=True, base_path=None,
-             allow_unknown_params=False, **params):
+    def list(
+        cls,
+        session,
+        paginated=True,
+        base_path=None,
+        allow_unknown_params=False,
+        **params,
+    ):
         """This method is a generator which yields resource objects.
 
         This resource object list generator handles pagination and takes query
@@ -1718,11 +1766,9 @@ class Resource(dict):
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param bool paginated: ``True`` if a GET to this resource returns
-            a paginated series of responses, or ``False``
-            if a GET returns only one page of data.
-            **When paginated is False only one
-            page of data will be returned regardless
-            of the API's support of pagination.**
+            a paginated series of responses, or ``False`` if a GET returns only
+            one page of data. **When paginated is False only one page of data
+            will be returned regardless of the API's support of pagination.**
         :param str base_path: Base part of the URI for listing resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
         :param bool allow_unknown_params: ``True`` to accept, but discard
@@ -1731,19 +1777,18 @@ class Resource(dict):
             validation exception when unknown query parameters are passed.
         :param dict params: These keyword arguments are passed through the
             :meth:`~openstack.resource.QueryParamter._transpose` method
-            to find if any of them match expected query parameters to be
-            sent in the *params* argument to
+            to find if any of them match expected query parameters to be sent
+            in the *params* argument to
             :meth:`~keystoneauth1.adapter.Adapter.get`. They are additionally
-            checked against the
-            :data:`~openstack.resource.Resource.base_path` format string
-            to see if any path fragments need to be filled in by the contents
-            of this argument.
+            checked against the :data:`~openstack.resource.Resource.base_path`
+            format string to see if any path fragments need to be filled in by
+            the contents of this argument.
 
         :return: A generator of :class:`Resource` objects.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
-                 :data:`Resource.allow_list` is not set to ``True``.
+            :data:`Resource.allow_list` is not set to ``True``.
         :raises: :exc:`~openstack.exceptions.InvalidResourceQuery` if query
-                 contains invalid params.
+            contains invalid params.
         """
         if not cls.allow_list:
             raise exceptions.MethodNotSupported(cls, "list")
@@ -1914,8 +1959,12 @@ class Resource(dict):
 
     @classmethod
     def find(
-        cls, session, name_or_id, ignore_missing=True,
-        list_base_path=None, **params
+        cls,
+        session,
+        name_or_id,
+        ignore_missing=True,
+        list_base_path=None,
+        **params,
     ):
         """Find a resource by its name or id.
 
@@ -1935,11 +1984,11 @@ class Resource(dict):
             URI parameters.
 
         :return: The :class:`Resource` object matching the given name or id
-                 or None if nothing matches.
+            or None if nothing matches.
         :raises: :class:`openstack.exceptions.DuplicateResource` if more
-                 than one resource is found for this request.
+            than one resource is found for this request.
         :raises: :class:`openstack.exceptions.ResourceNotFound` if nothing
-                 is found and ignore_missing is ``False``.
+            is found and ignore_missing is ``False``.
         """
         session = cls._get_session(session)
         # Try to short-circuit by looking directly for a matching ID.
@@ -1979,31 +2028,38 @@ def _normalize_status(status):
     return status
 
 
-def wait_for_status(session, resource, status, failures, interval=None,
-                    wait=None, attribute='status'):
+def wait_for_status(
+    session,
+    resource,
+    status,
+    failures,
+    interval=None,
+    wait=None,
+    attribute='status',
+):
     """Wait for the resource to be in a particular status.
 
     :param session: The session to use for making this request.
     :type session: :class:`~keystoneauth1.adapter.Adapter`
     :param resource: The resource to wait on to reach the status. The resource
-                     must have a status attribute specified via ``attribute``.
+        must have a status attribute specified via ``attribute``.
     :type resource: :class:`~openstack.resource.Resource`
     :param status: Desired status of the resource.
     :param list failures: Statuses that would indicate the transition
-                          failed such as 'ERROR'. Defaults to ['ERROR'].
+        failed such as 'ERROR'. Defaults to ['ERROR'].
     :param interval: Number of seconds to wait between checks.
-                     Set to ``None`` to use the default interval.
+        Set to ``None`` to use the default interval.
     :param wait: Maximum number of seconds to wait for transition.
-                 Set to ``None`` to wait forever.
+        Set to ``None`` to wait forever.
     :param attribute: Name of the resource attribute that contains the status.
 
     :return: The updated resource.
     :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
-             to status failed to occur in wait seconds.
+        to status failed to occur in wait seconds.
     :raises: :class:`~openstack.exceptions.ResourceFailure` resource
-             transitioned to one of the failure states.
+        transitioned to one of the failure states.
     :raises: :class:`~AttributeError` if the resource does not have a status
-             attribute
+        attribute
     """
 
     current_status = getattr(resource, attribute)
@@ -2054,7 +2110,7 @@ def wait_for_delete(session, resource, interval, wait):
 
     :return: Method returns self on success.
     :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
-             to status failed to occur in wait seconds.
+        to status failed to occur in wait seconds.
     """
     orig_resource = resource
     for count in utils.iterate_timeout(
