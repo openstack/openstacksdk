@@ -454,10 +454,6 @@ class Resource(dict):
     #: Allow patch operation for this resource.
     allow_patch = False
 
-    # TODO(mordred) Unused - here for transition with OSC. Remove once
-    # OSC no longer checks for allow_get
-    allow_get = True
-
     #: Commits happen without header or body being dirty.
     allow_empty_commit = False
 
