@@ -360,6 +360,7 @@ class FakeVolume:
         self.volume_type = 'type:volume'
         self.availability_zone = 'az1'
         self.created_at = '1900-01-01 12:34:56'
+        self.updated_at = None
         self.source_volid = '12345'
         self.metadata = {}
 

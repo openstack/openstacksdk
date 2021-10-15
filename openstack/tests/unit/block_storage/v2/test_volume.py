@@ -34,6 +34,7 @@ VOLUME = {
     "availability_zone": "nova",
     "bootable": "false",
     "created_at": "2015-03-09T12:14:57.233772",
+    "updated_at": None,
     "description": "something",
     "volume_type": "some_type",
     "snapshot_id": "93c2e2aa-7744-4fd6-a31a-80c4726b08d7",
@@ -91,6 +92,7 @@ class TestVolume(base.TestCase):
         self.assertEqual(VOLUME["availability_zone"], sot.availability_zone)
         self.assertFalse(sot.is_bootable)
         self.assertEqual(VOLUME["created_at"], sot.created_at)
+        self.assertEqual(VOLUME["updated_at"], sot.updated_at)
         self.assertEqual(VOLUME["description"], sot.description)
         self.assertEqual(VOLUME["volume_type"], sot.volume_type)
         self.assertEqual(VOLUME["snapshot_id"], sot.snapshot_id)

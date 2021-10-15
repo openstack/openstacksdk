@@ -42,6 +42,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     consistency_group_id = resource.Body("consistencygroup_id")
     #: The timestamp of this volume creation.
     created_at = resource.Body("created_at")
+    #: The date and time when the resource was updated.
+    updated_at = resource.Body("updated_at")
     #: The volume description.
     description = resource.Body("description")
     #: Extended replication status on this volume.
