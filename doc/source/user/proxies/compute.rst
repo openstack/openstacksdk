@@ -165,3 +165,10 @@ Server Migration Operations
   :noindex:
   :members: abort_server_migration, force_complete_server_migration,
             get_server_migration, server_migrations
+
+Migration Operations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.compute.v2._proxy.Proxy
+  :noindex:
+  :members: migrations

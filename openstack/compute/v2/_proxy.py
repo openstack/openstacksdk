@@ -20,6 +20,7 @@ from openstack.compute.v2 import hypervisor as _hypervisor
 from openstack.compute.v2 import image as _image
 from openstack.compute.v2 import keypair as _keypair
 from openstack.compute.v2 import limits
+from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import quota_set as _quota_set
 from openstack.compute.v2 import server as _server
 from openstack.compute.v2 import server_diagnostics as _server_diagnostics
@@ -1829,6 +1830,16 @@ class Proxy(proxy.Proxy):
             _server_migration.ServerMigration,
             server_id=server_id,
         )
+
+    # ========== Migrations ==========
+
+    def migrations(self):
+        """Return a generator of migrations for all servers.
+
+        :returns: A generator of Migration objects
+        :rtype: :class:`~openstack.compute.v2.migration.Migration`
+        """
+        return self._list(_migration.Migration)
 
     # ========== Server diagnostics ==========
 

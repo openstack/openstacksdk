@@ -21,6 +21,7 @@ from openstack.compute.v2 import hypervisor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
 from openstack.compute.v2 import limits
+from openstack.compute.v2 import migration
 from openstack.compute.v2 import quota_set
 from openstack.compute.v2 import server
 from openstack.compute.v2 import server_group
@@ -1051,6 +1052,9 @@ class TestCompute(TestComputeProxy):
             expected_args=[server_migration.ServerMigration],
             expected_kwargs={'server_id': 'server'},
         )
+
+    def test_migrations(self):
+        self.verify_list(self.proxy.migrations, migration.Migration)
 
     def test_fetch_security_groups(self):
         self._verify(
