@@ -11,6 +11,7 @@ Compute Resources
    v2/limits
    v2/server
    v2/server_interface
+   v2/server_migration
    v2/server_ip
    v2/hypervisor
    v2/quota_set

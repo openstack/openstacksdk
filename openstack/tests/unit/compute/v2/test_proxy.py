@@ -26,6 +26,7 @@ from openstack.compute.v2 import server
 from openstack.compute.v2 import server_group
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
+from openstack.compute.v2 import server_migration
 from openstack.compute.v2 import server_remote_console
 from openstack.compute.v2 import service
 from openstack import resource
@@ -1003,6 +1004,53 @@ class TestCompute(TestComputeProxy):
             method_args=["value", "host1", False],
             expected_args=[self.proxy, "host1"],
             expected_kwargs={'force': False, 'block_migration': None})
+
+    def test_abort_server_migration(self):
+        self._verify(
+            'openstack.proxy.Proxy._delete',
+            self.proxy.abort_server_migration,
+            method_args=['server_migration', 'server'],
+            expected_args=[
+                server_migration.ServerMigration,
+                'server_migration',
+            ],
+            expected_kwargs={
+                'server_id': 'server',
+                'ignore_missing': True,
+            },
+        )
+
+    def test_force_complete_server_migration(self):
+        self._verify(
+            'openstack.compute.v2.server_migration.ServerMigration.force_complete',  # noqa: E501
+            self.proxy.force_complete_server_migration,
+            method_args=['server_migration', 'server'],
+            expected_args=[self.proxy],
+        )
+
+    def test_get_server_migration(self):
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_server_migration,
+            method_args=['server_migration', 'server'],
+            expected_args=[
+                server_migration.ServerMigration,
+                'server_migration',
+            ],
+            expected_kwargs={
+                'server_id': 'server',
+                'ignore_missing': True,
+            },
+        )
+
+    def test_server_migrations(self):
+        self._verify(
+            'openstack.proxy.Proxy._list',
+            self.proxy.server_migrations,
+            method_args=['server'],
+            expected_args=[server_migration.ServerMigration],
+            expected_kwargs={'server_id': 'server'},
+        )
 
     def test_fetch_security_groups(self):
         self._verify(

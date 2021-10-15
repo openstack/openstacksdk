@@ -26,6 +26,7 @@ from openstack.compute.v2 import server_diagnostics as _server_diagnostics
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
 from openstack.compute.v2 import server_ip
+from openstack.compute.v2 import server_migration as _server_migration
 from openstack.compute.v2 import server_remote_console as _src
 from openstack.compute.v2 import service as _service
 from openstack.compute.v2 import volume_attachment as _volume_attachment
@@ -1715,6 +1716,118 @@ class Proxy(proxy.Proxy):
             self, host,
             force=force,
             block_migration=block_migration,
+        )
+
+    def abort_server_migration(
+        self, server_migration, server, ignore_missing=True,
+    ):
+        """Abort an in-progress server migration
+
+        :param server_migration: The value can be either the ID of a server
+            migration or a
+            :class:`~openstack.compute.v2.server_migration.ServerMigration`
+            instance.
+        :param server: This parameter needs to be specified when
+            ServerMigration ID is given as value. It can be either the ID of a
+            server or a :class:`~openstack.compute.v2.server.Server` instance
+            that the migration belongs to.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the volume attachment does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            volume attachment.
+
+        :returns: ``None``
+        """
+        server_id = self._get_uri_attribute(
+            server_migration, server, 'server_id',
+        )
+        server_migration = resource.Resource._get_id(server_migration)
+
+        self._delete(
+            _server_migration.ServerMigration,
+            server_migration,
+            server_id=server_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def force_complete_server_migration(self, server_migration, server=None):
+        """Force complete an in-progress server migration
+
+        :param server_migration: The value can be either the ID of a server
+            migration or a
+            :class:`~openstack.compute.v2.server_migration.ServerMigration`
+            instance.
+        :param server: This parameter needs to be specified when
+            ServerMigration ID is given as value. It can be either the ID of a
+            server or a :class:`~openstack.compute.v2.server.Server` instance
+            that the migration belongs to.
+
+        :returns: ``None``
+        """
+        server_id = self._get_uri_attribute(
+            server_migration, server, 'server_id',
+        )
+        server_migration = self._get_resource(
+            _server_migration.ServerMigration,
+            server_migration,
+            server_id=server_id,
+        )
+        server_migration.force_complete(self)
+
+    def get_server_migration(
+        self,
+        server_migration,
+        server,
+        ignore_missing=True,
+    ):
+        """Get a single volume attachment
+
+        :param server_migration: The value can be the ID of a server migration
+            or a
+            :class:`~openstack.compute.v2.server_migration.ServerMigration`
+            instance.
+        :param server: This parameter need to be specified when ServerMigration
+            ID is given as value. It can be either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance that the
+            migration belongs to.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the server migration does not exist. When set to ``True``, no
+            exception will be set when attempting to delete a nonexistent
+            server migration.
+
+        :returns: One
+            :class:`~openstack.compute.v2.server_migration.ServerMigration`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        server_id = self._get_uri_attribute(
+            server_migration, server, 'server_id',
+        )
+        server_migration = resource.Resource._get_id(server_migration)
+
+        return self._get(
+            _server_migration.ServerMigration,
+            server_migration,
+            server_id=server_id,
+            ignore_missing=ignore_missing,
+        )
+
+    def server_migrations(self, server):
+        """Return a generator of migrations for a server.
+
+        :param server: The server can be either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server`.
+
+        :returns: A generator of ServerMigration objects
+        :rtype:
+            :class:`~openstack.compute.v2.server_migration.ServerMigration`
+        """
+        server_id = resource.Resource._get_id(server)
+        return self._list(
+            _server_migration.ServerMigration,
+            server_id=server_id,
         )
 
     # ========== Server diagnostics ==========
