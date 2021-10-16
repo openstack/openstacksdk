@@ -20,3 +20,40 @@ of the share in other availability zones.
 
 .. literalinclude:: ../examples/shared_file_system/availability_zones.py
    :pyobject: list_availability_zones
+
+
+Share Instances
+---------------
+
+Administrators can list, show information for, explicitly set the state of,
+and force-delete share instances.
+
+.. literalinclude:: ../examples/shared_file_system/share_instances.py
+   :pyobject: share_instances
+
+
+Get Share Instance
+------------------
+
+Shows details for a single share instance.
+
+.. literalinclude:: ../examples/shared_file_system/share_instances.py
+   :pyobject: get_share_instance
+
+
+Reset Share Instance Status
+---------------------------
+
+Explicitly updates the state of a share instance.
+
+.. literalinclude:: ../examples/shared_file_system/share_instances.py
+   :pyobject: reset_share_instance_status
+
+
+Delete Share Instance
+---------------------
+
+Force-deletes a share instance.
+
+.. literalinclude:: ../examples/shared_file_system/share_instances.py
+   :pyobject: delete_share_instance

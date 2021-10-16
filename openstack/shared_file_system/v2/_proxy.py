@@ -31,6 +31,7 @@ from openstack.shared_file_system.v2 import (
 )
 from openstack.shared_file_system.v2 import limit as _limit
 from openstack.shared_file_system.v2 import share as _share
+from openstack.shared_file_system.v2 import share_instance as _share_instance
 
 
 class Proxy(proxy.Proxy):
@@ -44,6 +45,7 @@ class Proxy(proxy.Proxy):
         "share_network": _share_network.ShareNetwork,
         "share_snapshot_instance":
             _share_snapshot_instance.ShareSnapshotInstance,
+        "share_instance": _share_instance.ShareInstance,
     }
 
     def availability_zones(self):
@@ -435,3 +437,55 @@ class Proxy(proxy.Proxy):
             share_network.ShareNetwork`
         """
         return self._create(_share_network.ShareNetwork, **attrs)
+
+    def share_instances(self, **query):
+        """Lists all share instances.
+
+        :param kwargs query: Optional query parameters to be sent to limit
+            the share instances being returned. Available parameters include:
+
+        * export_location_id: The export location UUID that can be used
+          to filter share instances.
+        * export_location_path: The export location path that can be used
+          to filter share instances.
+
+        :returns: Details of share instances resources
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_instance.ShareInstance`
+        """
+        return self._list(
+            _share_instance.ShareInstance, **query)
+
+    def get_share_instance(self, share_instance_id):
+        """Shows details for a single share instance
+
+        :param share_instance_id: The UUID of the share instance to get
+
+        :returns: Details of the identified share instance
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_instance.ShareInstance`
+        """
+        return self._get(_share_instance.ShareInstance, share_instance_id)
+
+    def reset_share_instance_status(self, share_instance_id, status):
+        """Explicitly updates the state of a share instance.
+
+        :param share_instance_id: The UUID of the share instance to reset.
+        :param status: The share or share instance status to be set.
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_share_instance.ShareInstance,
+                                 share_instance_id)
+        res.reset_status(self, status)
+
+    def delete_share_instance(self, share_instance_id):
+        """Force-deletes a share instance
+
+        :param share_instance: The ID of the share instance to delete
+
+        :returns: ``None``
+        """
+        res = self._get_resource(_share_instance.ShareInstance,
+                                 share_instance_id)
+        res.force_delete(self)

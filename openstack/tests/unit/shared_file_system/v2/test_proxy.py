@@ -15,6 +15,7 @@ from unittest import mock
 from openstack.shared_file_system.v2 import _proxy
 from openstack.shared_file_system.v2 import limit
 from openstack.shared_file_system.v2 import share
+from openstack.shared_file_system.v2 import share_instance
 from openstack.shared_file_system.v2 import share_network
 from openstack.shared_file_system.v2 import share_snapshot
 from openstack.shared_file_system.v2 import share_snapshot_instance
@@ -60,6 +61,31 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
 
     def test_share_update(self):
         self.verify_update(self.proxy.update_share, share.Share)
+
+    def test_share_instances(self):
+        self.verify_list(self.proxy.share_instances,
+                         share_instance.ShareInstance)
+
+    def test_share_instance_get(self):
+        self.verify_get(self.proxy.get_share_instance,
+                        share_instance.ShareInstance)
+
+    def test_share_instance_reset(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_instance."
+            + "ShareInstance.reset_status",
+            self.proxy.reset_share_instance_status,
+            method_args=['id', 'available'],
+            expected_args=[self.proxy, 'available'],
+        )
+
+    def test_share_instance_delete(self):
+        self._verify(
+            "openstack.shared_file_system.v2.share_instance."
+            + "ShareInstance.force_delete",
+            self.proxy.delete_share_instance,
+            method_args=['id'],
+            expected_args=[self.proxy])
 
     @mock.patch("openstack.resource.wait_for_status")
     def test_wait_for(self, mock_wait):
