@@ -39,6 +39,8 @@ from openstack import utils
 
 class Proxy(proxy.Proxy):
 
+    # ========== Extensions ==========
+
     def find_extension(self, name_or_id, ignore_missing=True):
         """Find a single extension
 
@@ -523,6 +525,8 @@ class Proxy(proxy.Proxy):
         else:
             res.delete_metadata(self)
 
+    # ========== Keypairs ==========
+
     def create_keypair(self, **attrs):
         """Create a new keypair from attributes
 
@@ -593,6 +597,8 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_keypair.Keypair, **query)
 
+    # ========== Limits ==========
+
     def get_limits(self):
         """Retrieve limits that are applied to the project's account
 
@@ -602,6 +608,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.limits.Limits`
         """
         return self._get(limits.Limits)
+
+    # ========== Servers ==========
 
     def create_server(self, **attrs):
         """Create a new server from attributes
@@ -826,98 +834,6 @@ class Proxy(proxy.Proxy):
             return image
         return self._connection.wait_for_image(image, timeout=timeout)
 
-    def fetch_server_security_groups(self, server):
-        """Fetch security groups with details for a server.
-
-        :param server: Either the ID of a server or a
-            :class:`~openstack.compute.v2.server.Server` instance.
-
-        :returns: updated :class:`~openstack.compute.v2.server.Server` instance
-        """
-        server = self._get_resource(_server.Server, server)
-        return server.fetch_security_groups(self)
-
-    def add_security_group_to_server(self, server, security_group):
-        """Add a security group to a server
-
-        :param server: Either the ID of a server or a
-            :class:`~openstack.compute.v2.server.Server` instance.
-        :param security_group: Either the ID, Name of a security group or a
-            :class:`~openstack.network.v2.security_group.SecurityGroup`
-            instance.
-
-        :returns: None
-        """
-        server = self._get_resource(_server.Server, server)
-        security_group = self._get_resource(_sg.SecurityGroup, security_group)
-        server.add_security_group(self, security_group.name)
-
-    def remove_security_group_from_server(self, server, security_group):
-        """Remove a security group from a server
-
-        :param server: Either the ID of a server or a
-            :class:`~openstack.compute.v2.server.Server` instance.
-        :param security_group: Either the ID of a security group or a
-            :class:`~openstack.network.v2.security_group.SecurityGroup`
-            instance.
-
-        :returns: None
-        """
-        server = self._get_resource(_server.Server, server)
-        security_group = self._get_resource(_sg.SecurityGroup, security_group)
-        server.remove_security_group(self, security_group.name)
-
-    def add_fixed_ip_to_server(self, server, network_id):
-        """Adds a fixed IP address to a server instance.
-
-        :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
-        :param network_id: The ID of the network from which a fixed IP address
-                           is about to be allocated.
-        :returns: None
-        """
-        server = self._get_resource(_server.Server, server)
-        server.add_fixed_ip(self, network_id)
-
-    def remove_fixed_ip_from_server(self, server, address):
-        """Removes a fixed IP address from a server instance.
-
-        :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
-        :param address: The fixed IP address to be disassociated from the
-                        server.
-        :returns: None
-        """
-        server = self._get_resource(_server.Server, server)
-        server.remove_fixed_ip(self, address)
-
-    def add_floating_ip_to_server(self, server, address, fixed_address=None):
-        """Adds a floating IP address to a server instance.
-
-        :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
-        :param address: The floating IP address to be added to the server.
-        :param fixed_address: The fixed IP address to be associated with the
-                              floating IP address. Used when the server is
-                              connected to multiple networks.
-        :returns: None
-        """
-        server = self._get_resource(_server.Server, server)
-        server.add_floating_ip(self, address,
-                               fixed_address=fixed_address)
-
-    def remove_floating_ip_from_server(self, server, address):
-        """Removes a floating IP address from a server instance.
-
-        :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
-        :param address: The floating IP address to be disassociated from the
-                        server.
-        :returns: None
-        """
-        server = self._get_resource(_server.Server, server)
-        server.remove_floating_ip(self, address)
-
     def backup_server(self, server, name, backup_type, rotation):
         """Backup a server
 
@@ -1089,49 +1005,6 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unshelve(self)
 
-    def get_server_console_output(self, server, length=None):
-        """Return the console output for a server.
-
-        :param server: Either the ID of a server or a
-                    :class:`~openstack.compute.v2.server.Server` instance.
-        :param length: Optional number of line to fetch from the end of console
-                    log. All lines will be returned if this is not specified.
-        :returns: The console output as a dict. Control characters will be
-                    escaped to create a valid JSON string.
-        """
-        server = self._get_resource(_server.Server, server)
-        return server.get_console_output(self, length=length)
-
-    def wait_for_server(self, server, status='ACTIVE', failures=None,
-                        interval=2, wait=120):
-        """Wait for a server to be in a particular status.
-
-        :param server:
-            The :class:`~openstack.compute.v2.server.Server` to wait on
-            to reach the specified status.
-        :type server: :class:`~openstack.compute.v2.server.Server`:
-        :param status: Desired status.
-        :param failures:
-            Statuses that would be interpreted as failures.
-        :type failures: :py:class:`list`
-        :param int interval:
-            Number of seconds to wait before to consecutive checks.
-            Default to 2.
-        :param int wait:
-            Maximum number of seconds to wait before the change.
-            Default to 120.
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-                 to the desired status failed to occur in specified seconds.
-        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
-                 has transited to one of the failure statuses.
-        :raises: :class:`~AttributeError` if the resource does not have a
-                ``status`` attribute.
-        """
-        failures = ['ERROR'] if failures is None else failures
-        return resource.wait_for_status(
-            self, server, status, failures, interval, wait)
-
     def create_server_interface(self, server, **attrs):
         """Create a new server interface from attributes
 
@@ -1148,6 +1021,104 @@ class Proxy(proxy.Proxy):
         server_id = resource.Resource._get_id(server)
         return self._create(_server_interface.ServerInterface,
                             server_id=server_id, **attrs)
+
+    # ========== Server security groups ==========
+
+    def fetch_server_security_groups(self, server):
+        """Fetch security groups with details for a server.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+
+        :returns: updated :class:`~openstack.compute.v2.server.Server` instance
+        """
+        server = self._get_resource(_server.Server, server)
+        return server.fetch_security_groups(self)
+
+    def add_security_group_to_server(self, server, security_group):
+        """Add a security group to a server
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param security_group: Either the ID, Name of a security group or a
+            :class:`~openstack.network.v2.security_group.SecurityGroup`
+            instance.
+
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        security_group = self._get_resource(_sg.SecurityGroup, security_group)
+        server.add_security_group(self, security_group.name)
+
+    def remove_security_group_from_server(self, server, security_group):
+        """Remove a security group from a server
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param security_group: Either the ID of a security group or a
+            :class:`~openstack.network.v2.security_group.SecurityGroup`
+            instance.
+
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        security_group = self._get_resource(_sg.SecurityGroup, security_group)
+        server.remove_security_group(self, security_group.name)
+
+    # ========== Server IPs ==========
+
+    def add_fixed_ip_to_server(self, server, network_id):
+        """Adds a fixed IP address to a server instance.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param network_id: The ID of the network from which a fixed IP address
+                           is about to be allocated.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.add_fixed_ip(self, network_id)
+
+    def remove_fixed_ip_from_server(self, server, address):
+        """Removes a fixed IP address from a server instance.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param address: The fixed IP address to be disassociated from the
+                        server.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.remove_fixed_ip(self, address)
+
+    def add_floating_ip_to_server(self, server, address, fixed_address=None):
+        """Adds a floating IP address to a server instance.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param address: The floating IP address to be added to the server.
+        :param fixed_address: The fixed IP address to be associated with the
+                              floating IP address. Used when the server is
+                              connected to multiple networks.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.add_floating_ip(self, address,
+                               fixed_address=fixed_address)
+
+    def remove_floating_ip_from_server(self, server, address):
+        """Removes a floating IP address from a server instance.
+
+        :param server: Either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance.
+        :param address: The floating IP address to be disassociated from the
+                        server.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.remove_floating_ip(self, address)
+
+    # ========== Server Interfaces ==========
 
     # TODO(stephenfin): Does this work? There's no 'value' parameter for the
     # call to '_delete'
@@ -1251,6 +1222,8 @@ class Proxy(proxy.Proxy):
             availability_zone.AvailabilityZone,
             base_path=base_path)
 
+    # ========== Server Metadata ==========
+
     def get_server_metadata(self, server):
         """Return a dictionary of metadata for a server
 
@@ -1303,6 +1276,8 @@ class Proxy(proxy.Proxy):
                 res.delete_metadata_item(self, key)
         else:
             res.delete_metadata(self)
+
+    # ========== Server Groups ==========
 
     def create_server_group(self, **attrs):
         """Create a new server group from attributes
@@ -1576,6 +1551,8 @@ class Proxy(proxy.Proxy):
             'Method require at least microversion 2.53'
         )
 
+    # ========== Volume Attachments ==========
+
     def create_volume_attachment(self, server, **attrs):
         """Create a new volume attachment from attributes
 
@@ -1699,59 +1676,48 @@ class Proxy(proxy.Proxy):
         return self._list(_volume_attachment.VolumeAttachment,
                           server_id=server_id)
 
+    # ========== Server Migrations ==========
+
     def migrate_server(self, server):
         """Migrate a server from one host to another
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
         server.migrate(self)
 
     def live_migrate_server(
-            self, server, host=None, force=False, block_migration=None):
+        self, server, host=None, force=False, block_migration=None,
+    ):
         """Live migrate a server from one host to target host
 
-        :param server:
-            Either the ID of a server or a
+        :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :param str host:
-            The host to which to migrate the server. If the Nova service is
-            too old, the host parameter implies force=True which causes the
-            Nova scheduler to be bypassed. On such clouds, a ``ValueError``
-            will be thrown if ``host`` is given without ``force``.
-        :param bool force:
-            Force a live-migration by not verifying the provided destination
-            host by the scheduler. This is unsafe and not recommended.
-        :param block_migration:
-            Perform a block live migration to the destination host by the
-            scheduler.  Can be 'auto', True or False. Some clouds are too old
-            to support 'auto', in which case a ValueError will be thrown. If
-            omitted, the value will be 'auto' on clouds that support it, and
-            False on clouds that do not.
+        :param str host: The host to which to migrate the server. If the Nova
+            service is too old, the host parameter implies force=True which
+            causes the Nova scheduler to be bypassed. On such clouds, a
+            ``ValueError`` will be thrown if ``host`` is given without
+            ``force``.
+        :param bool force: Force a live-migration by not verifying the provided
+            destination host by the scheduler. This is unsafe and not
+            recommended.
+        :param block_migration: Perform a block live migration to the
+            destination host by the scheduler.  Can be 'auto', True or False.
+            Some clouds are too old to support 'auto', in which case a
+            ValueError will be thrown. If omitted, the value will be 'auto' on
+            clouds that support it, and False on clouds that do not.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
         server.live_migrate(
             self, host,
             force=force,
-            block_migration=block_migration)
+            block_migration=block_migration,
+        )
 
-    def wait_for_delete(self, res, interval=2, wait=120):
-        """Wait for a resource to be deleted.
-
-        :param res: The resource to wait on to be deleted.
-        :type resource: A :class:`~openstack.resource.Resource` object.
-        :param interval: Number of seconds to wait before to consecutive
-                         checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
-                     Default to 120.
-        :returns: The resource is returned on success.
-        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-                 to delete failed to occur in the specified seconds.
-        """
-        return resource.wait_for_delete(self, res, interval, wait)
+    # ========== Server diagnostics ==========
 
     def get_server_diagnostics(self, server):
         """Get a single server diagnostics
@@ -1769,6 +1735,8 @@ class Proxy(proxy.Proxy):
         server_id = self._get_resource(_server.Server, server).id
         return self._get(_server_diagnostics.ServerDiagnostics,
                          server_id=server_id, requires_id=False)
+
+    # ========== Server consoles ==========
 
     def create_server_remote_console(self, server, **attrs):
         """Create a remote console on the server.
@@ -1793,6 +1761,19 @@ class Proxy(proxy.Proxy):
         """
         server = self._get_resource(_server.Server, server)
         return server.get_console_url(self, console_type)
+
+    def get_server_console_output(self, server, length=None):
+        """Return the console output for a server.
+
+        :param server: Either the ID of a server or a
+                    :class:`~openstack.compute.v2.server.Server` instance.
+        :param length: Optional number of line to fetch from the end of console
+                    log. All lines will be returned if this is not specified.
+        :returns: The console output as a dict. Control characters will be
+                    escaped to create a valid JSON string.
+        """
+        server = self._get_resource(_server.Server, server)
+        return server.get_console_output(self, length=length)
 
     def create_console(self, server, console_type, console_protocol=None):
         """Create a remote console on the server.
@@ -1825,6 +1806,8 @@ class Proxy(proxy.Proxy):
             return console.to_dict()
         else:
             return server.get_console_url(self, console_type)
+
+    # ========== Quota sets ==========
 
     def get_quota_set(self, project, usage=False, **query):
         """Show QuotaSet information for the project
@@ -1893,6 +1876,54 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
         return res.commit(self, **query)
+
+    # ========== Utilities ==========
+
+    def wait_for_server(
+        self, server, status='ACTIVE', failures=None, interval=2, wait=120,
+    ):
+        """Wait for a server to be in a particular status.
+
+        :param server: The :class:`~openstack.compute.v2.server.Server` to wait
+            on to reach the specified status.
+        :type server: :class:`~openstack.compute.v2.server.Server`:
+        :param status: Desired status.
+        :type status: str
+        :param failures: Statuses that would be interpreted as failures.
+        :type failures: :py:class:`list`
+        :param interval: Number of seconds to wait before to consecutive
+            checks. Default to 2.
+        :type interval: int
+        :param wait: Maximum number of seconds to wait before the change.
+            Default to 120.
+        :type wait: int
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to the desired status failed to occur in specified seconds.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+            has transited to one of the failure statuses.
+        :raises: :class:`~AttributeError` if the resource does not have a
+            ``status`` attribute.
+        """
+        failures = ['ERROR'] if failures is None else failures
+        return resource.wait_for_status(
+            self, server, status, failures, interval, wait,
+        )
+
+    def wait_for_delete(self, res, interval=2, wait=120):
+        """Wait for a resource to be deleted.
+
+        :param res: The resource to wait on to be deleted.
+        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param interval: Number of seconds to wait before to consecutive
+            checks. Default to 2.
+        :param wait: Maximum number of seconds to wait before the change.
+            Default to 120.
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(self, res, interval, wait)
 
     def _get_cleanup_dependencies(self):
         return {
