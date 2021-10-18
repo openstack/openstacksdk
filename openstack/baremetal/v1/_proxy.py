@@ -36,8 +36,8 @@ class Proxy(proxy.Proxy):
         :param resource_type: The type of resource to get.
         :type resource_type: :class:`~openstack.resource.Resource`
         :param value: The value to get. Can be either the ID of a
-                      resource or a :class:`~openstack.resource.Resource`
-                      subclass.
+            resource or a :class:`~openstack.resource.Resource`
+            subclass.
         :param fields: Limit the resource fields to fetch.
 
         :returns: The result of the ``fetch``
@@ -57,7 +57,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of chassis.
 
         :param details: A boolean indicating whether the detailed information
-                        for every chassis should be returned.
+            for every chassis should be returned.
         :param dict query: Optional query parameters to be sent to
             restrict the chassis to be returned. Available parameters include:
 
@@ -92,7 +92,7 @@ class Proxy(proxy.Proxy):
         """Create a new chassis from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.chassis.Chassis`.
+            :class:`~openstack.baremetal.v1.chassis.Chassis`.
 
         :returns: The results of chassis creation.
         :rtype: :class:`~openstack.baremetal.v1.chassis.Chassis`.
@@ -228,7 +228,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of nodes.
 
         :param details: A boolean indicating whether the detailed information
-                        for every node should be returned.
+            for every node should be returned.
         :param dict query: Optional query parameters to be sent to restrict
             the nodes returned. Available parameters include:
 
@@ -277,7 +277,7 @@ class Proxy(proxy.Proxy):
         """Create a new node from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.node.Node`.
+            :class:`~openstack.baremetal.v1.node.Node`.
 
         :returns: The results of node creation.
         :rtype: :class:`~openstack.baremetal.v1.node.Node`.
@@ -344,9 +344,9 @@ class Proxy(proxy.Proxy):
             being locked. However, when setting ``instance_id``, this is
             a normal code and should not be retried.
 
-        See `Update Node
-        <https://docs.openstack.org/api-ref/baremetal/?expanded=update-node-detail#update-node>`_
-        for details.
+            See `Update Node
+            <https://docs.openstack.org/api-ref/baremetal/?expanded=update-node-detail#update-node>`_
+            for details.
 
         :returns: The updated node.
         :rtype: :class:`~openstack.baremetal.v1.node.Node`
@@ -596,7 +596,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of ports.
 
         :param details: A boolean indicating whether the detailed information
-                        for every port should be returned.
+            for every port should be returned.
         :param dict query: Optional query parameters to be sent to restrict
             the ports returned. Available parameters include:
 
@@ -641,7 +641,7 @@ class Proxy(proxy.Proxy):
         """Create a new port from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.port.Port`.
+            :class:`~openstack.baremetal.v1.port.Port`.
 
         :returns: The results of port creation.
         :rtype: :class:`~openstack.baremetal.v1.port.Port`.
@@ -720,7 +720,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of port groups.
 
         :param details: A boolean indicating whether the detailed information
-                        for every port group should be returned.
+            for every port group should be returned.
         :param dict query: Optional query parameters to be sent to restrict
             the port groups returned. Available parameters include:
 
@@ -759,7 +759,7 @@ class Proxy(proxy.Proxy):
         """Create a new portgroup from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.port_group.PortGroup`.
+            :class:`~openstack.baremetal.v1.port_group.PortGroup`.
 
         :returns: The results of portgroup creation.
         :rtype: :class:`~openstack.baremetal.v1.port_group.PortGroup`.
@@ -873,9 +873,9 @@ class Proxy(proxy.Proxy):
             a :class:`~openstack.baremetal.v1.node.Node` instance.
         :param string vif_id: Backend-specific VIF ID.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the VIF does not exist. Otherwise, ``False``
-                    is returned.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the VIF does not exist. Otherwise, ``False``
+            is returned.
         :return: ``True`` if the VIF was detached, otherwise ``False``.
         :raises: :exc:`~openstack.exceptions.NotSupported` if the server
             does not support the VIF API.
@@ -936,7 +936,7 @@ class Proxy(proxy.Proxy):
         """Create a new allocation from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.baremetal.v1.allocation.Allocation`.
+            :class:`~openstack.baremetal.v1.allocation.Allocation`.
 
         :returns: The results of allocation creation.
         :rtype: :class:`~openstack.baremetal.v1.allocation.Allocation`.
@@ -1085,7 +1085,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of volume_connector.
 
         :param details: A boolean indicating whether the detailed information
-                        for every volume_connector should be returned.
+            for every volume_connector should be returned.
         :param dict query: Optional query parameters to be sent to restrict
             the volume_connectors returned. Available parameters include:
 
@@ -1124,12 +1124,11 @@ class Proxy(proxy.Proxy):
         """Create a new volume_connector from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-            :class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector`.
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
 
         :returns: The results of volume_connector creation.
-        :rtype::class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector`.
+        :rtype:
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
         """
         return self._create(_volumeconnector.VolumeConnector, **attrs)
 
@@ -1143,8 +1142,8 @@ class Proxy(proxy.Proxy):
             when the volume connector does not exist.  When set to `True``,
             None will be returned when attempting to find a nonexistent
             volume connector.
-        :returns: One :class:
-            `~openstack.baremetal.v1.volumeconnector.VolumeConnector`
+        :returns: One
+            :class:`~openstack.baremetal.v1.volumeconnector.VolumeConnector`
             object or None.
         """
         return self._find(_volumeconnector.VolumeConnector, vc_id,
@@ -1154,14 +1153,13 @@ class Proxy(proxy.Proxy):
         """Get a specific volume_connector.
 
         :param volume_connector: The value can be the ID of a
-            volume_connector or a :class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector
-            instance.`
+            volume_connector or a
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`
+            instance.
         :param fields: Limit the resource fields to fetch.`
 
         :returns: One
-            :class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector`
+            :class: `~openstack.baremetal.v1.volume_connector.VolumeConnector`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             volume_connector matching the name or ID could be found.`
         """
@@ -1172,15 +1170,16 @@ class Proxy(proxy.Proxy):
     def update_volume_connector(self, volume_connector, **attrs):
         """Update a volume_connector.
 
-        :param volume_connector:Either the ID of a volume_connector
-        or an instance of
-        :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector.`
+        :param volume_connector: Either the ID of a volume_connector
+            or an instance of
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
         :param dict attrs: The attributes to update on the
-        volume_connector represented by the ``volume_connector`` parameter.`
+            volume_connector represented by the ``volume_connector``
+            parameter.
 
         :returns: The updated volume_connector.
-        :rtype::class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector.`
+        :rtype:
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`
         """
         return self._update(_volumeconnector.VolumeConnector,
                             volume_connector, **attrs)
@@ -1189,14 +1188,14 @@ class Proxy(proxy.Proxy):
         """Apply a JSON patch to the volume_connector.
 
         :param volume_connector: The value can be the ID of a
-            volume_connector or a :class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector`
+            volume_connector or a
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`
             instance.
         :param patch: JSON patch to apply.
 
         :returns: The updated volume_connector.
-        :rtype::class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector.`
+        :rtype:
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector.`
         """
         return self._get_resource(_volumeconnector.VolumeConnector,
                                   volume_connector).patch(self, patch)
@@ -1207,8 +1206,7 @@ class Proxy(proxy.Proxy):
 
         :param volume_connector: The value can be either the ID of a
             volume_connector.VolumeConnector or a
-            :class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector`
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`
             instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
@@ -1217,8 +1215,8 @@ class Proxy(proxy.Proxy):
             attempting to delete a non-existent volume_connector.
 
         :returns: The instance of the volume_connector which was deleted.
-        :rtype::class:
-            `~openstack.baremetal.v1.volume_connector.VolumeConnector`.
+        :rtype:
+            :class:`~openstack.baremetal.v1.volume_connector.VolumeConnector`.
         """
         return self._delete(_volumeconnector.VolumeConnector,
                             volume_connector, ignore_missing=ignore_missing)
@@ -1227,7 +1225,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of volume_target.
 
         :param details: A boolean indicating whether the detailed information
-                        for every volume_target should be returned.
+            for every volume_target should be returned.
         :param dict query: Optional query parameters to be sent to restrict
             the volume_targets returned. Available parameters include:
 
@@ -1266,12 +1264,11 @@ class Proxy(proxy.Proxy):
         """Create a new volume_target from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-            :class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget`.
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
 
         :returns: The results of volume_target creation.
-        :rtype::class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget`.
+        :rtype:
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
         """
         return self._create(_volumetarget.VolumeTarget, **attrs)
 
@@ -1285,8 +1282,8 @@ class Proxy(proxy.Proxy):
             when the volume connector does not exist.  When set to `True``,
             None will be returned when attempting to find a nonexistent
             volume target.
-        :returns: One :class:
-            `~openstack.baremetal.v1.volumetarget.VolumeTarget`
+        :returns: One
+            :class:`~openstack.baremetal.v1.volumetarget.VolumeTarget`
             object or None.
         """
         return self._find(_volumetarget.VolumeTarget, vt_id,
@@ -1296,14 +1293,13 @@ class Proxy(proxy.Proxy):
         """Get a specific volume_target.
 
         :param volume_target: The value can be the ID of a
-            volume_target or a :class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget
-            instance.`
+            volume_target or a
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
+            instance.
         :param fields: Limit the resource fields to fetch.`
 
         :returns: One
-            :class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget`
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             volume_target matching the name or ID could be found.`
         """
@@ -1314,15 +1310,15 @@ class Proxy(proxy.Proxy):
     def update_volume_target(self, volume_target, **attrs):
         """Update a volume_target.
 
-        :param volume_target:Either the ID of a volume_target
-        or an instance of
-        :class:`~openstack.baremetal.v1.volume_target.VolumeTarget.`
+        :param volume_target: Either the ID of a volume_target
+            or an instance of
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
         :param dict attrs: The attributes to update on the
-        volume_target represented by the ``volume_target`` parameter.`
+            volume_target represented by the ``volume_target`` parameter.
 
         :returns: The updated volume_target.
-        :rtype::class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget.`
+        :rtype:
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
         """
         return self._update(_volumetarget.VolumeTarget,
                             volume_target, **attrs)
@@ -1331,14 +1327,14 @@ class Proxy(proxy.Proxy):
         """Apply a JSON patch to the volume_target.
 
         :param volume_target: The value can be the ID of a
-            volume_target or a :class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget`
+            volume_target or a
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
             instance.
         :param patch: JSON patch to apply.
 
         :returns: The updated volume_target.
-        :rtype::class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget.`
+        :rtype:
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget.`
         """
         return self._get_resource(_volumetarget.VolumeTarget,
                                   volume_target).patch(self, patch)
@@ -1349,8 +1345,7 @@ class Proxy(proxy.Proxy):
 
         :param volume_target: The value can be either the ID of a
             volume_target.VolumeTarget or a
-            :class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget`
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`
             instance.
         :param bool ignore_missing: When set to ``False``, an exception
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
@@ -1359,8 +1354,8 @@ class Proxy(proxy.Proxy):
             attempting to delete a non-existent volume_target.
 
         :returns: The instance of the volume_target which was deleted.
-        :rtype::class:
-            `~openstack.baremetal.v1.volume_target.VolumeTarget`.
+        :rtype:
+            :class:`~openstack.baremetal.v1.volume_target.VolumeTarget`.
         """
         return self._delete(_volumetarget.VolumeTarget,
                             volume_target, ignore_missing=ignore_missing)
@@ -1369,9 +1364,9 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of deploy_templates.
 
         :param details: A boolean indicating whether the detailed information
-                        for every deploy_templates should be returned.
+            for every deploy_templates should be returned.
         :param dict query: Optional query parameters to be sent to
-                           restrict the deploy_templates to be returned.
+            restrict the deploy_templates to be returned.
 
         :returns: A generator of Deploy templates instances.
         """
@@ -1383,11 +1378,11 @@ class Proxy(proxy.Proxy):
         """Create a new deploy_template from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-                :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
 
         :returns: The results of deploy_template creation.
         :rtype:
-                :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
         """
         return self._create(_deploytemplates.DeployTemplate, **attrs)
 
@@ -1395,15 +1390,15 @@ class Proxy(proxy.Proxy):
         """Update a deploy_template.
 
         :param deploy_template: Either the ID of a deploy_template,
-                                or an instance of
-                                :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
+            or an instance of
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
         :param dict attrs: The attributes to update on
-                           the deploy_template represented
-                           by the ``deploy_template`` parameter.
+            the deploy_template represented
+            by the ``deploy_template`` parameter.
 
         :returns: The updated deploy_template.
-        :rtype::class:
-                       `~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+        :rtype:
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
         """
         return self._update(_deploytemplates.DeployTemplate,
                             deploy_template, **attrs)
@@ -1413,9 +1408,9 @@ class Proxy(proxy.Proxy):
         """Delete a deploy_template.
 
         :param deploy_template:The value can be
-                               either the ID of a deploy_template or a
-        :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
-                instance.
+            either the ID of a deploy_template or a
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+            instance.
 
         :param bool ignore_missing: When set to ``False``,
             an exception:class:`~openstack.exceptions.ResourceNotFound`
@@ -1427,8 +1422,8 @@ class Proxy(proxy.Proxy):
             deploy_template.
 
         :returns: The instance of the deploy_template which was deleted.
-        :rtype::class:
-                        `~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
+        :rtype:
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`.
         """
 
         return self._delete(_deploytemplates.DeployTemplate,
@@ -1445,10 +1440,10 @@ class Proxy(proxy.Proxy):
         :param fields: Limit the resource fields to fetch.
 
         :returns: One
-                  :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                        when no deployment template matching the name or
-                        ID could be found.
+            when no deployment template matching the name or
+            ID could be found.
         """
         return self._get_with_fields(_deploytemplates.DeployTemplate,
                                      deploy_template, fields=fields)
@@ -1464,8 +1459,8 @@ class Proxy(proxy.Proxy):
         :param patch: JSON patch to apply.
 
         :returns: The updated deploy_template.
-        :rtype::class:
-                        `~openstack.baremetal.v1.deploy_templates.DeployTemplate`
+        :rtype:
+            :class:`~openstack.baremetal.v1.deploy_templates.DeployTemplate`
         """
         return self._get_resource(_deploytemplates.DeployTemplate,
                                   deploy_template).patch(self, patch)
