@@ -123,6 +123,8 @@
       devstack_localrc:
         DISABLE_AMP_IMAGE_BUILD: true
         Q_SERVICE_PLUGIN_CLASSES: qos,trunk
+        # TODO(frickler): drop this once heat no longer needs it
+        KEYSTONE_ADMIN_ENDPOINT: true
       devstack_plugins:
         heat: https://opendev.org/openstack/heat
       tox_environment:
