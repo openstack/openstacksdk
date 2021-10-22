@@ -138,6 +138,14 @@ class TestLimits(base.TestCase):
         self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertFalse(sot.allow_list)
+        self.assertDictEqual(
+            {
+                'limit': 'limit',
+                'marker': 'marker',
+                'tenant_id': 'tenant_id'
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_get(self):
         sess = mock.Mock(spec=adapter.Adapter)

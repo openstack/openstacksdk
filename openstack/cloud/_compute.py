@@ -349,7 +349,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """
         params = {}
         project_id = None
-        error_msg = "Failed to get limits"
         if name_or_id:
 
             proj = self.get_project(name_or_id)
@@ -357,12 +356,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 raise exc.OpenStackCloudException("project does not exist")
             project_id = proj.id
             params['tenant_id'] = project_id
-            error_msg = "{msg} for the project: {project} ".format(
-                msg=error_msg, project=name_or_id)
-
-        data = proxy._json_response(
-            self.compute.get('/limits', params=params))
-        limits = self._get_and_munchify('limits', data)
+        limits = self.compute.get_limits(**params)
         return self._normalize_compute_limits(limits, project_id=project_id)
 
     def get_keypair(self, name_or_id, filters=None):

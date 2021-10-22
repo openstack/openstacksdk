@@ -20,7 +20,6 @@ from openstack.compute.v2 import flavor
 from openstack.compute.v2 import hypervisor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
-from openstack.compute.v2 import limits
 from openstack.compute.v2 import migration
 from openstack.compute.v2 import quota_set
 from openstack.compute.v2 import server
@@ -557,7 +556,14 @@ class TestCompute(TestComputeProxy):
                          expected_kwargs={"query": 1})
 
     def test_limits_get(self):
-        self.verify_get(self.proxy.get_limits, limits.Limits, method_args=[])
+        self._verify(
+            "openstack.compute.v2.limits.Limits.fetch",
+            self.proxy.get_limits,
+            method_args=[],
+            method_kwargs={"a": "b"},
+            expected_args=[self.proxy],
+            expected_kwargs={"a": "b"},
+        )
 
     def test_server_interface_create(self):
         self.verify_create(self.proxy.create_server_interface,
