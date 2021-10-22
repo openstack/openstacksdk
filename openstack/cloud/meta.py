@@ -462,11 +462,11 @@ def add_server_interfaces(cloud, server):
     # server record. Since we know them, go ahead and set them. In the case
     # where they were set previous, we use the values, so this will not break
     # clouds that provide the information
-    if cloud.private and server['private_v4']:
-        server['accessIPv4'] = server['private_v4']
+    if cloud.private and server.private_v4:
+        server.access_ipv4 = server.private_v4
     else:
-        server['accessIPv4'] = server['public_v4']
-    server['accessIPv6'] = server['public_v6']
+        server.access_ipv4 = server.public_v4
+    server.access_ipv6 = server.public_v6
 
     return server
 
@@ -487,7 +487,8 @@ def get_hostvars_from_server(cloud, server, mounts=None):
     expand_server_vars if caching is not set up. If caching is set up,
     the extra cost should be minimal.
     """
-    server_vars = add_server_interfaces(cloud, server)
+    server_vars = obj_to_munch(
+        add_server_interfaces(cloud, server))
 
     flavor_id = server['flavor'].get('id')
     if flavor_id:
@@ -513,6 +514,11 @@ def get_hostvars_from_server(cloud, server, mounts=None):
         image_name = cloud.get_image_name(image_id)
         if image_name:
             server_vars['image']['name'] = image_name
+
+    # During the switch to returning sdk resource objects we need temporarily
+    # to force convertion to dict. This will be dropped soon.
+    if hasattr(server_vars['image'], 'to_dict'):
+        server_vars['image'] = server_vars['image'].to_dict(computed=False)
 
     volumes = []
     if cloud.has_service('volume'):

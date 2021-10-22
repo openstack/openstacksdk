@@ -513,14 +513,11 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param id: ID of the server.
 
-        :returns: A server dict or None if no matching server is found.
+        :returns: A server object or None if no matching server is found.
         """
         try:
-            data = proxy._json_response(
-                self.compute.get('/servers/{id}'.format(id=id)))
-            server = self._get_and_munchify('server', data)
-            return meta.add_server_interfaces(
-                self, self._normalize_server(server))
+            server = self.compute.get_server(id)
+            return meta.add_server_interfaces(self, server)
         except exceptions.ResourceNotFound:
             return None
 
@@ -905,7 +902,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 nat_destination=nat_destination,
             )
 
-        server.adminPass = admin_pass
+        server.admin_password = admin_pass
         return server
 
     def _get_boot_from_volume_kwargs(
