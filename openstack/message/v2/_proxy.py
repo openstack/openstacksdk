@@ -24,8 +24,8 @@ class Proxy(proxy.Proxy):
         """Create a new queue from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.message.v2.queue.Queue`,
-                           comprised of the properties on the Queue class.
+            a :class:`~openstack.message.v2.queue.Queue`,
+            comprised of the properties on the Queue class.
 
         :returns: The results of queue creation
         :rtype: :class:`~openstack.message.v2.queue.Queue`
@@ -65,12 +65,12 @@ class Proxy(proxy.Proxy):
         """Delete a queue
 
         :param value: The value can be either the name of a queue or a
-                      :class:`~openstack.message.v2.queue.Queue` instance.
+            :class:`~openstack.message.v2.queue.Queue` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the queue does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent queue.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the queue does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent queue.
 
         :returns: ``None``
         """
@@ -81,7 +81,7 @@ class Proxy(proxy.Proxy):
 
         :param queue_name: The name of target queue to post message to.
         :param messages: List of messages body and TTL to post.
-        :type messages: :py:class:`list`
+            :type messages: :py:class:`list`
 
         :returns: A string includes location of messages successfully posted.
         """
@@ -133,16 +133,16 @@ class Proxy(proxy.Proxy):
 
         :param queue_name: The name of target queue to delete message from.
         :param value: The value can be either the name of a message or a
-                      :class:`~openstack.message.v2.message.Message` instance.
+            :class:`~openstack.message.v2.message.Message` instance.
         :param claim: The value can be the ID or a
-                      :class:`~openstack.message.v2.claim.Claim` instance of
-                      the claim seizing the message. If None, the message has
-                      not been claimed.
+            :class:`~openstack.message.v2.claim.Claim` instance of
+            the claim seizing the message. If None, the message has
+            not been claimed.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the message does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent message.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the message does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent message.
 
         :returns: ``None``
         """
@@ -206,15 +206,15 @@ class Proxy(proxy.Proxy):
         """Delete a subscription
 
         :param queue_name: The name of target queue to delete subscription
-                           from.
+            from.
         :param value: The value can be either the name of a subscription or a
-                      :class:`~openstack.message.v2.subscription.Subscription`
-                      instance.
+            :class:`~openstack.message.v2.subscription.Subscription`
+            instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the subscription does not exist.
-                    When set to ``True``, no exception will be thrown when
-                    attempting to delete a nonexistent subscription.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the subscription does not exist.
+            When set to ``True``, no exception will be thrown when
+            attempting to delete a nonexistent subscription.
 
         :returns: ``None``
         """
@@ -270,12 +270,12 @@ class Proxy(proxy.Proxy):
 
         :param queue_name: The name of target queue to claim messages from.
         :param claim: The value can be either the ID of a claim or a
-                      :class:`~openstack.message.v2.claim.Claim` instance.
+            :class:`~openstack.message.v2.claim.Claim` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the claim does not exist.
-                    When set to ``True``, no exception will be thrown when
-                    attempting to delete a nonexistent claim.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the claim does not exist.
+            When set to ``True``, no exception will be thrown when
+            attempting to delete a nonexistent claim.
 
         :returns: ``None``
         """
