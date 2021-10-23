@@ -22,8 +22,9 @@ class TestPlacementProxy(test_proxy_base.TestProxyBase):
         super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
-    # resource classes
 
+# resource classes
+class TestPlacementResourceClass:
     def test_resource_class_create(self):
         self.verify_create(
             self.proxy.create_resource_class,
@@ -56,8 +57,9 @@ class TestPlacementProxy(test_proxy_base.TestProxyBase):
             resource_class.ResourceClass,
         )
 
-    # resource providers
 
+# resource providers
+class TestPlacementResourceProvider:
     def test_resource_provider_create(self):
         self.verify_create(
             self.proxy.create_resource_provider,
