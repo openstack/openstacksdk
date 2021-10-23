@@ -23,6 +23,7 @@ from openstack.compute.v2 import keypair
 from openstack.compute.v2 import migration
 from openstack.compute.v2 import quota_set
 from openstack.compute.v2 import server
+from openstack.compute.v2 import server_action
 from openstack.compute.v2 import server_group
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
@@ -1242,4 +1243,27 @@ class TestQuota(TestComputeProxy):
             self.proxy,
             quota_set.QuotaSet,
             'qs', a='b'
+        )
+
+
+class TestServerAction(TestComputeProxy):
+
+    def test_server_action_get(self):
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_server_action,
+            method_args=['action_id'],
+            method_kwargs={'server': 'server_id'},
+            expected_args=[server_action.ServerAction],
+            expected_kwargs={
+                'action_id': 'action_id', 'server_id': 'server_id',
+            },
+        )
+
+    def test_server_actions(self):
+        self.verify_list(
+            self.proxy.server_actions,
+            server_action.ServerAction,
+            method_kwargs={'server': 'server_a'},
+            expected_kwargs={'server_id': 'server_a'},
         )
