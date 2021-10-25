@@ -31,12 +31,12 @@ class Proxy(proxy.Proxy):
         """Get a single extension
 
         :param extension: The value can be the ID of an extension or a
-                          :class:`~openstack.identity.v2.extension.Extension`
-                          instance.
+            :class:`~openstack.identity.v2.extension.Extension`
+            instance.
 
         :returns: One :class:`~openstack.identity.v2.extension.Extension`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no extension can be found.
+            when no extension can be found.
         """
         return self._get(_extension.Extension, extension)
 
@@ -44,8 +44,8 @@ class Proxy(proxy.Proxy):
         """Create a new role from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.identity.v2.role.Role`,
-                           comprised of the properties on the Role class.
+            a :class:`~openstack.identity.v2.role.Role`,
+            comprised of the properties on the Role class.
 
         :returns: The results of role creation
         :rtype: :class:`~openstack.identity.v2.role.Role`
@@ -56,12 +56,12 @@ class Proxy(proxy.Proxy):
         """Delete a role
 
         :param role: The value can be either the ID of a role or a
-                     :class:`~openstack.identity.v2.role.Role` instance.
+            :class:`~openstack.identity.v2.role.Role` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the role does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent role.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the role does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent role.
 
         :returns: ``None``
         """
@@ -72,10 +72,10 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a role.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.role.Role` or None
         """
         return self._find(_role.Role, name_or_id,
@@ -85,11 +85,11 @@ class Proxy(proxy.Proxy):
         """Get a single role
 
         :param role: The value can be the ID of a role or a
-                     :class:`~openstack.identity.v2.role.Role` instance.
+            :class:`~openstack.identity.v2.role.Role` instance.
 
         :returns: One :class:`~openstack.identity.v2.role.Role`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_role.Role, role)
 
@@ -97,7 +97,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of roles
 
         :param kwargs query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned.
 
         :returns: A generator of role instances.
         :rtype: :class:`~openstack.identity.v2.role.Role`
@@ -108,9 +108,9 @@ class Proxy(proxy.Proxy):
         """Update a role
 
         :param role: Either the ID of a role or a
-                     :class:`~openstack.identity.v2.role.Role` instance.
+            :class:`~openstack.identity.v2.role.Role` instance.
         :attrs kwargs: The attributes to update on the role represented
-                       by ``value``.
+            by ``value``.
 
         :returns: The updated role
         :rtype: :class:`~openstack.identity.v2.role.Role`
@@ -121,8 +121,8 @@ class Proxy(proxy.Proxy):
         """Create a new tenant from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.identity.v2.tenant.Tenant`,
-                           comprised of the properties on the Tenant class.
+            a :class:`~openstack.identity.v2.tenant.Tenant`,
+            comprised of the properties on the Tenant class.
 
         :returns: The results of tenant creation
         :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
@@ -133,12 +133,12 @@ class Proxy(proxy.Proxy):
         """Delete a tenant
 
         :param tenant: The value can be either the ID of a tenant or a
-                       :class:`~openstack.identity.v2.tenant.Tenant` instance.
+            :class:`~openstack.identity.v2.tenant.Tenant` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the tenant does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent tenant.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the tenant does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent tenant.
 
         :returns: ``None``
         """
@@ -149,10 +149,10 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a tenant.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.tenant.Tenant` or None
         """
         return self._find(_tenant.Tenant, name_or_id,
@@ -162,11 +162,11 @@ class Proxy(proxy.Proxy):
         """Get a single tenant
 
         :param tenant: The value can be the ID of a tenant or a
-                       :class:`~openstack.identity.v2.tenant.Tenant` instance.
+            :class:`~openstack.identity.v2.tenant.Tenant` instance.
 
         :returns: One :class:`~openstack.identity.v2.tenant.Tenant`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_tenant.Tenant, tenant)
 
@@ -174,7 +174,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of tenants
 
         :param kwargs query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned.
 
         :returns: A generator of tenant instances.
         :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
@@ -185,9 +185,9 @@ class Proxy(proxy.Proxy):
         """Update a tenant
 
         :param tenant: Either the ID of a tenant or a
-                      :class:`~openstack.identity.v2.tenant.Tenant` instance.
+            :class:`~openstack.identity.v2.tenant.Tenant` instance.
         :attrs kwargs: The attributes to update on the tenant represented
-                       by ``value``.
+            by ``value``.
 
         :returns: The updated tenant
         :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
@@ -198,8 +198,8 @@ class Proxy(proxy.Proxy):
         """Create a new user from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.identity.v2.user.User`,
-                           comprised of the properties on the User class.
+            a :class:`~openstack.identity.v2.user.User`,
+            comprised of the properties on the User class.
 
         :returns: The results of user creation
         :rtype: :class:`~openstack.identity.v2.user.User`
@@ -210,12 +210,12 @@ class Proxy(proxy.Proxy):
         """Delete a user
 
         :param user: The value can be either the ID of a user or a
-                     :class:`~openstack.identity.v2.user.User` instance.
+            :class:`~openstack.identity.v2.user.User` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the user does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent user.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the user does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent user.
 
         :returns: ``None``
         """
@@ -226,10 +226,10 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a user.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v2.user.User` or None
         """
         return self._find(_user.User, name_or_id,
@@ -239,11 +239,11 @@ class Proxy(proxy.Proxy):
         """Get a single user
 
         :param user: The value can be the ID of a user or a
-                     :class:`~openstack.identity.v2.user.User` instance.
+            :class:`~openstack.identity.v2.user.User` instance.
 
         :returns: One :class:`~openstack.identity.v2.user.User`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_user.User, user)
 
@@ -251,7 +251,7 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of users
 
         :param kwargs query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned.
 
         :returns: A generator of user instances.
         :rtype: :class:`~openstack.identity.v2.user.User`
@@ -262,9 +262,9 @@ class Proxy(proxy.Proxy):
         """Update a user
 
         :param user: Either the ID of a user or a
-                     :class:`~openstack.identity.v2.user.User` instance.
+            :class:`~openstack.identity.v2.user.User` instance.
         :attrs kwargs: The attributes to update on the user represented
-                       by ``value``.
+            by ``value``.
 
         :returns: The updated user
         :rtype: :class:`~openstack.identity.v2.user.User`
