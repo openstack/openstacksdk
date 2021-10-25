@@ -122,9 +122,9 @@ class Proxy(proxy.Proxy):
     def update_flavor(self, flavor, **attrs):
         """Update a flavor
 
-        :param server: Either the ID of a flavot or a
+        :param flavor: Either the ID of a flavor or a
             :class:`~openstack.compute.v2.flavor.Flavor` instance.
-        :attrs kwargs: The attributes to update on the flavor represented
+        :param attrs: The attributes to update on the flavor represented
             by ``flavor``.
 
         :returns: The updated flavor
@@ -321,9 +321,8 @@ class Proxy(proxy.Proxy):
         """Update a host aggregate
 
         :param server: Either the ID of a host aggregate or a
-            :class:`~openstack.compute.v2.aggregate.Aggregate`
-            instance.
-        :attrs kwargs: The attributes to update on the aggregate represented
+            :class:`~openstack.compute.v2.aggregate.Aggregate` instance.
+        :param attrs: The attributes to update on the aggregate represented
             by ``aggregate``.
 
         :returns: The updated aggregate
@@ -697,7 +696,7 @@ class Proxy(proxy.Proxy):
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
-        :attrs kwargs: The attributes to update on the server represented
+        :param attrs: The attributes to update on the server represented
             by ``server``.
 
         :returns: The updated server
@@ -1543,9 +1542,9 @@ class Proxy(proxy.Proxy):
     def update_service(self, service, **attrs):
         """Update a service
 
-        :param server: Either the ID of a service or a
+        :param service: Either the ID of a service or a
             :class:`~openstack.compute.v2.service.Service` instance.
-        :attrs kwargs: The attributes to update on the service represented
+        :param attrs: The attributes to update on the service represented
             by ``service``.
 
         :returns: The updated service
@@ -2000,7 +1999,7 @@ class Proxy(proxy.Proxy):
         :param quota_set: Either the ID of a quota_set or a
             :class:`~openstack.compute.v2.quota_set.QuotaSet` instance.
         :param dict query: Optional parameters to be used with update call.
-        :attrs kwargs: The attributes to update on the QuotaSet represented
+        :params attrs: The attributes to update on the QuotaSet represented
             by ``quota_set``.
 
         :returns: The updated QuotaSet
