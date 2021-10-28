@@ -46,6 +46,7 @@ from openstack.shared_file_system.v2 import share_network as _share_network
 from openstack.shared_file_system.v2 import (
     share_network_subnet as _share_network_subnet,
 )
+from openstack.shared_file_system.v2 import share_replica as _share_replica
 from openstack.shared_file_system.v2 import share_snapshot as _share_snapshot
 from openstack.shared_file_system.v2 import (
     share_snapshot_instance as _share_snapshot_instance,
@@ -79,6 +80,7 @@ class Proxy(proxy.Proxy):
         "share_group_snapshot": _share_group_snapshot.ShareGroupSnapshot,
         "resource_locks": _resource_locks.ResourceLock,
         "quota_class_set": _quota_class_set.QuotaClassSet,
+        "share_replica": _share_replica.ShareReplica,
         "share_transfer": _share_transfer.ShareTransfer,
     }
 
@@ -1542,6 +1544,137 @@ class Proxy(proxy.Proxy):
             _quota_class_set.QuotaClassSet, quota_class_set, **attrs
         )
 
+    def create_share_replica(
+        self, share: str | _share.Share, **attrs: Any
+    ) -> _share_replica.ShareReplica:
+        """Creates a share replica from attributes
+
+        :param share: Id of the share for which share replica is to be
+            created
+        :param attrs: Optional attributes which will be used to create.
+            Available parameters include:
+
+            * availability_zone: Availability zone in which replica should
+              be created.
+
+        :returns: Details of the new share replica
+        """
+        share_id = resource.Resource._get_id(share)
+        return self._create(
+            _share_replica.ShareReplica, share_id=share_id, **attrs
+        )
+
+    def share_replicas(
+        self, **attrs: Any
+    ) -> Generator[_share_replica.ShareReplica, None, None]:
+        """List all share replicas with all details
+
+        :param attrs: Optional parameters to limit the share replicas being
+            returned. Available parameters include:
+
+            * share_id: id of the share for which share replicas are wanted
+            * columns: list of columns to be displayed in the returned list
+
+        :returns: A generator of share replicas
+        """
+        return self._list(_share_replica.ShareReplica, **attrs)
+
+    def get_share_replica(
+        self, share_replica: str | _share_replica.ShareReplica
+    ) -> _share_replica.ShareReplica:
+        """List details of a single share replica
+
+        :param share_replica: Id of the share replica
+
+        :returns: Details of the identified share replica
+        """
+        return self._get(_share_replica.ShareReplica, share_replica)
+
+    def delete_share_replica(
+        self,
+        share_replica: str | _share_replica.ShareReplica,
+        ignore_missing: bool = True,
+        force: bool = False,
+    ) -> _share_replica.ShareReplica | None:
+        """Delete a share replica
+
+        :param share_replica: Id of the share replica
+
+        :returns: Result of delete on share replica
+        """
+        if force:
+            share_replica = self._get_resource(
+                _share_replica.ShareReplica, share_replica
+            )
+            share_replica.force_delete(self, ignore_missing=ignore_missing)
+            return None
+
+        return self._delete(
+            _share_replica.ShareReplica,
+            share_replica,
+            ignore_missing=ignore_missing,
+        )
+
+    def reset_share_replica_status(
+        self, share_replica: str | _share_replica.ShareReplica, status: str
+    ) -> None:
+        """Reset status of the share replica
+
+        :param share_replica: Id of the share replica
+        :param status: set the status to the share replica. Possible values
+            include: available, error, creating, deleting, or error_deleting.
+
+        :returns: None
+        """
+        share_replica = self._get_resource(
+            _share_replica.ShareReplica, share_replica
+        )
+        share_replica.reset_status(self, status)
+
+    def reset_share_replica_state(
+        self,
+        share_replica: str | _share_replica.ShareReplica,
+        replica_state: str,
+    ) -> None:
+        """Reset replica_state of the share replica
+
+        :param share_replica: Id of the share replica
+        :param replica_state: The replica state of a share replica. Possible
+            values include: active, in_sync, out_of_sync, and error.
+
+        :returns: None
+        """
+        share_replica = self._get_resource(
+            _share_replica.ShareReplica, share_replica
+        )
+        share_replica.reset_replica_state(self, replica_state)
+
+    def promote_share_replica(
+        self, share_replica: str | _share_replica.ShareReplica
+    ) -> None:
+        """Promote share replica
+
+        :param share_replica: Id of the share replica
+        :returns: None
+        """
+        share_replica = self._get_resource(
+            _share_replica.ShareReplica, share_replica
+        )
+        share_replica.promote(self)
+
+    def resync_share_replica(
+        self, share_replica: str | _share_replica.ShareReplica
+    ) -> None:
+        """Resync share replica
+
+        :param share_replica: Id of the share replica
+        :returns: None
+        """
+        share_replica = self._get_resource(
+            _share_replica.ShareReplica, share_replica
+        )
+        share_replica.resync(self)
+
     def create_share_transfer(
         self, **attrs: Any
     ) -> _share_transfer.ShareTransfer:
@@ -1556,8 +1689,6 @@ class Proxy(proxy.Proxy):
 
 
         :returns: `ShareTransfer` object
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share_transfer.ShareTransfer`
         """
         return self._create(_share_transfer.ShareTransfer, **attrs)
 

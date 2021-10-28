@@ -386,7 +386,7 @@
         MANILA_SHARE_MIGRATION_PERIOD_TASK_INTERVAL: 1
         MANILA_SERVER_MIGRATION_PERIOD_TASK_INTERVAL: 10
         MANILA_REPLICA_STATE_UPDATE_INTERVAL: 10
-        MANILA_DEFAULT_SHARE_TYPE_EXTRA_SPECS: 'snapshot_support=True create_share_from_snapshot_support=True revert_to_snapshot_support=True mount_snapshot_support=True'
+        MANILA_DEFAULT_SHARE_TYPE_EXTRA_SPECS: 'snapshot_support=True create_share_from_snapshot_support=True revert_to_snapshot_support=True mount_snapshot_support=True replication_type=readable'
         MANILA_ENABLED_BACKENDS: alpha,beta,gamma
         MANILA_OPTGROUP_alpha_driver_handles_share_servers: false
         MANILA_OPTGROUP_alpha_replication_domain: DUMMY_DOMAIN
