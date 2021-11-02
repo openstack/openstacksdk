@@ -40,7 +40,7 @@ class Proxy(proxy.Proxy):
         """Get a generator of profile types.
 
         :returns: A generator of objects that are of type
-                  :class:`~openstack.clustering.v1.profile_type.ProfileType`
+            :class:`~openstack.clustering.v1.profile_type.ProfileType`
         """
         return self._list(_profile_type.ProfileType, **query)
 
@@ -48,10 +48,11 @@ class Proxy(proxy.Proxy):
         """Get the details about a profile type.
 
         :param profile_type: The name of the profile_type to retrieve or an
-         object of :class:`~openstack.clustering.v1.profile_type.ProfileType`.
+            object of
+            :class:`~openstack.clustering.v1.profile_type.ProfileType`.
 
         :returns: A :class:`~openstack.clustering.v1.profile_type.ProfileType`
-                  object.
+            object.
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             profile_type matching the name could be found.
         """
@@ -61,7 +62,7 @@ class Proxy(proxy.Proxy):
         """Get a generator of policy types.
 
         :returns: A generator of objects that are of type
-                  :class:`~openstack.clustering.v1.policy_type.PolicyType`
+            :class:`~openstack.clustering.v1.policy_type.PolicyType`
         """
         return self._list(_policy_type.PolicyType, **query)
 
@@ -69,10 +70,10 @@ class Proxy(proxy.Proxy):
         """Get the details about a policy type.
 
         :param policy_type: The name of a poicy_type or an object of
-                :class:`~openstack.clustering.v1.policy_type.PolicyType`.
+            :class:`~openstack.clustering.v1.policy_type.PolicyType`.
 
         :returns: A :class:`~openstack.clustering.v1.policy_type.PolicyType`
-                  object.
+            object.
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             policy_type matching the name could be found.
         """
@@ -82,8 +83,8 @@ class Proxy(proxy.Proxy):
         """Create a new profile from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.clustering.v1.profile.Profile`, it is comprised
-             of the properties on the Profile class.
+            :class:`~openstack.clustering.v1.profile.Profile`, it is comprised
+            of the properties on the Profile class.
 
         :returns: The results of profile creation.
         :rtype: :class:`~openstack.clustering.v1.profile.Profile`.
@@ -109,10 +110,10 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a profile.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.clustering.v1.profile.Profile` object
             or None
         """
@@ -140,19 +141,19 @@ class Proxy(proxy.Proxy):
             * name: The name of a profile.
             * type: The type name of a profile.
             * metadata: A list of key-value pairs that are associated with a
-                profile.
+              profile.
             * sort: A list of sorting keys separated by commas. Each sorting
-                    key can optionally be attached with a sorting direction
-                    modifier which can be ``asc`` or ``desc``.
+              key can optionally be attached with a sorting direction
+              modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
-                query.  Returns a number of items up to the specified limit
-                value.
+              query.  Returns a number of items up to the specified limit
+              value.
             * marker: Specifies the ID of the last-seen item. Use the limit
-                parameter to make an initial limited request and use the ID of
-                the last-seen item from the response as the marker parameter
-                value in a subsequent limited request.
+              parameter to make an initial limited request and use the ID of
+              the last-seen item from the response as the marker parameter
+              value in a subsequent limited request.
             * global_project: A boolean value indicating whether profiles
-                from all projects will be returned.
+              from all projects will be returned.
 
         :returns: A generator of profile instances.
         """
@@ -175,8 +176,8 @@ class Proxy(proxy.Proxy):
         """Validate a profile spec.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.clustering.v1.profile.ProfileValidate`, it is
-             comprised of the properties on the Profile class.
+            :class:`~openstack.clustering.v1.profile.ProfileValidate`, it is
+            comprised of the properties on the Profile class.
 
         :returns: The results of profile validation.
         :rtype: :class:`~openstack.clustering.v1.profile.ProfileValidate`.
@@ -188,8 +189,8 @@ class Proxy(proxy.Proxy):
         """Create a new cluster from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.clustering.v1.cluster.Cluster`, it is comprised
-             of the properties on the Cluster class.
+            :class:`~openstack.clustering.v1.cluster.Cluster`, it is comprised
+            of the properties on the Cluster class.
 
         :returns: The results of cluster creation.
         :rtype: :class:`~openstack.clustering.v1.cluster.Cluster`.
@@ -206,7 +207,7 @@ class Proxy(proxy.Proxy):
             the cluster could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent cluster.
         :param bool force_delete: When set to ``True``, the cluster deletion
-                           will be forced immediately.
+            will be forced immediately.
 
         :returns: The instance of the Cluster which was deleted.
         :rtype: :class:`~openstack.cluster.v1.cluster.Cluster`.
@@ -223,10 +224,10 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a cluster.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.clustering.v1.cluster.Cluster` object
             or None
         """
@@ -254,17 +255,17 @@ class Proxy(proxy.Proxy):
             * name: The name of a cluster.
             * status: The current status of a cluster.
             * sort: A list of sorting keys separated by commas. Each sorting
-                    key can optionally be attached with a sorting direction
-                    modifier which can be ``asc`` or ``desc``.
+              key can optionally be attached with a sorting direction
+              modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
-                query.  Returns a number of items up to the specified limit
-                value.
+              query.  Returns a number of items up to the specified limit
+              value.
             * marker: Specifies the ID of the last-seen item. Use the limit
-                parameter to make an initial limited request and use the ID of
-                the last-seen item from the response as the marker parameter
-                value in a subsequent limited request.
+              parameter to make an initial limited request and use the ID of
+              the last-seen item from the response as the marker parameter
+              value in a subsequent limited request.
             * global_project: A boolean value indicating whether clusters
-                from all projects will be returned.
+              from all projects will be returned.
 
         :returns: A generator of cluster instances.
         """
@@ -354,7 +355,7 @@ class Proxy(proxy.Proxy):
             restrict the nodes to be returned. Available parameters include:
 
             * destroy_after_deletion: A boolean value indicating whether the
-                                      deleted nodes to be destroyed right away.
+              deleted nodes to be destroyed right away.
         :returns: A dict containing the action initiated by this operation.
         """
         if isinstance(cluster, _cluster.Cluster):
@@ -501,7 +502,7 @@ class Proxy(proxy.Proxy):
         :param cluster: The value can be either the ID of a cluster or a
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
         :param dict params: A dictionary providing the parameters for the
-                            recover action.
+            recover action.
 
         :returns: A dictionary containing the action ID.
         """
@@ -515,7 +516,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.clustering.v1.cluster.Cluster` instance.
         :param operation: A string specifying the operation to be performed.
         :param dict params: A dictionary providing the parameters for the
-                            operation.
+            operation.
 
         :returns: A dictionary containing the action ID.
         """
@@ -526,8 +527,8 @@ class Proxy(proxy.Proxy):
         """Create a new node from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.clustering.v1.node.Node`, it is comprised
-             of the properties on the ``Node`` class.
+            :class:`~openstack.clustering.v1.node.Node`, it is comprised
+            of the properties on the ``Node`` class.
 
         :returns: The results of node creation.
         :rtype: :class:`~openstack.clustering.v1.node.Node`.
@@ -544,7 +545,7 @@ class Proxy(proxy.Proxy):
             the node could not be found. When set to ``True``, no exception
             will be raised when attempting to delete a non-existent node.
         :param bool force_delete: When set to ``True``, the node deletion
-                           will be forced immediately.
+            will be forced immediately.
 
         :returns: The instance of the Node which was deleted.
         :rtype: :class:`~openstack.cluster.v1.node.Node`.
@@ -561,12 +562,12 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a node.
         :param bool ignore_missing: When set to "False"
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the specified node does not exist.
-                    when set to "True", None will be returned when
-                    attempting to find a nonexistent policy
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the specified node does not exist.
+            when set to "True", None will be returned when
+            attempting to find a nonexistent policy
         :returns: One :class:`~openstack.clustering.v1.node.Node` object
-                  or None.
+            or None.
         """
         return self._find(_node.Node, name_or_id,
                           ignore_missing=ignore_missing)
@@ -598,20 +599,20 @@ class Proxy(proxy.Proxy):
             restrict the nodes to be returned. Available parameters include:
 
             * cluster_id: A string including the name or ID of a cluster to
-                which the resulted node(s) is a member.
+              which the resulted node(s) is a member.
             * name: The name of a node.
             * status: The current status of a node.
             * sort: A list of sorting keys separated by commas. Each sorting
-                    key can optionally be attached with a sorting direction
-                    modifier which can be ``asc`` or ``desc``.
+              key can optionally be attached with a sorting direction
+              modifier which can be ``asc`` or ``desc``.
             * limit: Requests at most the specified number of items be
-                returned from the query.
+              returned from the query.
             * marker: Specifies the ID of the last-seen node. Use the limit
-                parameter to make an initial limited request and use the ID of
-                the last-seen node from the response as the marker parameter
-                value in a subsequent limited request.
+              parameter to make an initial limited request and use the ID of
+              the last-seen node from the response as the marker parameter
+              value in a subsequent limited request.
             * global_project: A boolean value indicating whether nodes
-                from all projects will be returned.
+              from all projects will be returned.
 
         :returns: A generator of node instances.
         """
@@ -636,7 +637,7 @@ class Proxy(proxy.Proxy):
         :param node: The value can be either the ID of a node or a
             :class:`~openstack.clustering.v1.node.Node` instance.
         :param dict params: A dictionary providing the parametes to the check
-                            action.
+            action.
 
         :returns: A dictionary containing the action ID.
         """
@@ -665,19 +666,19 @@ class Proxy(proxy.Proxy):
             parameters include:
 
             * type: (Required) A string containing the profile type and
-                version to be used for node adoption. For example,
-                ``os.nova.sever-1.0``.
+              version to be used for node adoption. For example,
+              ``os.nova.sever-1.0``.
             * identity: (Required) A string including the name or ID of an
-                OpenStack resource to be adopted as a Senlin node.
+              OpenStack resource to be adopted as a Senlin node.
             * name: (Optional) The name of node to be created. Omitting
-                this parameter will have the node named automatically.
+              this parameter will have the node named automatically.
             * snapshot: (Optional) A boolean indicating whether a snapshot
-                of the target resource should be created if possible. Default
-                is False.
+              of the target resource should be created if possible. Default
+              is False.
             * metadata: (Optional) A dictionary of arbitrary key-value pairs
-                to be associated with the adopted node.
+              to be associated with the adopted node.
             * overrides: (Optional) A dictionary of key-value pairs to be used
-                to override attributes derived from the target resource.
+              to override attributes derived from the target resource.
 
         :returns: The result of node adoption. If `preview` is set to False
             (default), returns a :class:`~openstack.clustering.v1.node.Node`
@@ -694,7 +695,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.clustering.v1.node.Node` instance.
         :param operation: A string specifying the operation to be performed.
         :param dict params: A dictionary providing the parameters for the
-                            operation.
+            operation.
 
         :returns: A dictionary containing the action ID.
         """
@@ -705,8 +706,8 @@ class Proxy(proxy.Proxy):
         """Create a new policy from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.clustering.v1.policy.Policy`, it is comprised
-             of the properties on the ``Policy`` class.
+            :class:`~openstack.clustering.v1.policy.Policy`, it is comprised
+            of the properties on the ``Policy`` class.
 
         :returns: The results of policy creation.
         :rtype: :class:`~openstack.clustering.v1.policy.Policy`.
@@ -732,10 +733,10 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a policy.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the specified policy does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent policy.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the specified policy does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent policy.
         :returns: A policy object or None.
         :rtype: :class:`~openstack.clustering.v1.policy.Policy`
         """
@@ -764,17 +765,17 @@ class Proxy(proxy.Proxy):
             * name: The name of a policy.
             * type: The type name of a policy.
             * sort: A list of sorting keys separated by commas. Each sorting
-                    key can optionally be attached with a sorting direction
-                    modifier which can be ``asc`` or ``desc``.
+              key can optionally be attached with a sorting direction
+              modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
-                query.  Returns a number of items up to the specified limit
-                value.
+              query.  Returns a number of items up to the specified limit
+              value.
             * marker: Specifies the ID of the last-seen item. Use the limit
-                parameter to make an initial limited request and use the ID of
-                the last-seen item from the response as the marker parameter
-                value in a subsequent limited request.
+              parameter to make an initial limited request and use the ID of
+              the last-seen item from the response as the marker parameter
+              value in a subsequent limited request.
             * global_project: A boolean value indicating whether policies from
-                all projects will be returned.
+              all projects will be returned.
 
         :returns: A generator of policy instances.
         """
@@ -797,8 +798,8 @@ class Proxy(proxy.Proxy):
         """Validate a policy spec.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.clustering.v1.policy.PolicyValidate`, it is
-             comprised of the properties on the Policy class.
+            :class:`~openstack.clustering.v1.policy.PolicyValidate`, it is
+            comprised of the properties on the Policy class.
 
         :returns: The results of Policy validation.
         :rtype: :class:`~openstack.clustering.v1.policy.PolicyValidate`.
@@ -814,7 +815,7 @@ class Proxy(proxy.Proxy):
             restrict the policies to be returned. Available parameters include:
 
             * enabled: A boolean value indicating whether the policy is
-                       enabled on the cluster.
+              enabled on the cluster.
         :returns: A generator of cluster-policy binding instances.
         """
         cluster_id = resource.Resource._get_id(cluster)
@@ -842,8 +843,8 @@ class Proxy(proxy.Proxy):
         """Create a new receiver from attributes.
 
         :param dict attrs: Keyword arguments that will be used to create a
-             :class:`~openstack.clustering.v1.receiver.Receiver`, it is
-             comprised of the properties on the Receiver class.
+            :class:`~openstack.clustering.v1.receiver.Receiver`, it is
+            comprised of the properties on the Receiver class.
 
         :returns: The results of receiver creation.
         :rtype: :class:`~openstack.clustering.v1.receiver.Receiver`.
@@ -882,10 +883,10 @@ class Proxy(proxy.Proxy):
 
         :param str name_or_id: The name or ID of a receiver.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the specified receiver does not exist. When
-                    set to ``True``, None will be returned when attempting to
-                    find a nonexistent receiver.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the specified receiver does not exist. When
+            set to ``True``, None will be returned when attempting to
+            find a nonexistent receiver.
         :returns: A receiver object or None.
         :rtype: :class:`~openstack.clustering.v1.receiver.Receiver`
         """
@@ -916,8 +917,8 @@ class Proxy(proxy.Proxy):
             * cluster_id: The ID of the associated cluster.
             * action: The name of the associated action.
             * sort: A list of sorting keys separated by commas. Each sorting
-                    key can optionally be attached with a sorting direction
-                    modifier which can be ``asc`` or ``desc``.
+              key can optionally be attached with a sorting direction
+              modifier which can be ``asc`` or ``desc``.
             * global_project: A boolean value indicating whether receivers
             *   from all projects will be returned.
 
@@ -946,18 +947,18 @@ class Proxy(proxy.Proxy):
 
             * name: name of action for query.
             * target: ID of the target object for which the actions should be
-                returned.
+              returned.
             * action: built-in action types for query.
             * sort: A list of sorting keys separated by commas. Each sorting
-                    key can optionally be attached with a sorting direction
-                    modifier which can be ``asc`` or ``desc``.
+              key can optionally be attached with a sorting direction
+              modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
-                query.  Returns a number of items up to the specified limit
-                value.
+              query.  Returns a number of items up to the specified limit
+              value.
             * marker: Specifies the ID of the last-seen item. Use the limit
-                parameter to make an initial limited request and use the ID of
-                the last-seen item from the response as the marker parameter
-                value in a subsequent limited request.
+              parameter to make an initial limited request and use the ID of
+              the last-seen item from the response as the marker parameter
+              value in a subsequent limited request.
 
         :returns: A generator of action instances.
         """
@@ -997,23 +998,23 @@ class Proxy(proxy.Proxy):
 
             * obj_name: name string of the object associated with an event.
             * obj_type: type string of the object related to an event. The
-                        value can be ``cluster``, ``node``, ``policy`` etc.
+              value can be ``cluster``, ``node``, ``policy`` etc.
             * obj_id: ID of the object associated with an event.
             * cluster_id: ID of the cluster associated with the event, if any.
             * action: name of the action associated with an event.
             * sort: A list of sorting keys separated by commas. Each sorting
-                    key can optionally be attached with a sorting direction
-                    modifier which can be ``asc`` or ``desc``.
+              key can optionally be attached with a sorting direction
+              modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
-                query.  Returns a number of items up to the specified limit
-                value.
+              query.  Returns a number of items up to the specified limit
+              value.
             * marker: Specifies the ID of the last-seen item. Use the limit
-                parameter to make an initial limited request and use the ID of
-                the last-seen item from the response as the marker parameter
-                value in a subsequent limited request.
+              parameter to make an initial limited request and use the ID of
+              the last-seen item from the response as the marker parameter
+              value in a subsequent limited request.
             * global_project: A boolean specifying whether events from all
-                projects should be returned. This option is subject to access
-                control checking.
+              projects should be returned. This option is subject to access
+              control checking.
 
         :returns: A generator of event instances.
         """
@@ -1024,22 +1025,22 @@ class Proxy(proxy.Proxy):
         """Wait for a resource to be in a particular status.
 
         :param res: The resource to wait on to reach the specified status.
-                    The resource must have a ``status`` attribute.
+            The resource must have a ``status`` attribute.
         :type resource: A :class:`~openstack.resource.Resource` object.
         :param status: Desired status.
         :param failures: Statuses that would be interpreted as failures.
         :type failures: :py:class:`list`
         :param interval: Number of seconds to wait before to consecutive
-                         checks. Default to 2.
+            checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
-                     Default to 120.
+            Default to 120.
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-                 to the desired status failed to occur in specified seconds.
+            to the desired status failed to occur in specified seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
-                 has transited to one of the failure statuses.
+            has transited to one of the failure statuses.
         :raises: :class:`~AttributeError` if the resource does not have a
-                ``status`` attribute.
+            ``status`` attribute.
         """
         failures = [] if failures is None else failures
         return resource.wait_for_status(
@@ -1051,12 +1052,12 @@ class Proxy(proxy.Proxy):
         :param res: The resource to wait on to be deleted.
         :type resource: A :class:`~openstack.resource.Resource` object.
         :param interval: Number of seconds to wait before to consecutive
-                         checks. Default to 2.
+            checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
-                     Default to 120.
+            Default to 120.
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-                 to delete failed to occur in the specified seconds.
+            to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
 
@@ -1064,7 +1065,7 @@ class Proxy(proxy.Proxy):
         """Get a generator of services.
 
         :returns: A generator of objects that are of type
-                  :class:`~openstack.clustering.v1.service.Service`
+            :class:`~openstack.clustering.v1.service.Service`
         """
         return self._list(_service.Service, **query)
 
@@ -1072,10 +1073,11 @@ class Proxy(proxy.Proxy):
         """Get the operation about a profile type.
 
         :param profile_type: The name of the profile_type to retrieve or an
-         object of :class:`~openstack.clustering.v1.profile_type.ProfileType`.
+            object of
+            :class:`~openstack.clustering.v1.profile_type.ProfileType`.
 
         :returns: A :class:`~openstack.clustering.v1.profile_type.ProfileType`
-                  object.
+            object.
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             profile_type matching the name could be found.
         """
