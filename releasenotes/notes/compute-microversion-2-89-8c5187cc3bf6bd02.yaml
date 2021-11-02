@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The 2.89 API microversion is now supported for the compute service. This
+    adds additional fields to the ``os-volume_attachments`` API, represented
+    by the ``openstack.compute.v2.volume_attachment.VolumeAttachment``
+    resource.
