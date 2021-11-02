@@ -30,8 +30,8 @@ class Proxy(proxy.Proxy):
         """Retrieve shared file system availability zones
 
         :returns: A generator of availability zone resources
-        :rtype: :class:`~openstack.shared_file_system.v2.
-                                    \availability_zone.AvailabilityZone`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.availability_zone.AvailabilityZone`
         """
         return self._list(_availability_zone.AvailabilityZone)
 
@@ -44,42 +44,41 @@ class Proxy(proxy.Proxy):
             * status: Filters by a share status
             * share_server_id: The UUID of the share server.
             * metadata: One or more metadata key and value pairs as a url
-                encoded dictionary of strings.
+              encoded dictionary of strings.
             * extra_specs: The extra specifications as a set of one or more
-                key-value pairs.
+              key-value pairs.
             * share_type_id: The UUID of a share type to query resources by.
             * name: The user defined name of the resource to filter resources
-                by.
+              by.
             * snapshot_id: The UUID of the share’s base snapshot to filter
-                the request based on.
+              the request based on.
             * host: The host name of the resource to query with.
             * share_network_id: The UUID of the share network to filter
-                resources by.
+              resources by.
             * project_id: The ID of the project that owns the resource.
             * is_public: A boolean query parameter that, when set to true,
-                allows retrieving public resources that belong to
-                all projects.
+              allows retrieving public resources that belong to
+              all projects.
             * share_group_id: The UUID of a share group to filter resource.
             * export_location_id: The export location UUID that can be used
-                to filter shares or share instances.
+              to filter shares or share instances.
             * export_location_path: The export location path that can be used
-                to filter shares or share instances.
+              to filter shares or share instances.
             * name~: The name pattern that can be used to filter shares, share
-                snapshots, share networks or share groups.
+              snapshots, share networks or share groups.
             * description~: The description pattern that can be used to filter
-                shares, share snapshots, share networks or share groups.
+              shares, share snapshots, share networks or share groups.
             * with_count: Whether to show count in API response or not,
-                default is False.
+              default is False.
             * limit: The maximum number of shares to return.
             * offset: The offset to define start point of share or share group
-                listing.
+              listing.
             * sort_key: The key to sort a list of shares.
             * sort_dir: The direction to sort a list of shares. A valid value
-                is asc, or desc.
+              is asc, or desc.
 
         :returns: Details of shares resources
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share.Share`
+        :rtype: :class:`~openstack.shared_file_system.v2.share.Share`
         """
         base_path = '/shares/detail' if details else None
         return self._list(_share.Share, base_path=base_path, **query)
@@ -89,8 +88,7 @@ class Proxy(proxy.Proxy):
 
         :param share: The ID of the share to get
         :returns: Details of the identified share
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share.Share`
+        :rtype: :class:`~openstack.shared_file_system.v2.share.Share`
         """
         return self._get(_share.Share, share_id)
 
@@ -108,10 +106,9 @@ class Proxy(proxy.Proxy):
         """Updates details of a single share.
 
         :param share: The ID of the share to update
-        :pram dict attrs: The attributes to update on the share
+        :param dict attrs: The attributes to update on the share
         :returns: the updated share
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share.Share`
+        :rtype: :class:`~openstack.shared_file_system.v2.share.Share`
         """
         return self._update(_share.Share, share_id, **attrs)
 
@@ -120,12 +117,10 @@ class Proxy(proxy.Proxy):
 
         :returns: Details of the new share
         :param dict attrs: Attributes which will be used to create
-            a :class:`~openstack.shared_file_system.v2.
-            shares.Shares`,comprised of the properties
-            on the Shares class. 'size' and 'share'
+            a :class:`~openstack.shared_file_system.v2.shares.Shares`,
+            comprised of the properties on the Shares class. 'size' and 'share'
             are required to create a share.
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            share.Share`
+        :rtype: :class:`~openstack.shared_file_system.v2.share.Share`
         """
         return self._create(_share.Share, **attrs)
 
@@ -166,8 +161,8 @@ class Proxy(proxy.Proxy):
             * capabilities: The capabilities for the storage back end.
             * share_type: The share type name or UUID.
         :returns: A generator of manila storage pool resources
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            storage_pool.StoragePool`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.storage_pool.StoragePool`
         """
         base_path = '/scheduler-stats/pools/detail' if details else None
         return self._list(
@@ -180,26 +175,26 @@ class Proxy(proxy.Proxy):
             the messages being returned.  Available parameters include:
 
             * action_id: The ID of the action during which the message
-                was created.
+              was created.
             * detail_id: The ID of the message detail.
             * limit: The maximum number of shares to return.
             * message_level: The message level.
             * offset: The offset to define start point of share or share
-                group listing.
+              group listing.
             * sort_key: The key to sort a list of messages.
             * sort_dir: The direction to sort a list of shares.
             * project_id: The ID of the project for which the message
-                was created.
+              was created.
             * request_id: The ID of the request during which the message
-                was created.
+              was created.
             * resource_id: The UUID of the resource for which the message
-                was created.
+              was created.
             * resource_type: The type of the resource for which the message
-                was created.
+              was created.
 
         :returns: A generator of user message resources
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            user_message.UserMessage`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.user_message.UserMessage`
         """
         return self._list(
             _user_message.UserMessage, **query)
@@ -209,8 +204,8 @@ class Proxy(proxy.Proxy):
 
         :param message_id: The ID of the user message
         :returns: Details of the identified user message
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            user_message.UserMessage`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.user_message.UserMessage`
         """
         return self._get(_user_message.UserMessage, message_id)
 
@@ -233,8 +228,7 @@ class Proxy(proxy.Proxy):
             the share limits being returned.
 
         :returns: A generator of manila share limits resources
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            limit.Limit`
+        :rtype: :class:`~openstack.shared_file_system.v2.limit.Limit`
         """
         return self._list(
             _limit.Limit, **query)
