@@ -743,13 +743,13 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             * offset: pagination marker
             * limit: pagination limit
             * sort_key: Sorts by an attribute. A valid value is
-                name, status, container_format, disk_format, size, id,
-                created_at, or updated_at. Default is created_at.
-                The API uses the natural sorting direction of the
-                sort_key attribute value.
+              name, status, container_format, disk_format, size, id,
+              created_at, or updated_at. Default is created_at.
+              The API uses the natural sorting direction of the
+              sort_key attribute value.
             * sort_dir: Sorts by one or more sets of attribute and sort
-                direction combinations. If you omit the sort direction
-                in a set, default is desc.
+              direction combinations. If you omit the sort direction
+              in a set, default is desc.
             * project_id: Project ID to query backups for.
 
         :returns: A generator of backup objects.
@@ -914,15 +914,15 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             resources being returned:
 
             * sort: Comma-separated list of sort keys and optional sort
-                directions in the form of <key> [:<direction>]. A valid
-                direction is asc (ascending) or desc (descending).
+              directions in the form of <key> [:<direction>]. A valid
+              direction is asc (ascending) or desc (descending).
             * limit: Requests a page size of items. Returns a number of items
-                up to a limit value. Use the limit parameter to make an
-                initial limited request and use the ID of the last-seen item
-                from the response as the marker parameter value in a
-                subsequent limited request.
+              up to a limit value. Use the limit parameter to make an
+              initial limited request and use the ID of the last-seen item
+              from the response as the marker parameter value in a
+              subsequent limited request.
             * offset: Used in conjunction with limit to return a slice of
-                items. Is where to start in the list.
+              items. Is where to start in the list.
             * marker: The ID of the last-seen item.
 
         :returns: A generator of group type objects.
