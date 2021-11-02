@@ -55,7 +55,7 @@ class Proxy(proxy.Proxy):
         """Get a zone
 
         :param zone: The value can be the ID of a zone
-             or a :class:`~openstack.dns.v2.zone.Zone` instance.
+            or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :returns: Zone instance.
         :rtype: :class:`~openstack.dns.v2.zone.Zone`
         """
@@ -65,7 +65,7 @@ class Proxy(proxy.Proxy):
         """Delete a zone
 
         :param zone: The value can be the ID of a zone
-             or a :class:`~openstack.dns.v2.zone.Zone` instance.
+            or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the zone does not exist.
@@ -108,7 +108,7 @@ class Proxy(proxy.Proxy):
         """Abandon Zone
 
         :param zone: The value can be the ID of a zone to be abandoned
-             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
+            or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
 
         :returns: None
         """
@@ -120,7 +120,7 @@ class Proxy(proxy.Proxy):
         """Trigger update of secondary Zone
 
         :param zone: The value can be the ID of a zone to be abandoned
-             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
+            or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
 
         :returns: None
         """
@@ -132,9 +132,9 @@ class Proxy(proxy.Proxy):
         """Retrieve a generator of recordsets
 
         :param zone: The optional value can be the ID of a zone
-             or a :class:`~openstack.dns.v2.zone.Zone` instance. If it is not
-             given all recordsets for all zones of the tenant would be
-             retrieved
+            or a :class:`~openstack.dns.v2.zone.Zone` instance. If it is not
+            given all recordsets for all zones of the tenant would be
+            retrieved
         :param dict query: Optional query parameters to be sent to limit the
             resources being returned.
 
@@ -185,9 +185,9 @@ class Proxy(proxy.Proxy):
         """Get a recordset
 
         :param zone: The value can be the ID of a zone
-             or a :class:`~openstack.dns.v2.zone.Zone` instance.
+            or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param recordset: The value can be the ID of a recordset
-             or a :class:`~openstack.dns.v2.recordset.Recordset` instance.
+            or a :class:`~openstack.dns.v2.recordset.Recordset` instance.
         :returns: Recordset instance
         :rtype: :class:`~openstack.dns.v2.recordset.Recordset`
         """
@@ -198,10 +198,10 @@ class Proxy(proxy.Proxy):
         """Delete a zone
 
         :param recordset: The value can be the ID of a recordset
-             or a :class:`~openstack.dns.v2.recordset.Recordset`
-             instance.
+            or a :class:`~openstack.dns.v2.recordset.Recordset`
+            instance.
         :param zone: The value can be the ID of a zone
-             or a :class:`~openstack.dns.v2.zone.Zone` instance.
+            or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the zone does not exist. When set to ``True``, no exception will
@@ -221,7 +221,7 @@ class Proxy(proxy.Proxy):
         """Find a single recordset
 
         :param zone: The value can be the ID of a zone
-             or a :class:`~openstack.dns.v2.zone.Zone` instance.
+            or a :class:`~openstack.dns.v2.zone.Zone` instance.
         :param name_or_id: The name or ID of a zone
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
@@ -268,7 +268,7 @@ class Proxy(proxy.Proxy):
         """Get a zone import record
 
         :param zone: The value can be the ID of a zone import
-             or a :class:`~openstack.dns.v2.zone_import.ZoneImport` instance.
+            or a :class:`~openstack.dns.v2.zone_import.ZoneImport` instance.
         :returns: ZoneImport instance.
         :rtype: :class:`~openstack.dns.v2.zone_import.ZoneImport`
         """
@@ -278,7 +278,7 @@ class Proxy(proxy.Proxy):
         """Delete a zone import
 
         :param zone_import: The value can be the ID of a zone import
-             or a :class:`~openstack.dns.v2.zone_import.ZoneImport` instance.
+            or a :class:`~openstack.dns.v2.zone_import.ZoneImport` instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the zone does not exist.
@@ -310,7 +310,7 @@ class Proxy(proxy.Proxy):
         """Create a new zone export from attributes
 
         :param zone: The value can be the ID of a zone to be exported
-             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
+            or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
         :param dict attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.zone_export.ZoneExport`,
             comprised of the properties on the ZoneExport class.
@@ -328,7 +328,7 @@ class Proxy(proxy.Proxy):
         """Get a zone export record
 
         :param zone: The value can be the ID of a zone import
-             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
+            or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
         :returns: ZoneExport instance.
         :rtype: :class:`~openstack.dns.v2.zone_export.ZoneExport`
         """
@@ -338,7 +338,7 @@ class Proxy(proxy.Proxy):
         """Get a zone export record as text
 
         :param zone: The value can be the ID of a zone import
-             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
+            or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
         :returns: ZoneExport instance.
         :rtype: :class:`~openstack.dns.v2.zone_export.ZoneExport`
         """
@@ -349,7 +349,7 @@ class Proxy(proxy.Proxy):
         """Delete a zone export
 
         :param zone_export: The value can be the ID of a zone import
-             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
+            or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the zone does not exist.
@@ -383,8 +383,8 @@ class Proxy(proxy.Proxy):
         """Get a Floating IP
 
         :param floating_ip: The value can be the ID of a floating ip
-             or a :class:`~openstack.dns.v2.floating_ip.FloatingIP` instance.
-             The ID is in format "region_name:floatingip_id"
+            or a :class:`~openstack.dns.v2.floating_ip.FloatingIP` instance.
+            The ID is in format "region_name:floatingip_id"
         :returns: FloatingIP instance.
         :rtype: :class:`~openstack.dns.v2.floating_ip.FloatingIP`
         """
@@ -432,8 +432,8 @@ class Proxy(proxy.Proxy):
         """Get a ZoneTransfer Request info
 
         :param request: The value can be the ID of a transfer request
-             or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
-             instance.
+            or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
+            instance.
         :returns: Zone transfer request instance.
         :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
         """
@@ -443,7 +443,7 @@ class Proxy(proxy.Proxy):
         """Create a new ZoneTransfer Request from attributes
 
         :param zone: The value can be the ID of a zone to be transferred
-             or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
+            or a :class:`~openstack.dns.v2.zone_export.ZoneExport` instance.
         :param dict attrs: Keyword arguments which will be used to create
             a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`,
             comprised of the properties on the ZoneTransferRequest class.
@@ -475,8 +475,8 @@ class Proxy(proxy.Proxy):
         """Delete a ZoneTransfer Request
 
         :param request: The value can be the ID of a zone transfer request
-             or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
-             instance.
+            or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferRequest`
+            instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the zone does not exist.
@@ -506,8 +506,8 @@ class Proxy(proxy.Proxy):
         """Get a ZoneTransfer Accept info
 
         :param request: The value can be the ID of a transfer accept
-             or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`
-             instance.
+            or a :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`
+            instance.
         :returns: Zone transfer request instance.
         :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`
         """
