@@ -419,22 +419,22 @@ class Proxy(_base_proxy.BaseImageProxy):
         :ref:`download_image-stream-true`.
 
         :param image: The value can be either the ID of an image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            :class:`~openstack.image.v2.image.Image` instance.
 
         :param bool stream: When ``True``, return a :class:`requests.Response`
-                            instance allowing you to iterate over the
-                            response data stream instead of storing its entire
-                            contents in memory. See
-                            :meth:`requests.Response.iter_content` for more
-                            details. *NOTE*: If you do not consume
-                            the entirety of the response you must explicitly
-                            call :meth:`requests.Response.close` or otherwise
-                            risk inefficiencies with the ``requests``
-                            library's handling of connections.
+            instance allowing you to iterate over the
+            response data stream instead of storing its entire
+            contents in memory. See
+            :meth:`requests.Response.iter_content` for more
+            details. *NOTE*: If you do not consume
+            the entirety of the response you must explicitly
+            call :meth:`requests.Response.close` or otherwise
+            risk inefficiencies with the ``requests``
+            library's handling of connections.
 
 
-                            When ``False``, return the entire
-                            contents of the response.
+            When ``False``, return the entire
+            contents of the response.
         :param output: Either a file object or a path to store data into.
         :param int chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024
@@ -454,12 +454,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Delete an image
 
         :param image: The value can be either the ID of an image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            :class:`~openstack.image.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the image does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent image.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the image does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent image.
 
         :returns: ``None``
         """
@@ -470,10 +470,10 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :param name_or_id: The name or ID of a image.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.image.Image` or None
         """
         return self._find(_image.Image, name_or_id,
@@ -483,11 +483,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Get a single image
 
         :param image: The value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            :class:`~openstack.image.v2.image.Image` instance.
 
         :returns: One :class:`~openstack.image.v2.image.Image`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_image.Image, image)
 
@@ -495,7 +495,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Return a generator of images
 
         :param kwargs query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned.
 
         :returns: A generator of image objects
         :rtype: :class:`~openstack.image.v2.image.Image`
@@ -506,9 +506,9 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Update a image
 
         :param image: Either the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            :class:`~openstack.image.v2.image.Image` instance.
         :attrs kwargs: The attributes to update on the image represented
-                       by ``value``.
+            by ``value``.
 
         :returns: The updated image
         :rtype: :class:`~openstack.image.v2.image.Image`
@@ -519,7 +519,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Deactivate an image
 
         :param image: Either the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            :class:`~openstack.image.v2.image.Image` instance.
 
         :returns: None
         """
@@ -530,7 +530,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Deactivate an image
 
         :param image: Either the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            :class:`~openstack.image.v2.image.Image` instance.
 
         :returns: None
         """
@@ -541,8 +541,8 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Add a tag to an image
 
         :param image: The value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance
-                      that the member will be created for.
+            :class:`~openstack.image.v2.image.Image` instance
+            that the member will be created for.
         :param str tag: The tag to be added
 
         :returns: None
@@ -554,8 +554,8 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Remove a tag to an image
 
         :param image: The value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance
-                      that the member will be created for.
+            :class:`~openstack.image.v2.image.Image` instance
+            that the member will be created for.
         :param str tag: The tag to be removed
 
         :returns: None
@@ -567,11 +567,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Create a new member from attributes
 
         :param image: The value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance
-                      that the member will be created for.
+            :class:`~openstack.image.v2.image.Image` instance
+            that the member will be created for.
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.image.v2.member.Member`,
-                           comprised of the properties on the Member class.
+            a :class:`~openstack.image.v2.member.Member`,
+            comprised of the properties on the Member class.
 
         :returns: The results of member creation
         :rtype: :class:`~openstack.image.v2.member.Member`
@@ -604,13 +604,13 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :param name_or_id: The name or ID of a member.
         :param image: This is the image that the member belongs to,
-                      the value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            the value can be the ID of a image or a
+            :class:`~openstack.image.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.member.Member` or None
         """
         image_id = resource.Resource._get_id(image)
@@ -621,13 +621,13 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Get a single member on an image
 
         :param member: The value can be the ID of a member or a
-                       :class:`~openstack.image.v2.member.Member` instance.
+            :class:`~openstack.image.v2.member.Member` instance.
         :param image: This is the image that the member belongs to.
-                      The value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            The value can be the ID of a image or a
+            :class:`~openstack.image.v2.image.Image` instance.
         :returns: One :class:`~openstack.image.v2.member.Member`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         member_id = resource.Resource._get_id(member)
         image_id = resource.Resource._get_id(image)
@@ -653,12 +653,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Update the member of an image
 
         :param member: Either the ID of a member or a
-                       :class:`~openstack.image.v2.member.Member` instance.
+            :class:`~openstack.image.v2.member.Member` instance.
         :param image: This is the image that the member belongs to.
-                      The value can be the ID of a image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            The value can be the ID of a image or a
+            :class:`~openstack.image.v2.image.Image` instance.
         :attrs kwargs: The attributes to update on the member represented
-                       by ``value``.
+            by ``value``.
 
         :returns: The updated member
         :rtype: :class:`~openstack.image.v2.member.Member`
@@ -673,7 +673,7 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/images')
@@ -683,7 +683,7 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/image')
@@ -693,7 +693,7 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/members')
@@ -703,7 +703,7 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/member')
@@ -712,7 +712,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Return a generator of tasks
 
         :param kwargs query: Optional query parameters to be sent to limit
-                             the resources being returned.
+            the resources being returned.
 
         :returns: A generator of task objects
         :rtype: :class:`~openstack.image.v2.task.Task`
@@ -723,11 +723,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Get task details
 
         :param task: The value can be the ID of a task or a
-                     :class:`~openstack.image.v2.task.Task` instance.
+            :class:`~openstack.image.v2.task.Task` instance.
 
         :returns: One :class:`~openstack.image.v2.task.Task`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_task.Task, task)
 
@@ -748,22 +748,22 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Wait for a task to be in a particular status.
 
         :param task: The resource to wait on to reach the specified status.
-                    The resource must have a ``status`` attribute.
+            The resource must have a ``status`` attribute.
         :type resource: A :class:`~openstack.resource.Resource` object.
         :param status: Desired status.
         :param failures: Statuses that would be interpreted as failures.
         :type failures: :py:class:`list`
         :param interval: Number of seconds to wait before to consecutive
-                         checks. Default to 2.
+            checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
-                     Default to 120.
+            Default to 120.
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
-                 to the desired status failed to occur in specified seconds.
+            to the desired status failed to occur in specified seconds.
         :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
-                 has transited to one of the failure statuses.
+            has transited to one of the failure statuses.
         :raises: :class:`~AttributeError` if the resource does not have a
-                ``status`` attribute.
+            ``status`` attribute.
         """
         if failures is None:
             failures = ['failure']
@@ -810,7 +810,7 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/tasks')
@@ -820,7 +820,7 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :returns: One :class:`~openstack.image.v2.schema.Schema`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/task')
@@ -838,6 +838,6 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :returns: One :class:`~openstack.image.v2.service_info.Import`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_si.Import, require_id=False)
