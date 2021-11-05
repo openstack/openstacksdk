@@ -46,6 +46,16 @@ class TestZone(base.BaseFunctionalTest):
         names = [f.name for f in self.conn.dns.zones()]
         self.assertIn(self.ZONE_NAME, names)
 
+    def test_update_zone(self):
+        current_ttl = self.conn.dns.get_zone(self.zone)['ttl']
+        self.conn.dns.update_zone(self.zone, ttl=current_ttl + 1)
+        updated_zone_ttl = self.conn.dns.get_zone(self.zone)['ttl']
+        self.assertEqual(
+            current_ttl + 1,
+            updated_zone_ttl,
+            'Failed, updated TTL value is:{} instead of expected:{}'.format(
+                updated_zone_ttl, current_ttl + 1))
+
     def test_create_rs(self):
         zone = self.conn.dns.get_zone(self.zone)
         self.assertIsNotNone(self.conn.dns.create_recordset(
