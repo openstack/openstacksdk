@@ -33,9 +33,9 @@ class UserMessage(resource.Resource):
 
     #: Properties
     #: The action ID of the user message
-    action_id = resource.Body("action_id")
+    action_id = resource.Body("action_id", type=str)
     #: Indicate when the user message was created
-    created_at = resource.Body("created_at")
+    created_at = resource.Body("created_at", type=str)
     #: The detail ID of the user message
     detail_id = resource.Body("detail_id", type=str)
     #: Indicate when the share message expires
