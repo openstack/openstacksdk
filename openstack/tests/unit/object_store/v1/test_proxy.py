@@ -17,6 +17,7 @@ import tempfile
 import time
 from unittest import mock
 
+import requests_mock
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack.object_store.v1 import account
@@ -24,6 +25,16 @@ from openstack.object_store.v1 import container
 from openstack.object_store.v1 import obj
 from openstack.tests.unit.cloud import test_object as base_test_object
 from openstack.tests.unit import test_proxy_base
+
+
+class FakeResponse:
+    def __init__(self, response, status_code=200, headers=None):
+        self.body = response
+        self.status_code = status_code
+        self.headers = headers if headers else {}
+
+    def json(self):
+        return self.body
 
 
 class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
@@ -111,12 +122,31 @@ class TestObjectStoreProxy(test_proxy_base.TestProxyBase):
         self.assertRaises(TypeError, self.proxy.upload_object)
 
     def test_object_get(self):
-        kwargs = dict(container="container")
-        self.verify_get(
-            self.proxy.get_object, obj.Object,
-            method_args=["object"],
-            method_kwargs=kwargs,
-            expected_kwargs=kwargs)
+        with requests_mock.Mocker() as m:
+            m.get("%scontainer/object" % self.endpoint,
+                  text="data")
+            res = self.proxy.get_object("object", container="container")
+            self.assertIsNone(res.data)
+
+    def test_object_get_write_file(self):
+        with requests_mock.Mocker() as m:
+            m.get("%scontainer/object" % self.endpoint,
+                  text="data")
+            with tempfile.NamedTemporaryFile() as f:
+                self.proxy.get_object(
+                    "object", container="container",
+                    outfile=f.name)
+                dt = open(f.name).read()
+                self.assertEqual(dt, "data")
+
+    def test_object_get_remember_content(self):
+        with requests_mock.Mocker() as m:
+            m.get("%scontainer/object" % self.endpoint,
+                  text="data")
+            res = self.proxy.get_object(
+                "object", container="container",
+                remember_content=True)
+            self.assertEqual(res.data, "data")
 
     def test_set_temp_url_key(self):
 

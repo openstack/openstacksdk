@@ -13,10 +13,7 @@
 # import types so that we can reference ListType in sphinx param declarations.
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
-import collections
 import concurrent.futures
-import json
-import os
 import types  # noqa
 import urllib.parse
 
@@ -26,8 +23,6 @@ from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
-from openstack import proxy
-from openstack import utils
 
 
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
@@ -149,12 +144,8 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         :param dict headers:
             Key/Value headers to set on the container.
         """
-        # TODO(gtema): Decide on whether to deprecate this or change i/f to the
-        # container metadata names
-        exceptions.raise_from_response(
-            self.object_store.post(
-                self._get_object_endpoint(name), headers=headers)
-        )
+        self.object_store.set_container_metadata(
+            name, refresh=False, **headers)
 
     def set_container_access(self, name, access, refresh=False):
         """Set the access control list on a container.
@@ -202,40 +193,11 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         The object-storage service publishes a set of capabilities that
         include metadata about maximum values and thresholds.
         """
-        # The endpoint in the catalog has version and project-id in it
-        # To get capabilities, we have to disassemble and reassemble the URL
-        # This logic is taken from swiftclient
-        endpoint = urllib.parse.urlparse(self.object_store.get_endpoint())
-        url = "{scheme}://{netloc}/info".format(
-            scheme=endpoint.scheme, netloc=endpoint.netloc)
-
-        return proxy._json_response(self.object_store.get(url))
+        return self.object_store.get_info()
 
     def get_object_segment_size(self, segment_size):
         """Get a segment size that will work given capabilities"""
-        if segment_size is None:
-            segment_size = DEFAULT_OBJECT_SEGMENT_SIZE
-        min_segment_size = 0
-        try:
-            caps = self.get_object_capabilities()
-        except exc.OpenStackCloudHTTPError as e:
-            if e.response.status_code in (404, 412):
-                server_max_file_size = DEFAULT_MAX_FILE_SIZE
-                self.log.info(
-                    "Swift capabilities not supported. "
-                    "Using default max file size.")
-            else:
-                raise
-        else:
-            server_max_file_size = caps.get('swift', {}).get('max_file_size',
-                                                             0)
-            min_segment_size = caps.get('slo', {}).get('min_segment_size', 0)
-
-        if segment_size > server_max_file_size:
-            return server_max_file_size
-        if segment_size < min_segment_size:
-            return min_segment_size
-        return segment_size
+        return self.object_store.get_object_segment_size(segment_size)
 
     def is_object_stale(
             self, container, name, filename, file_md5=None, file_sha256=None):
@@ -251,35 +213,10 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             Pre-calculated sha256 of the file contents. Defaults to None which
             means calculate locally.
         """
-        metadata = self.get_object_metadata(container, name)
-        if not metadata:
-            self.log.debug(
-                "swift stale check, no object: {container}/{name}".format(
-                    container=container, name=name))
-            return True
-
-        if not (file_md5 or file_sha256):
-            (file_md5, file_sha256) = utils._get_file_hashes(filename)
-        md5_key = metadata.get(
-            self._OBJECT_MD5_KEY, metadata.get(self._SHADE_OBJECT_MD5_KEY, ''))
-        sha256_key = metadata.get(
-            self._OBJECT_SHA256_KEY, metadata.get(
-                self._SHADE_OBJECT_SHA256_KEY, ''))
-        up_to_date = utils._hashes_up_to_date(
-            md5=file_md5, sha256=file_sha256,
-            md5_key=md5_key, sha256_key=sha256_key)
-
-        if not up_to_date:
-            self.log.debug(
-                "swift checksum mismatch: "
-                " %(filename)s!=%(container)s/%(name)s",
-                {'filename': filename, 'container': container, 'name': name})
-            return True
-
-        self.log.debug(
-            "swift object up to date: %(container)s/%(name)s",
-            {'container': container, 'name': name})
-        return False
+        return self.object_store.is_object_stale(
+            container, name, filename,
+            file_md5=file_md5, file_sha256=file_sha256
+        )
 
     def create_directory_marker_object(self, container, name, **headers):
         """Create a zero-byte directory marker object
@@ -349,217 +286,14 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
 
         :raises: ``OpenStackCloudException`` on operation error.
         """
-        if data is not None and filename:
-            raise ValueError(
-                "Both filename and data given. Please choose one.")
-        if data is not None and not name:
-            raise ValueError(
-                "name is a required parameter when data is given")
-        if data is not None and generate_checksums:
-            raise ValueError(
-                "checksums cannot be generated with data parameter")
-        if generate_checksums is None:
-            if data is not None:
-                generate_checksums = False
-            else:
-                generate_checksums = True
-
-        if not metadata:
-            metadata = {}
-
-        if not filename and data is None:
-            filename = name
-
-        if generate_checksums and (md5 is None or sha256 is None):
-            (md5, sha256) = utils._get_file_hashes(filename)
-        if md5:
-            headers[self._OBJECT_MD5_KEY] = md5 or ''
-        if sha256:
-            headers[self._OBJECT_SHA256_KEY] = sha256 or ''
-        for (k, v) in metadata.items():
-            if not k.lower().startswith('x-object-meta-'):
-                headers['x-object-meta-' + k] = v
-            else:
-                headers[k] = v
-
-        endpoint = self._get_object_endpoint(container, name)
-
-        if data is not None:
-            self.log.debug(
-                "swift uploading data to %(endpoint)s",
-                {'endpoint': endpoint})
-
-            return self._upload_object_data(endpoint, data, headers)
-
-        # segment_size gets used as a step value in a range call, so needs
-        # to be an int
-        if segment_size:
-            segment_size = int(segment_size)
-        segment_size = self.get_object_segment_size(segment_size)
-        file_size = os.path.getsize(filename)
-
-        if self.is_object_stale(container, name, filename, md5, sha256):
-
-            self.log.debug(
-                "swift uploading %(filename)s to %(endpoint)s",
-                {'filename': filename, 'endpoint': endpoint})
-
-            if file_size <= segment_size:
-                self._upload_object(endpoint, filename, headers)
-            else:
-                self._upload_large_object(
-                    endpoint, filename, headers,
-                    file_size, segment_size, use_slo)
-
-    def _upload_object_data(self, endpoint, data, headers):
-        return proxy._json_response(self.object_store.put(
-            endpoint, headers=headers, data=data))
-
-    def _upload_object(self, endpoint, filename, headers):
-        return proxy._json_response(self.object_store.put(
-            endpoint, headers=headers, data=open(filename, 'rb')))
-
-    def _get_file_segments(self, endpoint, filename, file_size, segment_size):
-        # Use an ordered dict here so that testing can replicate things
-        segments = collections.OrderedDict()
-        for (index, offset) in enumerate(range(0, file_size, segment_size)):
-            remaining = file_size - (index * segment_size)
-            segment = _utils.FileSegment(
-                filename, offset,
-                segment_size if segment_size < remaining else remaining)
-            name = '{endpoint}/{index:0>6}'.format(
-                endpoint=endpoint, index=index)
-            segments[name] = segment
-        return segments
-
-    def _object_name_from_url(self, url):
-        '''Get container_name/object_name from the full URL called.
-
-        Remove the Swift endpoint from the front of the URL, and remove
-        the leaving / that will leave behind.'''
-        endpoint = self.object_store.get_endpoint()
-        object_name = url.replace(endpoint, '')
-        if object_name.startswith('/'):
-            object_name = object_name[1:]
-        return object_name
-
-    def _add_etag_to_manifest(self, segment_results, manifest):
-        for result in segment_results:
-            if 'Etag' not in result.headers:
-                continue
-            name = self._object_name_from_url(result.url)
-            for entry in manifest:
-                if entry['path'] == '/{name}'.format(name=name):
-                    entry['etag'] = result.headers['Etag']
-
-    def _upload_large_object(
-            self, endpoint, filename,
-            headers, file_size, segment_size, use_slo):
-        # If the object is big, we need to break it up into segments that
-        # are no larger than segment_size, upload each of them individually
-        # and then upload a manifest object. The segments can be uploaded in
-        # parallel, so we'll use the async feature of the TaskManager.
-
-        segment_futures = []
-        segment_results = []
-        retry_results = []
-        retry_futures = []
-        manifest = []
-
-        # Get an OrderedDict with keys being the swift location for the
-        # segment, the value a FileSegment file-like object that is a
-        # slice of the data for the segment.
-        segments = self._get_file_segments(
-            endpoint, filename, file_size, segment_size)
-
-        # Schedule the segments for upload
-        for name, segment in segments.items():
-            # Async call to put - schedules execution and returns a future
-            segment_future = self._pool_executor.submit(
-                self.object_store.put,
-                name, headers=headers, data=segment,
-                raise_exc=False)
-            segment_futures.append(segment_future)
-            # TODO(mordred) Collect etags from results to add to this manifest
-            # dict. Then sort the list of dicts by path.
-            manifest.append(dict(
-                path='/{name}'.format(name=name),
-                size_bytes=segment.length))
-
-        # Try once and collect failed results to retry
-        segment_results, retry_results = self._wait_for_futures(
-            segment_futures, raise_on_error=False)
-
-        self._add_etag_to_manifest(segment_results, manifest)
-
-        for result in retry_results:
-            # Grab the FileSegment for the failed upload so we can retry
-            name = self._object_name_from_url(result.url)
-            segment = segments[name]
-            segment.seek(0)
-            # Async call to put - schedules execution and returns a future
-            segment_future = self._pool_executor.submit(
-                self.object_store.put,
-                name, headers=headers, data=segment)
-            # TODO(mordred) Collect etags from results to add to this manifest
-            # dict. Then sort the list of dicts by path.
-            retry_futures.append(segment_future)
-
-        # If any segments fail the second time, just throw the error
-        segment_results, retry_results = self._wait_for_futures(
-            retry_futures, raise_on_error=True)
-
-        self._add_etag_to_manifest(segment_results, manifest)
-
-        # If the final manifest upload fails, remove the segments we've
-        # already uploaded.
-        try:
-            if use_slo:
-                return self._finish_large_object_slo(endpoint, headers,
-                                                     manifest)
-            else:
-                return self._finish_large_object_dlo(endpoint, headers)
-        except Exception:
-            try:
-                segment_prefix = endpoint.split('/')[-1]
-                self.log.debug(
-                    "Failed to upload large object manifest for %s. "
-                    "Removing segment uploads.", segment_prefix)
-                self.delete_autocreated_image_objects(
-                    segment_prefix=segment_prefix)
-            except Exception:
-                self.log.exception(
-                    "Failed to cleanup image objects for %s:",
-                    segment_prefix)
-            raise
-
-    def _finish_large_object_slo(self, endpoint, headers, manifest):
-        # TODO(mordred) send an etag of the manifest, which is the md5sum
-        # of the concatenation of the etags of the results
-        headers = headers.copy()
-        retries = 3
-        while True:
-            try:
-                return self._object_store_client.put(
-                    endpoint,
-                    params={'multipart-manifest': 'put'},
-                    headers=headers, data=json.dumps(manifest))
-            except Exception:
-                retries -= 1
-                if retries == 0:
-                    raise
-
-    def _finish_large_object_dlo(self, endpoint, headers):
-        headers = headers.copy()
-        headers['X-Object-Manifest'] = endpoint
-        retries = 3
-        while True:
-            try:
-                return self._object_store_client.put(endpoint, headers=headers)
-            except Exception:
-                retries -= 1
-                if retries == 0:
-                    raise
+        return self.object_store.create_object(
+            container, name,
+            filename=filename, data=data,
+            md5=md5, sha256=sha256, use_slo=use_slo,
+            generate_checksums=generate_checksums,
+            metadata=metadata,
+            **headers
+        )
 
     def update_object(self, container, name, metadata=None, **headers):
         """Update the metadata of an object
@@ -573,19 +307,10 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
 
         :raises: ``OpenStackCloudException`` on operation error.
         """
-        if not metadata:
-            metadata = {}
-
-        metadata_headers = {}
-
-        for (k, v) in metadata.items():
-            metadata_headers['x-object-meta-' + k] = v
-
-        headers = dict(headers, **metadata_headers)
-
-        return self._object_store_client.post(
-            self._get_object_endpoint(container, name),
-            headers=headers)
+        meta = metadata.copy() or {}
+        meta.update(**headers)
+        self.object_store.set_object_metadata(
+            name, container, **meta)
 
     def list_objects(self, container, full_listing=True, prefix=None):
         """List objects.
@@ -634,27 +359,11 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        # TODO(mordred) DELETE for swift returns status in text/plain format
-        # like so:
-        #   Number Deleted: 15
-        #   Number Not Found: 0
-        #   Response Body:
-        #   Response Status: 200 OK
-        #   Errors:
-        # We should ultimately do something with that
         try:
-            if not meta:
-                meta = self.get_object_metadata(container, name)
-            if not meta:
-                return False
-            params = {}
-            if meta.get('X-Static-Large-Object', None) == 'True':
-                params['multipart-manifest'] = 'delete'
-            self._object_store_client.delete(
-                self._get_object_endpoint(container, name),
-                params=params)
+            self.object_store.delete_object(
+                name, ignore_missing=False, container=container)
             return True
-        except exc.OpenStackCloudHTTPError:
+        except exceptions.SDKException:
             return False
 
     def delete_autocreated_image_objects(self, container=None,
@@ -672,28 +381,14 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
             delete. If not given, all image upload segments present are
             deleted.
         """
-        if container is None:
-            container = self._OBJECT_AUTOCREATE_CONTAINER
-        # This method only makes sense on clouds that use tasks
-        if not self.image_api_use_tasks:
-            return False
-
-        deleted = False
-        for obj in self.list_objects(container, prefix=segment_prefix):
-            meta = self.get_object_metadata(container, obj['name'])
-            if meta.get(
-                    self._OBJECT_AUTOCREATE_KEY, meta.get(
-                        self._SHADE_OBJECT_AUTOCREATE_KEY)) == 'true':
-                if self.delete_object(container, obj['name'], meta):
-                    deleted = True
-        return deleted
+        return self.object_store._delete_autocreated_image_objects(
+            container, segment_prefix=segment_prefix
+        )
 
     def get_object_metadata(self, container, name):
-        try:
-            return self._object_store_client.head(
-                self._get_object_endpoint(container, name)).headers
-        except exceptions.NotFoundException:
-            return None
+        return self.object_store.get_object_metadata(
+            name, container
+        ).metadata
 
     def get_object_raw(self, container, obj, query_string=None, stream=False):
         """Get a raw response object for an object.
@@ -739,14 +434,11 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         try:
-            with self.get_object_raw(
-                    container, obj, query_string=query_string) as response:
-                for ret in response.iter_content(chunk_size=resp_chunk_size):
-                    yield ret
-        except exc.OpenStackCloudHTTPError as e:
-            if e.response.status_code == 404:
-                return
-            raise
+            for ret in self.object_store.stream_object(
+                    obj, container, chunk_size=resp_chunk_size):
+                yield ret
+        except exceptions.ResourceNotFound:
+            return
 
     def get_object(self, container, obj, query_string=None,
                    resp_chunk_size=1024, outfile=None, stream=False):
@@ -770,33 +462,19 @@ class ObjectStoreCloudMixin(_normalize.Normalizer):
                   is not found (404).
         :raises: OpenStackCloudException on operation error.
         """
-        # TODO(mordred) implement resp_chunk_size
-        endpoint = self._get_object_endpoint(container, obj, query_string)
         try:
-            get_stream = (outfile is not None)
-            with self._object_store_client.get(
-                    endpoint, stream=get_stream) as response:
-                response_headers = {
-                    k.lower(): v for k, v in response.headers.items()}
-                if outfile:
-                    if isinstance(outfile, str):
-                        outfile_handle = open(outfile, 'wb')
-                    else:
-                        outfile_handle = outfile
-                    for chunk in response.iter_content(
-                            resp_chunk_size, decode_unicode=False):
-                        outfile_handle.write(chunk)
-                    if isinstance(outfile, str):
-                        outfile_handle.close()
-                    else:
-                        outfile_handle.flush()
-                    return (response_headers, None)
-                else:
-                    return (response_headers, response.text)
-        except exc.OpenStackCloudHTTPError as e:
-            if e.response.status_code == 404:
-                return None
-            raise
+            obj = self.object_store.get_object(
+                obj, container=container,
+                resp_chunk_size=resp_chunk_size,
+                outfile=outfile,
+                remember_content=(outfile is None)
+            )
+            headers = {
+                k.lower(): v for k, v in obj._last_headers.items()}
+            return (headers, obj.data)
+
+        except exceptions.ResourceNotFound:
+            return None
 
     def _wait_for_futures(self, futures, raise_on_error=True):
         '''Collect results or failures from a list of running future tasks.'''
