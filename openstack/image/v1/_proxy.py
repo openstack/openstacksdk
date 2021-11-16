@@ -33,8 +33,8 @@ class Proxy(_base_proxy.BaseImageProxy):
           `create_image`.
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.image.v1.image.Image`,
-                           comprised of the properties on the Image class.
+            a :class:`~openstack.image.v1.image.Image`,
+            comprised of the properties on the Image class.
 
         :returns: The results of image creation
         :rtype: :class:`~openstack.image.v1.image.Image`
@@ -119,12 +119,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Delete an image
 
         :param image: The value can be either the ID of an image or a
-                      :class:`~openstack.image.v1.image.Image` instance.
+            :class:`~openstack.image.v1.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the image does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent image.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the image does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent image.
 
         :returns: ``None``
         """
@@ -135,10 +135,10 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :param name_or_id: The name or ID of a image.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v1.image.Image` or None
         """
         return self._find(_image.Image, name_or_id,
@@ -148,11 +148,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Get a single image
 
         :param image: The value can be the ID of an image or a
-                      :class:`~openstack.image.v1.image.Image` instance.
+            :class:`~openstack.image.v1.image.Image` instance.
 
         :returns: One :class:`~openstack.image.v1.image.Image`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_image.Image, image)
 
@@ -160,7 +160,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Return a generator of images
 
         :param kwargs query: Optional query parameters to be sent to limit
-                               the resources being returned.
+            the resources being returned.
 
         :returns: A generator of image objects
         :rtype: :class:`~openstack.image.v1.image.Image`
@@ -171,9 +171,9 @@ class Proxy(_base_proxy.BaseImageProxy):
         """Update a image
 
         :param image: Either the ID of a image or a
-                      :class:`~openstack.image.v1.image.Image` instance.
+            :class:`~openstack.image.v1.image.Image` instance.
         :attrs kwargs: The attributes to update on the image represented
-                       by ``value``.
+            by ``value``.
 
         :returns: The updated image
         :rtype: :class:`~openstack.image.v1.image.Image`
@@ -190,22 +190,22 @@ class Proxy(_base_proxy.BaseImageProxy):
         :ref:`download_image-stream-true`.
 
         :param image: The value can be either the ID of an image or a
-                      :class:`~openstack.image.v2.image.Image` instance.
+            :class:`~openstack.image.v2.image.Image` instance.
 
         :param bool stream: When ``True``, return a :class:`requests.Response`
-                            instance allowing you to iterate over the
-                            response data stream instead of storing its entire
-                            contents in memory. See
-                            :meth:`requests.Response.iter_content` for more
-                            details. *NOTE*: If you do not consume
-                            the entirety of the response you must explicitly
-                            call :meth:`requests.Response.close` or otherwise
-                            risk inefficiencies with the ``requests``
-                            library's handling of connections.
+            instance allowing you to iterate over the
+            response data stream instead of storing its entire
+            contents in memory. See
+            :meth:`requests.Response.iter_content` for more
+            details. *NOTE*: If you do not consume
+            the entirety of the response you must explicitly
+            call :meth:`requests.Response.close` or otherwise
+            risk inefficiencies with the ``requests``
+            library's handling of connections.
 
 
-                            When ``False``, return the entire
-                            contents of the response.
+            When ``False``, return the entire
+            contents of the response.
         :param output: Either a file object or a path to store data into.
         :param int chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024
