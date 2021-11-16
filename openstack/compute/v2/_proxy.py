@@ -601,15 +601,18 @@ class Proxy(proxy.Proxy):
 
     # ========== Limits ==========
 
-    def get_limits(self):
+    def get_limits(self, **query):
         """Retrieve limits that are applied to the project's account
 
         :returns: A Limits object, including both
-                  :class:`~openstack.compute.v2.limits.AbsoluteLimits` and
-                  :class:`~openstack.compute.v2.limits.RateLimits`
+            :class:`~openstack.compute.v2.limits.AbsoluteLimits` and
+            :class:`~openstack.compute.v2.limits.RateLimits`
         :rtype: :class:`~openstack.compute.v2.limits.Limits`
         """
-        return self._get(limits.Limits)
+        res = self._get_resource(
+            limits.Limits, None)
+        return res.fetch(
+            self, **query)
 
     # ========== Servers ==========
 
