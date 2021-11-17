@@ -511,7 +511,6 @@ class Resource(dict):
     _uri = None
     _computed = None
     _original_body = None
-    _delete_response_class = None
     _store_unknown_attrs_as_properties = False
     _allow_unknown_attrs_in_body = False
     _unknown_attrs_in_body = None
@@ -627,17 +626,6 @@ class Resource(dict):
                 self._computed.attributes == comparand._computed.attributes,
             ]
         )
-
-    def warning_if_attribute_deprecated(self, attr, value):
-        if value and self.deprecated:
-            if not self.deprecation_reason:
-                LOG.warning(
-                    "The option [%s] has been deprecated. "
-                    "Please avoid using it.",
-                    attr,
-                )
-            else:
-                LOG.warning(self.deprecation_reason)
 
     def __getattribute__(self, name):
         """Return an attribute on this instance
