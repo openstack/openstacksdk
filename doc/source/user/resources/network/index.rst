@@ -17,6 +17,8 @@ Network Resources
    v2/ikepolicy
    v2/listener
    v2/load_balancer
+   v2/local_ip
+   v2/local_ip_association
    v2/metering_label
    v2/metering_label_rule
    v2/network
