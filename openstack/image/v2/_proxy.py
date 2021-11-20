@@ -73,7 +73,7 @@ class Proxy(_base_proxy.BaseImageProxy):
             ``store`` and ``stores``.
         :param all_stores_must_succeed:
             When set to True, if an error occurs during the upload in at
-            least one store, the worfklow fails, the data is deleted
+            least one store, the workflow fails, the data is deleted
             from stores where copying is done (not staging), and the
             state of the image is unchanged. When set to False, the
             workflow will fail (data deleted from stores, …) only if the

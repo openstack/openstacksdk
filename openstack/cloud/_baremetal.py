@@ -383,7 +383,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
 
         :param string name_or_id: A machine name or UUID to be updated.
         :param patch:
-           The JSON Patch document is a list of dictonary objects
+           The JSON Patch document is a list of dictionary objects
            that comply with RFC 6902 which can be found at
            https://tools.ietf.org/html/rfc6902.
 
@@ -423,7 +423,7 @@ class BaremetalCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: ``munch.Munch`` containing a machine sub-dictonary consisting
+        :returns: ``munch.Munch`` containing a machine sub-dictionary consisting
                   of the updated data returned from the API update operation,
                   and a list named changes which contains all of the API paths
                   that received updates.

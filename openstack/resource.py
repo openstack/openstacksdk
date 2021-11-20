@@ -709,7 +709,7 @@ class Resource(dict):
     def items(self):
         # This method is critically required for Ansible "jsonify"
         # NOTE(gtema) For some reason when running from SDK itself the native
-        # implementation of the method is absolutely sifficient, when called
+        # implementation of the method is absolutely sufficient, when called
         # from Ansible - the values are often empty. Even integrating all
         # Ansible internal methods did not help to find the root cause. Another
         # fact is that under Py2 everything is fine, while under Py3 it fails.

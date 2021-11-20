@@ -64,9 +64,9 @@ class Notification(resource.Resource):
     type = resource.Body("type")
     #: The hostname of this notification.
     hostname = resource.Body("hostname")
-    #: The status for this notitication.
+    #: The status for this notification.
     status = resource.Body("status")
-    #: The generated_time for this notitication.
+    #: The generated_time for this notification.
     generated_time = resource.Body("generated_time")
     #: The payload of this notification.
     payload = resource.Body("payload")

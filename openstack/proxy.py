@@ -546,7 +546,7 @@ class Proxy(adapter.Adapter):
 
         :param resource_type: The type of resource to retrieve.
         :type resource_type: :class:`~openstack.resource.Resource`
-        :param value: The value of a specific resource to retreive headers
+        :param value: The value of a specific resource to retrieve headers
                       for. Can be either the ID of a resource,
                       a :class:`~openstack.resource.Resource` subclass,
                       or ``None``.

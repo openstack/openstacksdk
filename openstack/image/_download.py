@@ -63,7 +63,7 @@ class DownloadMixin:
             except Exception as e:
                 raise exceptions.SDKException(
                     "Unable to download image: %s" % e)
-        # if we are returning the repsonse object, ensure that it
+        # if we are returning the response object, ensure that it
         # has the content-md5 header so that the caller doesn't
         # need to jump through the same hoops through which we
         # just jumped.

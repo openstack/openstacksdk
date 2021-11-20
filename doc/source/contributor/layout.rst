@@ -29,7 +29,7 @@ the server-side expects, as this ``prop`` becomes a mapping between the two.::
    is_public = resource.prop('os-flavor-access:is_public', type=bool)
 
 There are six additional attributes which the ``Resource`` class checks
-before making requests to the REST API. ``allow_create``, ``allow_retreive``,
+before making requests to the REST API. ``allow_create``, ``allow_retrieve``,
 ``allow_commit``, ``allow_delete``, ``allow_head``, and ``allow_list`` are set
 to ``True`` or ``False``, and are checked before making the corresponding
 method call.
