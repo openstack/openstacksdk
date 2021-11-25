@@ -98,11 +98,13 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_device_profile.DeviceProfile, **attrs)
 
-    def delete_device_profile(self, name_or_id, ignore_missing=True):
+    def delete_device_profile(self, device_profile, ignore_missing=True):
         """Delete a device profile
 
-        :param name_or_id: The value can be either the ID or name of
-            a device profile.
+        :param device_profile: The value can be either the ID of a device
+            profile or a
+            :class:`~openstack.accelerator.v2.device_profile.DeviceProfile`
+            instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the device profile does not exist.
@@ -110,8 +112,10 @@ class Proxy(proxy.Proxy):
             attempting to delete a nonexistent device profile.
         :returns: ``None``
         """
-        return self._delete(_device_profile.DeviceProfile,
-                            name_or_id, ignore_missing=ignore_missing)
+        return self._delete(
+            _device_profile.DeviceProfile,
+            device_profile,
+            ignore_missing=ignore_missing)
 
     def get_device_profile(self, uuid, fields=None):
         """Get a single device profile.
@@ -141,20 +145,26 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_arq.AcceleratorRequest, **attrs)
 
-    def delete_accelerator_request(self, name_or_id, ignore_missing=True):
-        """Delete a device profile.
+    def delete_accelerator_request(
+        self, accelerator_request, ignore_missing=True,
+    ):
+        """Delete a device profile
 
-        :param name_or_id: The value can be either the ID or name of
-            an accelerator request.
+        :param device_profile: The value can be either the ID of a device
+            profile or a
+            :class:`~openstack.accelerator.v2.device_profile.DeviceProfile`
+            instance.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
-            raised when the device profile does not exist.
-            When set to ``True``, no exception will be set when
-            attempting to delete a nonexistent accelerator request.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the device profile does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent accelerator request.
         :returns: ``None``
         """
-        return self._delete(_arq.AcceleratorRequest, name_or_id,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _arq.AcceleratorRequest,
+            accelerator_request,
+            ignore_missing=ignore_missing)
 
     def get_accelerator_request(self, uuid, fields=None):
         """Get a single accelerator request.
