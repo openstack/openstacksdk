@@ -969,15 +969,17 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.resume(self)
 
-    def lock_server(self, server):
+    def lock_server(self, server, locked_reason=None):
         """Locks a server.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :param locked_reason: The reason behind locking the server. Limited to
+            255 characters in length.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.lock(self)
+        server.lock(self, locked_reason=locked_reason)
 
     def unlock_server(self, server):
         """Unlocks a locked server.

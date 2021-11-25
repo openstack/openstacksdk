@@ -649,6 +649,18 @@ class TestServer(base.TestCase):
         self.sess.post.assert_called_with(
             url, json=body, headers=headers, microversion=None)
 
+    def test_lock_with_options(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.lock(self.sess, locked_reason='Because why not')
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {'lock': {'locked_reason': 'Because why not'}}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=None)
+
     def test_unlock(self):
         sot = server.Server(**EXAMPLE)
 

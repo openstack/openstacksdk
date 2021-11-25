@@ -810,7 +810,17 @@ class TestCompute(TestComputeProxy):
             "openstack.compute.v2.server.Server.lock",
             self.proxy.lock_server,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+            expected_kwargs={"locked_reason": None})
+
+    def test_server_lock_with_options(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.lock",
+            self.proxy.lock_server,
+            method_args=["value"],
+            method_kwargs={"locked_reason": "Because why not"},
+            expected_args=[self.proxy],
+            expected_kwargs={"locked_reason": "Because why not"})
 
     def test_server_unlock(self):
         self._verify(

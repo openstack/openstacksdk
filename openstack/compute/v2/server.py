@@ -63,7 +63,7 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         **resource.TagMixin._tag_query_parameters
     )
 
-    _max_microversion = '2.72'
+    _max_microversion = '2.73'
 
     #: A list of dictionaries holding links relevant to this server.
     links = resource.Body('links')
@@ -412,8 +412,12 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         body = {"resume": None}
         self._action(session, body)
 
-    def lock(self, session):
+    def lock(self, session, locked_reason=None):
         body = {"lock": None}
+        if locked_reason is not None:
+            body["lock"] = {
+                "locked_reason": locked_reason,
+            }
         self._action(session, body)
 
     def unlock(self, session):
