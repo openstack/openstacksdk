@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import resource
+from openstack import utils
 
 
 class Share(resource.Resource):
@@ -100,3 +101,13 @@ class Share(resource.Resource):
     display_name = resource.Body("display_name", type=str)
     #: Display description for updating description
     display_description = resource.Body("display_description", type=str)
+
+    def _action(self, session, body):
+        url = utils.urljoin(self.base_path, self.id, 'action')
+        headers = {'Accept': ''}
+        session.post(
+            url, json=body, headers=headers)
+
+    def revert_to_snapshot(self, session, snapshot_id):
+        body = {"revert": {"snapshot_id": snapshot_id}}
+        self._action(session, body)

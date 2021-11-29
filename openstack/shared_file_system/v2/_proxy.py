@@ -132,6 +132,18 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_share.Share, **attrs)
 
+    def revert_share_to_snapshot(self, share_id, snapshot_id):
+        """Reverts a share to the specified snapshot, which must be
+            the most recent one known to manila.
+
+        :param share_id: The ID of the share to revert
+        :param snapshot_id: The ID of the snapshot to revert to
+        :returns: Result of the ``revert``
+        :rtype: ``None``
+        """
+        res = self._get(_share.Share, share_id)
+        res.revert_to_snapshot(self, snapshot_id)
+
     def wait_for_status(self, res, status='active', failures=None,
                         interval=2, wait=120):
         """Wait for a resource to be in a particular status.
