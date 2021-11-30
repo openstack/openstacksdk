@@ -243,6 +243,15 @@ IPSecSiteConnection Operations
             delete_vpn_ipsec_site_connection, get_vpn_ipsec_site_connection,
             find_vpn_ipsec_site_connection, vpn_ipsec_site_connections
 
+IkePolicy Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_vpn_ikepolicy, update_vpn_ikepolicy,
+            delete_vpn_ikepolicy, get_vpn_ikepolicy,
+            find_vpn_ikepolicy, vpn_ikepolicies
+
 Extension Operations
 ^^^^^^^^^^^^^^^^^^^^
 

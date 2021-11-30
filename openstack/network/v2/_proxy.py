@@ -24,6 +24,7 @@ from openstack.network.v2 import firewall_rule as _firewall_rule
 from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import floating_ip as _floating_ip
 from openstack.network.v2 import health_monitor as _health_monitor
+from openstack.network.v2 import ikepolicy as _ikepolicy
 from openstack.network.v2 import ipsec_site_connection as \
     _ipsec_site_connection
 from openstack.network.v2 import l3_conntrack_helper as _l3_conntrack_helper
@@ -1046,6 +1047,90 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_ipsec_site_connection.IPSecSiteConnection,
                      ipsec_site_connection, ignore_missing=ignore_missing)
+
+    def create_vpn_ikepolicy(self, **attrs):
+        """Create a new ike policy from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.ikepolicy.IkePolicy`, comprised of
+            the properties on the IkePolicy class.
+
+        :returns: The results of ike policy creation :rtype:
+            :class:`~openstack.network.v2.ikepolicy.IkePolicy`
+        """
+        return self._create(_ikepolicy.IkePolicy,
+                            **attrs)
+
+    def find_vpn_ikepolicy(self, name_or_id,
+                           ignore_missing=True, **args):
+        """Find a single ike policy
+
+        :param name_or_id: The name or ID of an ike policy.
+        :param bool ignore_missing: When set to ``False`` :class:`~openstack.
+            exceptions.ResourceNotFound` will be raised when the resource does
+            not exist. When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods such as query filters.
+        :returns: One :class:`~openstack.network.v2.ikepolicy.IkePolicy` or
+         None.
+        """
+        return self._find(_ikepolicy.IkePolicy,
+                          name_or_id, ignore_missing=ignore_missing, **args)
+
+    def get_vpn_ikepolicy(self, ikepolicy):
+        """Get a single ike policy
+
+        :param ikepolicy: The value can be the ID of an ikepolicy or a
+            :class:`~openstack.network.v2.ikepolicy.IkePolicy` instance.
+
+        :returns: One :class:`~openstack.network.v2.ikepolicy.IkePolicy`
+        :rtype: :class:`~openstack.network.v2.ikepolicy.IkePolicy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        return self._get(_ikepolicy.IkePolicy, ikepolicy)
+
+    def vpn_ikepolicies(self, **query):
+        """Return a generator of ike policy
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned.
+
+        :returns: A generator of ike policy objects
+        :rtype: :class:`~openstack.network.v2.ikepolicy.IkePolicy`
+        """
+        return self._list(_ikepolicy.IkePolicy, **query)
+
+    def update_vpn_ikepolicy(self, ikepolicy, **attrs):
+        """Update a ike policy
+
+        :ikepolicy: Either the id of an ike policy or a
+         :class:`~openstack.network.v2.ikepolicy.IkePolicy` instance.
+        :param dict attrs: The attributes to update on the ike policy
+         represented by ``ikepolicy``.
+
+        :returns: The updated ike policy
+        :rtype: :class:`~openstack.network.v2.ikepolicy.IkePolicy`
+        """
+        return self._update(_ikepolicy.IkePolicy, ikepolicy, **attrs)
+
+    def delete_vpn_ikepolicy(self, ikepolicy, ignore_missing=True):
+        """Delete a ikepolicy
+
+        :param ikepolicy: The value can be either the ID of an ike policy, or
+            a :class:`~openstack.network.v2.ikepolicy.IkePolicy` instance.
+        :param bool ignore_missing:
+            When set to ``False`` :class:`~openstack.exceptions.
+            ResourceNotFound` will be raised when the ike policy
+            does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent ike policy.
+
+        :returns: ``None``
+        """
+        self._delete(_ikepolicy.IkePolicy, ikepolicy,
+                     ignore_missing=ignore_missing)
 
     def create_listener(self, **attrs):
         """Create a new listener from attributes
