@@ -833,7 +833,8 @@ class TestNodeTraits(base.TestCase):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
     def test_remove_trait(self):
-        self.node.remove_trait(self.session, 'CUSTOM_FAKE')
+        self.assertTrue(self.node.remove_trait(self.session,
+                                               'CUSTOM_FAKE'))
         self.session.delete.assert_called_once_with(
             'nodes/%s/traits/%s' % (self.node.id, 'CUSTOM_FAKE'),
             headers=mock.ANY, microversion='1.37',

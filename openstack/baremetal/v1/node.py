@@ -835,7 +835,6 @@ class Node(_common.ListMixin, resource.Resource):
         :param boot_device: Boot device to assign to the node.
         :param persistent: If the boot device change is maintained after node
             reboot
-        :return: The updated :class:`~openstack.baremetal.v1.node.Node`
         """
         session = self._get_session(session)
         version = self._get_microversion_for(session, 'commit')
@@ -919,7 +918,6 @@ class Node(_common.ListMixin, resource.Resource):
 
         :param session: The session to use for making this request.
         :param trait: The trait to add to the node.
-        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
         """
         session = self._get_session(session)
         version = utils.pick_microversion(session, '1.37')
@@ -945,7 +943,8 @@ class Node(_common.ListMixin, resource.Resource):
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the trait does not exist.
             Otherwise, ``False`` is returned.
-        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        :returns bool: True on success removing the trait.
+            False when the trait does not exist already.
         """
         session = self._get_session(session)
         version = utils.pick_microversion(session, '1.37')
@@ -956,7 +955,7 @@ class Node(_common.ListMixin, resource.Resource):
             request.url, headers=request.headers, microversion=version,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
-        if ignore_missing or response.status_code == 400:
+        if ignore_missing and response.status_code == 400:
             session.log.debug(
                 'Trait %(trait)s was already removed from node %(node)s',
                 {'trait': trait, 'node': self.id})
@@ -966,7 +965,8 @@ class Node(_common.ListMixin, resource.Resource):
                .format(node=self.id, trait=trait))
         exceptions.raise_from_response(response, error_message=msg)
 
-        self.traits = list(set(self.traits) - {trait})
+        if self.traits:
+            self.traits = list(set(self.traits) - {trait})
 
         return True
 
@@ -978,7 +978,6 @@ class Node(_common.ListMixin, resource.Resource):
 
         :param session: The session to use for making this request.
         :param traits: list of traits to add to the node.
-        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
         """
         session = self._get_session(session)
         version = utils.pick_microversion(session, '1.37')
