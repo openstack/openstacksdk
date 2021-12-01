@@ -15,11 +15,13 @@ from openstack.tests.unit import base
 
 
 EXAMPLE = {
-    'device': '1',
-    'id': '2',
-    'volume_id': '3',
-    'tag': '4',
-    'delete_on_termination': 'true',
+    'attachment_id': '979ce4f8-033a-409d-85e6-6b5c0f6a6302',
+    'delete_on_termination': False,
+    'device': '/dev/sdc',
+    'serverId': '7696780b-3f53-4688-ab25-019bfcbbd806',
+    'tag': 'foo',
+    'volumeId': 'a07f71dc-8151-4e7d-a0cc-cd24a3f11113',
+    'bdm_uuid': 'c088db45-92b8-49e8-81e2-a1b77a144b3b',
 }
 
 
@@ -43,9 +45,16 @@ class TestServerInterface(base.TestCase):
 
     def test_make_it(self):
         sot = volume_attachment.VolumeAttachment(**EXAMPLE)
+        self.assertEqual(EXAMPLE['attachment_id'], sot.attachment_id)
+        self.assertEqual(EXAMPLE['attachment_id'], sot.id)
+        self.assertEqual(
+            EXAMPLE['delete_on_termination'], sot.delete_on_termination,
+        )
         self.assertEqual(EXAMPLE['device'], sot.device)
-        self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['volume_id'], sot.volume_id)
+        # FIXME(stephenfin): This conflicts since there is a server ID in the
+        # URI *and* in the body. We need a field that handles both or we need
+        # to use different names.
+        # self.assertEqual(EXAMPLE['serverId'], sot.server_id)
         self.assertEqual(EXAMPLE['tag'], sot.tag)
-        self.assertEqual(EXAMPLE['delete_on_termination'],
-                         sot.delete_on_termination)
+        self.assertEqual(EXAMPLE['volumeId'], sot.volume_id)
+        self.assertEqual(EXAMPLE['bdm_uuid'], sot.bdm_id)
