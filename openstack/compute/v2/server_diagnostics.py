@@ -22,6 +22,8 @@ class ServerDiagnostics(resource.Resource):
 
     requires_id = False
 
+    _max_microversion = '2.48'
+
     #: Indicates whether or not a config drive was used for this server.
     has_config_drive = resource.Body('config_drive')
     #: The current state of the VM.
@@ -33,20 +35,20 @@ class ServerDiagnostics(resource.Resource):
     #: The hypervisor OS.
     hypervisor_os = resource.Body('hypervisor_os')
     #: The amount of time in seconds that the VM has been running.
-    uptime = resource.URI('uptime')
+    uptime = resource.Body('uptime')
     #: The number of vCPUs.
-    num_cpus = resource.URI('num_cpus')
+    num_cpus = resource.Body('num_cpus')
     #: The number of disks.
-    num_disks = resource.URI('num_disks')
+    num_disks = resource.Body('num_disks')
     #: The number of vNICs.
-    num_nics = resource.URI('num_nics')
+    num_nics = resource.Body('num_nics')
     #: The dictionary with information about VM memory usage.
-    memory_details = resource.URI('memory_details')
+    memory_details = resource.Body('memory_details')
     #: The list of dictionaries with detailed information about VM CPUs.
-    cpu_details = resource.URI('cpu_details')
+    cpu_details = resource.Body('cpu_details')
     #: The list of dictionaries with detailed information about VM disks.
-    disk_details = resource.URI('disk_details')
+    disk_details = resource.Body('disk_details')
     #: The list of dictionaries with detailed information about VM NICs.
-    nic_details = resource.URI('nic_details')
+    nic_details = resource.Body('nic_details')
     #: The ID for the server.
-    server_id = resource.URI('server_id')
+    server_id = resource.Body('server_id')
