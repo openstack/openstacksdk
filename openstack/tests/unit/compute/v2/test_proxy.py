@@ -141,9 +141,8 @@ class TestFlavor(TestComputeProxy):
             )
             mocked.assert_not_called()
 
-    @mock.patch("openstack.proxy.Proxy._list", auto_spec=True)
-    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
-                auto_spec=True)
+    @mock.patch("openstack.proxy.Proxy._list")
+    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs")
     def test_flavors_detailed(self, fetch_mock, list_mock):
         res = self.proxy.flavors(details=True)
         for r in res:
@@ -154,9 +153,8 @@ class TestFlavor(TestComputeProxy):
             base_path="/flavors/detail"
         )
 
-    @mock.patch("openstack.proxy.Proxy._list", auto_spec=True)
-    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
-                auto_spec=True)
+    @mock.patch("openstack.proxy.Proxy._list")
+    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs")
     def test_flavors_not_detailed(self, fetch_mock, list_mock):
         res = self.proxy.flavors(details=False)
         for r in res:
@@ -167,9 +165,8 @@ class TestFlavor(TestComputeProxy):
             base_path="/flavors"
         )
 
-    @mock.patch("openstack.proxy.Proxy._list", auto_spec=True)
-    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
-                auto_spec=True)
+    @mock.patch("openstack.proxy.Proxy._list")
+    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs")
     def test_flavors_query(self, fetch_mock, list_mock):
         res = self.proxy.flavors(details=False, get_extra_specs=True, a="b")
         for r in res:
@@ -180,9 +177,8 @@ class TestFlavor(TestComputeProxy):
             a="b"
         )
 
-    @mock.patch("openstack.proxy.Proxy._list", auto_spec=True)
-    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs",
-                auto_spec=True)
+    @mock.patch("openstack.proxy.Proxy._list")
+    @mock.patch("openstack.compute.v2.flavor.Flavor.fetch_extra_specs")
     def test_flavors_get_extra(self, fetch_mock, list_mock):
         res = self.proxy.flavors(details=False, get_extra_specs=True)
         for r in res:
