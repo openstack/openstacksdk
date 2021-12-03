@@ -48,12 +48,12 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of an extension.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.extension.Extension` or
-                  None
+            None
         """
         return self._find(extension.Extension, name_or_id,
                           ignore_missing=ignore_missing)
@@ -96,8 +96,8 @@ class Proxy(proxy.Proxy):
         """Create a new flavor from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.flavor.Flavor`,
-                           comprised of the properties on the Flavor class.
+            a :class:`~openstack.compute.v2.flavor.Flavor`,
+            comprised of the properties on the Flavor class.
 
         :returns: The results of flavor creation
         :rtype: :class:`~openstack.compute.v2.flavor.Flavor`
@@ -108,12 +108,12 @@ class Proxy(proxy.Proxy):
         """Delete a flavor
 
         :param flavor: The value can be either the ID of a flavor or a
-                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the flavor does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent flavor.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the flavor does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent flavor.
 
         :returns: ``None``
         """
@@ -282,12 +282,12 @@ class Proxy(proxy.Proxy):
         """Get a single host aggregate
 
         :param image: The value can be the ID of an aggregate or a
-                      :class:`~openstack.compute.v2.aggregate.Aggregate`
-                      instance.
+            :class:`~openstack.compute.v2.aggregate.Aggregate`
+            instance.
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_aggregate.Aggregate, aggregate)
 
@@ -309,8 +309,8 @@ class Proxy(proxy.Proxy):
         """Create a new host aggregate from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
-                           :class:`~openstack.compute.v2.aggregate.Aggregate`,
-                           comprised of the properties on the Aggregate class.
+            :class:`~openstack.compute.v2.aggregate.Aggregate`,
+            comprised of the properties on the Aggregate class.
 
         :returns: The results of aggregate creation
         :rtype: :class:`~openstack.compute.v2.aggregate.Aggregate`
@@ -321,10 +321,10 @@ class Proxy(proxy.Proxy):
         """Update a host aggregate
 
         :param server: Either the ID of a host aggregate or a
-                       :class:`~openstack.compute.v2.aggregate.Aggregate`
-                       instance.
+            :class:`~openstack.compute.v2.aggregate.Aggregate`
+            instance.
         :attrs kwargs: The attributes to update on the aggregate represented
-                       by ``aggregate``.
+            by ``aggregate``.
 
         :returns: The updated aggregate
         :rtype: :class:`~openstack.compute.v2.aggregate.Aggregate`
@@ -335,13 +335,13 @@ class Proxy(proxy.Proxy):
         """Delete a host aggregate
 
         :param keypair: The value can be either the ID of an aggregate or a
-                        :class:`~openstack.compute.v2.aggregate.Aggregate`
-                        instance.
+            :class:`~openstack.compute.v2.aggregate.Aggregate`
+            instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the aggregate does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent aggregate.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the aggregate does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent aggregate.
 
         :returns: ``None``
         """
@@ -352,8 +352,8 @@ class Proxy(proxy.Proxy):
         """Adds a host to an aggregate
 
         :param aggregate: Either the ID of a aggregate or a
-                    :class:`~openstack.compute.v2.aggregate.Aggregate`
-                    instance.
+            :class:`~openstack.compute.v2.aggregate.Aggregate`
+            instance.
         :param str host: The host to add to the aggregate
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
@@ -365,8 +365,8 @@ class Proxy(proxy.Proxy):
         """Removes a host from an aggregate
 
         :param aggregate: Either the ID of a aggregate or a
-                    :class:`~openstack.compute.v2.aggregate.Aggregate`
-                    instance.
+            :class:`~openstack.compute.v2.aggregate.Aggregate`
+            instance.
         :param str host: The host to remove from the aggregate
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
@@ -378,11 +378,11 @@ class Proxy(proxy.Proxy):
         """Creates or replaces metadata for an aggregate
 
         :param aggregate: Either the ID of a aggregate or a
-                    :class:`~openstack.compute.v2.aggregate.Aggregate`
-                    instance.
+            :class:`~openstack.compute.v2.aggregate.Aggregate`
+            instance.
         :param dict metadata: Metadata key and value pairs. The maximum
-                    size for each metadata key and value pair
-                    is 255 bytes.
+            size for each metadata key and value pair
+            is 255 bytes.
 
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
         """
@@ -413,12 +413,12 @@ class Proxy(proxy.Proxy):
         """Delete an image
 
         :param image: The value can be either the ID of an image or a
-                      :class:`~openstack.compute.v2.image.Image` instance.
+            :class:`~openstack.compute.v2.image.Image` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the image does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent image.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the image does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent image.
 
         :returns: ``None``
         """
@@ -429,10 +429,10 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a image.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.image.Image` or None
         """
         return self._find(_image.Image, name_or_id,
@@ -442,11 +442,11 @@ class Proxy(proxy.Proxy):
         """Get a single image
 
         :param image: The value can be the ID of an image or a
-                      :class:`~openstack.compute.v2.image.Image` instance.
+            :class:`~openstack.compute.v2.image.Image` instance.
 
         :returns: One :class:`~openstack.compute.v2.image.Image`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_image.Image, image)
 
@@ -458,7 +458,7 @@ class Proxy(proxy.Proxy):
             available properties, otherwise only basic properties are returned.
             *Default: ``True``*
         :param kwargs query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned.
 
         :returns: A generator of image objects
         """
@@ -483,7 +483,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.image.Image` instance.
 
         :returns: A :class:`~openstack.compute.v2.image.Image` with only the
-                  image's metadata. All keys and values are Unicode text.
+            image's metadata. All keys and values are Unicode text.
         :rtype: :class:`~openstack.compute.v2.image.Image`
         """
         res = self._get_base_resource(image, _image.Image)
@@ -495,12 +495,12 @@ class Proxy(proxy.Proxy):
         :param image: Either the ID of an image or a
             :class:`~openstack.compute.v2.image.Image` instance.
         :param kwargs metadata: Key/value pairs to be updated in the image's
-                                metadata. No other metadata is modified
-                                by this call. All keys and values are stored
-                                as Unicode.
+            metadata. No other metadata is modified
+            by this call. All keys and values are stored
+            as Unicode.
 
         :returns: A :class:`~openstack.compute.v2.image.Image` with only the
-                  image's metadata. All keys and values are Unicode text.
+            image's metadata. All keys and values are Unicode text.
         :rtype: :class:`~openstack.compute.v2.image.Image`
         """
         res = self._get_base_resource(image, _image.Image)
@@ -533,8 +533,8 @@ class Proxy(proxy.Proxy):
         """Create a new keypair from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.keypair.Keypair`,
-                           comprised of the properties on the Keypair class.
+            a :class:`~openstack.compute.v2.keypair.Keypair`,
+            comprised of the properties on the Keypair class.
 
         :returns: The results of keypair creation
         :rtype: :class:`~openstack.compute.v2.keypair.Keypair`
@@ -620,8 +620,8 @@ class Proxy(proxy.Proxy):
         """Create a new server from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.compute.v2.server.Server`,
-                           comprised of the properties on the Server class.
+            a :class:`~openstack.compute.v2.server.Server`,
+            comprised of the properties on the Server class.
 
         :returns: The results of server creation
         :rtype: :class:`~openstack.compute.v2.server.Server`
@@ -632,14 +632,14 @@ class Proxy(proxy.Proxy):
         """Delete a server
 
         :param server: The value can be either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the server does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the server does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent server
         :param bool force: When set to ``True``, the server deletion will be
-                           forced immediately.
+            forced immediately.
 
         :returns: ``None``
         """
@@ -654,10 +654,10 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a server.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.server.Server` or None
         """
         return self._find(_server.Server, name_or_id,
@@ -667,11 +667,11 @@ class Proxy(proxy.Proxy):
         """Get a single server
 
         :param server: The value can be the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
 
         :returns: One :class:`~openstack.compute.v2.server.Server`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_server.Server, server)
 
@@ -696,9 +696,9 @@ class Proxy(proxy.Proxy):
         """Update a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :attrs kwargs: The attributes to update on the server represented
-                       by ``server``.
+            by ``server``.
 
         :returns: The updated server
         :rtype: :class:`~openstack.compute.v2.server.Server`
@@ -709,7 +709,7 @@ class Proxy(proxy.Proxy):
         """Change the administrator password
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param str new_password: The new password to be set.
 
         :returns: None
@@ -721,7 +721,7 @@ class Proxy(proxy.Proxy):
         """Get the administrator password
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
 
         :returns: encrypted password.
         """
@@ -732,9 +732,9 @@ class Proxy(proxy.Proxy):
         """Reset the state of server
 
         :param server: The server can be either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server`.
+            :class:`~openstack.compute.v2.server.Server`.
         :param state: The state of the server to be set, `active` or
-                      `error` are valid.
+            `error` are valid.
 
         :returns: None
         """
@@ -745,9 +745,9 @@ class Proxy(proxy.Proxy):
         """Reboot a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param str reboot_type: The type of reboot to perform.
-                                "HARD" and "SOFT" are the current options.
+            "HARD" and "SOFT" are the current options.
 
         :returns: None
         """
@@ -758,7 +758,7 @@ class Proxy(proxy.Proxy):
         """Rebuild a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param str name: The name of the server
         :param str admin_password: The administrator password
         :param bool preserve_ephemeral: Indicates whether the server
@@ -766,18 +766,18 @@ class Proxy(proxy.Proxy):
             *Default: False*
         :param str image: The id of an image to rebuild with. *Default: None*
         :param str access_ipv4: The IPv4 address to rebuild with.
-                                *Default: None*
+            *Default: None*
         :param str access_ipv6: The IPv6 address to rebuild with.
-                                *Default: None*
+            *Default: None*
         :param dict metadata: A dictionary of metadata to rebuild with.
-                               *Default: None*
+            *Default: None*
         :param personality: A list of dictionaries, each including a
-                            **path** and **contents** key, to be injected
-                            into the rebuilt server at launch.
-                            *Default: None*
+            **path** and **contents** key, to be injected
+            into the rebuilt server at launch.
+            *Default: None*
 
         :returns: The rebuilt :class:`~openstack.compute.v2.server.Server`
-                  instance.
+            instance.
         """
         server = self._get_resource(_server.Server, server)
         return server.rebuild(self, name, admin_password, **attrs)
@@ -786,9 +786,9 @@ class Proxy(proxy.Proxy):
         """Resize a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param flavor: Either the ID of a flavor or a
-                       :class:`~openstack.compute.v2.flavor.Flavor` instance.
+            :class:`~openstack.compute.v2.flavor.Flavor` instance.
 
         :returns: None
         """
@@ -800,7 +800,7 @@ class Proxy(proxy.Proxy):
         """Confirm a server resize
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
 
         :returns: None
         """
@@ -811,7 +811,7 @@ class Proxy(proxy.Proxy):
         """Revert a server resize
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
 
         :returns: None
         """
@@ -843,12 +843,12 @@ class Proxy(proxy.Proxy):
         """Backup a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param name: The name of the backup image.
         :param backup_type: The type of the backup, for example, daily.
         :param rotation: The rotation of the back up image, the oldest
-                         image will be removed when image count exceed
-                         the rotation count.
+            image will be removed when image count exceed
+            the rotation count.
 
         :returns: None
         """
@@ -859,7 +859,7 @@ class Proxy(proxy.Proxy):
         """Pauses a server and changes its status to ``PAUSED``.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -869,7 +869,7 @@ class Proxy(proxy.Proxy):
         """Unpauses a paused server and changes its status to ``ACTIVE``.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -879,7 +879,7 @@ class Proxy(proxy.Proxy):
         """Suspends a server and changes its status to ``SUSPENDED``.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -889,7 +889,7 @@ class Proxy(proxy.Proxy):
         """Resumes a suspended server and changes its status to ``ACTIVE``.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -899,7 +899,7 @@ class Proxy(proxy.Proxy):
         """Locks a server.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -909,7 +909,7 @@ class Proxy(proxy.Proxy):
         """Unlocks a locked server.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -919,14 +919,14 @@ class Proxy(proxy.Proxy):
         """Puts a server in rescue mode and changes it status to ``RESCUE``.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param admin_pass: The password for the rescued server. If you omit
-                           this parameter, the operation generates a new
-                           password.
+            this parameter, the operation generates a new
+            password.
         :param image_ref: The image reference to use to rescue your server.
-                          This can be the image ID or its full URL. If you
-                          omit this parameter, the base image reference will
-                          be used.
+            This can be the image ID or its full URL. If you
+            omit this parameter, the base image reference will
+            be used.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -937,7 +937,7 @@ class Proxy(proxy.Proxy):
         """Unrescues a server and changes its status to ``ACTIVE``.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -947,14 +947,14 @@ class Proxy(proxy.Proxy):
         """Evacuates a server from a failed host to a new host.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param host: An optional parameter specifying the name or ID of the
-                     host to which the server is evacuated.
+            host to which the server is evacuated.
         :param admin_pass: An optional parameter specifying the administrative
-                           password to access the evacuated or rebuilt server.
+            password to access the evacuated or rebuilt server.
         :param force: Force an evacuation by not verifying the provided
-                      destination host by the scheduler. (New in API version
-                      2.29).
+            destination host by the scheduler. (New in API version
+            2.29).
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -965,7 +965,7 @@ class Proxy(proxy.Proxy):
         """Starts a stopped server and changes its state to ``ACTIVE``.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -975,7 +975,7 @@ class Proxy(proxy.Proxy):
         """Stops a running server and changes its state to ``SHUTOFF``.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -990,7 +990,7 @@ class Proxy(proxy.Proxy):
         operation. Cloud provides could change this permission though.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -1004,7 +1004,7 @@ class Proxy(proxy.Proxy):
         change this permission though.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -1014,8 +1014,8 @@ class Proxy(proxy.Proxy):
         """Create a new server interface from attributes
 
         :param server: The server can be either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance
-                       that the interface belongs to.
+            :class:`~openstack.compute.v2.server.Server` instance
+            that the interface belongs to.
         :param dict attrs: Keyword arguments which will be used to create
             a :class:`~openstack.compute.v2.server_interface.ServerInterface`,
             comprised of the properties on the ServerInterface class.
@@ -1076,9 +1076,9 @@ class Proxy(proxy.Proxy):
         """Adds a fixed IP address to a server instance.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param network_id: The ID of the network from which a fixed IP address
-                           is about to be allocated.
+            is about to be allocated.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -1088,9 +1088,9 @@ class Proxy(proxy.Proxy):
         """Removes a fixed IP address from a server instance.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param address: The fixed IP address to be disassociated from the
-                        server.
+            server.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -1100,11 +1100,11 @@ class Proxy(proxy.Proxy):
         """Adds a floating IP address to a server instance.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param address: The floating IP address to be added to the server.
         :param fixed_address: The fixed IP address to be associated with the
-                              floating IP address. Used when the server is
-                              connected to multiple networks.
+            floating IP address. Used when the server is
+            connected to multiple networks.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -1115,9 +1115,9 @@ class Proxy(proxy.Proxy):
         """Removes a floating IP address from a server instance.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param address: The floating IP address to be disassociated from the
-                        server.
+            server.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
@@ -1136,14 +1136,14 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.server_interface.ServerInterface`
             instance.
         :param server: This parameter need to be specified when ServerInterface
-                       ID is given as value. It can be either the ID of a
-                       server or a :class:`~openstack.compute.v2.server.Server`
-                       instance that the interface belongs to.
+            ID is given as value. It can be either the ID of a
+            server or a :class:`~openstack.compute.v2.server.Server`
+            instance that the interface belongs to.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the server interface does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server interface.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the server interface does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent server interface.
 
         :returns: ``None``
         """
@@ -1164,14 +1164,14 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.server_interface.ServerInterface`
             instance.
         :param server: This parameter need to be specified when ServerInterface
-                       ID is given as value. It can be either the ID of a
-                       server or a :class:`~openstack.compute.v2.server.Server`
-                       instance that the interface belongs to.
+            ID is given as value. It can be either the ID of a
+            server or a :class:`~openstack.compute.v2.server.Server`
+            instance that the interface belongs to.
 
         :returns: One
             :class:`~openstack.compute.v2.server_interface.ServerInterface`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         server_id = self._get_uri_attribute(server_interface, server,
                                             "server_id")
@@ -1199,9 +1199,9 @@ class Proxy(proxy.Proxy):
         """Return a generator of server IPs
 
         :param server: The server can be either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server`.
+            :class:`~openstack.compute.v2.server.Server`.
         :param network_label: The name of a particular network to list
-                              IP addresses from.
+            IP addresses from.
 
         :returns: A generator of ServerIP objects
         :rtype: :class:`~openstack.compute.v2.server_ip.ServerIP`
@@ -1214,12 +1214,12 @@ class Proxy(proxy.Proxy):
         """Return a generator of availability zones
 
         :param bool details: Return extra details about the availability
-                             zones. This defaults to `False` as it generally
-                             requires extra permission.
+            zones. This defaults to `False` as it generally
+            requires extra permission.
 
         :returns: A generator of availability zone
-        :rtype: :class:`~openstack.compute.v2.availability_zone.\
-                        AvailabilityZone`
+        :rtype:
+            :class:`~openstack.compute.v2.availability_zone.AvailabilityZone`
         """
         base_path = '/os-availability-zone/detail' if details else None
 
@@ -1233,12 +1233,12 @@ class Proxy(proxy.Proxy):
         """Return a dictionary of metadata for a server
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` or
-                       :class:`~openstack.compute.v2.server.ServerDetail`
-                       instance.
+            :class:`~openstack.compute.v2.server.Server` or
+            :class:`~openstack.compute.v2.server.ServerDetail`
+            instance.
 
         :returns: A :class:`~openstack.compute.v2.server.Server` with the
-                  server's metadata. All keys and values are Unicode text.
+            server's metadata. All keys and values are Unicode text.
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
         res = self._get_base_resource(server, _server.Server)
@@ -1250,12 +1250,12 @@ class Proxy(proxy.Proxy):
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
         :param kwargs metadata: Key/value pairs to be updated in the server's
-                                metadata. No other metadata is modified
-                                by this call. All keys and values are stored
-                                as Unicode.
+            metadata. No other metadata is modified
+            by this call. All keys and values are stored
+            as Unicode.
 
         :returns: A :class:`~openstack.compute.v2.server.Server` with only the
-                  server's metadata. All keys and values are Unicode text.
+            server's metadata. All keys and values are Unicode text.
         :rtype: :class:`~openstack.compute.v2.server.Server`
         """
         res = self._get_base_resource(server, _server.Server)
@@ -1300,13 +1300,13 @@ class Proxy(proxy.Proxy):
         """Delete a server group
 
         :param server_group: The value can be either the ID of a server group
-               or a :class:`~openstack.compute.v2.server_group.ServerGroup`
-               instance.
+            or a :class:`~openstack.compute.v2.server_group.ServerGroup`
+            instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the server group does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent server group.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the server group does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent server group.
 
         :returns: ``None``
         """
@@ -1318,10 +1318,10 @@ class Proxy(proxy.Proxy):
 
         :param name_or_id: The name or ID of a server group.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :returns:
             One :class:`~openstack.compute.v2.server_group.ServerGroup` object
             or None
@@ -1333,13 +1333,13 @@ class Proxy(proxy.Proxy):
         """Get a single server group
 
         :param server_group: The value can be the ID of a server group or a
-               :class:`~openstack.compute.v2.server_group.ServerGroup`
-               instance.
+            :class:`~openstack.compute.v2.server_group.ServerGroup`
+            instance.
 
         :returns:
             A :class:`~openstack.compute.v2.server_group.ServerGroup` object.
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_server_group.ServerGroup, server_group)
 
@@ -1347,7 +1347,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of server groups
 
         :param kwargs query: Optional query parameters to be sent to limit
-                                 the resources being returned.
+            the resources being returned.
 
         :returns: A generator of ServerGroup objects
         :rtype: :class:`~openstack.compute.v2.server_group.ServerGroup`
@@ -1562,7 +1562,7 @@ class Proxy(proxy.Proxy):
         """Create a new volume attachment from attributes
 
         :param server: The server can be either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param dict attrs: Keyword arguments which will be used to create a
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`,
             comprised of the properties on the VolumeAttachment class.
@@ -1584,15 +1584,15 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
             instance.
         :param server: This parameter need to be specified when
-                       VolumeAttachment ID is given as value. It can be
-                       either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server`
-                       instance that the attachment belongs to.
+            VolumeAttachment ID is given as value. It can be
+            either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server`
+            instance that the attachment belongs to.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the volume attachment does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent volume  attachment.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the volume attachment does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent volume  attachment.
 
         :returns: ``None``
         """
@@ -1613,15 +1613,15 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
             instance.
         :param server: This parameter need to be specified when
-                       VolumeAttachment ID is given as value. It can be either
-                       the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server`
-                       instance that the attachment belongs to.
+            VolumeAttachment ID is given as value. It can be either
+            the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server`
+            instance that the attachment belongs to.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the volume attachment does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent volume attachment.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the volume attachment does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent volume attachment.
 
         :returns: ``None``
         """
@@ -1643,20 +1643,20 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
             instance.
         :param server: This parameter need to be specified when
-                       VolumeAttachment ID is given as value. It can be either
-                       the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server`
-                       instance that the attachment belongs to.
+            VolumeAttachment ID is given as value. It can be either
+            the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server`
+            instance that the attachment belongs to.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the volume attachment does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent volume attachment.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the volume attachment does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent volume attachment.
 
         :returns: One
             :class:`~openstack.compute.v2.volume_attachment.VolumeAttachment`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         server_id = self._get_uri_attribute(volume_attachment, server,
                                             "server_id")
@@ -1671,7 +1671,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of volume attachments
 
         :param server: The server can be either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server`.
+            :class:`~openstack.compute.v2.server.Server`.
 
         :returns: A generator of VolumeAttachment objects
         :rtype:
@@ -1850,14 +1850,14 @@ class Proxy(proxy.Proxy):
         """Get a single server diagnostics
 
         :param server: This parameter need to be specified when ServerInterface
-                       ID is given as value. It can be either the ID of a
-                       server or a :class:`~openstack.compute.v2.server.Server`
-                       instance that the interface belongs to.
+            ID is given as value. It can be either the ID of a
+            server or a :class:`~openstack.compute.v2.server.Server`
+            instance that the interface belongs to.
 
         :returns: One
             :class:`~openstack.compute.v2.server_diagnostics.ServerDiagnostics`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         server_id = self._get_resource(_server.Server, server).id
         return self._get(_server_diagnostics.ServerDiagnostics,
@@ -1869,10 +1869,9 @@ class Proxy(proxy.Proxy):
         """Create a remote console on the server.
 
         :param server: Either the ID of a server or a
-                       :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :returns: One
-            :class:`~openstack.compute.v2.server_remote_console.
-                    ServerRemoteConsole`
+            :class:`~openstack.compute.v2.server_remote_console.ServerRemoteConsole`
         """
         server_id = resource.Resource._get_id(server)
         return self._create(_src.ServerRemoteConsole,
@@ -1893,11 +1892,11 @@ class Proxy(proxy.Proxy):
         """Return the console output for a server.
 
         :param server: Either the ID of a server or a
-                    :class:`~openstack.compute.v2.server.Server` instance.
+            :class:`~openstack.compute.v2.server.Server` instance.
         :param length: Optional number of line to fetch from the end of console
-                    log. All lines will be returned if this is not specified.
+            log. All lines will be returned if this is not specified.
         :returns: The console output as a dict. Control characters will be
-                    escaped to create a valid JSON string.
+            escaped to create a valid JSON string.
         """
         server = self._get_resource(_server.Server, server)
         return server.get_console_output(self, length=length)
