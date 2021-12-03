@@ -220,8 +220,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.orchestration.v1.stack.Stack`
 
         :returns: One object of
-            :class:`~openstack.orchestration.v1.stack_environment.\
-            StackEnvironment`
+            :class:`~openstack.orchestration.v1.stack_environment.StackEnvironment`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
         """
@@ -297,8 +296,8 @@ class Proxy(proxy.Proxy):
         :param dict query: Optional query parameters to be sent to limit the
             software configs returned.
         :returns: A generator of software config objects.
-        :rtype: :class:`~openstack.orchestration.v1.software_config.\
-            SoftwareConfig`
+        :rtype:
+            :class:`~openstack.orchestration.v1.software_config.SoftwareConfig`
         """
         return self._list(_sc.SoftwareConfig, **query)
 
@@ -349,8 +348,8 @@ class Proxy(proxy.Proxy):
         :param dict query: Optional query parameters to be sent to limit the
             software deployments returned.
         :returns: A generator of software deployment objects.
-        :rtype: :class:`~openstack.orchestration.v1.software_deployment.\
-            SoftwareDeployment`
+        :rtype:
+            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
         """
         return self._list(_sd.SoftwareDeployment, **query)
 
@@ -392,8 +391,8 @@ class Proxy(proxy.Proxy):
             represented by ``software_deployment``.
 
         :returns: The updated software deployment
-        :rtype: :class:`~openstack.orchestration.v1.software_deployment.\
-            SoftwareDeployment`
+        :rtype:
+            :class:`~openstack.orchestration.v1.software_deployment.SoftwareDeployment`
         """
         return self._update(_sd.SoftwareDeployment, software_deployment,
                             **attrs)
