@@ -194,6 +194,28 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
             container_format='fake_cformat', disk_format='fake_dformat',
             name='fake', properties=mock.ANY)
 
+    def test_image_create_protected(self):
+        self.proxy.find_image = mock.Mock()
+
+        created_image = mock.Mock(spec=image.Image(id="id"))
+        self.proxy._create = mock.Mock()
+        self.proxy._create.return_value = created_image
+        self.proxy._create.return_value.image_import_methods = []
+
+        created_image.upload = mock.Mock()
+        created_image.upload.return_value = FakeResponse(response="",
+                                                         status_code=200)
+
+        properties = {"is_protected": True}
+
+        self.proxy.create_image(
+            name="fake", data="data", container_format="bare",
+            disk_format="raw", **properties
+        )
+
+        args, kwargs = self.proxy._create.call_args
+        self.assertEqual(kwargs["is_protected"], True)
+
     def test_image_upload_no_args(self):
         # container_format and disk_format are required args
         self.assertRaises(exceptions.InvalidRequest, self.proxy.upload_image)
