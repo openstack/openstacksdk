@@ -820,6 +820,18 @@ class TestServer(base.TestCase):
         self.sess.post.assert_called_with(
             url, json=body, headers=headers, microversion=None)
 
+    def test_trigger_crash_dump(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.trigger_crash_dump(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {'trigger_crash_dump': None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers, microversion=None)
+
     def test_get_console_output(self):
         sot = server.Server(**EXAMPLE)
 

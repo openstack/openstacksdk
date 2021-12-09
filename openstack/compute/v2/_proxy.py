@@ -1011,6 +1011,23 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unshelve(self)
 
+    def trigger_server_crash_dump(self, server):
+        """Trigger a crash dump in a server.
+
+        When a server starts behaving oddly at a fundamental level, it maybe be
+        useful to get a kernel level crash dump to debug further. The crash
+        dump action forces a crash dump followed by a system reboot of the
+        server. Once the server comes back online, you can find a Kernel Crash
+        Dump file in a certain location of the filesystem. For example, for
+        Ubuntu you can find it in the /var/crash directory.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.trigger_crash_dump(self)
+
     # ========== Server security groups ==========
 
     def fetch_server_security_groups(self, server):

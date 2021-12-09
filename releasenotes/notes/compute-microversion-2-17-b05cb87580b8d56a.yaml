@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support for Compute API microversion 2.17, which allows admins to
+    trigger a crash dump for a server. This can be useful for debugging
+    misbehaving guests.
