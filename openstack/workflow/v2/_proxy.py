@@ -21,8 +21,8 @@ class Proxy(proxy.Proxy):
         """Create a new workflow from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:`~openstack.workflow.v2.workflow.Workflow`,
-                           comprised of the properties on the Workflow class.
+            a :class:`~openstack.workflow.v2.workflow.Workflow`,
+            comprised of the properties on the Workflow class.
 
         :returns: The results of workflow creation
         :rtype: :class:`~openstack.workflow.v2.workflow.Workflow`
@@ -33,11 +33,11 @@ class Proxy(proxy.Proxy):
         """Get a workflow
 
         :param workflow: The value can be the name of a workflow or
-             :class:`~openstack.workflow.v2.workflow.Workflow` instance.
+            :class:`~openstack.workflow.v2.workflow.Workflow` instance.
 
         :returns: One :class:`~openstack.workflow.v2.workflow.Workflow`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
-             workflow matching the name could be found.
+            workflow matching the name could be found.
         """
         return self._get(_workflow.Workflow, *attrs)
 
@@ -49,11 +49,11 @@ class Proxy(proxy.Proxy):
             include:
 
             * limit: Requests at most the specified number of items be
-                returned from the query.
+              returned from the query.
             * marker: Specifies the ID of the last-seen workflow. Use the
-                limit parameter to make an initial limited request and use
-                the ID of the last-seen workflow from the response as the
-                marker parameter value in a subsequent limited request.
+              limit parameter to make an initial limited request and use
+              the ID of the last-seen workflow from the response as the
+              marker parameter value in a subsequent limited request.
 
         :returns: A generator of workflow instances.
         """
@@ -63,8 +63,8 @@ class Proxy(proxy.Proxy):
         """Delete a workflow
 
         :param value: The value can be either the name of a workflow or a
-                      :class:`~openstack.workflow.v2.workflow.Workflow`
-                      instance.
+            :class:`~openstack.workflow.v2.workflow.Workflow`
+            instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will
             be raised when the workflow does not exist.
@@ -125,11 +125,11 @@ class Proxy(proxy.Proxy):
             include:
 
             * limit: Requests at most the specified number of items be
-                returned from the query.
+              returned from the query.
             * marker: Specifies the ID of the last-seen execution. Use the
-                limit parameter to make an initial limited request and use
-                the ID of the last-seen execution from the response as the
-                marker parameter value in a subsequent limited request.
+              limit parameter to make an initial limited request and use
+              the ID of the last-seen execution from the response as the
+              marker parameter value in a subsequent limited request.
 
         :returns: A generator of execution instances.
         """
@@ -139,13 +139,13 @@ class Proxy(proxy.Proxy):
         """Delete an execution
 
         :param value: The value can be either the name of a execution or a
-                      :class:`~openstack.workflow.v2.execute.Execution`
-                      instance.
+            :class:`~openstack.workflow.v2.execute.Execution`
+            instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the execution does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent execution.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the execution does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent execution.
 
         :returns: ``None``
         """
