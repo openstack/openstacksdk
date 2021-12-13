@@ -39,12 +39,18 @@ class ServerGroup(resource.Resource):
     policy = resource.Body('policy')
     #: The list of members in the server group
     member_ids = resource.Body('members')
-    #: The metadata associated with the server group
+    #: The metadata associated with the server group. This is always empty and
+    #: only used for preserving compatibility.
     metadata = resource.Body('metadata')
     #: The project ID who owns the server group.
     project_id = resource.Body('project_id')
-    #: The rules field, which is a dict, can be applied to the policy
-    rules = resource.Body('rules', type=list, list_type=dict)
+    #: The rules field, which is a dict, can be applied to the policy.
+    #: Currently, only the max_server_per_host rule is supported for the
+    #: anti-affinity policy. The max_server_per_host rule allows specifying how
+    #: many members of the anti-affinity group can reside on the same compute
+    #: host. If not specified, only one member from the same anti-affinity
+    #: group can reside on a given host.
+    rules = resource.Body('rules', type=dict)
     #: The user ID who owns the server group
     user_id = resource.Body('user_id')
 
