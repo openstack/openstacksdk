@@ -66,3 +66,15 @@ service.
 .. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
   :noindex:
   :members: limits
+
+
+Shared File System Snapshots
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Interact with Share Snapshots supported by the Shared File Systems
+service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: share_snapshots, get_share_snapshot, delete_share_snapshot,
+            update_share_snapshot, create_share_snapshot
