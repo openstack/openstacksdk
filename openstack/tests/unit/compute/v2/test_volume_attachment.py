@@ -35,7 +35,7 @@ class TestServerInterface(base.TestCase):
                          sot.base_path)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
         self.assertDictEqual({"limit": "limit",
@@ -45,8 +45,8 @@ class TestServerInterface(base.TestCase):
 
     def test_make_it(self):
         sot = volume_attachment.VolumeAttachment(**EXAMPLE)
+        self.assertEqual(EXAMPLE['volumeId'], sot.id)
         self.assertEqual(EXAMPLE['attachment_id'], sot.attachment_id)
-        self.assertEqual(EXAMPLE['attachment_id'], sot.id)
         self.assertEqual(
             EXAMPLE['delete_on_termination'], sot.delete_on_termination,
         )

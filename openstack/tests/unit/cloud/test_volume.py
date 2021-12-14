@@ -191,6 +191,11 @@ class TestVolume(base.TestCase):
                       ])
         self.register_uris([
             self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id']]),
+                 json={'server': server}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -207,6 +212,11 @@ class TestVolume(base.TestCase):
                       ])
         self.register_uris([
             self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id']]),
+                 json={'server': server}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -230,6 +240,11 @@ class TestVolume(base.TestCase):
         avail_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
             self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id']]),
+                 json={'server': server}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -254,6 +269,11 @@ class TestVolume(base.TestCase):
         errored_volume = meta.obj_to_munch(fakes.FakeVolume(**vol))
         self.register_uris([
             self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public',
+                     append=['servers', server['id']]),
+                 json={'server': server}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',

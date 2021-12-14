@@ -21,7 +21,7 @@ class VolumeAttachment(resource.Resource):
     # capabilities
     allow_create = True
     allow_fetch = True
-    allow_commit = False
+    allow_commit = True
     allow_delete = True
     allow_list = True
 
@@ -39,9 +39,9 @@ class VolumeAttachment(resource.Resource):
     # #: The UUID of the server
     # server_id = resource.Body('server_uuid')
     #: The ID of the attached volume.
-    volume_id = resource.Body('volumeId')
+    volume_id = resource.Body('volumeId', alternate_id=True)
     #: The UUID of the associated volume attachment in Cinder.
-    attachment_id = resource.Body('attachment_id', alternate_id=True)
+    attachment_id = resource.Body('attachment_id')
     #: The ID of the block device mapping record for the attachment
     bdm_id = resource.Body('bdm_uuid')
     #: Virtual device tags for the attachment.

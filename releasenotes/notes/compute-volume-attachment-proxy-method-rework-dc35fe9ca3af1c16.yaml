@@ -1,0 +1,13 @@
+---
+upgrade:
+  - |
+    The signatures of the various volume attachment-related methods in the
+    compute API proxy layer have changed. These were previously incomplete and
+    did not function as expected in many scenarios. Some callers may need to be
+    reworked. The affected proxy methods are:
+
+    - ``create_volume_attachment``
+    - ``delete_volume_attachment``
+    - ``update_volume_attachment``
+    - ``get_volume_attachment``
+    - ``volume_attachments``
