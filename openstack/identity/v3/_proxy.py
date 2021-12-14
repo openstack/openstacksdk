@@ -1048,8 +1048,8 @@ class Proxy(proxy.Proxy):
     def create_registered_limit(self, **attrs):
         """Create a new registered_limit from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`,
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.identity.v3.registered_limit.RegisteredLimit`,
             comprised of the properties on the RegisteredLimit class.
 
         :returns: The results of registered_limit creation.
@@ -1365,8 +1365,8 @@ class Proxy(proxy.Proxy):
             limit the resources being returned.
 
         :returns: A generator of application credentials instances.
-        :rtype: :class:`~openstack.identity.v3.application_credential.
-            ApplicationCredential`
+        :rtype:
+            :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
         """
         user = self._get_resource(_user.User, user)
         return self._list(_application_credential.ApplicationCredential,
@@ -1383,8 +1383,8 @@ class Proxy(proxy.Proxy):
             `~openstack.identity.v3.application_credential.
             ApplicationCredential` instance.
 
-        :returns: One :class:`~openstack.identity.v3.application_credential.
-            ApplicationCredential`
+        :returns: One
+            :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
         """
@@ -1400,15 +1400,14 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.user.User` instance.
         :param name: The name of the application credential which is
             unique to the user.
-        :param dict attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.identity.v3.application_credential.
-            ApplicationCredential`, comprised of the properties on the
-            ApplicationCredential class.
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.identity.v3.application_credential.ApplicationCredential`,
+            comprised of the properties on the ApplicationCredential class.
 
 
         :returns: The results of application credential creation.
-        :rtype: :class:`~openstack.identity.v3.application_credential.
-            ApplicationCredential`
+        :rtype:
+            :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
         """
 
         user = self._get_resource(_user.User, user)
@@ -1429,8 +1428,9 @@ class Proxy(proxy.Proxy):
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
 
-        :returns: One :class:`~openstack.identity.v3.application_credential.
-            ApplicationCredential` or None
+        :returns: One
+            :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
+            or None
         """
         user = self._get_resource(_user.User, user)
         return self._find(_application_credential.ApplicationCredential,
@@ -1443,9 +1443,10 @@ class Proxy(proxy.Proxy):
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :param application credential: The value can be either the ID of a
-            application credential or a :class: `~openstack.identity.v3.
-            application_credential.ApplicationCredential` instance.
+        :param application credential: The value can be either the ID of an
+            application credential or a
+            :class:`~openstack.identity.v3.application_credential.ApplicationCredential`
+            instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the application credential does not exist. When set to
@@ -1468,13 +1469,13 @@ class Proxy(proxy.Proxy):
             representing the identity provider the protocol is to be
             attached to.
         :param dict attrs: Keyword arguments which will be used to create a
-            :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol`, comprised of the properties on the
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`,
+            comprised of the properties on the
             FederationProtocol class.
 
         :returns: The results of federation protocol creation
-        :rtype: :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol`
+        :rtype:
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         """
 
         idp_cls = _identity_provider.IdentityProvider
@@ -1491,11 +1492,11 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
             representing the identity provider the protocol is attached to.
             Can be None if protocol is a
-            :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol` instance.
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
+            instance.
         :param protocol: The ID of a federation protocol or a
-            :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol` instance.
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
+            instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the federation protocol does not exist.  When set to
@@ -1526,8 +1527,8 @@ class Proxy(proxy.Proxy):
             when the resource does not exist.  When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
         :returns: One federation protocol or None
-        :rtype: :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol`
+        :rtype:
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         """
         idp_cls = _identity_provider.IdentityProvider
         if isinstance(idp_id, idp_cls):
@@ -1542,15 +1543,14 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
             representing the identity provider the protocol is attached to.
             Can be None if protocol is a
-            :class:`~openstack.identity.v3.federation_protocol.
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         :param protocol: The value can be the ID of a federation protocol or a
-            :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol`
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
             instance.
 
         :returns: One federation protocol
-        :rtype: :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol`
+        :rtype:
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
@@ -1572,8 +1572,8 @@ class Proxy(proxy.Proxy):
             the resources being returned.
 
         :returns: A generator of federation protocol instances.
-        :rtype: :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol`
+        :rtype:
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         """
         idp_cls = _identity_provider.IdentityProvider
         if isinstance(idp_id, idp_cls):
@@ -1588,16 +1588,16 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
             representing the identity provider the protocol is attached to.
             Can be None if protocol is a
-            :class:`~openstack.identity.v3.federation_protocol.
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         :param protocol: Either the ID of a federation protocol or a
-            :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol` instance.
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
+            instance.
         :attrs kwargs: The attributes to update on the federation protocol
             represented by ``value``.
 
         :returns: The updated federation protocol
-        :rtype: :class:`~openstack.identity.v3.federation_protocol.
-            FederationProtocol`
+        :rtype:
+            :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
         """
         cls = _federation_protocol.FederationProtocol
         if (idp_id is None) and (isinstance(protocol, cls)):
