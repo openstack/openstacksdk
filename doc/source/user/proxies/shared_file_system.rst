@@ -32,7 +32,8 @@ service.
 
 .. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
   :noindex:
-  :members: shares, get_share, delete_share, update_share, create_share
+  :members: shares, get_share, delete_share, update_share, create_share,
+            revert_share_to_snapshot
 
 
 Shared File System Storage Pools
