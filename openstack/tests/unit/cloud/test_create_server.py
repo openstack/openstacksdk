@@ -534,8 +534,8 @@ class TestCreateServer(base.TestCase):
                      'compute', 'public', append=['servers', '1234'])),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': []}),
+                     'compute', 'public', append=['servers', '1234']),
+                 status_code=404),
         ])
         mock_add_ips_to_server.return_value = fake_server
         self.cloud._SERVER_AGE = 0

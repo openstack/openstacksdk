@@ -80,7 +80,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_create_and_delete_server_auto_ip_delete_ips(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
@@ -97,7 +98,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertTrue(
             self.user_cloud.delete_server(
                 self.server_name, wait=True, delete_ips=True))
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_attach_detach_volume(self):
         self.skipTest('Volume functional tests temporarily disabled')
@@ -128,7 +130,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_create_and_delete_server_with_config_drive_none(self):
         # check that we're not sending invalid values for config_drive
@@ -149,7 +152,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertTrue(
             self.user_cloud.delete_server(
                 self.server_name, wait=True))
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_list_all_servers(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
@@ -186,7 +190,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_get_server_console(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
@@ -235,7 +240,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertEqual(server['adminPass'], 'sheiqu9loegahSh')
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_get_image_id(self):
         self.assertEqual(
@@ -285,7 +291,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertTrue(self.user_cloud.delete_server(server.id, wait=True))
         self._wait_for_detach(volume.id)
         self.assertTrue(self.user_cloud.delete_volume(volume.id, wait=True))
-        self.assertIsNone(self.user_cloud.get_server(server.id))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
         self.assertIsNone(self.user_cloud.get_volume(volume.id))
 
     def _wait_for_detach(self, volume_id):
@@ -323,7 +330,8 @@ class TestCompute(base.BaseFunctionalTest):
         # that is in the process of being deleted.
         if volume:
             self.assertEqual('deleting', volume.status)
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_create_boot_from_volume_preexisting(self):
         self.skipTest('Volume functional tests temporarily disabled')
@@ -350,7 +358,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertEqual([], volume['attachments'])
         self._wait_for_detach(volume.id)
         self.assertTrue(self.user_cloud.delete_volume(volume_id))
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
         self.assertIsNone(self.user_cloud.get_volume(volume_id))
 
     def test_create_boot_attach_volume(self):
@@ -378,7 +387,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertEqual([], volume['attachments'])
         self._wait_for_detach(volume.id)
         self.assertTrue(self.user_cloud.delete_volume(volume_id))
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
         self.assertIsNone(self.user_cloud.get_volume(volume_id))
 
     def test_create_boot_from_volume_preexisting_terminate(self):
@@ -404,7 +414,8 @@ class TestCompute(base.BaseFunctionalTest):
         # that is in the process of being deleted.
         if volume:
             self.assertEqual('deleting', volume.status)
-        self.assertIsNone(self.user_cloud.get_server(self.server_name))
+        srv = self.user_cloud.get_server(self.server_name)
+        self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_create_image_snapshot_wait_active(self):
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)

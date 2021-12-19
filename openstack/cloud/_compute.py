@@ -27,6 +27,7 @@ from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack.compute.v2 import server as _server
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
@@ -1161,7 +1162,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         # If delete_ips is True, we need the server to not be bare.
-        server = self.get_server(name_or_id, bare=True)
+        server = self.compute.find_server(
+            name_or_id, ignore_missing=True)
         if not server:
             return False
 
@@ -1205,15 +1207,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         if not server:
             return False
 
-        if delete_ips and self._has_floating_ips():
+        if delete_ips and self._has_floating_ips() and server['addresses']:
             self._delete_server_floating_ips(server, delete_ip_retry)
 
         try:
-            proxy._json_response(
-                self.compute.delete(
-                    '/servers/{id}'.format(id=server['id'])),
-                error_message="Error in deleting server")
-        except exc.OpenStackCloudURINotFound:
+            self.compute.delete_server(
+                server)
+        except exceptions.ResourceNotFound:
             return False
         except Exception:
             raise
@@ -1231,16 +1231,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 and self.get_volumes(server)):
             reset_volume_cache = True
 
-        for count in utils.iterate_timeout(
-                timeout,
-                "Timed out waiting for server to get deleted.",
-                # if _SERVER_AGE is 0 we still want to wait a bit
-                # to be friendly with the server.
-                wait=self._SERVER_AGE or 2):
-            with _utils.shade_exceptions("Error in deleting server"):
-                server = self.get_server(server['id'], bare=True)
-                if not server:
-                    break
+        if not isinstance(server, _server.Server):
+            # We might come here with Munch object (at the moment).
+            # If this is the case - convert it into real server to be able to
+            # use wait_for_delete
+            server = _server.Server(id=server['id'])
+        self.compute.wait_for_delete(
+            server, wait=timeout)
 
         if reset_volume_cache:
             self.list_volumes.invalidate(self)
