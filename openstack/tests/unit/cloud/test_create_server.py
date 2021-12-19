@@ -42,6 +42,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -52,8 +53,8 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -76,6 +77,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -86,8 +88,8 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -110,6 +112,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -120,8 +123,8 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -150,6 +153,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -160,8 +164,8 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -187,6 +191,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -197,8 +202,8 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -224,6 +229,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -235,8 +241,8 @@ class TestCreateServer(base.TestCase):
                          u'config_drive': True,
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -262,6 +268,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -272,8 +279,8 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -303,6 +310,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -314,8 +322,8 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -344,6 +352,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -355,7 +364,8 @@ class TestCreateServer(base.TestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'adminPass': admin_pass,
-                         u'name': u'server-name'}})),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
         ])
 
         # The wait returns non-password server
@@ -391,6 +401,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -402,8 +413,8 @@ class TestCreateServer(base.TestCase):
                          u'max_count': 1,
                          u'min_count': 1,
                          u'user_data': user_data_b64,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -465,6 +476,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -475,14 +487,24 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
         ])
         self.cloud.create_server(
             'server-name',
             dict(id='image-id'), dict(id='flavor-id'), wait=True),
 
+        # This is a pretty dirty hack to ensure we in principle use object with
+        # expected properties
+        srv = server.Server.existing(
+            connection=self.cloud,
+            min_count=1, max_count=1,
+            networks='auto',
+            imageRef='image-id',
+            flavorRef='flavor-id',
+            **fake_server)
         mock_wait.assert_called_once_with(
-            fake_server,
+            srv,
             auto_ip=True, ips=None,
             ip_pool=None, reuse=True, timeout=180,
             nat_destination=None,
@@ -504,6 +526,7 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -514,8 +537,8 @@ class TestCreateServer(base.TestCase):
                          u'imageRef': u'image-id',
                          u'max_count': 1,
                          u'min_count': 1,
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', 'detail']),
@@ -569,6 +592,7 @@ class TestCreateServer(base.TestCase):
                      append=['v2.0', 'networks'],
                      qs_elements=['name=network-name']),
                  json={'networks': [network]}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -581,7 +605,6 @@ class TestCreateServer(base.TestCase):
                          u'min_count': 1,
                          u'networks': [{u'uuid': u'network-id'}],
                          u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -622,6 +645,7 @@ class TestCreateServer(base.TestCase):
                      append=['v2.0', 'networks'],
                      qs_elements=['name=network-name']),
                  json={'networks': [network]}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -634,7 +658,6 @@ class TestCreateServer(base.TestCase):
                          u'min_count': 1,
                          u'networks': [{u'uuid': u'network-id'}],
                          u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -665,6 +688,7 @@ class TestCreateServer(base.TestCase):
         fixed_ip = '10.0.0.1'
         build_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -677,7 +701,6 @@ class TestCreateServer(base.TestCase):
                          u'min_count': 1,
                          u'networks': [{'fixed_ip': fixed_ip}],
                          u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -708,6 +731,7 @@ class TestCreateServer(base.TestCase):
         fixed_ip = '10.0.0.1'
         build_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -720,7 +744,6 @@ class TestCreateServer(base.TestCase):
                          u'min_count': 1,
                          u'networks': [{'fixed_ip': fixed_ip}],
                          u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -753,6 +776,7 @@ class TestCreateServer(base.TestCase):
         fixed_ip = 'fe80::28da:5fff:fe57:13ed'
         build_server = fakes.make_fake_server('1234', '', 'BUILD')
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -765,7 +789,6 @@ class TestCreateServer(base.TestCase):
                          u'min_count': 1,
                          u'networks': [{'fixed_ip': fixed_ip}],
                          u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -857,6 +880,7 @@ class TestCreateServer(base.TestCase):
         port_id = uuid.uuid4().hex
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers']),
@@ -869,7 +893,6 @@ class TestCreateServer(base.TestCase):
                          u'min_count': 1,
                          u'networks': [{u'port': port_id}],
                          u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -899,9 +922,10 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['os-volumes_boot']),
+                     'compute', 'public', append=['servers']),
                  json={'server': build_server},
                  validate=dict(
                      json={'server': {
@@ -925,8 +949,8 @@ class TestCreateServer(base.TestCase):
                                  u'uuid': u'volume001'
                              }
                          ],
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
@@ -952,9 +976,10 @@ class TestCreateServer(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
                  json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['os-volumes_boot']),
+                     'compute', 'public', append=['servers']),
                  json={'server': build_server},
                  validate=dict(
                      json={'server': {
@@ -969,8 +994,8 @@ class TestCreateServer(base.TestCase):
                              u'source_type': u'image',
                              u'uuid': u'image-id',
                              u'volume_size': u'1'}],
-                         u'name': u'server-name'}})),
-            self.get_nova_discovery_mock_dict(),
+                         u'name': u'server-name',
+                         'networks': 'auto'}})),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', '1234']),
