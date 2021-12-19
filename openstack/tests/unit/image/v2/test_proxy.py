@@ -429,7 +429,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         result = self.proxy.wait_for_task(
             res, status, "failure", 0.01, 0.1)
 
-        self.assertTrue(result, res)
+        self.assertEqual(res, result)
 
     def test_wait_for_task_immediate_status_case(self):
         status = "SUCcess"
@@ -438,7 +438,7 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         result = self.proxy.wait_for_task(
             res, status, "failure", 0.01, 0.1)
 
-        self.assertTrue(result, res)
+        self.assertEqual(res, result)
 
     def test_wait_for_task_error_396(self):
         # Ensure we create a new task when we get 396 error

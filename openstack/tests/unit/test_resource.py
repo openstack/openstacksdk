@@ -2925,7 +2925,7 @@ class TestWaitForStatus(base.TestCase):
         result = resource.wait_for_status(
             self.cloud.compute, res, status, "failures", "interval", "wait")
 
-        self.assertTrue(result, res)
+        self.assertEqual(res, result)
 
     def test_immediate_status_case(self):
         status = "LOLing"
@@ -2935,7 +2935,7 @@ class TestWaitForStatus(base.TestCase):
         result = resource.wait_for_status(
             self.cloud.compute, res, 'lOling', "failures", "interval", "wait")
 
-        self.assertTrue(result, res)
+        self.assertEqual(res, result)
 
     def test_immediate_status_different_attribute(self):
         status = "loling"
@@ -2946,7 +2946,7 @@ class TestWaitForStatus(base.TestCase):
             self.cloud.compute, res, status, "failures", "interval", "wait",
             attribute='mood')
 
-        self.assertTrue(result, res)
+        self.assertEqual(res, result)
 
     def _resources_from_statuses(self, *statuses, **kwargs):
         attribute = kwargs.pop('attribute', 'status')
