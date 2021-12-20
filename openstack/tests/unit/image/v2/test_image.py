@@ -84,7 +84,7 @@ EXAMPLE = {
     'auto_disk_config': True,
     'os_type': '49',
     'os_admin_user': 'ubuntu',
-    'hw_qemu_guest_agent': True,
+    'hw_qemu_guest_agent': 'yes',
     'os_require_quiesce': True,
 }
 

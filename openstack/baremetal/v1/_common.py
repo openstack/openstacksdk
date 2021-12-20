@@ -79,6 +79,9 @@ CONFIG_DRIVE_DICT_VERSION = '1.56'
 DEPLOY_STEPS_VERSION = '1.69'
 """API version in which deploy_steps was added to node provisioning."""
 
+CHANGE_BOOT_MODE_VERSION = '1.76'
+"""API version in which boot_mode and secure_boot states can be changed"""
+
 
 class ListMixin:
 

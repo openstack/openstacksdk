@@ -91,8 +91,8 @@ class Node(_common.ListMixin, resource.Resource):
         is_maintenance='maintenance',
     )
 
-    # Provision state deploy_steps introduced in 1.69 (Wallaby).
-    _max_microversion = '1.69'
+    # Ability to change boot_mode and secure_boot, introduced in 1.76 (Xena).
+    _max_microversion = '1.76'
 
     # Properties
     #: The UUID of the allocation associated with this node. Added in API
@@ -101,6 +101,8 @@ class Node(_common.ListMixin, resource.Resource):
     #: A string or UUID of the tenant who owns the baremetal node. Added in API
     #: microversion 1.50.
     owner = resource.Body("owner")
+    #: The current boot mode state (uefi/bios). Added in API microversion 1.75.
+    boot_mode = resource.Body("boot_mode")
     #: The UUID of the chassis associated wit this node. Can be empty or None.
     chassis_id = resource.Body("chassis_uuid")
     #: The current clean step.
@@ -148,6 +150,9 @@ class Node(_common.ListMixin, resource.Resource):
     #: Whether the node is marked for retirement. Added in API microversion
     #: 1.61.
     is_retired = resource.Body("retired", type=bool)
+    #: Whether the node is currently booted with secure boot turned on.
+    #: Added in API microversion 1.75.
+    is_secure_boot = resource.Body("secure_boot", type=bool)
     #: Any error from the most recent transaction that started but failed to
     #: finish.
     last_error = resource.Body("last_error")
@@ -830,7 +835,6 @@ class Node(_common.ListMixin, resource.Resource):
         :param boot_device: Boot device to assign to the node.
         :param persistent: If the boot device change is maintained after node
             reboot
-        :return: The updated :class:`~openstack.baremetal.v1.node.Node`
         """
         session = self._get_session(session)
         version = self._get_microversion_for(session, 'commit')
@@ -848,12 +852,72 @@ class Node(_common.ListMixin, resource.Resource):
                .format(node=self.id))
         exceptions.raise_from_response(response, error_message=msg)
 
+    def set_boot_mode(self, session, target):
+        """Make a request to change node's boot mode
+
+        This call is asynchronous, it will return success as soon as the Bare
+        Metal service acknowledges the request.
+
+        :param session: The session to use for making this request.
+        :param target: Boot mode to set for node, one of either 'uefi'/'bios'.
+        :raises: ValueError if ``target`` is not one of 'uefi or 'bios'.
+        """
+        session = self._get_session(session)
+        version = utils.pick_microversion(session,
+                                          _common.CHANGE_BOOT_MODE_VERSION)
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'states', 'boot_mode')
+        if target not in ('uefi', 'bios'):
+            raise ValueError("Unrecognized boot mode %s."
+                             "Boot mode should be one of 'uefi' or 'bios'."
+                             % target)
+        body = {'target': target}
+
+        response = session.put(
+            request.url, json=body,
+            headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to change boot mode for node {node}"
+               .format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+
+    def set_secure_boot(self, session, target):
+        """Make a request to change node's secure boot state
+
+        This call is asynchronous, it will return success as soon as the Bare
+        Metal service acknowledges the request.
+
+        :param session: The session to use for making this request.
+        :param bool target: Boolean indicating secure boot state to set.
+            True/False corresponding to 'on'/'off' respectively.
+        :raises: ValueError if ``target`` is not boolean.
+        """
+        session = self._get_session(session)
+        version = utils.pick_microversion(session,
+                                          _common.CHANGE_BOOT_MODE_VERSION)
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'states', 'secure_boot')
+        if not isinstance(target, bool):
+            raise ValueError("Invalid target %s. It should be True or False "
+                             "corresponding to secure boot state 'on' or 'off'"
+                             % target)
+        body = {'target': target}
+
+        response = session.put(
+            request.url, json=body,
+            headers=request.headers, microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+        msg = ("Failed to change secure boot state for {node}"
+               .format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+
     def add_trait(self, session, trait):
         """Add a trait to a node.
 
         :param session: The session to use for making this request.
         :param trait: The trait to add to the node.
-        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
         """
         session = self._get_session(session)
         version = utils.pick_microversion(session, '1.37')
@@ -879,7 +943,8 @@ class Node(_common.ListMixin, resource.Resource):
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the trait does not exist.
             Otherwise, ``False`` is returned.
-        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
+        :returns bool: True on success removing the trait.
+            False when the trait does not exist already.
         """
         session = self._get_session(session)
         version = utils.pick_microversion(session, '1.37')
@@ -890,7 +955,7 @@ class Node(_common.ListMixin, resource.Resource):
             request.url, headers=request.headers, microversion=version,
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
-        if ignore_missing or response.status_code == 400:
+        if ignore_missing and response.status_code == 400:
             session.log.debug(
                 'Trait %(trait)s was already removed from node %(node)s',
                 {'trait': trait, 'node': self.id})
@@ -900,7 +965,8 @@ class Node(_common.ListMixin, resource.Resource):
                .format(node=self.id, trait=trait))
         exceptions.raise_from_response(response, error_message=msg)
 
-        self.traits = list(set(self.traits) - {trait})
+        if self.traits:
+            self.traits = list(set(self.traits) - {trait})
 
         return True
 
@@ -912,7 +978,6 @@ class Node(_common.ListMixin, resource.Resource):
 
         :param session: The session to use for making this request.
         :param traits: list of traits to add to the node.
-        :returns: The updated :class:`~openstack.baremetal.v1.node.Node`
         """
         session = self._get_session(session)
         version = utils.pick_microversion(session, '1.37')
