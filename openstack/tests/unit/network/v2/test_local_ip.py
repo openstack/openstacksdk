@@ -47,6 +47,11 @@ class TestLocalIP(base.TestCase):
 
         self.assertDictEqual({"name": "name",
                               "description": "description",
+                              "project_id": "project_id",
+                              "network_id": "network_id",
+                              "local_port_id": "local_port_id",
+                              "local_ip_address": "local_ip_address",
+                              "ip_mode": "ip_mode",
                               "sort_key": "sort_key",
                               "sort_dir": "sort_dir",
                               "limit": "limit",
