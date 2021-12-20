@@ -1350,16 +1350,16 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         return self._list(_extension.Extension)
 
     # ====== UTILS ======
-    def wait_for_status(self, res, status='available', failures=None,
-                        interval=2, wait=120):
+    def wait_for_status(
+        self, res, status='available', failures=None, interval=2, wait=120,
+    ):
         """Wait for a resource to be in a particular status.
 
         :param res: The resource to wait on to reach the specified status.
             The resource must have a ``status`` attribute.
         :type resource: A :class:`~openstack.resource.Resource` object.
-        :param status: Desired status.
-        :param failures: Statuses that would be interpreted as failures.
-        :type failures: :py:class:`list`
+        :param str status: Desired status.
+        :param list failures: Statuses that would be interpreted as failures.
         :param interval: Number of seconds to wait before to consecutive
             checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
@@ -1381,9 +1381,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param res: The resource to wait on to be deleted.
         :type resource: A :class:`~openstack.resource.Resource` object.
-        :param interval: Number of seconds to wait before to consecutive
+        :param int interval: Number of seconds to wait before two consecutive
             checks. Default to 2.
-        :param wait: Maximum number of seconds to wait before the change.
+        :param int wait: Maximum number of seconds to wait before the change.
             Default to 120.
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
