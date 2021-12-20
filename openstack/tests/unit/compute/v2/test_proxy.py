@@ -588,7 +588,6 @@ class TestCompute(TestComputeProxy):
         self.verify_delete(self.proxy.delete_server_interface,
                            server_interface.ServerInterface, True,
                            method_kwargs={"server": "test_id"},
-                           expected_args=[],
                            expected_kwargs={"server_id": "test_id"})
 
     def test_server_interface_get(self):
