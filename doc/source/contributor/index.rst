@@ -75,11 +75,10 @@ documented in our :doc:`setup <setup>` section.
 Testing
 -------
 
-The project contains three test packages, one for unit tests, one for
-functional tests and one for examples tests. The ``openstack.tests.unit``
-package tests the SDK's features in isolation. The
-``openstack.tests.functional`` and ``openstack.tests.examples`` packages test
-the SDK's features and examples against an OpenStack cloud.
+The project contains two test packages, one for unit tests and one for
+functional tests. The ``openstack.tests.unit`` package tests the SDK's features
+in isolation. The ``openstack.tests.functional`` package tests the SDK's
+features and examples against an OpenStack cloud.
 
 .. toctree::
 

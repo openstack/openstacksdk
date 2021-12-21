@@ -85,28 +85,3 @@ the continuous integration system.::
    ...
    functional3: commands succeeded
    congratulations :)
-
-Examples Tests
---------------
-
-Similar to the functional tests, the examples tests assume that you have a
-public or private OpenStack cloud that you can run the tests against. In
-practice, this means that the tests should initially be run against a stable
-branch of `DevStack <https://docs.openstack.org/devstack/latest/>`_.
-And like the functional tests, the examples tests connect to an OpenStack cloud
-using `os-client-config <http://opendev.org/openstack/os-client-config>`_.
-See the functional tests instructions for information on setting up DevStack
-and os-client-config.
-
-Run
-***
-
-In order to run the entire examples test suite, simply run the
-``tox -e examples`` command inside of your source checkout. This will
-attempt to run every test command under ``/openstack/tests/examples/``
-in the source tree.::
-
-   (sdk3)$ tox -e examples
-   ...
-   examples: commands succeeded
-   congratulations :)
