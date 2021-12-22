@@ -11,7 +11,6 @@
 # under the License.
 
 from openstack.compute.v2 import server
-from openstack.tests.functional import base
 from openstack.tests.functional.compute import base as ft_base
 from openstack.tests.functional.network.v2 import test_network
 
@@ -23,21 +22,24 @@ class TestServerAdmin(ft_base.BaseComputeTest):
         self._set_operator_cloud(interface='admin')
         self.NAME = 'needstobeshortandlowercase'
         self.USERDATA = 'SSdtIGFjdHVhbGx5IGEgZ29hdC4='
-        flavor = self.conn.compute.find_flavor(base.FLAVOR_NAME,
-                                               ignore_missing=False)
-        image = self.conn.compute.find_image(base.IMAGE_NAME,
-                                             ignore_missing=False)
         volume = self.conn.create_volume(1)
         sot = self.conn.compute.create_server(
-            name=self.NAME, flavor_id=flavor.id, image_id=image.id,
-            networks='none', user_data=self.USERDATA,
-            block_device_mapping=[{
-                'uuid': volume.id,
-                'source_type': 'volume',
-                'boot_index': 0,
-                'destination_type': 'volume',
-                'delete_on_termination': True,
-                'volume_size': 1}])
+            name=self.NAME,
+            flavor_id=self.flavor.id,
+            image_id=self.image.id,
+            networks='none',
+            user_data=self.USERDATA,
+            block_device_mapping=[
+                {
+                    'uuid': volume.id,
+                    'source_type': 'volume',
+                    'boot_index': 0,
+                    'destination_type': 'volume',
+                    'delete_on_termination': True,
+                    'volume_size': 1,
+                },
+            ],
+        )
         self.conn.compute.wait_for_server(sot, wait=self._wait_for_timeout)
         assert isinstance(sot, server.Server)
         self.assertEqual(self.NAME, sot.name)
@@ -72,10 +74,6 @@ class TestServer(ft_base.BaseComputeTest):
         self.subnet = None
         self.cidr = '10.99.99.0/16'
 
-        flavor = self.conn.compute.find_flavor(base.FLAVOR_NAME,
-                                               ignore_missing=False)
-        image = self.conn.compute.find_image(base.IMAGE_NAME,
-                                             ignore_missing=False)
         self.network, self.subnet = test_network.create_network(
             self.conn,
             self.NAME,
@@ -83,8 +81,11 @@ class TestServer(ft_base.BaseComputeTest):
         self.assertIsNotNone(self.network)
 
         sot = self.conn.compute.create_server(
-            name=self.NAME, flavor_id=flavor.id, image_id=image.id,
-            networks=[{"uuid": self.network.id}])
+            name=self.NAME,
+            flavor_id=self.flavor.id,
+            image_id=self.image.id,
+            networks=[{"uuid": self.network.id}],
+        )
         self.conn.compute.wait_for_server(sot, wait=self._wait_for_timeout)
         assert isinstance(sot, server.Server)
         self.assertEqual(self.NAME, sot.name)

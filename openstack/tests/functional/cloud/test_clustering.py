@@ -115,8 +115,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -145,8 +145,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -189,8 +189,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -232,8 +232,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -318,8 +318,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -392,8 +392,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -474,8 +474,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -567,8 +567,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -656,8 +656,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -713,8 +713,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -775,8 +775,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -863,8 +863,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -914,8 +914,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -1018,8 +1018,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -1056,8 +1056,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -1094,8 +1094,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -1130,8 +1130,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -1297,8 +1297,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"
@@ -1356,8 +1356,8 @@ class TestClustering(base.BaseFunctionalTest):
         profile_name = "test_profile"
         spec = {
             "properties": {
-                "flavor": "m1.tiny",
-                "image": base.IMAGE_NAME,
+                "flavor": self.flavor.name,
+                "image": self.image.name,
                 "networks": [
                     {
                         "network": "private"

@@ -68,8 +68,9 @@ configured for the one cloud. These accounts are:
   configurable via the ``OPENSTACKSDK_DEMO_CLOUD_ALT`` environment variable
 
 In addition, you must indicate the names of the flavor and image that should be
-used for tests. These can be configured via ``functional.flavor_name`` and
-``functional.image_name`` settings in the ``clouds.yaml`` file.
+used for tests. These can be configured via ``OPENSTACKSDK_FLAVOR`` and
+``OPENSTACKSDK_IMAGE`` environment variables or ``functional.flavor_name`` and
+``functional.image_name`` settings in the ``clouds.yaml`` file, respectively.
 
 Finally, you can configure the timeout for tests using the
 ``OPENSTACKSDK_FUNC_TEST_TIMEOUT`` environment variable (defaults to 300

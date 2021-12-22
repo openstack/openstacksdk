@@ -40,8 +40,8 @@ class TestCluster(base.BaseFunctionalTest):
                 'version': 1.0,
                 'properties': {
                     'name': self.getUniqueString(),
-                    'flavor': base.FLAVOR_NAME,
-                    'image': base.IMAGE_NAME,
+                    'flavor': self.flavor.name,
+                    'image': self.image.name,
                     'networks': [{'network': self.network.id}]
                 }}}
 
