@@ -1086,41 +1086,23 @@ class ComputeCloudMixin(_normalize.Normalizer):
                        wait=False, timeout=180):
         kwargs = {}
         if image_id:
-            kwargs['imageRef'] = image_id
+            kwargs['image'] = image_id
         if admin_pass:
-            kwargs['adminPass'] = admin_pass
+            kwargs['admin_password'] = admin_pass
 
-        data = proxy._json_response(
-            self.compute.post(
-                '/servers/{server_id}/action'.format(server_id=server_id),
-                json={'rebuild': kwargs}),
-            error_message="Error in rebuilding instance")
-        server = self._get_and_munchify('server', data)
+        server = self.compute.rebuild_server(
+            server_id,
+            **kwargs
+        )
         if not wait:
             return self._expand_server(
-                self._normalize_server(server), bare=bare, detailed=detailed)
+                server, bare=bare, detailed=detailed)
 
         admin_pass = server.get('adminPass') or admin_pass
-        for count in utils.iterate_timeout(
-                timeout,
-                "Timeout waiting for server {0} to "
-                "rebuild.".format(server_id),
-                wait=self._SERVER_AGE):
-            try:
-                server = self.get_server(server_id, bare=True)
-            except Exception:
-                continue
-            if not server:
-                continue
-
-            if server['status'] == 'ERROR':
-                raise exc.OpenStackCloudException(
-                    "Error in rebuilding the server",
-                    extra_data=dict(server=server))
-
-            if server['status'] == 'ACTIVE':
-                server.adminPass = admin_pass
-                break
+        server = self.compute.wait_for_server(
+            server, wait=timeout)
+        if server['status'] == 'ACTIVE':
+            server.adminPass = admin_pass
 
         return self._expand_server(server, detailed=detailed, bare=bare)
 

@@ -729,19 +729,35 @@ class TestCompute(TestComputeProxy):
         self._verify(
             'openstack.compute.v2.server.Server.rebuild',
             self.proxy.rebuild_server,
-            method_args=["value", "test_server", "test_pass"],
-            method_kwargs={"metadata": {"k1": "v1"}, "image": image_obj},
-            expected_args=[self.proxy, "test_server", "test_pass"],
-            expected_kwargs={"metadata": {"k1": "v1"}, "image": image_obj})
+            method_args=["value"],
+            method_kwargs={
+                "name": "test_server",
+                "admin_password": "test_pass",
+                "metadata": {"k1": "v1"},
+                "image": image_obj},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "name": "test_server",
+                "admin_password": "test_pass",
+                "metadata": {"k1": "v1"},
+                "image": image_obj})
 
         # Case2: image name or id is provided
         self._verify(
             'openstack.compute.v2.server.Server.rebuild',
             self.proxy.rebuild_server,
-            method_args=["value", "test_server", "test_pass"],
-            method_kwargs={"metadata": {"k1": "v1"}, "image": id},
-            expected_args=[self.proxy, "test_server", "test_pass"],
-            expected_kwargs={"metadata": {"k1": "v1"}, "image": id})
+            method_args=["value"],
+            method_kwargs={
+                "name": "test_server",
+                "admin_password": "test_pass",
+                "metadata": {"k1": "v1"},
+                "image": id},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "name": "test_server",
+                "admin_password": "test_pass",
+                "metadata": {"k1": "v1"},
+                "image": id})
 
     def test_add_fixed_ip_to_server(self):
         self._verify(

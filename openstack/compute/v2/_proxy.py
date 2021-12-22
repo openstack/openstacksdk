@@ -754,7 +754,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.reboot(self, reboot_type)
 
-    def rebuild_server(self, server, name, admin_password, **attrs):
+    def rebuild_server(self, server, image, **attrs):
         """Rebuild a server
 
         :param server: Either the ID of a server or a
@@ -780,7 +780,7 @@ class Proxy(proxy.Proxy):
             instance.
         """
         server = self._get_resource(_server.Server, server)
-        return server.rebuild(self, name, admin_password, **attrs)
+        return server.rebuild(self, image=image, **attrs)
 
     def resize_server(self, server, flavor):
         """Resize a server

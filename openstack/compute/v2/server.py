@@ -293,16 +293,16 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {'forceDelete': None}
         self._action(session, body)
 
-    def rebuild(self, session, name=None, admin_password=None,
-                preserve_ephemeral=False, image=None,
+    def rebuild(self, session, image, name=None, admin_password=None,
+                preserve_ephemeral=None,
                 access_ipv4=None, access_ipv6=None,
                 metadata=None, user_data=None):
         """Rebuild the server with the given arguments."""
         action = {
-            'preserve_ephemeral': preserve_ephemeral
+            'imageRef': resource.Resource._get_id(image)
         }
-        if image is not None:
-            action['imageRef'] = resource.Resource._get_id(image)
+        if preserve_ephemeral is not None:
+            action['preserve_ephemeral'] = preserve_ephemeral
         if name is not None:
             action['name'] = name
         if admin_password is not None:
