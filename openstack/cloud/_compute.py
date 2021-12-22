@@ -1269,18 +1269,14 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        server = self.get_server(name_or_id=name_or_id, bare=True)
-        if server is None:
-            raise exc.OpenStackCloudException(
-                "failed to find server '{server}'".format(server=name_or_id))
+        server = self.compute.find_server(
+            name_or_id,
+            ignore_missing=False
+        )
 
-        data = proxy._json_response(
-            self.compute.put(
-                '/servers/{server_id}'.format(server_id=server['id']),
-                json={'server': kwargs}),
-            error_message="Error updating server {0}".format(name_or_id))
-        server = self._normalize_server(
-            self._get_and_munchify('server', data))
+        server = self.compute.update_server(
+            server, **kwargs)
+
         return self._expand_server(server, bare=bare, detailed=detailed)
 
     def create_server_group(self, name, policies=[], policy=None):
