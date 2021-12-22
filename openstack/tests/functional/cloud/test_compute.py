@@ -76,7 +76,7 @@ class TestCompute(base.BaseFunctionalTest):
             wait=True)
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
-        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(self.flavor.name, server['flavor']['original_name'])
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
@@ -92,7 +92,7 @@ class TestCompute(base.BaseFunctionalTest):
             wait=True)
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
-        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(self.flavor.name, server['flavor']['original_name'])
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
             self.user_cloud.delete_server(
@@ -123,7 +123,7 @@ class TestCompute(base.BaseFunctionalTest):
             wait=True)
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
-        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(self.flavor.name, server['flavor']['original_name'])
         self.assertTrue(server['has_config_drive'])
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
@@ -143,7 +143,7 @@ class TestCompute(base.BaseFunctionalTest):
             wait=True)
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
-        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(self.flavor.name, server['flavor']['original_name'])
         self.assertFalse(server['has_config_drive'])
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
@@ -182,7 +182,7 @@ class TestCompute(base.BaseFunctionalTest):
             wait=True)
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
-        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(self.flavor.name, server['flavor']['original_name'])
         self.assertIsNotNone(server['adminPass'])
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))
@@ -231,7 +231,7 @@ class TestCompute(base.BaseFunctionalTest):
             wait=True)
         self.assertEqual(self.server_name, server['name'])
         self.assertEqual(self.image.id, server['image']['id'])
-        self.assertEqual(self.flavor.id, server['flavor']['id'])
+        self.assertEqual(self.flavor.name, server['flavor']['original_name'])
         self.assertEqual(server['adminPass'], 'sheiqu9loegahSh')
         self.assertTrue(
             self.user_cloud.delete_server(self.server_name, wait=True))

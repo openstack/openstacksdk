@@ -15,6 +15,7 @@
 from unittest import mock
 
 from openstack.cloud import meta
+from openstack.compute.v2 import server as _server
 from openstack import connection
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -424,7 +425,8 @@ class TestMeta(base.TestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fake_server)
+        srv = self.cloud.get_openstack_vars(
+            _server.Server(**fake_server))
 
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
@@ -482,7 +484,8 @@ class TestMeta(base.TestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fake_server)
+        srv = self.cloud.get_openstack_vars(
+            _server.Server(**fake_server))
 
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
@@ -539,7 +542,8 @@ class TestMeta(base.TestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fake_server)
+        srv = self.cloud.get_openstack_vars(
+            _server.Server(**fake_server))
 
         self.assertEqual(PRIVATE_V4, srv['private_v4'])
         self.assert_calls()
@@ -617,7 +621,8 @@ class TestMeta(base.TestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fake_server)
+        srv = self.cloud.get_openstack_vars(
+            _server.Server(**fake_server))
 
         self.assertEqual(PUBLIC_V4, srv['public_v4'])
         self.assert_calls()
@@ -669,7 +674,8 @@ class TestMeta(base.TestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fake_server)
+        srv = self.cloud.get_openstack_vars(
+            _server.Server(**fake_server))
 
         self.assertEqual("10.223.160.141", srv['private_v4'])
         self.assertEqual("104.130.246.91", srv['public_v4'])
@@ -736,7 +742,8 @@ class TestMeta(base.TestCase):
                  json={'security_groups': []})
         ])
 
-        srv = self.cloud.get_openstack_vars(fake_server)
+        srv = self.cloud.get_openstack_vars(
+            _server.Server(**fake_server))
 
         self.assertEqual("10.223.160.141", srv['private_v4'])
         self.assertEqual("104.130.246.91", srv['public_v4'])

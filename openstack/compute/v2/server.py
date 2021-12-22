@@ -11,6 +11,7 @@
 # under the License.
 from openstack.common import metadata
 from openstack.common import tag
+from openstack.compute.v2 import volume_attachment
 from openstack import exceptions
 from openstack.image.v2 import image
 from openstack import resource
@@ -82,7 +83,11 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: A list of an attached volumes. Each item in the list contains at least
     #: an "id" key to identify the specific volumes.
     attached_volumes = resource.Body(
-        'os-extended-volumes:volumes_attached')
+        'os-extended-volumes:volumes_attached',
+        aka='volumes',
+        type=list,
+        list_type=volume_attachment.VolumeAttachment,
+        default=[])
     #: The name of the availability zone this server is a part of.
     availability_zone = resource.Body('OS-EXT-AZ:availability_zone')
     #: Enables fine grained control of the block device mapping for an
@@ -128,6 +133,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: instance name template. Appears in the response for administrative users
     #: only.
     instance_name = resource.Body('OS-EXT-SRV-ATTR:instance_name')
+    #: The address to use to connect to this server from the current calling
+    #: context. This will be set to public_ipv6 if the calling host has
+    #: routable ipv6 addresses, and to private_ipv4 if the Connection was
+    #: created with private=True. Otherwise it will be set to public_ipv4.
+    interface_ip = resource.Computed('interface_ip', default='')
+
     # The locked status of the server
     is_locked = resource.Body('locked', type=bool)
     #: The UUID of the kernel image when using an AMI. Will be null if not.
@@ -157,6 +168,17 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     progress = resource.Body('progress', type=int)
     #: The ID of the project this server is associated with.
     project_id = resource.Body('tenant_id')
+
+    #: The private IPv4 address of this server
+    private_v4 = resource.Computed('private_v4', default='')
+    #: The private IPv6 address of this server
+    private_v6 = resource.Computed('private_v6', default='')
+
+    #: The public IPv4 address of this server
+    public_v4 = resource.Computed('public_v4', default='')
+    #: The public IPv6 address of this server
+    public_v6 = resource.Computed('public_v6', default='')
+
     #: The UUID of the ramdisk image when using an AMI. Will be null if not.
     #: By default, it appears in the response for administrative users only.
     ramdisk_id = resource.Body('OS-EXT-SRV-ATTR:ramdisk_id')
