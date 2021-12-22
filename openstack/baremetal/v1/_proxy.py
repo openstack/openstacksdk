@@ -408,6 +408,27 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_boot_device(self, boot_device, persistent=persistent)
 
+    def set_node_boot_mode(self, node, target):
+        """Make a request to change node's boot mode
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param target: Boot mode to set for node, one of either 'uefi'/'bios'.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_boot_mode(self, target)
+
+    def set_node_secure_boot(self, node, target):
+        """Make a request to change node's secure boot state
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :param target: Boolean indicating secure boot state to set.
+            True/False corresponding to 'on'/'off' respectively.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_secure_boot(self, target)
+
     def wait_for_nodes_provision_state(self, nodes, expected_state,
                                        timeout=None,
                                        abort_on_failed_state=True,

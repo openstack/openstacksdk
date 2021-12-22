@@ -448,7 +448,7 @@
 - project:
     templates:
       - check-requirements
-      - openstack-python3-xena-jobs
+      - openstack-python3-yoga-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
       - os-client-config-tox-tips

@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    hw_qemu_guest_agent attribute of the image is a string boolean with values
+    `yes` and `no`.

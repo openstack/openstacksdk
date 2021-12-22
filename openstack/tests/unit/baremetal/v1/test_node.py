@@ -23,6 +23,7 @@ from openstack import utils
 
 # NOTE: Sample data from api-ref doc
 FAKE = {
+    "boot_mode": "uefi",
     "chassis_uuid": "1",  # NOTE: missed in api-ref sample
     "clean_step": {},
     "console_enabled": False,
@@ -81,6 +82,7 @@ FAKE = {
     "raid_config": {},
     "reservation": None,
     "resource_class": None,
+    "secure_boot": True,
     "states": [
         {
             "href": "http://127.0.0.1:6385/v1/nodes/<NODE_ID>/states",
@@ -119,6 +121,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['uuid'], sot.id)
         self.assertEqual(FAKE['name'], sot.name)
 
+        self.assertEqual(FAKE['boot_mode'], sot.boot_mode)
         self.assertEqual(FAKE['chassis_uuid'], sot.chassis_id)
         self.assertEqual(FAKE['clean_step'], sot.clean_step)
         self.assertEqual(FAKE['created_at'], sot.created_at)
@@ -145,6 +148,7 @@ class TestNode(base.TestCase):
         self.assertEqual(FAKE['raid_config'], sot.raid_config)
         self.assertEqual(FAKE['reservation'], sot.reservation)
         self.assertEqual(FAKE['resource_class'], sot.resource_class)
+        self.assertEqual(FAKE['secure_boot'], sot.is_secure_boot)
         self.assertEqual(FAKE['states'], sot.states)
         self.assertEqual(FAKE['target_provision_state'],
                          sot.target_provision_state)
@@ -763,6 +767,54 @@ class TestNodeSetBootDevice(base.TestCase):
 @mock.patch.object(utils, 'pick_microversion', lambda session, v: v)
 @mock.patch.object(node.Node, 'fetch', lambda self, session: self)
 @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+class TestNodeSetBootMode(base.TestCase):
+
+    def setUp(self):
+        super(TestNodeSetBootMode, self).setUp()
+        self.node = node.Node(**FAKE)
+        self.session = mock.Mock(spec=adapter.Adapter,
+                                 default_microversion='1.1')
+
+    def test_node_set_boot_mode(self):
+        self.node.set_boot_mode(self.session, 'uefi')
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/boot_mode' % self.node.id,
+            json={'target': 'uefi'},
+            headers=mock.ANY, microversion=mock.ANY,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+    def test_node_set_boot_mode_invalid_mode(self):
+        self.assertRaises(ValueError,
+                          self.node.set_boot_mode, self.session, 'invalid-efi')
+
+
+@mock.patch.object(utils, 'pick_microversion', lambda session, v: v)
+@mock.patch.object(node.Node, 'fetch', lambda self, session: self)
+@mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+class TestNodeSetSecureBoot(base.TestCase):
+
+    def setUp(self):
+        super(TestNodeSetSecureBoot, self).setUp()
+        self.node = node.Node(**FAKE)
+        self.session = mock.Mock(spec=adapter.Adapter,
+                                 default_microversion='1.1')
+
+    def test_node_set_secure_boot(self):
+        self.node.set_secure_boot(self.session, True)
+        self.session.put.assert_called_once_with(
+            'nodes/%s/states/secure_boot' % self.node.id,
+            json={'target': True},
+            headers=mock.ANY, microversion=mock.ANY,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
+
+    def test_node_set_secure_boot_invalid_none(self):
+        self.assertRaises(ValueError,
+                          self.node.set_secure_boot, self.session, None)
+
+
+@mock.patch.object(utils, 'pick_microversion', lambda session, v: v)
+@mock.patch.object(node.Node, 'fetch', lambda self, session: self)
+@mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
 class TestNodeTraits(base.TestCase):
 
     def setUp(self):
@@ -781,7 +833,8 @@ class TestNodeTraits(base.TestCase):
             retriable_status_codes=_common.RETRIABLE_STATUS_CODES)
 
     def test_remove_trait(self):
-        self.node.remove_trait(self.session, 'CUSTOM_FAKE')
+        self.assertTrue(self.node.remove_trait(self.session,
+                                               'CUSTOM_FAKE'))
         self.session.delete.assert_called_once_with(
             'nodes/%s/traits/%s' % (self.node.id, 'CUSTOM_FAKE'),
             headers=mock.ANY, microversion='1.37',

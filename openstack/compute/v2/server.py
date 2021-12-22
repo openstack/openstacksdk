@@ -64,7 +64,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         **tag.TagMixin._tag_query_parameters
     )
 
-    _max_microversion = '2.72'
+    _max_microversion = '2.73'
 
     #: A list of dictionaries holding links relevant to this server.
     links = resource.Body('links')
@@ -432,8 +432,12 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"resume": None}
         self._action(session, body)
 
-    def lock(self, session):
+    def lock(self, session, locked_reason=None):
         body = {"lock": None}
+        if locked_reason is not None:
+            body["lock"] = {
+                "locked_reason": locked_reason,
+            }
         self._action(session, body)
 
     def unlock(self, session):
@@ -574,6 +578,22 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
                     " is clear you understand the risks.")
         self._action(
             session, {'os-migrateLive': body}, microversion=microversion)
+
+    def fetch_topology(self, session):
+        utils.require_microversion(session, 2.78)
+
+        url = utils.urljoin(Server.base_path, self.id, 'topology')
+
+        response = session.get(url)
+
+        exceptions.raise_from_response(response)
+
+        try:
+            data = response.json()
+            if 'topology' in data:
+                return data['topology']
+        except ValueError:
+            pass
 
     def fetch_security_groups(self, session):
         """Fetch security groups of a server.

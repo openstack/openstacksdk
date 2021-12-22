@@ -895,15 +895,17 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.resume(self)
 
-    def lock_server(self, server):
+    def lock_server(self, server, locked_reason=None):
         """Locks a server.
 
         :param server: Either the ID of a server or a
             :class:`~openstack.compute.v2.server.Server` instance.
+        :param locked_reason: The reason behind locking the server. Limited to
+            255 characters in length.
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
-        server.lock(self)
+        server.lock(self, locked_reason=locked_reason)
 
     def unlock_server(self, server):
         """Unlocks a locked server.
@@ -1010,23 +1012,6 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unshelve(self)
 
-    def create_server_interface(self, server, **attrs):
-        """Create a new server interface from attributes
-
-        :param server: The server can be either the ID of a server or a
-            :class:`~openstack.compute.v2.server.Server` instance
-            that the interface belongs to.
-        :param dict attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.compute.v2.server_interface.ServerInterface`,
-            comprised of the properties on the ServerInterface class.
-
-        :returns: The results of server interface creation
-        :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
-        """
-        server_id = resource.Resource._get_id(server)
-        return self._create(_server_interface.ServerInterface,
-                            server_id=server_id, **attrs)
-
     # ========== Server security groups ==========
 
     def fetch_server_security_groups(self, server):
@@ -1124,6 +1109,23 @@ class Proxy(proxy.Proxy):
         server.remove_floating_ip(self, address)
 
     # ========== Server Interfaces ==========
+
+    def create_server_interface(self, server, **attrs):
+        """Create a new server interface from attributes
+
+        :param server: The server can be either the ID of a server or a
+                       :class:`~openstack.compute.v2.server.Server` instance
+                       that the interface belongs to.
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.compute.v2.server_interface.ServerInterface`,
+            comprised of the properties on the ServerInterface class.
+
+        :returns: The results of server interface creation
+        :rtype: :class:`~openstack.compute.v2.server_interface.ServerInterface`
+        """
+        server_id = resource.Resource._get_id(server)
+        return self._create(_server_interface.ServerInterface,
+                            server_id=server_id, **attrs)
 
     # TODO(stephenfin): Does this work? There's no 'value' parameter for the
     # call to '_delete'

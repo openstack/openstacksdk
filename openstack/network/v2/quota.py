@@ -27,6 +27,8 @@ class Quota(resource.Resource):
     allow_list = True
 
     # Properties
+    #: Flag to check the quota usage before setting the new limit. *Type: bool*
+    check_limit = resource.Body('check_limit', type=bool)
     #: The maximum amount of floating IPs you can have. *Type: int*
     floating_ips = resource.Body('floatingip', type=int)
     #: The maximum amount of health monitors you can create. *Type: int*
