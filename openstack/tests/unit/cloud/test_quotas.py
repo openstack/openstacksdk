@@ -113,7 +113,7 @@ class TestQuotas(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='PUT',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['os-quota-sets', project.project_id]),
                  json=dict(quota_set={'volumes': 1}),
                  validate=dict(
@@ -130,7 +130,7 @@ class TestQuotas(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['os-quota-sets', project.project_id]),
                  json=dict(quota_set={'snapshots': 10, 'volumes': 20}))])
         self.cloud.get_volume_quotas(project.project_id)
@@ -143,7 +143,7 @@ class TestQuotas(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['os-quota-sets', project.project_id]))])
         self.cloud.delete_volume_quotas(project.project_id)
         self.assert_calls()

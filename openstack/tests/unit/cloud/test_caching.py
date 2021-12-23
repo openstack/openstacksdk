@@ -193,11 +193,11 @@ class TestMemoryCache(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
 
         for a, b in zip([fake_volume_dict],
@@ -224,11 +224,11 @@ class TestMemoryCache(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
         for a, b in zip([fake_volume_dict],
                         self.cloud.list_volumes()):
@@ -254,40 +254,40 @@ class TestMemoryCache(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volb4]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes']),
+                     'volumev3', 'public', append=['volumes']),
                  json={'volume': fake_vol_creating}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', _id]),
+                     'volumev3', 'public', append=['volumes', _id]),
                  json={'volume': fake_vol_creating}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', _id]),
+                     'volumev3', 'public', append=['volumes', _id]),
                  json={'volume': fake_vol_avail}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volb4, fake_vol_avail]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['volumes', _id]),
                  json={'volume': fake_vol_avail}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', _id]),
+                     'volumev3', 'public', append=['volumes', _id]),
                  json=now_deleting),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', _id]),
+                     'volumev3', 'public', append=['volumes', _id]),
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volb4, fake_vol_avail]}),
         ])
 

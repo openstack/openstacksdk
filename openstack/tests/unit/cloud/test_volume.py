@@ -106,11 +106,11 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', vol['id']]),
+                     'volumev3', 'public', append=['volumes', vol['id']]),
                  json={'volume': volume}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', vol['id']]),
+                     'volumev3', 'public', append=['volumes', vol['id']]),
                  json={'volume': attached_volume})
         ])
         # defaults to wait=True
@@ -141,11 +141,11 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume['id']]),
+                     'volumev3', 'public', append=['volumes', volume['id']]),
                  json={'volume': errored_volume}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume['id']]),
+                     'volumev3', 'public', append=['volumes', volume['id']]),
                  json={'volume': errored_volume})
         ])
 
@@ -238,7 +238,7 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [avail_volume]})])
         self.cloud.detach_volume(server, volume)
         self.assert_calls()
@@ -262,11 +262,11 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [errored_volume]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['volumes', errored_volume['id']]),
                  json={'volume': errored_volume})
         ])
@@ -284,14 +284,14 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume.id]),
+                     'volumev3', 'public', append=['volumes', volume.id]),
                  json={'volumes': [volume]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume.id])),
+                     'volumev3', 'public', append=['volumes', volume.id])),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume.id]),
+                     'volumev3', 'public', append=['volumes', volume.id]),
                  status_code=404)])
         self.assertTrue(self.cloud.delete_volume(volume['id']))
         self.assert_calls()
@@ -304,15 +304,15 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume.id]),
+                     'volumev3', 'public', append=['volumes', volume.id]),
                  json=volume),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume.id]),
+                     'volumev3', 'public', append=['volumes', volume.id]),
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume.id]),
+                     'volumev3', 'public', append=['volumes', volume.id]),
                  status_code=404),
         ])
         self.assertTrue(self.cloud.delete_volume(volume['id']))
@@ -326,17 +326,17 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume['id']]),
+                     'volumev3', 'public', append=['volumes', volume['id']]),
                  json={'volumes': [volume]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['volumes', volume.id, 'action']),
                  validate=dict(
                      json={'os-force_delete': {}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', volume['id']]),
+                     'volumev3', 'public', append=['volumes', volume['id']]),
                  status_code=404)])
         self.assertTrue(self.cloud.delete_volume(volume['id'], force=True))
         self.assert_calls()
@@ -349,11 +349,11 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [volume]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['volumes', volume.id, 'action']),
                  json={'os-set_bootable': {'bootable': True}}),
         ])
@@ -368,11 +368,11 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [volume]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['volumes', volume.id, 'action']),
                  json={'os-set_bootable': {'bootable': False}}),
         ])
@@ -385,7 +385,7 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['volumes', '01']),
                  json={'volume': vol1}
                  )
@@ -399,7 +399,7 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes']),
+                     'volumev3', 'public', append=['volumes']),
                  json={'volume': vol1},
                  validate=dict(json={
                      'volume': {
@@ -417,7 +417,7 @@ class TestVolume(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes']),
+                     'volumev3', 'public', append=['volumes']),
                  json={'volume': vol1},
                  validate=dict(json={
                      'volume': {
@@ -426,7 +426,7 @@ class TestVolume(base.TestCase):
                      }})),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['volumes', '01', 'action']),
                  validate=dict(
                      json={'os-set_bootable': {'bootable': True}})),

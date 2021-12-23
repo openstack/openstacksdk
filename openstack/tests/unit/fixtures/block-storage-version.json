@@ -10,19 +10,19 @@
           "rel": "describedby"
         },
         {
-          "href": "https://volume.example.com/v2/",
+          "href": "https://volume.example.com/v3/",
           "rel": "self"
         }
       ],
-      "min_version": "",
-      "version": "",
+      "min_version": "3.0",
+      "version": "3.0",
       "media-types": [
         {
           "base": "application/json",
-          "type": "application/vnd.openstack.volume+json;version=2"
+          "type": "application/vnd.openstack.volume+json;version=3"
         }
       ],
-      "id": "v2.0"
+      "id": "v3.0"
     }
   ]
 }

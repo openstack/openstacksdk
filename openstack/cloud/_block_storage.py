@@ -364,15 +364,9 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
         description = kwargs.pop('description',
                                  kwargs.pop('display_description', None))
         if name:
-            if self.block_storage._version_matches(2):
-                kwargs['name'] = name
-            else:
-                kwargs['display_name'] = name
+            kwargs['name'] = name
         if description:
-            if self.block_storage._version_matches(2):
-                kwargs['description'] = description
-            else:
-                kwargs['display_description'] = description
+            kwargs['description'] = description
         return kwargs
 
     @_utils.valid_kwargs('name', 'display_name',

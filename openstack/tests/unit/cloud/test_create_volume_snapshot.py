@@ -17,7 +17,7 @@ test_create_volume_snapshot
 Tests for the `create_volume_snapshot` command.
 """
 
-from openstack.block_storage.v2 import snapshot
+from openstack.block_storage.v3 import snapshot
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.tests import fakes
@@ -52,16 +52,16 @@ class TestCreateVolumeSnapshot(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['snapshots']),
+                     'volumev3', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
                  validate=dict(json={
                      'snapshot': {'volume_id': '1234'}})),
             dict(method='GET',
-                 uri=self.get_mock_url('volumev2', 'public',
+                 uri=self.get_mock_url('volumev3', 'public',
                                        append=['snapshots', snapshot_id]),
                  json={'snapshot': build_snapshot_dict}),
             dict(method='GET',
-                 uri=self.get_mock_url('volumev2', 'public',
+                 uri=self.get_mock_url('volumev3', 'public',
                                        append=['snapshots', snapshot_id]),
                  json={'snapshot': fake_snapshot_dict})])
 
@@ -84,12 +84,12 @@ class TestCreateVolumeSnapshot(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['snapshots']),
+                     'volumev3', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
                  validate=dict(json={
                      'snapshot': {'volume_id': '1234'}})),
             dict(method='GET',
-                 uri=self.get_mock_url('volumev2', 'public',
+                 uri=self.get_mock_url('volumev3', 'public',
                                        append=['snapshots', snapshot_id]),
                  json={'snapshot': build_snapshot_dict})])
 
@@ -116,16 +116,16 @@ class TestCreateVolumeSnapshot(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['snapshots']),
+                     'volumev3', 'public', append=['snapshots']),
                  json={'snapshot': build_snapshot_dict},
                  validate=dict(json={
                      'snapshot': {'volume_id': '1234'}})),
             dict(method='GET',
-                 uri=self.get_mock_url('volumev2', 'public',
+                 uri=self.get_mock_url('volumev3', 'public',
                                        append=['snapshots', snapshot_id]),
                  json={'snapshot': build_snapshot_dict}),
             dict(method='GET',
-                 uri=self.get_mock_url('volumev2', 'public',
+                 uri=self.get_mock_url('volumev3', 'public',
                                        append=['snapshots', snapshot_id]),
                  json={'snapshot': error_snapshot_dict})])
 
