@@ -39,7 +39,7 @@ class Proxy(proxy.Proxy):
         """Get a single notification.
 
         :param notification: The value can be the ID of a notification or a
-            :class: `~masakariclient.sdk.ha.v1.notification.Notification`
+            :class:`~masakariclient.sdk.ha.v1.notification.Notification`
             instance.
         :returns: One
             :class:`~masakariclient.sdk.ha.v1.notification.Notification`
@@ -55,7 +55,7 @@ class Proxy(proxy.Proxy):
             a :class:`masakariclient.sdk.ha.v1.notification.Notification`,
             comprised of the propoerties on the Notification class.
         :returns: The result of notification creation
-        :rtype: :class: `masakariclient.sdk.ha.v1.notification.Notification`
+        :rtype: :class:`masakariclient.sdk.ha.v1.notification.Notification`
         """
         return self._create(_notification.Notification, **attrs)
 
@@ -72,7 +72,7 @@ class Proxy(proxy.Proxy):
         """Get a single segment.
 
         :param segment: The value can be the ID of a segment or a
-            :class: `~masakariclient.sdk.ha.v1.segment.Segment` instance.
+            :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
         :returns: One :class:`~masakariclient.sdk.ha.v1.segment.Segment`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
@@ -83,10 +83,10 @@ class Proxy(proxy.Proxy):
         """Create a new segment.
 
         :param dict attrs: Keyword arguments which will be used to create
-            a :class: `masakariclient.sdk.ha.v1.segment.Segment`,
+            a :class:`masakariclient.sdk.ha.v1.segment.Segment`,
             comprised of the propoerties on the Segment class.
         :returns: The result of segment creation
-        :rtype: :class: `masakariclient.sdk.ha.v1.segment.Segment`
+        :rtype: :class:`masakariclient.sdk.ha.v1.segment.Segment`
         """
         return self._create(_segment.Segment, **attrs)
 
@@ -94,12 +94,12 @@ class Proxy(proxy.Proxy):
         """Update a segment.
 
         :param segment: The value can be the ID of a segment or a
-            :class: `~masakariclient.sdk.ha.v1.segment.Segment` instance.
+            :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
         :param dict attrs: Keyword arguments which will be used to update
-            a :class: `masakariclient.sdk.ha.v1.segment.Segment`,
+            a :class:`masakariclient.sdk.ha.v1.segment.Segment`,
             comprised of the propoerties on the Segment class.
         :returns: The updated segment.
-        :rtype: :class: `masakariclient.sdk.ha.v1.segment.Segment`
+        :rtype: :class:`masakariclient.sdk.ha.v1.segment.Segment`
         """
         return self._update(_segment.Segment, segment, **attrs)
 
@@ -135,7 +135,7 @@ class Proxy(proxy.Proxy):
 
         :param segment_id: The ID of a failover segment.
         :param dict attrs: Keyword arguments which will be used to create
-            a :class: `masakariclient.sdk.ha.v1.host.Host`,
+            a :class:`masakariclient.sdk.ha.v1.host.Host`,
             comprised of the propoerties on the Host class.
 
         :returns: The results of host creation
