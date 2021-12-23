@@ -229,8 +229,8 @@ class Proxy(proxy.Proxy):
 
         :param message_id: The ID of the user message
         :returns: Result of the "delete" on the user message
-        :rtype: :class:`~openstack.shared_file_system.v2.
-            user_message.UserMessage`
+        :rtype:
+            :class:`~openstack.shared_file_system.v2.user_message.UserMessage`
         """
         return self._delete(
             _user_message.UserMessage, message_id,
