@@ -1079,6 +1079,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         res = self._get_resource(
             _quota_set.QuotaSet, None, project_id=project.id)
 
+        if not query:
+            query = {}
         return res.delete(self, **query)
 
     def update_quota_set(self, quota_set, query=None, **attrs):
@@ -1094,6 +1096,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
         """
         res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
+        if not query:
+            query = {}
         return res.commit(self, **query)
 
     def _get_cleanup_dependencies(self):

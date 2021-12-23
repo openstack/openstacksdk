@@ -15,6 +15,7 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
+from openstack.block_storage.v3 import quota_set as _qs
 from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
@@ -649,17 +650,12 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             quota does not exist.
         """
 
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
 
-        kwargs['tenant_id'] = proj.id
-        resp = self.block_storage.put(
-            '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id),
-            json={'quota_set': kwargs})
-        proxy._json_response(
-            resp,
-            error_message="No valid quota or resource")
+        self.block_storage.update_quota_set(
+            _qs.QuotaSet(project_id=proj.id),
+            **kwargs)
 
     def get_volume_quotas(self, name_or_id):
         """ Get volume quotas for a project
@@ -669,16 +665,11 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
 
         :returns: Munch object with the quotas
         """
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
 
-        resp = self.block_storage.get(
-            '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id))
-        data = proxy._json_response(
-            resp,
-            error_message="cinder client call failed")
-        return self._get_and_munchify('quota_set', data)
+        return self.block_storage.get_quota_set(
+            proj)
 
     def delete_volume_quotas(self, name_or_id):
         """ Delete volume quotas for a project
@@ -689,12 +680,8 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
 
         :returns: dict with the quotas
         """
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
 
-        resp = self.block_storage.delete(
-            '/os-quota-sets/{tenant_id}'.format(tenant_id=proj.id))
-        return proxy._json_response(
-            resp,
-            error_message="cinder client call failed")
+        return self.block_storage.revert_quota_set(
+            proj)
