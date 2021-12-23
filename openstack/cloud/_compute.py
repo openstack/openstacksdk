@@ -736,7 +736,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
             raise TypeError(
                 "create_server() requires either 'image' or 'boot_volume'")
 
-        microversion = None
         server_json = {'server': kwargs}
 
         # TODO(mordred) Add support for description starting in 2.19
@@ -836,7 +835,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
             # A tag supported only in server microversion 2.32-2.36 or >= 2.42
             # Bumping the version to 2.42 to support the 'tag' implementation
             if 'tag' in nic:
-                microversion = utils.pick_microversion(self.compute, '2.42')
+                utils.require_microversion(
+                    self.compute, '2.42')
                 net['tag'] = nic.pop('tag')
             if nic:
                 raise exc.OpenStackCloudException(
@@ -845,6 +845,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
             networks.append(net)
         if networks:
             kwargs['networks'] = networks
+        else:
+            # If user has not passed networks - let Nova try the best.
+            kwargs['networks'] = 'auto'
 
         if image:
             if isinstance(image, dict):
@@ -870,32 +873,27 @@ class ComputeCloudMixin(_normalize.Normalizer):
             volumes=volumes, kwargs=kwargs)
 
         kwargs['name'] = name
-        endpoint = '/servers'
+
+        server = self.compute.create_server(**kwargs)
         # TODO(mordred) We're only testing this in functional tests. We need
         # to add unit tests for this too.
-        if 'block_device_mapping_v2' in kwargs:
-            endpoint = '/os-volumes_boot'
-        with _utils.shade_exceptions("Error in creating instance"):
-            data = proxy._json_response(
-                self.compute.post(endpoint, json=server_json,
-                                  microversion=microversion))
-            server = self._get_and_munchify('server', data)
-            admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
-            if not wait:
-                # This is a direct get call to skip the list_servers
-                # cache which has absolutely no chance of containing the
-                # new server.
-                # Only do this if we're not going to wait for the server
-                # to complete booting, because the only reason we do it
-                # is to get a server record that is the return value from
-                # get/list rather than the return value of create. If we're
-                # going to do the wait loop below, this is a waste of a call
-                server = self.get_server_by_id(server.id)
-                if server.status == 'ERROR':
-                    raise exc.OpenStackCloudCreateException(
-                        resource='server', resource_id=server.id)
+        admin_pass = server.admin_password or kwargs.get('admin_pass')
+        if not wait:
+            # This is a direct get call to skip the list_servers
+            # cache which has absolutely no chance of containing the
+            # new server.
+            # Only do this if we're not going to wait for the server
+            # to complete booting, because the only reason we do it
+            # is to get a server record that is the return value from
+            # get/list rather than the return value of create. If we're
+            # going to do the wait loop below, this is a waste of a call
+            server = self.compute.get_server(server.id)
+            if server.status == 'ERROR':
+                raise exc.OpenStackCloudCreateException(
+                    resource='server', resource_id=server.id)
+            server = meta.add_server_interfaces(self, server)
 
-        if wait:
+        else:
             server = self.wait_for_server(
                 server,
                 auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
