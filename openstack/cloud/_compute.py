@@ -27,6 +27,7 @@ from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack.compute.v2 import quota_set as _qs
 from openstack.compute.v2 import server as _server
 from openstack import exceptions
 from openstack import proxy
@@ -1593,25 +1594,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException if the resource to set the
             quota does not exist.
         """
-
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
-
-        # compute_quotas = {key: val for key, val in kwargs.items()
-        #                  if key in quota.COMPUTE_QUOTAS}
-        # TODO(ghe): Manage volume and network quotas
-        # network_quotas = {key: val for key, val in kwargs.items()
-        #                  if key in quota.NETWORK_QUOTAS}
-        # volume_quotas = {key: val for key, val in kwargs.items()
-        #                 if key in quota.VOLUME_QUOTAS}
-
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
         kwargs['force'] = True
-        proxy._json_response(
-            self.compute.put(
-                '/os-quota-sets/{project}'.format(project=proj.id),
-                json={'quota_set': kwargs}),
-            error_message="No valid quota or resource")
+        self.compute.update_quota_set(
+            _qs.QuotaSet(project_id=proj.id),
+            **kwargs
+        )
 
     def get_compute_quotas(self, name_or_id):
         """ Get quota for a project
@@ -1621,13 +1610,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :returns: Munch object with the quotas
         """
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
-        data = proxy._json_response(
-            self.compute.get(
-                '/os-quota-sets/{project}'.format(project=proj.id)))
-        return self._get_and_munchify('quota_set', data)
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
+        return self.compute.get_quota_set(proj)
 
     def delete_compute_quotas(self, name_or_id):
         """ Delete quota for a project
@@ -1638,12 +1623,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :returns: dict with the quotas
         """
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
-        return proxy._json_response(
-            self.compute.delete(
-                '/os-quota-sets/{project}'.format(project=proj.id)))
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
+        return self.compute.revert_quota_set(proj)
 
     def get_compute_usage(self, name_or_id, start=None, end=None):
         """ Get usage for a specific project

@@ -1954,6 +1954,8 @@ class Proxy(proxy.Proxy):
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
             _quota_set.QuotaSet, None, project_id=project.id)
+        if not query:
+            query = {}
         return res.fetch(
             self, usage=usage, **query)
 
@@ -1988,6 +1990,8 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(
             _quota_set.QuotaSet, None, project_id=project.id)
 
+        if not query:
+            query = {}
         return res.delete(self, **query)
 
     def update_quota_set(self, quota_set, query=None, **attrs):
@@ -2003,6 +2007,8 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.compute.v2.quota_set.QuotaSet`
         """
         res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
+        if not query:
+            query = {}
         return res.commit(self, **query)
 
     # ========== Utilities ==========
