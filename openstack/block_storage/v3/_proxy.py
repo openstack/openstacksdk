@@ -871,8 +871,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """Return a generator of availability zones
 
         :returns: A generator of availability zone
-        :rtype: :class:`~openstack.block_storage.v3.availability_zone.\
-            AvailabilityZone`
+        :rtype:
+            :class:`~openstack.block_storage.v3.availability_zone.AvailabilityZone`
         """
 
         return self._list(availability_zone.AvailabilityZone)
@@ -899,10 +899,10 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the group type does not exist.
 
-        :returns: One :class:`~openstack.block_storage.v3.group_type
-            .GroupType'
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-            when no resource can be found.
+        :returns: One
+            :class:`~openstack.block_storage.v3.group_type.GroupType`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
         """
         return self._find(
             _group_type.GroupType, name_or_id, ignore_missing=ignore_missing)
@@ -933,11 +933,11 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """Create a group type
 
         :param dict attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.block_storage.v3.group_type.GroupType'
+            a :class:`~openstack.block_storage.v3.group_type.GroupType`
             comprised of the properties on the GroupType class.
 
         :returns: The results of group type creation.
-        :rtype: :class:`~openstack.block_storage.v3.group_type.GroupTye'.
+        :rtype: :class:`~openstack.block_storage.v3.group_type.GroupTye`.
         """
         return self._create(_group_type.GroupType, **attrs)
 
