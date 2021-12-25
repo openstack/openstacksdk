@@ -1395,7 +1395,7 @@ class TestImageVolume(BaseTestImage):
             self.get_cinder_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', append=['volumes', self.volume_id, 'action']),
+                     'volumev3', append=['volumes', self.volume_id, 'action']),
                  json={'os-volume_upload_image': {'image_id': self.image_id}},
                  validate=dict(json={
                      u'os-volume_upload_image': {
@@ -1427,7 +1427,7 @@ class TestImageVolume(BaseTestImage):
             self.get_cinder_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', append=['volumes', self.volume_id, 'action']),
+                     'volumev3', append=['volumes', self.volume_id, 'action']),
                  json={'os-volume_upload_image': {'image_id': self.image_id}},
                  validate=dict(json={
                      u'os-volume_upload_image': {

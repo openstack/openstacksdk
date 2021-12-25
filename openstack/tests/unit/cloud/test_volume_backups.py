@@ -9,7 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from openstack.block_storage.v2 import backup
+from openstack.block_storage.v3 import backup
 from openstack.tests.unit import base
 
 
@@ -31,7 +31,7 @@ class TestVolumeBackups(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['backups', 'detail']),
+                     'volumev3', 'public', append=['backups', 'detail']),
                  json={"backups": [vol1, vol2, vol3]})])
         result = self.cloud.search_volume_backups(
             name, {'availability_zone': 'az1'})
@@ -48,7 +48,7 @@ class TestVolumeBackups(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['backups', 'detail']),
+                     'volumev3', 'public', append=['backups', 'detail']),
                  json={"backups": [vol1, vol2, vol3]})])
         result = self.cloud.get_volume_backup(
             name, {'availability_zone': 'az1'})
@@ -62,7 +62,7 @@ class TestVolumeBackups(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['backups', 'detail'],
+                     'volumev3', 'public', append=['backups', 'detail'],
                      qs_elements=['='.join(i) for i in search_opts.items()]),
                  json={"backups": [backup]})])
         result = self.cloud.list_volume_backups(True, search_opts)
@@ -77,21 +77,21 @@ class TestVolumeBackups(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups', 'detail']),
                  json={"backups": [backup]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups', backup_id])),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups', backup_id]),
                  json={"backup": backup}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups', backup_id]),
                  status_code=404)])
         self.cloud.delete_volume_backup(backup_id, False, True, 1)
@@ -103,23 +103,23 @@ class TestVolumeBackups(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups', 'detail']),
                  json={"backups": [backup]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups', backup_id, 'action']),
                  json={'os-force_delete': {}},
                  validate=dict(json={u'os-force_delete': {}})),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups', backup_id]),
                  json={"backup": backup}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups', backup_id]),
                  status_code=404)
         ])
@@ -139,7 +139,7 @@ class TestVolumeBackups(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups']),
                  json={'backup': bak1},
                  validate=dict(json={
@@ -169,7 +169,7 @@ class TestVolumeBackups(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups']),
                  json={'backup': bak1},
                  validate=dict(json={
@@ -201,7 +201,7 @@ class TestVolumeBackups(base.TestCase):
         self.register_uris([
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['backups']),
                  json={'backup': bak1},
                  validate=dict(json={
