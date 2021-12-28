@@ -20,6 +20,8 @@ import uuid
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack import exceptions
+from openstack.image.v1 import image as image_v1
+from openstack.image.v2 import image
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -45,6 +47,16 @@ class BaseTestImage(base.TestCase):
         )
         self.fake_search_return = {'images': [self.fake_image_dict]}
         self.container_name = self.getUniqueString('container')
+
+    def _compare_images(self, exp, real):
+        self.assertDictEqual(
+            image.Image(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
+    def _compare_images_v1(self, exp, real):
+        self.assertDictEqual(
+            image_v1.Image(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
 
 
 class TestImage(BaseTestImage):
@@ -166,9 +178,10 @@ class TestImage(BaseTestImage):
                      base_url_append='v2'),
                  json=self.fake_image_dict)
         ])
-        self.assertDictEqual(
-            self.cloud._normalize_image(self.fake_image_dict),
-            self.cloud.get_image_by_id(self.image_id))
+        self._compare_images(
+            self.fake_image_dict,
+            self.cloud.get_image_by_id(self.image_id)
+        )
         self.assert_calls()
 
     def test_get_image_id(self, cloud=None):
@@ -216,9 +229,9 @@ class TestImage(BaseTestImage):
                      'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
-        self.assertEqual(
-            self.cloud._normalize_images([self.fake_image_dict]),
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.fake_image_dict],
+            self.cloud.list_images())]
         self.assert_calls()
 
     def test_list_images_show_all(self):
@@ -229,9 +242,9 @@ class TestImage(BaseTestImage):
                      qs_elements=['member_status=all']),
                  json=self.fake_search_return)
         ])
-        self.assertEqual(
-            self.cloud._normalize_images([self.fake_image_dict]),
-            self.cloud.list_images(show_all=True))
+        [self._compare_images(a, b) for a, b in zip(
+            [self.fake_image_dict],
+            self.cloud.list_images(show_all=True))]
         self.assert_calls()
 
     def test_list_images_show_all_deleted(self):
@@ -244,10 +257,9 @@ class TestImage(BaseTestImage):
                      qs_elements=['member_status=all']),
                  json={'images': [self.fake_image_dict, deleted_image]})
         ])
-        self.assertEqual(
-            self.cloud._normalize_images([
-                self.fake_image_dict, deleted_image]),
-            self.cloud.list_images(show_all=True))
+        [self._compare_images(a, b) for a, b in zip(
+            [self.fake_image_dict],
+            self.cloud.list_images(show_all=True))]
         self.assert_calls()
 
     def test_list_images_no_filter_deleted(self):
@@ -259,10 +271,9 @@ class TestImage(BaseTestImage):
                      'image', append=['images'], base_url_append='v2'),
                  json={'images': [self.fake_image_dict, deleted_image]})
         ])
-        self.assertEqual(
-            self.cloud._normalize_images([
-                self.fake_image_dict, deleted_image]),
-            self.cloud.list_images(filter_deleted=False))
+        [self._compare_images(a, b) for a, b in zip(
+            [self.fake_image_dict],
+            self.cloud.list_images(filter_deleted=False))]
         self.assert_calls()
 
     def test_list_images_filter_deleted(self):
@@ -274,9 +285,9 @@ class TestImage(BaseTestImage):
                      'image', append=['images'], base_url_append='v2'),
                  json={'images': [self.fake_image_dict, deleted_image]})
         ])
-        self.assertEqual(
-            self.cloud._normalize_images([self.fake_image_dict]),
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.fake_image_dict],
+            self.cloud.list_images())]
         self.assert_calls()
 
     def test_list_images_string_properties(self):
@@ -289,9 +300,10 @@ class TestImage(BaseTestImage):
                  json={'images': [image_dict]}),
         ])
         images = self.cloud.list_images()
-        self.assertEqual(
-            self.cloud._normalize_images([image_dict]),
-            images)
+        [self._compare_images(a, b) for a, b in zip(
+            [image_dict],
+            images)]
+
         self.assertEqual(
             images[0]['properties']['properties'],
             'list,of,properties')
@@ -312,10 +324,9 @@ class TestImage(BaseTestImage):
                      qs_elements=['marker={marker}'.format(marker=marker)]),
                  json=self.fake_search_return)
         ])
-        self.assertEqual(
-            self.cloud._normalize_images([
-                self.fake_image_dict, self.fake_image_dict]),
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.fake_image_dict],
+            self.cloud.list_images())]
         self.assert_calls()
 
     def test_create_image_put_v2_no_import(self):
@@ -894,7 +905,8 @@ class TestImage(BaseTestImage):
                  json={'images': [ret]}),
         ])
         self._call_create_image(self.image_name)
-        self.assertEqual(self._munch_images(ret), self.cloud.list_images())
+        [self._compare_images_v1(b, a) for a, b in zip(
+            self.cloud.list_images(), [ret])]
 
     def test_create_image_put_v1_bad_delete(self):
         self.cloud.config.config['image_api_version'] = '1'
@@ -1306,9 +1318,9 @@ class TestImageSuburl(BaseTestImage):
                      'image', append=['images'], base_url_append='v2'),
                  json=self.fake_search_return)
         ])
-        self.assertEqual(
-            self.cloud._normalize_images([self.fake_image_dict]),
-            self.cloud.list_images())
+        [self._compare_images(b, a) for a, b in zip(
+            self.cloud.list_images(),
+            [self.fake_image_dict])]
         self.assert_calls()
 
     def test_list_images_paginated(self):
@@ -1326,10 +1338,9 @@ class TestImageSuburl(BaseTestImage):
                      qs_elements=['marker={marker}'.format(marker=marker)]),
                  json=self.fake_search_return)
         ])
-        self.assertEqual(
-            self.cloud._normalize_images([
-                self.fake_image_dict, self.fake_image_dict]),
-            self.cloud.list_images())
+        [self._compare_images(b, a) for a, b in zip(
+            self.cloud.list_images(),
+            [self.fake_image_dict, self.fake_image_dict])]
         self.assert_calls()
 
 

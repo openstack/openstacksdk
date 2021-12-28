@@ -15,7 +15,6 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import utils
@@ -29,7 +28,7 @@ def _no_pending_images(images):
     return True
 
 
-class ImageCloudMixin(_normalize.Normalizer):
+class ImageCloudMixin:
 
     def __init__(self):
         self.image_api_use_tasks = self.config.config['image_api_use_tasks']
@@ -81,7 +80,7 @@ class ImageCloudMixin(_normalize.Normalizer):
                 images.append(image)
             elif image.status.lower() != 'deleted':
                 images.append(image)
-        return self._normalize_images(images)
+        return images
 
     def get_image(self, name_or_id, filters=None):
         """Get an image by name or ID.
@@ -112,12 +111,10 @@ class ImageCloudMixin(_normalize.Normalizer):
         """ Get a image by ID
 
         :param id: ID of the image.
-        :returns: An image ``munch.Munch``.
+        :returns: An image
+            :class:`openstack.image.v2.image.Image` object.
         """
-        image = self._normalize_image(
-            self.image.get_image(image={'id': id}))
-
-        return image
+        return self.image.get_image(image={'id': id})
 
     def download_image(
             self, name_or_id, output_path=None, output_file=None,
@@ -213,10 +210,10 @@ class ImageCloudMixin(_normalize.Normalizer):
         # Task API means an image was uploaded to swift
         # TODO(gtema) does it make sense to move this into proxy?
         if self.image_api_use_tasks and (
-                self.image._IMAGE_OBJECT_KEY in image
-                or self.image._SHADE_IMAGE_OBJECT_KEY in image):
-            (container, objname) = image.get(
-                self.image._IMAGE_OBJECT_KEY, image.get(
+                self.image._IMAGE_OBJECT_KEY in image.properties
+                or self.image._SHADE_IMAGE_OBJECT_KEY in image.properties):
+            (container, objname) = image.properties.get(
+                self.image._IMAGE_OBJECT_KEY, image.properties.get(
                     self.image._SHADE_IMAGE_OBJECT_KEY)).split('/', 1)
             self.delete_object(container=container, name=objname)
 

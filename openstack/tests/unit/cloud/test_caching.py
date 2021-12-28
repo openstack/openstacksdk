@@ -24,6 +24,7 @@ from openstack.compute.v2 import flavor as _flavor
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
 from openstack.identity.v3 import user as _user
+from openstack.image.v2 import image as _image
 from openstack.network.v2 import port as _port
 from openstack.tests import fakes
 from openstack.tests.unit import base
@@ -104,11 +105,10 @@ class TestMemoryCache(base.TestCase):
         super(TestMemoryCache, self).setUp(
             cloud_config_fixture='clouds_cache.yaml')
 
-    def _image_dict(self, fake_image):
-        return self.cloud._normalize_image(meta.obj_to_munch(fake_image))
-
-    def _munch_images(self, fake_image):
-        return self.cloud._normalize_images([fake_image])
+    def _compare_images(self, exp, real):
+        self.assertDictEqual(
+            _image.Image(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
 
     def _compare_volumes(self, exp, real):
         self.assertDictEqual(
@@ -468,8 +468,9 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual([], self.cloud.list_images())
         self.assertEqual([], self.cloud.list_images())
         self.cloud.list_images.invalidate(self.cloud)
-        self.assertEqual(
-            self._munch_images(fake_image), self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [fake_image],
+            self.cloud.list_images())]
 
         self.assert_calls()
 
@@ -488,13 +489,13 @@ class TestMemoryCache(base.TestCase):
                  json=list_return),
         ])
 
-        self.assertEqual(
-            [self.cloud._normalize_image(active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [active_image],
+            self.cloud.list_images())]
 
-        self.assertEqual(
-            [self.cloud._normalize_image(active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [active_image],
+            self.cloud.list_images())]
 
         # We should only have one call
         self.assert_calls()
@@ -515,23 +516,20 @@ class TestMemoryCache(base.TestCase):
                  json={'images': [fi, fi2]}),
         ])
 
-        self.assertEqual(
-            self._munch_images(fi),
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [fi],
+            self.cloud.list_images())]
 
         # Now test that the list was cached
-        self.assertEqual(
-            self._munch_images(fi),
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [fi],
+            self.cloud.list_images())]
 
         # Invalidation too
         self.cloud.list_images.invalidate(self.cloud)
-        self.assertEqual(
-            [
-                self.cloud._normalize_image(fi),
-                self.cloud._normalize_image(fi2)
-            ],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [fi, fi2],
+            self.cloud.list_images())]
 
     def test_list_ports_filtered(self):
         down_port = test_port.TestPort.mock_neutron_port_create_rep['port']
@@ -577,6 +575,11 @@ class TestCacheIgnoresQueuedStatus(base.TestCase):
         self.steady_list_return = {
             'images': [self.active_image, self.steady_image]}
 
+    def _compare_images(self, exp, real):
+        self.assertDictEqual(
+            _image.Image(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_list_images_ignores_pending_status(self):
 
         self.register_uris([
@@ -588,17 +591,14 @@ class TestCacheIgnoresQueuedStatus(base.TestCase):
                  json=self.steady_list_return),
         ])
 
-        self.assertEqual(
-            [self.cloud._normalize_image(self.active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.active_image],
+            self.cloud.list_images())]
 
         # Should expect steady_image to appear if active wasn't cached
-        self.assertEqual(
-            [
-                self.cloud._normalize_image(self.active_image),
-                self.cloud._normalize_image(self.steady_image)
-            ],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.active_image, self.steady_image],
+            self.cloud.list_images())]
 
 
 class TestCacheSteadyStatus(base.TestCase):
@@ -617,6 +617,11 @@ class TestCacheSteadyStatus(base.TestCase):
             image_id=active_image_id, status=self.status)
         self.active_list_return = {'images': [self.active_image]}
 
+    def _compare_images(self, exp, real):
+        self.assertDictEqual(
+            _image.Image(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_list_images_caches_steady_status(self):
 
         self.register_uris([
@@ -625,13 +630,13 @@ class TestCacheSteadyStatus(base.TestCase):
                  json=self.active_list_return),
         ])
 
-        self.assertEqual(
-            [self.cloud._normalize_image(self.active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.active_image],
+            self.cloud.list_images())]
 
-        self.assertEqual(
-            [self.cloud._normalize_image(self.active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.active_image],
+            self.cloud.list_images())]
 
         # We should only have one call
         self.assert_calls()
