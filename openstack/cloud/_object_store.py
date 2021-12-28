@@ -19,7 +19,6 @@ import urllib.parse
 
 import keystoneauth1.exceptions
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
@@ -36,7 +35,7 @@ OBJECT_CONTAINER_ACLS = {
 }
 
 
-class ObjectStoreCloudMixin(_normalize.Normalizer):
+class ObjectStoreCloudMixin:
 
     @property
     def _object_store_client(self):

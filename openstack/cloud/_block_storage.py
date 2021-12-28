@@ -16,7 +16,6 @@
 import types  # noqa
 
 from openstack.block_storage.v3 import quota_set as _qs
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
@@ -31,7 +30,7 @@ def _no_pending_volumes(volumes):
     return True
 
 
-class BlockStorageCloudMixin(_normalize.Normalizer):
+class BlockStorageCloudMixin:
 
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
     def list_volumes(self, cache=True):
@@ -606,8 +605,7 @@ class BlockStorageCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "VolumeType not found: %s" % name_or_id)
 
-        return self._normalize_volume_type_accesses(
-            self.block_storage.get_type_access(volume_type))
+        return self.block_storage.get_type_access(volume_type)
 
     def add_volume_type_access(self, name_or_id, project_id):
         """Grant access on a volume_type to a project.
