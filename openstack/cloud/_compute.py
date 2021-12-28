@@ -163,7 +163,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
 
-        :returns: A list of security group ``munch.Munch``.
+        :returns: A list of security group dictionary objects.
         """
 
         # Don't even try if we're a cloud that doesn't have them
@@ -174,7 +174,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         server.fetch_security_groups(self.compute)
 
-        return self._normalize_secgroups(server.security_groups)
+        return server.security_groups
 
     def _get_server_security_groups(self, server, security_groups):
         if not self._has_secgroups():
@@ -319,17 +319,11 @@ class ComputeCloudMixin(_normalize.Normalizer):
     def _list_servers(self, detailed=False, all_projects=False, bare=False,
                       filters=None):
         filters = filters or {}
-        servers = [
-            # TODO(mordred) Add original_names=False here and update the
-            # normalize file for server. Then, just remove the normalize call
-            # and the to_munch call.
-            self._normalize_server(server._to_munch())
-            for server in self.compute.servers(
-                all_projects=all_projects, allow_unknown_params=True,
-                **filters)]
         return [
             self._expand_server(server, detailed, bare)
-            for server in servers
+            for server in self.compute.servers(
+                all_projects=all_projects, allow_unknown_params=True,
+                **filters)
         ]
 
     def list_server_groups(self):
@@ -347,7 +341,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                            if different from the current project
         :raises: OpenStackCloudException if it's not a valid project
 
-        :returns: Munch object with the limits
+        :returns: :class:`~openstack.compute.v2.limits.Limits` object.
         """
         params = {}
         project_id = None
@@ -358,8 +352,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 raise exc.OpenStackCloudException("project does not exist")
             project_id = proj.id
             params['tenant_id'] = project_id
-        limits = self.compute.get_limits(**params)
-        return self._normalize_compute_limits(limits, project_id=project_id)
+        return self.compute.get_limits(**params)
 
     def get_keypair(self, name_or_id, filters=None):
         """Get a keypair by name or ID.
@@ -1421,8 +1414,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        access = self.compute.get_flavor_access(flavor_id)
-        return _utils.normalize_flavor_accesses(access)
+        return self.compute.get_flavor_access(flavor_id)
 
     def list_hypervisors(self, filters={}):
         """List all hypervisors

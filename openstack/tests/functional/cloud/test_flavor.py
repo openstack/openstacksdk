@@ -129,7 +129,7 @@ class TestFlavor(base.BaseFunctionalTest):
         #  the demo_cloud access.
         acls = self.operator_cloud.list_flavor_access(new_flavor['id'])
         self.assertEqual(1, len(acls))
-        self.assertEqual(project['id'], acls[0]['project_id'])
+        self.assertEqual(project['id'], acls[0]['tenant_id'])
 
         # Now revoke the access and make sure we can't find it
         self.operator_cloud.remove_flavor_access(new_flavor['id'],
