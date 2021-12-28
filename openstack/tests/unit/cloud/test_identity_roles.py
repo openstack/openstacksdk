@@ -196,13 +196,18 @@ class TestIdentityRoles(base.TestCase):
         ])
         ret = self.cloud.list_role_assignments()
         self.assertThat(len(ret), matchers.Equals(2))
-        self.assertThat(ret[0].user, matchers.Equals(user_data.user_id))
-        self.assertThat(ret[0].id, matchers.Equals(role_data.role_id))
-        self.assertThat(ret[0].domain, matchers.Equals(domain_data.domain_id))
-        self.assertThat(ret[1].group, matchers.Equals(group_data.group_id))
-        self.assertThat(ret[1].id, matchers.Equals(role_data.role_id))
-        self.assertThat(ret[1].project,
-                        matchers.Equals(project_data.project_id))
+        self.assertThat(ret[0].user['id'], matchers.Equals(user_data.user_id))
+        self.assertThat(ret[0].role['id'], matchers.Equals(role_data.role_id))
+        self.assertThat(
+            ret[0].scope['domain']['id'],
+            matchers.Equals(domain_data.domain_id))
+        self.assertThat(
+            ret[1].group['id'],
+            matchers.Equals(group_data.group_id))
+        self.assertThat(ret[1].role['id'], matchers.Equals(role_data.role_id))
+        self.assertThat(
+            ret[1].scope['project']['id'],
+            matchers.Equals(project_data.project_id))
 
     def test_list_role_assignments_filters(self):
         domain_data = self._get_domain_data()
@@ -230,9 +235,11 @@ class TestIdentityRoles(base.TestCase):
                       effective=True)
         ret = self.cloud.list_role_assignments(filters=params)
         self.assertThat(len(ret), matchers.Equals(1))
-        self.assertThat(ret[0].user, matchers.Equals(user_data.user_id))
-        self.assertThat(ret[0].id, matchers.Equals(role_data.role_id))
-        self.assertThat(ret[0].domain, matchers.Equals(domain_data.domain_id))
+        self.assertThat(ret[0].user['id'], matchers.Equals(user_data.user_id))
+        self.assertThat(ret[0].role['id'], matchers.Equals(role_data.role_id))
+        self.assertThat(
+            ret[0].scope['domain']['id'],
+            matchers.Equals(domain_data.domain_id))
 
     def test_list_role_assignments_exception(self):
         self.register_uris([

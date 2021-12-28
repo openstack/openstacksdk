@@ -17,13 +17,12 @@ import types  # noqa
 
 import munch
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
 
 
-class IdentityCloudMixin(_normalize.Normalizer):
+class IdentityCloudMixin:
 
     @property
     def _identity_client(self):
@@ -790,7 +789,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         group = self.identity.create_group(**group_ref)
 
         self.list_groups.invalidate(self)
-        return _utils.normalize_groups([group])[0]
+        return group
 
     @_utils.valid_kwargs('domain_id')
     def update_group(self, name_or_id, name=None, description=None,
@@ -822,7 +821,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
         group = self.identity.update_group(group, **group_ref)
 
         self.list_groups.invalidate(self)
-        return _utils.normalize_groups([group])[0]
+        return group
 
     @_utils.valid_kwargs('domain_id')
     def delete_group(self, name_or_id, **kwargs):
@@ -955,8 +954,9 @@ class IdentityCloudMixin(_normalize.Normalizer):
             'user' and 'group' are mutually exclusive, as are 'domain' and
             'project'.
 
-        :returns: a list of ``munch.Munch`` containing the role assignment
-            description. Contains the following attributes::
+        :returns: a list of
+            :class:`openstack.identity.v3.role_assignment.RoleAssignment`
+            objects. Contains the following attributes::
 
                 - id: <role id>
                 - user|group: <user or group id>
@@ -991,9 +991,7 @@ class IdentityCloudMixin(_normalize.Normalizer):
             if k in filters:
                 filters['scope_%s_id' % k] = filters.pop(k)
 
-        assignments = self.identity.role_assignments(**filters)
-
-        return _utils.normalize_role_assignments(assignments)
+        return list(self.identity.role_assignments(**filters))
 
     @_utils.valid_kwargs('domain_id')
     def create_role(self, name, **kwargs):
