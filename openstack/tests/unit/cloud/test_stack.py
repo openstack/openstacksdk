@@ -29,6 +29,11 @@ class TestStack(base.TestCase):
         self.stack_tag = self.getUniqueString('tag')
         self.stack = fakes.make_fake_stack(self.stack_id, self.stack_name)
 
+    def _compare_stacks(self, exp, real):
+        self.assertDictEqual(
+            stack.Stack(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_list_stacks(self):
         fake_stacks = [
             self.stack,
@@ -43,10 +48,7 @@ class TestStack(base.TestCase):
                  json={"stacks": fake_stacks}),
         ])
         stacks = self.cloud.list_stacks()
-        self.assertEqual(
-            [f.toDict() for f in self.cloud._normalize_stacks(
-                stack.Stack(**st) for st in fake_stacks)],
-            [f.toDict() for f in stacks])
+        [self._compare_stacks(b, a) for a, b in zip(stacks, fake_stacks)]
 
         self.assert_calls()
 
@@ -67,10 +69,7 @@ class TestStack(base.TestCase):
                  json={"stacks": fake_stacks}),
         ])
         stacks = self.cloud.list_stacks(name='a', status='b')
-        self.assertEqual(
-            [f.toDict() for f in self.cloud._normalize_stacks(
-                stack.Stack(**st) for st in fake_stacks)],
-            [f.toDict() for f in stacks])
+        [self._compare_stacks(b, a) for a, b in zip(stacks, fake_stacks)]
 
         self.assert_calls()
 
@@ -100,10 +99,7 @@ class TestStack(base.TestCase):
                  json={"stacks": fake_stacks}),
         ])
         stacks = self.cloud.search_stacks()
-        self.assertEqual(
-            self.cloud._normalize_stacks(
-                stack.Stack(**st) for st in fake_stacks),
-            stacks)
+        [self._compare_stacks(b, a) for a, b in zip(stacks, fake_stacks)]
         self.assert_calls()
 
     def test_search_stacks_filters(self):
@@ -122,10 +118,7 @@ class TestStack(base.TestCase):
         ])
         filters = {'status': 'FAILED'}
         stacks = self.cloud.search_stacks(filters=filters)
-        self.assertEqual(
-            self.cloud._normalize_stacks(
-                stack.Stack(**st) for st in fake_stacks[1:]),
-            stacks)
+        [self._compare_stacks(b, a) for a, b in zip(stacks, fake_stacks)]
         self.assert_calls()
 
     def test_search_stacks_exception(self):
@@ -618,10 +611,9 @@ class TestStack(base.TestCase):
 
         res = self.cloud.get_stack(self.stack_name)
         self.assertIsNotNone(res)
-        self.assertEqual(self.stack['stack_name'], res['stack_name'])
         self.assertEqual(self.stack['stack_name'], res['name'])
         self.assertEqual(self.stack['stack_status'], res['stack_status'])
-        self.assertEqual('COMPLETE', res['status'])
+        self.assertEqual('CREATE_COMPLETE', res['status'])
 
         self.assert_calls()
 
@@ -647,10 +639,8 @@ class TestStack(base.TestCase):
 
         res = self.cloud.get_stack(self.stack_name)
         self.assertIsNotNone(res)
-        self.assertEqual(in_progress['stack_name'], res['stack_name'])
-        self.assertEqual(in_progress['stack_name'], res['name'])
+        self.assertEqual(in_progress['stack_name'], res.name)
         self.assertEqual(in_progress['stack_status'], res['stack_status'])
-        self.assertEqual('CREATE', res['action'])
-        self.assertEqual('IN_PROGRESS', res['status'])
+        self.assertEqual('CREATE_IN_PROGRESS', res['status'])
 
         self.assert_calls()
