@@ -30,6 +30,7 @@ Network Resources
    v2/qos_bandwidth_limit_rule
    v2/qos_dscp_marking_rule
    v2/qos_minimum_bandwidth_rule
+   v2/qos_minimum_packet_rate_rule
    v2/qos_policy
    v2/qos_rule_type
    v2/quota

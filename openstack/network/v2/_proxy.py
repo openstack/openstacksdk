@@ -48,6 +48,8 @@ from openstack.network.v2 import qos_dscp_marking_rule as \
     _qos_dscp_marking_rule
 from openstack.network.v2 import qos_minimum_bandwidth_rule as \
     _qos_minimum_bandwidth_rule
+from openstack.network.v2 import qos_minimum_packet_rate_rule as \
+    _qos_minimum_packet_rate_rule
 from openstack.network.v2 import qos_policy as _qos_policy
 from openstack.network.v2 import qos_rule_type as _qos_rule_type
 from openstack.network.v2 import quota as _quota
@@ -2713,6 +2715,132 @@ class Proxy(proxy.Proxy):
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
         return self._update(_qos_minimum_bandwidth_rule.
                             QoSMinimumBandwidthRule, qos_rule,
+                            qos_policy_id=policy.id, **attrs)
+
+    def create_qos_minimum_packet_rate_rule(self, qos_policy, **attrs):
+        """Create a new minimum packet rate rule
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`,
+            comprised of the properties on the QoSMinimumPacketRateRule class.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+            rule belongs or a
+            :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
+
+        :returns: The results of resource creation
+        :rtype:
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
+        """
+        policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
+        return self._create(
+            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            qos_policy_id=policy.id, **attrs)
+
+    def delete_qos_minimum_packet_rate_rule(self, qos_rule, qos_policy,
+                                            ignore_missing=True):
+        """Delete a minimum packet rate rule
+
+        :param qos_rule: The value can be either the ID of a minimum packet
+            rate rule or a
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
+            instance.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+            rule belongs or a
+            :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist. When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent minimum packet
+            rate rule.
+
+        :returns: ``None``
+        """
+        policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
+        self._delete(_qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+                     qos_rule, ignore_missing=ignore_missing,
+                     qos_policy_id=policy.id)
+
+    def find_qos_minimum_packet_rate_rule(self, qos_rule_id, qos_policy,
+                                          ignore_missing=True, **args):
+        """Find a minimum packet rate rule
+
+        :param qos_rule_id: The ID of a minimum packet rate rule.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+            rule belongs or a
+            :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist. When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
+            or None
+        """
+        policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
+        return self._find(
+            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            qos_rule_id, ignore_missing=ignore_missing,
+            qos_policy_id=policy.id, **args)
+
+    def get_qos_minimum_packet_rate_rule(self, qos_rule, qos_policy):
+        """Get a single minimum packet rate rule
+
+        :param qos_rule: The value can be the ID of a minimum packet rate rule
+            or a
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
+            instance.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+            rule belongs or a
+            :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
+        :returns: One
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
+        return self._get(
+            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            qos_rule, qos_policy_id=policy.id)
+
+    def qos_minimum_packet_rate_rules(self, qos_policy, **query):
+        """Return a generator of minimum packet rate rules
+
+        :param qos_policy: The value can be the ID of the QoS policy that the
+            rule belongs or a
+            :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
+        :param kwargs query: Optional query parameters to be sent to limit the
+            resources being returned.
+        :returns: A generator of minimum packet rate rule objects
+        :rtype:
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
+        """
+        policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
+        return self._list(
+            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            qos_policy_id=policy.id, **query)
+
+    def update_qos_minimum_packet_rate_rule(self, qos_rule, qos_policy,
+                                            **attrs):
+        """Update a minimum packet rate rule
+
+        :param qos_rule: Either the id of a minimum packet rate rule or a
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
+            instance.
+        :param qos_policy: The value can be the ID of the QoS policy that the
+            rule belongs or a
+            :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
+        :attrs kwargs: The attributes to update on the minimum packet rate rule
+            represented by ``value``.
+
+        :returns: The updated minimum packet rate rule
+        :rtype:
+            :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
+        """
+        policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
+        return self._update(_qos_minimum_packet_rate_rule.
+                            QoSMinimumPacketRateRule, qos_rule,
                             qos_policy_id=policy.id, **attrs)
 
     def create_qos_policy(self, **attrs):
