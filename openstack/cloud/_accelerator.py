@@ -14,10 +14,8 @@
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 
-from openstack.cloud import _normalize
 
-
-class AcceleratorCloudMixin(_normalize.Normalizer):
+class AcceleratorCloudMixin:
 
     def list_deployables(self, filters=None):
         """List all available deployables.

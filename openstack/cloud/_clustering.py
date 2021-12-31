@@ -15,10 +15,8 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
-from openstack.cloud import _normalize
 
-
-class ClusteringCloudMixin(_normalize.Normalizer):
+class ClusteringCloudMixin:
     pass
 
     @property

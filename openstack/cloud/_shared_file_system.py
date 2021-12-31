@@ -10,10 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from openstack.cloud import _normalize
 
-
-class SharedFileSystemCloudMixin(_normalize.Normalizer):
+class SharedFileSystemCloudMixin:
 
     def list_share_availability_zones(self):
         """List all availability zones for the Shared File Systems service.
