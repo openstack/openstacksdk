@@ -16,11 +16,10 @@
 import threading
 import types  # noqa
 
-from openstack.cloud import _normalize
 from openstack.cloud import exc
 
 
-class NetworkCommonCloudMixin(_normalize.Normalizer):
+class NetworkCommonCloudMixin:
     """Shared networking functions used by FloatingIP, Network, Compute classes
     """
 

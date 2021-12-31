@@ -17,13 +17,12 @@ import threading
 import time
 import types  # noqa
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
 
 
-class NetworkCloudMixin(_normalize.Normalizer):
+class NetworkCloudMixin:
 
     def __init__(self):
         self._ports = None
