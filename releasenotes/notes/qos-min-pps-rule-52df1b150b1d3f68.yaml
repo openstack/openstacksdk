@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added QoS minimum packet rate rule object and introduced support for CRUD
+    operations.
