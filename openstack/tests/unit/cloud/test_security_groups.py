@@ -623,9 +623,8 @@ class TestSecurityGroups(base.TestCase):
                 json={'security_groups': [nova_grp_dict]}),
         ])
         groups = self.cloud.list_server_security_groups(server)
-        self.assertIn('location', groups[0])
         self.assertEqual(
-            groups[0]['security_group_rules'][0]['remote_ip_prefix'],
+            groups[0]['rules'][0]['ip_range']['cidr'],
             nova_grp_dict['rules'][0]['ip_range']['cidr'])
 
         self.assert_calls()

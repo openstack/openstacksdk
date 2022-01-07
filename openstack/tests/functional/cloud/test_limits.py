@@ -16,6 +16,7 @@ test_limits
 
 Functional tests for `shade` limits method
 """
+from openstack.compute.v2 import limits as _limits
 from openstack.tests.functional import base
 
 
@@ -25,27 +26,27 @@ class TestUsage(base.BaseFunctionalTest):
         '''Test quotas functionality'''
         limits = self.user_cloud.get_compute_limits()
         self.assertIsNotNone(limits)
-        self.assertTrue(hasattr(limits, 'max_server_meta'))
 
-        # Test normalize limits
-        self.assertFalse(hasattr(limits, 'maxImageMeta'))
+        self.assertIsInstance(limits, _limits.Limits)
+        self.assertIsNotNone(limits.absolute.server_meta)
+        self.assertIsNotNone(limits.absolute.image_meta)
 
     def test_get_other_compute_limits(self):
         '''Test quotas functionality'''
         limits = self.operator_cloud.get_compute_limits('demo')
         self.assertIsNotNone(limits)
-        self.assertTrue(hasattr(limits, 'max_server_meta'))
+        self.assertTrue(hasattr(limits.absolute, 'server_meta'))
 
         # Test normalize limits
-        self.assertFalse(hasattr(limits, 'maxImageMeta'))
+        self.assertFalse(hasattr(limits.absolute, 'maxImageMeta'))
 
     def test_get_our_volume_limits(self):
         '''Test quotas functionality'''
         limits = self.user_cloud.get_volume_limits()
         self.assertIsNotNone(limits)
-        self.assertFalse(hasattr(limits, 'maxTotalVolumes'))
+        self.assertFalse(hasattr(limits.absolute, 'maxTotalVolumes'))
 
     def test_get_other_volume_limits(self):
         '''Test quotas functionality'''
         limits = self.operator_cloud.get_volume_limits('demo')
-        self.assertFalse(hasattr(limits, 'maxTotalVolumes'))
+        self.assertFalse(hasattr(limits.absolute, 'maxTotalVolumes'))
