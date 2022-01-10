@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.block_storage.v3 import type
 from openstack.tests.unit import base
 
-from openstack.block_storage.v3 import type
 
 FAKE_ID = "479394ab-2f25-416e-8f58-721d8e5e29de"
 TYPE_ID = "22373aed-c4a8-4072-b66c-bf0a90dc9a12"

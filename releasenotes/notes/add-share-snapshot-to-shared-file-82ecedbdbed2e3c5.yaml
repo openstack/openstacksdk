@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds support to create, update, list, get, and delete share
+    snapshots to shared file system service.

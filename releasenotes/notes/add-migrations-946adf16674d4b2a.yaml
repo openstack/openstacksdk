@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for the Compute service's migrations API, allowing users to
+    list all in-progress migrations for all servers.

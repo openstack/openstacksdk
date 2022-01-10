@@ -20,7 +20,7 @@ EXAMPLE = {
     'ip_version': 4,
     'name': '1',
     'shared': True,
-    'tenant_id': '2',
+    'project_id': '2',
 }
 
 
@@ -43,4 +43,4 @@ class TestAddressScope(base.TestCase):
         self.assertEqual(EXAMPLE['ip_version'], sot.ip_version)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertTrue(sot.is_shared)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)

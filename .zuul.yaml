@@ -355,6 +355,76 @@
         '{{ devstack_base_dir }}/masakari-logs': logs
 
 - job:
+    name: openstacksdk-functional-devstack-manila
+    parent: openstacksdk-functional-devstack-minimum
+    description: |
+      Run openstacksdk functional tests against a master devstack with manila
+    required-projects:
+      - openstack/manila
+      - name: openstack/openstacksdk
+        override-branch: feature/r1
+    vars:
+      devstack_localrc:
+        # Set up manila with a fake driver - makes things super fast and should
+        # have no impact on the API
+        MANILA_INSTALL_TEMPEST_PLUGIN_SYSTEMWIDE: false
+        SHARE_DRIVER: manila.tests.share.drivers.dummy.DummyDriver
+        MANILA_CONFIGURE_GROUPS: alpha,beta,gamma,membernet
+        MANILA_CONFIGURE_DEFAULT_TYPES: true
+        MANILA_SERVICE_IMAGE_ENABLED: false
+        MANILA_SHARE_MIGRATION_PERIOD_TASK_INTERVAL: 1
+        MANILA_SERVER_MIGRATION_PERIOD_TASK_INTERVAL: 10
+        MANILA_REPLICA_STATE_UPDATE_INTERVAL: 10
+        MANILA_DEFAULT_SHARE_TYPE_EXTRA_SPECS: 'snapshot_support=True create_share_from_snapshot_support=True revert_to_snapshot_support=True mount_snapshot_support=True'
+        MANILA_ENABLED_BACKENDS: alpha,beta,gamma
+        MANILA_OPTGROUP_alpha_driver_handles_share_servers: false
+        MANILA_OPTGROUP_alpha_replication_domain: DUMMY_DOMAIN
+        MANILA_OPTGROUP_alpha_share_backend_name: ALPHA
+        MANILA_OPTGROUP_alpha_share_driver: manila.tests.share.drivers.dummy.DummyDriver
+        MANILA_OPTGROUP_beta_driver_handles_share_servers: false
+        MANILA_OPTGROUP_beta_replication_domain: DUMMY_DOMAIN
+        MANILA_OPTGROUP_beta_share_backend_name: BETA
+        MANILA_OPTGROUP_beta_share_driver: manila.tests.share.drivers.dummy.DummyDriver
+        MANILA_OPTGROUP_gamma_driver_handles_share_servers: true
+        MANILA_OPTGROUP_gamma_network_config_group: membernet
+        MANILA_OPTGROUP_gamma_share_backend_name: GAMMA
+        MANILA_OPTGROUP_gamma_share_driver: manila.tests.share.drivers.dummy.DummyDriver
+        MANILA_OPTGROUP_gamma_admin_network_config_group: membernet
+        MANILA_OPTGROUP_membernet_network_api_class: manila.network.standalone_network_plugin.StandaloneNetworkPlugin
+        MANILA_OPTGROUP_membernet_network_plugin_ipv4_enabled: true
+        MANILA_OPTGROUP_membernet_standalone_network_plugin_allowed_ip_ranges: 10.0.0.10-10.0.0.209
+        MANILA_OPTGROUP_membernet_standalone_network_plugin_gateway: 10.0.0.1
+        MANILA_OPTGROUP_membernet_standalone_network_plugin_mask: 24
+        MANILA_OPTGROUP_membernet_standalone_network_plugin_network_type: vlan
+        MANILA_OPTGROUP_membernet_standalone_network_plugin_segmentation_id: 1010
+      devstack_plugins:
+        manila: https://opendev.org/openstack/manila
+      devstack_services:
+        c-api: false
+        c-bak: false
+        c-sch: false
+        c-vol: false
+        cinder: false
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        n-api: false
+        n-api-meta: false
+        n-cauth: false
+        n-cond: false
+        n-cpu: false
+        n-novnc: false
+        n-obj: false
+        n-sch: false
+        nova: false
+        placement-api: false
+        dstat: false
+      tox_environment:
+        OPENSTACKSDK_HAS_MANILA: 1
+        OPENSTACKSDK_TESTS_SUBDIR: shared_file_system
+
+- job:
     name: metalsmith-integration-openstacksdk-src
     parent: metalsmith-integration-glance-netboot-cirros-direct
     required-projects:
@@ -394,6 +464,8 @@
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
         - openstacksdk-functional-devstack-magnum:
+            voting: false
+        - openstacksdk-functional-devstack-manila:
             voting: false
         - openstacksdk-functional-devstack-masakari:
             voting: false

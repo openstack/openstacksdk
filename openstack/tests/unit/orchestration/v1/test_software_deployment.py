@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.orchestration.v1 import software_deployment
 from openstack.tests.unit import base
 
-from openstack.orchestration.v1 import software_deployment
 
 FAKE = {
     'id': 'ce8ae86c-9810-4cb1-8888-7fb53bc523bf',

@@ -17,14 +17,12 @@ import threading
 import time
 import types  # noqa
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
-from openstack import proxy
 
 
-class NetworkCloudMixin(_normalize.Normalizer):
+class NetworkCloudMixin:
 
     def __init__(self):
         self._ports = None
@@ -53,9 +51,12 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        networks = self.list_networks(
-            filters if isinstance(filters, dict) else None)
-        return _utils._filter_list(networks, name_or_id, filters)
+        query = {}
+        if name_or_id:
+            query['name'] = name_or_id
+        if filters:
+            query.update(filters)
+        return list(self.network.networks(**query))
 
     def search_routers(self, name_or_id=None, filters=None):
         """Search routers
@@ -69,9 +70,12 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        routers = self.list_routers(
-            filters if isinstance(filters, dict) else None)
-        return _utils._filter_list(routers, name_or_id, filters)
+        query = {}
+        if name_or_id:
+            query['name'] = name_or_id
+        if filters:
+            query.update(filters)
+        return list(self.network.routers(**query))
 
     def search_subnets(self, name_or_id=None, filters=None):
         """Search subnets
@@ -85,9 +89,12 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        subnets = self.list_subnets(
-            filters if isinstance(filters, dict) else None)
-        return _utils._filter_list(subnets, name_or_id, filters)
+        query = {}
+        if name_or_id:
+            query['name'] = name_or_id
+        if filters:
+            query.update(filters)
+        return list(self.network.subnets(**query))
 
     def search_ports(self, name_or_id=None, filters=None):
         """Search ports
@@ -121,11 +128,11 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
             return []
+
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self.network.get("/networks", params=filters)
-        return self._get_and_munchify('networks', data)
+        return list(self.network.networks(**filters))
 
     def list_routers(self, filters=None):
         """List all available routers.
@@ -137,14 +144,11 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
             return []
+
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        resp = self.network.get("/routers", params=filters)
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching router list")
-        return self._get_and_munchify('routers', data)
+        return list(self.network.routers(**filters))
 
     def list_subnets(self, filters=None):
         """List all available subnets.
@@ -156,11 +160,11 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
             return []
+
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
             filters = {}
-        data = self.network.get("/subnets", params=filters)
-        return self._get_and_munchify('subnets', data)
+        return list(self.network.subnets(**filters))
 
     def list_ports(self, filters=None):
         """List all available ports.
@@ -199,11 +203,10 @@ class NetworkCloudMixin(_normalize.Normalizer):
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
             return []
-        resp = self.network.get("/ports", params=filters)
-        data = proxy._json_response(
-            resp,
-            error_message="Error fetching port list")
-        return self._get_and_munchify('ports', data)
+
+        if not filters:
+            filters = {}
+        return list(self.network.ports(**filters))
 
     def get_qos_policy(self, name_or_id, filters=None):
         """Get a QoS policy by name or ID.
@@ -231,6 +234,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
+
         if not filters:
             filters = {}
         return self.network.find_qos_policy(
@@ -253,6 +257,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
                 'QoS extension is not available on target cloud')
+
         query = {}
         if name_or_id:
             query['name'] = name_or_id
@@ -334,7 +339,12 @@ class NetworkCloudMixin(_normalize.Normalizer):
                  found.
 
         """
-        return _utils._get_entity(self, 'network', name_or_id, filters)
+        if not filters:
+            filters = {}
+        return self.network.find_network(
+            name_or_id=name_or_id,
+            ignore_missing=True,
+            **filters)
 
     def get_network_by_id(self, id):
         """ Get a network by ID
@@ -342,14 +352,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :param id: ID of the network.
         :returns: A network ``munch.Munch``.
         """
-        resp = self.network.get('/networks/{id}'.format(id=id))
-        data = proxy._json_response(
-            resp,
-            error_message="Error getting network with ID {id}".format(id=id)
-        )
-        network = self._get_and_munchify('network', data)
-
-        return network
+        return self.network.get_network(id)
 
     def get_router(self, name_or_id, filters=None):
         """Get a router by name or ID.
@@ -374,7 +377,12 @@ class NetworkCloudMixin(_normalize.Normalizer):
                   found.
 
         """
-        return _utils._get_entity(self, 'router', name_or_id, filters)
+        if not filters:
+            filters = {}
+        return self.network.find_router(
+            name_or_id=name_or_id,
+            ignore_missing=True,
+            **filters)
 
     def get_subnet(self, name_or_id, filters=None):
         """Get a subnet by name or ID.
@@ -395,7 +403,12 @@ class NetworkCloudMixin(_normalize.Normalizer):
                   found.
 
         """
-        return _utils._get_entity(self, 'subnet', name_or_id, filters)
+        if not filters:
+            filters = {}
+        return self.network.find_subnet(
+            name_or_id=name_or_id,
+            ignore_missing=True,
+            **filters)
 
     def get_subnet_by_id(self, id):
         """ Get a subnet by ID
@@ -403,14 +416,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :param id: ID of the subnet.
         :returns: A subnet ``munch.Munch``.
         """
-        resp = self.network.get('/subnets/{id}'.format(id=id))
-        data = proxy._json_response(
-            resp,
-            error_message="Error getting subnet with ID {id}".format(id=id)
-        )
-        subnet = self._get_and_munchify('subnet', data)
-
-        return subnet
+        return self.network.get_subnet(id)
 
     def get_port(self, name_or_id, filters=None):
         """Get a port by name or ID.
@@ -434,7 +440,12 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :returns: A port ``munch.Munch`` or None if no matching port is found.
 
         """
-        return _utils._get_entity(self, 'port', name_or_id, filters)
+        if not filters:
+            filters = {}
+        return self.network.find_port(
+            name_or_id=name_or_id,
+            ignore_missing=True,
+            **filters)
 
     def get_port_by_id(self, id):
         """ Get a port by ID
@@ -442,14 +453,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         :param id: ID of the port.
         :returns: A port ``munch.Munch``.
         """
-        resp = self.network.get('/ports/{id}'.format(id=id))
-        data = proxy._json_response(
-            resp,
-            error_message="Error getting port with ID {id}".format(id=id)
-        )
-        port = self._get_and_munchify('port', data)
-
-        return port
+        return self.network.get_port(id)
 
     def create_network(self, name, shared=False, admin_state_up=True,
                        external=False, provider=None, project_id=None,
@@ -487,7 +491,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             network['shared'] = shared
 
         if project_id is not None:
-            network['tenant_id'] = project_id
+            network['project_id'] = project_id
 
         if availability_zone_hints is not None:
             if not isinstance(availability_zone_hints, list):
@@ -535,11 +539,11 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if dns_domain:
             network['dns_domain'] = dns_domain
 
-        data = self.network.post("/networks", json={'network': network})
+        network = self.network.create_network(**network)
 
         # Reset cache so the new network is picked up
         self._reset_network_caches()
-        return self._get_and_munchify('network', data)
+        return network
 
     @_utils.valid_kwargs("name", "shared", "admin_state_up", "external",
                          "provider", "mtu_size", "port_security_enabled",
@@ -598,14 +602,11 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Network %s not found." % name_or_id)
 
-        data = proxy._json_response(self.network.put(
-            "/networks/{net_id}".format(net_id=network.id),
-            json={"network": kwargs}),
-            error_message="Error updating network {0}".format(name_or_id))
+        network = self.network.update_network(network, **kwargs)
 
         self._reset_network_caches()
 
-        return self._get_and_munchify('network', data)
+        return network
 
     def delete_network(self, name_or_id):
         """Delete a network.
@@ -621,8 +622,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             self.log.debug("Network %s not found for deleting", name_or_id)
             return False
 
-        exceptions.raise_from_response(self.network.delete(
-            "/networks/{network_id}".format(network_id=network['id'])))
+        self.network.delete_network(network)
 
         # Reset cache so the deleted network is removed
         self._reset_network_caches()
@@ -643,12 +643,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
 
-        exceptions.raise_from_response(
-            self.network.put(
-                '/quotas/{project_id}'.format(project_id=proj.id),
-                json={'quota': kwargs}),
-            error_message=("Error setting Neutron's quota for "
-                           "project {0}".format(proj.id)))
+        self.network.update_quota(proj.id, **kwargs)
 
     def get_network_quotas(self, name_or_id, details=False):
         """ Get network quotas for a project
@@ -663,14 +658,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
-        url = '/quotas/{project_id}'.format(project_id=proj.id)
-        if details:
-            url = url + "/details"
-        data = proxy._json_response(
-            self.network.get(url),
-            error_message=("Error fetching Neutron's quota for "
-                           "project {0}".format(proj.id)))
-        return self._get_and_munchify('quota', data)
+        return self.network.get_quota(proj.id, details)
 
     def get_network_extensions(self):
         """Get Cloud provided network extensions
@@ -691,11 +679,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException("project does not exist")
-        exceptions.raise_from_response(
-            self.network.delete(
-                '/quotas/{project_id}'.format(project_id=proj.id)),
-            error_message=("Error deleting Neutron's quota for "
-                           "project {0}".format(proj.id)))
+        self.network.delete_quota(proj.id)
 
     @_utils.valid_kwargs(
         'action', 'description', 'destination_firewall_group_id',
@@ -770,7 +754,10 @@ class NetworkCloudMixin(_normalize.Normalizer):
         """
         if not filters:
             filters = {}
-        return self.network.find_firewall_rule(name_or_id, **filters)
+        return self.network.find_firewall_rule(
+            name_or_id,
+            ignore_missing=True,
+            **filters)
 
     def list_firewall_rules(self, filters=None):
         """
@@ -894,7 +881,10 @@ class NetworkCloudMixin(_normalize.Normalizer):
         """
         if not filters:
             filters = {}
-        return self.network.find_firewall_policy(name_or_id, **filters)
+        return self.network.find_firewall_policy(
+            name_or_id,
+            ignore_missing=True,
+            **filters)
 
     def list_firewall_policies(self, filters=None):
         """
@@ -1093,7 +1083,10 @@ class NetworkCloudMixin(_normalize.Normalizer):
         """
         if not filters:
             filters = {}
-        return self.network.find_firewall_group(name_or_id, **filters)
+        return self.network.find_firewall_group(
+            name_or_id,
+            ignore_missing=True,
+            **filters)
 
     def list_firewall_groups(self, filters=None):
         """
@@ -1230,6 +1223,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not curr_policy:
             raise exc.OpenStackCloudException(
                 "QoS policy %s not found." % name_or_id)
+
         return self.network.update_qos_policy(curr_policy, **kwargs)
 
     def delete_qos_policy(self, name_or_id):
@@ -1248,6 +1242,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if not policy:
             self.log.debug("QoS policy %s not found for deleting", name_or_id)
             return False
+
         self.network.delete_qos_policy(policy)
 
         return True
@@ -1358,6 +1353,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                     "target cloud")
 
         kwargs['max_kbps'] = max_kbps
+
         return self.network.create_qos_bandwidth_limit_rule(policy, **kwargs)
 
     @_utils.valid_kwargs("max_kbps", "max_burst_kbps", "direction")
@@ -1703,6 +1699,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                     name_or_id=policy_name_or_id))
 
         kwargs['min_kbps'] = min_kbps
+
         return self.network.create_qos_minimum_bandwidth_rule(policy, **kwargs)
 
     @_utils.valid_kwargs("min_kbps", "direction")
@@ -1793,19 +1790,11 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        json_body = {}
-        if subnet_id:
-            json_body['subnet_id'] = subnet_id
-        if port_id:
-            json_body['port_id'] = port_id
-
-        return proxy._json_response(
-            self.network.put(
-                "/routers/{router_id}/add_router_interface".format(
-                    router_id=router['id']),
-                json=json_body),
-            error_message="Error attaching interface to router {0}".format(
-                router['id']))
+        return self.network.add_interface_to_router(
+            router=router,
+            subnet_id=subnet_id,
+            port_id=port_id
+        )
 
     def remove_router_interface(self, router, subnet_id=None, port_id=None):
         """Detach a subnet from an internal router interface.
@@ -1824,23 +1813,15 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        json_body = {}
-        if subnet_id:
-            json_body['subnet_id'] = subnet_id
-        if port_id:
-            json_body['port_id'] = port_id
-
-        if not json_body:
+        if not subnet_id and not port_id:
             raise ValueError(
                 "At least one of subnet_id or port_id must be supplied.")
 
-        exceptions.raise_from_response(
-            self.network.put(
-                "/routers/{router_id}/remove_router_interface".format(
-                    router_id=router['id']),
-                json=json_body),
-            error_message="Error detaching interface from router {0}".format(
-                router['id']))
+        self.network.remove_interface_from_router(
+            router=router,
+            subnet_id=subnet_id,
+            port_id=port_id
+        )
 
     def list_router_interfaces(self, router, interface_type=None):
         """List all interfaces for a router.
@@ -1905,7 +1886,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             'admin_state_up': admin_state_up
         }
         if project_id is not None:
-            router['tenant_id'] = project_id
+            router['project_id'] = project_id
         if name:
             router['name'] = name
         ext_gw_info = self._build_external_gateway_info(
@@ -1923,10 +1904,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
                     'target cloud')
             router['availability_zone_hints'] = availability_zone_hints
 
-        data = proxy._json_response(
-            self.network.post("/routers", json={"router": router}),
-            error_message="Error creating router {0}".format(name))
-        return self._get_and_munchify('router', data)
+        return self.network.create_router(**router)
 
     def update_router(self, name_or_id, name=None, admin_state_up=None,
                       ext_gateway_net_id=None, enable_snat=None,
@@ -1991,13 +1969,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Router %s not found." % name_or_id)
 
-        resp = self.network.put(
-            "/routers/{router_id}".format(router_id=curr_router['id']),
-            json={"router": router})
-        data = proxy._json_response(
-            resp,
-            error_message="Error updating router {0}".format(name_or_id))
-        return self._get_and_munchify('router', data)
+        return self.network.update_router(curr_router, **router)
 
     def delete_router(self, name_or_id):
         """Delete a logical router.
@@ -2012,14 +1984,12 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        router = self.get_router(name_or_id)
+        router = self.network.find_router(name_or_id, ignore_missing=True)
         if not router:
             self.log.debug("Router %s not found for deleting", name_or_id)
             return False
 
-        exceptions.raise_from_response(self.network.delete(
-            "/routers/{router_id}".format(router_id=router['id']),
-            error_message="Error deleting router {0}".format(name_or_id)))
+        self.network.delete_router(router)
 
         return True
 
@@ -2168,9 +2138,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         if use_default_subnetpool:
             subnet['use_default_subnetpool'] = True
 
-        response = self.network.post("/subnets", json={"subnet": subnet})
-
-        return self._get_and_munchify('subnet', response)
+        return self.network.create_subnet(**subnet)
 
     def delete_subnet(self, name_or_id):
         """Delete a subnet.
@@ -2185,13 +2153,13 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        subnet = self.get_subnet(name_or_id)
+        subnet = self.network.find_subnet(name_or_id, ignore_missing=True)
         if not subnet:
             self.log.debug("Subnet %s not found for deleting", name_or_id)
             return False
 
-        exceptions.raise_from_response(self.network.delete(
-            "/subnets/{subnet_id}".format(subnet_id=subnet['id'])))
+        self.network.delete_subnet(subnet)
+
         return True
 
     def update_subnet(self, name_or_id, subnet_name=None, enable_dhcp=None,
@@ -2276,10 +2244,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "Subnet %s not found." % name_or_id)
 
-        response = self.network.put(
-            "/subnets/{subnet_id}".format(subnet_id=curr_subnet['id']),
-            json={"subnet": subnet})
-        return self._get_and_munchify('subnet', response)
+        return self.network.update_subnet(curr_subnet, **subnet)
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'mac_address', 'fixed_ips',
                          'subnet_id', 'ip_address', 'security_groups',
@@ -2346,11 +2311,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
         """
         kwargs['network_id'] = network_id
 
-        data = proxy._json_response(
-            self.network.post("/ports", json={'port': kwargs}),
-            error_message="Error creating port for network {0}".format(
-                network_id))
-        return self._get_and_munchify('port', data)
+        return self.network.create_port(**kwargs)
 
     @_utils.valid_kwargs('name', 'admin_state_up', 'fixed_ips',
                          'security_groups', 'allowed_address_pairs',
@@ -2417,12 +2378,7 @@ class NetworkCloudMixin(_normalize.Normalizer):
             raise exc.OpenStackCloudException(
                 "failed to find port '{port}'".format(port=name_or_id))
 
-        data = proxy._json_response(
-            self.network.put(
-                "/ports/{port_id}".format(port_id=port['id']),
-                json={"port": kwargs}),
-            error_message="Error updating port {0}".format(name_or_id))
-        return self._get_and_munchify('port', data)
+        return self.network.update_port(port, **kwargs)
 
     def delete_port(self, name_or_id):
         """Delete a port
@@ -2433,15 +2389,14 @@ class NetworkCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        port = self.get_port(name_or_id=name_or_id)
+        port = self.network.find_port(name_or_id)
+
         if port is None:
             self.log.debug("Port %s not found for deleting", name_or_id)
             return False
 
-        exceptions.raise_from_response(
-            self.network.delete(
-                "/ports/{port_id}".format(port_id=port['id'])),
-            error_message="Error deleting port {0}".format(name_or_id))
+        self.network.delete_port(port)
+
         return True
 
     def _get_port_ids(self, name_or_id_list, filters=None):

@@ -15,6 +15,7 @@ import uuid
 from openstack.accelerator.v2 import device
 from openstack.tests.unit import base
 
+
 EXAMPLE = {
     'id': '1',
     'uuid': uuid.uuid4(),

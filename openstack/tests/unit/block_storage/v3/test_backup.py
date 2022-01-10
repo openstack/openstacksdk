@@ -14,9 +14,10 @@ from unittest import mock
 
 from keystoneauth1 import adapter
 
-from openstack import exceptions
 from openstack.block_storage.v3 import backup
+from openstack import exceptions
 from openstack.tests.unit import base
+
 
 FAKE_ID = "6685584b-1eac-4da6-b5c3-555430cf68ff"
 
@@ -175,3 +176,23 @@ class TestBackup(base.TestCase):
             sot.restore,
             self.sess
         )
+
+    def test_force_delete(self):
+        sot = backup.Backup(**BACKUP)
+
+        self.assertIsNone(sot.force_delete(self.sess))
+
+        url = 'backups/%s/action' % FAKE_ID
+        body = {'os-force_delete': {}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)
+
+    def test_reset(self):
+        sot = backup.Backup(**BACKUP)
+
+        self.assertIsNone(sot.reset(self.sess, 'new_status'))
+
+        url = 'backups/%s/action' % FAKE_ID
+        body = {'os-reset_status': {'status': 'new_status'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)

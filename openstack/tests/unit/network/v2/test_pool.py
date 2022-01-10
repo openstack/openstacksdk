@@ -27,7 +27,7 @@ EXAMPLE = {
     'listener_id': '6',
     'members': [{'id': '7'}],
     'name': '8',
-    'tenant_id': '9',
+    'project_id': '9',
     'protocol': '10',
     'provider': '11',
     'session_persistence': '12',
@@ -67,7 +67,7 @@ class TestPool(base.TestCase):
         self.assertEqual(EXAMPLE['listener_id'], sot.listener_id)
         self.assertEqual(EXAMPLE['members'], sot.member_ids)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol'], sot.protocol)
         self.assertEqual(EXAMPLE['provider'], sot.provider)
         self.assertEqual(EXAMPLE['session_persistence'],

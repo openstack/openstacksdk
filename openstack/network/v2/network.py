@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack.network.v2 import _base
 from openstack import resource
 
 
-class Network(_base.NetworkResource, resource.TagMixin):
+class Network(_base.NetworkResource, tag.TagMixin):
     resource_key = 'network'
     resources_key = 'networks'
     base_path = '/networks'
@@ -29,17 +29,17 @@ class Network(_base.NetworkResource, resource.TagMixin):
     # NOTE: We don't support query on list or datetime fields yet
     _query_mapping = resource.QueryParameters(
         'description', 'name', 'status',
+        'project_id',
         ipv4_address_scope_id='ipv4_address_scope',
         ipv6_address_scope_id='ipv6_address_scope',
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
         is_router_external='router:external',
         is_shared='shared',
-        project_id='tenant_id',
         provider_network_type='provider:network_type',
         provider_physical_network='provider:physical_network',
         provider_segmentation_id='provider:segmentation_id',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties

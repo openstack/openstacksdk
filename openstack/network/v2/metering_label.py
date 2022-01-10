@@ -28,9 +28,8 @@ class MeteringLabel(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'name',
+        'description', 'name', 'project_id',
         is_shared='shared',
-        project_id='tenant_id'
     )
 
     # Properties
@@ -39,7 +38,9 @@ class MeteringLabel(resource.Resource):
     #: Name of the metering label.
     name = resource.Body('name')
     #: The ID of the project this metering label is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: Indicates whether this label is shared across all tenants.
     #: *Type: bool*
     is_shared = resource.Body('shared', type=bool)

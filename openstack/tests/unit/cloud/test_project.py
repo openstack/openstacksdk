@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import uuid
+
 import testtools
 from testtools import matchers
 
@@ -22,7 +24,7 @@ class TestProject(base.TestCase):
 
     def get_mock_url(self, service_type='identity', interface='public',
                      resource=None, append=None, base_url_append=None,
-                     v3=True):
+                     v3=True, qs_elements=None):
         if v3 and resource is None:
             resource = 'projects'
         elif not v3 and resource is None:
@@ -31,27 +33,13 @@ class TestProject(base.TestCase):
             base_url_append = 'v3'
         return super(TestProject, self).get_mock_url(
             service_type=service_type, interface=interface, resource=resource,
-            append=append, base_url_append=base_url_append)
-
-    def test_create_project_v2(self):
-        self.use_keystone_v2()
-        project_data = self._get_project_data(v3=False)
-        self.register_uris([
-            dict(method='POST', uri=self.get_mock_url(v3=False),
-                 status_code=200, json=project_data.json_response,
-                 validate=dict(json=project_data.json_request))
-        ])
-        project = self.cloud.create_project(
-            name=project_data.project_name,
-            description=project_data.description)
-        self.assertThat(project.id, matchers.Equals(project_data.project_id))
-        self.assertThat(
-            project.name, matchers.Equals(project_data.project_name))
-        self.assert_calls()
+            append=append, base_url_append=base_url_append,
+            qs_elements=qs_elements)
 
     def test_create_project_v3(self,):
         project_data = self._get_project_data(
-            description=self.getUniqueString('projectDesc'))
+            description=self.getUniqueString('projectDesc'),
+            parent_id=uuid.uuid4().hex)
         reference_req = project_data.json_request.copy()
         reference_req['project']['enabled'] = True
         self.register_uris([
@@ -64,7 +52,8 @@ class TestProject(base.TestCase):
         project = self.cloud.create_project(
             name=project_data.project_name,
             description=project_data.description,
-            domain_id=project_data.domain_id)
+            domain_id=project_data.domain_id,
+            parent_id=project_data.parent_id)
         self.assertThat(project.id, matchers.Equals(project_data.project_id))
         self.assertThat(
             project.name, matchers.Equals(project_data.project_name))
@@ -74,37 +63,13 @@ class TestProject(base.TestCase):
             project.domain_id, matchers.Equals(project_data.domain_id))
         self.assert_calls()
 
-    def test_create_project_v3_no_domain(self):
-        with testtools.ExpectedException(
-                openstack.cloud.OpenStackCloudException,
-                "User or project creation requires an explicit"
-                " domain_id argument."
-        ):
-            self.cloud.create_project(name='foo', description='bar')
-
-    def test_delete_project_v2(self):
-        self.use_keystone_v2()
-        project_data = self._get_project_data(v3=False)
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(v3=False),
-                 status_code=200,
-                 json={'tenants': [project_data.json_response['tenant']]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     v3=False, append=[project_data.project_id]),
-                 status_code=204)
-        ])
-        self.cloud.delete_project(project_data.project_id)
-        self.assert_calls()
-
     def test_delete_project_v3(self):
         project_data = self._get_project_data(v3=False)
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(),
+                 uri=self.get_mock_url(append=[project_data.project_id]),
                  status_code=200,
-                 json={'projects': [project_data.json_response['tenant']]}),
+                 json=project_data.json_response),
             dict(method='DELETE',
                  uri=self.get_mock_url(append=[project_data.project_id]),
                  status_code=204)
@@ -116,7 +81,11 @@ class TestProject(base.TestCase):
         project_data = self._get_project_data()
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(),
+                 uri=self.get_mock_url(append=[project_data.project_id]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     qs_elements=['name=' + project_data.project_id]),
                  status_code=200,
                  json={'projects': []})
         ])
@@ -132,36 +101,6 @@ class TestProject(base.TestCase):
             self.cloud.update_project(project_data.project_id)
         self.assert_calls()
 
-    def test_update_project_v2(self):
-        self.use_keystone_v2()
-        project_data = self._get_project_data(
-            v3=False,
-            description=self.getUniqueString('projectDesc'))
-        # remove elements that are not updated in this test.
-        project_data.json_request['tenant'].pop('name')
-        project_data.json_request['tenant'].pop('enabled')
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(v3=False),
-                 status_code=200,
-                 json={'tenants': [project_data.json_response['tenant']]}),
-            dict(method='POST',
-                 uri=self.get_mock_url(
-                     v3=False, append=[project_data.project_id]),
-                 status_code=200,
-                 json=project_data.json_response,
-                 validate=dict(json=project_data.json_request))
-        ])
-        project = self.cloud.update_project(
-            project_data.project_id,
-            description=project_data.description)
-        self.assertThat(project.id, matchers.Equals(project_data.project_id))
-        self.assertThat(
-            project.name, matchers.Equals(project_data.project_name))
-        self.assertThat(
-            project.description, matchers.Equals(project_data.description))
-        self.assert_calls()
-
     def test_update_project_v3(self):
         project_data = self._get_project_data(
             description=self.getUniqueString('projectDesc'))
@@ -173,8 +112,8 @@ class TestProject(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     resource=('projects?domain_id=%s' %
-                               project_data.domain_id)),
+                     append=[project_data.project_id],
+                     qs_elements=['domain_id=' + project_data.domain_id]),
                  status_code=200,
                  json={'projects': [project_data.json_response['project']]}),
             dict(method='PATCH',

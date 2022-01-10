@@ -24,7 +24,7 @@ EXAMPLE = {
     'max_retries': '6',
     'pools': [{'id': '7'}],
     'pool_id': '7',
-    'tenant_id': '8',
+    'project_id': '8',
     'timeout': '9',
     'type': '10',
     'url_path': '11',
@@ -55,7 +55,7 @@ class TestHealthMonitor(base.TestCase):
         self.assertEqual(EXAMPLE['max_retries'], sot.max_retries)
         self.assertEqual(EXAMPLE['pools'], sot.pool_ids)
         self.assertEqual(EXAMPLE['pool_id'], sot.pool_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['timeout'], sot.timeout)
         self.assertEqual(EXAMPLE['type'], sot.type)
         self.assertEqual(EXAMPLE['url_path'], sot.url_path)

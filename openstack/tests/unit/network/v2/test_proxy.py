@@ -45,6 +45,7 @@ from openstack.network.v2 import port_forwarding
 from openstack.network.v2 import qos_bandwidth_limit_rule
 from openstack.network.v2 import qos_dscp_marking_rule
 from openstack.network.v2 import qos_minimum_bandwidth_rule
+from openstack.network.v2 import qos_minimum_packet_rate_rule
 from openstack.network.v2 import qos_policy
 from openstack.network.v2 import qos_rule_type
 from openstack.network.v2 import quota
@@ -952,29 +953,70 @@ class TestNetworkQosMinimumBandwidth(TestNetworkProxy):
                 'qos_policy_id': QOS_POLICY_ID, 'foo': 'bar'})
 
 
-class TestNetworkQosPolicy(TestNetworkProxy):
-    def test_qos_policy_create_attrs(self):
-        self.verify_create(self.proxy.create_qos_policy, qos_policy.QoSPolicy)
+class TestNetworkQosMinimumPacketRate(TestNetworkProxy):
+    def test_qos_minimum_packet_rate_rule_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_qos_minimum_packet_rate_rule,
+            qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'qos_policy_id': QOS_POLICY_ID})
 
-    def test_qos_policy_delete(self):
-        self.verify_delete(self.proxy.delete_qos_policy, qos_policy.QoSPolicy,
-                           False)
+    def test_qos_minimum_packet_rate_rule_delete(self):
+        self.verify_delete(
+            self.proxy.delete_qos_minimum_packet_rate_rule,
+            qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            ignore_missing=False,
+            method_args=["resource_or_id", QOS_POLICY_ID],
+            expected_args=["resource_or_id"],
+            expected_kwargs={'qos_policy_id': QOS_POLICY_ID})
 
-    def test_qos_policy_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_qos_policy, qos_policy.QoSPolicy,
-                           True)
+    def test_qos_minimum_packet_rate_rule_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_qos_minimum_packet_rate_rule,
+            qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            ignore_missing=True,
+            method_args=["resource_or_id", QOS_POLICY_ID],
+            expected_args=["resource_or_id"],
+            expected_kwargs={'qos_policy_id': QOS_POLICY_ID})
 
-    def test_qos_policy_find(self):
-        self.verify_find(self.proxy.find_qos_policy, qos_policy.QoSPolicy)
+    def test_qos_minimum_packet_rate_rule_find(self):
+        policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
+        self._verify(
+            'openstack.proxy.Proxy._find',
+            self.proxy.find_qos_minimum_packet_rate_rule,
+            method_args=['rule_id', policy],
+            expected_args=[
+                qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+                'rule_id'],
+            expected_kwargs={
+                'ignore_missing': True, 'qos_policy_id': QOS_POLICY_ID})
 
-    def test_qos_policy_get(self):
-        self.verify_get(self.proxy.get_qos_policy, qos_policy.QoSPolicy)
+    def test_qos_minimum_packet_rate_rule_get(self):
+        self.verify_get(
+            self.proxy.get_qos_minimum_packet_rate_rule,
+            qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'qos_policy_id': QOS_POLICY_ID})
 
-    def test_qos_policies(self):
-        self.verify_list(self.proxy.qos_policies, qos_policy.QoSPolicy)
+    def test_qos_minimum_packet_rate_rules(self):
+        self.verify_list(
+            self.proxy.qos_minimum_packet_rate_rules,
+            qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            method_kwargs={'qos_policy': QOS_POLICY_ID},
+            expected_kwargs={'qos_policy_id': QOS_POLICY_ID})
 
-    def test_qos_policy_update(self):
-        self.verify_update(self.proxy.update_qos_policy, qos_policy.QoSPolicy)
+    def test_qos_minimum_packet_rate_rule_update(self):
+        policy = qos_policy.QoSPolicy.new(id=QOS_POLICY_ID)
+        self._verify(
+            'openstack.network.v2._proxy.Proxy._update',
+            self.proxy.update_qos_minimum_packet_rate_rule,
+            method_args=['rule_id', policy],
+            method_kwargs={'foo': 'bar'},
+            expected_args=[
+                qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+                'rule_id'],
+            expected_kwargs={
+                'qos_policy_id': QOS_POLICY_ID, 'foo': 'bar'})
 
 
 class TestNetworkQosRuleType(TestNetworkProxy):

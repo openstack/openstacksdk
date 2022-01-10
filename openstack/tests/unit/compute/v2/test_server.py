@@ -315,11 +315,14 @@ class TestServer(base.TestCase):
         # Let the translate pass through, that portion is tested elsewhere
         sot._translate_response = lambda arg: arg
 
-        result = sot.rebuild(self.sess, name='noo', admin_password='seekr3t',
-                             image='http://image/1', access_ipv4="12.34.56.78",
-                             access_ipv6="fe80::100",
-                             metadata={"meta var": "meta val"},
-                             user_data="ZWNobyAiaGVsbG8gd29ybGQi")
+        result = sot.rebuild(
+            self.sess, name='noo', admin_password='seekr3t',
+            image='http://image/1', access_ipv4="12.34.56.78",
+            access_ipv6="fe80::100",
+            metadata={"meta var": "meta val"},
+            user_data="ZWNobyAiaGVsbG8gd29ybGQi",
+            preserve_ephemeral=False
+        )
 
         self.assertIsInstance(result, server.Server)
 
@@ -357,7 +360,6 @@ class TestServer(base.TestCase):
                 "name": "nootoo",
                 "imageRef": "http://image/2",
                 "adminPass": "seekr3two",
-                "preserve_ephemeral": False
             }
         }
         headers = {'Accept': ''}

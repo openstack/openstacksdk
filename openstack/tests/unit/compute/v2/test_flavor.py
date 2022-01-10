@@ -66,7 +66,6 @@ class TestFlavor(base.TestCase):
     def test_make_basic(self):
         sot = flavor.Flavor(**BASIC_EXAMPLE)
         self.assertEqual(BASIC_EXAMPLE['id'], sot.id)
-        self.assertEqual(BASIC_EXAMPLE['links'], sot.links)
         self.assertEqual(BASIC_EXAMPLE['name'], sot.name)
         self.assertEqual(BASIC_EXAMPLE['description'], sot.description)
         self.assertEqual(BASIC_EXAMPLE['disk'], sot.disk)

@@ -161,12 +161,14 @@ def pick_microversion(session, required):
 
     :param session: The session to use for making this request.
     :type session: :class:`~keystoneauth1.adapter.Adapter`
-    :param required: Version that is required for an action.
+    :param required: Minimum version that is required for an action.
     :type required: String or tuple or None.
     :return: ``required`` as a string if the ``session``'s default is too low,
-        the ``session``'s default otherwise. Returns ``None`` of both
+        otherwise the ``session``'s default. Returns ``None`` if both
         are ``None``.
     :raises: TypeError if ``required`` is invalid.
+    :raises: :class:`~openstack.exceptions.SDKException` if requested
+        microversion is not supported.
     """
     if required is not None:
         required = discover.normalize_version_number(required)
@@ -190,7 +192,7 @@ def pick_microversion(session, required):
 
 
 def maximum_supported_microversion(adapter, client_maximum):
-    """Determinte the maximum microversion supported by both client and server.
+    """Determine the maximum microversion supported by both client and server.
 
     :param adapter: :class:`~keystoneauth1.adapter.Adapter` instance.
     :param client_maximum: Maximum microversion supported by the client.
@@ -233,6 +235,24 @@ def maximum_supported_microversion(adapter, client_maximum):
     return discover.version_to_string(result)
 
 
+def _hashes_up_to_date(md5, sha256, md5_key, sha256_key):
+    '''Compare md5 and sha256 hashes for being up to date
+
+    md5 and sha256 are the current values.
+    md5_key and sha256_key are the previous values.
+    '''
+    up_to_date = False
+    if md5 and md5_key == md5:
+        up_to_date = True
+    if sha256 and sha256_key == sha256:
+        up_to_date = True
+    if md5 and md5_key != md5:
+        up_to_date = False
+    if sha256 and sha256_key != sha256:
+        up_to_date = False
+    return up_to_date
+
+
 try:
     _test_md5 = hashlib.md5(usedforsecurity=False)  # nosec
 
@@ -251,6 +271,28 @@ except TypeError:
         parameter, we drop the parameter
         """
         return hashlib.md5(string)  # nosec
+
+
+def _calculate_data_hashes(data):
+    _md5 = md5(usedforsecurity=False)
+    _sha256 = hashlib.sha256()
+
+    if hasattr(data, 'read'):
+        for chunk in iter(lambda: data.read(8192), b''):
+            _md5.update(chunk)
+            _sha256.update(chunk)
+    else:
+        _md5.update(data)
+        _sha256.update(data)
+    return (_md5.hexdigest(), _sha256.hexdigest())
+
+
+def _get_file_hashes(filename):
+    (_md5, _sha256) = (None, None)
+    with open(filename, 'rb') as file_obj:
+        (_md5, _sha256) = _calculate_data_hashes(file_obj)
+
+    return (_md5, _sha256)
 
 
 class TinyDAG:

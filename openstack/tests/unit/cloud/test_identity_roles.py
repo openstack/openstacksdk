@@ -12,10 +12,10 @@
 # limitations under the License.
 
 import testtools
+from testtools import matchers
 
 import openstack.cloud
 from openstack.tests.unit import base
-from testtools import matchers
 
 
 RAW_ROLE_ASSIGNMENTS = [
@@ -119,22 +119,21 @@ class TestIdentityRoles(base.TestCase):
 
     def test_update_role(self):
         role_data = self._get_role_data()
-        req = {'role_id': role_data.role_id,
-               'role': {'name': role_data.role_name}}
+        req = {'role': {'name': 'new_name'}}
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(),
                  status_code=200,
                  json={'roles': [role_data.json_response['role']]}),
             dict(method='PATCH',
-                 uri=self.get_mock_url(),
+                 uri=self.get_mock_url(append=[role_data.role_id]),
                  status_code=200,
                  json=role_data.json_response,
                  validate=dict(json=req))
         ])
 
         role = self.cloud.update_role(
-            role_data.role_id, role_data.role_name)
+            role_data.role_id, 'new_name')
 
         self.assertIsNotNone(role)
         self.assertThat(role.name, matchers.Equals(role_data.role_name))
@@ -197,13 +196,18 @@ class TestIdentityRoles(base.TestCase):
         ])
         ret = self.cloud.list_role_assignments()
         self.assertThat(len(ret), matchers.Equals(2))
-        self.assertThat(ret[0].user, matchers.Equals(user_data.user_id))
-        self.assertThat(ret[0].id, matchers.Equals(role_data.role_id))
-        self.assertThat(ret[0].domain, matchers.Equals(domain_data.domain_id))
-        self.assertThat(ret[1].group, matchers.Equals(group_data.group_id))
-        self.assertThat(ret[1].id, matchers.Equals(role_data.role_id))
-        self.assertThat(ret[1].project,
-                        matchers.Equals(project_data.project_id))
+        self.assertThat(ret[0].user['id'], matchers.Equals(user_data.user_id))
+        self.assertThat(ret[0].role['id'], matchers.Equals(role_data.role_id))
+        self.assertThat(
+            ret[0].scope['domain']['id'],
+            matchers.Equals(domain_data.domain_id))
+        self.assertThat(
+            ret[1].group['id'],
+            matchers.Equals(group_data.group_id))
+        self.assertThat(ret[1].role['id'], matchers.Equals(role_data.role_id))
+        self.assertThat(
+            ret[1].scope['project']['id'],
+            matchers.Equals(project_data.project_id))
 
     def test_list_role_assignments_filters(self):
         domain_data = self._get_domain_data()
@@ -231,9 +235,11 @@ class TestIdentityRoles(base.TestCase):
                       effective=True)
         ret = self.cloud.list_role_assignments(filters=params)
         self.assertThat(len(ret), matchers.Equals(1))
-        self.assertThat(ret[0].user, matchers.Equals(user_data.user_id))
-        self.assertThat(ret[0].id, matchers.Equals(role_data.role_id))
-        self.assertThat(ret[0].domain, matchers.Equals(domain_data.domain_id))
+        self.assertThat(ret[0].user['id'], matchers.Equals(user_data.user_id))
+        self.assertThat(ret[0].role['id'], matchers.Equals(role_data.role_id))
+        self.assertThat(
+            ret[0].scope['domain']['id'],
+            matchers.Equals(domain_data.domain_id))
 
     def test_list_role_assignments_exception(self):
         self.register_uris([
@@ -242,83 +248,7 @@ class TestIdentityRoles(base.TestCase):
                  status_code=403)
         ])
         with testtools.ExpectedException(
-            openstack.cloud.exc.OpenStackCloudHTTPError,
-            "Failed to list role assignments"
+            openstack.cloud.exc.OpenStackCloudHTTPError
         ):
             self.cloud.list_role_assignments()
         self.assert_calls()
-
-    def test_list_role_assignments_keystone_v2(self):
-        self.use_keystone_v2()
-        role_data = self._get_role_data()
-        user_data = self._get_user_data()
-        project_data = self._get_project_data(v3=False)
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='tenants',
-                     append=[project_data.project_id,
-                             'users',
-                             user_data.user_id,
-                             'roles'],
-                     base_url_append=None),
-                 status_code=200,
-                 json={'roles': [role_data.json_response['role']]})
-        ])
-        ret = self.cloud.list_role_assignments(
-            filters={
-                'user': user_data.user_id,
-                'project': project_data.project_id})
-        self.assertThat(len(ret), matchers.Equals(1))
-        self.assertThat(ret[0].project,
-                        matchers.Equals(project_data.project_id))
-        self.assertThat(ret[0].id, matchers.Equals(role_data.role_id))
-        self.assertThat(ret[0].user, matchers.Equals(user_data.user_id))
-        self.assert_calls()
-
-    def test_list_role_assignments_keystone_v2_with_role(self):
-        self.use_keystone_v2()
-        roles_data = [self._get_role_data() for r in range(0, 2)]
-        user_data = self._get_user_data()
-        project_data = self._get_project_data(v3=False)
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     resource='tenants',
-                     append=[project_data.project_id,
-                             'users',
-                             user_data.user_id,
-                             'roles'],
-                     base_url_append=None),
-                 status_code=200,
-                 json={'roles': [r.json_response['role'] for r in roles_data]})
-        ])
-        ret = self.cloud.list_role_assignments(
-            filters={
-                'role': roles_data[0].role_id,
-                'user': user_data.user_id,
-                'project': project_data.project_id})
-        self.assertThat(len(ret), matchers.Equals(1))
-        self.assertThat(ret[0].project,
-                        matchers.Equals(project_data.project_id))
-        self.assertThat(ret[0].id, matchers.Equals(roles_data[0].role_id))
-        self.assertThat(ret[0].user, matchers.Equals(user_data.user_id))
-        self.assert_calls()
-
-    def test_list_role_assignments_exception_v2(self):
-        self.use_keystone_v2()
-        with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudException,
-            "Must provide project and user for keystone v2"
-        ):
-            self.cloud.list_role_assignments()
-            self.assert_calls()
-
-    def test_list_role_assignments_exception_v2_no_project(self):
-        self.use_keystone_v2()
-        with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudException,
-            "Must provide project and user for keystone v2"
-        ):
-            self.cloud.list_role_assignments(filters={'user': '12345'})
-            self.assert_calls()

@@ -19,10 +19,10 @@ test_cloud_services
 Tests Keystone services commands.
 """
 
-from openstack.cloud.exc import OpenStackCloudException
-from openstack.cloud.exc import OpenStackCloudUnavailableFeature
-from openstack.tests.unit import base
 from testtools import matchers
+
+from openstack.cloud.exc import OpenStackCloudException
+from openstack.tests.unit import base
 
 
 class CloudServices(base.TestCase):
@@ -35,33 +35,6 @@ class CloudServices(base.TestCase):
 
         return super(CloudServices, self).get_mock_url(
             service_type, interface, resource, append, base_url_append)
-
-    def test_create_service_v2(self):
-        self.use_keystone_v2()
-        service_data = self._get_service_data(name='a service', type='network',
-                                              description='A test service')
-        reference_req = service_data.json_request.copy()
-        reference_req.pop('enabled')
-        self.register_uris([
-            dict(method='POST',
-                 uri=self.get_mock_url(base_url_append='OS-KSADM'),
-                 status_code=200,
-                 json=service_data.json_response_v2,
-                 validate=dict(json={'OS-KSADM:service': reference_req}))
-        ])
-
-        service = self.cloud.create_service(
-            name=service_data.service_name,
-            service_type=service_data.service_type,
-            description=service_data.description)
-        self.assertThat(service.name,
-                        matchers.Equals(service_data.service_name))
-        self.assertThat(service.id, matchers.Equals(service_data.service_id))
-        self.assertThat(service.description,
-                        matchers.Equals(service_data.description))
-        self.assertThat(service.type,
-                        matchers.Equals(service_data.service_type))
-        self.assert_calls()
 
     def test_create_service_v3(self):
         service_data = self._get_service_data(name='a service', type='network',
@@ -86,13 +59,6 @@ class CloudServices(base.TestCase):
         self.assertThat(service.type,
                         matchers.Equals(service_data.service_type))
         self.assert_calls()
-
-    def test_update_service_v2(self):
-        self.use_keystone_v2()
-        # NOTE(SamYaple): Update service only works with v3 api
-        self.assertRaises(OpenStackCloudUnavailableFeature,
-                          self.cloud.update_service,
-                          'service_id', name='new name')
 
     def test_update_service_v3(self):
         service_data = self._get_service_data(name='a service', type='network',

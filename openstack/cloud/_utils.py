@@ -329,7 +329,7 @@ def normalize_role_assignments(assignments):
             if scope in assignment['scope']:
                 new_val[scope] = assignment['scope'][scope]['id']
         for assignee in ('user', 'group'):
-            if assignee in assignment:
+            if assignment[assignee]:
                 new_val[assignee] = assignment[assignee]['id']
         new_assignments.append(new_val)
     return new_assignments
@@ -362,7 +362,7 @@ def valid_kwargs(*valid_args):
     #
     @decorator
     def func_wrapper(func, *args, **kwargs):
-        argspec = inspect.getargspec(func)
+        argspec = inspect.getfullargspec(func)
         for k in kwargs:
             if k not in argspec.args[1:] and k not in valid_args:
                 raise TypeError(

@@ -30,8 +30,8 @@ class Pool(resource.Resource):
     _query_mapping = resource.QueryParameters(
         'description', 'lb_algorithm', 'name',
         'protocol', 'provider', 'subnet_id', 'virtual_ip_id', 'listener_id',
+        'project_id',
         is_admin_state_up='admin_state_up',
-        project_id='tenant_id',
         load_balancer_id='loadbalancer_id',
     )
 
@@ -67,7 +67,9 @@ class Pool(resource.Resource):
     #: Pool name. Does not have to be unique.
     name = resource.Body('name')
     #: The ID of the project this pool is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The protocol of the pool, which is TCP, HTTP, or HTTPS.
     protocol = resource.Body('protocol')
     #: The provider name of the load balancer service.

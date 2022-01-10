@@ -9,10 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from unittest import mock
 
-from openstack.tests.unit import base
+from keystoneauth1 import adapter
 
 from openstack.block_storage.v2 import snapshot
+from openstack.tests.unit import base
+
 
 FAKE_ID = "ffa9bc5e-1172-4021-acaf-cdcd78a9584d"
 
@@ -71,24 +74,27 @@ class TestSnapshot(base.TestCase):
         self.assertTrue(sot.is_forced)
 
 
-class TestSnapshotDetail(base.TestCase):
+class TestSnapshotActions(base.TestCase):
 
-    def test_basic(self):
-        sot = snapshot.SnapshotDetail(DETAILED_SNAPSHOT)
-        self.assertIsInstance(sot, snapshot.Snapshot)
-        self.assertEqual("/snapshots/detail", sot.base_path)
-        self.assertFalse(sot.allow_fetch)
-        self.assertFalse(sot.allow_commit)
-        self.assertFalse(sot.allow_create)
-        self.assertFalse(sot.allow_delete)
-        self.assertTrue(sot.allow_list)
+    def setUp(self):
+        super(TestSnapshotActions, self).setUp()
+        self.resp = mock.Mock()
+        self.resp.body = None
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.resp.headers = {}
+        self.resp.status_code = 202
 
-    def test_create_detailed(self):
-        sot = snapshot.SnapshotDetail(**DETAILED_SNAPSHOT)
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.get = mock.Mock()
+        self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess.default_microversion = None
 
-        self.assertEqual(
-            DETAILED_SNAPSHOT["os-extended-snapshot-attributes:progress"],
-            sot.progress)
-        self.assertEqual(
-            DETAILED_SNAPSHOT["os-extended-snapshot-attributes:project_id"],
-            sot.project_id)
+    def test_reset(self):
+        sot = snapshot.Snapshot(**SNAPSHOT)
+
+        self.assertIsNone(sot.reset(self.sess, 'new_status'))
+
+        url = 'snapshots/%s/action' % FAKE_ID
+        body = {'os-reset_status': {'status': 'new_status'}}
+        self.sess.post.assert_called_with(
+            url, json=body, microversion=sot._max_microversion)

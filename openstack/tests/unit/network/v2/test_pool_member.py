@@ -19,7 +19,7 @@ EXAMPLE = {
     'address': '1',
     'admin_state_up': True,
     'id': IDENTIFIER,
-    'tenant_id': '4',
+    'project_id': '4',
     'protocol_port': 5,
     'subnet_id': '6',
     'weight': 7,
@@ -46,7 +46,7 @@ class TestPoolMember(base.TestCase):
         self.assertEqual(EXAMPLE['address'], sot.address)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['id'], sot.id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['protocol_port'], sot.protocol_port)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['weight'], sot.weight)

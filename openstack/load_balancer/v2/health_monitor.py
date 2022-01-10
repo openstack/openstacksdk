@@ -9,11 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 
 
-class HealthMonitor(resource.Resource, resource.TagMixin):
+class HealthMonitor(resource.Resource, tag.TagMixin):
     resource_key = 'healthmonitor'
     resources_key = 'healthmonitors'
     base_path = '/lbaas/healthmonitors'
@@ -30,7 +30,7 @@ class HealthMonitor(resource.Resource, resource.TagMixin):
         'http_method', 'max_retries', 'max_retries_down', 'pool_id',
         'provisioning_status', 'operating_status', 'timeout',
         'project_id', 'type', 'url_path', is_admin_state_up='admin_state_up',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     #: Properties

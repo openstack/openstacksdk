@@ -29,9 +29,8 @@ class HealthMonitor(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'delay', 'expected_codes', 'http_method', 'max_retries',
-        'timeout', 'type', 'url_path',
+        'timeout', 'type', 'url_path', 'project_id',
         is_admin_state_up='adminstate_up',
-        project_id='tenant_id',
     )
 
     # Properties
@@ -54,7 +53,9 @@ class HealthMonitor(resource.Resource):
     #: The ID of the pool associated with this health monitor
     pool_id = resource.Body('pool_id')
     #: The ID of the project this health monitor is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The maximum number of seconds for a monitor to wait for a
     #: connection to be established before it times out. This value must
     #: be less than the delay value.

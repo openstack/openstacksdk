@@ -21,6 +21,7 @@ class Container(_base.BaseResource):
         "content_type": "content-type",
         "is_content_type_detected": "x-detect-content-type",
         "versions_location": "x-versions-location",
+        "history_location": "x-history-location",
         "read_ACL": "x-container-read",
         "write_ACL": "x-container-write",
         "sync_to": "x-container-sync-to",
@@ -86,6 +87,8 @@ class Container(_base.BaseResource):
     #: the name before you include it in the header. To disable
     #: versioning, set the header to an empty string.
     versions_location = resource.Header("x-versions-location")
+    #: Enables versioning on the container.
+    history_location = resource.Header("x-history-location")
     #: The MIME type of the list of names.
     content_type = resource.Header("content-type")
     #: If set to true, Object Storage guesses the content type based
@@ -93,6 +96,10 @@ class Container(_base.BaseResource):
     #: Content-Type header, if present. *Type: bool*
     is_content_type_detected = resource.Header("x-detect-content-type",
                                                type=bool)
+
+    #: Storage policy used by the container.
+    #: It is not possible to change policy of an existing container
+    storage_policy = resource.Header("x-storage-policy")
     # TODO(mordred) Shouldn't if-none-match be handled more systemically?
     #: In combination with Expect: 100-Continue, specify an
     #: "If-None-Match: \*" header to query whether the server already

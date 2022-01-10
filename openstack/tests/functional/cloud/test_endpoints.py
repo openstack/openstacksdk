@@ -77,6 +77,8 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
     def test_create_endpoint(self):
         service_name = self.new_item_name + '_create'
 
+        region = list(self.operator_cloud.identity.regions())[0].id
+
         service = self.operator_cloud.create_service(
             name=service_name, type='test_type',
             description='this is a test description')
@@ -86,7 +88,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
             public_url='http://public.test/',
             internal_url='http://internal.test/',
             admin_url='http://admin.url/',
-            region=service_name)
+            region=region)
 
         self.assertNotEqual([], endpoints)
         self.assertIsNotNone(endpoints[0].get('id'))
@@ -95,7 +97,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
         endpoints = self.operator_cloud.create_endpoint(
             service_name_or_id=service['id'],
             public_url='http://public.test/',
-            region=service_name)
+            region=region)
 
         self.assertNotEqual([], endpoints)
         self.assertIsNotNone(endpoints[0].get('id'))
@@ -108,13 +110,17 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
                               self.operator_cloud.update_endpoint,
                               'endpoint_id1')
         else:
+            # service operations require existing region. Do not test updating
+            # region for now
+            region = list(self.operator_cloud.identity.regions())[0].id
+
             service = self.operator_cloud.create_service(
                 name='service1', type='test_type')
             endpoint = self.operator_cloud.create_endpoint(
                 service_name_or_id=service['id'],
                 url='http://admin.url/',
                 interface='admin',
-                region='orig_region',
+                region=region,
                 enabled=False)[0]
 
             new_service = self.operator_cloud.create_service(
@@ -124,17 +130,19 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
                 service_name_or_id=new_service.id,
                 url='http://public.url/',
                 interface='public',
-                region='update_region',
+                region=region,
                 enabled=True)
 
             self.assertEqual(new_endpoint.url, 'http://public.url/')
             self.assertEqual(new_endpoint.interface, 'public')
-            self.assertEqual(new_endpoint.region, 'update_region')
+            self.assertEqual(new_endpoint.region_id, region)
             self.assertEqual(new_endpoint.service_id, new_service.id)
-            self.assertTrue(new_endpoint.enabled)
+            self.assertTrue(new_endpoint.is_enabled)
 
     def test_list_endpoints(self):
         service_name = self.new_item_name + '_list'
+
+        region = list(self.operator_cloud.identity.regions())[0].id
 
         service = self.operator_cloud.create_service(
             name=service_name, type='test_type',
@@ -144,7 +152,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
             service_name_or_id=service['id'],
             public_url='http://public.test/',
             internal_url='http://internal.test/',
-            region=service_name)
+            region=region)
 
         observed_endpoints = self.operator_cloud.list_endpoints()
         found = False
@@ -164,12 +172,14 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
                                          e['publicurl'])
                         self.assertEqual('http://internal.test/',
                                          e['internalurl'])
-                    self.assertEqual(service_name, e['region'])
+                    self.assertEqual(region, e['region_id'])
 
         self.assertTrue(found, msg='new endpoint not found in endpoints list!')
 
     def test_delete_endpoint(self):
         service_name = self.new_item_name + '_delete'
+
+        region = list(self.operator_cloud.identity.regions())[0].id
 
         service = self.operator_cloud.create_service(
             name=service_name, type='test_type',
@@ -179,7 +189,7 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
             service_name_or_id=service['id'],
             public_url='http://public.test/',
             internal_url='http://internal.test/',
-            region=service_name)
+            region=region)
 
         self.assertNotEqual([], endpoints)
         for endpoint in endpoints:

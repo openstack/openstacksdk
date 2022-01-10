@@ -18,13 +18,12 @@ import warnings
 
 import jsonpatch
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import utils
 
 
-class BaremetalCloudMixin(_normalize.Normalizer):
+class BaremetalCloudMixin:
 
     @property
     def _baremetal_client(self):

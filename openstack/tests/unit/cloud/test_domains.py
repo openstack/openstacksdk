@@ -26,10 +26,12 @@ class TestDomains(base.TestCase):
 
     def get_mock_url(self, service_type='identity',
                      resource='domains',
-                     append=None, base_url_append='v3'):
+                     append=None, base_url_append='v3',
+                     qs_elements=None):
         return super(TestDomains, self).get_mock_url(
             service_type=service_type, resource=resource,
-            append=append, base_url_append=base_url_append)
+            append=append, base_url_append=base_url_append,
+            qs_elements=qs_elements)
 
     def test_list_domains(self):
         domain_data = self._get_domain_data()
@@ -60,10 +62,20 @@ class TestDomains(base.TestCase):
         domain_data = self._get_domain_data()
         response = {'domains': [domain_data.json_response['domain']]}
         self.register_uris([
-            dict(method='GET', uri=self.get_mock_url(), status_code=200,
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[domain_data.domain_id]),
+                 status_code=200,
+                 json=domain_data.json_response),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[domain_data.domain_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     qs_elements=['name=' + domain_data.domain_name]
+                 ),
+                 status_code=200,
                  json=response),
-            dict(method='GET', uri=self.get_mock_url(), status_code=200,
-                 json=response)])
+        ])
         domain = self.cloud.get_domain(name_or_id=domain_data.domain_id)
         domain_by_name = self.cloud.get_domain(
             name_or_id=domain_data.domain_name)
@@ -94,8 +106,7 @@ class TestDomains(base.TestCase):
         domain_data = self._get_domain_data(domain_name='domain_name',
                                             enabled=True)
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudBadRequest,
-            "Failed to create domain domain_name"
+            openstack.cloud.OpenStackCloudBadRequest
         ):
             self.register_uris([
                 dict(method='POST', uri=self.get_mock_url(), status_code=400,
@@ -124,8 +135,10 @@ class TestDomains(base.TestCase):
 
         domain_resource_uri = self.get_mock_url(append=[domain_data.domain_id])
         self.register_uris([
-            dict(method='GET', uri=self.get_mock_url(), status_code=200,
-                 json={'domains': [domain_data.json_response['domain']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[domain_data.domain_id]),
+                 status_code=200,
+                 json={'domain': domain_data.json_response['domain']}),
             dict(method='PATCH', uri=domain_resource_uri, status_code=200,
                  json=new_resp,
                  validate=dict(json={'domain': {'enabled': False}})),
@@ -149,8 +162,7 @@ class TestDomains(base.TestCase):
                  validate=dict(json={'domain': {'enabled': False}})),
             dict(method='DELETE', uri=domain_resource_uri, status_code=404)])
         with testtools.ExpectedException(
-            openstack.cloud.OpenStackCloudURINotFound,
-            "Failed to delete domain %s" % domain_data.domain_id
+            openstack.exceptions.ResourceNotFound
         ):
             self.cloud.delete_domain(domain_data.domain_id)
         self.assert_calls()
@@ -178,8 +190,10 @@ class TestDomains(base.TestCase):
             description=self.getUniqueString('domainDesc'))
         domain_resource_uri = self.get_mock_url(append=[domain_data.domain_id])
         self.register_uris([
-            dict(method='GET', uri=self.get_mock_url(), status_code=200,
-                 json={'domains': [domain_data.json_response['domain']]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(append=[domain_data.domain_id]),
+                 status_code=200,
+                 json={'domain': domain_data.json_response['domain']}),
             dict(method='PATCH', uri=domain_resource_uri, status_code=200,
                  json=domain_data.json_response,
                  validate=dict(json=domain_data.json_request))])
@@ -203,8 +217,7 @@ class TestDomains(base.TestCase):
                  json=domain_data.json_response,
                  validate=dict(json={'domain': {'enabled': False}}))])
         with testtools.ExpectedException(
-            openstack.exceptions.ConflictException,
-            "Error in updating domain %s" % domain_data.domain_id
+            openstack.exceptions.ConflictException
         ):
             self.cloud.delete_domain(domain_data.domain_id)
         self.assert_calls()

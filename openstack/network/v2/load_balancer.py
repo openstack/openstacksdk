@@ -44,7 +44,9 @@ class LoadBalancer(resource.Resource):
     #: *Type: list of dicts which contain the pool IDs*
     pool_ids = resource.Body('pools', type=list)
     #: The ID of the project this load balancer is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The name of the provider.
     provider = resource.Body('provider')
     #: Status of load balancer provisioning, e.g. ACTIVE, INACTIVE.

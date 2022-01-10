@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to list, get, and delete user messages
+    on the shared file system service.

@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    It is now possible to pass `metadata` parameter directly into the create_container,
+    create_object object_store methods and will not be ignored.

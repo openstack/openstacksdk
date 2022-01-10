@@ -68,6 +68,21 @@ class TestObject(base_test_object.BaseTestObject):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_head)
 
+        self.assertDictEqual(
+            {
+                'filename': 'filename',
+                'format': 'format',
+                'limit': 'limit',
+                'marker': 'marker',
+                'multipart_manifest': 'multipart-manifest',
+                'prefix': 'prefix',
+                'symlink': 'symlink',
+                'temp_url_expires': 'temp_url_expires',
+                'temp_url_sig': 'temp_url_sig'
+            },
+            sot._query_mapping._mapping
+        )
+
     def test_new(self):
         sot = obj.Object.new(container=self.container, name=self.object)
         self.assert_no_calls()
@@ -128,10 +143,14 @@ class TestObject(base_test_object.BaseTestObject):
         self.assert_calls()
 
     def _test_create(self, method, data):
-        sot = obj.Object.new(container=self.container, name=self.object,
-                             data=data)
+        sot = obj.Object.new(
+            container=self.container, name=self.object,
+            data=data, metadata={'foo': 'bar'})
         sot.is_newest = True
-        sent_headers = {"x-newest": 'True'}
+        sent_headers = {
+            "x-newest": 'True',
+            "X-Object-Meta-foo": "bar"
+        }
         self.register_uris([
             dict(method=method, uri=self.object_endpoint,
                  headers=self.headers,

@@ -22,9 +22,13 @@ class TestAcceleratorProxy(test_proxy_base.TestProxyBase):
         super(TestAcceleratorProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+
+class TestAcceleratorDeployable(TestAcceleratorProxy):
     def test_list_deployables(self):
         self.verify_list(self.proxy.deployables, deployable.Deployable)
 
+
+class TestAcceleratorDevice(TestAcceleratorProxy):
     def test_list_device_profile(self):
         self.verify_list(self.proxy.device_profiles,
                          device_profile.DeviceProfile)
@@ -45,6 +49,8 @@ class TestAcceleratorProxy(test_proxy_base.TestProxyBase):
         self.verify_get(self.proxy.get_device_profile,
                         device_profile.DeviceProfile)
 
+
+class TestAcceleratorRequest(TestAcceleratorProxy):
     def test_list_accelerator_request(self):
         self.verify_list(self.proxy.accelerator_requests,
                          accelerator_request.AcceleratorRequest)

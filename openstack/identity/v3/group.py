@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class Group(resource.Resource):
@@ -40,3 +42,31 @@ class Group(resource.Resource):
     domain_id = resource.Body('domain_id')
     #: Unique group name, within the owning domain. *Type: string*
     name = resource.Body('name')
+
+    def add_user(self, session, user):
+        """Add user to the group"""
+        url = utils.urljoin(
+            self.base_path, self.id, 'users', user.id)
+        resp = session.put(url,)
+        exceptions.raise_from_response(resp)
+
+    def remove_user(self, session, user):
+        """Remove user from the group"""
+        url = utils.urljoin(
+            self.base_path, self.id, 'users', user.id)
+        resp = session.delete(url,)
+        exceptions.raise_from_response(resp)
+
+    def check_user(self, session, user):
+        """Check whether user belongs to group"""
+        url = utils.urljoin(
+            self.base_path, self.id, 'users', user.id)
+        resp = session.head(url,)
+        if resp.status_code == 404:
+            # If we recieve 404 - treat this as False,
+            # rather then returning exception
+            return False
+        exceptions.raise_from_response(resp)
+        if resp.status_code == 204:
+            return True
+        return False

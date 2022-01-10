@@ -44,7 +44,9 @@ class VPNService(resource.Resource):
     #: ID of the router into which the VPN service is inserted.
     router_id = resource.Body('router_id')
     #: The ID of the project this vpnservice is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The vpnservice status.
     status = resource.Body('status')
     #: The ID of the subnet on which the tenant wants the vpnservice.

@@ -18,11 +18,14 @@ from unittest import mock
 import testtools
 
 import openstack.cloud
-import openstack.cloud.openstackcloud as oc_oc
 from openstack.cloud import exc
+import openstack.cloud.openstackcloud as oc_oc
 from openstack import exceptions
 from openstack.object_store.v1 import _proxy
+from openstack.object_store.v1 import container
+from openstack.object_store.v1 import obj
 from openstack.tests.unit import base
+from openstack import utils
 
 
 class BaseTestObject(base.TestCase):
@@ -37,6 +40,18 @@ class BaseTestObject(base.TestCase):
             endpoint=self.endpoint, container=self.container)
         self.object_endpoint = '{endpoint}/{object}'.format(
             endpoint=self.container_endpoint, object=self.object)
+
+    def _compare_containers(self, exp, real):
+        self.assertDictEqual(
+            container.Container(**exp).to_dict(
+                computed=False),
+            real.to_dict(computed=False))
+
+    def _compare_objects(self, exp, real):
+        self.assertDictEqual(
+            obj.Object(**exp).to_dict(
+                computed=False),
+            real.to_dict(computed=False))
 
 
 class TestObject(BaseTestObject):
@@ -79,14 +94,10 @@ class TestObject(BaseTestObject):
                      'Date': 'Fri, 16 Dec 2016 18:21:20 GMT',
                      'Content-Length': '0',
                      'Content-Type': 'text/html; charset=UTF-8',
-                 }),
-            dict(method='POST', uri=self.container_endpoint,
-                 status_code=201,
-                 validate=dict(
-                     headers={
-                         'x-container-read':
+                     'x-container-read':
                              oc_oc.OBJECT_CONTAINER_ACLS[
-                                 'public']})),
+                                 'public'],
+                 }),
             dict(method='HEAD', uri=self.container_endpoint,
                  headers={
                      'Content-Length': '0',
@@ -243,7 +254,7 @@ class TestObject(BaseTestObject):
             self.cloud.get_container_access(self.container)
 
     def test_list_containers(self):
-        endpoint = '{endpoint}/?format=json'.format(
+        endpoint = '{endpoint}/'.format(
             endpoint=self.endpoint)
         containers = [
             {u'count': 0, u'bytes': 0, u'name': self.container}]
@@ -254,10 +265,11 @@ class TestObject(BaseTestObject):
         ret = self.cloud.list_containers()
 
         self.assert_calls()
-        self.assertEqual(containers, ret)
+        for a, b in zip(containers, ret):
+            self._compare_containers(a, b)
 
     def test_list_containers_exception(self):
-        endpoint = '{endpoint}/?format=json'.format(
+        endpoint = '{endpoint}/'.format(
             endpoint=self.endpoint)
         self.register_uris([dict(method='GET', uri=endpoint, complete_qs=True,
                                  status_code=416)])
@@ -455,7 +467,8 @@ class TestObject(BaseTestObject):
         ret = self.cloud.list_objects(self.container)
 
         self.assert_calls()
-        self.assertEqual(objects, ret)
+        for a, b in zip(objects, ret):
+            self._compare_objects(a, b)
 
     def test_list_objects_with_prefix(self):
         endpoint = '{endpoint}?format=json&prefix=test'.format(
@@ -474,7 +487,8 @@ class TestObject(BaseTestObject):
         ret = self.cloud.list_objects(self.container, prefix='test')
 
         self.assert_calls()
-        self.assertEqual(objects, ret)
+        for a, b in zip(objects, ret):
+            self._compare_objects(a, b)
 
     def test_list_objects_exception(self):
         endpoint = '{endpoint}?format=json'.format(
@@ -641,7 +655,7 @@ class TestObjectUploads(BaseTestObject):
         self.object_file = tempfile.NamedTemporaryFile(delete=False)
         self.object_file.write(self.content)
         self.object_file.close()
-        (self.md5, self.sha256) = self.cloud._get_file_hashes(
+        (self.md5, self.sha256) = utils._get_file_hashes(
             self.object_file.name)
         self.endpoint = self.cloud._object_store_client.get_endpoint()
 
@@ -1065,11 +1079,12 @@ class TestObjectUploads(BaseTestObject):
                      'X-Trans-Id': 'txbbb825960a3243b49a36f-005a0dadaedfw1',
                      'Content-Length': '1290170880',
                      'Last-Modified': 'Tue, 14 Apr 2015 18:29:01 GMT',
-                     'x-object-meta-x-sdk-autocreated': 'true',
+                     'X-Object-Meta-x-sdk-autocreated': 'true',
                      'X-Object-Meta-X-Shade-Sha256': 'does not matter',
                      'X-Object-Meta-X-Shade-Md5': 'does not matter',
                      'Date': 'Thu, 16 Nov 2017 15:24:30 GMT',
                      'Accept-Ranges': 'bytes',
+                     'X-Static-Large-Object': 'false',
                      'Content-Type': 'application/octet-stream',
                      'Etag': '249219347276c331b87bf1ac2152d9af',
                  }),

@@ -82,8 +82,8 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
     def _neutron_list_floating_ips(self, filters=None):
         if not filters:
             filters = {}
-        data = self.network.get('/floatingips', params=filters)
-        return self._get_and_munchify('floatingips', data)
+        data = list(self.network.ips(**filters))
+        return data
 
     def _nova_list_floating_ips(self):
         try:
@@ -228,11 +228,8 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         error_message = "Error getting floating ip with ID {id}".format(id=id)
 
         if self._use_neutron_floating():
-            data = proxy._json_response(
-                self.network.get('/floatingips/{id}'.format(id=id)),
-                error_message=error_message)
-            return self._normalize_floating_ip(
-                self._get_and_munchify('floatingip', data))
+            fip = self.network.get_ip(id)
+            return self._normalize_floating_ip(fip)
         else:
             data = proxy._json_response(
                 self.compute.get('/os-floating-ips/{id}'.format(id=id)),
@@ -461,10 +458,8 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
 
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
-        data = self.network.post(
-            "/floatingips", json={"floatingip": kwargs})
-        return self._normalize_floating_ip(
-            self._get_and_munchify('floatingip', data))
+        data = self.network.create_ip(**kwargs)
+        return self._normalize_floating_ip(data)
 
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None,
@@ -474,8 +469,9 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
 
         if not network_id:
             if network_name_or_id:
-                network = self.get_network(network_name_or_id)
-                if not network:
+                try:
+                    network = self.network.find_network(network_name_or_id)
+                except exceptions.ResourceNotFound:
                     raise exc.OpenStackCloudResourceNotFound(
                         "unable to find network for floating ips with ID "
                         "{0}".format(network_name_or_id))
@@ -612,15 +608,11 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
 
     def _neutron_delete_floating_ip(self, floating_ip_id):
         try:
-            proxy._json_response(self.network.delete(
-                "/floatingips/{fip_id}".format(fip_id=floating_ip_id),
-                error_message="unable to delete floating IP"))
-        except exc.OpenStackCloudResourceNotFound:
+            self.network.delete_ip(
+                floating_ip_id, ignore_missing=False
+            )
+        except exceptions.ResourceNotFound:
             return False
-        except Exception as e:
-            raise exc.OpenStackCloudException(
-                "Unable to delete floating IP ID {fip_id}: {msg}".format(
-                    fip_id=floating_ip_id, msg=str(e)))
         return True
 
     def _nova_delete_floating_ip(self, floating_ip_id):
@@ -751,14 +743,9 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         if fixed_address is not None:
             floating_ip_args['fixed_ip_address'] = fixed_address
 
-        return proxy._json_response(
-            self.network.put(
-                "/floatingips/{fip_id}".format(fip_id=floating_ip['id']),
-                json={'floatingip': floating_ip_args}),
-            error_message=("Error attaching IP {ip} to "
-                           "server {server_id}".format(
-                               ip=floating_ip['id'],
-                               server_id=server['id'])))
+        return self.network.update_ip(
+            floating_ip,
+            **floating_ip_args)
 
     def _nova_attach_ip_to_server(self, server_id, floating_ip_id,
                                   fixed_address=None):
@@ -809,13 +796,16 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         f_ip = self.get_floating_ip(id=floating_ip_id)
         if f_ip is None or not f_ip['attached']:
             return False
-        exceptions.raise_from_response(
-            self.network.put(
-                "/floatingips/{fip_id}".format(fip_id=floating_ip_id),
-                json={"floatingip": {"port_id": None}}),
-            error_message=("Error detaching IP {ip} from "
-                           "server {server_id}".format(
-                               ip=floating_ip_id, server_id=server_id)))
+        try:
+            self.network.update_ip(
+                floating_ip_id,
+                port_id=None
+            )
+        except exceptions.SDKException:
+            raise exceptions.SDKException(
+                ("Error detaching IP {ip} from "
+                 "server {server_id}".format(
+                     ip=floating_ip_id, server_id=server_id)))
 
         return True
 

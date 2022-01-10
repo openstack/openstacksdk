@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to create, update, list, get, and delete shares
+    (from shared file system service).

@@ -9,8 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-from openstack.compute.v2 import metadata
+from openstack.common import metadata
 from openstack import resource
 
 
@@ -38,8 +37,6 @@ class Image(resource.Resource, metadata.MetadataMixin):
     name = resource.Body('name')
     #: Timestamp when the image was created.
     created_at = resource.Body('created')
-    #: Metadata pertaining to this image. *Type: dict*
-    metadata = resource.Body('metadata', type=dict)
     #: The mimimum disk size. *Type: int*
     min_disk = resource.Body('minDisk', type=int)
     #: The minimum RAM size. *Type: int*

@@ -21,8 +21,9 @@ Tests floating IP resource methods for Neutron and Nova-network.
 
 from unittest.mock import patch
 
-from openstack import connection
 from openstack.cloud import meta
+from openstack.compute.v2 import server as _server
+from openstack import connection
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -96,7 +97,10 @@ class TestFloatingIP(base.TestCase):
                 }]
             }
         )
-        server_dict = meta.add_server_interfaces(self.cloud, server)
+        server_dict = meta.add_server_interfaces(
+            self.cloud,
+            _server.Server(**server)
+        )
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
@@ -136,7 +140,9 @@ class TestFloatingIP(base.TestCase):
                 }]
             }
         )
-        server_dict = meta.add_server_interfaces(self.cloud, server)
+        server_dict = meta.add_server_interfaces(
+            self.cloud,
+            _server.Server(**server))
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()
@@ -172,7 +178,9 @@ class TestFloatingIP(base.TestCase):
                 }]
             }
         )
-        server_dict = meta.add_server_interfaces(self.cloud, server)
+        server_dict = meta.add_server_interfaces(
+            self.cloud,
+            _server.Server(**server))
 
         new_server = self.cloud.add_ips_to_server(server=server_dict)
         mock_get_floating_ip.assert_not_called()

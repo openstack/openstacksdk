@@ -53,19 +53,20 @@ class Proxy(proxy.Proxy):
 
         :param kwargs query: Optional query parameters to be sent to
             restrict the devices to be returned. Available parameters include:
+
             * hostname: The hostname of the device.
             * type: The type of the device.
             * vendor: The vendor ID of the device.
             * sort: A list of sorting keys separated by commas. Each sorting
-            key can optionally be attached with a sorting direction
-            modifier which can be ``asc`` or ``desc``.
+              key can optionally be attached with a sorting direction
+              modifier which can be ``asc`` or ``desc``.
             * limit: Requests a specified size of returned items from the
-            query.  Returns a number of items up to the specified limit
-            value.
+              query. Returns a number of items up to the specified limit
+              value.
             * marker: Specifies the ID of the last-seen item. Use the limit
-            parameter to make an initial limited request and use the ID of
-            the last-seen item from the response as the marker parameter
-            value in a subsequent limited request.
+              parameter to make an initial limited request and use the ID of
+              the last-seen item from the response as the marker parameter
+              value in a subsequent limited request.
         :returns: A generator of device instances.
         """
         return self._list(_device.Device, **query)
@@ -97,11 +98,13 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_device_profile.DeviceProfile, **attrs)
 
-    def delete_device_profile(self, name_or_id, ignore_missing=True):
+    def delete_device_profile(self, device_profile, ignore_missing=True):
         """Delete a device profile
 
-        :param name_or_id: The value can be either the ID or name of
-            a device profile.
+        :param device_profile: The value can be either the ID of a device
+            profile or a
+            :class:`~openstack.accelerator.v2.device_profile.DeviceProfile`
+            instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the device profile does not exist.
@@ -109,8 +112,10 @@ class Proxy(proxy.Proxy):
             attempting to delete a nonexistent device profile.
         :returns: ``None``
         """
-        return self._delete(_device_profile.DeviceProfile,
-                            name_or_id, ignore_missing=ignore_missing)
+        return self._delete(
+            _device_profile.DeviceProfile,
+            device_profile,
+            ignore_missing=ignore_missing)
 
     def get_device_profile(self, uuid, fields=None):
         """Get a single device profile.
@@ -140,35 +145,44 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_arq.AcceleratorRequest, **attrs)
 
-    def delete_accelerator_request(self, name_or_id, ignore_missing=True):
+    def delete_accelerator_request(
+        self, accelerator_request, ignore_missing=True,
+    ):
         """Delete a device profile
-        :param name_or_id: The value can be either the ID or name of
-        an accelerator request.
+
+        :param device_profile: The value can be either the ID of a device
+            profile or a
+            :class:`~openstack.accelerator.v2.device_profile.DeviceProfile`
+            instance.
         :param bool ignore_missing: When set to ``False``
-        :class:`~openstack.exceptions.ResourceNotFound` will be
-        raised when the device profile does not exist.
-        When set to ``True``, no exception will be set when
-        attempting to delete a nonexistent accelerator request.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the device profile does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent accelerator request.
         :returns: ``None``
         """
-        return self._delete(_arq.AcceleratorRequest, name_or_id,
-                            ignore_missing=ignore_missing)
+        return self._delete(
+            _arq.AcceleratorRequest,
+            accelerator_request,
+            ignore_missing=ignore_missing)
 
     def get_accelerator_request(self, uuid, fields=None):
         """Get a single accelerator request.
+
         :param uuid: The value can be the UUID of a accelerator request.
         :returns: One :class:
-        `~openstack.accelerator.v2.accelerator_request.AcceleratorRequest`
+            `~openstack.accelerator.v2.accelerator_request.AcceleratorRequest`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
-        accelerator request matching the criteria could be found.
+            accelerator request matching the criteria could be found.
         """
         return self._get(_arq.AcceleratorRequest, uuid)
 
     def update_accelerator_request(self, uuid, properties):
         """Bind/Unbind an accelerator to VM.
+
         :param uuid: The uuid of the accelerator_request to be bound/unbound.
         :param properties: The info of VM
-        that will bind/unbind the accelerator.
+            that will bind/unbind the accelerator.
         :returns: True if bind/unbind succeeded, False otherwise.
         """
         return self._get_resource(_arq.AcceleratorRequest,

@@ -27,6 +27,8 @@ from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
+from openstack.compute.v2 import quota_set as _qs
+from openstack.compute.v2 import server as _server
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
@@ -72,13 +74,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
     @_utils.cache_on_arguments()
     def _nova_extensions(self):
-        extensions = set()
-        data = proxy._json_response(
-            self.compute.get('/extensions'),
-            error_message="Error fetching extension list for nova")
-
-        for extension in self._get_and_munchify('extensions', data):
-            extensions.add(extension['alias'])
+        extensions = set([e.alias for e in self.compute.extensions()])
         return extensions
 
     def _has_nova_extension(self, extension_name):
@@ -160,19 +156,14 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :returns: A list of flavor ``munch.Munch``.
 
         """
-        data = self.compute.flavors(details=True)
-        flavors = []
-
-        for flavor in data:
-            if not flavor.extra_specs and get_extra:
-                flavor.fetch_extra_specs(self.compute)
-            flavors.append(flavor._to_munch(original_names=False))
+        flavors = list(self.compute.flavors(
+            details=True, get_extra_specs=get_extra))
         return flavors
 
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
 
-        :returns: A list of security group ``munch.Munch``.
+        :returns: A list of security group dictionary objects.
         """
 
         # Don't even try if we're a cloud that doesn't have them
@@ -183,7 +174,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         server.fetch_security_groups(self.compute)
 
-        return self._normalize_secgroups(server.security_groups)
+        return server.security_groups
 
     def _get_server_security_groups(self, server, security_groups):
         if not self._has_secgroups():
@@ -328,17 +319,11 @@ class ComputeCloudMixin(_normalize.Normalizer):
     def _list_servers(self, detailed=False, all_projects=False, bare=False,
                       filters=None):
         filters = filters or {}
-        servers = [
-            # TODO(mordred) Add original_names=False here and update the
-            # normalize file for server. Then, just remove the normalize call
-            # and the to_munch call.
-            self._normalize_server(server._to_munch())
-            for server in self.compute.servers(
-                all_projects=all_projects, allow_unknown_params=True,
-                **filters)]
         return [
             self._expand_server(server, detailed, bare)
-            for server in servers
+            for server in self.compute.servers(
+                all_projects=all_projects, allow_unknown_params=True,
+                **filters)
         ]
 
     def list_server_groups(self):
@@ -356,11 +341,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
                            if different from the current project
         :raises: OpenStackCloudException if it's not a valid project
 
-        :returns: Munch object with the limits
+        :returns: :class:`~openstack.compute.v2.limits.Limits` object.
         """
         params = {}
         project_id = None
-        error_msg = "Failed to get limits"
         if name_or_id:
 
             proj = self.get_project(name_or_id)
@@ -368,13 +352,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 raise exc.OpenStackCloudException("project does not exist")
             project_id = proj.id
             params['tenant_id'] = project_id
-            error_msg = "{msg} for the project: {project} ".format(
-                msg=error_msg, project=name_or_id)
-
-        data = proxy._json_response(
-            self.compute.get('/limits', params=params))
-        limits = self._get_and_munchify('limits', data)
-        return self._normalize_compute_limits(limits, project_id=project_id)
+        return self.compute.get_limits(**params)
 
     def get_keypair(self, name_or_id, filters=None):
         """Get a keypair by name or ID.
@@ -429,9 +407,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         if not filters:
             filters = {}
         flavor = self.compute.find_flavor(
-            name_or_id, get_extra_specs=get_extra, **filters)
-        if flavor:
-            return flavor._to_munch(original_names=False)
+            name_or_id, get_extra_specs=get_extra,
+            ignore_missing=True, **filters)
+        return flavor
 
     def get_flavor_by_id(self, id, get_extra=False):
         """ Get a flavor by ID
@@ -442,8 +420,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
              specs.
         :returns: A flavor ``munch.Munch``.
         """
-        flavor = self.compute.get_flavor(id, get_extra_specs=get_extra)
-        return flavor._to_munch(original_names=False)
+        return self.compute.get_flavor(id, get_extra_specs=get_extra)
 
     def get_server_console(self, server, length=None):
         """Get the console log for a server.
@@ -531,14 +508,11 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param id: ID of the server.
 
-        :returns: A server dict or None if no matching server is found.
+        :returns: A server object or None if no matching server is found.
         """
         try:
-            data = proxy._json_response(
-                self.compute.get('/servers/{id}'.format(id=id)))
-            server = self._get_and_munchify('server', data)
-            return meta.add_server_interfaces(
-                self, self._normalize_server(server))
+            server = self.compute.get_server(id)
+            return meta.add_server_interfaces(self, server)
         except exceptions.ResourceNotFound:
             return None
 
@@ -756,7 +730,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
             raise TypeError(
                 "create_server() requires either 'image' or 'boot_volume'")
 
-        microversion = None
         server_json = {'server': kwargs}
 
         # TODO(mordred) Add support for description starting in 2.19
@@ -856,7 +829,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
             # A tag supported only in server microversion 2.32-2.36 or >= 2.42
             # Bumping the version to 2.42 to support the 'tag' implementation
             if 'tag' in nic:
-                microversion = utils.pick_microversion(self.compute, '2.42')
+                utils.require_microversion(
+                    self.compute, '2.42')
                 net['tag'] = nic.pop('tag')
             if nic:
                 raise exc.OpenStackCloudException(
@@ -865,6 +839,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
             networks.append(net)
         if networks:
             kwargs['networks'] = networks
+        else:
+            # If user has not passed networks - let Nova try the best.
+            kwargs['networks'] = 'auto'
 
         if image:
             if isinstance(image, dict):
@@ -890,32 +867,27 @@ class ComputeCloudMixin(_normalize.Normalizer):
             volumes=volumes, kwargs=kwargs)
 
         kwargs['name'] = name
-        endpoint = '/servers'
+
+        server = self.compute.create_server(**kwargs)
         # TODO(mordred) We're only testing this in functional tests. We need
         # to add unit tests for this too.
-        if 'block_device_mapping_v2' in kwargs:
-            endpoint = '/os-volumes_boot'
-        with _utils.shade_exceptions("Error in creating instance"):
-            data = proxy._json_response(
-                self.compute.post(endpoint, json=server_json,
-                                  microversion=microversion))
-            server = self._get_and_munchify('server', data)
-            admin_pass = server.get('adminPass') or kwargs.get('admin_pass')
-            if not wait:
-                # This is a direct get call to skip the list_servers
-                # cache which has absolutely no chance of containing the
-                # new server.
-                # Only do this if we're not going to wait for the server
-                # to complete booting, because the only reason we do it
-                # is to get a server record that is the return value from
-                # get/list rather than the return value of create. If we're
-                # going to do the wait loop below, this is a waste of a call
-                server = self.get_server_by_id(server.id)
-                if server.status == 'ERROR':
-                    raise exc.OpenStackCloudCreateException(
-                        resource='server', resource_id=server.id)
+        admin_pass = server.admin_password or kwargs.get('admin_pass')
+        if not wait:
+            # This is a direct get call to skip the list_servers
+            # cache which has absolutely no chance of containing the
+            # new server.
+            # Only do this if we're not going to wait for the server
+            # to complete booting, because the only reason we do it
+            # is to get a server record that is the return value from
+            # get/list rather than the return value of create. If we're
+            # going to do the wait loop below, this is a waste of a call
+            server = self.compute.get_server(server.id)
+            if server.status == 'ERROR':
+                raise exc.OpenStackCloudCreateException(
+                    resource='server', resource_id=server.id)
+            server = meta.add_server_interfaces(self, server)
 
-        if wait:
+        else:
             server = self.wait_for_server(
                 server,
                 auto_ip=auto_ip, ips=ips, ip_pool=ip_pool,
@@ -923,7 +895,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 nat_destination=nat_destination,
             )
 
-        server.adminPass = admin_pass
+        server.admin_password = admin_pass
         return server
 
     def _get_boot_from_volume_kwargs(
@@ -1107,41 +1079,23 @@ class ComputeCloudMixin(_normalize.Normalizer):
                        wait=False, timeout=180):
         kwargs = {}
         if image_id:
-            kwargs['imageRef'] = image_id
+            kwargs['image'] = image_id
         if admin_pass:
-            kwargs['adminPass'] = admin_pass
+            kwargs['admin_password'] = admin_pass
 
-        data = proxy._json_response(
-            self.compute.post(
-                '/servers/{server_id}/action'.format(server_id=server_id),
-                json={'rebuild': kwargs}),
-            error_message="Error in rebuilding instance")
-        server = self._get_and_munchify('server', data)
+        server = self.compute.rebuild_server(
+            server_id,
+            **kwargs
+        )
         if not wait:
             return self._expand_server(
-                self._normalize_server(server), bare=bare, detailed=detailed)
+                server, bare=bare, detailed=detailed)
 
         admin_pass = server.get('adminPass') or admin_pass
-        for count in utils.iterate_timeout(
-                timeout,
-                "Timeout waiting for server {0} to "
-                "rebuild.".format(server_id),
-                wait=self._SERVER_AGE):
-            try:
-                server = self.get_server(server_id, bare=True)
-            except Exception:
-                continue
-            if not server:
-                continue
-
-            if server['status'] == 'ERROR':
-                raise exc.OpenStackCloudException(
-                    "Error in rebuilding the server",
-                    extra_data=dict(server=server))
-
-            if server['status'] == 'ACTIVE':
-                server.adminPass = admin_pass
-                break
+        server = self.compute.wait_for_server(
+            server, wait=timeout)
+        if server['status'] == 'ACTIVE':
+            server.adminPass = admin_pass
 
         return self._expand_server(server, detailed=detailed, bare=bare)
 
@@ -1200,7 +1154,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException on operation error.
         """
         # If delete_ips is True, we need the server to not be bare.
-        server = self.get_server(name_or_id, bare=True)
+        server = self.compute.find_server(
+            name_or_id, ignore_missing=True)
         if not server:
             return False
 
@@ -1244,15 +1199,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         if not server:
             return False
 
-        if delete_ips and self._has_floating_ips():
+        if delete_ips and self._has_floating_ips() and server['addresses']:
             self._delete_server_floating_ips(server, delete_ip_retry)
 
         try:
-            proxy._json_response(
-                self.compute.delete(
-                    '/servers/{id}'.format(id=server['id'])),
-                error_message="Error in deleting server")
-        except exc.OpenStackCloudURINotFound:
+            self.compute.delete_server(
+                server)
+        except exceptions.ResourceNotFound:
             return False
         except Exception:
             raise
@@ -1270,16 +1223,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 and self.get_volumes(server)):
             reset_volume_cache = True
 
-        for count in utils.iterate_timeout(
-                timeout,
-                "Timed out waiting for server to get deleted.",
-                # if _SERVER_AGE is 0 we still want to wait a bit
-                # to be friendly with the server.
-                wait=self._SERVER_AGE or 2):
-            with _utils.shade_exceptions("Error in deleting server"):
-                server = self.get_server(server['id'], bare=True)
-                if not server:
-                    break
+        if not isinstance(server, _server.Server):
+            # We might come here with Munch object (at the moment).
+            # If this is the case - convert it into real server to be able to
+            # use wait_for_delete
+            server = _server.Server(id=server['id'])
+        self.compute.wait_for_delete(
+            server, wait=timeout)
 
         if reset_volume_cache:
             self.list_volumes.invalidate(self)
@@ -1308,18 +1258,14 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        server = self.get_server(name_or_id=name_or_id, bare=True)
-        if server is None:
-            raise exc.OpenStackCloudException(
-                "failed to find server '{server}'".format(server=name_or_id))
+        server = self.compute.find_server(
+            name_or_id,
+            ignore_missing=False
+        )
 
-        data = proxy._json_response(
-            self.compute.put(
-                '/servers/{server_id}'.format(server_id=server['id']),
-                json={'server': kwargs}),
-            error_message="Error updating server {0}".format(name_or_id))
-        server = self._normalize_server(
-            self._get_and_munchify('server', data))
+        server = self.compute.update_server(
+            server, **kwargs)
+
         return self._expand_server(server, bare=bare, detailed=detailed)
 
     def create_server_group(self, name, policies=[], policy=None):
@@ -1393,9 +1339,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         if flavorid == 'auto':
             attrs['id'] = None
 
-        flavor = self.compute.create_flavor(**attrs)
-
-        return flavor._to_munch(original_names=False)
+        return self.compute.create_flavor(**attrs)
 
     def delete_flavor(self, name_or_id):
         """Delete a flavor
@@ -1470,8 +1414,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         """
-        access = self.compute.get_flavor_access(flavor_id)
-        return _utils.normalize_flavor_accesses(access)
+        return self.compute.get_flavor_access(flavor_id)
 
     def list_hypervisors(self, filters={}):
         """List all hypervisors
@@ -1643,25 +1586,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :raises: OpenStackCloudException if the resource to set the
             quota does not exist.
         """
-
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
-
-        # compute_quotas = {key: val for key, val in kwargs.items()
-        #                  if key in quota.COMPUTE_QUOTAS}
-        # TODO(ghe): Manage volume and network quotas
-        # network_quotas = {key: val for key, val in kwargs.items()
-        #                  if key in quota.NETWORK_QUOTAS}
-        # volume_quotas = {key: val for key, val in kwargs.items()
-        #                 if key in quota.VOLUME_QUOTAS}
-
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
         kwargs['force'] = True
-        proxy._json_response(
-            self.compute.put(
-                '/os-quota-sets/{project}'.format(project=proj.id),
-                json={'quota_set': kwargs}),
-            error_message="No valid quota or resource")
+        self.compute.update_quota_set(
+            _qs.QuotaSet(project_id=proj.id),
+            **kwargs
+        )
 
     def get_compute_quotas(self, name_or_id):
         """ Get quota for a project
@@ -1671,13 +1602,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :returns: Munch object with the quotas
         """
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
-        data = proxy._json_response(
-            self.compute.get(
-                '/os-quota-sets/{project}'.format(project=proj.id)))
-        return self._get_and_munchify('quota_set', data)
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
+        return self.compute.get_quota_set(proj)
 
     def delete_compute_quotas(self, name_or_id):
         """ Delete quota for a project
@@ -1688,12 +1615,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :returns: dict with the quotas
         """
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
-        return proxy._json_response(
-            self.compute.delete(
-                '/os-quota-sets/{project}'.format(project=proj.id)))
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
+        return self.compute.revert_quota_set(proj)
 
     def get_compute_usage(self, name_or_id, start=None, end=None):
         """ Get usage for a specific project

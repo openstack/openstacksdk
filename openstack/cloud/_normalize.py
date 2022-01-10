@@ -610,10 +610,19 @@ class Normalizer:
         ]
 
     def _normalize_floating_ip(self, ip):
-        ret = munch.Munch()
-
         # Copy incoming floating ip because of shared dicts in unittests
-        ip = ip.copy()
+        if isinstance(ip, resource.Resource):
+            ip = ip.to_dict(ignore_none=True, original_names=True)
+            location = ip.pop(
+                'location',
+                self._get_current_location(project_id=ip.get('owner')))
+        else:
+            location = self._get_current_location(
+                project_id=ip.get('owner'))
+            # This copy is to keep things from getting epically weird in tests
+            ip = ip.copy()
+
+        ret = munch.Munch(location=location)
 
         fixed_ip_address = ip.pop('fixed_ip_address', ip.pop('fixed_ip', None))
         floating_ip_address = ip.pop('floating_ip_address', ip.pop('ip', None))

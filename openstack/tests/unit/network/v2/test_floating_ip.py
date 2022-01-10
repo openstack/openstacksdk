@@ -25,7 +25,7 @@ EXAMPLE = {
     'id': IDENTIFIER,
     'port_id': '5',
     'qos_policy_id': '51',
-    'tenant_id': '6',
+    'project_id': '6',
     'router_id': '7',
     'description': '8',
     'dns_domain': '9',
@@ -61,7 +61,7 @@ class TestFloatingIP(base.TestCase):
                          sot.floating_network_id)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['router_id'], sot.router_id)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['dns_domain'], sot.dns_domain)
@@ -71,6 +71,26 @@ class TestFloatingIP(base.TestCase):
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)
         self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['tags'], sot.tags)
+
+        self.assertDictEqual(
+            {'limit': 'limit',
+             'marker': 'marker',
+             'description': 'description',
+             'project_id': 'project_id',
+             'tenant_id': 'project_id',
+             'status': 'status',
+             'port_id': 'port_id',
+             'subnet_id': 'subnet_id',
+             'router_id': 'router_id',
+             'fixed_ip_address': 'fixed_ip_address',
+             'floating_ip_address': 'floating_ip_address',
+             'floating_network_id': 'floating_network_id',
+             'tags': 'tags',
+             'any_tags': 'tags-any',
+             'not_tags': 'not-tags',
+             'not_any_tags': 'not-tags-any',
+             },
+            sot._query_mapping._mapping)
 
     def test_find_available(self):
         mock_session = mock.Mock(spec=proxy.Proxy)

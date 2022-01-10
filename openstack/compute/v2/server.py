@@ -9,8 +9,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
-from openstack.compute.v2 import metadata
+from openstack.common import metadata
+from openstack.common import tag
+from openstack.compute.v2 import volume_attachment
 from openstack import exceptions
 from openstack.image.v2 import image
 from openstack import resource
@@ -26,7 +27,7 @@ CONSOLE_TYPE_ACTION_MAPPING = {
 }
 
 
-class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
+class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     resource_key = 'server'
     resources_key = 'servers'
     base_path = '/servers'
@@ -60,7 +61,7 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         changes_before="changes-before",
         id="uuid",
         all_projects="all_tenants",
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     _max_microversion = '2.73'
@@ -82,7 +83,11 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     #: A list of an attached volumes. Each item in the list contains at least
     #: an "id" key to identify the specific volumes.
     attached_volumes = resource.Body(
-        'os-extended-volumes:volumes_attached')
+        'os-extended-volumes:volumes_attached',
+        aka='volumes',
+        type=list,
+        list_type=volume_attachment.VolumeAttachment,
+        default=[])
     #: The name of the availability zone this server is a part of.
     availability_zone = resource.Body('OS-EXT-AZ:availability_zone')
     #: Enables fine grained control of the block device mapping for an
@@ -128,6 +133,12 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     #: instance name template. Appears in the response for administrative users
     #: only.
     instance_name = resource.Body('OS-EXT-SRV-ATTR:instance_name')
+    #: The address to use to connect to this server from the current calling
+    #: context. This will be set to public_ipv6 if the calling host has
+    #: routable ipv6 addresses, and to private_ipv4 if the Connection was
+    #: created with private=True. Otherwise it will be set to public_ipv4.
+    interface_ip = resource.Computed('interface_ip', default='')
+
     # The locked status of the server
     is_locked = resource.Body('locked', type=bool)
     #: The UUID of the kernel image when using an AMI. Will be null if not.
@@ -143,8 +154,6 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     launched_at = resource.Body('OS-SRV-USG:launched_at')
     #: The maximum number of servers to create.
     max_count = resource.Body('max_count')
-    #: Metadata stored for this server. *Type: dict*
-    metadata = resource.Body('metadata', type=dict)
     #: The minimum number of servers to create.
     min_count = resource.Body('min_count')
     #: A networks object. Required parameter when there are multiple
@@ -159,6 +168,17 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
     progress = resource.Body('progress', type=int)
     #: The ID of the project this server is associated with.
     project_id = resource.Body('tenant_id')
+
+    #: The private IPv4 address of this server
+    private_v4 = resource.Computed('private_v4', default='')
+    #: The private IPv6 address of this server
+    private_v6 = resource.Computed('private_v6', default='')
+
+    #: The public IPv4 address of this server
+    public_v4 = resource.Computed('public_v4', default='')
+    #: The public IPv6 address of this server
+    public_v6 = resource.Computed('public_v6', default='')
+
     #: The UUID of the ramdisk image when using an AMI. Will be null if not.
     #: By default, it appears in the response for administrative users only.
     ramdisk_id = resource.Body('OS-EXT-SRV-ATTR:ramdisk_id')
@@ -273,16 +293,16 @@ class Server(resource.Resource, metadata.MetadataMixin, resource.TagMixin):
         body = {'forceDelete': None}
         self._action(session, body)
 
-    def rebuild(self, session, name=None, admin_password=None,
-                preserve_ephemeral=False, image=None,
+    def rebuild(self, session, image, name=None, admin_password=None,
+                preserve_ephemeral=None,
                 access_ipv4=None, access_ipv6=None,
                 metadata=None, user_data=None):
         """Rebuild the server with the given arguments."""
         action = {
-            'preserve_ephemeral': preserve_ephemeral
+            'imageRef': resource.Resource._get_id(image)
         }
-        if image is not None:
-            action['imageRef'] = resource.Resource._get_id(image)
+        if preserve_ephemeral is not None:
+            action['preserve_ephemeral'] = preserve_ephemeral
         if name is not None:
             action['name'] = name
         if admin_password is not None:

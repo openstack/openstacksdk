@@ -20,13 +20,16 @@ from openstack.compute.v2 import flavor
 from openstack.compute.v2 import hypervisor
 from openstack.compute.v2 import image
 from openstack.compute.v2 import keypair
-from openstack.compute.v2 import limits
+from openstack.compute.v2 import migration
+from openstack.compute.v2 import quota_set
 from openstack.compute.v2 import server
 from openstack.compute.v2 import server_group
 from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
+from openstack.compute.v2 import server_migration
 from openstack.compute.v2 import server_remote_console
 from openstack.compute.v2 import service
+from openstack import resource
 from openstack.tests.unit import test_proxy_base
 
 
@@ -549,7 +552,14 @@ class TestCompute(TestComputeProxy):
                          expected_kwargs={"query": 1})
 
     def test_limits_get(self):
-        self.verify_get(self.proxy.get_limits, limits.Limits, method_args=[])
+        self._verify(
+            "openstack.compute.v2.limits.Limits.fetch",
+            self.proxy.get_limits,
+            method_args=[],
+            method_kwargs={"a": "b"},
+            expected_args=[self.proxy],
+            expected_kwargs={"a": "b"},
+        )
 
     def test_server_interface_create(self):
         self.verify_create(self.proxy.create_server_interface,
@@ -714,19 +724,35 @@ class TestCompute(TestComputeProxy):
         self._verify(
             'openstack.compute.v2.server.Server.rebuild',
             self.proxy.rebuild_server,
-            method_args=["value", "test_server", "test_pass"],
-            method_kwargs={"metadata": {"k1": "v1"}, "image": image_obj},
-            expected_args=[self.proxy, "test_server", "test_pass"],
-            expected_kwargs={"metadata": {"k1": "v1"}, "image": image_obj})
+            method_args=["value"],
+            method_kwargs={
+                "name": "test_server",
+                "admin_password": "test_pass",
+                "metadata": {"k1": "v1"},
+                "image": image_obj},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "name": "test_server",
+                "admin_password": "test_pass",
+                "metadata": {"k1": "v1"},
+                "image": image_obj})
 
         # Case2: image name or id is provided
         self._verify(
             'openstack.compute.v2.server.Server.rebuild',
             self.proxy.rebuild_server,
-            method_args=["value", "test_server", "test_pass"],
-            method_kwargs={"metadata": {"k1": "v1"}, "image": id},
-            expected_args=[self.proxy, "test_server", "test_pass"],
-            expected_kwargs={"metadata": {"k1": "v1"}, "image": id})
+            method_args=["value"],
+            method_kwargs={
+                "name": "test_server",
+                "admin_password": "test_pass",
+                "metadata": {"k1": "v1"},
+                "image": id},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                "name": "test_server",
+                "admin_password": "test_pass",
+                "metadata": {"k1": "v1"},
+                "image": id})
 
     def test_add_fixed_ip_to_server(self):
         self._verify(
@@ -921,12 +947,11 @@ class TestCompute(TestComputeProxy):
 
     def test_get_all_server_metadata(self):
         self._verify(
-            "openstack.compute.v2.server.Server.get_metadata",
+            "openstack.compute.v2.server.Server.fetch_metadata",
             self.proxy.get_server_metadata,
             method_args=["value"],
-            method_result=server.Server(id="value", metadata={}),
             expected_args=[self.proxy],
-            expected_result={})
+            expected_result=server.Server(id="value", metadata={}))
 
     def test_set_server_metadata(self):
         kwargs = {"a": "1", "b": "2"}
@@ -938,15 +963,16 @@ class TestCompute(TestComputeProxy):
             method_kwargs=kwargs,
             method_result=server.Server.existing(id=id, metadata=kwargs),
             expected_args=[self.proxy],
-            expected_kwargs=kwargs,
-            expected_result=kwargs)
+            expected_kwargs={'metadata': kwargs},
+            expected_result=server.Server.existing(id=id, metadata=kwargs)
+        )
 
     def test_delete_server_metadata(self):
         self._verify(
-            "openstack.compute.v2.server.Server.delete_metadata",
+            "openstack.compute.v2.server.Server.delete_metadata_item",
             self.proxy.delete_server_metadata,
             expected_result=None,
-            method_args=["value", "key"],
+            method_args=["value", ["key"]],
             expected_args=[self.proxy, "key"])
 
     def test_create_image(self):
@@ -1006,6 +1032,56 @@ class TestCompute(TestComputeProxy):
             method_args=["value", "host1", False],
             expected_args=[self.proxy, "host1"],
             expected_kwargs={'force': False, 'block_migration': None})
+
+    def test_abort_server_migration(self):
+        self._verify(
+            'openstack.proxy.Proxy._delete',
+            self.proxy.abort_server_migration,
+            method_args=['server_migration', 'server'],
+            expected_args=[
+                server_migration.ServerMigration,
+                'server_migration',
+            ],
+            expected_kwargs={
+                'server_id': 'server',
+                'ignore_missing': True,
+            },
+        )
+
+    def test_force_complete_server_migration(self):
+        self._verify(
+            'openstack.compute.v2.server_migration.ServerMigration.force_complete',  # noqa: E501
+            self.proxy.force_complete_server_migration,
+            method_args=['server_migration', 'server'],
+            expected_args=[self.proxy],
+        )
+
+    def test_get_server_migration(self):
+        self._verify(
+            'openstack.proxy.Proxy._get',
+            self.proxy.get_server_migration,
+            method_args=['server_migration', 'server'],
+            expected_args=[
+                server_migration.ServerMigration,
+                'server_migration',
+            ],
+            expected_kwargs={
+                'server_id': 'server',
+                'ignore_missing': True,
+            },
+        )
+
+    def test_server_migrations(self):
+        self._verify(
+            'openstack.proxy.Proxy._list',
+            self.proxy.server_migrations,
+            method_args=['server'],
+            expected_args=[server_migration.ServerMigration],
+            expected_kwargs={'server_id': 'server'},
+        )
+
+    def test_migrations(self):
+        self.verify_list(self.proxy.migrations, migration.Migration)
 
     def test_fetch_security_groups(self):
         self._verify(
@@ -1084,3 +1160,86 @@ class TestCompute(TestComputeProxy):
                                type='fake_type',
                                protocol=None)
         self.assertEqual(console_fake['url'], ret['url'])
+
+
+class TestQuota(TestComputeProxy):
+    def test_get(self):
+        self._verify(
+            'openstack.resource.Resource.fetch',
+            self.proxy.get_quota_set,
+            method_args=['prj'],
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'error_message': None,
+                'requires_id': False,
+                'usage': False,
+            },
+            method_result=quota_set.QuotaSet(),
+            expected_result=quota_set.QuotaSet()
+        )
+
+    def test_get_query(self):
+        self._verify(
+            'openstack.resource.Resource.fetch',
+            self.proxy.get_quota_set,
+            method_args=['prj'],
+            method_kwargs={
+                'usage': True,
+                'user_id': 'uid'
+            },
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'error_message': None,
+                'requires_id': False,
+                'usage': True,
+                'user_id': 'uid'
+            }
+        )
+
+    def test_get_defaults(self):
+        self._verify(
+            'openstack.resource.Resource.fetch',
+            self.proxy.get_quota_set_defaults,
+            method_args=['prj'],
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'error_message': None,
+                'requires_id': False,
+                'base_path': '/os-quota-sets/defaults'
+            }
+        )
+
+    def test_reset(self):
+        self._verify(
+            'openstack.resource.Resource.delete',
+            self.proxy.revert_quota_set,
+            method_args=['prj'],
+            method_kwargs={'user_id': 'uid'},
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'user_id': 'uid'
+            }
+        )
+
+    @mock.patch('openstack.proxy.Proxy._get_resource', autospec=True)
+    def test_update(self, gr_mock):
+        gr_mock.return_value = resource.Resource()
+        gr_mock.commit = mock.Mock()
+        self._verify(
+            'openstack.resource.Resource.commit',
+            self.proxy.update_quota_set,
+            method_args=['qs'],
+            method_kwargs={
+                'query': {'user_id': 'uid'},
+                'a': 'b',
+            },
+            expected_args=[self.proxy],
+            expected_kwargs={
+                'user_id': 'uid'
+            }
+        )
+        gr_mock.assert_called_with(
+            self.proxy,
+            quota_set.QuotaSet,
+            'qs', a='b'
+        )

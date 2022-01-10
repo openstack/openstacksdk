@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support for retrieving storage pools information from
+    the Shared File Systems service.
