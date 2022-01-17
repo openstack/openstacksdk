@@ -102,10 +102,10 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
@@ -113,7 +113,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A floating IP ``munch.Munch`` or None if no matching floating
-                  IP is found.
+            IP is found.
 
         """
         return _utils._get_entity(self, 'floating_ip', id, filters)
@@ -250,7 +250,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         :returns: a list of floating IP addresses.
 
         :raises: ``OpenStackCloudResourceNotFound``, if an external network
-                 that meets the specified criteria cannot be found.
+            that meets the specified criteria cannot be found.
         """
         if project_id is None:
             # Make sure we are only listing floatingIPs allocated the current
@@ -309,7 +309,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         :returns: a list of floating IP addresses.
 
         :raises: ``OpenStackCloudResourceNotFound``, if a floating IP pool
-                 is not specified and cannot be found.
+            is not specified and cannot be found.
         """
 
         with _utils.shade_exceptions(
