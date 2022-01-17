@@ -63,11 +63,11 @@ class DnsCloudMixin:
         :param name: Name of the zone being created.
         :param zone_type: Type of the zone (primary/secondary)
         :param email: Email of the zone owner (only
-                      applies if zone_type is primary)
+            applies if zone_type is primary)
         :param description: Description of the zone
         :param ttl: TTL (Time to live) value in seconds
         :param masters: Master nameservers (only applies
-                        if zone_type is secondary)
+            if zone_type is secondary)
 
         :returns: a dict representing the created zone.
 
@@ -110,11 +110,11 @@ class DnsCloudMixin:
 
         :param name_or_id: Name or ID of the zone being updated.
         :param email: Email of the zone owner (only
-                      applies if zone_type is primary)
+            applies if zone_type is primary)
         :param description: Description of the zone
         :param ttl: TTL (Time to live) value in seconds
         :param masters: Master nameservers (only applies
-                        if zone_type is secondary)
+            if zone_type is secondary)
 
         :returns: a dict representing the updated zone.
 
