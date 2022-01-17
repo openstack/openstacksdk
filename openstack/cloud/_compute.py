@@ -127,10 +127,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """List names of availability zones.
 
         :param bool unavailable: Whether or not to include unavailable zones
-                                 in the output. Defaults to False.
+            in the output. Defaults to False.
 
         :returns: A list of availability zone names, or an empty list if the
-                  list could not be fetched.
+            list could not be fetched.
         """
         try:
             zones = self.compute.availability_zones()
@@ -150,9 +150,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """List all available flavors.
 
         :param get_extra: Whether or not to fetch extra specs for each flavor.
-                          Defaults to True. Default behavior value can be
-                          overridden in clouds.yaml by setting
-                          openstack.cloud.get_extra_specs to False.
+            Defaults to True. Default behavior value can be overridden in
+            clouds.yaml by setting openstack.cloud.get_extra_specs to False.
         :returns: A list of flavor ``munch.Munch``.
 
         """
@@ -270,13 +269,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """List all available servers.
 
         :param detailed: Whether or not to add detailed additional information.
-                         Defaults to False.
+            Defaults to False.
         :param all_projects: Whether to list servers from all projects or just
-                             the current auth scoped project.
+            the current auth scoped project.
         :param bare: Whether to skip adding any additional information to the
-                     server record. Defaults to False, meaning the addresses
-                     dict will be populated as needed from neutron. Setting
-                     to True implies detailed = False.
+            server record. Defaults to False, meaning the addresses dict will
+            be populated as needed from neutron. Setting to True implies
+            detailed = False.
         :param filters: Additional query parameters passed to the API server.
 
         :returns: A list of server ``munch.Munch``.
@@ -338,7 +337,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """ Get compute limits for a project
 
         :param name_or_id: (optional) project name or ID to get limits for
-                           if different from the current project
+            if different from the current project
         :raises: OpenStackCloudException if it's not a valid project
 
         :returns: :class:`~openstack.compute.v2.limits.Limits` object.
@@ -363,10 +362,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                'last_name': 'Smith',
+                'other': {
+                'gender': 'Female'
+                }
                 }
 
             OR
@@ -374,7 +373,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A keypair ``munch.Munch`` or None if no matching keypair is
-                  found.
+            found.
         """
         return _utils._get_entity(self, 'keypair', name_or_id, filters)
 
@@ -387,18 +386,17 @@ class ComputeCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
-        :param get_extra:
-             Whether or not the list_flavors call should get the extra flavor
-             specs.
+        :param get_extra: Whether or not the list_flavors call should get the
+            extra flavor specs.
 
         :returns: A flavor ``munch.Munch`` or None if no matching flavor is
             found.
@@ -416,8 +414,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param id: ID of the flavor.
         :param get_extra:
-             Whether or not the list_flavors call should get the extra flavor
-             specs.
+            Whether or not the list_flavors call should get the extra flavor
+            specs.
         :returns: A flavor ``munch.Munch``.
         """
         return self.compute.get_flavor(id, get_extra_specs=get_extra)
@@ -426,14 +424,14 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """Get the console log for a server.
 
         :param server: The server to fetch the console log for. Can be either
-                       a server dict or the Name or ID of the server.
+            a server dict or the Name or ID of the server.
         :param int length: The number of lines you would like to retrieve from
-                           the end of the log. (optional, defaults to all)
+            the end of the log. (optional, defaults to all)
 
         :returns: A string containing the text of the console log or an
-                  empty string if the cloud does not support console logs.
+            empty string if the cloud does not support console logs.
         :raises: OpenStackCloudException if an invalid server argument is given
-                 or if something else unforseen happens
+            or if something else unforseen happens
         """
 
         if not isinstance(server, dict):
@@ -467,26 +465,26 @@ class ComputeCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
         :param detailed: Whether or not to add detailed additional information.
-                         Defaults to False.
+            Defaults to False.
         :param bare: Whether to skip adding any additional information to the
-                     server record. Defaults to False, meaning the addresses
-                     dict will be populated as needed from neutron. Setting
-                     to True implies detailed = False.
+            server record. Defaults to False, meaning the addresses dict will
+            be populated as needed from neutron. Setting to True implies
+            detailed = False.
         :param all_projects: Whether to get server from all projects or just
-                             the current auth scoped project.
+            the current auth scoped project.
 
         :returns: A server ``munch.Munch`` or None if no matching server is
-                  found.
+            found.
 
         """
         searchfunc = functools.partial(self.search_servers,
@@ -525,7 +523,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'policy': 'affinity',
+                    'policy': 'affinity',
                 }
 
             OR
@@ -533,7 +531,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A server groups dict or None if no matching server group
-                  is found.
+            is found.
 
         """
         return _utils._get_entity(self, 'server_group', name_or_id,
@@ -575,14 +573,14 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """Create an image by snapshotting an existing server.
 
         ..note::
-            On most clouds this is a cold snapshot - meaning that the server
-            in question will be shutdown before taking the snapshot. It is
-            possible that it's a live snapshot - but there is no way to know
-            as a user, so caveat emptor.
+            On most clouds this is a cold snapshot - meaning that the server in
+            question will be shutdown before taking the snapshot. It is
+            possible that it's a live snapshot - but there is no way to know as
+            a user, so caveat emptor.
 
         :param name: Name of the image to be created
         :param server: Server name or ID or dict representing the server
-                       to be snapshotted
+            to be snapshotted
         :param wait: If true, waits for image to be created.
         :param timeout: Seconds to wait for image creation. None is forever.
         :param metadata: Metadata to give newly-created image entity
@@ -640,84 +638,76 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param name: Something to name the server.
         :param image: Image dict, name or ID to boot with. image is required
-                      unless boot_volume is given.
+            unless boot_volume is given.
         :param flavor: Flavor dict, name or ID to boot onto.
         :param auto_ip: Whether to take actions to find a routable IP for
-                        the server. (defaults to True)
+            the server. (defaults to True)
         :param ips: List of IPs to attach to the server (defaults to None)
         :param ip_pool: Name of the network or floating IP pool to get an
-                        address from. (defaults to None)
+            address from. (defaults to None)
         :param root_volume: Name or ID of a volume to boot from
-                            (defaults to None - deprecated, use boot_volume)
+            (defaults to None - deprecated, use boot_volume)
         :param boot_volume: Name or ID of a volume to boot from
-                            (defaults to None)
+            (defaults to None)
         :param terminate_volume: If booting from a volume, whether it should
-                                 be deleted when the server is destroyed.
-                                 (defaults to False)
+            be deleted when the server is destroyed.  (defaults to False)
         :param volumes: (optional) A list of volumes to attach to the server
         :param meta: (optional) A dict of arbitrary key/value metadata to
-                     store for this server. Both keys and values must be
-                     <=255 characters.
+            store for this server. Both keys and values must be <=255
+            characters.
         :param files: (optional, deprecated) A dict of files to overwrite
-                      on the server upon boot. Keys are file names (i.e.
-                      ``/etc/passwd``) and values
-                      are the file contents (either as a string or as a
-                      file-like object). A maximum of five entries is allowed,
-                      and each file must be 10k or less.
+            on the server upon boot. Keys are file names (i.e.
+            ``/etc/passwd``) and values are the file contents (either as a
+            string or as a file-like object). A maximum of five entries is
+            allowed, and each file must be 10k or less.
         :param reservation_id: a UUID for the set of servers being requested.
-        :param min_count: (optional extension) The minimum number of
-                          servers to launch.
-        :param max_count: (optional extension) The maximum number of
-                          servers to launch.
+        :param min_count: (optional extension) The minimum number of servers to
+            launch.
+        :param max_count: (optional extension) The maximum number of servers to
+            launch.
         :param security_groups: A list of security group names
         :param userdata: user data to pass to be exposed by the metadata
-                      server this can be a file type object as well or a
-                      string.
+            server this can be a file type object as well or a string.
         :param key_name: (optional extension) name of previously created
-                      keypair to inject into the instance.
+            keypair to inject into the instance.
         :param availability_zone: Name of the availability zone for instance
-                                  placement.
+            placement.
         :param block_device_mapping: (optional) A dict of block
-                      device mappings for this server.
+            device mappings for this server.
         :param block_device_mapping_v2: (optional) A dict of block
-                      device mappings for this server.
+            device mappings for this server.
         :param nics:  (optional extension) an ordered list of nics to be
-                      added to this server, with information about
-                      connected networks, fixed IPs, port etc.
+            added to this server, with information about connected networks,
+            fixed IPs, port etc.
         :param scheduler_hints: (optional extension) arbitrary key-value pairs
-                            specified by the client to help boot an instance
+            specified by the client to help boot an instance
         :param config_drive: (optional extension) value for config drive
-                            either boolean, or volume-id
+            either boolean, or volume-id
         :param disk_config: (optional extension) control how the disk is
-                            partitioned when the server is created.  possible
-                            values are 'AUTO' or 'MANUAL'.
+            partitioned when the server is created. possible values are 'AUTO'
+            or 'MANUAL'.
         :param admin_pass: (optional extension) add a user supplied admin
-                           password.
+            password.
         :param wait: (optional) Wait for the address to appear as assigned
-                     to the server. Defaults to False.
+            to the server. Defaults to False.
         :param timeout: (optional) Seconds to wait, defaults to 60.
-                        See the ``wait`` parameter.
+            See the ``wait`` parameter.
         :param reuse_ips: (optional) Whether to attempt to reuse pre-existing
-                                     floating ips should a floating IP be
-                                     needed (defaults to True)
+            floating ips should a floating IP be needed (defaults to True)
         :param network: (optional) Network dict or name or ID to attach the
-                        server to.  Mutually exclusive with the nics parameter.
-                        Can also be a list of network names or IDs or
-                        network dicts.
+            server to. Mutually exclusive with the nics parameter. Can also
+            be a list of network names or IDs or network dicts.
         :param boot_from_volume: Whether to boot from volume. 'boot_volume'
-                                 implies True, but boot_from_volume=True with
-                                 no boot_volume is valid and will create a
-                                 volume from the image and use that.
+            implies True, but boot_from_volume=True with no boot_volume is
+            valid and will create a volume from the image and use that.
         :param volume_size: When booting an image from volume, how big should
-                            the created volume be? Defaults to 50.
+            the created volume be? Defaults to 50.
         :param nat_destination: Which network should a created floating IP
-                                be attached to, if it's not possible to
-                                infer from the cloud's configuration.
-                                (Optional, defaults to None)
+            be attached to, if it's not possible to infer from the cloud's
+            configuration. (Optional, defaults to None)
         :param group: ServerGroup dict, name or id to boot the server in.
-                      If a group is provided in both scheduler_hints and in
-                      the group param, the group param will win.
-                      (Optional, defaults to None)
+            If a group is provided in both scheduler_hints and in the group
+            param, the group param will win. (Optional, defaults to None)
         :returns: A ``munch.Munch`` representing the created server.
         :raises: OpenStackCloudException on operation error.
         """
@@ -1102,11 +1092,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
     def set_server_metadata(self, name_or_id, metadata):
         """Set metadata in a server instance.
 
-        :param str name_or_id: The name or ID of the server instance
-            to update.
+        :param str name_or_id: The name or ID of the server instance to update.
         :param dict metadata: A dictionary with the key=value pairs
-            to set in the server instance. It only updates the key=value
-            pairs provided. Existing ones will remain untouched.
+            to set in the server instance. It only updates the key=value pairs
+            provided. Existing ones will remain untouched.
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -1246,13 +1235,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param name_or_id: Name of the server to be updated.
         :param detailed: Whether or not to add detailed additional information.
-                         Defaults to False.
+            Defaults to False.
         :param bare: Whether to skip adding any additional information to the
-                     server record. Defaults to False, meaning the addresses
-                     dict will be populated as needed from neutron. Setting
-                     to True implies detailed = False.
-        :name: New name for the server
-        :description: New description for the server
+            server record. Defaults to False, meaning the addresses dict will
+            be populated as needed from neutron. Setting to True implies
+            detailed = False.
+        :param name: New name for the server
+        :param description: New description for the server
 
         :returns: a dictionary representing the updated server.
 
@@ -1458,14 +1447,14 @@ class ComputeCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'availability_zone': 'nova',
-                  'metadata': {
-                      'cpu_allocation_ratio': '1.0'
-                  }
+                    'availability_zone': 'nova',
+                    'metadata': {
+                        'cpu_allocation_ratio': '1.0'
+                    }
                 }
 
         :returns: An aggregate dict or None if no matching aggregate is
-                  found.
+            found.
 
         """
         aggregate = self.compute.find_aggregate(
@@ -1534,7 +1523,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param name_or_id: Name of the host aggregate to update
         :param metadata: Dict containing metadata to replace (Use
-                {'key': None} to remove a key)
+            {'key': None} to remove a key)
 
         :returns: a dict representing the new host aggregate.
 
@@ -1611,7 +1600,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param name_or_id: project name or id
         :raises: OpenStackCloudException if it's not a valid project or the
-                 nova client call failed
+            nova client call failed
 
         :returns: dict with the quotas
         """
@@ -1624,10 +1613,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param name_or_id: project name or id
         :param start: :class:`datetime.datetime` or string. Start date in UTC
-                      Defaults to 2010-07-06T12:00:00Z (the date the OpenStack
-                      project was started)
+            Defaults to 2010-07-06T12:00:00Z (the date the OpenStack project
+            was started)
         :param end: :class:`datetime.datetime` or string. End date in UTC.
-                    Defaults to now
+            Defaults to now
         :raises: OpenStackCloudException if it's not a valid project
 
         :returns: Munch object with the usage
