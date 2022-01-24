@@ -28,9 +28,8 @@ class ServiceProfile(resource.Resource):
     allow_list = True
 
     _query_mapping = resource.QueryParameters(
-        'description', 'driver',
+        'description', 'driver', 'project_id',
         is_enabled='enabled',
-        project_id='tenant_id'
     )
     # Properties
     #: Description of the service flavor profile.
@@ -42,4 +41,6 @@ class ServiceProfile(resource.Resource):
     #: Metainformation of the service flavor profile
     meta_info = resource.Body('metainfo')
     #: The owner project ID
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)

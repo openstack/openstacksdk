@@ -9,14 +9,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import exceptions
 from openstack.network.v2 import _base
 from openstack import resource
 from openstack import utils
 
 
-class Router(_base.NetworkResource, resource.TagMixin):
+class Router(_base.NetworkResource, tag.TagMixin):
     resource_key = 'router'
     resources_key = 'routers'
     base_path = '/routers'
@@ -30,12 +30,11 @@ class Router(_base.NetworkResource, resource.TagMixin):
 
     # NOTE: We don't support query on datetime, list or dict fields
     _query_mapping = resource.QueryParameters(
-        'description', 'flavor_id', 'name', 'status',
+        'description', 'flavor_id', 'name', 'status', 'project_id',
         is_admin_state_up='admin_state_up',
         is_distributed='distributed',
         is_ha='ha',
-        project_id='tenant_id',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -66,7 +65,9 @@ class Router(_base.NetworkResource, resource.TagMixin):
     #: The router name.
     name = resource.Body('name')
     #: The ID of the project this router is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: Revision number of the router. *Type: int*
     revision_number = resource.Body('revision', type=int)
     #: The extra routes configuration for the router.

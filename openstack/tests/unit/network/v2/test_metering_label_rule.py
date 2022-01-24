@@ -20,7 +20,7 @@ EXAMPLE = {
     'excluded': False,
     'id': IDENTIFIER,
     'metering_label_id': '4',
-    'tenant_id': '5',
+    'project_id': '5',
     'remote_ip_prefix': '6',
 }
 
@@ -44,7 +44,7 @@ class TestMeteringLabelRule(base.TestCase):
         self.assertFalse(sot.is_excluded)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['metering_label_id'], sot.metering_label_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['remote_ip_prefix'], sot.remote_ip_prefix)
 
     def test_make_it_source_and_destination(self):
@@ -58,7 +58,7 @@ class TestMeteringLabelRule(base.TestCase):
         self.assertEqual(custom_example['id'], sot.id)
         self.assertEqual(
             custom_example['metering_label_id'], sot.metering_label_id)
-        self.assertEqual(custom_example['tenant_id'], sot.project_id)
+        self.assertEqual(custom_example['project_id'], sot.project_id)
         self.assertEqual(
             custom_example['remote_ip_prefix'], sot.remote_ip_prefix)
 

@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack.network.v2 import _base
 from openstack import resource
 
 
-class Subnet(_base.NetworkResource, resource.TagMixin):
+class Subnet(_base.NetworkResource, tag.TagMixin):
     resource_key = 'subnet'
     resources_key = 'subnets'
     base_path = '/subnets'
@@ -30,12 +30,11 @@ class Subnet(_base.NetworkResource, resource.TagMixin):
     _query_mapping = resource.QueryParameters(
         'cidr', 'description', 'gateway_ip', 'ip_version',
         'ipv6_address_mode', 'ipv6_ra_mode', 'name', 'network_id',
-        'segment_id', 'dns_publish_fixed_ip',
+        'segment_id', 'dns_publish_fixed_ip', 'project_id',
         is_dhcp_enabled='enable_dhcp',
-        project_id='tenant_id',
         subnet_pool_id='subnetpool_id',
         use_default_subnet_pool='use_default_subnetpool',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -75,7 +74,9 @@ class Subnet(_base.NetworkResource, resource.TagMixin):
     #: The prefix length to use for subnet allocation from a subnet pool
     prefix_length = resource.Body('prefixlen')
     #: The ID of the project this subnet is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The ID of the segment this subnet is associated with.
     segment_id = resource.Body('segment_id')
     #: Service types for this subnet

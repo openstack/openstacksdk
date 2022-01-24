@@ -9,13 +9,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from copy import deepcopy
 from unittest import mock
 
 from openstack import exceptions
 from openstack.network.v2.firewall_group import FirewallGroup
-from openstack.network.v2.firewall_rule import FirewallRule
 from openstack.network.v2.firewall_policy import FirewallPolicy
+from openstack.network.v2.firewall_rule import FirewallRule
 from openstack.tests.unit import base
 
 
@@ -881,8 +882,15 @@ class TestFirewallGroup(FirewallTestCase):
                  json={'firewall_policies': [self.mock_ingress_policy]}),
 
             dict(method='GET',
-                 uri=self.get_mock_url('network', 'public',
-                                       append=['v2.0', 'ports']),
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'ports', self.mock_port['name']]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'ports'],
+                     qs_elements=['name=%s' % self.mock_port['name']]),
                  json={'ports': [self.mock_port]}),
             dict(method='POST',
                  uri=self._make_mock_url('firewall_groups'),
@@ -1078,8 +1086,15 @@ class TestFirewallGroup(FirewallTestCase):
                      deepcopy(self.mock_ingress_policy)]}),
 
             dict(method='GET',
-                 uri=self.get_mock_url('network', 'public',
-                                       append=['v2.0', 'ports']),
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'ports', self.mock_port['name']]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'ports'],
+                     qs_elements=['name=%s' % self.mock_port['name']]),
                  json={'ports': [self.mock_port]}),
             dict(method='PUT',
                  uri=self._make_mock_url('firewall_groups',

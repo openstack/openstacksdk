@@ -43,7 +43,13 @@ class TestUpdateServer(base.TestCase):
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
+                     'compute', 'public',
+                     append=['servers', self.server_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers'],
+                     qs_elements=['name=%s' % self.server_name]),
                  json={'servers': [self.fake_server]}),
             dict(method='PUT',
                  uri=self.get_mock_url(
@@ -69,7 +75,13 @@ class TestUpdateServer(base.TestCase):
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
+                     'compute', 'public',
+                     append=['servers', self.server_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers'],
+                     qs_elements=['name=%s' % self.server_name]),
                  json={'servers': [self.fake_server]}),
             dict(method='PUT',
                  uri=self.get_mock_url(

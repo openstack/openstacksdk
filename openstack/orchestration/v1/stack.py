@@ -9,7 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
@@ -32,7 +32,7 @@ class Stack(resource.Resource):
         'action', 'name', 'status',
         'project_id', 'owner_id', 'username',
         project_id='tenant_id',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties

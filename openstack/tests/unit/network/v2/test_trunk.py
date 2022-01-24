@@ -22,7 +22,7 @@ EXAMPLE = {
     'id': 'IDENTIFIER',
     'description': 'Trunk description',
     'name': 'trunk-name',
-    'tenant_id': '2',
+    'project_id': '2',
     'admin_state_up': True,
     'port_id': 'fake_port_id',
     'status': 'ACTIVE',
@@ -53,7 +53,7 @@ class TestTrunk(base.TestCase):
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['admin_state_up'], sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['port_id'], sot.port_id)
         self.assertEqual(EXAMPLE['status'], sot.status)

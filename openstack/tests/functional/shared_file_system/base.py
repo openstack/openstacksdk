@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import resource
 from openstack.tests.functional import base
 
 
@@ -21,3 +22,38 @@ class BaseSharedFileSystemTest(base.BaseFunctionalTest):
         super(BaseSharedFileSystemTest, self).setUp()
         self.require_service('shared-file-system',
                              min_microversion=self.min_microversion)
+        self._set_operator_cloud(shared_file_system_api_version='2.63')
+        self._set_user_cloud(shared_file_system_api_version='2.63')
+
+    def create_share(self, **kwargs):
+        share = self.user_cloud.share.create_share(**kwargs)
+        self.addCleanup(self.user_cloud.share.delete_share,
+                        share.id,
+                        ignore_missing=True)
+        self.user_cloud.share.wait_for_status(
+            share,
+            status='available',
+            failures=['error'],
+            interval=5,
+            wait=self._wait_for_timeout)
+        self.assertIsNotNone(share.id)
+        return share
+
+    def create_share_snapshot(self, share_id, **kwargs):
+        share_snapshot = self.user_cloud.share.create_share_snapshot(
+            share_id=share_id, force=True)
+        self.addCleanup(resource.wait_for_delete,
+                        self.user_cloud.share, share_snapshot,
+                        wait=self._wait_for_timeout,
+                        interval=2)
+        self.addCleanup(self.user_cloud.share.delete_share_snapshot,
+                        share_snapshot.id,
+                        ignore_missing=False)
+        self.user_cloud.share.wait_for_status(
+            share_snapshot,
+            status='available',
+            failures=['error'],
+            interval=5,
+            wait=self._wait_for_timeout)
+        self.assertIsNotNone(share_snapshot.id)
+        return share_snapshot

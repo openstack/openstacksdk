@@ -36,11 +36,10 @@ class Flavor(resource.Resource):
     _max_microversion = '2.61'
 
     # Properties
-    #: Links pertaining to this flavor. This is a list of dictionaries,
-    #: each including keys ``href`` and ``rel``.
-    links = resource.Body('links')
     #: The name of this flavor.
-    name = resource.Body('name')
+    name = resource.Body('name', alias='original_name')
+    #: The name of this flavor when returned by server list/show
+    original_name = resource.Body('original_name')
     #: The description of the flavor.
     description = resource.Body('description')
     #: Size of the disk this flavor offers. *Type: int*

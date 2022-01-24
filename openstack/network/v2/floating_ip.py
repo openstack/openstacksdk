@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack.network.v2 import _base
 from openstack import resource
 
 
-class FloatingIP(_base.NetworkResource, resource.TagMixin):
+class FloatingIP(_base.NetworkResource, tag.TagMixin):
     name_attribute = "floating_ip_address"
     resource_name = "floating ip"
     resource_key = 'floatingip'
@@ -28,12 +28,14 @@ class FloatingIP(_base.NetworkResource, resource.TagMixin):
     allow_delete = True
     allow_list = True
 
+    # For backward compatibility include tenant_id as query param
     _query_mapping = resource.QueryParameters(
         'description', 'fixed_ip_address',
         'floating_ip_address', 'floating_network_id',
         'port_id', 'router_id', 'status', 'subnet_id',
-        project_id='tenant_id',
-        **resource.TagMixin._tag_query_parameters)
+        'project_id', 'tenant_id',
+        tenant_id='project_id',
+        **tag.TagMixin._tag_query_parameters)
 
     # Properties
     #: Timestamp at which the floating IP was created.
@@ -68,7 +70,9 @@ class FloatingIP(_base.NetworkResource, resource.TagMixin):
     #: The ID of the QoS policy attached to the floating IP.
     qos_policy_id = resource.Body('qos_policy_id')
     #: The ID of the project this floating IP is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The ID of an associated router.
     router_id = resource.Body('router_id')
     #: The floating IP status. Value is ``ACTIVE`` or ``DOWN``.

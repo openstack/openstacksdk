@@ -10,11 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.common import metadata
+from openstack import exceptions
 from openstack import format
 from openstack import resource
+from openstack import utils
 
 
-class Snapshot(resource.Resource):
+class Snapshot(resource.Resource, metadata.MetadataMixin):
     resource_key = "snapshot"
     resources_key = "snapshots"
     base_path = "/snapshots"
@@ -30,41 +33,34 @@ class Snapshot(resource.Resource):
     allow_list = True
 
     # Properties
-    #: A ID representing this snapshot.
-    id = resource.Body("id")
-    #: Name of the snapshot. Default is None.
-    name = resource.Body("name")
-
-    #: The current status of this snapshot. Potential values are creating,
-    #: available, deleting, error, and error_deleting.
-    status = resource.Body("status")
-    #: Description of snapshot. Default is None.
-    description = resource.Body("description")
     #: The timestamp of this snapshot creation.
     created_at = resource.Body("created_at")
-    #: Metadata associated with this snapshot.
-    metadata = resource.Body("metadata", type=dict)
-    #: The ID of the volume this snapshot was taken of.
-    volume_id = resource.Body("volume_id")
-    #: The size of the volume, in GBs.
-    size = resource.Body("size", type=int)
+    #: Description of snapshot. Default is None.
+    description = resource.Body("description")
     #: Indicate whether to create snapshot, even if the volume is attached.
     #: Default is ``False``. *Type: bool*
     is_forced = resource.Body("force", type=format.BoolStr)
+    #: The size of the volume, in GBs.
+    size = resource.Body("size", type=int)
+    #: The current status of this snapshot. Potential values are creating,
+    #: available, deleting, error, and error_deleting.
+    status = resource.Body("status")
+    #: The ID of the volume this snapshot was taken of.
+    volume_id = resource.Body("volume_id")
+
+    def _action(self, session, body, microversion=None):
+        """Preform backup actions given the message body."""
+        url = utils.urljoin(self.base_path, self.id, 'action')
+        resp = session.post(url, json=body,
+                            microversion=self._max_microversion)
+        exceptions.raise_from_response(resp)
+        return resp
+
+    def reset(self, session, status):
+        """Reset the status of the snapshot.
+        """
+        body = {'os-reset_status': {'status': status}}
+        self._action(session, body)
 
 
-class SnapshotDetail(Snapshot):
-
-    base_path = "/snapshots/detail"
-
-    # capabilities
-    allow_fetch = False
-    allow_create = False
-    allow_delete = False
-    allow_commit = False
-    allow_list = True
-
-    #: The percentage of completeness the snapshot is currently at.
-    progress = resource.Body("os-extended-snapshot-attributes:progress")
-    #: The project ID this snapshot is associated with.
-    project_id = resource.Body("os-extended-snapshot-attributes:project_id")
+SnapshotDetail = Snapshot

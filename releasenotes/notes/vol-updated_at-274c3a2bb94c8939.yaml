@@ -1,0 +1,3 @@
+---
+features:
+  - Added support for the updated_at attribute for volume objects.

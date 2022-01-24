@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add support for the Compute service's server migrations API, allowing users
+    to list all migrations for a server as well as force complete or abort
+    in-progress migrations.

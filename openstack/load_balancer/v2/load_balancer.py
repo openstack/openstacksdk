@@ -9,11 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 
 
-class LoadBalancer(resource.Resource, resource.TagMixin):
+class LoadBalancer(resource.Resource, tag.TagMixin):
     resource_key = 'loadbalancer'
     resources_key = 'loadbalancers'
     base_path = '/lbaas/loadbalancers'
@@ -30,7 +30,7 @@ class LoadBalancer(resource.Resource, resource.TagMixin):
         'vip_address', 'vip_network_id', 'vip_port_id', 'vip_subnet_id',
         'vip_qos_policy_id', 'provisioning_status', 'operating_status',
         'availability_zone', is_admin_state_up='admin_state_up',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties

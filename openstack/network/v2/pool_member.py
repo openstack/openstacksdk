@@ -29,8 +29,8 @@ class PoolMember(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'address', 'name', 'protocol_port', 'subnet_id', 'weight',
+        'project_id',
         is_admin_state_up='admin_state_up',
-        project_id='tenant_id',
     )
 
     # Properties
@@ -44,7 +44,9 @@ class PoolMember(resource.Resource):
     #: Name of the pool member.
     name = resource.Body('name')
     #: The ID of the project this pool member is associated with.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The port on which the application is hosted.
     protocol_port = resource.Body('protocol_port', type=int)
     #: Subnet ID in which to access this pool member.

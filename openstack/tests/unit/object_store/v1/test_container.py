@@ -39,8 +39,10 @@ class TestContainer(base.TestCase):
             'x-container-sync-key': 'sync-key',
             'x-container-bytes-used': '630666',
             'x-versions-location': 'versions-location',
+            'x-history-location': 'history-location',
             'content-type': 'application/json; charset=utf-8',
-            'x-timestamp': '1453414055.48672'
+            'x-timestamp': '1453414055.48672',
+            'x-storage-policy': 'Gold'
         }
         self.body_plus_headers = dict(self.body, **self.headers)
 
@@ -98,7 +100,12 @@ class TestContainer(base.TestCase):
         self.assertEqual(
             self.body_plus_headers['x-versions-location'],
             sot.versions_location)
+        self.assertEqual(
+            self.body_plus_headers['x-history-location'],
+            sot.history_location)
         self.assertEqual(self.body_plus_headers['x-timestamp'], sot.timestamp)
+        self.assertEqual(self.body_plus_headers['x-storage-policy'],
+                         sot.storage_policy)
 
     def test_list(self):
         containers = [
@@ -137,6 +144,7 @@ class TestContainer(base.TestCase):
             "x-container-read": "some ACL",
             "x-container-write": "another ACL",
             "x-detect-content-type": 'True',
+            "X-Container-Meta-foo": "bar"
         }
         self.register_uris([
             dict(method=sess_method, uri=self.container_endpoint,
@@ -148,11 +156,13 @@ class TestContainer(base.TestCase):
         self.assert_calls()
 
     def test_create(self):
-        sot = container.Container.new(name=self.container)
+        sot = container.Container.new(
+            name=self.container, metadata={'foo': 'bar'})
         self._test_create_update(sot, sot.create, 'PUT')
 
     def test_commit(self):
-        sot = container.Container.new(name=self.container)
+        sot = container.Container.new(
+            name=self.container, metadata={'foo': 'bar'})
         self._test_create_update(sot, sot.commit, 'POST')
 
     def test_to_dict_recursion(self):
@@ -188,7 +198,9 @@ class TestContainer(base.TestCase):
                 'meta_temp_url_key_2': None,
                 'timestamp': None,
                 'versions_location': None,
+                'history_location': None,
                 'write_ACL': None,
+                'storage_policy': None
             }, json.loads(json.dumps(sot)))
 
     def _test_no_headers(self, sot, sot_call, sess_method):

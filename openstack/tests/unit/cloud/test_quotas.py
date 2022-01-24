@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack.cloud import exc
+from openstack.network.v2 import quota as _quota
 from openstack.tests.unit import base
 
 fake_quota_set = {
@@ -37,10 +38,15 @@ class TestQuotas(base.TestCase):
             cloud_config_fixture=cloud_config_fixture)
 
     def test_update_quotas(self):
-        project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+        project = self._get_project_data()
 
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'identity', 'public',
+                     append=['v3', 'projects', project.project_id]),
+                 json={'project': project.json_response['project']}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -59,10 +65,15 @@ class TestQuotas(base.TestCase):
         self.assert_calls()
 
     def test_update_quotas_bad_request(self):
-        project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+        project = self._get_project_data()
 
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'identity', 'public',
+                     append=['v3', 'projects', project.project_id]),
+                 json={'project': project.json_response['project']}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -76,13 +87,19 @@ class TestQuotas(base.TestCase):
         self.assert_calls()
 
     def test_get_quotas(self):
-        project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+        project = self._get_project_data()
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
+                     'identity', 'public',
+                     append=['v3', 'projects', project.project_id]),
+                 json={'project': project.json_response['project']}),
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
                      'compute', 'public',
-                     append=['os-quota-sets', project.project_id]),
+                     append=['os-quota-sets', project.project_id],
+                     qs_elements=['usage=False']),
                  json={'quota_set': fake_quota_set}),
         ])
 
@@ -91,10 +108,15 @@ class TestQuotas(base.TestCase):
         self.assert_calls()
 
     def test_delete_quotas(self):
-        project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+        project = self._get_project_data()
 
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'identity', 'public',
+                     append=['v3', 'projects', project.project_id]),
+                 json={'project': project.json_response['project']}),
+            self.get_nova_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -106,43 +128,58 @@ class TestQuotas(base.TestCase):
         self.assert_calls()
 
     def test_cinder_update_quotas(self):
-        project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+        project = self._get_project_data()
+
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'identity', 'public',
+                     append=['v3', 'projects', project.project_id]),
+                 json={'project': project.json_response['project']}),
             self.get_cinder_discovery_mock_dict(),
             dict(method='PUT',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['os-quota-sets', project.project_id]),
                  json=dict(quota_set={'volumes': 1}),
                  validate=dict(
                      json={'quota_set': {
-                         'volumes': 1,
-                         'tenant_id': project.project_id}}))])
+                         'volumes': 1}}))])
         self.cloud.set_volume_quotas(project.project_id, volumes=1)
         self.assert_calls()
 
     def test_cinder_get_quotas(self):
-        project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+        project = self._get_project_data()
+
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'identity', 'public',
+                     append=['v3', 'projects', project.project_id]),
+                 json={'project': project.json_response['project']}),
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
-                     append=['os-quota-sets', project.project_id]),
+                     'volumev3', 'public',
+                     append=['os-quota-sets', project.project_id],
+                     qs_elements=['usage=False']),
                  json=dict(quota_set={'snapshots': 10, 'volumes': 20}))])
         self.cloud.get_volume_quotas(project.project_id)
         self.assert_calls()
 
     def test_cinder_delete_quotas(self):
-        project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+        project = self._get_project_data()
+
         self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'identity', 'public',
+                     append=['v3', 'projects', project.project_id]),
+                 json={'project': project.json_response['project']}),
             self.get_cinder_discovery_mock_dict(),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'volumev2', 'public',
+                     'volumev3', 'public',
                      append=['os-quota-sets', project.project_id]))])
         self.cloud.delete_volume_quotas(project.project_id)
         self.assert_calls()
@@ -183,8 +220,16 @@ class TestQuotas(base.TestCase):
                      append=['v2.0', 'quotas', project.project_id]),
                  json={'quota': quota})
         ])
-        received_quota = self.cloud.get_network_quotas(project.project_id)
-        self.assertDictEqual(quota, received_quota)
+        received_quota = self.cloud.get_network_quotas(
+            project.project_id).to_dict(computed=False)
+        expected_quota = _quota.Quota(**quota).to_dict(computed=False)
+        received_quota.pop('id')
+        received_quota.pop('name')
+        expected_quota.pop('id')
+        expected_quota.pop('name')
+
+        self.assertDictEqual(expected_quota, received_quota)
+
         self.assert_calls()
 
     def test_neutron_get_quotas_details(self):
@@ -233,12 +278,14 @@ class TestQuotas(base.TestCase):
                  uri=self.get_mock_url(
                      'network', 'public',
                      append=['v2.0', 'quotas',
-                             '%s/details' % project.project_id]),
+                             project.project_id, 'details']),
                  json={'quota': quota_details})
         ])
         received_quota_details = self.cloud.get_network_quotas(
             project.project_id, details=True)
-        self.assertDictEqual(quota_details, received_quota_details)
+        self.assertDictEqual(
+            _quota.QuotaDetails(**quota_details).to_dict(computed=False),
+            received_quota_details.to_dict(computed=False))
         self.assert_calls()
 
     def test_neutron_delete_quotas(self):

@@ -45,6 +45,8 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
         self.proxy = _proxy.Proxy(self.session)
         self.proxy._connection = self.cloud
 
+
+class TestImage(TestImageProxy):
     def test_image_import_no_required_attrs(self):
         # container_format and disk_format are required attrs of the image
         existing_image = image.Image(id="id")
@@ -321,6 +323,8 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
             method_args=["image"],
             expected_args=[self.proxy])
 
+
+class TestMember(TestImageProxy):
     def test_member_create(self):
         self.verify_create(self.proxy.add_member, member.Member,
                            method_kwargs={"image": "test_id"},
@@ -381,6 +385,8 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
                          method_kwargs={'image': 'image_1'},
                          expected_kwargs={'image_id': 'image_1'})
 
+
+class TestSchema(TestImageProxy):
     def test_images_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
@@ -413,6 +419,8 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={
                 'base_path': '/schemas/member', 'requires_id': False})
 
+
+class TestTask(TestImageProxy):
     def test_task_get(self):
         self.verify_get(self.proxy.get_task, task.Task)
 
@@ -510,6 +518,8 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
             expected_kwargs={
                 'base_path': '/schemas/task', 'requires_id': False})
 
+
+class TestMisc(TestImageProxy):
     def test_stores(self):
         self.verify_list(self.proxy.stores, si.Store)
 

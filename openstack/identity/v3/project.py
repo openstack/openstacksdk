@@ -9,12 +9,12 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 from openstack import utils
 
 
-class Project(resource.Resource, resource.TagMixin):
+class Project(resource.Resource, tag.TagMixin):
     resource_key = 'project'
     resources_key = 'projects'
     base_path = '/projects'
@@ -33,7 +33,7 @@ class Project(resource.Resource, resource.TagMixin):
         'name',
         'parent_id',
         is_enabled='enabled',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -53,8 +53,6 @@ class Project(resource.Resource, resource.TagMixin):
     #: for the project are immediately invalidated. Re-enabling a project
     #: does not re-enable pre-existing tokens. *Type: bool*
     is_enabled = resource.Body('enabled', type=bool)
-    #: Unique project name, within the owning domain. *Type: string*
-    name = resource.Body('name')
     #: The resource options for the project. Available resource options are
     #: immutable.
     options = resource.Body('options', type=dict)

@@ -398,3 +398,34 @@ class TestClusterProxy(test_proxy_base.TestProxyBase):
         self.proxy.wait_for_delete(mock_resource, 1, 2)
 
         mock_wait.assert_called_once_with(self.proxy, mock_resource, 1, 2)
+
+    def test_get_cluster_metadata(self):
+        self._verify(
+            "openstack.clustering.v1.cluster.Cluster.fetch_metadata",
+            self.proxy.get_cluster_metadata,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_result=cluster.Cluster(id="value", metadata={}))
+
+    def test_set_cluster_metadata(self):
+        kwargs = {"a": "1", "b": "2"}
+        id = "an_id"
+        self._verify(
+            "openstack.clustering.v1.cluster.Cluster.set_metadata",
+            self.proxy.set_cluster_metadata,
+            method_args=[id],
+            method_kwargs=kwargs,
+            method_result=cluster.Cluster.existing(
+                id=id, metadata=kwargs),
+            expected_args=[self.proxy],
+            expected_kwargs={'metadata': kwargs},
+            expected_result=cluster.Cluster.existing(
+                id=id, metadata=kwargs))
+
+    def test_delete_cluster_metadata(self):
+        self._verify(
+            "openstack.clustering.v1.cluster.Cluster.delete_metadata_item",
+            self.proxy.delete_cluster_metadata,
+            expected_result=None,
+            method_args=["value", ["key"]],
+            expected_args=[self.proxy, "key"])

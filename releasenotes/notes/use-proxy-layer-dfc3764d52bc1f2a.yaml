@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    Networking functions of the cloud layer return now resource objects
+    `openstack.resource`.  While those still implement Munch interface and are
+    accessible as dictionary modification of an instance might be causing
+    issues (i.e. forbidden).

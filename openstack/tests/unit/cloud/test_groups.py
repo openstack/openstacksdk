@@ -50,9 +50,10 @@ class TestGroups(base.TestCase):
         group_data = self._get_group_data()
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(),
+                 uri=self.get_mock_url(
+                     append=[group_data.group_id]),
                  status_code=200,
-                 json={'groups': [group_data.json_response['group']]}),
+                 json={'group': group_data.json_response['group']}),
             dict(method='DELETE',
                  uri=self.get_mock_url(append=[group_data.group_id]),
                  status_code=204),
@@ -84,14 +85,18 @@ class TestGroups(base.TestCase):
         group_data.json_request['group'].pop('domain_id')
         self.register_uris([
             dict(method='GET',
-                 uri=self.get_mock_url(),
+                 uri=self.get_mock_url(
+                     append=[group_data.group_id]),
                  status_code=200,
-                 json={'groups': [group_data.json_response['group']]}),
+                 json={'group': group_data.json_response['group']}),
             dict(method='PATCH',
-                 uri=self.get_mock_url(append=[group_data.group_id]),
+                 uri=self.get_mock_url(
+                     append=[group_data.group_id]),
                  status_code=200,
                  json=group_data.json_response,
-                 validate=dict(json=group_data.json_request))
+                 validate=dict(json={
+                     'group': {'name': 'new_name', 'description':
+                               'new_description'}}))
         ])
         self.cloud.update_group(
-            group_data.group_id, group_data.group_name, group_data.description)
+            group_data.group_id, 'new_name', 'new_description')

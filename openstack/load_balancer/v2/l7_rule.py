@@ -9,11 +9,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import resource
 
 
-class L7Rule(resource.Resource, resource.TagMixin):
+class L7Rule(resource.Resource, tag.TagMixin):
     resource_key = 'rule'
     resources_key = 'rules'
     base_path = '/lbaas/l7policies/%(l7policy_id)s/rules'
@@ -29,7 +29,7 @@ class L7Rule(resource.Resource, resource.TagMixin):
         'compare_type', 'created_at', 'invert', 'key', 'project_id',
         'provisioning_status', 'type', 'updated_at', 'rule_value',
         'operating_status', is_admin_state_up='admin_state_up',
-        l7_policy_id='l7policy_id', **resource.TagMixin._tag_query_parameters
+        l7_policy_id='l7policy_id', **tag.TagMixin._tag_query_parameters
     )
 
     #: Properties

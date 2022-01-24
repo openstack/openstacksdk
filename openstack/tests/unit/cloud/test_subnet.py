@@ -14,9 +14,11 @@
 # limitations under the License.
 
 import copy
+
 import testtools
 
 from openstack.cloud import exc
+from openstack.network.v2 import subnet as _subnet
 from openstack.tests.unit import base
 
 
@@ -36,8 +38,8 @@ class TestSubnet(base.TestCase):
 
     mock_subnet_rep = {
         'allocation_pools': [{
-            'start': u'192.168.199.2',
-            'end': u'192.168.199.254'
+            'start': '192.168.199.2',
+            'end': '192.168.199.254'
         }],
         'cidr': subnet_cidr,
         'created_at': '2017-04-24T20:22:23Z',
@@ -66,16 +68,27 @@ class TestSubnet(base.TestCase):
         ]
     }
 
+    def _compare_subnets(self, exp, real):
+        self.assertDictEqual(
+            _subnet.Subnet(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_get_subnet(self):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
+                     'network', 'public',
+                     append=['v2.0', 'subnets', self.subnet_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets'],
+                     qs_elements=['name=%s' % self.subnet_name]),
                  json={'subnets': [self.mock_subnet_rep]})
         ])
         r = self.cloud.get_subnet(self.subnet_name)
         self.assertIsNotNone(r)
-        self.assertDictEqual(self.mock_subnet_rep, r)
+        self._compare_subnets(self.mock_subnet_rep, r)
         self.assert_calls()
 
     def test_get_subnet_by_id(self):
@@ -89,7 +102,7 @@ class TestSubnet(base.TestCase):
         ])
         r = self.cloud.get_subnet_by_id(self.subnet_id)
         self.assertIsNotNone(r)
-        self.assertDictEqual(self.mock_subnet_rep, r)
+        self._compare_subnets(self.mock_subnet_rep, r)
         self.assert_calls()
 
     def test_create_subnet(self):
@@ -103,7 +116,14 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', self.network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % self.network_name]),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -123,7 +143,7 @@ class TestSubnet(base.TestCase):
                                           allocation_pools=pool,
                                           dns_nameservers=dns,
                                           host_routes=routes)
-        self.assertDictEqual(mock_subnet_rep, subnet)
+        self._compare_subnets(mock_subnet_rep, subnet)
         self.assert_calls()
 
     def test_create_subnet_string_ip_version(self):
@@ -131,7 +151,14 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', self.network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % self.network_name]),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -146,7 +173,7 @@ class TestSubnet(base.TestCase):
         ])
         subnet = self.cloud.create_subnet(
             self.network_name, self.subnet_cidr, ip_version='4')
-        self.assertDictEqual(self.mock_subnet_rep, subnet)
+        self._compare_subnets(self.mock_subnet_rep, subnet)
         self.assert_calls()
 
     def test_create_subnet_bad_ip_version(self):
@@ -154,8 +181,15 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
-                 json={'networks': [self.mock_network_rep]})
+                     'network', 'public',
+                     append=['v2.0', 'networks', self.network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % self.network_name]),
+                 json={'networks': [self.mock_network_rep]}),
         ])
         with testtools.ExpectedException(
                 exc.OpenStackCloudException,
@@ -175,7 +209,14 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', self.network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % self.network_name]),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -195,7 +236,7 @@ class TestSubnet(base.TestCase):
                                           allocation_pools=pool,
                                           dns_nameservers=dns,
                                           disable_gateway_ip=True)
-        self.assertDictEqual(mock_subnet_rep, subnet)
+        self._compare_subnets(mock_subnet_rep, subnet)
         self.assert_calls()
 
     def test_create_subnet_with_gateway_ip(self):
@@ -209,7 +250,14 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', self.network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % self.network_name]),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -229,14 +277,21 @@ class TestSubnet(base.TestCase):
                                           allocation_pools=pool,
                                           dns_nameservers=dns,
                                           gateway_ip=gateway)
-        self.assertDictEqual(mock_subnet_rep, subnet)
+        self._compare_subnets(mock_subnet_rep, subnet)
         self.assert_calls()
 
     def test_create_subnet_conflict_gw_ops(self):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', 'kooky']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=kooky']),
                  json={'networks': [self.mock_network_rep]})
         ])
         gateway = '192.168.200.3'
@@ -250,8 +305,15 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
-                 json={'networks': [self.mock_network_rep]})
+                     'network', 'public',
+                     append=['v2.0', 'networks', 'duck']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=duck']),
+                 json={'networks': [self.mock_network_rep]}),
         ])
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.create_subnet,
@@ -264,8 +326,15 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
-                 json={'networks': [net1, net2]})
+                     'network', 'public',
+                     append=['v2.0', 'networks', self.network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % self.network_name]),
+                 json={'networks': [net1, net2]}),
         ])
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.create_subnet,
@@ -289,7 +358,14 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'networks']),
+                     'network', 'public',
+                     append=['v2.0', 'networks', self.network_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public',
+                     append=['v2.0', 'networks'],
+                     qs_elements=['name=%s' % self.network_name]),
                  json={'networks': [self.mock_network_rep]}),
             dict(method='POST',
                  uri=self.get_mock_url(
@@ -312,14 +388,25 @@ class TestSubnet(base.TestCase):
                                           use_default_subnetpool=True,
                                           prefixlen=self.prefix_length,
                                           host_routes=routes)
-        self.assertDictEqual(mock_subnet_rep, subnet)
+        mock_subnet_rep.update(
+            {
+                'prefixlen': self.prefix_length,
+                'use_default_subnetpool': True
+            })
+        self._compare_subnets(mock_subnet_rep, subnet)
         self.assert_calls()
 
     def test_delete_subnet(self):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
+                     'network', 'public',
+                     append=['v2.0', 'subnets', self.subnet_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets'],
+                     qs_elements=['name=%s' % self.subnet_name]),
                  json={'subnets': [self.mock_subnet_rep]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
@@ -334,7 +421,13 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
+                     'network', 'public',
+                     append=['v2.0', 'subnets', 'goofy']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets'],
+                     qs_elements=['name=goofy']),
                  json={'subnets': []})
         ])
         self.assertFalse(self.cloud.delete_subnet('goofy'))
@@ -346,7 +439,13 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
+                     'network', 'public',
+                     append=['v2.0', 'subnets', self.subnet_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'subnets'],
+                     qs_elements=['name=%s' % self.subnet_name]),
                  json={'subnets': [subnet1, subnet2]})
         ])
         self.assertRaises(exc.OpenStackCloudException,
@@ -354,14 +453,14 @@ class TestSubnet(base.TestCase):
                           self.subnet_name)
         self.assert_calls()
 
-    def test_delete_subnet_multiple_using_id(self):
+    def test_delete_subnet_using_id(self):
         subnet1 = dict(id='123', name=self.subnet_name)
-        subnet2 = dict(id='456', name=self.subnet_name)
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
-                 json={'subnets': [subnet1, subnet2]}),
+                     'network', 'public', append=['v2.0', 'subnets',
+                                                  subnet1['id']]),
+                 json=subnet1),
             dict(method='DELETE',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -377,8 +476,9 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
-                 json={'subnets': [self.mock_subnet_rep]}),
+                     'network', 'public',
+                     append=['v2.0', 'subnets', self.subnet_id]),
+                 json=self.mock_subnet_rep),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -388,7 +488,7 @@ class TestSubnet(base.TestCase):
                      json={'subnet': {'name': 'goofy'}}))
         ])
         subnet = self.cloud.update_subnet(self.subnet_id, subnet_name='goofy')
-        self.assertDictEqual(expected_subnet, subnet)
+        self._compare_subnets(expected_subnet, subnet)
         self.assert_calls()
 
     def test_update_subnet_gateway_ip(self):
@@ -398,8 +498,9 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
-                 json={'subnets': [self.mock_subnet_rep]}),
+                     'network', 'public',
+                     append=['v2.0', 'subnets', self.subnet_id]),
+                 json=self.mock_subnet_rep),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -409,7 +510,7 @@ class TestSubnet(base.TestCase):
                      json={'subnet': {'gateway_ip': gateway}}))
         ])
         subnet = self.cloud.update_subnet(self.subnet_id, gateway_ip=gateway)
-        self.assertDictEqual(expected_subnet, subnet)
+        self._compare_subnets(expected_subnet, subnet)
         self.assert_calls()
 
     def test_update_subnet_disable_gateway_ip(self):
@@ -418,8 +519,9 @@ class TestSubnet(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'subnets']),
-                 json={'subnets': [self.mock_subnet_rep]}),
+                     'network', 'public',
+                     append=['v2.0', 'subnets', self.subnet_id]),
+                 json=self.mock_subnet_rep),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -430,7 +532,7 @@ class TestSubnet(base.TestCase):
         ])
         subnet = self.cloud.update_subnet(self.subnet_id,
                                           disable_gateway_ip=True)
-        self.assertDictEqual(expected_subnet, subnet)
+        self._compare_subnets(expected_subnet, subnet)
         self.assert_calls()
 
     def test_update_subnet_conflict_gw_ops(self):

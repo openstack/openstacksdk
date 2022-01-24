@@ -82,8 +82,8 @@ class TestRebuildServer(base.TestCase):
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [self.error_server]}),
+                     'compute', 'public', append=['servers', self.server_id]),
+                 json={'server': self.error_server}),
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
@@ -109,8 +109,8 @@ class TestRebuildServer(base.TestCase):
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [self.rebuild_server]}),
+                     'compute', 'public', append=['servers', self.server_id]),
+                 json={'server': self.rebuild_server}),
         ])
         self.assertRaises(
             exc.OpenStackCloudTimeout,
@@ -199,12 +199,12 @@ class TestRebuildServer(base.TestCase):
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [self.rebuild_server]}),
+                     'compute', 'public', append=['servers', self.server_id]),
+                 json={'server': self.rebuild_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [self.fake_server]}),
+                     'compute', 'public', append=['servers', self.server_id]),
+                 json={'server': self.fake_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),
@@ -237,12 +237,12 @@ class TestRebuildServer(base.TestCase):
             self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [self.rebuild_server]}),
+                     'compute', 'public', append=['servers', self.server_id]),
+                 json={'server': self.rebuild_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers', 'detail']),
-                 json={'servers': [self.fake_server]}),
+                     'compute', 'public', append=['servers', self.server_id]),
+                 json={'server': self.fake_server}),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'networks']),

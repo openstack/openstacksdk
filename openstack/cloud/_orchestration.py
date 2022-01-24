@@ -15,7 +15,6 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.orchestration.util import event_utils
@@ -30,7 +29,7 @@ def _no_pending_stacks(stacks):
     return True
 
 
-class OrchestrationCloudMixin(_normalize.Normalizer):
+class OrchestrationCloudMixin:
 
     @property
     def _orchestration_client(self):
@@ -213,13 +212,13 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
         """List all stacks.
 
         :param dict query: Query parameters to limit stacks.
-        :returns: a list of ``munch.Munch`` containing the stack description.
+        :returns: a list of :class:`openstack.orchestration.v1.stack.Stack`
+            objects containing the stack description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
-        data = self.orchestration.stacks(**query)
-        return self._normalize_stacks(data)
+        return list(self.orchestration.stacks(**query))
 
     def get_stack(self, name_or_id, filters=None, resolve_outputs=True):
         """Get exactly one stack.
@@ -230,7 +229,8 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
         :param resolve_outputs: If True, then outputs for this
                 stack will be resolved
 
-        :returns: a ``munch.Munch`` containing the stack description
+        :returns: a :class:`openstack.orchestration.v1.stack.Stack`
+            containing the stack description
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call or if multiple matches are found.
@@ -248,7 +248,6 @@ class OrchestrationCloudMixin(_normalize.Normalizer):
                     return []
             except exc.OpenStackCloudURINotFound:
                 return []
-            stack = self._normalize_stack(stack)
             return _utils._filter_list([stack], name_or_id, filters)
 
         return _utils._get_entity(

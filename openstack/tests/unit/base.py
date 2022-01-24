@@ -37,7 +37,7 @@ from openstack.tests import fakes
 _ProjectData = collections.namedtuple(
     'ProjectData',
     'project_id, project_name, enabled, domain_id, description, '
-    'json_response, json_request')
+    'parent_id, json_response, json_request')
 
 
 _UserData = collections.namedtuple(
@@ -66,15 +66,8 @@ _ServiceData = collections.namedtuple(
 
 _EndpointDataV3 = collections.namedtuple(
     'EndpointData',
-    'endpoint_id, service_id, interface, region, url, enabled, '
+    'endpoint_id, service_id, interface, region_id, url, enabled, '
     'json_response, json_request')
-
-
-_EndpointDataV2 = collections.namedtuple(
-    'EndpointData',
-    'endpoint_id, service_id, region, public_url, internal_url, '
-    'admin_url, v3_endpoint_list, json_response, '
-    'json_request')
 
 
 # NOTE(notmorgan): Shade does not support domain-specific roles
@@ -247,9 +240,11 @@ class TestCase(base.TestCase):
 
     def _get_project_data(self, project_name=None, enabled=None,
                           domain_id=None, description=None, v3=True,
-                          project_id=None):
+                          project_id=None, parent_id=None):
         project_name = project_name or self.getUniqueString('projectName')
         project_id = uuid.UUID(project_id or uuid.uuid4().hex).hex
+        if parent_id:
+            parent_id = uuid.UUID(parent_id).hex
         response = {'id': project_id, 'name': project_name}
         request = {'name': project_name}
         domain_id = (domain_id or uuid.uuid4().hex) if v3 else None
@@ -260,19 +255,18 @@ class TestCase(base.TestCase):
             enabled = bool(enabled)
             response['enabled'] = enabled
             request['enabled'] = enabled
+        if parent_id:
+            request['parent_id'] = parent_id
+            response['parent_id'] = parent_id
         response.setdefault('enabled', True)
         request.setdefault('enabled', True)
         if description:
             response['description'] = description
             request['description'] = description
         request.setdefault('description', None)
-        if v3:
-            project_key = 'project'
-        else:
-            project_key = 'tenant'
         return _ProjectData(project_id, project_name, enabled, domain_id,
-                            description, {project_key: response},
-                            {project_key: request})
+                            description, parent_id,
+                            {'project': response}, {'project': request})
 
     def _get_group_data(self, name=None, domain_id=None, description=None):
         group_id = uuid.uuid4().hex
@@ -360,46 +354,13 @@ class TestCase(base.TestCase):
         interface = interface or uuid.uuid4().hex
 
         response = {'id': endpoint_id, 'service_id': service_id,
-                    'region': region, 'interface': interface,
+                    'region_id': region, 'interface': interface,
                     'url': url, 'enabled': enabled}
         request = response.copy()
         request.pop('id')
-        response['region_id'] = response['region']
         return _EndpointDataV3(endpoint_id, service_id, interface, region,
                                url, enabled, {'endpoint': response},
                                {'endpoint': request})
-
-    def _get_endpoint_v2_data(self, service_id=None, region=None,
-                              public_url=None, admin_url=None,
-                              internal_url=None):
-        endpoint_id = uuid.uuid4().hex
-        service_id = service_id or uuid.uuid4().hex
-        region = region or uuid.uuid4().hex
-        response = {'id': endpoint_id, 'service_id': service_id,
-                    'region': region}
-        v3_endpoints = {}
-        request = response.copy()
-        request.pop('id')
-        if admin_url:
-            response['adminURL'] = admin_url
-            v3_endpoints['admin'] = self._get_endpoint_v3_data(
-                service_id, region, public_url, interface='admin')
-        if internal_url:
-            response['internalURL'] = internal_url
-            v3_endpoints['internal'] = self._get_endpoint_v3_data(
-                service_id, region, internal_url, interface='internal')
-        if public_url:
-            response['publicURL'] = public_url
-            v3_endpoints['public'] = self._get_endpoint_v3_data(
-                service_id, region, public_url, interface='public')
-        request = response.copy()
-        request.pop('id')
-        for u in ('publicURL', 'internalURL', 'adminURL'):
-            if request.get(u):
-                request[u.lower()] = request.pop(u)
-        return _EndpointDataV2(endpoint_id, service_id, region, public_url,
-                               internal_url, admin_url, v3_endpoints,
-                               {'endpoint': response}, {'endpoint': request})
 
     def _get_role_data(self, role_name=None):
         role_id = uuid.uuid4().hex
@@ -783,6 +744,35 @@ class TestCase(base.TestCase):
         if do_count:
             self.assertEqual(
                 len(self.calls), len(self.adapter.request_history))
+
+    def assertResourceEqual(self, actual, expected, resource_type):
+        """Helper for the assertEqual which compares Resource object against
+        dictionary representing expected state.
+
+        :param Resource actual: actual object.
+        :param dict expected: dictionary representing expected object.
+        :param class resource_type: class type to be applied for the expected
+            resource.
+        """
+        return self.assertEqual(
+            resource_type(**expected).to_dict(computed=False),
+            actual.to_dict(computed=False)
+        )
+
+    def assertResourceListEqual(self, actual, expected, resource_type):
+        """Helper for the assertEqual which compares Resource lists object against
+        dictionary representing expected state.
+
+        :param list actual: List of actual objects.
+        :param listexpected: List of dictionaries representing expected
+            objects.
+        :param class resource_type: class type to be applied for the expected
+            resource.
+        """
+        self.assertEqual(
+            [resource_type(**f).to_dict(computed=False) for f in expected],
+            [f.to_dict(computed=False) for f in actual]
+        )
 
 
 class IronicTestCase(TestCase):

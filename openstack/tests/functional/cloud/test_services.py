@@ -83,7 +83,7 @@ class TestServices(base.KeystoneBaseFunctionalTest):
                              self.new_service_name + '_update')
             self.assertEqual(new_service.description,
                              'this is an updated description')
-            self.assertFalse(new_service.enabled)
+            self.assertFalse(new_service.is_enabled)
             self.assertEqual(service.id, new_service.id)
 
     def test_list_services(self):

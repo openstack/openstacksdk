@@ -9,13 +9,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from openstack.common import tag
 from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
 
-class Trunk(resource.Resource, resource.TagMixin):
+class Trunk(resource.Resource, tag.TagMixin):
     resource_key = 'trunk'
     resources_key = 'trunks'
     base_path = '/trunks'
@@ -31,9 +31,9 @@ class Trunk(resource.Resource, resource.TagMixin):
 
     _query_mapping = resource.QueryParameters(
         'name', 'description', 'port_id', 'status', 'sub_ports',
-        project_id='tenant_id',
+        'project_id',
         is_admin_state_up='admin_state_up',
-        **resource.TagMixin._tag_query_parameters
+        **tag.TagMixin._tag_query_parameters
     )
 
     # Properties
@@ -41,7 +41,9 @@ class Trunk(resource.Resource, resource.TagMixin):
     name = resource.Body('name')
     #: The ID of the project who owns the trunk. Only administrative
     #: users can specify a project ID other than their own.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The trunk description.
     description = resource.Body('description')
     #: The administrative state of the port, which is up ``True`` or

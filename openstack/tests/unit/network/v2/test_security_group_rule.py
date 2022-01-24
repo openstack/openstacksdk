@@ -28,7 +28,7 @@ EXAMPLE = {
     'remote_ip_prefix': '8',
     'revision_number': 9,
     'security_group_id': '10',
-    'tenant_id': '11',
+    'project_id': '11',
     'project_id': '11',
     'updated_at': '12',
     'remote_address_group_id': '13'
@@ -59,7 +59,7 @@ class TestSecurityGroupRule(base.TestCase):
                               'not_tags': 'not-tags',
                               'port_range_max': 'port_range_max',
                               'port_range_min': 'port_range_min',
-                              'project_id': 'project_id',
+                              'tenant_id': 'tenant_id',
                               'protocol': 'protocol',
                               'remote_group_id': 'remote_group_id',
                               'remote_address_group_id':
@@ -70,7 +70,7 @@ class TestSecurityGroupRule(base.TestCase):
                               'sort_dir': 'sort_dir',
                               'sort_key': 'sort_key',
                               'tags': 'tags',
-                              'tenant_id': 'tenant_id'
+                              'project_id': 'project_id'
                               },
                              sot._query_mapping._mapping)
 
@@ -90,6 +90,6 @@ class TestSecurityGroupRule(base.TestCase):
         self.assertEqual(EXAMPLE['remote_ip_prefix'], sot.remote_ip_prefix)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertEqual(EXAMPLE['security_group_id'], sot.security_group_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.tenant_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

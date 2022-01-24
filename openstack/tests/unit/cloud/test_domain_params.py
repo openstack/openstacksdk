@@ -42,37 +42,3 @@ class TestDomainParams(base.TestCase):
             domain_id=None, project=project_data.project_name)
 
         self.assert_calls()
-
-    def test_identity_params_v2(self):
-        self.use_keystone_v2()
-        project_data = self._get_project_data(v3=False)
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://identity.example.com/v2.0/tenants',
-                 json=dict(tenants=[project_data.json_response['tenant']]))
-        ])
-
-        ret = self.cloud._get_identity_params(
-            domain_id='foo', project=project_data.project_name)
-        self.assertIn('tenant_id', ret)
-        self.assertEqual(ret['tenant_id'], project_data.project_id)
-        self.assertNotIn('domain', ret)
-
-        self.assert_calls()
-
-    def test_identity_params_v2_no_domain(self):
-        self.use_keystone_v2()
-        project_data = self._get_project_data(v3=False)
-        self.register_uris([
-            dict(method='GET',
-                 uri='https://identity.example.com/v2.0/tenants',
-                 json=dict(tenants=[project_data.json_response['tenant']]))
-        ])
-
-        ret = self.cloud._get_identity_params(
-            domain_id=None, project=project_data.project_name)
-        self.assertIn('tenant_id', ret)
-        self.assertEqual(ret['tenant_id'], project_data.project_id)
-        self.assertNotIn('domain', ret)
-
-        self.assert_calls()

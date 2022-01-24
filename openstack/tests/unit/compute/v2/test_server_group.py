@@ -18,8 +18,11 @@ EXAMPLE = {
     'id': 'IDENTIFIER',
     'name': 'test',
     'members': ['server1', 'server2'],
-    'metadata': {'k': 'v'},
+    'metadata': {},
     'policies': ['anti-affinity'],
+    'rules': {
+        'max_server_per_host': 5,
+    },
 }
 
 
@@ -47,3 +50,4 @@ class TestServerGroup(base.TestCase):
         self.assertEqual(EXAMPLE['members'], sot.member_ids)
         self.assertEqual(EXAMPLE['metadata'], sot.metadata)
         self.assertEqual(EXAMPLE['policies'], sot.policies)
+        self.assertEqual(EXAMPLE['rules'], sot.rules)

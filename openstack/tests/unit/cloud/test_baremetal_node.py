@@ -23,6 +23,7 @@ from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack.cloud import exc
 from openstack import exceptions
+from openstack.network.v2 import port as _port
 from openstack.tests import fakes
 from openstack.tests.unit import base
 
@@ -1657,8 +1658,9 @@ class TestBaremetalNode(base.IronicTestCase):
                 uri=self.get_mock_url(
                     service_type='network',
                     resource='ports',
-                    base_url_append='v2.0'),
-                json={'ports': [{'id': vif_id}]}),
+                    base_url_append='v2.0',
+                    append=[vif_id]),
+                json={'id': vif_id}),
             dict(
                 method='POST',
                 uri=self.get_mock_url(
@@ -1683,8 +1685,9 @@ class TestBaremetalNode(base.IronicTestCase):
                 uri=self.get_mock_url(
                     service_type='network',
                     resource='ports',
-                    base_url_append='v2.0'),
-                json={'ports': [{'id': vif_id}]}),
+                    base_url_append='v2.0',
+                    append=[vif_id]),
+                json={'id': vif_id}),
             dict(
                 method='DELETE',
                 uri=self.get_mock_url(
@@ -1717,13 +1720,16 @@ class TestBaremetalNode(base.IronicTestCase):
                 uri=self.get_mock_url(
                     service_type='network',
                     resource='ports',
-                    base_url_append='v2.0'),
-                json={'ports': [fake_port]}),
+                    base_url_append='v2.0',
+                    append=[vif_id]),
+                json=fake_port),
         ])
         res = self.cloud.list_ports_attached_to_machine(
             self.fake_baremetal_node['uuid'])
         self.assert_calls()
-        self.assertEqual([fake_port], res)
+        self.assertEqual(
+            [_port.Port(**fake_port).to_dict(computed=False)],
+            [i.to_dict(computed=False) for i in res])
 
 
 class TestUpdateMachinePatch(base.IronicTestCase):

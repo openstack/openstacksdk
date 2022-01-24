@@ -14,9 +14,12 @@
 # limitations under the License.
 
 import copy
+
 import testtools
 
 from openstack.cloud import exc
+from openstack.network.v2 import port as _port
+from openstack.network.v2 import router as _router
 from openstack.tests.unit import base
 
 
@@ -78,23 +81,40 @@ class TestRouter(base.TestCase):
         router_availability_zone_extension,
         router_extraroute_extension]
 
+    def _compare_routers(self, exp, real):
+        self.assertDictEqual(
+            _router.Router(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_get_router(self):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers']),
+                     'network', 'public',
+                     append=['v2.0', 'routers', self.router_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers'],
+                     qs_elements=['name=%s' % self.router_name]),
                  json={'routers': [self.mock_router_rep]})
         ])
         r = self.cloud.get_router(self.router_name)
         self.assertIsNotNone(r)
-        self.assertDictEqual(self.mock_router_rep, r)
+        self._compare_routers(self.mock_router_rep, r)
         self.assert_calls()
 
     def test_get_router_not_found(self):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers']),
+                     'network', 'public',
+                     append=['v2.0', 'routers', 'mickey']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers'],
+                     qs_elements=['name=mickey']),
                  json={'routers': []})
         ])
         r = self.cloud.get_router('mickey')
@@ -114,7 +134,8 @@ class TestRouter(base.TestCase):
         ])
         new_router = self.cloud.create_router(name=self.router_name,
                                               admin_state_up=True)
-        self.assertDictEqual(self.mock_router_rep, new_router)
+
+        self._compare_routers(self.mock_router_rep, new_router)
         self.assert_calls()
 
     def test_create_router_specific_tenant(self):
@@ -131,7 +152,7 @@ class TestRouter(base.TestCase):
                      json={'router': {
                          'name': self.router_name,
                          'admin_state_up': True,
-                         'tenant_id': new_router_tenant_id}}))
+                         'project_id': new_router_tenant_id}}))
         ])
 
         self.cloud.create_router(self.router_name,
@@ -269,8 +290,9 @@ class TestRouter(base.TestCase):
                  json={'extensions': self.enabled_neutron_extensions}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers']),
-                 json={'routers': [self.mock_router_rep]}),
+                     'network', 'public', append=['v2.0', 'routers',
+                                                  self.router_id]),
+                 json=self.mock_router_rep),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',
@@ -283,14 +305,21 @@ class TestRouter(base.TestCase):
         ])
         new_router = self.cloud.update_router(
             self.router_id, name=new_router_name, routes=new_routes)
-        self.assertDictEqual(expected_router_rep, new_router)
+
+        self._compare_routers(expected_router_rep, new_router)
         self.assert_calls()
 
     def test_delete_router(self):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers']),
+                     'network', 'public',
+                     append=['v2.0', 'routers', self.router_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers'],
+                     qs_elements=['name=%s' % self.router_name]),
                  json={'routers': [self.mock_router_rep]}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
@@ -305,8 +334,14 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers']),
-                 json={'routers': []}),
+                     'network', 'public',
+                     append=['v2.0', 'routers', self.router_name]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers'],
+                     qs_elements=['name=%s' % self.router_name]),
+                 json={'routers': []})
         ])
         self.assertFalse(self.cloud.delete_router(self.router_name))
         self.assert_calls()
@@ -317,29 +352,18 @@ class TestRouter(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers']),
-                 json={'routers': [router1, router2]}),
+                     'network', 'public',
+                     append=['v2.0', 'routers', 'mickey']),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'routers'],
+                     qs_elements=['name=mickey']),
+                 json={'routers': [router1, router2]})
         ])
         self.assertRaises(exc.OpenStackCloudException,
                           self.cloud.delete_router,
                           'mickey')
-        self.assert_calls()
-
-    def test_delete_router_multiple_using_id(self):
-        router1 = dict(id='123', name='mickey')
-        router2 = dict(id='456', name='mickey')
-        self.register_uris([
-            dict(method='GET',
-                 uri=self.get_mock_url(
-                     'network', 'public', append=['v2.0', 'routers']),
-                 json={'routers': [router1, router2]}),
-            dict(method='DELETE',
-                 uri=self.get_mock_url(
-                     'network', 'public',
-                     append=['v2.0', 'routers', '123']),
-                 json={})
-        ])
-        self.assertTrue(self.cloud.delete_router("123"))
         self.assert_calls()
 
     def _get_mock_dict(self, owner, json):
@@ -389,16 +413,20 @@ class TestRouter(base.TestCase):
         for port_type in ['router_interface',
                           'router_interface_distributed',
                           'ha_router_replicated_interface']:
-            ports = {}
             if port_type == device_owner:
                 ports = {'ports': [internal_port]}
+            else:
+                ports = {'ports': []}
             mock_uris.append(self._get_mock_dict(port_type, ports))
         mock_uris.append(self._get_mock_dict('router_gateway',
                                              {'ports': [external_port]}))
 
         self.register_uris(mock_uris)
         ret = self.cloud.list_router_interfaces(router, interface_type)
-        self.assertEqual(expected_result, ret)
+        self.assertEqual(
+            [_port.Port(**i).to_dict(computed=False) for i in expected_result],
+            [i.to_dict(computed=False) for i in ret]
+        )
         self.assert_calls()
 
     router = {

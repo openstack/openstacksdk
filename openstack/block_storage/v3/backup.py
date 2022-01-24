@@ -132,7 +132,7 @@ class Backup(resource.Resource):
         else:
             # Just for safety of the implementation (since PUT removed)
             raise exceptions.ResourceFailure(
-                msg="Invalid create method: %s" % self.create_method)
+                "Invalid create method: %s" % self.create_method)
 
         has_body = (self.has_body if self.create_returns_body is None
                     else self.create_returns_body)
@@ -143,6 +143,14 @@ class Backup(resource.Resource):
             # fetch the body if it's required but not returned by create
             return self.fetch(session)
         return self
+
+    def _action(self, session, body, microversion=None):
+        """Preform backup actions given the message body."""
+        url = utils.urljoin(self.base_path, self.id, 'action')
+        resp = session.post(url, json=body,
+                            microversion=self._max_microversion)
+        exceptions.raise_from_response(resp)
+        return resp
 
     def restore(self, session, volume_id=None, name=None):
         """Restore current backup to volume
@@ -161,10 +169,21 @@ class Backup(resource.Resource):
         if not (volume_id or name):
             raise exceptions.SDKException('Either of `name` or `volume_id`'
                                           ' must be specified.')
-        response = session.post(url,
-                                json=body)
+        response = session.post(url, json=body)
         self._translate_response(response, has_body=False)
         return self
+
+    def force_delete(self, session):
+        """Force backup deletion
+        """
+        body = {'os-force_delete': {}}
+        self._action(session, body)
+
+    def reset(self, session, status):
+        """Reset the status of the backup
+        """
+        body = {'os-reset_status': {'status': status}}
+        self._action(session, body)
 
 
 BackupDetail = Backup

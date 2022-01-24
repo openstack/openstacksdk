@@ -87,7 +87,7 @@ class HttpException(SDKException, _rex.HTTPError):
         if self.status_code is not None and (400 <= self.status_code < 500):
             self.source = "Client"
 
-    def __unicode__(self):
+    def __str__(self):
         # 'Error' is the default value for self.message. If self.message isn't
         # 'Error', then someone has set a more informative error message
         # and we should use it. If it is 'Error', then we should construct a
@@ -105,9 +105,6 @@ class HttpException(SDKException, _rex.HTTPError):
         return "{message}: {remote_error}".format(
             message=super(HttpException, self).__str__(),
             remote_error=remote_error)
-
-    def __str__(self):
-        return self.__unicode__()
 
 
 class BadRequestException(HttpException):

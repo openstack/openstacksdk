@@ -20,7 +20,7 @@ EXAMPLE = {
     'object_id': IDENTIFIER,
     'object_type': 'network',
     'target_tenant': '10',
-    'tenant_id': '5',
+    'project_id': '5',
 }
 
 
@@ -43,4 +43,4 @@ class TestRBACPolicy(base.TestCase):
         self.assertEqual(EXAMPLE['object_id'], sot.object_id)
         self.assertEqual(EXAMPLE['object_type'], sot.object_type)
         self.assertEqual(EXAMPLE['target_tenant'], sot.target_project_id)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)

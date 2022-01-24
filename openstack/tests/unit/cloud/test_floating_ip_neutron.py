@@ -21,6 +21,7 @@ Tests Floating IP resource methods for Neutron
 
 import copy
 import datetime
+
 import munch
 
 from openstack.cloud import exc
@@ -180,10 +181,10 @@ class TestFloatingIP(base.TestCase):
         self.register_uris([
             dict(method='GET',
                  uri=('https://network.example.com/v2.0/floatingips?'
-                      'Foo=42'),
+                      'description=42'),
                  json={'floatingips': []})])
 
-        self.cloud.list_floating_ips(filters={'Foo': 42})
+        self.cloud.list_floating_ips(filters={'description': 42})
 
         self.assert_calls()
 
@@ -260,7 +261,11 @@ class TestFloatingIP(base.TestCase):
     def test_create_floating_ip(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
+                 uri='https://network.example.com/v2.0/networks/my-network',
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks'
+                     '?name=my-network',
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='POST',
                  uri='https://network.example.com/v2.0/floatingips',
@@ -279,8 +284,8 @@ class TestFloatingIP(base.TestCase):
     def test_create_floating_ip_port_bad_response(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
-                 json={'networks': [self.mock_get_network_rep]}),
+                 uri='https://network.example.com/v2.0/networks/my-network',
+                 json=self.mock_get_network_rep),
             dict(method='POST',
                  uri='https://network.example.com/v2.0/floatingips',
                  json=self.mock_floating_ip_new_rep,
@@ -300,7 +305,11 @@ class TestFloatingIP(base.TestCase):
     def test_create_floating_ip_port(self):
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
+                 uri='https://network.example.com/v2.0/networks/my-network',
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks'
+                     '?name=my-network',
                  json={'networks': [self.mock_get_network_rep]}),
             dict(method='POST',
                  uri='https://network.example.com/v2.0/floatingips',
@@ -395,7 +404,10 @@ class TestFloatingIP(base.TestCase):
         # payloads taken from citycloud
         self.register_uris([
             dict(method='GET',
-                 uri='https://network.example.com/v2.0/networks',
+                 uri='https://network.example.com/v2.0/networks/ext-net',
+                 status_code=404),
+            dict(method='GET',
+                 uri='https://network.example.com/v2.0/networks?name=ext-net',
                  json={"networks": [{
                      "status": "ACTIVE",
                      "subnets": [
@@ -416,24 +428,6 @@ class TestFloatingIP(base.TestCase):
                      "shared": False,
                      "id": "0232c17f-2096-49bc-b205-d3dcd9a30ebf",
                      "description": None
-                 }, {
-                     "status": "ACTIVE",
-                     "subnets": ["f0ad1df5-53ee-473f-b86b-3604ea5591e9"],
-                     "availability_zone_hints": [],
-                     "availability_zones": ["nova"],
-                     "name": "private",
-                     "admin_state_up": True,
-                     "tenant_id": "65222a4d09ea4c68934fa1028c77f394",
-                     "created_at": "2016-10-22T13:46:26",
-                     "tags": [],
-                     "updated_at": "2016-10-22T13:46:26",
-                     "ipv6_address_scope": None,
-                     "router:external": False,
-                     "ipv4_address_scope": None,
-                     "shared": False,
-                     "mtu": 1450,
-                     "id": "2c9adcb5-c123-4c5a-a2ba-1ad4c4e1481f",
-                     "description": ""
                  }]}),
             dict(method='GET',
                  uri='https://network.example.com/v2.0/ports'

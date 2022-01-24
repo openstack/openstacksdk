@@ -38,7 +38,9 @@ class RBACPolicy(resource.Resource):
     #: The ID of the project this RBAC will be enforced.
     target_project_id = resource.Body('target_tenant')
     #: The owner project ID.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: Type of the object that this RBAC policy affects.
     object_type = resource.Body('object_type')
     #: Action for the RBAC policy.

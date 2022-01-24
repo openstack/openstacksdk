@@ -66,21 +66,28 @@ class TestNetworkQuotas(base.BaseFunctionalTest):
     def test_quotas(self):
         '''Test quotas functionality'''
         quotas = self.operator_cloud.get_network_quotas('demo')
-        network = quotas['network']
-        self.operator_cloud.set_network_quotas('demo', network=network + 1)
+        network = quotas['networks']
+        self.operator_cloud.set_network_quotas('demo', networks=network + 1)
         self.assertEqual(
             network + 1,
-            self.operator_cloud.get_network_quotas('demo')['network'])
+            self.operator_cloud.get_network_quotas('demo')['networks'])
         self.operator_cloud.delete_network_quotas('demo')
         self.assertEqual(
             network,
-            self.operator_cloud.get_network_quotas('demo')['network'])
+            self.operator_cloud.get_network_quotas('demo')['networks'])
 
     def test_get_quotas_details(self):
+        quotas = [
+            'floating_ips', 'networks', 'ports',
+            'rbac_policies', 'routers', 'subnets',
+            'subnet_pools', 'security_group_rules',
+            'security_groups']
         expected_keys = ['limit', 'used', 'reserved']
         '''Test getting details about quota usage'''
         quota_details = self.operator_cloud.get_network_quotas(
             'demo', details=True)
-        for quota_values in quota_details.values():
-            for expected_key in expected_keys:
-                self.assertTrue(expected_key in quota_values.keys())
+        for quota in quotas:
+            quota_val = quota_details[quota]
+            if quota_val:
+                for expected_key in expected_keys:
+                    self.assertTrue(expected_key in quota_val)

@@ -46,3 +46,10 @@ Stats Operations
 .. autoclass:: openstack.block_storage.v2._proxy.Proxy
   :noindex:
   :members: backend_pools
+
+QuotaSet Operations
+^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+  :noindex:
+  :members: get_quota_set, get_quota_set_defaults,
+            revert_quota_set, update_quota_set

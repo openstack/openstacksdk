@@ -30,7 +30,7 @@ class AddressScope(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         'name', 'ip_version',
-        project_id='tenant_id',
+        'project_id',
         is_shared='shared',
     )
 
@@ -38,7 +38,9 @@ class AddressScope(resource.Resource):
     #: The address scope name.
     name = resource.Body('name')
     #: The ID of the project that owns the address scope.
-    project_id = resource.Body('tenant_id')
+    project_id = resource.Body('project_id', alias='tenant_id')
+    #: Tenant_id (deprecated attribute).
+    tenant_id = resource.Body('tenant_id', deprecated=True)
     #: The IP address family of the address scope.
     #: *Type: int*
     ip_version = resource.Body('ip_version', type=int)

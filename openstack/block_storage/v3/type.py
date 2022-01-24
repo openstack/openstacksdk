@@ -30,10 +30,6 @@ class Type(resource.Resource):
     _query_mapping = resource.QueryParameters("is_public")
 
     # Properties
-    #: A ID representing this type.
-    id = resource.Body("id")
-    #: Name of the type.
-    name = resource.Body("name")
     #: Description of the type.
     description = resource.Body("description")
     #: A dict of extra specifications. "capabilities" is a usual key.
@@ -94,6 +90,30 @@ class Type(resource.Resource):
         for key in keys:
             self._extra_specs(session.delete, key=key, delete=True)
 
+    def get_private_access(self, session):
+        url = utils.urljoin(self.base_path, self.id, "os-volume-type-access")
+        resp = session.get(url)
+
+        exceptions.raise_from_response(resp)
+
+        return resp.json().get("volume_type_access", [])
+
+    def add_private_access(self, session, project_id):
+        url = utils.urljoin(self.base_path, self.id, "action")
+        body = {"addProjectAccess": {"project": project_id}}
+
+        resp = session.post(url, json=body)
+
+        exceptions.raise_from_response(resp)
+
+    def remove_private_access(self, session, project_id):
+        url = utils.urljoin(self.base_path, self.id, "action")
+        body = {"removeProjectAccess": {"project": project_id}}
+
+        resp = session.post(url, json=body)
+
+        exceptions.raise_from_response(resp)
+
 
 class TypeEncryption(resource.Resource):
     resource_key = "encryption"
@@ -108,23 +128,23 @@ class TypeEncryption(resource.Resource):
     allow_commit = True
 
     # Properties
+    #: The encryption algorithm or mode.
+    cipher = resource.Body("cipher")
+    #: Notional service where encryption is performed.
+    control_location = resource.Body("control_location")
+    #: The date and time when the resource was created.
+    created_at = resource.Body("created_at")
+    #: The resource is deleted or not.
+    deleted = resource.Body("deleted")
+    #: The date and time when the resource was deleted.
+    deleted_at = resource.Body("deleted_at")
     #: A ID representing this type.
     encryption_id = resource.Body("encryption_id", alternate_id=True)
-    #: The ID of the Volume Type.
-    volume_type_id = resource.URI("volume_type_id")
     #: The Size of encryption key.
     key_size = resource.Body("key_size")
     #: The class that provides encryption support.
     provider = resource.Body("provider")
-    #: Notional service where encryption is performed.
-    control_location = resource.Body("control_location")
-    #: The encryption algorithm or mode.
-    cipher = resource.Body("cipher")
-    #: The resource is deleted or not.
-    deleted = resource.Body("deleted")
-    #: The date and time when the resource was created.
-    created_at = resource.Body("created_at")
     #: The date and time when the resource was updated.
     updated_at = resource.Body("updated_at")
-    #: The date and time when the resource was deleted.
-    deleted_at = resource.Body("deleted_at")
+    #: The ID of the Volume Type.
+    volume_type_id = resource.URI("volume_type_id")

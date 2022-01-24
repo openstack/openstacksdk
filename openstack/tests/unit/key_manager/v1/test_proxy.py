@@ -22,6 +22,8 @@ class TestKeyManagerProxy(test_proxy_base.TestProxyBase):
         super(TestKeyManagerProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+
+class TestKeyManagerContainer(TestKeyManagerProxy):
     def test_server_create_attrs(self):
         self.verify_create(self.proxy.create_container, container.Container)
 
@@ -45,6 +47,8 @@ class TestKeyManagerProxy(test_proxy_base.TestProxyBase):
     def test_container_update(self):
         self.verify_update(self.proxy.update_container, container.Container)
 
+
+class TestKeyManagerOrder(TestKeyManagerProxy):
     def test_order_create_attrs(self):
         self.verify_create(self.proxy.create_order, order.Order)
 
@@ -66,6 +70,8 @@ class TestKeyManagerProxy(test_proxy_base.TestProxyBase):
     def test_order_update(self):
         self.verify_update(self.proxy.update_order, order.Order)
 
+
+class TestKeyManagerSecret(TestKeyManagerProxy):
     def test_secret_create_attrs(self):
         self.verify_create(self.proxy.create_secret, secret.Secret)
 

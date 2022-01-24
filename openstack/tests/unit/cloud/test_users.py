@@ -43,28 +43,6 @@ class TestUsers(base.TestCase):
             }
         }
 
-    def test_create_user_v2(self):
-        self.use_keystone_v2()
-
-        user_data = self._get_user_data()
-
-        self.register_uris([
-            dict(method='POST',
-                 uri=self._get_keystone_mock_url(resource='users', v3=False),
-                 status_code=200,
-                 json=user_data.json_response,
-                 validate=dict(json=user_data.json_request)),
-        ])
-
-        user = self.cloud.create_user(
-            name=user_data.name, email=user_data.email,
-            password=user_data.password)
-
-        self.assertEqual(user_data.name, user.name)
-        self.assertEqual(user_data.email, user.email)
-        self.assertEqual(user_data.user_id, user.id)
-        self.assert_calls()
-
     def test_create_user_v3(self):
         user_data = self._get_user_data(
             domain_id=uuid.uuid4().hex,
@@ -89,39 +67,6 @@ class TestUsers(base.TestCase):
         self.assertEqual(user_data.user_id, user.id)
         self.assert_calls()
 
-    def test_update_user_password_v2(self):
-        self.use_keystone_v2()
-
-        user_data = self._get_user_data(email='test@example.com')
-        mock_user_resource_uri = self._get_keystone_mock_url(
-            resource='users', append=[user_data.user_id], v3=False)
-        mock_users_uri = self._get_keystone_mock_url(
-            resource='users', v3=False)
-
-        self.register_uris([
-            # GET list to find user id
-            # PUT user with password update
-            # PUT empty update (password change is different than update)
-            #     but is always chained together [keystoneclient oddity]
-            dict(method='GET', uri=mock_users_uri, status_code=200,
-                 json=self._get_user_list(user_data)),
-            dict(method='PUT',
-                 uri=self._get_keystone_mock_url(
-                     resource='users', v3=False,
-                     append=[user_data.user_id, 'OS-KSADM', 'password']),
-                 status_code=200, json=user_data.json_response,
-                 validate=dict(
-                     json={'user': {'password': user_data.password}})),
-            dict(method='PUT', uri=mock_user_resource_uri, status_code=200,
-                 json=user_data.json_response,
-                 validate=dict(json={'user': {}}))])
-
-        user = self.cloud.update_user(
-            user_data.user_id, password=user_data.password)
-        self.assertEqual(user_data.name, user.name)
-        self.assertEqual(user_data.email, user.email)
-        self.assert_calls()
-
     def test_create_user_v3_no_domain(self):
         user_data = self._get_user_data(domain_id=uuid.uuid4().hex,
                                         email='test@example.com')
@@ -141,14 +86,11 @@ class TestUsers(base.TestCase):
 
         self.register_uris([
             dict(method='GET',
-                 uri=self._get_keystone_mock_url(resource='users',
-                                                 qs_elements=['name=%s' %
-                                                              user_data.
-                                                              name]),
+                 uri=self._get_keystone_mock_url(
+                     resource='users',
+                     qs_elements=['name=%s' % user_data.name]),
                  status_code=200,
                  json=self._get_user_list(user_data)),
-            dict(method='GET', uri=user_resource_uri, status_code=200,
-                 json=user_data.json_response),
             dict(method='DELETE', uri=user_resource_uri, status_code=204)])
 
         self.cloud.delete_user(user_data.name)

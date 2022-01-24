@@ -30,7 +30,7 @@ EXAMPLE = {
     'prefixes': ['10', '11'],
     'revision_number': 12,
     'shared': True,
-    'tenant_id': '13',
+    'project_id': '13',
     'updated_at': '14',
 }
 
@@ -65,5 +65,5 @@ class TestSubnetpool(base.TestCase):
         self.assertEqual(EXAMPLE['prefixes'], sot.prefixes)
         self.assertEqual(EXAMPLE['revision_number'], sot.revision_number)
         self.assertTrue(sot.is_shared)
-        self.assertEqual(EXAMPLE['tenant_id'], sot.project_id)
+        self.assertEqual(EXAMPLE['project_id'], sot.project_id)
         self.assertEqual(EXAMPLE['updated_at'], sot.updated_at)

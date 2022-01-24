@@ -28,6 +28,8 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
         super(TestMessageProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+
+class TestMessageQueue(TestMessageProxy):
     def test_queue_create(self):
         self.verify_create(self.proxy.create_queue, queue.Queue)
 
@@ -46,6 +48,8 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
     def test_queue_delete_ignore(self):
         self.verify_delete(self.proxy.delete_queue, queue.Queue, True)
 
+
+class TestMessageMessage(TestMessageProxy):
     @mock.patch.object(proxy_base.Proxy, '_get_resource')
     def test_message_post(self, mock_get_resource):
         message_obj = message.Message(queue_name="test_queue")
@@ -126,6 +130,8 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
                                                   "resource_or_id",
                                                   queue_name="test_queue")
 
+
+class TestMessageSubscription(TestMessageProxy):
     def test_subscription_create(self):
         self._verify(
             "openstack.message.v2.subscription.Subscription.create",
@@ -178,6 +184,8 @@ class TestMessageProxy(test_proxy_base.TestProxyBase):
             subscription.Subscription, "resource_or_id",
             queue_name="test_queue")
 
+
+class TestMessageClaim(TestMessageProxy):
     def test_claim_create(self):
         self._verify(
             "openstack.message.v2.claim.Claim.create",

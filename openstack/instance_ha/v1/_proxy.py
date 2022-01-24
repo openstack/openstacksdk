@@ -30,7 +30,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of notifications.
 
         :param kwargs query: Optional query parameters to be sent to
-                                 limit the notifications being returned.
+            limit the notifications being returned.
         :returns: A generator of notifications
         """
         return self._list(_notification.Notification, **query)
@@ -39,13 +39,12 @@ class Proxy(proxy.Proxy):
         """Get a single notification.
 
         :param notification: The value can be the ID of a notification or a
-                           :class:
-                            `~masakariclient.sdk.ha.v1
-                            .notification.Notification` instance.
-        :returns: One :class:`~masakariclient.sdk.ha.v1
-                             .notification.Notification`
+            :class:`~masakariclient.sdk.ha.v1.notification.Notification`
+            instance.
+        :returns: One
+            :class:`~masakariclient.sdk.ha.v1.notification.Notification`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_notification.Notification, notification)
 
@@ -53,14 +52,10 @@ class Proxy(proxy.Proxy):
         """Create a new notification.
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:
-                               `masakariclient.sdk.ha.v1
-                               .notification.Notification`,
-                           comprised of the propoerties on the Notification
-                           class.
+            a :class:`masakariclient.sdk.ha.v1.notification.Notification`,
+            comprised of the propoerties on the Notification class.
         :returns: The result of notification creation
-        :rtype: :class: `masakariclient.sdk.ha.v1
-                        .notification.Notification`
+        :rtype: :class:`masakariclient.sdk.ha.v1.notification.Notification`
         """
         return self._create(_notification.Notification, **attrs)
 
@@ -68,7 +63,7 @@ class Proxy(proxy.Proxy):
         """Return a generator of segments.
 
         :param kwargs query: Optional query parameters to be sent to
-                                 limit the segments being returned.
+            limit the segments being returned.
         :returns: A generator of segments
         """
         return self._list(_segment.Segment, **query)
@@ -77,11 +72,10 @@ class Proxy(proxy.Proxy):
         """Get a single segment.
 
         :param segment: The value can be the ID of a segment or a
-                      :class:
-                      `~masakariclient.sdk.ha.v1.segment.Segment` instance.
+            :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
         :returns: One :class:`~masakariclient.sdk.ha.v1.segment.Segment`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         """
         return self._get(_segment.Segment, segment)
 
@@ -89,11 +83,10 @@ class Proxy(proxy.Proxy):
         """Create a new segment.
 
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class:
-                               `masakariclient.sdk.ha.v1.segment.Segment`,
-                           comprised of the propoerties on the Segment class.
+            a :class:`masakariclient.sdk.ha.v1.segment.Segment`,
+            comprised of the propoerties on the Segment class.
         :returns: The result of segment creation
-        :rtype: :class: `masakariclient.sdk.ha.v1.segment.Segment`
+        :rtype: :class:`masakariclient.sdk.ha.v1.segment.Segment`
         """
         return self._create(_segment.Segment, **attrs)
 
@@ -101,14 +94,12 @@ class Proxy(proxy.Proxy):
         """Update a segment.
 
         :param segment: The value can be the ID of a segment or a
-                      :class:
-                      `~masakariclient.sdk.ha.v1.segment.Segment` instance.
+            :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
         :param dict attrs: Keyword arguments which will be used to update
-                           a :class:
-                               `masakariclient.sdk.ha.v1.segment.Segment`,
-                           comprised of the propoerties on the Segment class.
+            a :class:`masakariclient.sdk.ha.v1.segment.Segment`,
+            comprised of the propoerties on the Segment class.
         :returns: The updated segment.
-        :rtype: :class: `masakariclient.sdk.ha.v1.segment.Segment`
+        :rtype: :class:`masakariclient.sdk.ha.v1.segment.Segment`
         """
         return self._update(_segment.Segment, segment, **attrs)
 
@@ -119,10 +110,10 @@ class Proxy(proxy.Proxy):
             The value can be either the ID of a segment or a
             :class:`~masakariclient.sdk.ha.v1.segment.Segment` instance.
         :param bool ignore_missing: When set to ``False``
-                       :class:`~openstack.exceptions.ResourceNotFound` will be
-                       raised when the segment does not exist.
-                       When set to ``True``, no exception will be set when
-                       attempting to delete a nonexistent segment.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the segment does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent segment.
         :returns: ``None``
         """
         return self._delete(_segment.Segment, segment,
@@ -133,7 +124,7 @@ class Proxy(proxy.Proxy):
 
         :param segment_id: The ID of a failover segment.
         :param kwargs query: Optional query parameters to be sent to
-                                 limit the hosts being returned.
+            limit the hosts being returned.
 
         :returns: A generator of hosts
         """
@@ -144,8 +135,8 @@ class Proxy(proxy.Proxy):
 
         :param segment_id: The ID of a failover segment.
         :param dict attrs: Keyword arguments which will be used to create
-                           a :class: `masakariclient.sdk.ha.v1.host.Host`,
-                           comprised of the propoerties on the Host class.
+            a :class:`masakariclient.sdk.ha.v1.host.Host`,
+            comprised of the propoerties on the Host class.
 
         :returns: The results of host creation
         """
@@ -156,13 +147,13 @@ class Proxy(proxy.Proxy):
 
         :param segment_id: The ID of a failover segment.
         :param host: The value can be the ID of a host or a :class:
-                     `~masakariclient.sdk.ha.v1.host.Host` instance.
+            `~masakariclient.sdk.ha.v1.host.Host` instance.
 
         :returns: One :class:`~masakariclient.sdk.ha.v1.host.Host`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
-                 when segment_id is None.
+            when segment_id is None.
         """
         if segment_id is None:
             raise exceptions.InvalidRequest("'segment_id' must be specified.")
@@ -175,14 +166,14 @@ class Proxy(proxy.Proxy):
 
         :param segment_id: The ID of a failover segment.
         :param host: The value can be the ID of a host or a :class:
-                     `~masakariclient.sdk.ha.v1.host.Host` instance.
+            `~masakariclient.sdk.ha.v1.host.Host` instance.
         :param dict attrs: The attributes to update on the host represented.
 
         :returns: The updated host
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
-                 when segment_id is None.
+            when segment_id is None.
         """
         host_id = resource.Resource._get_id(host)
         return self._update(_host.Host, host_id, segment_id=segment_id,
@@ -193,18 +184,18 @@ class Proxy(proxy.Proxy):
 
         :param segment_id: The ID of a failover segment.
         :param host: The value can be the ID of a host or a :class:
-                     `~masakariclient.sdk.ha.v1.host.Host` instance.
+            `~masakariclient.sdk.ha.v1.host.Host` instance.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the host does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent host.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the host does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent host.
 
         :returns: ``None``
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
-                 when no resource can be found.
+            when no resource can be found.
         :raises: :class:`~openstack.exceptions.InvalidRequest`
-                 when segment_id is None.
+            when segment_id is None.
 
         """
         if segment_id is None:

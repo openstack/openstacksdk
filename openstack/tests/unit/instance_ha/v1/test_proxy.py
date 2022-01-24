@@ -27,6 +27,8 @@ class TestInstanceHaProxy(test_proxy_base.TestProxyBase):
         super(TestInstanceHaProxy, self).setUp()
         self.proxy = _proxy.Proxy(self.session)
 
+
+class TestInstanceHaHosts(TestInstanceHaProxy):
     def test_hosts(self):
         self.verify_list(self.proxy.hosts,
                          host.Host,
@@ -61,6 +63,8 @@ class TestInstanceHaProxy(test_proxy_base.TestProxyBase):
                            method_kwargs={"segment_id": SEGMENT_ID},
                            expected_kwargs={"segment_id": SEGMENT_ID})
 
+
+class TestInstanceHaNotifications(TestInstanceHaProxy):
     def test_notifications(self):
         self.verify_list(self.proxy.notifications, notification.Notification)
 
@@ -72,6 +76,8 @@ class TestInstanceHaProxy(test_proxy_base.TestProxyBase):
         self.verify_create(self.proxy.create_notification,
                            notification.Notification)
 
+
+class TestInstanceHaSegments(TestInstanceHaProxy):
     def test_segments(self):
         self.verify_list(self.proxy.segments, segment.Segment)
 

@@ -15,6 +15,7 @@ import os
 
 from openstack import exceptions
 from openstack import proxy
+from openstack import utils
 
 
 class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
@@ -151,9 +152,9 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
                 'direct binary object')
         if not (md5 or sha256) and validate_checksum:
             if filename:
-                (md5, sha256) = self._connection._get_file_hashes(filename)
+                (md5, sha256) = utils._get_file_hashes(filename)
             elif data and isinstance(data, bytes):
-                (md5, sha256) = self._connection._calculate_data_hashes(data)
+                (md5, sha256) = utils._calculate_data_hashes(data)
         if allow_duplicates:
             current_image = None
         else:
@@ -167,7 +168,7 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
                 sha256_key = props.get(
                     self._IMAGE_SHA256_KEY,
                     props.get(self._SHADE_IMAGE_SHA256_KEY, ''))
-                up_to_date = self._connection._hashes_up_to_date(
+                up_to_date = utils._hashes_up_to_date(
                     md5=md5, sha256=sha256,
                     md5_key=md5_key, sha256_key=sha256_key)
                 if up_to_date:

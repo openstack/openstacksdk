@@ -61,14 +61,6 @@ class Test_HttpException(base.TestCase):
         self.assertEqual(self.message, exc.message)
         self.assertEqual(http_status, exc.status_code)
 
-    def test_unicode_message(self):
-        unicode_message = u"Event: No item found for does_not_exist©"
-        http_exception = exceptions.HttpException(message=unicode_message)
-        try:
-            http_exception.__unicode__()
-        except Exception:
-            self.fail("HttpException unicode message error")
-
 
 class TestRaiseFromResponse(base.TestCase):
 

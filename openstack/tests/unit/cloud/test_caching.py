@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import concurrent
 import time
 
@@ -16,10 +17,15 @@ import testtools
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 import openstack
+from openstack.block_storage.v3 import volume as _volume
 import openstack.cloud
 from openstack.cloud import meta
 from openstack.compute.v2 import flavor as _flavor
 from openstack import exceptions
+from openstack.identity.v3 import project as _project
+from openstack.identity.v3 import user as _user
+from openstack.image.v2 import image as _image
+from openstack.network.v2 import port as _port
 from openstack.tests import fakes
 from openstack.tests.unit import base
 from openstack.tests.unit.cloud import test_port
@@ -99,14 +105,31 @@ class TestMemoryCache(base.TestCase):
         super(TestMemoryCache, self).setUp(
             cloud_config_fixture='clouds_cache.yaml')
 
-    def _image_dict(self, fake_image):
-        return self.cloud._normalize_image(meta.obj_to_munch(fake_image))
+    def _compare_images(self, exp, real):
+        self.assertDictEqual(
+            _image.Image(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
 
-    def _munch_images(self, fake_image):
-        return self.cloud._normalize_images([fake_image])
+    def _compare_volumes(self, exp, real):
+        self.assertDictEqual(
+            _volume.Volume(**exp).to_dict(computed=False),
+            real.to_dict(computed=False)
+        )
 
     def test_openstack_cloud(self):
         self.assertIsInstance(self.cloud, openstack.connection.Connection)
+
+    def _compare_projects(self, exp, real):
+        self.assertDictEqual(
+            _project.Project(**exp).to_dict(computed=False),
+            real.to_dict(computed=False)
+        )
+
+    def _compare_users(self, exp, real):
+        self.assertDictEqual(
+            _user.User(**exp).to_dict(computed=False),
+            real.to_dict(computed=False)
+        )
 
     def test_list_projects_v3(self):
         project_one = self._get_project_data()
@@ -127,57 +150,17 @@ class TestMemoryCache(base.TestCase):
             dict(method='GET', uri=mock_uri, status_code=200,
                  json=second_response)])
 
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(first_response['projects'])),
-            self.cloud.list_projects())
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(first_response['projects'])),
-            self.cloud.list_projects())
+        for a, b in zip(first_response['projects'],
+                        self.cloud.list_projects()):
+            self._compare_projects(a, b)
+
         # invalidate the list_projects cache
         self.cloud.list_projects.invalidate(self.cloud)
-        # ensure the new values are now retrieved
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(second_response['projects'])),
-            self.cloud.list_projects())
-        self.assert_calls()
 
-    def test_list_projects_v2(self):
-        self.use_keystone_v2()
-        project_one = self._get_project_data(v3=False)
-        project_two = self._get_project_data(v3=False)
-        project_list = [project_one, project_two]
+        for a, b in zip(second_response['projects'],
+                        self.cloud.list_projects()):
+            self._compare_projects(a, b)
 
-        first_response = {'tenants': [project_one.json_response['tenant']]}
-        second_response = {'tenants': [p.json_response['tenant']
-                                       for p in project_list]}
-
-        mock_uri = self.get_mock_url(
-            service_type='identity', interface='admin', resource='tenants')
-
-        self.register_uris([
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json=first_response),
-            dict(method='GET', uri=mock_uri, status_code=200,
-                 json=second_response)])
-
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(first_response['tenants'])),
-            self.cloud.list_projects())
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(first_response['tenants'])),
-            self.cloud.list_projects())
-        # invalidate the list_projects cache
-        self.cloud.list_projects.invalidate(self.cloud)
-        # ensure the new values are now retrieved
-        self.assertEqual(
-            self.cloud._normalize_projects(
-                meta.obj_list_to_munch(second_response['tenants'])),
-            self.cloud.list_projects())
         self.assert_calls()
 
     def test_list_servers_no_herd(self):
@@ -210,24 +193,24 @@ class TestMemoryCache(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict)],
-            self.cloud.list_volumes())
+
+        for a, b in zip([fake_volume_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         # this call should hit the cache
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volume_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.cloud.list_volumes.invalidate(self.cloud)
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict),
-             self.cloud._normalize_volume(fake_volume2_dict)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volume_dict, fake_volume2_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.assert_calls()
 
     def test_list_volumes_creating_invalidates(self):
@@ -241,19 +224,18 @@ class TestMemoryCache(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volume_dict, fake_volume2_dict]})])
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict)],
-            self.cloud.list_volumes())
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volume_dict),
-             self.cloud._normalize_volume(fake_volume2_dict)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volume_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
+        for a, b in zip([fake_volume_dict, fake_volume2_dict],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.assert_calls()
 
     def test_create_volume_invalidates(self):
@@ -272,53 +254,60 @@ class TestMemoryCache(base.TestCase):
             self.get_cinder_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volb4]}),
             dict(method='POST',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes']),
+                     'volumev3', 'public', append=['volumes']),
                  json={'volume': fake_vol_creating}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4, fake_vol_creating]}),
+                     'volumev3', 'public', append=['volumes', _id]),
+                 json={'volume': fake_vol_creating}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
+                     'volumev3', 'public', append=['volumes', _id]),
+                 json={'volume': fake_vol_avail}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev3', 'public', append=['volumes', 'detail']),
                  json={'volumes': [fake_volb4, fake_vol_avail]}),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4, fake_vol_avail]}),
+                     'volumev3', 'public',
+                     append=['volumes', _id]),
+                 json={'volume': fake_vol_avail}),
             dict(method='DELETE',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', _id]),
+                     'volumev3', 'public', append=['volumes', _id]),
                  json=now_deleting),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'volumev2', 'public', append=['volumes', 'detail']),
-                 json={'volumes': [fake_volb4]})])
+                     'volumev3', 'public', append=['volumes', _id]),
+                 status_code=404),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'volumev3', 'public', append=['volumes', 'detail']),
+                 json={'volumes': [fake_volb4, fake_vol_avail]}),
+        ])
 
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volb4], self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         volume = dict(display_name='junk_vol',
                       size=1,
                       display_description='test junk volume')
-        self.cloud.create_volume(wait=True, timeout=None, **volume)
+        self.cloud.create_volume(wait=True, timeout=2, **volume)
         # If cache was not invalidated, we would not see our own volume here
         # because the first volume was available and thus would already be
         # cached.
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4),
-             self.cloud._normalize_volume(fake_vol_avail)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volb4, fake_vol_avail],
+                        self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.cloud.delete_volume(_id)
         # And now delete and check same thing since list is cached as all
         # available
-        self.assertEqual(
-            [self.cloud._normalize_volume(fake_volb4)],
-            self.cloud.list_volumes())
+        for a, b in zip([fake_volb4], self.cloud.list_volumes()):
+            self._compare_volumes(a, b)
         self.assert_calls()
 
     def test_list_users(self):
@@ -361,7 +350,7 @@ class TestMemoryCache(base.TestCase):
         updated_users_list_resp = {'users': [new_resp['user']]}
 
         # Password is None in the original create below
-        user_data.json_request['user']['password'] = None
+        del user_data.json_request['user']['password']
 
         uris_to_mock = [
             # Inital User List is Empty
@@ -387,12 +376,9 @@ class TestMemoryCache(base.TestCase):
             dict(method='GET', uri=mock_users_url, status_code=200,
                  json=updated_users_list_resp),
             # List User to get ID for delete
-            # Get user using user_id from list
             # delete user
             dict(method='GET', uri=mock_users_url, status_code=200,
                  json=updated_users_list_resp),
-            dict(method='GET', uri=mock_user_resource_url, status_code=200,
-                 json=new_resp),
             dict(method='DELETE', uri=mock_user_resource_url, status_code=204),
             # List Users Call (empty post delete)
             dict(method='GET', uri=mock_users_url, status_code=200,
@@ -454,14 +440,12 @@ class TestMemoryCache(base.TestCase):
 
         self.assertEqual([], self.cloud.list_flavors())
 
-        fake_flavor_dicts = [
-            _flavor.Flavor(connection=self.cloud,
-                           **f)._to_munch(original_names=False)
-            for f in fakes.FAKE_FLAVOR_LIST
-        ]
-
         self.cloud.list_flavors.invalidate(self.cloud)
-        self.assertEqual(fake_flavor_dicts, self.cloud.list_flavors())
+        self.assertResourceListEqual(
+            self.cloud.list_flavors(),
+            fakes.FAKE_FLAVOR_LIST,
+            _flavor.Flavor
+        )
 
         self.assert_calls()
 
@@ -484,8 +468,9 @@ class TestMemoryCache(base.TestCase):
         self.assertEqual([], self.cloud.list_images())
         self.assertEqual([], self.cloud.list_images())
         self.cloud.list_images.invalidate(self.cloud)
-        self.assertEqual(
-            self._munch_images(fake_image), self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [fake_image],
+            self.cloud.list_images())]
 
         self.assert_calls()
 
@@ -504,13 +489,13 @@ class TestMemoryCache(base.TestCase):
                  json=list_return),
         ])
 
-        self.assertEqual(
-            [self.cloud._normalize_image(active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [active_image],
+            self.cloud.list_images())]
 
-        self.assertEqual(
-            [self.cloud._normalize_image(active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [active_image],
+            self.cloud.list_images())]
 
         # We should only have one call
         self.assert_calls()
@@ -531,23 +516,20 @@ class TestMemoryCache(base.TestCase):
                  json={'images': [fi, fi2]}),
         ])
 
-        self.assertEqual(
-            self._munch_images(fi),
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [fi],
+            self.cloud.list_images())]
 
         # Now test that the list was cached
-        self.assertEqual(
-            self._munch_images(fi),
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [fi],
+            self.cloud.list_images())]
 
         # Invalidation too
         self.cloud.list_images.invalidate(self.cloud)
-        self.assertEqual(
-            [
-                self.cloud._normalize_image(fi),
-                self.cloud._normalize_image(fi2)
-            ],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [fi, fi2],
+            self.cloud.list_images())]
 
     def test_list_ports_filtered(self):
         down_port = test_port.TestPort.mock_neutron_port_create_rep['port']
@@ -565,7 +547,10 @@ class TestMemoryCache(base.TestCase):
                  ]}),
         ])
         ports = self.cloud.list_ports(filters={'status': 'DOWN'})
-        self.assertCountEqual([down_port], ports)
+        for a, b in zip([down_port], ports):
+            self.assertDictEqual(
+                _port.Port(**a).to_dict(computed=False),
+                b.to_dict(computed=False))
         self.assert_calls()
 
 
@@ -590,6 +575,11 @@ class TestCacheIgnoresQueuedStatus(base.TestCase):
         self.steady_list_return = {
             'images': [self.active_image, self.steady_image]}
 
+    def _compare_images(self, exp, real):
+        self.assertDictEqual(
+            _image.Image(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_list_images_ignores_pending_status(self):
 
         self.register_uris([
@@ -601,17 +591,14 @@ class TestCacheIgnoresQueuedStatus(base.TestCase):
                  json=self.steady_list_return),
         ])
 
-        self.assertEqual(
-            [self.cloud._normalize_image(self.active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.active_image],
+            self.cloud.list_images())]
 
         # Should expect steady_image to appear if active wasn't cached
-        self.assertEqual(
-            [
-                self.cloud._normalize_image(self.active_image),
-                self.cloud._normalize_image(self.steady_image)
-            ],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.active_image, self.steady_image],
+            self.cloud.list_images())]
 
 
 class TestCacheSteadyStatus(base.TestCase):
@@ -630,6 +617,11 @@ class TestCacheSteadyStatus(base.TestCase):
             image_id=active_image_id, status=self.status)
         self.active_list_return = {'images': [self.active_image]}
 
+    def _compare_images(self, exp, real):
+        self.assertDictEqual(
+            _image.Image(**exp).to_dict(computed=False),
+            real.to_dict(computed=False))
+
     def test_list_images_caches_steady_status(self):
 
         self.register_uris([
@@ -638,13 +630,13 @@ class TestCacheSteadyStatus(base.TestCase):
                  json=self.active_list_return),
         ])
 
-        self.assertEqual(
-            [self.cloud._normalize_image(self.active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.active_image],
+            self.cloud.list_images())]
 
-        self.assertEqual(
-            [self.cloud._normalize_image(self.active_image)],
-            self.cloud.list_images())
+        [self._compare_images(a, b) for a, b in zip(
+            [self.active_image],
+            self.cloud.list_images())]
 
         # We should only have one call
         self.assert_calls()
