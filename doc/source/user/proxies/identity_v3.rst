@@ -87,7 +87,10 @@ Role Assignment Operations
             unassign_project_role_from_group, validate_group_has_project_role,
             assign_domain_role_to_user, unassign_domain_role_from_user,
             validate_user_has_domain_role, assign_domain_role_to_group,
-            unassign_domain_role_from_group, validate_group_has_domain_role
+            unassign_domain_role_from_group, validate_group_has_domain_role,
+            assign_system_role_to_user, unassign_system_role_from_user,
+            validate_user_has_system_role, assign_system_role_to_group,
+            unassign_system_role_from_group, validate_group_has_system_role
 
 Service Operations
 ^^^^^^^^^^^^^^^^^^

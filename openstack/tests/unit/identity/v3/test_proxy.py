@@ -499,3 +499,75 @@ class TestIdentityProxyRoleAssignments(TestIdentityProxyBase):
                 self.proxy._get_resource(role.Role, 'rid')
             ]
         )
+
+    def test_assign_system_role_to_user(self):
+        self._verify(
+            "openstack.identity.v3.system.System.assign_role_to_user",
+            self.proxy.assign_system_role_to_user,
+            method_kwargs={'user': 'uid', 'role': 'rid', 'system': 'all'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_unassign_system_role_from_user(self):
+        self._verify(
+            "openstack.identity.v3.system.System.unassign_role_from_user",
+            self.proxy.unassign_system_role_from_user,
+            method_kwargs={'user': 'uid', 'role': 'rid', 'system': 'all'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_validate_user_has_system_role(self):
+        self._verify(
+            "openstack.identity.v3.system.System.validate_user_has_role",
+            self.proxy.validate_user_has_system_role,
+            method_kwargs={'user': 'uid', 'role': 'rid', 'system': 'all'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(user.User, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_assign_system_role_to_group(self):
+        self._verify(
+            "openstack.identity.v3.system.System.assign_role_to_group",
+            self.proxy.assign_system_role_to_group,
+            method_kwargs={'group': 'uid', 'role': 'rid', 'system': 'all'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_unassign_system_role_from_group(self):
+        self._verify(
+            "openstack.identity.v3.system.System.unassign_role_from_group",
+            self.proxy.unassign_system_role_from_group,
+            method_kwargs={'group': 'uid', 'role': 'rid', 'system': 'all'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )
+
+    def test_validate_group_has_system_role(self):
+        self._verify(
+            "openstack.identity.v3.system.System.validate_group_has_role",
+            self.proxy.validate_group_has_system_role,
+            method_kwargs={'group': 'uid', 'role': 'rid', 'system': 'all'},
+            expected_args=[
+                self.proxy,
+                self.proxy._get_resource(group.Group, 'uid'),
+                self.proxy._get_resource(role.Role, 'rid')
+            ]
+        )

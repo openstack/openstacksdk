@@ -35,7 +35,12 @@ from openstack.identity.v3 import role_project_group_assignment \
     as _role_project_group_assignment
 from openstack.identity.v3 import role_project_user_assignment \
     as _role_project_user_assignment
+from openstack.identity.v3 import role_system_group_assignment \
+    as _role_system_group_assignment
+from openstack.identity.v3 import role_system_user_assignment \
+    as _role_system_user_assignment
 from openstack.identity.v3 import service as _service
+from openstack.identity.v3 import system as _system
 from openstack.identity.v3 import trust as _trust
 from openstack.identity.v3 import user as _user
 from openstack import proxy
@@ -949,14 +954,17 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_role.Role, role, **attrs)
 
-    def role_assignments_filter(self, domain=None, project=None, group=None,
-                                user=None):
+    def role_assignments_filter(self, domain=None, project=None, system=None,
+                                group=None, user=None):
         """Retrieve a generator of roles assigned to user/group
 
         :param domain: Either the ID of a domain or a
             :class:`~openstack.identity.v3.domain.Domain` instance.
         :param project: Either the ID of a project or a
             :class:`~openstack.identity.v3.project.Project`
+            instance.
+        :param system: Either the system name or a
+            :class:`~openstack.identity.v3.system.System`
             instance.
         :param group: Either the ID of a group or a
             :class:`~openstack.identity.v3.group.Group` instance.
@@ -965,13 +973,13 @@ class Proxy(proxy.Proxy):
         :return: A generator of role instances.
         :rtype: :class:`~openstack.identity.v3.role.Role`
         """
-        if domain and project:
+        if domain and project and system:
             raise exception.InvalidRequest(
-                'Only one of domain or project can be specified')
+                'Only one of domain, project, or system can be specified')
 
-        if domain is None and project is None:
+        if domain is None and project is None and system is None:
             raise exception.InvalidRequest(
-                'Either domain or project should be specified')
+                'Either domain, project, or system should be specified')
 
         if group and user:
             raise exception.InvalidRequest(
@@ -993,7 +1001,7 @@ class Proxy(proxy.Proxy):
                 return self._list(
                     _role_domain_user_assignment.RoleDomainUserAssignment,
                     domain_id=domain.id, user_id=user.id)
-        else:
+        elif project:
             project = self._get_resource(_project.Project, project)
             if group:
                 group = self._get_resource(_group.Group, group)
@@ -1005,6 +1013,18 @@ class Proxy(proxy.Proxy):
                 return self._list(
                     _role_project_user_assignment.RoleProjectUserAssignment,
                     project_id=project.id, user_id=user.id)
+        else:
+            system = self._get_resource(_project.System, system)
+            if group:
+                group = self._get_resource(_group.Group, group)
+                return self._list(
+                    _role_system_group_assignment.RoleSystemGroupAssignment,
+                    system_id=system.id, group_id=group.id)
+            else:
+                user = self._get_resource(_user.User, user)
+                return self._list(
+                    _role_system_user_assignment.RoleSystemUserAssignment,
+                    system_id=system.id, user_id=user.id)
 
     def role_assignments(self, **query):
         """Retrieve a generator of role assignments
@@ -1354,6 +1374,96 @@ class Proxy(proxy.Proxy):
         group = self._get_resource(_group.Group, group)
         role = self._get_resource(_role.Role, role)
         return project.validate_group_has_role(self, group, role)
+
+    def assign_system_role_to_user(self, user, role, system):
+        """Assign a role to user on a system
+
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
+        :param role: Either the ID of a role or a
+            :class:`~openstack.identity.v3.role.Role` instance.
+        :param system: The system name
+        :return: ``None``
+        """
+        user = self._get_resource(_user.User, user)
+        role = self._get_resource(_role.Role, role)
+        system = self._get_resource(_system.System, system)
+        system.assign_role_to_user(self, user, role)
+
+    def unassign_system_role_from_user(self, user, role, system):
+        """Unassign a role from user on a system
+
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
+        :param role: Either the ID of a role or a
+            :class:`~openstack.identity.v3.role.Role` instance.
+        :param system: The system name
+        :return: ``None``
+        """
+        user = self._get_resource(_user.User, user)
+        role = self._get_resource(_role.Role, role)
+        system = self._get_resource(_system.System, system)
+        system.unassign_role_from_user(self, user, role)
+
+    def validate_user_has_system_role(self, user, role, system):
+        """Validates that a user has a role on a system
+
+        :param user: Either the ID of a user or a
+            :class:`~openstack.identity.v3.user.User` instance.
+        :param role: Either the ID of a role or a
+            :class:`~openstack.identity.v3.role.Role` instance.
+        :param system: The system name
+        :returns: True if user has role in system
+        """
+        user = self._get_resource(_user.User, user)
+        role = self._get_resource(_role.Role, role)
+        system = self._get_resource(_system.System, system)
+        return system.validate_user_has_role(self, user, role)
+
+    def assign_system_role_to_group(self, group, role, system):
+        """Assign a role to group on a system
+
+        :param group: Either the ID of a group or a
+            :class:`~openstack.identity.v3.group.Group` instance.
+        :param role: Either the ID of a role or a
+            :class:`~openstack.identity.v3.role.Role` instance.
+        :param system: The system name
+        :return: ``None``
+        """
+        group = self._get_resource(_group.Group, group)
+        role = self._get_resource(_role.Role, role)
+        system = self._get_resource(_system.System, system)
+        system.assign_role_to_group(self, group, role)
+
+    def unassign_system_role_from_group(self, group, role, system):
+        """Unassign a role from group on a system
+
+        :param group: Either the ID of a group or a
+            :class:`~openstack.identity.v3.group.Group` instance.
+        :param role: Either the ID of a role or a
+            :class:`~openstack.identity.v3.role.Role` instance.
+        :param system: The system name
+        :return: ``None``
+        """
+        group = self._get_resource(_group.Group, group)
+        role = self._get_resource(_role.Role, role)
+        system = self._get_resource(_system.System, system)
+        system.unassign_role_from_group(self, group, role)
+
+    def validate_group_has_system_role(self, group, role, system):
+        """Validates that a group has a role on a system
+
+        :param group: Either the ID of a group or a
+            :class:`~openstack.identity.v3.group.Group` instance.
+        :param role: Either the ID of a role or a
+            :class:`~openstack.identity.v3.role.Role` instance.
+        :param system: The system name
+        :returns: True if group has role on system
+        """
+        group = self._get_resource(_group.Group, group)
+        role = self._get_resource(_role.Role, role)
+        system = self._get_resource(_system.System, system)
+        return system.validate_group_has_role(self, group, role)
 
     def application_credentials(self, user, **query):
         """Retrieve a generator of application credentials

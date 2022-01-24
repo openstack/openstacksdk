@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add support for system role assignment. A system role assignment
+    ultimately controls access to system-level API calls.
+
+    Good examples of system-level APIs include management of the
+    service catalog and compute hypervisors.
+
+    `System role assignment API reference
+    <https://docs.openstack.org/api-ref/identity/v3/#system-role-assignments>`_.

@@ -1364,14 +1364,14 @@ class TestRoleAssignment(base.TestCase):
 
         with testtools.ExpectedException(
             exc.OpenStackCloudException,
-            'Must specify either a domain or project'
+            'Must specify either a domain, project or system'
         ):
             self.cloud.grant_role(
                 self.role_data.role_name,
                 user=self.user_data.name)
         self.assert_calls()
 
-    def test_revoke_no_project_or_domain(self):
+    def test_revoke_no_project_or_domain_or_system(self):
         uris = self._get_mock_role_query_urls(
             self.role_data,
             user_data=self.user_data,
@@ -1381,7 +1381,7 @@ class TestRoleAssignment(base.TestCase):
 
         with testtools.ExpectedException(
             exc.OpenStackCloudException,
-            'Must specify either a domain or project'
+            'Must specify either a domain, project or system'
         ):
             self.cloud.revoke_role(
                 self.role_data.role_name,
