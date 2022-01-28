@@ -29,6 +29,11 @@ class TestQoSMinimumPacketRateRule(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestQoSMinimumPacketRateRule, self).setUp()
+
+        # Skip the tests if qos-pps-minimum extension is not enabled.
+        if not self.conn.network.find_extension('qos-pps-minimum'):
+            self.skipTest('Network qos-pps-minimum extension disabled')
+
         self.QOS_POLICY_NAME = self.getUniqueString()
         qos_policy = self.conn.network.create_qos_policy(
             description=self.QOS_POLICY_DESCRIPTION,
