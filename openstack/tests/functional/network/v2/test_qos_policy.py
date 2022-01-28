@@ -25,6 +25,11 @@ class TestQoSPolicy(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestQoSPolicy, self).setUp()
+
+        # Skip the tests if qos extension is not enabled.
+        if not self.conn.network.find_extension('qos'):
+            self.skipTest('Network qos extension disabled')
+
         self.QOS_POLICY_NAME = self.getUniqueString()
         self.QOS_POLICY_NAME_UPDATED = self.getUniqueString()
         qos = self.conn.network.create_qos_policy(

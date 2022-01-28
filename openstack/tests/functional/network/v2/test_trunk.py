@@ -23,6 +23,11 @@ class TestTrunk(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestTrunk, self).setUp()
+
+        # Skip the tests if trunk extension is not enabled.
+        if not self.conn.network.find_extension('trunk'):
+            self.skipTest('Network trunk extension disabled')
+
         self.TRUNK_NAME = self.getUniqueString()
         self.TRUNK_NAME_UPDATED = self.getUniqueString()
         net = self.conn.network.create_network()
