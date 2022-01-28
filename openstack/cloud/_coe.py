@@ -70,10 +70,10 @@ class CoeCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
@@ -91,8 +91,7 @@ class CoeCloudMixin(_normalize.Normalizer):
 
         :param string name: Name of the cluster.
         :param string image_id: ID of the cluster template to use.
-
-        Other arguments will be passed in kwargs.
+            Other arguments will be passed in kwargs.
 
         :returns: a dict containing the cluster description
 
@@ -144,8 +143,7 @@ class CoeCloudMixin(_normalize.Normalizer):
 
         :param name_or_id: Name or ID of the COE cluster being updated.
         :param operation: Operation to perform - add, remove, replace.
-
-        Other arguments will be passed with kwargs.
+            Other arguments will be passed with kwargs.
 
         :returns: a dict representing the updated cluster.
 
@@ -195,9 +193,8 @@ class CoeCloudMixin(_normalize.Normalizer):
 
         :param cluster_id: UUID of the cluster.
         :param csr: Certificate Signing Request (CSR) for authenticating
-                    client key.The CSR will be used by Magnum to generate
-                    a signed certificate that client will use to communicate
-                    with the cluster.
+            client key.The CSR will be used by Magnum to generate a signed
+            certificate that client will use to communicate with the cluster.
 
         :returns: a dict representing the signed certs.
 
@@ -273,10 +270,10 @@ class CoeCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
@@ -299,8 +296,7 @@ class CoeCloudMixin(_normalize.Normalizer):
         :param string image_id: Name or ID of the image to use.
         :param string keypair_id: Name or ID of the keypair to use.
         :param string coe: Name of the coe for the cluster template.
-
-        Other arguments will be passed in kwargs.
+            Other arguments will be passed in kwargs.
 
         :returns: a dict containing the cluster template description
 
@@ -374,8 +370,7 @@ class CoeCloudMixin(_normalize.Normalizer):
 
         :param name_or_id: Name or ID of the cluster template being updated.
         :param operation: Operation to perform - add, remove, replace.
-
-        Other arguments will be passed with kwargs.
+            Other arguments will be passed with kwargs.
 
         :returns: a dict representing the updated cluster template.
 
