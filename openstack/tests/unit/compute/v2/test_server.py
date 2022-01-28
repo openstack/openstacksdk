@@ -12,6 +12,7 @@
 
 from unittest import mock
 
+from openstack.compute.v2 import flavor
 from openstack.compute.v2 import server
 from openstack.image.v2 import image
 from openstack.tests.unit import base
@@ -64,7 +65,6 @@ EXAMPLE = {
         'original_name': 'm1.tiny.specs',
         'ram': 512,
         'swap': 0,
-        'vcpus': 1
     },
     'hostId': '2091634baaccdc4c5a1d57069c833e402921df696b7f970791b12ec6',
     'host_status': 'UP',
@@ -194,7 +194,7 @@ class TestServer(base.TestCase):
         self.assertEqual(EXAMPLE['created'], sot.created_at)
         self.assertEqual(EXAMPLE['config_drive'], sot.has_config_drive)
         self.assertEqual(EXAMPLE['flavorRef'], sot.flavor_id)
-        self.assertEqual(EXAMPLE['flavor'], sot.flavor)
+        self.assertEqual(flavor.Flavor(**EXAMPLE['flavor']), sot.flavor)
         self.assertEqual(EXAMPLE['hostId'], sot.host_id)
         self.assertEqual(EXAMPLE['host_status'], sot.host_status)
         self.assertEqual(EXAMPLE['id'], sot.id)
@@ -250,6 +250,13 @@ class TestServer(base.TestCase):
         self.assertEqual(EXAMPLE['locked'], sot.is_locked)
         self.assertEqual(EXAMPLE['trusted_image_certificates'],
                          sot.trusted_image_certificates)
+
+    def test_to_dict_flavor(self):
+        # Ensure to_dict properly resolves flavor and uses defaults for not
+        # specified flavor proerties.
+        sot = server.Server(**EXAMPLE)
+        dct = sot.to_dict()
+        self.assertEqual(0, dct['flavor']['vcpus'])
 
     def test__prepare_server(self):
         zone = 1

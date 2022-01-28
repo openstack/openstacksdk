@@ -43,18 +43,20 @@ class Flavor(resource.Resource):
     #: The description of the flavor.
     description = resource.Body('description')
     #: Size of the disk this flavor offers. *Type: int*
-    disk = resource.Body('disk', type=int)
+    disk = resource.Body('disk', type=int, default=0)
     #: ``True`` if this is a publicly visible flavor. ``False`` if this is
     #: a private image. *Type: bool*
-    is_public = resource.Body('os-flavor-access:is_public', type=bool)
+    is_public = resource.Body(
+        'os-flavor-access:is_public', type=bool, default=True)
     #: The amount of RAM (in MB) this flavor offers. *Type: int*
-    ram = resource.Body('ram', type=int)
+    ram = resource.Body('ram', type=int, default=0)
     #: The number of virtual CPUs this flavor offers. *Type: int*
-    vcpus = resource.Body('vcpus', type=int)
+    vcpus = resource.Body('vcpus', type=int, default=0)
     #: Size of the swap partitions.
-    swap = resource.Body('swap')
+    swap = resource.Body('swap', default=0)
     #: Size of the ephemeral data disk attached to this server. *Type: int*
-    ephemeral = resource.Body('OS-FLV-EXT-DATA:ephemeral', type=int)
+    ephemeral = resource.Body(
+        'OS-FLV-EXT-DATA:ephemeral', type=int, default=0)
     #: ``True`` if this flavor is disabled, ``False`` if not. *Type: bool*
     is_disabled = resource.Body('OS-FLV-DISABLED:disabled', type=bool)
     #: The bandwidth scaling factor this flavor receives on the network.
@@ -63,6 +65,25 @@ class Flavor(resource.Resource):
     #               OS-FLV-WITH-EXT-SPECS:extra_specs. Do we care?
     #: A dictionary of the flavor's extra-specs key-and-value pairs.
     extra_specs = resource.Body('extra_specs', type=dict, default={})
+
+    def __getattribute__(self, name):
+        """Return an attribute on this instance
+
+        This is mostly a pass-through except for a specialization on
+        the 'id' name, as this can exist under a different name via the
+        `alternate_id` argument to resource.Body.
+        """
+        if name == "id":
+            # ID handling in flavor is very tricky. Sometimes we get ID back,
+            # sometimes we get only name (but it is same as id), sometimes we
+            # get original_name back, but it is still id.
+            # To get this handled try sequentially to access it from various
+            # places until we find first non-empty value.
+            for xname in ["id", "name", "original_name"]:
+                if xname in self._body and self._body[xname]:
+                    return self._body[xname]
+        else:
+            return super().__getattribute__(name)
 
     @classmethod
     def list(cls, session, paginated=True, base_path='/flavors/detail',

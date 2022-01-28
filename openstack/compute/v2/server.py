@@ -11,6 +11,7 @@
 # under the License.
 from openstack.common import metadata
 from openstack.common import tag
+from openstack.compute.v2 import flavor
 from openstack.compute.v2 import volume_attachment
 from openstack import exceptions
 from openstack.image.v2 import image
@@ -109,8 +110,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     #: this server.
     flavor_id = resource.Body('flavorRef')
     #: The flavor property as returned from server.
-    # TODO(gtema): replace with flavor.Flavor addressing flavor.original_name
-    flavor = resource.Body('flavor', type=dict)
+    flavor = resource.Body('flavor', type=flavor.Flavor)
     #: Indicates whether a configuration drive enables metadata injection.
     #: Not all cloud providers enable this feature.
     has_config_drive = resource.Body('config_drive')
