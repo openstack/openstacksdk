@@ -37,8 +37,7 @@ _decorated_methods = []
 def _make_unicode(input):
     """Turn an input into unicode unconditionally
 
-    :param input:
-       A unicode, string or other object
+    :param input: A unicode, string or other object
     """
     try:
         if isinstance(input, unicode):
@@ -66,24 +65,23 @@ def _dictify_resource(resource):
 def _filter_list(data, name_or_id, filters):
     """Filter a list by name/ID and arbitrary meta data.
 
-    :param list data:
-        The list of dictionary data to filter. It is expected that
-        each dictionary contains an 'id' and 'name'
-        key if a value for name_or_id is given.
-    :param string name_or_id:
-        The name or ID of the entity being filtered. Can be a glob pattern,
-        such as 'nb01*'.
-    :param filters:
-        A dictionary of meta data to use for further filtering. Elements
-        of this dictionary may, themselves, be dictionaries. Example::
+    :param list data: The list of dictionary data to filter. It is expected
+        that each dictionary contains an 'id' and 'name' key if a value for
+        name_or_id is given.
+    :param string name_or_id: The name or ID of the entity being filtered. Can
+        be a glob pattern, such as 'nb01*'.
+    :param filters: A dictionary of meta data to use for further filtering.
+        Elements of this dictionary may, themselves, be dictionaries. Example::
 
             {
-              'last_name': 'Smith',
-              'other': {
-                  'gender': 'Female'
-              }
+                'last_name': 'Smith',
+                'other': {
+                    'gender': 'Female'
+                }
             }
+
         OR
+
         A string containing a jmespath expression for further filtering.
     """
     # The logger is openstack.cloud.fmmatch to allow a user/operator to
@@ -158,20 +156,16 @@ def _filter_list(data, name_or_id, filters):
 def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
     """Return a single entity from the list returned by a given method.
 
-    :param object cloud:
-        The controller class (Example: the main OpenStackCloud object) .
-    :param string or callable resource:
-        The string that identifies the resource to use to lookup the
-        get_<>_by_id or search_<resource>s methods(Example: network)
-        or a callable to invoke.
-    :param string name_or_id:
-        The name or ID of the entity being filtered or an object or dict.
-        If this is an object/dict with an 'id' attr/key, we return it and
-        bypass resource lookup.
-    :param filters:
-        A dictionary of meta data to use for further filtering.
-        OR
-        A string containing a jmespath expression for further filtering.
+    :param object cloud: The controller class (Example: the main OpenStackCloud
+        object).
+    :param string or callable resource: The string that identifies the resource
+        to use to lookup the get_<>_by_id or search_<resource>s methods
+        (Example: network) or a callable to invoke.
+    :param string name_or_id: The name or ID of the entity being filtered or an
+        object or dict. If this is an object/dict with an 'id' attr/key, we
+        return it and bypass resource lookup.
+    :param filters: A dictionary of meta data to use for further filtering.
+        OR A string containing a jmespath expression for further filtering.
         Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
     """
 
@@ -414,13 +408,13 @@ def shade_exceptions(error_message=None):
     :param string error_message: String to use for the exception message
         content on non-OpenStackCloudExceptions.
 
-    Useful for avoiding wrapping shade OpenStackCloudException exceptions
-    within themselves. Code called from within the context may throw such
-    exceptions without having to catch and reraise them.
+        Useful for avoiding wrapping shade OpenStackCloudException exceptions
+        within themselves. Code called from within the context may throw such
+        exceptions without having to catch and reraise them.
 
-    Non-OpenStackCloudException exceptions thrown within the context will
-    be wrapped and the exception message will be appended to the given error
-    message.
+        Non-OpenStackCloudException exceptions thrown within the context will
+        be wrapped and the exception message will be appended to the given
+        error message.
     """
     try:
         yield
@@ -506,16 +500,15 @@ def _call_client_and_retry(client, url, retry_on=None,
     the ability to retry upon known error codes.
 
     :param object client: The client method, such as:
-                          ``self.baremetal_client.post``
+        ``self.baremetal_client.post``
     :param string url: The URL to perform the operation upon.
     :param integer retry_on: A list of error codes that can be retried on.
-                             The method also supports a single integer to be
-                             defined.
+        The method also supports a single integer to be
+        defined.
     :param integer call_retries: The number of times to retry the call upon
-                                 the error code defined by the 'retry_on'
-                                 parameter. Default: 3
+        the error code defined by the 'retry_on' parameter. Default: 3
     :param integer retry_wait: The time in seconds to wait between retry
-                               attempts. Default: 2
+        attempts. Default: 2
 
     :returns: The object returned by the client call.
     """
