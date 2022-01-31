@@ -26,6 +26,11 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestQoSDSCPMarkingRule, self).setUp()
+
+        # Skip the tests if qos extension is not enabled.
+        if not self.conn.network.find_extension('qos'):
+            self.skipTest('Network qos extension disabled')
+
         self.QOS_POLICY_NAME = self.getUniqueString()
         self.RULE_ID = self.getUniqueString()
         qos_policy = self.conn.network.create_qos_policy(

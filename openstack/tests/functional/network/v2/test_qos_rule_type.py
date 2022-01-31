@@ -18,6 +18,12 @@ class TestQoSRuleType(base.BaseFunctionalTest):
 
     QOS_RULE_TYPE = "bandwidth_limit"
 
+    def setUp(self):
+        super(TestQoSRuleType, self).setUp()
+        # Skip the tests if qos-rule-type-details extension is not enabled.
+        if not self.conn.network.find_extension('qos-rule-type-details'):
+            self.skipTest('Network qos-rule-type-details extension disabled')
+
     def test_find(self):
         sot = self.conn.network.find_qos_rule_type(self.QOS_RULE_TYPE)
         self.assertEqual(self.QOS_RULE_TYPE, sot.type)

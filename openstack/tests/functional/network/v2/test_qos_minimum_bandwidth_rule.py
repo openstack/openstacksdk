@@ -28,6 +28,11 @@ class TestQoSMinimumBandwidthRule(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestQoSMinimumBandwidthRule, self).setUp()
+
+        # Skip the tests if qos-bw-limit-direction extension is not enabled.
+        if not self.conn.network.find_extension('qos-bw-limit-direction'):
+            self.skipTest('Network qos-bw-limit-direction extension disabled')
+
         self.QOS_POLICY_NAME = self.getUniqueString()
         qos_policy = self.conn.network.create_qos_policy(
             description=self.QOS_POLICY_DESCRIPTION,
