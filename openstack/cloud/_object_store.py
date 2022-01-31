@@ -175,7 +175,7 @@ class ObjectStoreCloudMixin:
         container = self.get_container(name, skip_cache=True)
         if not container:
             raise exc.OpenStackCloudException("Container not found: %s" % name)
-        acl = container.read_ACL
+        acl = container.read_ACL or ''
         for key, value in OBJECT_CONTAINER_ACLS.items():
             # Convert to string for the comparison because swiftclient
             # returns byte values as bytes sometimes and apparently ==
