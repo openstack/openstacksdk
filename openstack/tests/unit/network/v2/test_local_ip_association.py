@@ -40,9 +40,9 @@ class TestLocalIP(base.TestCase):
         self.assertTrue(sot.allow_list)
 
         self.assertDictEqual(
-            {'local_ip_address': 'local_ip_address',
-             'fixed_port_id': 'fixed_port_id',
+            {'fixed_port_id': 'fixed_port_id',
              'fixed_ip': 'fixed_ip',
+             'host': 'host',
              'limit': 'limit',
              'marker': 'marker'},
             sot._query_mapping._mapping)

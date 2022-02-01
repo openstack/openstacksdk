@@ -696,6 +696,10 @@ class Proxy(proxy.Proxy):
             * ``name``: Local IP name
             * ``description``: Local IP description
             * ``project_id``: Owner project ID
+            * ``network_id``: Local IP network
+            * ``local_port_id``: Local port ID
+            * ``local_ip_address``: The IP address of a Local IP
+            * ``ip_mode``: The Local IP mode
 
         :returns: A generator of local ip objects
         :rtype: :class:`~openstack.network.v2.local_ip.LocalIP`
@@ -816,6 +820,12 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.local_ip.LocalIP` instance.
         :param dict query: Optional query parameters to be sent to limit
             the resources being returned.
+
+            * ``fixed_port_id``: The ID of the port to which a local IP
+              is associated
+            * ``fixed_ip``: The fixed ip address associated with a
+              a Local IP
+            * ``host``: Host where local ip is associated
 
         :returns: A generator of local ip association objects
         :rtype:

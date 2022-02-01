@@ -34,7 +34,11 @@ class LocalIP(resource.Resource):
 
     _query_mapping = resource.QueryParameters(
         "sort_key", "sort_dir",
-        'name', 'description',)
+        'name', 'description',
+        'project_id', 'network_id',
+        'local_port_id', 'local_ip_address',
+        'ip_mode',
+    )
 
     # Properties
     #: Timestamp at which the floating IP was created.
