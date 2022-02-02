@@ -33,6 +33,11 @@ BASIC_EXAMPLE = {
     'OS-FLV-DISABLED:disabled': False,
     'rxtx_factor': 11.0
 }
+DEFAULTS_EXAMPLE = {
+    'links': '2',
+    'original_name': IDENTIFIER,
+    'description': 'Testing flavor',
+}
 
 
 class TestFlavor(base.TestCase):
@@ -79,6 +84,28 @@ class TestFlavor(base.TestCase):
         self.assertEqual(BASIC_EXAMPLE['OS-FLV-DISABLED:disabled'],
                          sot.is_disabled)
         self.assertEqual(BASIC_EXAMPLE['rxtx_factor'], sot.rxtx_factor)
+
+    def test_make_defaults(self):
+        sot = flavor.Flavor(**DEFAULTS_EXAMPLE)
+        self.assertEqual(DEFAULTS_EXAMPLE['original_name'], sot.name)
+        self.assertEqual(0, sot.disk)
+        self.assertEqual(True, sot.is_public)
+        self.assertEqual(0, sot.ram)
+        self.assertEqual(0, sot.vcpus)
+        self.assertEqual(0, sot.swap)
+        self.assertEqual(0, sot.ephemeral)
+        self.assertEqual(IDENTIFIER, sot.id)
+
+    def test_flavor_id(self):
+        id = 'fake_id'
+        sot = flavor.Flavor(id=id)
+        self.assertEqual(sot.id, id)
+        sot = flavor.Flavor(name=id)
+        self.assertEqual(sot.id, id)
+        self.assertEqual(sot.name, id)
+        sot = flavor.Flavor(original_name=id)
+        self.assertEqual(sot.id, id)
+        self.assertEqual(sot.original_name, id)
 
     def test_add_tenant_access(self):
         sot = flavor.Flavor(**BASIC_EXAMPLE)

@@ -47,7 +47,6 @@ class TestInventory(base.BaseFunctionalTest):
 
     def _test_host_content(self, host):
         self.assertEqual(host['image']['id'], self.image.id)
-        self.assertNotIn('id', host['flavor'])
         self.assertIsInstance(host['volumes'], list)
         self.assertIsInstance(host['metadata'], dict)
         self.assertIn('interface_ip', host)
@@ -78,9 +77,6 @@ class TestInventory(base.BaseFunctionalTest):
         self.assertEqual(host['image']['id'], self.image.id)
         self.assertNotIn('links', host['image'])
         self.assertNotIn('name', host['name'])
-        self.assertNotIn('id', host['flavor'])
-        self.assertNotIn('links', host['flavor'])
-        self.assertNotIn('name', host['flavor'])
         self.assertIn('ram', host['flavor'])
 
         host_found = False
