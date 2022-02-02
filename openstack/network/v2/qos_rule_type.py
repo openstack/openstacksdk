@@ -27,7 +27,8 @@ class QoSRuleType(resource.Resource):
     allow_delete = False
     allow_list = True
 
-    _query_mapping = resource.QueryParameters('type', 'drivers')
+    _query_mapping = resource.QueryParameters(
+        'type', 'drivers', 'all_rules', 'all_supported')
 
     # Properties
     #: QoS rule type name.

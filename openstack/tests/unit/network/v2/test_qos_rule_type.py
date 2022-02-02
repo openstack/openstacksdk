@@ -47,6 +47,14 @@ class TestQoSRuleType(base.TestCase):
         self.assertFalse(sot.allow_commit)
         self.assertFalse(sot.allow_delete)
         self.assertTrue(sot.allow_list)
+        self.assertEqual({'type': 'type',
+                          'drivers': 'drivers',
+                          'all_rules': 'all_rules',
+                          'all_supported': 'all_supported',
+                          'limit': 'limit',
+                          'marker': 'marker',
+                          },
+                         sot._query_mapping._mapping)
 
     def test_make_it(self):
         sot = qos_rule_type.QoSRuleType(**EXAMPLE)

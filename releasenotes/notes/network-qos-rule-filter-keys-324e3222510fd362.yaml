@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added two filtering keys to ``QoSRuleType`` class query mapping, used for
+    filtering the "list" command: "all_rules", to list all network QoS rule
+    types implemented in Neutron, and "all_supported", to list all network QoS
+    rule types supported by at least one networking mechanism driver.
