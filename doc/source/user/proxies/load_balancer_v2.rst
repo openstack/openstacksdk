@@ -17,7 +17,7 @@ Load Balancer Operations
   :noindex:
   :members: create_load_balancer, delete_load_balancer, find_load_balancer,
             get_load_balancer, get_load_balancer_statistics, load_balancers,
-            update_load_balancer, failover_load_balancer
+            update_load_balancer, failover_load_balancer, wait_for_load_balancer
 
 Listener Operations
 ^^^^^^^^^^^^^^^^^^^
