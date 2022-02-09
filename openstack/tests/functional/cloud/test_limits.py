@@ -27,26 +27,26 @@ class TestUsage(base.BaseFunctionalTest):
         limits = self.user_cloud.get_compute_limits()
         self.assertIsNotNone(limits)
 
-        self.assertIsInstance(limits, _limits.Limits)
-        self.assertIsNotNone(limits.absolute.server_meta)
-        self.assertIsNotNone(limits.absolute.image_meta)
+        self.assertIsInstance(limits, _limits.AbsoluteLimits)
+        self.assertIsNotNone(limits.server_meta)
+        self.assertIsNotNone(limits.image_meta)
 
     def test_get_other_compute_limits(self):
         '''Test quotas functionality'''
         limits = self.operator_cloud.get_compute_limits('demo')
         self.assertIsNotNone(limits)
-        self.assertTrue(hasattr(limits.absolute, 'server_meta'))
+        self.assertTrue(hasattr(limits, 'server_meta'))
 
         # Test normalize limits
-        self.assertFalse(hasattr(limits.absolute, 'maxImageMeta'))
+        self.assertFalse(hasattr(limits, 'maxImageMeta'))
 
     def test_get_our_volume_limits(self):
         '''Test quotas functionality'''
         limits = self.user_cloud.get_volume_limits()
         self.assertIsNotNone(limits)
-        self.assertFalse(hasattr(limits.absolute, 'maxTotalVolumes'))
+        self.assertFalse(hasattr(limits, 'maxTotalVolumes'))
 
     def test_get_other_volume_limits(self):
         '''Test quotas functionality'''
         limits = self.operator_cloud.get_volume_limits('demo')
-        self.assertFalse(hasattr(limits.absolute, 'maxTotalVolumes'))
+        self.assertFalse(hasattr(limits, 'maxTotalVolumes'))

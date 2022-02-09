@@ -18,43 +18,51 @@ class AbsoluteLimits(resource.Resource):
     _max_microversion = '2.57'
 
     #: The number of key-value pairs that can be set as image metadata.
-    image_meta = resource.Body("maxImageMeta")
+    image_meta = resource.Body("maxImageMeta", aka="max_image_meta")
     #: The maximum number of personality contents that can be supplied.
     personality = resource.Body("maxPersonality", deprecated=True)
     #: The maximum size, in bytes, of a personality.
     personality_size = resource.Body("maxPersonalitySize", deprecated=True)
     #: The maximum amount of security group rules allowed.
-    security_group_rules = resource.Body("maxSecurityGroupRules")
+    security_group_rules = resource.Body(
+        "maxSecurityGroupRules", aka="max_security_group_rules")
     #: The maximum amount of security groups allowed.
-    security_groups = resource.Body("maxSecurityGroups")
+    security_groups = resource.Body(
+        "maxSecurityGroups", aka="max_security_groups")
     #: The amount of security groups currently in use.
-    security_groups_used = resource.Body("totalSecurityGroupsUsed")
+    security_groups_used = resource.Body(
+        "totalSecurityGroupsUsed", aka="total_security_groups_used")
     #: The number of key-value pairs that can be set as server metadata.
-    server_meta = resource.Body("maxServerMeta")
+    server_meta = resource.Body("maxServerMeta", aka="max_server_meta")
     #: The maximum amount of cores.
-    total_cores = resource.Body("maxTotalCores")
+    total_cores = resource.Body("maxTotalCores", aka="max_total_cores")
     #: The amount of cores currently in use.
-    total_cores_used = resource.Body("totalCoresUsed")
+    total_cores_used = resource.Body("totalCoresUsed", aka="total_cores_used")
     #: The maximum amount of floating IPs.
-    floating_ips = resource.Body("maxTotalFloatingIps")
+    floating_ips = resource.Body(
+        "maxTotalFloatingIps", aka="max_total_floating_ips")
     #: The amount of floating IPs currently in use.
-    floating_ips_used = resource.Body("totalFloatingIpsUsed")
+    floating_ips_used = resource.Body(
+        "totalFloatingIpsUsed", aka="total_floating_ips_used")
     #: The maximum amount of instances.
-    instances = resource.Body("maxTotalInstances")
+    instances = resource.Body("maxTotalInstances", aka="max_total_instances")
     #: The amount of instances currently in use.
-    instances_used = resource.Body("totalInstancesUsed")
+    instances_used = resource.Body(
+        "totalInstancesUsed", aka="total_instances_used")
     #: The maximum amount of keypairs.
-    keypairs = resource.Body("maxTotalKeypairs")
+    keypairs = resource.Body("maxTotalKeypairs", aka="max_total_keypairs")
     #: The maximum RAM size in megabytes.
-    total_ram = resource.Body("maxTotalRAMSize")
+    total_ram = resource.Body("maxTotalRAMSize", aka="max_total_ram_size")
     #: The RAM size in megabytes currently in use.
-    total_ram_used = resource.Body("totalRAMUsed")
+    total_ram_used = resource.Body("totalRAMUsed", aka="total_ram_used")
     #: The maximum amount of server groups.
-    server_groups = resource.Body("maxServerGroups")
+    server_groups = resource.Body("maxServerGroups", aka="max_server_groups")
     #: The amount of server groups currently in use.
-    server_groups_used = resource.Body("totalServerGroupsUsed")
+    server_groups_used = resource.Body(
+        "totalServerGroupsUsed", aka="total_server_groups_used")
     #: The maximum number of members in a server group.
-    server_group_members = resource.Body("maxServerGroupMembers")
+    server_group_members = resource.Body(
+        "maxServerGroupMembers", aka="max_server_group_members")
 
 
 class RateLimit(resource.Resource):

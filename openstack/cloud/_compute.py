@@ -335,13 +335,14 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return list(self.compute.server_groups())
 
     def get_compute_limits(self, name_or_id=None):
-        """ Get compute limits for a project
+        """ Get absolute compute limits for a project
 
         :param name_or_id: (optional) project name or ID to get limits for
                            if different from the current project
         :raises: OpenStackCloudException if it's not a valid project
 
-        :returns: :class:`~openstack.compute.v2.limits.Limits` object.
+        :returns:
+            :class:`~openstack.compute.v2.limits.Limits.AbsoluteLimits` object.
         """
         params = {}
         project_id = None
@@ -352,7 +353,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 raise exc.OpenStackCloudException("project does not exist")
             project_id = proj.id
             params['tenant_id'] = project_id
-        return self.compute.get_limits(**params)
+        return self.compute.get_limits(**params).absolute
 
     def get_keypair(self, name_or_id, filters=None):
         """Get a keypair by name or ID.
