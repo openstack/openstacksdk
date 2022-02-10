@@ -47,7 +47,7 @@ class Proxy(proxy.Proxy):
     def get_load_balancer(self, *attrs):
         """Get a load balancer
 
-        :param load_balancer: The value can be the name of a load balancer
+        :param load_balancer: The value can be the ID of a load balancer
             or :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
             instance.
 
@@ -56,15 +56,17 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_lb.LoadBalancer, *attrs)
 
-    def get_load_balancer_statistics(self, name_or_id):
+    def get_load_balancer_statistics(self, load_balancer):
         """Get the load balancer statistics
 
-        :param name_or_id: The name or ID of a load balancer
+        :param load_balancer: The value can be the ID of a load balancer
+            or :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
+            instance.
 
         :returns: One
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancerStats`
         """
-        return self._get(_lb.LoadBalancerStats, lb_id=name_or_id,
+        return self._get(_lb.LoadBalancerStats, lb_id=load_balancer,
                          requires_id=False)
 
     def load_balancers(self, **query):
@@ -78,7 +80,7 @@ class Proxy(proxy.Proxy):
                              cascade=False):
         """Delete a load balancer
 
-        :param load_balancer: The load_balancer can be either the name or a
+        :param load_balancer: The load_balancer can be either the ID or a
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
             instance
         :param bool ignore_missing: When set to ``False``
@@ -114,7 +116,7 @@ class Proxy(proxy.Proxy):
     def update_load_balancer(self, load_balancer, **attrs):
         """Update a load balancer
 
-        :param load_balancer: The load_balancer can be either the name or a
+        :param load_balancer: The load_balancer can be either the ID or a
             :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
             instance
         :param dict attrs: The attributes to update on the load balancer
@@ -132,14 +134,16 @@ class Proxy(proxy.Proxy):
         return resource.wait_for_status(self, lb, status, failures, interval,
                                         wait, attribute='provisioning_status')
 
-    def failover_load_balancer(self, name_or_id, **attrs):
+    def failover_load_balancer(self, load_balancer, **attrs):
         """Failover a load balancer
 
-        :param name_or_id: The name or ID of a load balancer
+        :param load_balancer: The value can be the ID of a load balancer
+            or :class:`~openstack.load_balancer.v2.load_balancer.LoadBalancer`
+            instance.
 
         :returns: ``None``
         """
-        return self._update(_lb.LoadBalancerFailover, lb_id=name_or_id)
+        return self._update(_lb.LoadBalancerFailover, lb_id=load_balancer)
 
     def create_listener(self, **attrs):
         """Create a new listener from attributes
@@ -156,7 +160,7 @@ class Proxy(proxy.Proxy):
     def delete_listener(self, listener, ignore_missing=True):
         """Delete a listener
 
-        :param listener: The value can be either the ID of a listner or a
+        :param listener: The value can be either the ID of a listener or a
             :class:`~openstack.load_balancer.v2.listener.Listener` instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -252,7 +256,7 @@ class Proxy(proxy.Proxy):
     def get_pool(self, *attrs):
         """Get a pool
 
-        :param pool: Value is
+        :param pool: Value is either a pool ID or a
             :class:`~openstack.load_balancer.v2.pool.Pool`
             instance.
 
@@ -271,7 +275,7 @@ class Proxy(proxy.Proxy):
     def delete_pool(self, pool, ignore_missing=True):
         """Delete a pool
 
-        :param pool: The pool is a
+        :param pool: The pool is either a pool ID or a
             :class:`~openstack.load_balancer.v2.pool.Pool`
             instance
         :param bool ignore_missing: When set to ``False``
@@ -832,7 +836,7 @@ class Proxy(proxy.Proxy):
     def delete_flavor_profile(self, flavor_profile, ignore_missing=True):
         """Delete a flavor profile
 
-        :param flavor_profile: The flavor_profile can be either the name or a
+        :param flavor_profile: The flavor_profile can be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
             instance
         :param bool ignore_missing: When set to ``False``
@@ -864,7 +868,7 @@ class Proxy(proxy.Proxy):
     def update_flavor_profile(self, flavor_profile, **attrs):
         """Update a flavor profile
 
-        :param flavor_profile: The flavor_profile can be either the name or a
+        :param flavor_profile: The flavor_profile can be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor_profile.FlavorProfile`
             instance
         :param dict attrs: The attributes to update on the flavor profile
@@ -892,7 +896,7 @@ class Proxy(proxy.Proxy):
     def get_flavor(self, *attrs):
         """Get a flavor
 
-        :param flavor: The value can be the name of a flavor
+        :param flavor: The value can be the ID of a flavor
             or :class:`~openstack.load_balancer.v2.flavor.Flavor` instance.
 
         :returns: One
@@ -910,7 +914,7 @@ class Proxy(proxy.Proxy):
     def delete_flavor(self, flavor, ignore_missing=True):
         """Delete a flavor
 
-        :param flavor: The flavorcan be either the name or a
+        :param flavor: The flavorcan be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor.Flavor` instance
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
@@ -940,7 +944,7 @@ class Proxy(proxy.Proxy):
     def update_flavor(self, flavor, **attrs):
         """Update a flavor
 
-        :param flavor: The flavor can be either the name or a
+        :param flavor: The flavor can be either the ID or a
             :class:`~openstack.load_balancer.v2.flavor.Flavor` instance
         :param dict attrs: The attributes to update on the flavor
             represented by ``flavor``.
@@ -1009,7 +1013,7 @@ class Proxy(proxy.Proxy):
             comprised of the properties on the AvailabilityZoneProfile
             class.
 
-        :returns: The results of profile creation creation
+        :returns: The results of profile creation
         :rtype:
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
         """
@@ -1019,7 +1023,7 @@ class Proxy(proxy.Proxy):
     def get_availability_zone_profile(self, *attrs):
         """Get an availability zone profile
 
-        :param availability_zone_profile: The value can be the name of an
+        :param availability_zone_profile: The value can be the ID of an
             availability_zone profile or
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
             instance.
@@ -1043,7 +1047,7 @@ class Proxy(proxy.Proxy):
         """Delete an availability zone profile
 
         :param availability_zone_profile: The availability_zone_profile can be
-            either the name or a
+            either the ID or a
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
             instance
         :param bool ignore_missing: When set to ``False``
@@ -1077,7 +1081,7 @@ class Proxy(proxy.Proxy):
         """Update an availability zone profile
 
         :param availability_zone_profile: The availability_zone_profile can be
-            either the name or a
+            either the ID or a
             :class:`~openstack.load_balancer.v2.availability_zone_profile.AvailabilityZoneProfile`
             instance
         :param dict attrs: The attributes to update on the availability_zone
@@ -1106,7 +1110,7 @@ class Proxy(proxy.Proxy):
     def get_availability_zone(self, *attrs):
         """Get an availability zone
 
-        :param availability_zone: The value can be the name of a
+        :param availability_zone: The value can be the ID of a
             availability_zone or
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
             instance.
@@ -1126,7 +1130,7 @@ class Proxy(proxy.Proxy):
     def delete_availability_zone(self, availability_zone, ignore_missing=True):
         """Delete an availability_zone
 
-        :param availability_zone: The availability_zone can be either the name
+        :param availability_zone: The availability_zone can be either the ID
             or a
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
             instance
@@ -1159,7 +1163,7 @@ class Proxy(proxy.Proxy):
     def update_availability_zone(self, availability_zone, **attrs):
         """Update an availability zone
 
-        :param availability_zone: The availability_zone can be either the name
+        :param availability_zone: The availability_zone can be either the ID
             or a
             :class:`~openstack.load_balancer.v2.availability_zone.AvailabilityZone`
             instance
