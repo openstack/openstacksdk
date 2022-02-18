@@ -387,7 +387,7 @@ class IdentityCloudMixin:
 
         :param name_or_id: Name or id of the desired service.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'type': 'network'}.
+            {'type': 'network'}.
 
         :returns: a list of ``munch.Munch`` containing the services description
 
@@ -402,7 +402,7 @@ class IdentityCloudMixin:
 
         :param name_or_id: Name or id of the desired service.
         :param filters: a dict containing additional filters to use. e.g.
-                {'type': 'network'}
+            {'type': 'network'}
 
         :returns: a ``munch.Munch`` containing the services description,
             i.e. the following attributes::
@@ -528,7 +528,7 @@ class IdentityCloudMixin:
 
         :param id: endpoint id.
         :param filters: a dict containing additional filters to use. e.g.
-                {'region': 'region-a.geo-1'}
+            {'region': 'region-a.geo-1'}
 
         :returns: a list of ``munch.Munch`` containing the endpoint
             description. Each dict contains the following attributes::
@@ -553,7 +553,7 @@ class IdentityCloudMixin:
 
         :param id: endpoint id.
         :param filters: a dict containing additional filters to use. e.g.
-                {'region': 'region-a.geo-1'}
+            {'region': 'region-a.geo-1'}
 
         :returns: a ``munch.Munch`` containing the endpoint description.
             i.e. a ``munch.Munch`` containing the following attributes::
@@ -673,7 +673,7 @@ class IdentityCloudMixin:
 
         :param name_or_id: domain name or id
         :param dict filters: A dict containing additional filters to use.
-             Keys to search on are id, name, enabled and description.
+            Keys to search on are id, name, enabled and description.
 
         :returns: a list of ``munch.Munch`` containing the domain description.
             Each ``munch.Munch`` contains the following attributes::
@@ -698,7 +698,7 @@ class IdentityCloudMixin:
         :param domain_id: domain id.
         :param name_or_id: domain name or id.
         :param dict filters: A dict containing additional filters to use.
-             Keys to search on are id, name, enabled and description.
+            Keys to search on are id, name, enabled and description.
 
         :returns: a ``munch.Munch`` containing the domain description, or None
             if not found. Each ``munch.Munch`` contains the following
@@ -876,9 +876,9 @@ class IdentityCloudMixin:
         :returns: a list of ``munch.Munch`` containing the role description.
             Each ``munch.Munch`` contains the following attributes::
 
-                - id: <role id>
-                - name: <role name>
-                - description: <role description>
+            - id: <role id>
+            - name: <role name>
+            - description: <role description>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
@@ -897,9 +897,9 @@ class IdentityCloudMixin:
         :returns: a single ``munch.Munch`` containing the role description.
             Each ``munch.Munch`` contains the following attributes::
 
-                - id: <role id>
-                - name: <role name>
-                - description: <role description>
+            - id: <role id>
+            - name: <role name>
+            - description: <role description>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
@@ -951,16 +951,16 @@ class IdentityCloudMixin:
             * 'effective' (boolean) - Return effective role assignments.
             * 'include_subtree' (boolean) - Include subtree
 
-            'user' and 'group' are mutually exclusive, as are 'domain' and
-            'project'.
+              'user' and 'group' are mutually exclusive, as are 'domain' and
+              'project'.
 
         :returns: a list of
             :class:`openstack.identity.v3.role_assignment.RoleAssignment`
             objects. Contains the following attributes::
 
-                - id: <role id>
-                - user|group: <user or group id>
-                - project|domain: <project or domain id>
+            - id: <role id>
+            - user|group: <user or group id>
+            - project|domain: <project or domain id>
 
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
@@ -1104,13 +1104,13 @@ class IdentityCloudMixin:
         :param bool wait: Wait for role to be granted
         :param int timeout: Timeout to wait for role to be granted
 
-        NOTE: domain is a required argument when the grant is on a project,
-            user or group specified by name. In that situation, they are all
-            considered to be in that domain. If different domains are in use
-            in the same role grant, it is required to specify those by ID.
+         NOTE: domain is a required argument when the grant is on a project,
+         user or group specified by name. In that situation, they are all
+         considered to be in that domain. If different domains are in use in
+         the same role grant, it is required to specify those by ID.
 
-        NOTE: for wait and timeout, sometimes granting roles is not
-              instantaneous.
+         NOTE: for wait and timeout, sometimes granting roles is not
+         instantaneous.
 
         :returns: True if the role is assigned, otherwise False
 
@@ -1176,10 +1176,10 @@ class IdentityCloudMixin:
         :param bool wait: Wait for role to be revoked
         :param int timeout: Timeout to wait for role to be revoked
 
-        NOTE: for wait and timeout, sometimes revoking roles is not
-              instantaneous.
+            NOTE: for wait and timeout, sometimes revoking roles is not
+            instantaneous.
 
-        NOTE: project is required for keystone v2
+            NOTE: project is required for keystone v2
 
         :returns: True if the role is revoke, otherwise False
 

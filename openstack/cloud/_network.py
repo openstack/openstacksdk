@@ -44,7 +44,7 @@ class NetworkCloudMixin:
 
         :param name_or_id: Name or ID of the desired network.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'router:external': True}
+            {'router:external': True}
 
         :returns: a list of ``munch.Munch`` containing the network description.
 
@@ -63,7 +63,7 @@ class NetworkCloudMixin:
 
         :param name_or_id: Name or ID of the desired router.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'admin_state_up': True}
+            {'admin_state_up': True}
 
         :returns: a list of ``munch.Munch`` containing the router description.
 
@@ -82,7 +82,7 @@ class NetworkCloudMixin:
 
         :param name_or_id: Name or ID of the desired subnet.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'enable_dhcp': True}
+            {'enable_dhcp': True}
 
         :returns: a list of ``munch.Munch`` containing the subnet description.
 
@@ -101,7 +101,7 @@ class NetworkCloudMixin:
 
         :param name_or_id: Name or ID of the desired port.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'device_id': '2711c67a-b4a7-43dd-ace7-6187b791c3f0'}
+            {'device_id': '2711c67a-b4a7-43dd-ace7-6187b791c3f0'}
 
         :returns: a list of ``munch.Munch`` containing the port description.
 
@@ -217,10 +217,10 @@ class NetworkCloudMixin:
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
@@ -228,7 +228,7 @@ class NetworkCloudMixin:
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A policy ``munch.Munch`` or None if no matching network is
-                 found.
+            found.
 
         """
         if not self._has_neutron_extension('qos'):
@@ -247,7 +247,7 @@ class NetworkCloudMixin:
 
         :param name_or_id: Name or ID of the desired policy.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'shared': True}
+            {'shared': True}
 
         :returns: a list of ``munch.Munch`` containing the network description.
 
@@ -325,10 +325,10 @@ class NetworkCloudMixin:
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
@@ -336,7 +336,7 @@ class NetworkCloudMixin:
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A network ``munch.Munch`` or None if no matching network is
-                 found.
+            found.
 
         """
         if not filters:
@@ -363,10 +363,10 @@ class NetworkCloudMixin:
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
@@ -374,7 +374,7 @@ class NetworkCloudMixin:
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A router ``munch.Munch`` or None if no matching router is
-                  found.
+            found.
 
         """
         if not filters:
@@ -393,14 +393,14 @@ class NetworkCloudMixin:
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
         :returns: A subnet ``munch.Munch`` or None if no matching subnet is
-                  found.
+            found.
 
         """
         if not filters:
@@ -427,10 +427,10 @@ class NetworkCloudMixin:
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
@@ -468,7 +468,8 @@ class NetworkCloudMixin:
         :param bool external: Whether this network is externally accessible.
         :param dict provider: A dict of network provider options. Example::
 
-           { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
+            { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
+
         :param string project_id: Specify the project ID this network
             will be created on (admin-only).
         :param types.ListType availability_zone_hints: A list of availability
@@ -558,7 +559,8 @@ class NetworkCloudMixin:
         :param bool external: Whether this network is externally accessible.
         :param dict provider: A dict of network provider options. Example::
 
-           { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
+            { 'network_type': 'vlan', 'segmentation_id': 'vlan1' }
+
         :param int mtu_size: New maximum transmission unit value to address
             fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
         :param bool port_security_enabled: Enable or disable port security.
@@ -648,7 +650,7 @@ class NetworkCloudMixin:
 
         :param name_or_id: project name or id
         :param details: if set to True it will return details about usage
-                        of quotas by given project
+            of quotas by given project
         :raises: OpenStackCloudException if it's not a valid project
 
         :returns: Munch object with the quotas
@@ -670,7 +672,7 @@ class NetworkCloudMixin:
 
         :param name_or_id: project name or id
         :raises: OpenStackCloudException if it's not a valid project or the
-                 network client call failed
+            network client call failed
 
         :returns: dict with the quotas
         """
@@ -696,20 +698,17 @@ class NetworkCloudMixin:
         :param destination_ip_address: IPv4-, IPv6 address or CIDR.
         :param destination_port: Port or port range (e.g. 80:90)
         :param bool enabled: Status of firewall rule. You can disable rules
-                             without disassociating them from firewall
-                             policies. Defaults to True.
-        :param int ip_version: IP Version.
-                           Valid values: 4, 6
-                           Defaults to 4.
+            without disassociating them from firewall policies. Defaults to
+            True.
+        :param int ip_version: IP Version. Valid values: 4, 6 Defaults to 4.
         :param name: Human-readable name.
         :param project_id: Project id.
-        :param protocol: IP protocol.
-                         Valid values: icmp, tcp, udp, null
-        :param bool shared: Visibility to other projects.
-                       Defaults to False.
+        :param protocol: IP protocol. Valid values: icmp, tcp, udp, null
+        :param bool shared: Visibility to other projects. Defaults to False.
         :param source_firewall_group_id: ID of source firewall group.
         :param source_ip_address: IPv4-, IPv6 address or CIDR.
         :param source_port: Port or port range (e.g. 80:90)
+
         :raises: BadRequestException if parameters are malformed
         :return: created firewall rule
         :rtype: FirewallRule
@@ -823,15 +822,14 @@ class NetworkCloudMixin:
         Create firewall policy.
 
         :param bool audited: Status of audition of firewall policy.
-                             Set to False each time the firewall policy or the
-                             associated firewall rules are changed.
-                             Has to be explicitly set to True.
+            Set to False each time the firewall policy or the associated
+            firewall rules are changed.  Has to be explicitly set to True.
         :param description: Human-readable description.
         :param list[str] firewall_rules: List of associated firewall rules.
         :param name: Human-readable name.
         :param project_id: Project id.
         :param bool shared: Visibility to other projects.
-                       Defaults to False.
+            Defaults to False.
         :raises: BadRequestException if parameters are malformed
         :raises: ResourceNotFound if a resource from firewall_list not found
         :return: created firewall policy
@@ -940,7 +938,7 @@ class NetworkCloudMixin:
         :param dict filters: optional filters
         :raises: DuplicateResource on multiple matches
         :raises: ResourceNotFound if firewall policy or any of the firewall
-                 rules (inserted, after, before) is not found.
+            rules (inserted, after, before) is not found.
         :return: updated firewall policy
         :rtype: FirewallPolicy
         """
@@ -1023,20 +1021,18 @@ class NetworkCloudMixin:
         request.
 
         :param bool admin_state_up: State of firewall group.
-                                    Will block all traffic if set to False.
-                                    Defaults to True.
+            Will block all traffic if set to False. Defaults to True.
         :param description: Human-readable description.
         :param egress_firewall_policy: Name or id of egress firewall policy.
         :param ingress_firewall_policy: Name or id of ingress firewall policy.
         :param name: Human-readable name.
         :param list[str] ports: List of associated ports (name or id)
         :param project_id: Project id.
-        :param shared: Visibility to other projects.
-                       Defaults to False.
+        :param shared: Visibility to other projects. Defaults to False.
         :raises: BadRequestException if parameters are malformed
         :raises: DuplicateResource on multiple matches
         :raises: ResourceNotFound if (ingress-, egress-) firewall policy or
-                 a port is not found.
+            a port is not found.
         :return: created firewall group
         :rtype: FirewallGroup
         """
@@ -1116,7 +1112,7 @@ class NetworkCloudMixin:
         :raises: BadRequestException if parameters are malformed
         :raises: DuplicateResource on multiple matches
         :raises: ResourceNotFound if firewall group, a firewall policy
-                 (egress, ingress) or port is not found
+            (egress, ingress) or port is not found
         :return: updated firewall group
         :rtype: FirewallGroup
         """
@@ -1187,16 +1183,12 @@ class NetworkCloudMixin:
     def update_qos_policy(self, name_or_id, **kwargs):
         """Update an existing QoS policy.
 
-        :param string name_or_id:
-           Name or ID of the QoS policy to update.
-        :param string policy_name:
-           The new name of the QoS policy.
-        :param string description:
-            The new description of the QoS policy.
-        :param bool shared:
-            If True, the QoS policy will be set as shared.
-        :param bool default:
-            If True, the QoS policy will be set as default for project.
+        :param string name_or_id: Name or ID of the QoS policy to update.
+        :param string policy_name: The new name of the QoS policy.
+        :param string description: The new description of the QoS policy.
+        :param bool shared: If True, the QoS policy will be set as shared.
+        :param bool default: If True, the QoS policy will be set as default for
+            project.
 
         :returns: The updated QoS policy object.
         :raises: OpenStackCloudException on operation error.
@@ -1254,7 +1246,7 @@ class NetworkCloudMixin:
             rules should be associated.
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'max_kbps': 1000}
+            {'max_kbps': 1000}
 
         :returns: a list of ``munch.Munch`` containing the bandwidth limit
             rule descriptions.
@@ -1444,7 +1436,7 @@ class NetworkCloudMixin:
             rules should be associated.
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'dscp_mark': 32}
+            {'dscp_mark': 32}
 
         :returns: a list of ``munch.Munch`` containing the dscp marking
             rule descriptions.
@@ -1606,7 +1598,7 @@ class NetworkCloudMixin:
             rules should be associated.
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
-                        {'min_kbps': 1000}
+            {'min_kbps': 1000}
 
         :returns: a list of ``munch.Munch`` containing the bandwidth limit
             rule descriptions.
@@ -1783,8 +1775,8 @@ class NetworkCloudMixin:
         :param string port_id: The ID of the port to use for the interface
 
         :returns: A ``munch.Munch`` with the router ID (ID),
-                  subnet ID (subnet_id), port ID (port_id) and tenant ID
-                  (tenant_id).
+            subnet ID (subnet_id), port ID (port_id) and tenant ID
+            (tenant_id).
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -1868,11 +1860,12 @@ class NetworkCloudMixin:
             external network. Example::
 
               [
-                {
-                  "subnet_id": "8ca37218-28ff-41cb-9b10-039601ea7e6b",
-                  "ip_address": "192.168.10.2"
-                }
+                  {
+                      "subnet_id": "8ca37218-28ff-41cb-9b10-039601ea7e6b",
+                      "ip_address": "192.168.10.2"
+                  }
               ]
+
         :param string project_id: Project ID for the router.
         :param types.ListType availability_zone_hints:
             A list of availability zone hints.
@@ -1920,11 +1913,12 @@ class NetworkCloudMixin:
             external network. Example::
 
               [
-                {
-                  "subnet_id": "8ca37218-28ff-41cb-9b10-039601ea7e6b",
-                  "ip_address": "192.168.10.2"
-                }
+                  {
+                      "subnet_id": "8ca37218-28ff-41cb-9b10-039601ea7e6b",
+                      "ip_address": "192.168.10.2"
+                  }
               ]
+
         :param list routes:
             A list of dictionaries with destination and nexthop parameters. To
             clear all routes pass an empty list ([]).
@@ -1932,11 +1926,12 @@ class NetworkCloudMixin:
             Example::
 
               [
-                {
-                  "destination": "179.24.1.0/24",
-                  "nexthop": "172.24.3.99"
-                }
+                  {
+                      "destination": "179.24.1.0/24",
+                      "nexthop": "172.24.3.99"
+                  }
               ]
+
         :returns: The router object.
         :raises: OpenStackCloudException on operation error.
         """
@@ -2000,71 +1995,60 @@ class NetworkCloudMixin:
                       prefixlen=None, use_default_subnetpool=False, **kwargs):
         """Create a subnet on a specified network.
 
-        :param string network_name_or_id:
-           The unique name or ID of the attached network. If a non-unique
-           name is supplied, an exception is raised.
-        :param string cidr:
-           The CIDR.
-        :param int ip_version:
-           The IP version, which is 4 or 6.
-        :param bool enable_dhcp:
-           Set to ``True`` if DHCP is enabled and ``False`` if disabled.
-           Default is ``False``.
-        :param string subnet_name:
-           The name of the subnet.
-        :param string tenant_id:
-           The ID of the tenant who owns the network. Only administrative users
-           can specify a tenant ID other than their own.
-        :param allocation_pools:
-           A list of dictionaries of the start and end addresses for the
-           allocation pools. For example::
+        :param string network_name_or_id: The unique name or ID of the attached
+            network. If a non-unique name is supplied, an exception is raised.
+        :param string cidr: The CIDR.
+        :param int ip_version: The IP version, which is 4 or 6.
+        :param bool enable_dhcp: Set to ``True`` if DHCP is enabled and
+            ``False`` if disabled. Default is ``False``.
+        :param string subnet_name: The name of the subnet.
+        :param string tenant_id: The ID of the tenant who owns the network.
+            Only administrative users can specify a tenant ID other than their
+            own.
+        :param allocation_pools: A list of dictionaries of the start and end
+            addresses for the allocation pools. For example::
 
-             [
-               {
-                 "start": "192.168.199.2",
-                 "end": "192.168.199.254"
-               }
-             ]
+                [
+                    {
+                        "start": "192.168.199.2",
+                        "end": "192.168.199.254"
+                    }
+                ]
 
-        :param string gateway_ip:
-           The gateway IP address. When you specify both allocation_pools and
-           gateway_ip, you must ensure that the gateway IP does not overlap
-           with the specified allocation pools.
-        :param bool disable_gateway_ip:
-           Set to ``True`` if gateway IP address is disabled and ``False`` if
-           enabled. It is not allowed with gateway_ip.
-           Default is ``False``.
-        :param dns_nameservers:
-           A list of DNS name servers for the subnet. For example::
+        :param string gateway_ip: The gateway IP address. When you specify both
+            allocation_pools and gateway_ip, you must ensure that the gateway
+            IP does not overlap with the specified allocation pools.
+        :param bool disable_gateway_ip: Set to ``True`` if gateway IP address
+            is disabled and ``False`` if enabled. It is not allowed with
+            gateway_ip. Default is ``False``.
+        :param dns_nameservers: A list of DNS name servers for the subnet. For
+            example::
 
-             [ "8.8.8.7", "8.8.8.8" ]
+              [ "8.8.8.7", "8.8.8.8" ]
 
-        :param host_routes:
-           A list of host route dictionaries for the subnet. For example::
+        :param host_routes: A list of host route dictionaries for the subnet.
+            For example::
 
-             [
-               {
-                 "destination": "0.0.0.0/0",
-                 "nexthop": "123.456.78.9"
-               },
-               {
-                 "destination": "192.168.0.0/24",
-                 "nexthop": "192.168.0.1"
-               }
-             ]
+              [
+                  {
+                      "destination": "0.0.0.0/0",
+                      "nexthop": "123.456.78.9"
+                  },
+                  {
+                      "destination": "192.168.0.0/24",
+                      "nexthop": "192.168.0.1"
+                  }
+              ]
 
-        :param string ipv6_ra_mode:
-           IPv6 Router Advertisement mode. Valid values are: 'dhcpv6-stateful',
-           'dhcpv6-stateless', or 'slaac'.
-        :param string ipv6_address_mode:
-           IPv6 address mode. Valid values are: 'dhcpv6-stateful',
-           'dhcpv6-stateless', or 'slaac'.
-        :param string prefixlen:
-           The prefix length to use for subnet allocation from a subnet pool.
-        :param bool use_default_subnetpool:
-           Use the default subnetpool for ``ip_version`` to obtain a CIDR. It
-           is required to pass ``None`` to the ``cidr`` argument when enabling
-           this option.
+        :param string ipv6_ra_mode: IPv6 Router Advertisement mode. Valid
+            values are: 'dhcpv6-stateful', 'dhcpv6-stateless', or 'slaac'.
+        :param string ipv6_address_mode: IPv6 address mode. Valid values are:
+            'dhcpv6-stateful', 'dhcpv6-stateless', or 'slaac'.
+        :param string prefixlen: The prefix length to use for subnet allocation
+            from a subnet pool.
+        :param bool use_default_subnetpool: Use the default subnetpool for
+            ``ip_version`` to obtain a CIDR. It is required to pass ``None`` to
+            the ``cidr`` argument when enabling this option.
         :param kwargs: Key value pairs to be passed to the Neutron API.
 
         :returns: The new subnet object.
@@ -2166,49 +2150,44 @@ class NetworkCloudMixin:
                       host_routes=None):
         """Update an existing subnet.
 
-        :param string name_or_id:
-           Name or ID of the subnet to update.
-        :param string subnet_name:
-           The new name of the subnet.
-        :param bool enable_dhcp:
-           Set to ``True`` if DHCP is enabled and ``False`` if disabled.
-        :param string gateway_ip:
-           The gateway IP address. When you specify both allocation_pools and
-           gateway_ip, you must ensure that the gateway IP does not overlap
-           with the specified allocation pools.
-        :param bool disable_gateway_ip:
-           Set to ``True`` if gateway IP address is disabled and ``False`` if
-           enabled. It is not allowed with gateway_ip.
-           Default is ``False``.
-        :param allocation_pools:
-           A list of dictionaries of the start and end addresses for the
-           allocation pools. For example::
+        :param string name_or_id: Name or ID of the subnet to update.
+        :param string subnet_name: The new name of the subnet.
+        :param bool enable_dhcp: Set to ``True`` if DHCP is enabled and
+            ``False`` if disabled.
+        :param string gateway_ip: The gateway IP address. When you specify both
+            allocation_pools and gateway_ip, you must ensure that the gateway
+            IP does not overlap with the specified allocation pools.
+        :param bool disable_gateway_ip: Set to ``True`` if gateway IP address
+            is disabled and ``False`` if enabled. It is not allowed with
+            gateway_ip. Default is ``False``.
+        :param allocation_pools: A list of dictionaries of the start and end
+            addresses for the allocation pools. For example::
 
-             [
-               {
-                 "start": "192.168.199.2",
-                 "end": "192.168.199.254"
-               }
-             ]
+              [
+                  {
+                      "start": "192.168.199.2",
+                      "end": "192.168.199.254"
+                  }
+              ]
 
-        :param dns_nameservers:
-           A list of DNS name servers for the subnet. For example::
+        :param dns_nameservers: A list of DNS name servers for the subnet. For
+            example::
 
-             [ "8.8.8.7", "8.8.8.8" ]
+              [ "8.8.8.7", "8.8.8.8" ]
 
-        :param host_routes:
-           A list of host route dictionaries for the subnet. For example::
+        :param host_routes: A list of host route dictionaries for the subnet.
+            For example::
 
-             [
-               {
-                 "destination": "0.0.0.0/0",
-                 "nexthop": "123.456.78.9"
-               },
-               {
-                 "destination": "192.168.0.0/24",
-                 "nexthop": "192.168.0.1"
-               }
-             ]
+              [
+                  {
+                      "destination": "0.0.0.0/0",
+                      "nexthop": "123.456.78.9"
+                  },
+                  {
+                      "destination": "192.168.0.0/24",
+                      "nexthop": "192.168.0.1"
+                  }
+              ]
 
         :returns: The updated subnet object.
         :raises: OpenStackCloudException on operation error.
@@ -2259,15 +2238,15 @@ class NetworkCloudMixin:
             which is up (true, default) or down (false). (Optional)
         :param mac_address: The MAC address. (Optional)
         :param fixed_ips: List of ip_addresses and subnet_ids. See subnet_id
-            and ip_address. (Optional)
-            For example::
+            and ip_address. (Optional) For example::
 
               [
-                {
-                  "ip_address": "10.29.29.13",
-                  "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd"
-                }, ...
+                  {
+                      "ip_address": "10.29.29.13",
+                      "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd"
+                  }, ...
               ]
+
         :param subnet_id: If you specify only a subnet ID, OpenStack Networking
             allocates an available IP from that subnet to the port. (Optional)
             If you specify both a subnet ID and an IP address, OpenStack
@@ -2280,20 +2259,22 @@ class NetworkCloudMixin:
             For example::
 
               [
-                {
-                  "ip_address": "23.23.23.1",
-                  "mac_address": "fa:16:3e:c4:cd:3f"
-                }, ...
+                  {
+                      "ip_address": "23.23.23.1",
+                      "mac_address": "fa:16:3e:c4:cd:3f"
+                  }, ...
               ]
+
         :param extra_dhcp_opts: Extra DHCP options. (Optional).
             For example::
 
               [
-                {
-                  "opt_name": "opt name1",
-                  "opt_value": "value1"
-                }, ...
+                  {
+                      "opt_name": "opt name1",
+                      "opt_value": "value1"
+                  }, ...
               ]
+
         :param device_owner: The ID of the entity that uses this port.
             For example, a DHCP agent.  (Optional)
         :param device_id: The ID of the device that uses this port.
@@ -2335,30 +2316,33 @@ class NetworkCloudMixin:
             For example::
 
               [
-                {
-                  "ip_address": "10.29.29.13",
-                  "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd"
-                }, ...
+                  {
+                      "ip_address": "10.29.29.13",
+                      "subnet_id": "a78484c4-c380-4b47-85aa-21c51a2d8cbd"
+                  }, ...
               ]
+
         :param security_groups: List of security group UUIDs. (Optional)
         :param allowed_address_pairs: Allowed address pairs list (Optional)
             For example::
 
               [
-                {
-                  "ip_address": "23.23.23.1",
-                  "mac_address": "fa:16:3e:c4:cd:3f"
-                }, ...
+                  {
+                      "ip_address": "23.23.23.1",
+                      "mac_address": "fa:16:3e:c4:cd:3f"
+                  }, ...
               ]
+
         :param extra_dhcp_opts: Extra DHCP options. (Optional).
             For example::
 
               [
-                {
-                  "opt_name": "opt name1",
-                  "opt_value": "value1"
-                }, ...
+                  {
+                      "opt_name": "opt name1",
+                      "opt_value": "value1"
+                  }, ...
               ]
+
         :param device_owner: The ID of the entity that uses this port.
             For example, a DHCP agent.  (Optional)
         :param device_id: The ID of the resource this port is attached to.

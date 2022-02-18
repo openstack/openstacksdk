@@ -76,10 +76,10 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
             of this dictionary may, themselves, be dictionaries. Example::
 
                 {
-                  'last_name': 'Smith',
-                  'other': {
-                      'gender': 'Female'
-                  }
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
                 }
 
             OR
@@ -87,7 +87,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
         :returns: A security group ``munch.Munch`` or None if no matching
-                  security group is found.
+            security group is found.
 
         """
         return _utils._get_entity(
@@ -130,7 +130,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
-                 not supported on this cloud.
+            not supported on this cloud.
         """
 
         # Security groups not supported
@@ -166,7 +166,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
-                 not supported on this cloud.
+            not supported on this cloud.
         """
         # Security groups not supported
         if not self._has_secgroups():
@@ -384,7 +384,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
 
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
-                 not supported on this cloud.
+            not supported on this cloud.
         """
         # Security groups not supported
         if not self._has_secgroups():

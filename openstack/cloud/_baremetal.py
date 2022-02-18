@@ -46,8 +46,8 @@ class BaremetalCloudMixin:
     def list_nics_for_machine(self, uuid):
         """Returns a list of ports present on the machine node.
 
-        :param uuid: String representing machine UUID value in
-                     order to identify the machine.
+        :param uuid: String representing machine UUID value in order to
+            identify the machine.
         :returns: A list of ports.
         """
         # TODO(dtantsur): support node names here.
@@ -80,7 +80,7 @@ class BaremetalCloudMixin:
         :param name_or_id: A node name or UUID that will be looked up.
 
         :returns: ``munch.Munch`` representing the node found or None if no
-                  nodes are found.
+            nodes are found.
         """
         try:
             return self._normalize_machine(self.baremetal.get_node(name_or_id))
@@ -92,8 +92,8 @@ class BaremetalCloudMixin:
 
         :param mac: Port MAC address to query in order to return a node.
 
-        :returns: ``munch.Munch`` representing the node found or None
-                  if the node is not found.
+        :returns: ``munch.Munch`` representing the node found or None if the
+            node is not found.
         """
         nic = self.get_nic_by_mac(mac)
         if nic is None:
@@ -108,16 +108,16 @@ class BaremetalCloudMixin:
         metadata about the baremetal machine.
 
         :param name_or_id: String representing machine name or UUID value in
-                           order to identify the machine.
+            order to identify the machine.
 
         :param wait: Boolean value controlling if the method is to wait for
-                     the desired state to be reached or a failure to occur.
+            the desired state to be reached or a failure to occur.
 
-        :param timeout: Integer value, defautling to 3600 seconds, for the$
-                        wait state to reach completion.
+        :param timeout: Integer value, defautling to 3600 seconds, for the
+            wait state to reach completion.
 
         :returns: ``munch.Munch`` representing the current state of the machine
-                  upon exit of the method.
+            upon exit of the method.
         """
 
         return_to_available = False
@@ -175,36 +175,34 @@ class BaremetalCloudMixin:
         created are deleted, and the node is removed from Ironic.
 
         :param nics:
-           An array of MAC addresses that represent the
-           network interfaces for the node to be created.
+            An array of MAC addresses that represent the
+            network interfaces for the node to be created.
 
-           Example::
+            Example::
 
-              [
-                  {'mac': 'aa:bb:cc:dd:ee:01'},
-                  {'mac': 'aa:bb:cc:dd:ee:02'}
-              ]
+                [
+                    {'mac': 'aa:bb:cc:dd:ee:01'},
+                    {'mac': 'aa:bb:cc:dd:ee:02'}
+                ]
 
-        :param wait: Boolean value, defaulting to false, to wait for the
-                     node to reach the available state where the node can be
-                     provisioned. It must be noted, when set to false, the
-                     method will still wait for locks to clear before sending
-                     the next required command.
+        :param wait: Boolean value, defaulting to false, to wait for the node
+            to reach the available state where the node can be provisioned. It
+            must be noted, when set to false, the method will still wait for
+            locks to clear before sending the next required command.
 
-        :param timeout: Integer value, defautling to 3600 seconds, for the
-                        wait state to reach completion.
+        :param timeout: Integer value, defautling to 3600 seconds, for the wait
+            state to reach completion.
 
         :param lock_timeout: Integer value, defaulting to 600 seconds, for
-                             locks to clear.
+            locks to clear.
 
         :param kwargs: Key value pairs to be passed to the Ironic API,
-                       including uuid, name, chassis_uuid, driver_info,
-                       parameters.
+            including uuid, name, chassis_uuid, driver_info, parameters.
 
         :raises: OpenStackCloudException on operation error.
 
         :returns: Returns a ``munch.Munch`` representing the new
-                  baremetal node.
+            baremetal node.
         """
 
         msg = ("Baremetal machine node failed to be created.")
@@ -332,14 +330,14 @@ class BaremetalCloudMixin:
         from an Ironic API
 
         :param nics: An array of strings that consist of MAC addresses
-                          to be removed.
+            to be removed.
         :param string uuid: The UUID of the node to be deleted.
 
         :param wait: DEPRECATED, do not use.
 
         :param timeout: Integer value, representing seconds with a default
-                        value of 600, which controls the maximum amount of
-                        time to block until a lock is released on machine.
+            value of 600, which controls the maximum amount of time to block
+            until a lock is released on machine.
 
         :raises: OpenStackCloudException on operation failure.
         """
@@ -382,27 +380,27 @@ class BaremetalCloudMixin:
 
         :param string name_or_id: A machine name or UUID to be updated.
         :param patch:
-           The JSON Patch document is a list of dictonary objects
-           that comply with RFC 6902 which can be found at
-           https://tools.ietf.org/html/rfc6902.
+            The JSON Patch document is a list of dictonary objects that comply
+            with RFC 6902 which can be found at
+            https://tools.ietf.org/html/rfc6902.
 
-           Example patch construction::
+            Example patch construction::
 
-               patch=[]
-               patch.append({
-                   'op': 'remove',
-                   'path': '/instance_info'
-               })
-               patch.append({
-                   'op': 'replace',
-                   'path': '/name',
-                   'value': 'newname'
-               })
-               patch.append({
-                   'op': 'add',
-                   'path': '/driver_info/username',
-                   'value': 'administrator'
-               })
+                patch=[]
+                patch.append({
+                    'op': 'remove',
+                    'path': '/instance_info'
+                })
+                patch.append({
+                    'op': 'replace',
+                    'path': '/name',
+                    'value': 'newname'
+                })
+                patch.append({
+                    'op': 'add',
+                    'path': '/driver_info/username',
+                    'value': 'administrator'
+                })
 
         :raises: OpenStackCloudException on operation error.
 
@@ -423,9 +421,9 @@ class BaremetalCloudMixin:
         :raises: OpenStackCloudException on operation error.
 
         :returns: ``munch.Munch`` containing a machine sub-dictonary consisting
-                  of the updated data returned from the API update operation,
-                  and a list named changes which contains all of the API paths
-                  that received updates.
+            of the updated data returned from the API update operation, and a
+            list named changes which contains all of the API paths that
+            received updates.
         """
         machine = self.get_machine(name_or_id)
         if not machine:
@@ -493,10 +491,9 @@ class BaremetalCloudMixin:
         """Validate parameters of the machine.
 
         :param string name_or_id: The Name or UUID value representing the
-                                  baremetal node.
+            baremetal node.
         :param bool for_deploy: If ``True``, validate readiness for deployment,
-                                otherwise validate only the power management
-                                properties.
+            otherwise validate only the power management properties.
         :raises: :exc:`~openstack.exceptions.ValidationException`
         """
         if for_deploy:
@@ -522,27 +519,24 @@ class BaremetalCloudMixin:
         config drive to be utilized.
 
         :param string name_or_id: The Name or UUID value representing the
-                                  baremetal node.
-        :param string state: The desired provision state for the
-                             baremetal node.
+            baremetal node.
+        :param string state: The desired provision state for the baremetal
+            node.
         :param string configdrive: An optional URL or file or path
-                                   representing the configdrive. In the
-                                   case of a directory, the client API
-                                   will create a properly formatted
-                                   configuration drive file and post the
-                                   file contents to the API for
-                                   deployment.
+            representing the configdrive. In the case of a directory, the
+            client API will create a properly formatted configuration drive
+            file and post the file contents to the API for deployment.
         :param boolean wait: A boolean value, defaulted to false, to control
-                             if the method will wait for the desire end state
-                             to be reached before returning.
+            if the method will wait for the desire end state to be reached
+            before returning.
         :param integer timeout: Integer value, defaulting to 3600 seconds,
-                                representing the amount of time to wait for
-                                the desire end state to be reached.
+            representing the amount of time to wait for the desire end state to
+            be reached.
 
         :raises: OpenStackCloudException on operation error.
 
         :returns: ``munch.Munch`` representing the current state of the machine
-                  upon exit of the method.
+            upon exit of the method.
         """
         node = self.baremetal.set_node_provision_state(
             name_or_id, target=state, config_drive=configdrive,
@@ -559,14 +553,13 @@ class BaremetalCloudMixin:
         Sets Baremetal maintenance state and maintenance reason.
 
         :param string name_or_id: The Name or UUID value representing the
-                                  baremetal node.
-        :param boolean state: The desired state of the node.  True being in
-                              maintenance where as False means the machine
-                              is not in maintenance mode.  This value
-                              defaults to True if not explicitly set.
+            baremetal node.
+        :param boolean state: The desired state of the node. True being in
+            maintenance where as False means the machine is not in maintenance
+            mode.  This value defaults to True if not explicitly set.
         :param string reason: An optional freeform string that is supplied to
-                              the baremetal API to allow for notation as to why
-                              the node is in maintenance state.
+            the baremetal API to allow for notation as to why the node is in
+            maintenance state.
 
         :raises: OpenStackCloudException on operation error.
 
@@ -580,13 +573,13 @@ class BaremetalCloudMixin:
     def remove_machine_from_maintenance(self, name_or_id):
         """Remove Baremetal Machine from Maintenance State
 
-        Similarly to set_machine_maintenance_state, this method
-        removes a machine from maintenance state.  It must be noted
-        that this method simpily calls set_machine_maintenace_state
-        for the name_or_id requested and sets the state to False.
+        Similarly to set_machine_maintenance_state, this method removes a
+        machine from maintenance state.  It must be noted that this method
+        simpily calls set_machine_maintenace_state for the name_or_id requested
+        and sets the state to False.
 
         :param string name_or_id: The Name or UUID value representing the
-                                  baremetal node.
+            baremetal node.
 
         :raises: OpenStackCloudException on operation error.
 
@@ -600,8 +593,7 @@ class BaremetalCloudMixin:
         This is a method that sets the node power state to "on".
 
         :params string name_or_id: A string representing the baremetal
-                                   node to have power turned to an "on"
-                                   state.
+            node to have power turned to an "on" state.
 
         :raises: OpenStackCloudException on operation error.
 
@@ -615,8 +607,7 @@ class BaremetalCloudMixin:
         This is a method that sets the node power state to "off".
 
         :params string name_or_id: A string representing the baremetal
-                                   node to have power turned to an "off"
-                                   state.
+            node to have power turned to an "off" state.
 
         :raises: OpenStackCloudException on operation error.
 
@@ -632,8 +623,7 @@ class BaremetalCloudMixin:
         to "on".
 
         :params string name_or_id: A string representing the baremetal
-                                   node to have power turned to an "off"
-                                   state.
+            node to have power turned to an "off" state.
 
         :raises: OpenStackCloudException on operation error.
 
