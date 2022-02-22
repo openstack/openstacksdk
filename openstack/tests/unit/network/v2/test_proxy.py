@@ -15,6 +15,7 @@ import uuid
 
 from openstack import exceptions
 from openstack.network.v2 import _proxy
+from openstack.network.v2 import address_group
 from openstack.network.v2 import address_scope
 from openstack.network.v2 import agent
 from openstack.network.v2 import auto_allocated_topology
@@ -110,6 +111,61 @@ class TestNetworkProxy(test_proxy_base.TestProxyBase):
             expected_args=expected_args,
             expected_kwargs=expected_kwargs,
             mock_method=mock_method)
+
+
+class TestNetworkAddressGroup(TestNetworkProxy):
+    def test_address_group_create_attrs(self):
+        self.verify_create(self.proxy.create_address_group,
+                           address_group.AddressGroup)
+
+    def test_address_group_delete(self):
+        self.verify_delete(self.proxy.delete_address_group,
+                           address_group.AddressGroup,
+                           False)
+
+    def test_address_group_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_address_group,
+                           address_group.AddressGroup,
+                           True)
+
+    def test_address_group_find(self):
+        self.verify_find(self.proxy.find_address_group,
+                         address_group.AddressGroup)
+
+    def test_address_group_get(self):
+        self.verify_get(self.proxy.get_address_group,
+                        address_group.AddressGroup)
+
+    def test_address_groups(self):
+        self.verify_list(self.proxy.address_groups,
+                         address_group.AddressGroup)
+
+    def test_address_group_update(self):
+        self.verify_update(self.proxy.update_address_group,
+                           address_group.AddressGroup)
+
+    @mock.patch('openstack.network.v2._proxy.Proxy.'
+                'add_addresses_to_address_group')
+    def test_add_addresses_to_address_group(self, add_addresses):
+        data = mock.sentinel
+
+        self.proxy.add_addresses_to_address_group(address_group.AddressGroup,
+                                                  data)
+
+        add_addresses.assert_called_once_with(address_group.AddressGroup,
+                                              data)
+
+    @mock.patch('openstack.network.v2._proxy.Proxy.'
+                'remove_addresses_from_address_group')
+    def test_remove_addresses_from_address_group(self, remove_addresses):
+        data = mock.sentinel
+
+        self.proxy.remove_addresses_from_address_group(
+            address_group.AddressGroup,
+            data)
+
+        remove_addresses.assert_called_once_with(address_group.AddressGroup,
+                                                 data)
 
 
 class TestNetworkAddressScope(TestNetworkProxy):

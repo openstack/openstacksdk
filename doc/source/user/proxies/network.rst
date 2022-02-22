@@ -83,6 +83,15 @@ Security Group Operations
             security_groups, create_security_group_rule,
             create_security_group_rules, delete_security_group_rule
 
+Address Group Operations
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_address_group, delete_address_group, find_address_group,
+            get_address_group, address_groups, update_address_group,
+            add_addresses_to_address_group, remove_addresses_from_address_group
+
 Availability Zone Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
