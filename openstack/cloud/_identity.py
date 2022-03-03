@@ -945,6 +945,7 @@ class IdentityCloudMixin:
             * 'group' (string) - Group ID to be used as query filter.
             * 'project' (string) - Project ID to be used as query filter.
             * 'domain' (string) - Domain ID to be used as query filter.
+            * 'system' (string) - System name to be used as query filter.
             * 'role' (string) - Role ID to be used as query filter.
             * 'os_inherit_extension_inherited_to' (string) - Return inherited
               role assignments for either 'projects' or 'domains'
@@ -990,6 +991,10 @@ class IdentityCloudMixin:
         for k in ['domain', 'project']:
             if k in filters:
                 filters['scope_%s_id' % k] = filters.pop(k)
+
+        if 'system' in filters:
+            system_scope = filters.pop('system')
+            filters['scope.system'] = system_scope
 
         return list(self.identity.role_assignments(**filters))
 
@@ -1055,7 +1060,7 @@ class IdentityCloudMixin:
             raise
 
     def _get_grant_revoke_params(self, role, user=None, group=None,
-                                 project=None, domain=None):
+                                 project=None, domain=None, system=None):
         data = {}
         search_args = {}
         if domain:
@@ -1083,9 +1088,9 @@ class IdentityCloudMixin:
         if data.get('user') is None and data.get('group') is None:
             raise exc.OpenStackCloudException(
                 'Must specify either a user or a group')
-        if project is None and domain is None:
+        if project is None and domain is None and system is None:
             raise exc.OpenStackCloudException(
-                'Must specify either a domain or project')
+                'Must specify either a domain, project or system')
 
         if project:
             data['project'] = self.identity.find_project(
@@ -1093,7 +1098,8 @@ class IdentityCloudMixin:
         return data
 
     def grant_role(self, name_or_id, user=None, group=None,
-                   project=None, domain=None, wait=False, timeout=60):
+                   project=None, domain=None, system=None, wait=False,
+                   timeout=60):
         """Grant a role to a user.
 
         :param string name_or_id: The name or id of the role.
@@ -1101,6 +1107,7 @@ class IdentityCloudMixin:
         :param string group: The name or id of the group. (v3)
         :param string project: The name or id of the project.
         :param string domain: The id of the domain. (v3)
+        :param bool system: The name of the system. (v3)
         :param bool wait: Wait for role to be granted
         :param int timeout: Timeout to wait for role to be granted
 
@@ -1112,13 +1119,15 @@ class IdentityCloudMixin:
         NOTE: for wait and timeout, sometimes granting roles is not
               instantaneous.
 
+        NOTE: precedence is given first to project, then domain, then system
+
         :returns: True if the role is assigned, otherwise False
 
         :raise OpenStackCloudException: if the role cannot be granted
         """
         data = self._get_grant_revoke_params(
             name_or_id, user=user, group=group,
-            project=project, domain=domain)
+            project=project, domain=domain, system=system)
 
         user = data.get('user')
         group = data.get('group')
@@ -1127,7 +1136,7 @@ class IdentityCloudMixin:
         role = data.get('role')
 
         if project:
-            # Proceed with project - precedence over domain
+            # Proceed with project - precedence over domain and system
             if user:
                 has_role = self.identity.validate_user_has_project_role(
                     project, user, role)
@@ -1144,8 +1153,8 @@ class IdentityCloudMixin:
                     return False
                 self.identity.assign_project_role_to_group(
                     project, group, role)
-        else:
-            # Proceed with domain
+        elif domain:
+            # Proceed with domain - precedence over system
             if user:
                 has_role = self.identity.validate_user_has_domain_role(
                     domain, user, role)
@@ -1162,10 +1171,31 @@ class IdentityCloudMixin:
                     return False
                 self.identity.assign_domain_role_to_group(
                     domain, group, role)
+        else:
+            # Proceed with system
+            # System name must be 'all' due to checks performed in
+            # _get_grant_revoke_params
+            if user:
+                has_role = self.identity.validate_user_has_system_role(
+                    user, role, system)
+                if has_role:
+                    self.log.debug('Assignment already exists')
+                    return False
+                self.identity.assign_system_role_to_user(
+                    user, role, system)
+            else:
+                has_role = self.identity.validate_group_has_system_role(
+                    group, role, system)
+                if has_role:
+                    self.log.debug('Assignment already exists')
+                    return False
+                self.identity.assign_system_role_to_group(
+                    group, role, system)
         return True
 
     def revoke_role(self, name_or_id, user=None, group=None,
-                    project=None, domain=None, wait=False, timeout=60):
+                    project=None, domain=None, system=None,
+                    wait=False, timeout=60):
         """Revoke a role from a user.
 
         :param string name_or_id: The name or id of the role.
@@ -1173,6 +1203,7 @@ class IdentityCloudMixin:
         :param string group: The name or id of the group. (v3)
         :param string project: The name or id of the project.
         :param string domain: The id of the domain. (v3)
+        :param bool system: The name of the system. (v3)
         :param bool wait: Wait for role to be revoked
         :param int timeout: Timeout to wait for role to be revoked
 
@@ -1181,13 +1212,15 @@ class IdentityCloudMixin:
 
         NOTE: project is required for keystone v2
 
+        NOTE: precedence is given first to project, then domain, then system
+
         :returns: True if the role is revoke, otherwise False
 
         :raise OpenStackCloudException: if the role cannot be removed
         """
         data = self._get_grant_revoke_params(
             name_or_id, user=user, group=group,
-            project=project, domain=domain)
+            project=project, domain=domain, system=system)
 
         user = data.get('user')
         group = data.get('group')
@@ -1196,7 +1229,7 @@ class IdentityCloudMixin:
         role = data.get('role')
 
         if project:
-            # Proceed with project - precedence over domain
+            # Proceed with project - precedence over domain and system
             if user:
                 has_role = self.identity.validate_user_has_project_role(
                     project, user, role)
@@ -1213,8 +1246,8 @@ class IdentityCloudMixin:
                     return False
                 self.identity.unassign_project_role_from_group(
                     project, group, role)
-        else:
-            # Proceed with domain
+        elif domain:
+            # Proceed with domain - precedence over system
             if user:
                 has_role = self.identity.validate_user_has_domain_role(
                     domain, user, role)
@@ -1231,6 +1264,26 @@ class IdentityCloudMixin:
                     return False
                 self.identity.unassign_domain_role_from_group(
                     domain, group, role)
+        else:
+            # Proceed with system
+            # System name must be 'all' due to checks performed in
+            # _get_grant_revoke_params
+            if user:
+                has_role = self.identity.validate_user_has_system_role(
+                    user, role, system)
+                if not has_role:
+                    self.log.debug('Assignment does not exist')
+                    return False
+                self.identity.unassign_system_role_from_user(
+                    user, role, system)
+            else:
+                has_role = self.identity.validate_group_has_system_role(
+                    group, role, system)
+                if not has_role:
+                    self.log.debug('Assignment does not exist')
+                    return False
+                self.identity.unassign_system_role_from_group(
+                    group, role, system)
         return True
 
     def _get_identity_params(self, domain_id=None, project=None):
