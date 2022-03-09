@@ -25,9 +25,6 @@ from openstack.tests.functional import base
 
 
 class TestImage(base.BaseFunctionalTest):
-    def setUp(self):
-        super(TestImage, self).setUp()
-        self.image = self.pick_image()
 
     def test_create_image(self):
         test_image = tempfile.NamedTemporaryFile(delete=False)

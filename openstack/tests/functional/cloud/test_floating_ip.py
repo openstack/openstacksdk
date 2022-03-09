@@ -28,7 +28,6 @@ from openstack.cloud.exc import OpenStackCloudException
 from openstack.cloud import meta
 from openstack import proxy
 from openstack.tests.functional import base
-from openstack.tests.functional.cloud.util import pick_flavor
 from openstack import utils
 
 
@@ -36,12 +35,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
     timeout = 60
 
     def setUp(self):
-        super(TestFloatingIP, self).setUp()
-        self.flavor = pick_flavor(
-            self.user_cloud.list_flavors(get_extra=False))
-        if self.flavor is None:
-            self.assertFalse('no sensible flavor available')
-        self.image = self.pick_image()
+        super().setUp()
 
         # Generate a random name for these tests
         self.new_item_name = self.getUniqueString()

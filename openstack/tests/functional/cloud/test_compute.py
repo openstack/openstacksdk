@@ -23,7 +23,6 @@ from fixtures import TimeoutException
 
 from openstack.cloud import exc
 from openstack.tests.functional import base
-from openstack.tests.functional.cloud.util import pick_flavor
 from openstack import utils
 
 
@@ -34,11 +33,6 @@ class TestCompute(base.BaseFunctionalTest):
         self.TIMEOUT_SCALING_FACTOR = 1.5
 
         super(TestCompute, self).setUp()
-        self.flavor = pick_flavor(
-            self.user_cloud.list_flavors(get_extra=False))
-        if self.flavor is None:
-            self.assertFalse('no sensible flavor available')
-        self.image = self.pick_image()
         self.server_name = self.getUniqueString()
 
     def _cleanup_servers_and_volumes(self, server_name):
