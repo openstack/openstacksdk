@@ -359,13 +359,13 @@ class Proxy(adapter.Adapter):
 
         :param name_or_id: The name or ID of a resource to find.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, None will be returned when
-                    attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource.Resource.find`
-                           method, such as query parameters.
+            :meth:`~openstack.resource.Resource.find`
+            method, such as query parameters.
 
         :returns: An instance of ``resource_type`` or None
         """
@@ -379,27 +379,27 @@ class Proxy(adapter.Adapter):
         """Delete a resource
 
         :param resource_type: The type of resource to delete. This should
-                              be a :class:`~openstack.resource.Resource`
-                              subclass with a ``from_id`` method.
+            be a :class:`~openstack.resource.Resource`
+            subclass with a ``from_id`` method.
         :param value: The value to delete. Can be either the ID of a
-                      resource or a :class:`~openstack.resource.Resource`
-                      subclass.
+            resource or a :class:`~openstack.resource.Resource`
+            subclass.
         :param bool ignore_missing: When set to ``False``
-                    :class:`~openstack.exceptions.ResourceNotFound` will be
-                    raised when the resource does not exist.
-                    When set to ``True``, no exception will be set when
-                    attempting to delete a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent resource.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource.Resource.delete`
-                           method, such as the ID of a parent resource.
+            :meth:`~openstack.resource.Resource.delete`
+            method, such as the ID of a parent resource.
 
         :returns: The result of the ``delete``
         :raises: ``ValueError`` if ``value`` is a
-                 :class:`~openstack.resource.Resource` that doesn't match
-                 the ``resource_type``.
-                 :class:`~openstack.exceptions.ResourceNotFound` when
-                 ignore_missing if ``False`` and a nonexistent resource
-                 is attempted to be deleted.
+            :class:`~openstack.resource.Resource` that doesn't match
+            the ``resource_type``.
+            :class:`~openstack.exceptions.ResourceNotFound` when
+            ignore_missing if ``False`` and a nonexistent resource
+            is attempted to be deleted.
 
         """
         res = self._get_resource(resource_type, value, **attrs)
@@ -420,17 +420,17 @@ class Proxy(adapter.Adapter):
         :param resource_type: The type of resource to update.
         :type resource_type: :class:`~openstack.resource.Resource`
         :param value: The resource to update. This must either be a
-                      :class:`~openstack.resource.Resource` or an id
-                      that corresponds to a resource.
+            :class:`~openstack.resource.Resource` or an id
+            that corresponds to a resource.
         :param str base_path: Base part of the URI for updating resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from
+            :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource.Resource.update`
-                           method to be updated. These should correspond
-                           to either :class:`~openstack.resource.Body`
-                           or :class:`~openstack.resource.Header`
-                           values on this resource.
+            :meth:`~openstack.resource.Resource.update`
+            method to be updated. These should correspond
+            to either :class:`~openstack.resource.Body`
+            or :class:`~openstack.resource.Header`
+            values on this resource.
 
         :returns: The result of the ``update``
         :rtype: :class:`~openstack.resource.Resource`
@@ -444,16 +444,16 @@ class Proxy(adapter.Adapter):
         :param resource_type: The type of resource to create.
         :type resource_type: :class:`~openstack.resource.Resource`
         :param str base_path: Base part of the URI for creating resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from
+            :data:`~openstack.resource.Resource.base_path`.
         :param path_args: A dict containing arguments for forming the request
-                          URL, if needed.
+            URL, if needed.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource.Resource.create`
-                           method to be created. These should correspond
-                           to either :class:`~openstack.resource.Body`
-                           or :class:`~openstack.resource.Header`
-                           values on this resource.
+            :meth:`~openstack.resource.Resource.create`
+            method to be created. These should correspond
+            to either :class:`~openstack.resource.Body`
+            or :class:`~openstack.resource.Header`
+            values on this resource.
 
         :returns: The result of the ``create``
         :rtype: :class:`~openstack.resource.Resource`
@@ -468,14 +468,14 @@ class Proxy(adapter.Adapter):
         :param resource_type: The type of resource to create.
         :type resource_type: :class:`~openstack.resource.Resource`
         :param list data: List of attributes dicts to be passed onto the
-                          :meth:`~openstack.resource.Resource.create`
-                          method to be created. These should correspond
-                          to either :class:`~openstack.resource.Body`
-                          or :class:`~openstack.resource.Header`
-                          values on this resource.
+            :meth:`~openstack.resource.Resource.create`
+            method to be created. These should correspond
+            to either :class:`~openstack.resource.Body`
+            or :class:`~openstack.resource.Header`
+            values on this resource.
         :param str base_path: Base part of the URI for creating resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from
+            :data:`~openstack.resource.Resource.base_path`.
 
         :returns: A generator of Resource objects.
         :rtype: :class:`~openstack.resource.Resource`
@@ -490,17 +490,17 @@ class Proxy(adapter.Adapter):
         :param resource_type: The type of resource to get.
         :type resource_type: :class:`~openstack.resource.Resource`
         :param value: The value to get. Can be either the ID of a
-                      resource or a :class:`~openstack.resource.Resource`
-                      subclass.
+            resource or a :class:`~openstack.resource.Resource`
+            subclass.
         :param str base_path: Base part of the URI for fetching resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from
+            :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource.Resource.get`
-                           method. These should correspond
-                           to either :class:`~openstack.resource.Body`
-                           or :class:`~openstack.resource.Header`
-                           values on this resource.
+            :meth:`~openstack.resource.Resource.get`
+            method. These should correspond
+            to either :class:`~openstack.resource.Body`
+            or :class:`~openstack.resource.Header`
+            values on this resource.
 
         :returns: The result of the ``fetch``
         :rtype: :class:`~openstack.resource.Resource`
@@ -517,15 +517,15 @@ class Proxy(adapter.Adapter):
         """List a resource
 
         :param resource_type: The type of resource to list. This should
-                              be a :class:`~openstack.resource.Resource`
-                              subclass with a ``from_id`` method.
+            be a :class:`~openstack.resource.Resource`
+            subclass with a ``from_id`` method.
         :param bool paginated: When set to ``False``, expect all of the data
-                               to be returned in one response. When set to
-                               ``True``, the resource supports data being
-                               returned across multiple pages.
+            to be returned in one response. When set to
+            ``True``, the resource supports data being
+            returned across multiple pages.
         :param str base_path: Base part of the URI for listing resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from
+            :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
             :meth:`~openstack.resource.Resource.list` method. These should
             correspond to either :class:`~openstack.resource.URI` values
@@ -533,8 +533,8 @@ class Proxy(adapter.Adapter):
 
         :returns: A generator of Resource objects.
         :raises: ``ValueError`` if ``value`` is a
-                 :class:`~openstack.resource.Resource` that doesn't match
-                 the ``resource_type``.
+            :class:`~openstack.resource.Resource` that doesn't match
+            the ``resource_type``.
         """
         return resource_type.list(
             self, paginated=paginated,
@@ -547,16 +547,16 @@ class Proxy(adapter.Adapter):
         :param resource_type: The type of resource to retrieve.
         :type resource_type: :class:`~openstack.resource.Resource`
         :param value: The value of a specific resource to retreive headers
-                      for. Can be either the ID of a resource,
-                      a :class:`~openstack.resource.Resource` subclass,
-                      or ``None``.
+            for. Can be either the ID of a resource,
+            a :class:`~openstack.resource.Resource` subclass,
+            or ``None``.
         :param str base_path: Base part of the URI for heading resources, if
-                              different from
-                              :data:`~openstack.resource.Resource.base_path`.
+            different from
+            :data:`~openstack.resource.Resource.base_path`.
         :param dict attrs: Attributes to be passed onto the
-                           :meth:`~openstack.resource.Resource.head` method.
-                           These should correspond to
-                           :class:`~openstack.resource.URI` values.
+            :meth:`~openstack.resource.Resource.head` method.
+            These should correspond to
+            :class:`~openstack.resource.URI` values.
 
         :returns: The result of the ``head`` call
         :rtype: :class:`~openstack.resource.Resource`
