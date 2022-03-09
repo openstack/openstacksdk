@@ -1,19 +1,37 @@
 clouds:
-  test_cloud:
-    region_name: RegionOne
+  devstack:
     auth:
-      auth_url: http://xxx.xxx.xxx.xxx:5000/v2.0/
-      username: demo
-      password: secrete
+      auth_url: http://xxx.xxx.xxx.xxx/identity
+      password: password
+      project_domain_id: default
       project_name: demo
-  rackspace:
-    cloud: rackspace
+      user_domain_id: default
+      username: demo
+    identity_api_version: '3'
+    region_name: RegionOne
+    volume_api_version: '3'
+  devstack-admin:
     auth:
-      username: joe
-      password: joes-password
-      project_name: 123123
-    region_name: IAD
+      auth_url: http://xxx.xxx.xxx.xxx/identity
+      password: password
+      project_domain_id: default
+      project_name: admin
+      user_domain_id: default
+      username: admin
+    identity_api_version: '3'
+    region_name: RegionOne
+    volume_api_version: '3'
+  devstack-alt:
+    auth:
+      auth_url: http://xxx.xxx.xxx.xxx/identity
+      password: password
+      project_domain_id: default
+      project_name: alt_demo
+      user_domain_id: default
+      username: alt_demo
+    identity_api_version: '3'
+    region_name: RegionOne
+    volume_api_version: '3'
 example:
-  image_name: fedora-20.x86_64
+  image_name: cirros-0.5.2-x86_64-disk
   flavor_name: m1.small
-  network_name: private
