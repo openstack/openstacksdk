@@ -593,16 +593,16 @@ class Normalizer:
         :returns:
             A list of normalized dicts with the following attributes::
 
-            [
-              {
-                "id": "this-is-a-floating-ip-id",
-                "fixed_ip_address": "192.0.2.10",
-                "floating_ip_address": "198.51.100.10",
-                "network": "this-is-a-net-or-pool-id",
-                "attached": True,
-                "status": "ACTIVE"
-              }, ...
-            ]
+                [
+                    {
+                        "id": "this-is-a-floating-ip-id",
+                        "fixed_ip_address": "192.0.2.10",
+                        "floating_ip_address": "198.51.100.10",
+                        "network": "this-is-a-net-or-pool-id",
+                        "attached": True,
+                        "status": "ACTIVE"
+                    }, ...
+                ]
 
         """
         return [
