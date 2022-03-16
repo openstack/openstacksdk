@@ -1295,7 +1295,7 @@ class TestImage(BaseTestImage):
 
         self._call_create_image(
             self.image_name, min_disk='0', min_ram=0,
-            properties={'int_v': 12345}, protected=False)
+            properties={'int_v': 12345}, is_protected=False)
 
         self.assert_calls()
 
