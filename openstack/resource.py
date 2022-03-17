@@ -2294,7 +2294,7 @@ def wait_for_status(
     """
 
     current_status = getattr(resource, attribute)
-    if _normalize_status(current_status) == status.lower():
+    if _normalize_status(current_status) == _normalize_status(status):
         return resource
 
     if failures is None:
@@ -2320,7 +2320,7 @@ def wait_for_status(
 
         new_status = getattr(resource, attribute)
         normalized_status = _normalize_status(new_status)
-        if normalized_status == status.lower():
+        if normalized_status == _normalize_status(status):
             return resource
         elif normalized_status in failures:
             raise exceptions.ResourceFailure(

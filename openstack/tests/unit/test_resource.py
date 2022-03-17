@@ -3155,6 +3155,18 @@ class TestWaitForStatus(base.TestCase):
 
         self.assertEqual(result, resources[-1])
 
+    def test_status_match_none(self):
+        status = None
+
+        # apparently, None can be expected status in some cases
+        resources = self._resources_from_statuses(
+            "first", "other", "another", "another", status)
+
+        result = resource.wait_for_status(
+            mock.Mock(), resources[0], status, None, 1, 5)
+
+        self.assertEqual(result, resources[-1])
+
     def test_status_match_different_attribute(self):
         status = "loling"
 
