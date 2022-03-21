@@ -37,6 +37,18 @@ class TestRBACPolicy(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
+        self.assertDictEqual(
+            {
+                'action': 'action',
+                'object_id': 'object_id',
+                'object_type': 'object_type',
+                'project_id': 'project_id',
+                'target_project_id': 'target_tenant',
+                'limit': 'limit',
+                'marker': 'marker',
+            },
+            sot._query_mapping._mapping)
+
     def test_make_it(self):
         sot = rbac_policy.RBACPolicy(**EXAMPLE)
         self.assertEqual(EXAMPLE['action'], sot.action)
