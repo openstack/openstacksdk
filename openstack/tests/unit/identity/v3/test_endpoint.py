@@ -43,6 +43,7 @@ class TestEndpoint(base.TestCase):
             {
                 'interface': 'interface',
                 'service_id': 'service_id',
+                'region_id': 'region_id',
                 'limit': 'limit',
                 'marker': 'marker',
             },
