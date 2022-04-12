@@ -140,25 +140,29 @@ class TestImage(base.TestCase):
         self.assertTrue(sot.allow_delete)
         self.assertTrue(sot.allow_list)
 
-        self.assertDictEqual({'created_at': 'created_at',
-                              'is_hidden': 'os_hidden',
-                              'limit': 'limit',
-                              'marker': 'marker',
-                              'member_status': 'member_status',
-                              'name': 'name',
-                              'owner': 'owner',
-                              'protected': 'protected',
-                              'size_max': 'size_max',
-                              'size_min': 'size_min',
-                              'sort': 'sort',
-                              'sort_dir': 'sort_dir',
-                              'sort_key': 'sort_key',
-                              'status': 'status',
-                              'tag': 'tag',
-                              'updated_at': 'updated_at',
-                              'visibility': 'visibility'
-                              },
-                             sot._query_mapping._mapping)
+        self.assertDictEqual(
+            {
+                'created_at': 'created_at',
+                'id': 'id',
+                'is_hidden': 'os_hidden',
+                'limit': 'limit',
+                'marker': 'marker',
+                'member_status': 'member_status',
+                'name': 'name',
+                'owner': 'owner',
+                'protected': 'protected',
+                'size_max': 'size_max',
+                'size_min': 'size_min',
+                'sort': 'sort',
+                'sort_dir': 'sort_dir',
+                'sort_key': 'sort_key',
+                'status': 'status',
+                'tag': 'tag',
+                'updated_at': 'updated_at',
+                'visibility': 'visibility'
+            },
+            sot._query_mapping._mapping,
+        )
 
     def test_make_it(self):
         sot = image.Image(**EXAMPLE)

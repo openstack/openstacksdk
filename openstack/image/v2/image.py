@@ -34,13 +34,24 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
     _store_unknown_attrs_as_properties = True
 
     _query_mapping = resource.QueryParameters(
-        "name", "visibility",
-        "member_status", "owner",
-        "status", "size_min", "size_max",
-        "protected", "is_hidden",
-        "sort_key", "sort_dir", "sort", "tag",
-        "created_at", "updated_at",
-        is_hidden="os_hidden")
+        "id",
+        "name",
+        "visibility",
+        "member_status",
+        "owner",
+        "status",
+        "size_min",
+        "size_max",
+        "protected",
+        "is_hidden",
+        "sort_key",
+        "sort_dir",
+        "sort",
+        "tag",
+        "created_at",
+        "updated_at",
+        is_hidden="os_hidden",
+    )
 
     # NOTE: Do not add "self" support here. If you've used Python before,
     # you know that self, while not being a reserved word, has special

@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    It is now possible to filter ``openstack.image.v2.Image`` resources by ID
+    using the ``id`` filter. While this is of little value when used with
+    single IDs, it can be useful when combined with operators like ``in:``
+    to e.g. filter by multiple image IDs.
