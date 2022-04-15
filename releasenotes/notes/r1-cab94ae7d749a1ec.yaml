@@ -1,0 +1,31 @@
+---
+prelude: >
+    This is a first major release of OpenStackSDK.
+
+    From now on interface can be considered stable and will also in future
+    strictly follow SemVer model. This release includes work in ensuring
+    methods and attribute naming are consistent across the code basis and first
+    steps in implementing even more generalizations in the processing logic.
+
+    Microversion support is now considered as stable and session will be
+    established with the highest version supported by both client and server.
+upgrade:
+  - |
+    This release includes work in enforcing consistency of the cloud layer
+    methods. Now they all return SDK resource objects where previously Munch
+    objects could have been returned. This leads to few important facts:
+
+    - Return object types of various cloud.XXX calls now rely on proxy layer
+      functions and strictly return SDK resources.
+    - Some attributes of various resources may be named differently to
+      follow SDK attribute naming convention.
+    - Returned objects may forbid setting attributes (read-only attributes).
+
+    Mentioned changes are affecting Ansible modules (which rely on
+    OpenStackSDK). Historically Ansible modules return to the Ansible engine
+    whatever SDK returns to it. Under some conditions Ansible may decide to
+    unset properties (if it decides it contain sensitive information). While
+    this is correct SDK forbids setting of some attributes what leads to
+    errors. This release is therefore marking incompatibility with OpenStack
+    Ansible modules in R1.X.X and the work on fixing it is being done in
+    R2.X.X of modules repository.
