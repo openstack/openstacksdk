@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    API metrics emitted by OpenStackSDK to StatsD now contain status_code
+    part of the metric name in order to improve information precision.

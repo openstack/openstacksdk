@@ -50,6 +50,12 @@ def _check_resource(strict=False):
     return wrap
 
 
+def normalize_metric_name(name):
+    name = name.replace('.', '_')
+    name = name.replace(':', '_')
+    return name
+
+
 class Proxy(adapter.Adapter):
     """Represents a service."""
 
@@ -204,22 +210,35 @@ class Proxy(adapter.Adapter):
             self._report_stats_influxdb(response, url, method, exc)
 
     def _report_stats_statsd(self, response, url=None, method=None, exc=None):
-        if response is not None and not url:
-            url = response.request.url
-        if response is not None and not method:
-            method = response.request.method
-        name_parts = self._extract_name(url,
-                                        self.service_type,
-                                        self.session.get_project_id())
-        key = '.'.join(
-            [self._statsd_prefix, self.service_type, method]
-            + name_parts)
-        with self._statsd_client.pipeline() as pipe:
-            if response is not None:
-                pipe.timing(key, response.elapsed)
-                pipe.incr(key)
-            elif exc is not None:
-                pipe.incr('%s.failed' % key)
+        try:
+            if response is not None and not url:
+                url = response.request.url
+            if response is not None and not method:
+                method = response.request.method
+            name_parts = [
+                normalize_metric_name(f) for f in
+                self._extract_name(
+                    url, self.service_type, self.session.get_project_id())
+            ]
+            key = '.'.join(
+                [self._statsd_prefix,
+                 normalize_metric_name(self.service_type), method,
+                 '_'.join(name_parts)
+                 ])
+            with self._statsd_client.pipeline() as pipe:
+                if response is not None:
+                    duration = int(response.elapsed.total_seconds() * 1000)
+                    metric_name = '%s.%s' % (key, str(response.status_code))
+                    pipe.timing(metric_name, duration)
+                    pipe.incr(metric_name)
+                    if duration > 1000:
+                        pipe.incr('%s.over_1000' % key)
+                elif exc is not None:
+                    pipe.incr('%s.failed' % key)
+                pipe.incr('%s.attempted' % key)
+        except Exception:
+            # We do not want errors in metric reporting ever break client
+            self.log.exception("Exception reporting metrics")
 
     def _report_stats_prometheus(self, response, url=None, method=None,
                                  exc=None):
@@ -253,9 +272,12 @@ class Proxy(adapter.Adapter):
             method = response.request.method
         tags = dict(
             method=method,
-            name='_'.join(self._extract_name(
-                url, self.service_type,
-                self.session.get_project_id()))
+            name='_'.join([
+                normalize_metric_name(f) for f in
+                self._extract_name(
+                    url, self.service_type,
+                    self.session.get_project_id())
+            ])
         )
         fields = dict(
             attempted=1
