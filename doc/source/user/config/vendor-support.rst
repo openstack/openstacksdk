@@ -185,7 +185,7 @@ cystack        Netherlands
 Internap
 --------
 
-https://identity.api.cloud.iweb.com/v2.0
+https://identity.api.cloud.inap.com/v2.0
 
 ============== ================
 Region Name    Location
