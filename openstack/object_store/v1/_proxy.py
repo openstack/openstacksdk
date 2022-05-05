@@ -591,7 +591,10 @@ class Proxy(proxy.Proxy):
             # TODO(mordred) Collect etags from results to add to this manifest
             # dict. Then sort the list of dicts by path.
             manifest.append(dict(
-                path='/{name}'.format(name=name),
+                # While Object Storage usually expects the name to be
+                # urlencoded in most requests, the SLO manifest requires
+                # plain object names instead.
+                path='/{name}'.format(name=parse.unquote(name)),
                 size_bytes=segment.length))
 
         # Try once and collect failed results to retry
@@ -731,7 +734,9 @@ class Proxy(proxy.Proxy):
                 continue
             name = self._object_name_from_url(result.url)
             for entry in manifest:
-                if entry['path'] == '/{name}'.format(name=name):
+                if entry['path'] == '/{name}'.format(
+                        name=parse.unquote(name)
+                ):
                     entry['etag'] = result.headers['Etag']
 
     def get_info(self):
