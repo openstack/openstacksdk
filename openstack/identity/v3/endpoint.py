@@ -27,7 +27,7 @@ class Endpoint(resource.Resource):
     commit_method = 'PATCH'
 
     _query_mapping = resource.QueryParameters(
-        'interface', 'service_id',
+        'interface', 'region_id', 'service_id',
     )
 
     # Properties
