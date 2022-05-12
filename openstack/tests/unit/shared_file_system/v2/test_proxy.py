@@ -17,6 +17,7 @@ from openstack.shared_file_system.v2 import limit
 from openstack.shared_file_system.v2 import share
 from openstack.shared_file_system.v2 import share_access_rule
 from openstack.shared_file_system.v2 import share_group
+from openstack.shared_file_system.v2 import share_group_snapshot
 from openstack.shared_file_system.v2 import share_instance
 from openstack.shared_file_system.v2 import share_network
 from openstack.shared_file_system.v2 import share_network_subnet
@@ -460,4 +461,36 @@ class TestShareGroupResource(test_proxy_base.TestProxyBase):
     def test_share_group_update(self):
         self.verify_update(
             self.proxy.update_share_group, share_group.ShareGroup
+        )
+
+    def test_share_group_snapshots(self):
+        self.verify_list(
+            self.proxy.share_group_snapshots,
+            share_group_snapshot.ShareGroupSnapshot,
+        )
+
+    def test_share_group_snapshot_get(self):
+        self.verify_get(
+            self.proxy.get_share_group_snapshot,
+            share_group_snapshot.ShareGroupSnapshot,
+        )
+
+    def test_share_group_snapshot_update(self):
+        self.verify_update(
+            self.proxy.update_share_group_snapshot,
+            share_group_snapshot.ShareGroupSnapshot,
+        )
+
+    def test_share_group_snapshot_delete(self):
+        self.verify_delete(
+            self.proxy.delete_share_group_snapshot,
+            share_group_snapshot.ShareGroupSnapshot,
+            False,
+        )
+
+    def test_share_group_snapshot_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_share_group_snapshot,
+            share_group_snapshot.ShareGroupSnapshot,
+            True,
         )

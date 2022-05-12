@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support for list, show, update, delete, reset and create
+    Share Group Snapshots for Shared File Systems service.
