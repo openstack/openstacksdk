@@ -86,9 +86,9 @@ class ImageCloudMixin:
         """Get an image by name or ID.
 
         :param name_or_id: Name or ID of the image.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                   'last_name': 'Smith',
@@ -101,9 +101,7 @@ class ImageCloudMixin:
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: An image ``munch.Munch`` or None if no matching image
-                  is found
-
+        :returns: An image :class:`openstack.image.v2.image.Image` object.
         """
         return _utils._get_entity(self, 'image', name_or_id, filters)
 
@@ -111,14 +109,17 @@ class ImageCloudMixin:
         """ Get a image by ID
 
         :param id: ID of the image.
-        :returns: An image
-            :class:`openstack.image.v2.image.Image` object.
+        :returns: An image :class:`openstack.image.v2.image.Image` object.
         """
-        return self.image.get_image(image={'id': id})
+        return self.image.get_image(id)
 
     def download_image(
-            self, name_or_id, output_path=None, output_file=None,
-            chunk_size=1024):
+        self,
+        name_or_id,
+        output_path=None,
+        output_file=None,
+        chunk_size=1024,
+    ):
         """Download an image by name or ID
 
         :param str name_or_id: Name or ID of the image.
@@ -129,7 +130,11 @@ class ImageCloudMixin:
             this or output_path must be specified
         :param int chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024
-
+        :returns: When output_path and output_file are not given - the bytes
+            comprising the given Image when stream is False, otherwise a
+            :class:`requests.Response` instance. When output_path or
+            output_file are given - an image
+            :class:`~openstack.image.v2.image.Image` instance.
         :raises: OpenStackCloudException in the event download_image is called
             without exactly one of either output_path or output_file
         :raises: OpenStackCloudResourceNotFound if no images are found matching
@@ -189,7 +194,12 @@ class ImageCloudMixin:
                     'Image {image} hit error state'.format(image=image_id))
 
     def delete_image(
-            self, name_or_id, wait=False, timeout=3600, delete_objects=True):
+        self,
+        name_or_id,
+        wait=False,
+        timeout=3600,
+        delete_objects=True,
+    ):
         """Delete an existing image.
 
         :param name_or_id: Name of the image to be deleted.
@@ -227,53 +237,57 @@ class ImageCloudMixin:
         return True
 
     def create_image(
-            self, name, filename=None,
-            container=None,
-            md5=None, sha256=None,
-            disk_format=None, container_format=None,
-            disable_vendor_agent=True,
-            wait=False, timeout=3600, tags=None,
-            allow_duplicates=False, meta=None, volume=None, **kwargs):
+        self,
+        name,
+        filename=None,
+        container=None,
+        md5=None,
+        sha256=None,
+        disk_format=None,
+        container_format=None,
+        disable_vendor_agent=True,
+        wait=False,
+        timeout=3600,
+        tags=None,
+        allow_duplicates=False,
+        meta=None,
+        volume=None,
+        **kwargs,
+    ):
         """Upload an image.
 
         :param str name: Name of the image to create. If it is a pathname
-                         of an image, the name will be constructed from the
-                         extensionless basename of the path.
+            of an image, the name will be constructed from the
+            extensionless basename of the path.
         :param str filename: The path to the file to upload, if needed.
-                             (optional, defaults to None)
+            (optional, defaults to None)
         :param str container: Name of the container in swift where images
-                              should be uploaded for import if the cloud
-                              requires such a thing. (optiona, defaults to
-                              'images')
+            should be uploaded for import if the cloud requires such a thing.
+            (optiona, defaults to 'images')
         :param str md5: md5 sum of the image file. If not given, an md5 will
-                        be calculated.
+            be calculated.
         :param str sha256: sha256 sum of the image file. If not given, an md5
-                           will be calculated.
+            will be calculated.
         :param str disk_format: The disk format the image is in. (optional,
-                                defaults to the os-client-config config value
-                                for this cloud)
+            defaults to the os-client-config config value for this cloud)
         :param str container_format: The container format the image is in.
-                                     (optional, defaults to the
-                                     os-client-config config value for this
-                                     cloud)
+            (optional, defaults to the os-client-config config value for this
+            cloud)
         :param list tags: List of tags for this image. Each tag is a string
-                          of at most 255 chars.
+            of at most 255 chars.
         :param bool disable_vendor_agent: Whether or not to append metadata
-                                          flags to the image to inform the
-                                          cloud in question to not expect a
-                                          vendor agent to be runing.
-                                          (optional, defaults to True)
+            flags to the image to inform the cloud in question to not expect a
+            vendor agent to be runing. (optional, defaults to True)
         :param bool wait: If true, waits for image to be created. Defaults to
-                          true - however, be aware that one of the upload
-                          methods is always synchronous.
+            true - however, be aware that one of the upload methods is always
+            synchronous.
         :param timeout: Seconds to wait for image creation. None is forever.
         :param allow_duplicates: If true, skips checks that enforce unique
-                                 image name. (optional, defaults to False)
+            image name. (optional, defaults to False)
         :param meta: A dict of key/value pairs to use for metadata that
-                     bypasses automatic type conversion.
+            bypasses automatic type conversion.
         :param volume: Name or ID or volume object of a volume to create an
-                       image from. Mutually exclusive with (optional, defaults
-                       to None)
+            image from. Mutually exclusive with (optional, defaults to None)
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image and will have all values converted to string
@@ -286,8 +300,7 @@ class ImageCloudMixin:
 
         If a value is in meta and kwargs, meta wins.
 
-        :returns: A ``munch.Munch`` of the Image object
-
+        :returns: An image :class:`openstack.image.v2.image.Image` object.
         :raises: OpenStackCloudException if there are problems uploading
         """
         if volume:
