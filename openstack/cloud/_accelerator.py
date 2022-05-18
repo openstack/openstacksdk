@@ -21,7 +21,7 @@ class AcceleratorCloudMixin:
         """List all available deployables.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of deployable info.
+        :returns: A list of accelerator ``Deployable`` objects.
         """
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
@@ -32,7 +32,7 @@ class AcceleratorCloudMixin:
         """List all devices.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of device info.
+        :returns: A list of accelerator ``Device`` objects.
         """
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
@@ -43,7 +43,7 @@ class AcceleratorCloudMixin:
         """List all device_profiles.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of device profile info.
+        :returns: A list of accelerator ``DeviceProfile`` objects.
         """
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
@@ -54,7 +54,7 @@ class AcceleratorCloudMixin:
         """Create a device_profile.
 
         :param attrs: The info of device_profile to be created.
-        :returns: A ``munch.Munch`` of the created device_profile.
+        :returns: An accelerator ``DeviceProfile`` objects.
         """
         return self.accelerator.create_device_profile(**attrs)
 
@@ -85,7 +85,7 @@ class AcceleratorCloudMixin:
         """List all accelerator_requests.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of accelerator request info.
+        :returns: A list of accelerator ``AcceleratorRequest`` objects.
         """
         # Translate None from search interface to empty {} for kwargs below
         if not filters:
@@ -121,7 +121,7 @@ class AcceleratorCloudMixin:
         """Create an accelerator_request.
 
         :param attrs: The info of accelerator_request to be created.
-        :returns: A ``munch.Munch`` of the created accelerator_request.
+        :returns: An accelerator ``AcceleratorRequest`` object.
         """
         return self.accelerator.create_accelerator_request(**attrs)
 
