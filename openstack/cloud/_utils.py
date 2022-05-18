@@ -22,13 +22,11 @@ import uuid
 
 from decorator import decorator
 import jmespath
-import munch
 import netifaces
 import sre_constants
 
 from openstack import _log
 from openstack.cloud import exc
-from openstack.cloud import meta
 
 
 _decorated_methods = []
@@ -198,31 +196,6 @@ def _get_entity(cloud, resource, name_or_id, filters, **kwargs):
     return None
 
 
-def normalize_keystone_services(services):
-    """Normalize the structure of keystone services
-
-    In keystone v2, there is a field called "service_type". In v3, it's
-    "type". Just make the returned dict have both.
-
-    :param list services: A list of keystone service dicts
-
-    :returns: A list of normalized dicts.
-    """
-    ret = []
-    for service in services:
-        service_type = service.get('type', service.get('service_type'))
-        new_service = {
-            'id': service['id'],
-            'name': service['name'],
-            'description': service.get('description', None),
-            'type': service_type,
-            'service_type': service_type,
-            'enabled': service['enabled']
-        }
-        ret.append(new_service)
-    return meta.obj_list_to_munch(ret)
-
-
 def localhost_supports_ipv6():
     """Determine whether the local host supports IPv6
 
@@ -235,109 +208,6 @@ def localhost_supports_ipv6():
         return netifaces.AF_INET6 in netifaces.gateways()['default']
     except AttributeError:
         return False
-
-
-def normalize_users(users):
-    ret = [
-        dict(
-            id=user.get('id'),
-            email=user.get('email'),
-            name=user.get('name'),
-            username=user.get('username'),
-            default_project_id=user.get('default_project_id',
-                                        user.get('tenantId')),
-            domain_id=user.get('domain_id'),
-            enabled=user.get('enabled'),
-            description=user.get('description')
-        ) for user in users
-    ]
-    return meta.obj_list_to_munch(ret)
-
-
-def normalize_domains(domains):
-    ret = [
-        dict(
-            id=domain.get('id'),
-            name=domain.get('name'),
-            description=domain.get('description'),
-            enabled=domain.get('enabled'),
-        ) for domain in domains
-    ]
-    return meta.obj_list_to_munch(ret)
-
-
-def normalize_groups(domains):
-    """Normalize Identity groups."""
-    ret = [
-        dict(
-            id=domain.get('id'),
-            name=domain.get('name'),
-            description=domain.get('description'),
-            domain_id=domain.get('domain_id'),
-        ) for domain in domains
-    ]
-    return meta.obj_list_to_munch(ret)
-
-
-def normalize_role_assignments(assignments):
-    """Put role_assignments into a form that works with search/get interface.
-
-    Role assignments have the structure::
-
-        [
-            {
-                "role": {
-                    "id": "--role-id--"
-                },
-                "scope": {
-                    "domain": {
-                        "id": "--domain-id--"
-                    }
-                },
-                "user": {
-                    "id": "--user-id--"
-                }
-            },
-        ]
-
-    Which is hard to work with in the rest of our interface. Map this to be::
-
-        [
-            {
-                "id": "--role-id--",
-                "domain": "--domain-id--",
-                "user": "--user-id--",
-            }
-        ]
-
-    Scope can be "domain" or "project" and "user" can also be "group".
-
-    :param list assignments: A list of dictionaries of role assignments.
-
-    :returns: A list of flattened/normalized role assignment dicts.
-    """
-    new_assignments = []
-    for assignment in assignments:
-        new_val = munch.Munch({'id': assignment['role']['id']})
-        for scope in ('project', 'domain'):
-            if scope in assignment['scope']:
-                new_val[scope] = assignment['scope'][scope]['id']
-        for assignee in ('user', 'group'):
-            if assignment[assignee]:
-                new_val[assignee] = assignment[assignee]['id']
-        new_assignments.append(new_val)
-    return new_assignments
-
-
-def normalize_flavor_accesses(flavor_accesses):
-    """Normalize Flavor access list."""
-    return [munch.Munch(
-        dict(
-            flavor_id=acl.get('flavor_id'),
-            project_id=acl.get('project_id') or acl.get('tenant_id'),
-        )
-    ) for acl in flavor_accesses
-    ]
 
 
 def valid_kwargs(*valid_args):
