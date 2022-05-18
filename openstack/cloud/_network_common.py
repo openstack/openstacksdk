@@ -258,8 +258,10 @@ class NetworkCommonCloudMixin:
             try:
                 if self._network_list_stamp:
                     return
-                if (not self._use_external_network
-                        and not self._use_internal_network):
+                if (
+                    not self._use_external_network
+                    and not self._use_internal_network
+                ):
                     # Both have been flagged as skip - don't do a list
                     return
                 if not self.has_service('network'):
@@ -269,18 +271,18 @@ class NetworkCommonCloudMixin:
             finally:
                 self._networks_lock.release()
 
-    # def get_nat_destination(self):
-    #     """Return the network that is configured to be the NAT destination.
-    #
-    #     :returns: A network dict if one is found
-    #     """
-    #     self._find_interesting_networks()
-    #     return self._nat_destination_network
+    def get_nat_destination(self):
+        """Return the network that is configured to be the NAT destination.
+
+        :returns: A network ``Network`` object if one is found
+        """
+        self._find_interesting_networks()
+        return self._nat_destination_network
 
     def get_nat_source(self):
         """Return the network that is configured to be the NAT destination.
 
-        :returns: A network dict if one is found
+        :returns: A network ``Network`` object if one is found
         """
         self._find_interesting_networks()
         return self._nat_source_network
@@ -288,18 +290,10 @@ class NetworkCommonCloudMixin:
     def get_default_network(self):
         """Return the network that is configured to be the default interface.
 
-        :returns: A network dict if one is found
+        :returns: A network ``Network`` object if one is found
         """
         self._find_interesting_networks()
         return self._default_network_network
-
-    def get_nat_destination(self):
-        """Return the network that is configured to be the NAT destination.
-
-        :returns: A network dict if one is found
-        """
-        self._find_interesting_networks()
-        return self._nat_destination_network
 
     def get_external_networks(self):
         """Return the networks that are configured to route northbound.
@@ -307,12 +301,13 @@ class NetworkCommonCloudMixin:
         This should be avoided in favor of the specific ipv4/ipv6 method,
         but is here for backwards compatibility.
 
-        :returns: A list of network ``munch.Munch`` if one is found
+        :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
-        return list(
-            set(self._external_ipv4_networks)
-            | set(self._external_ipv6_networks))
+        return (
+            list(self._external_ipv4_networks)
+            + list(self._external_ipv6_networks)
+        )
 
     def get_internal_networks(self):
         """Return the networks that are configured to not route northbound.
@@ -320,17 +315,18 @@ class NetworkCommonCloudMixin:
         This should be avoided in favor of the specific ipv4/ipv6 method,
         but is here for backwards compatibility.
 
-        :returns: A list of network ``munch.Munch`` if one is found
+        :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
-        return list(
-            set(self._internal_ipv4_networks)
-            | set(self._internal_ipv6_networks))
+        return (
+            list(self._internal_ipv4_networks)
+            + list(self._internal_ipv6_networks)
+        )
 
     def get_external_ipv4_networks(self):
         """Return the networks that are configured to route northbound.
 
-        :returns: A list of network ``munch.Munch`` if one is found
+        :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
         return self._external_ipv4_networks
@@ -338,7 +334,7 @@ class NetworkCommonCloudMixin:
     def get_external_ipv4_floating_networks(self):
         """Return the networks that are configured to route northbound.
 
-        :returns: A list of network ``munch.Munch`` if one is found
+        :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
         return self._external_ipv4_floating_networks
@@ -346,7 +342,7 @@ class NetworkCommonCloudMixin:
     def get_internal_ipv4_networks(self):
         """Return the networks that are configured to not route northbound.
 
-        :returns: A list of network ``munch.Munch`` if one is found
+        :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
         return self._internal_ipv4_networks
@@ -354,7 +350,7 @@ class NetworkCommonCloudMixin:
     def get_external_ipv6_networks(self):
         """Return the networks that are configured to route northbound.
 
-        :returns: A list of network ``munch.Munch`` if one is found
+        :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
         return self._external_ipv6_networks
@@ -362,7 +358,7 @@ class NetworkCommonCloudMixin:
     def get_internal_ipv6_networks(self):
         """Return the networks that are configured to not route northbound.
 
-        :returns: A list of network ``munch.Munch`` if one is found
+        :returns: A list of network ``Network`` objects if any are found
         """
         self._find_interesting_networks()
         return self._internal_ipv6_networks
