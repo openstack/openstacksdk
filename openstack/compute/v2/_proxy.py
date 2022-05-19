@@ -31,6 +31,7 @@ from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import server_migration as _server_migration
 from openstack.compute.v2 import server_remote_console as _src
 from openstack.compute.v2 import service as _service
+from openstack.compute.v2 import usage as _usage
 from openstack.compute.v2 import volume_attachment as _volume_attachment
 from openstack import exceptions
 from openstack.identity.v3 import project as _project
@@ -609,10 +610,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.limits.RateLimits`
         :rtype: :class:`~openstack.compute.v2.limits.Limits`
         """
-        res = self._get_resource(
-            limits.Limits, None)
-        return res.fetch(
-            self, **query)
+        res = self._get_resource(limits.Limits, None)
+        return res.fetch(self, **query)
 
     # ========== Servers ==========
 
@@ -1865,6 +1864,46 @@ class Proxy(proxy.Proxy):
         return self._get(_server_diagnostics.ServerDiagnostics,
                          server_id=server_id, requires_id=False)
 
+    # ========== Project usage ============
+
+    def usages(self, start=None, end=None, **query):
+        """Get project usages.
+
+        :param datetime.datetime start: Usage range start date.
+        :param datetime.datetime end: Usage range end date.
+        :param dict query: Additional query parameters to use.
+        :returns: A list of compute ``Usage`` objects.
+        """
+        if start is not None:
+            query['start'] = start
+
+        if end is not None:
+            query['end'] = end
+
+        return self._list(_usage.Usage, **query)
+
+    def get_usage(self, project, start=None, end=None, **query):
+        """Get usage for a single project.
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the usage should be retrieved.
+        :param datetime.datetime start: Usage range start date.
+        :param datetime.datetime end: Usage range end date.
+        :param dict query: Additional query parameters to use.
+        :returns: A compute ``Usage`` object.
+        """
+        project = self._get_resource(_project.Project, project)
+
+        if start is not None:
+            query['start'] = start
+
+        if end is not None:
+            query['end'] = end
+
+        res = self._get_resource(_usage.Usage, project.id)
+        return res.fetch(self, **query)
+
     # ========== Server consoles ==========
 
     def create_server_remote_console(self, server, **attrs):
@@ -1953,11 +1992,9 @@ class Proxy(proxy.Proxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-        if not query:
-            query = {}
-        return res.fetch(
-            self, usage=usage, **query)
+            _quota_set.QuotaSet, None, project_id=project.id,
+        )
+        return res.fetch(self, usage=usage, **query)
 
     def get_quota_set_defaults(self, project):
         """Show QuotaSet defaults for the project
@@ -1972,9 +2009,9 @@ class Proxy(proxy.Proxy):
         """
         project = self._get_resource(_project.Project, project)
         res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-        return res.fetch(
-            self, base_path='/os-quota-sets/defaults')
+            _quota_set.QuotaSet, None, project_id=project.id,
+        )
+        return res.fetch(self, base_path='/os-quota-sets/defaults')
 
     def revert_quota_set(self, project, **query):
         """Reset Quota for the project/user.
