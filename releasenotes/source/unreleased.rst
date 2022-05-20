@@ -1,5 +1,5 @@
-=====================
- Unreleased Versions
-=====================
+============================
+Current Series Release Notes
+============================
 
 .. release-notes::
