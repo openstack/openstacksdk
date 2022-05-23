@@ -81,7 +81,7 @@ def enable_logging(
     :rtype: None
     """
     if not stream and not path:
-        stream = sys.stdout
+        stream = sys.stderr
 
     if http_debug:
         debug = True
