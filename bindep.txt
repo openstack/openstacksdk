@@ -2,7 +2,7 @@
 # see http://docs.openstack.org/infra/bindep/ for additional information.
 
 build-essential [platform:dpkg]
-python-dev [platform:dpkg]
+python3-dev [platform:dpkg]
 python-devel [platform:rpm]
 libffi-dev [platform:dpkg]
 libffi-devel [platform:rpm]
