@@ -78,7 +78,7 @@ class Secret(resource.Resource):
     payload_content_encoding = resource.Body('payload_content_encoding')
 
     def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None):
+              base_path=None, error_message=None, skip_cache=False):
         request = self._prepare_request(requires_id=requires_id,
                                         base_path=base_path)
 
@@ -93,8 +93,10 @@ class Secret(resource.Resource):
         # Only try to get the payload if a content type has been explicitly
         # specified or if one was found in the metadata response
         if content_type is not None:
-            payload = session.get(utils.urljoin(request.url, "payload"),
-                                  headers={"Accept": content_type})
+            payload = session.get(
+                utils.urljoin(request.url, "payload"),
+                headers={"Accept": content_type},
+                skip_cache=skip_cache)
             response["payload"] = payload.text
 
         # We already have the JSON here so don't call into _translate_response

@@ -168,7 +168,8 @@ class Stack(resource.Resource):
         return resp.json()
 
     def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None, resolve_outputs=True):
+              base_path=None, error_message=None,
+              skip_cache=False, resolve_outputs=True):
 
         if not self.allow_fetch:
             raise exceptions.MethodNotSupported(self, "fetch")
@@ -183,7 +184,8 @@ class Stack(resource.Resource):
         # apply parameters again, what results in them being set doubled
         if not resolve_outputs:
             request.url = request.url + '?resolve_outputs=False'
-        response = session.get(request.url, microversion=microversion)
+        response = session.get(
+            request.url, microversion=microversion, skip_cache=skip_cache)
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message

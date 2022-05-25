@@ -102,25 +102,14 @@ class _OpenStackCloudMixin:
         cache_class = self.config.get_cache_class()
         cache_arguments = self.config.get_cache_arguments()
 
-        self._resource_caches = {}
+        self._cache_expirations = dict()
 
         if cache_class != 'dogpile.cache.null':
             self.cache_enabled = True
-            self._cache = self._make_cache(
-                cache_class, cache_expiration_time, cache_arguments)
-            expirations = self.config.get_cache_expirations()
-            for expire_key in expirations.keys():
-                # Only build caches for things we have list operations for
-                if getattr(
-                        self, 'list_{0}'.format(expire_key), None):
-                    self._resource_caches[expire_key] = self._make_cache(
-                        cache_class, expirations[expire_key], cache_arguments)
-
-            self._SERVER_AGE = DEFAULT_SERVER_AGE
-            self._PORT_AGE = DEFAULT_PORT_AGE
-            self._FLOAT_AGE = DEFAULT_FLOAT_AGE
         else:
             self.cache_enabled = False
+
+            # TODO(gtema): delete it with the standalone cloud layer caching
 
             def _fake_invalidate(unused):
                 pass
@@ -148,15 +137,20 @@ class _OpenStackCloudMixin:
                     new_func.invalidate = _fake_invalidate
                     setattr(self, method, new_func)
 
-        # If server expiration time is set explicitly, use that. Otherwise
-        # fall back to whatever it was before
-        self._SERVER_AGE = self.config.get_cache_resource_expiration(
-            'server', self._SERVER_AGE)
-        self._PORT_AGE = self.config.get_cache_resource_expiration(
-            'port', self._PORT_AGE)
-        self._FLOAT_AGE = self.config.get_cache_resource_expiration(
-            'floating_ip', self._FLOAT_AGE)
+        # Uncoditionally create cache even with a "null" backend
+        self._cache = self._make_cache(
+            cache_class, cache_expiration_time, cache_arguments)
+        expirations = self.config.get_cache_expirations()
+        for expire_key in expirations.keys():
+            self._cache_expirations[expire_key] = \
+                expirations[expire_key]
 
+        # TODO(gtema): delete in next change
+        self._SERVER_AGE = 0
+        self._PORT_AGE = 0
+        self._FLOAT_AGE = 0
+
+        self._api_cache_keys = set()
         self._container_cache = dict()
         self._file_hash_cache = dict()
 

@@ -89,7 +89,8 @@ class TestQuotaSet(base.TestCase):
         self.sess.get.assert_called_with(
             '/os-quota-sets/proj',
             microversion=1,
-            params={})
+            params={},
+            skip_cache=False)
 
         self.assertEqual(BASIC_EXAMPLE['backups'], sot.backups)
         self.assertEqual({}, sot.reservation)
@@ -110,7 +111,8 @@ class TestQuotaSet(base.TestCase):
         self.sess.get.assert_called_with(
             '/os-quota-sets/proj',
             microversion=1,
-            params={'usage': True})
+            params={'usage': True},
+            skip_cache=False)
 
         self.assertEqual(
             USAGE_EXAMPLE['backups']['limit'],

@@ -119,7 +119,7 @@ class Subscription(resource.Resource):
             query_params["marker"] = new_marker
 
     def fetch(self, session, requires_id=True,
-              base_path=None, error_message=None):
+              base_path=None, error_message=None, skip_cache=False):
         request = self._prepare_request(requires_id=requires_id,
                                         base_path=base_path)
         headers = {
@@ -128,8 +128,8 @@ class Subscription(resource.Resource):
         }
 
         request.headers.update(headers)
-        response = session.get(request.url,
-                               headers=request.headers)
+        response = session.get(
+            request.url, headers=request.headers, skip_cache=skip_cache)
         self._translate_response(response)
 
         return self

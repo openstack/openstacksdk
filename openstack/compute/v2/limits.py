@@ -91,7 +91,7 @@ class Limits(resource.Resource):
     rate = resource.Body("rate", type=list, list_type=RateLimit)
 
     def fetch(self, session, requires_id=False, error_message=None,
-              base_path=None, **params):
+              base_path=None, skip_cache=False, **params):
         """Get the Limits resource.
 
         :param session: The session to use for making this request.
@@ -106,5 +106,5 @@ class Limits(resource.Resource):
             session=session, requires_id=requires_id,
             error_message=error_message,
             base_path=base_path,
-            **params
-        )
+            skip_cache=skip_cache,
+            **params)

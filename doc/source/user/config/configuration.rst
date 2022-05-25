@@ -223,11 +223,32 @@ Different cloud behaviors are also differently expensive to deal with. If you
 want to get really crazy and tweak stuff, you can specify different expiration
 times on a per-resource basis by passing values, in seconds to an expiration
 mapping keyed on the singular name of the resource. A value of `-1` indicates
-that the resource should never expire.
+that the resource should never expire. Not specifying a value (same as
+specifying `0`) indicates that no caching for this resource should be done.
+`openstacksdk` only caches `GET` request responses for the queries which have
+non-zero expiration time defined. Caching key contains url and request
+parameters, therefore no collisions are expected.
 
-`openstacksdk` does not actually cache anything itself, but it collects
-and presents the cache information so that your various applications that
-are connecting to OpenStack can share a cache should you desire.
+The expiration time key is constructed (joined with `.`) in the same way as the
+metrics are emmited:
+
+* service type
+* meaningful resource url segments (i.e. `/servers` results in `servers`,
+  `/servers/ID` results in `server`, `/servers/ID/metadata/KEY` results in
+  `server.metadata`
+
+Non `GET` requests cause cache invalidation based on the caching key prefix so
+that i.e. `PUT` request to `/images/ID` will invalidate all images cache (list
+and all individual entries). Moreover it is possible to explicitly pass
+`_sdk_skip_cache` parameter to the `proxy._get` function to bypass cache and
+invalidate what is already there. This is happening automatically in the
+`wait_for_status` methods where it is expected that resource is going to change
+some of the attributes over the time. Forcing complete cache invalidation can
+be achieved calling `conn._cache.invalidate`.
+
+`openstacksdk` does not actually cache anything itself, but it collects and
+presents the cache information so that your various applications that are
+connecting to OpenStack can share a cache should you desire.
 
 .. code-block:: yaml
 
@@ -240,6 +261,9 @@ are connecting to OpenStack can share a cache should you desire.
     expiration:
       server: 5
       flavor: -1
+      compute.servers: 5
+      compute.flavors: -1
+      image.images: 5
   clouds:
     mtvexx:
       profile: vexxhost

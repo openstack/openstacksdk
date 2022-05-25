@@ -113,8 +113,10 @@ class TestSecret(base.TestCase):
 
         sess.get.assert_has_calls(
             [mock.call("secrets/id",),
-             mock.call("secrets/id/payload",
-                       headers={"Accept": content_type})])
+             mock.call(
+                 "secrets/id/payload",
+                 headers={"Accept": content_type},
+                 skip_cache=False)])
 
         self.assertEqual(rv.payload, payload)
         self.assertEqual(rv.status, metadata["status"])
