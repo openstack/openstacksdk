@@ -10,10 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
+
 from openstack.cloud import _utils
 from openstack.cloud import openstackcloud
 from openstack import exceptions
 from openstack import utils
+from openstack import warnings as os_warnings
 
 
 class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
@@ -69,10 +72,26 @@ class ImageCloudMixin(openstackcloud._OpenStackCloudMixin):
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
-
         :returns: An image :class:`openstack.image.v2.image.Image` object.
         """
-        return _utils._get_entity(self, 'image', name_or_id, filters)
+        if filters is not None:
+            warnings.warn(
+                "The 'filters' argument is deprecated; use 'search_images' "
+                "instead",
+                os_warnings.RemovedInSDK60Warning,
+            )
+            entities = self.search_images(name_or_id, filters)
+            if not entities:
+                return None
+
+            if len(entities) > 1:
+                raise exceptions.SDKException(
+                    f"Multiple matches found for {name_or_id}",
+                )
+
+            return entities[0]
+
+        return self.image.find_image(name_or_id)
 
     def get_image_by_id(self, id):
         """Get a image by ID
