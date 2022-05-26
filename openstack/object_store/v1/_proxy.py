@@ -996,6 +996,7 @@ class Proxy(proxy.Proxy):
         :param str segment_prefix: Prefix for the image segment names to
             delete. If not given, all image upload segments present are
             deleted.
+        :returns: True if deletion was succesful, else False.
         """
         if container is None:
             container = self._connection._OBJECT_AUTOCREATE_CONTAINER

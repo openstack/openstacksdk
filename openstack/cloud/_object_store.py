@@ -44,13 +44,14 @@ class ObjectStoreCloudMixin:
             self._raw_clients['object-store'] = raw_client
         return self._raw_clients['object-store']
 
+    # TODO(stephenfin): Remove 'full_listing' as it's a noop
     def list_containers(self, full_listing=True, prefix=None):
         """List containers.
 
         :param full_listing: Ignored. Present for backwards compat
-
-        :returns: list of Munch of the container objects
-
+        :param prefix: Only objects with this prefix will be returned.
+            (optional)
+        :returns: A list of object store ``Container`` objects.
         :raises: OpenStackCloudException on operation error.
         """
         return list(self.object_store.containers(prefix=prefix))
@@ -58,15 +59,15 @@ class ObjectStoreCloudMixin:
     def search_containers(self, name=None, filters=None):
         """Search containers.
 
-        :param string name: container name.
-        :param filters: a dict containing additional filters to use.
+        :param string name: Container name.
+        :param filters: A dict containing additional filters to use.
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: a list of ``munch.Munch`` containing the containers.
-
-        :raises: ``OpenStackCloudException``: if something goes wrong during
+        :returns: A list of object store ``Container`` objects matching the
+            search criteria.
+        :raises: ``OpenStackCloudException``: If something goes wrong during
             the OpenStack API call.
         """
         containers = self.list_containers()
@@ -78,8 +79,9 @@ class ObjectStoreCloudMixin:
         :param str name:
             Name of the container to get metadata for.
         :param bool skip_cache:
-            Ignore the cache of container metadata for this container.o
+            Ignore the cache of container metadata for this container.
             Defaults to ``False``.
+        :returns: An object store ``Container`` object if found, else None.
         """
         if skip_cache or name not in self._container_cache:
             try:
@@ -94,10 +96,10 @@ class ObjectStoreCloudMixin:
     def create_container(self, name, public=False):
         """Create an object-store container.
 
-        :param str name:
-            Name of the container to create.
-        :param bool public:
-            Whether to set this container to be public. Defaults to ``False``.
+        :param str name: Name of the container to create.
+        :param bool public: Whether to set this container to be public.
+            Defaults to ``False``.
+        :returns: The created object store ``Container`` object.
         """
         container = self.get_container(name)
         if container:
@@ -131,17 +133,8 @@ class ObjectStoreCloudMixin:
     def update_container(self, name, headers):
         """Update the metadata in a container.
 
-        :param str name:
-            Name of the container to create.
-        :param dict headers:
-            Key/Value headers to set on the container.
-        """
-        """Update the metadata in a container.
-
-        :param str name:
-            Name of the container to update.
-        :param dict headers:
-            Key/Value headers to set on the container.
+        :param str name: Name of the container to update.
+        :param dict headers: Key/Value headers to set on the container.
         """
         self.object_store.set_container_metadata(
             name, refresh=False, **headers)
@@ -149,12 +142,10 @@ class ObjectStoreCloudMixin:
     def set_container_access(self, name, access, refresh=False):
         """Set the access control list on a container.
 
-        :param str name:
-            Name of the container.
-        :param str access:
-            ACL string to set on the container. Can also be ``public``
-            or ``private`` which will be translated into appropriate ACL
-            strings.
+        :param str name: Name of the container.
+        :param str access: ACL string to set on the container. Can also be
+            ``public`` or ``private`` which will be translated into appropriate
+            ACL strings.
         :param refresh: Flag to trigger refresh of the container properties
         """
         if access not in OBJECT_CONTAINER_ACLS:
@@ -171,6 +162,10 @@ class ObjectStoreCloudMixin:
         """Get the control list from a container.
 
         :param str name: Name of the container.
+        :returns: The contol list for the container.
+        :raises: :class:`~openstack.exceptions.OpenStackCloudException` if the
+            container was not found or container access could not be
+            determined.
         """
         container = self.get_container(name, skip_cache=True)
         if not container:
@@ -191,11 +186,17 @@ class ObjectStoreCloudMixin:
 
         The object-storage service publishes a set of capabilities that
         include metadata about maximum values and thresholds.
+
+        :returns: An object store ``Info`` object.
         """
         return self.object_store.get_info()
 
     def get_object_segment_size(self, segment_size):
-        """Get a segment size that will work given capabilities"""
+        """Get a segment size that will work given capabilities.
+
+        :param segment_size:
+        :returns: A segment size.
+        """
         return self.object_store.get_object_segment_size(segment_size)
 
     def is_object_stale(
@@ -205,12 +206,10 @@ class ObjectStoreCloudMixin:
         :param container: Name of the container.
         :param name: Name of the object.
         :param filename: Path to the file.
-        :param file_md5:
-            Pre-calculated md5 of the file contents. Defaults to None which
-            means calculate locally.
-        :param file_sha256:
-            Pre-calculated sha256 of the file contents. Defaults to None which
-            means calculate locally.
+        :param file_md5: Pre-calculated md5 of the file contents. Defaults to
+            None which means calculate locally.
+        :param file_sha256: Pre-calculated sha256 of the file contents.
+            Defaults to None which means calculate locally.
         """
         return self.object_store.is_object_stale(
             container, name, filename,
@@ -236,6 +235,7 @@ class ObjectStoreCloudMixin:
         :param name: Name for the directory marker object within the container.
         :param headers: These will be passed through to the object creation
             API as HTTP Headers.
+        :returns: The created object store ``Object`` object.
         """
         headers['content-type'] = 'application/directory'
 
@@ -247,11 +247,19 @@ class ObjectStoreCloudMixin:
             **headers)
 
     def create_object(
-            self, container, name, filename=None,
-            md5=None, sha256=None, segment_size=None,
-            use_slo=True, metadata=None,
-            generate_checksums=None, data=None,
-            **headers):
+        self,
+        container,
+        name,
+        filename=None,
+        md5=None,
+        sha256=None,
+        segment_size=None,
+        use_slo=True,
+        metadata=None,
+        generate_checksums=None,
+        data=None,
+        **headers,
+    ):
         """Create a file object.
 
         Automatically uses large-object segments if needed.
@@ -282,7 +290,7 @@ class ObjectStoreCloudMixin:
             uploads of identical data. (optional, defaults to True)
         :param metadata: This dict will get changed into headers that set
             metadata of the object
-
+        :returns: The created object store ``Object`` object.
         :raises: ``OpenStackCloudException`` on operation error.
         """
         return self.object_store.create_object(
@@ -303,7 +311,7 @@ class ObjectStoreCloudMixin:
             metadata of the object
         :param headers: These will be passed through to the object update
             API as HTTP Headers.
-
+        :returns: None
         :raises: ``OpenStackCloudException`` on operation error.
         """
         meta = metadata.copy() or {}
@@ -316,12 +324,9 @@ class ObjectStoreCloudMixin:
 
         :param container: Name of the container to list objects in.
         :param full_listing: Ignored. Present for backwards compat
-        :param string prefix:
-            only objects with this prefix will be returned.
+        :param prefix: Only objects with this prefix will be returned.
             (optional)
-
-        :returns: list of Munch of the objects
-
+        :returns: A list of object store ``Object`` objects.
         :raises: OpenStackCloudException on operation error.
         """
         return list(self.object_store.objects(
@@ -332,15 +337,15 @@ class ObjectStoreCloudMixin:
     def search_objects(self, container, name=None, filters=None):
         """Search objects.
 
-        :param string name: object name.
-        :param filters: a dict containing additional filters to use.
+        :param string name: Object name.
+        :param filters: A dict containing additional filters to use.
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: a list of ``munch.Munch`` containing the objects.
-
-        :raises: ``OpenStackCloudException``: if something goes wrong during
+        :returns: A list of object store ``Object`` objects matching the
+            search criteria.
+        :raises: ``OpenStackCloudException``: If something goes wrong during
             the OpenStack API call.
         """
         objects = self.list_objects(container)
@@ -352,21 +357,23 @@ class ObjectStoreCloudMixin:
         :param string container: Name of the container holding the object.
         :param string name: Name of the object to delete.
         :param dict meta: Metadata for the object in question. (optional, will
-                          be fetched if not provided)
-
+            be fetched if not provided)
         :returns: True if delete succeeded, False if the object was not found.
-
         :raises: OpenStackCloudException on operation error.
         """
         try:
             self.object_store.delete_object(
-                name, ignore_missing=False, container=container)
+                name, ignore_missing=False, container=container,
+            )
             return True
         except exceptions.SDKException:
             return False
 
-    def delete_autocreated_image_objects(self, container=None,
-                                         segment_prefix=None):
+    def delete_autocreated_image_objects(
+        self,
+        container=None,
+        segment_prefix=None,
+    ):
         """Delete all objects autocreated for image uploads.
 
         This method should generally not be needed, as shade should clean up
@@ -379,12 +386,19 @@ class ObjectStoreCloudMixin:
         :param str segment_prefix: Prefix for the image segment names to
             delete. If not given, all image upload segments present are
             deleted.
+        :returns: True if deletion was successful, else False.
         """
         return self.object_store._delete_autocreated_image_objects(
             container, segment_prefix=segment_prefix
         )
 
     def get_object_metadata(self, container, name):
+        """Get object metadata.
+
+        :param container:
+        :param name:
+        :returns: The object metadata.
+        """
         return self.object_store.get_object_metadata(
             name, container
         ).metadata
@@ -392,13 +406,11 @@ class ObjectStoreCloudMixin:
     def get_object_raw(self, container, obj, query_string=None, stream=False):
         """Get a raw response object for an object.
 
-        :param string container: name of the container.
-        :param string obj: name of the object.
-        :param string query_string:
-            query args for uri. (delimiter, prefix, etc.)
-        :param bool stream:
-            Whether to stream the response or not.
-
+        :param string container: Name of the container.
+        :param string obj: Name of the object.
+        :param string query_string: Query args for uri. (delimiter, prefix,
+            etc.)
+        :param bool stream: Whether to stream the response or not.
         :returns: A `requests.Response`
         :raises: OpenStackCloudException on operation error.
         """
@@ -418,18 +430,22 @@ class ObjectStoreCloudMixin:
         return endpoint
 
     def stream_object(
-            self, container, obj, query_string=None, resp_chunk_size=1024):
+        self,
+        container,
+        obj,
+        query_string=None,
+        resp_chunk_size=1024,
+    ):
         """Download the content via a streaming iterator.
 
-        :param string container: name of the container.
-        :param string obj: name of the object.
-        :param string query_string:
-            query args for uri. (delimiter, prefix, etc.)
-        :param int resp_chunk_size:
-            chunk size of data to read. Only used if the results are
-
-        :returns:
-            An iterator over the content or None if the object is not found.
+        :param string container: Name of the container.
+        :param string obj: Name of the object.
+        :param string query_string: Query args for uri. (delimiter, prefix,
+            etc.)
+        :param int resp_chunk_size: Chunk size of data to read. Only used if
+            the results are
+        :returns: An iterator over the content or None if the object is not
+            found.
         :raises: OpenStackCloudException on operation error.
         """
         try:
@@ -443,22 +459,19 @@ class ObjectStoreCloudMixin:
                    resp_chunk_size=1024, outfile=None, stream=False):
         """Get the headers and body of an object
 
-        :param string container: name of the container.
-        :param string obj: name of the object.
-        :param string query_string:
-            query args for uri. (delimiter, prefix, etc.)
-        :param int resp_chunk_size:
-            chunk size of data to read. Only used if the results are
-            being written to a file or stream is True.
+        :param string container: Name of the container.
+        :param string obj: Name of the object.
+        :param string query_string: Query args for uri. (delimiter, prefix,
+            etc.)
+        :param int resp_chunk_size: Chunk size of data to read. Only used if
+            the results are being written to a file or stream is True.
             (optional, defaults to 1k)
-        :param outfile:
-            Write the object to a file instead of returning the contents.
-            If this option is given, body in the return tuple will be None.
-            outfile can either be a file path given as a string, or a
+        :param outfile: Write the object to a file instead of returning the
+            contents. If this option is given, body in the return tuple will be
+            None. outfile can either be a file path given as a string, or a
             File like object.
-
         :returns: Tuple (headers, body) of the object, or None if the object
-                  is not found (404).
+            is not found (404).
         :raises: OpenStackCloudException on operation error.
         """
         try:
@@ -476,8 +489,7 @@ class ObjectStoreCloudMixin:
             return None
 
     def _wait_for_futures(self, futures, raise_on_error=True):
-        '''Collect results or failures from a list of running future tasks.'''
-
+        """Collect results or failures from a list of running future tasks."""
         results = []
         retries = []
 
