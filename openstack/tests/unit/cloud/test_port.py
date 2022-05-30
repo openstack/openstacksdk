@@ -37,6 +37,7 @@ class TestPort(base.TestCase):
             'binding:vif_details': {},
             'binding:vnic_type': 'normal',
             'binding:vif_type': 'unbound',
+            'extra_dhcp_opts': [],
             'device_owner': '',
             'mac_address': '50:1c:0d:e4:f0:0d',
             'binding:profile': {},
@@ -62,6 +63,7 @@ class TestPort(base.TestCase):
             'network_id': 'test-net-id',
             'tenant_id': 'test-tenant-id',
             'binding:vif_details': {},
+            'extra_dhcp_opts': [],
             'binding:vnic_type': 'normal',
             'binding:vif_type': 'unbound',
             'device_owner': '',
@@ -194,7 +196,7 @@ class TestPort(base.TestCase):
             dict(method='GET',
                  uri=self.get_mock_url(
                      'network', 'public', append=['v2.0', 'ports', port_id]),
-                 json=self.mock_neutron_port_list_rep),
+                 json=dict(port=self.mock_neutron_port_list_rep['ports'][0])),
             dict(method='PUT',
                  uri=self.get_mock_url(
                      'network', 'public',

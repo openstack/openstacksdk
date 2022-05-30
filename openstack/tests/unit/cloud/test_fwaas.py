@@ -828,7 +828,9 @@ class TestFirewallGroup(FirewallTestCase):
     _mock_returned_firewall_group_attrs = {
         'admin_state_up': True,
         'description': 'Providing max security!',
+        'egress_firewall_policy': _mock_egress_policy_attrs['name'],
         'egress_firewall_policy_id': _mock_egress_policy_attrs['id'],
+        'ingress_firewall_policy': _mock_ingress_policy_attrs['name'],
         'ingress_firewall_policy_id': _mock_ingress_policy_attrs['id'],
         'id': firewall_group_id,
         'name': firewall_group_name,
@@ -860,6 +862,8 @@ class TestFirewallGroup(FirewallTestCase):
         create_group_attrs = self._mock_firewall_group_attrs.copy()
         del create_group_attrs['id']
         posted_group_attrs = self._mock_returned_firewall_group_attrs.copy()
+        del posted_group_attrs['egress_firewall_policy']
+        del posted_group_attrs['ingress_firewall_policy']
         del posted_group_attrs['id']
         self.register_uris([
             dict(method='GET',  # short-circuit
