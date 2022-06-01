@@ -116,7 +116,12 @@ class TestCase(base.BaseTestCase):
         self.addOnException(add_content)
 
     def assertSubdict(self, part, whole):
-        missing_keys = set(part) - set(whole)
+        missing_keys = []
+        for key in part:
+            # In the resource we have virtual access by not existing keys. To
+            # verify those are there try access it.
+            if not whole[key] and part[key]:
+                missing_keys.append(key)
         if missing_keys:
             self.fail("Keys %s are in %s but not in %s" %
                       (missing_keys, part, whole))

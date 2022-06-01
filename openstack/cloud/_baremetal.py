@@ -41,7 +41,7 @@ class BaremetalCloudMixin:
 
     def list_nics(self):
         """Return a list of all bare metal ports."""
-        return [nic._to_munch() for nic in self.baremetal.ports(details=True)]
+        return list(self.baremetal.ports(details=True))
 
     def list_nics_for_machine(self, uuid):
         """Returns a list of ports present on the machine node.
@@ -51,13 +51,11 @@ class BaremetalCloudMixin:
         :returns: A list of ports.
         """
         # TODO(dtantsur): support node names here.
-        return [nic._to_munch()
-                for nic in self.baremetal.ports(details=True, node_id=uuid)]
+        return list(self.baremetal.ports(details=True, node_id=uuid))
 
     def get_nic_by_mac(self, mac):
         """Get bare metal NIC by its hardware address (usually MAC)."""
-        results = [nic._to_munch()
-                   for nic in self.baremetal.ports(address=mac, details=True)]
+        results = list(self.baremetal.ports(address=mac, details=True))
         try:
             return results[0]
         except IndexError:
@@ -66,10 +64,9 @@ class BaremetalCloudMixin:
     def list_machines(self):
         """List Machines.
 
-        :returns: list of ``munch.Munch`` representing machines.
+        :returns: list of :class:`~openstack.baremetal.v1.node.Node`.
         """
-        return [self._normalize_machine(node)
-                for node in self.baremetal.nodes()]
+        return list(self.baremetal.nodes())
 
     def get_machine(self, name_or_id):
         """Get Machine by name or uuid
@@ -79,11 +76,11 @@ class BaremetalCloudMixin:
 
         :param name_or_id: A node name or UUID that will be looked up.
 
-        :returns: ``munch.Munch`` representing the node found or None if no
-            nodes are found.
+        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
+        :returns: The node found or None if no nodes are found.
         """
         try:
-            return self._normalize_machine(self.baremetal.get_node(name_or_id))
+            return self.baremetal.find_node(name_or_id, ignore_missing=False)
         except exc.OpenStackCloudResourceNotFound:
             return None
 
@@ -92,8 +89,8 @@ class BaremetalCloudMixin:
 
         :param mac: Port MAC address to query in order to return a node.
 
-        :returns: ``munch.Munch`` representing the node found or None if the
-            node is not found.
+        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
+        :returns: The node found or None if no nodes are found.
         """
         nic = self.get_nic_by_mac(mac)
         if nic is None:
@@ -116,8 +113,8 @@ class BaremetalCloudMixin:
         :param timeout: Integer value, defautling to 3600 seconds, for the
             wait state to reach completion.
 
-        :returns: ``munch.Munch`` representing the current state of the machine
-            upon exit of the method.
+        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
+        :returns: Current state of the node.
         """
 
         return_to_available = False
@@ -158,7 +155,7 @@ class BaremetalCloudMixin:
                                                            wait=True,
                                                            timeout=timeout)
 
-        return self._normalize_machine(node)
+        return node
 
     def register_machine(self, nics, wait=False, timeout=3600,
                          lock_timeout=600, **kwargs):
@@ -201,8 +198,8 @@ class BaremetalCloudMixin:
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: Returns a ``munch.Munch`` representing the new
-            baremetal node.
+        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
+        :returns: Current state of the node.
         """
 
         msg = ("Baremetal machine node failed to be created.")
@@ -404,10 +401,10 @@ class BaremetalCloudMixin:
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: ``munch.Munch`` representing the newly updated node.
+        :returns: Current state of the node.
+        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
         """
-        return self._normalize_machine(
-            self.baremetal.patch_node(name_or_id, patch))
+        return self.baremetal.patch_node(name_or_id, patch)
 
     def update_machine(self, name_or_id, **attrs):
         """Update a machine with new configuration information
@@ -420,7 +417,7 @@ class BaremetalCloudMixin:
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: ``munch.Munch`` containing a machine sub-dictonary consisting
+        :returns: Dictionary containing a machine sub-dictonary consisting
             of the updated data returned from the API update operation, and a
             list named changes which contains all of the API paths that
             received updates.
@@ -430,10 +427,12 @@ class BaremetalCloudMixin:
             raise exc.OpenStackCloudException(
                 "Machine update failed to find Machine: %s. " % name_or_id)
 
-        new_config = dict(machine, **attrs)
+        new_config = dict(machine._to_munch(), **attrs)
 
         try:
-            patch = jsonpatch.JsonPatch.from_diff(machine, new_config)
+            patch = jsonpatch.JsonPatch.from_diff(
+                machine._to_munch(),
+                new_config)
         except Exception as e:
             raise exc.OpenStackCloudException(
                 "Machine update failed - Error generating JSON patch object "
@@ -449,7 +448,7 @@ class BaremetalCloudMixin:
         change_list = [change['path'] for change in patch]
         node = self.baremetal.update_node(machine, **attrs)
         return dict(
-            node=self._normalize_machine(node),
+            node=node,
             changes=change_list
         )
 
@@ -535,13 +534,13 @@ class BaremetalCloudMixin:
 
         :raises: OpenStackCloudException on operation error.
 
-        :returns: ``munch.Munch`` representing the current state of the machine
-            upon exit of the method.
+        :returns: Current state of the machine upon exit of the method.
+        :rtype: :class:`~openstack.baremetal.v1.node.Node`.
         """
         node = self.baremetal.set_node_provision_state(
             name_or_id, target=state, config_drive=configdrive,
             wait=wait, timeout=timeout)
-        return self._normalize_machine(node)
+        return node
 
     def set_machine_maintenance_state(
             self,
