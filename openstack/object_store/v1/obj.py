@@ -28,7 +28,9 @@ class Object(_base.BaseResource):
         "delete_after": "x-delete-after",
         "delete_at": "x-delete-at",
         "is_content_type_detected": "x-detect-content-type",
-        "manifest": "x-object-manifest"
+        "manifest": "x-object-manifest",
+        # Rax hack - the need CORS as different header
+        "access_control_allow_origin": "access-control-allow-origin"
     }
 
     base_path = "/%(container)s"
@@ -188,6 +190,10 @@ class Object(_base.BaseResource):
     #: value.
     symlink_target_account = resource.Header("x-symlink-target-account")
 
+    #: CORS for RAX (deviating from standard)
+    access_control_allow_origin = resource.Header(
+        "access-control-allow-origin")
+
     has_body = False
 
     def __init__(self, data=None, **attrs):
@@ -300,7 +306,7 @@ class Object(_base.BaseResource):
             session, error_message=error_message, stream=True)
         return response.iter_content(chunk_size, decode_unicode=False)
 
-    def create(self, session, base_path=None):
+    def create(self, session, base_path=None, **params):
         request = self._prepare_request(base_path=base_path)
 
         response = session.put(
