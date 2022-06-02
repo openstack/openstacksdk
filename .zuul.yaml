@@ -137,6 +137,7 @@
       - openstack/designate
       - openstack/octavia
     vars:
+      configure_swap_size: 4096
       devstack_local_conf:
         post-config:
           $OCTAVIA_CONF:
@@ -451,8 +452,10 @@
     check:
       jobs:
         - opendev-buildset-registry
-        - nodepool-build-image-siblings
-        - dib-nodepool-functional-openstack-centos-8-stream-src
+        - nodepool-build-image-siblings:
+            voting: false
+        - dib-nodepool-functional-openstack-centos-8-stream-src:
+            voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
@@ -480,8 +483,10 @@
     gate:
       jobs:
         - opendev-buildset-registry
-        - nodepool-build-image-siblings
-        - dib-nodepool-functional-openstack-centos-8-stream-src
+        - nodepool-build-image-siblings:
+            voting: false
+        - dib-nodepool-functional-openstack-centos-8-stream-src:
+            voting: false
         - openstacksdk-functional-devstack
         - openstacksdk-functional-devstack-networking
         - openstacksdk-functional-devstack-senlin
