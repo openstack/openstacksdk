@@ -645,6 +645,18 @@ class TestObject(BaseTestObject):
             self.cloud.get_object_segment_size(None))
         self.assert_calls()
 
+    def test_update_container_cors(self):
+        headers = {
+            'X-Container-Meta-Web-Index': 'index.html',
+            'X-Container-Meta-Access-Control-Allow-Origin': '*'
+        }
+        self.register_uris([
+            dict(method='POST', uri=self.container_endpoint,
+                 status_code=204,
+                 validate=dict(headers=headers))])
+        self.cloud.update_container(self.container, headers=headers)
+        self.assert_calls()
+
 
 class TestObjectUploads(BaseTestObject):
 
@@ -687,6 +699,32 @@ class TestObjectUploads(BaseTestObject):
         self.cloud.create_object(
             container=self.container, name=self.object,
             filename=self.object_file.name)
+
+        self.assert_calls()
+
+    def test_create_object_index_rax(self):
+
+        self.register_uris([
+            dict(method='PUT',
+                 uri='{endpoint}/{container}/{object}'.format(
+                     endpoint=self.endpoint,
+                     container=self.container, object='index.html'),
+                 status_code=201,
+                 validate=dict(
+                     headers={
+                         'access-control-allow-origin': '*',
+                         'content-type': 'text/html'
+                     }))
+        ])
+
+        headers = {
+            'access-control-allow-origin': '*',
+            'content-type': 'text/html'
+        }
+        self.cloud.create_object(
+            self.container, name='index.html',
+            data='',
+            **headers)
 
         self.assert_calls()
 
