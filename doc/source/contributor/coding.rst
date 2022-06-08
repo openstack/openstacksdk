@@ -62,15 +62,12 @@ The `openstack.cloud` layer has some specific rules:
 Returned Resources
 ------------------
 
-Complex objects returned to the caller must be a `munch.Munch` type. The
-`openstack.proxy._ShadeAdapter` class makes resources into `munch.Munch`.
+Complex objects returned to the caller must be a `openstack.resource.Resource`
+type.
 
-All objects should be normalized. It is shade's purpose in life to make
+All objects should be normalized. It is openstacksdk's purpose in life to make
 OpenStack consistent for end users, and this means not trusting the clouds
-to return consistent objects. There should be a normalize function in
-`openstack/cloud/_normalize.py` that is applied to objects before returning
-them to the user. See :doc:`../user/model` for further details on object model
-requirements.
+to return consistent objects. The `Resource` object should do this for us.
 
 Fields should not be in the normalization contract if we cannot commit to
 providing them to all users.

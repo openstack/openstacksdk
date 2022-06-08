@@ -107,7 +107,7 @@ class Proxy(adapter.Adapter, Generic[T]):
         kwargs.setdefault(
             'retriable_status_codes', self.retriable_status_codes
         )
-        super(Proxy, self).__init__(session=session, *args, **kwargs)
+        super().__init__(session=session, *args, **kwargs)
         self._statsd_client = statsd_client
         self._statsd_prefix = statsd_prefix
         self._prometheus_counter = prometheus_counter
@@ -173,7 +173,7 @@ class Proxy(adapter.Adapter, Generic[T]):
                 # Get from cache or execute and cache
                 response = conn._cache.get_or_create(
                     key=key,
-                    creator=super(Proxy, self).request,
+                    creator=super().request,
                     creator_args=(
                         [url, method],
                         dict(
@@ -190,7 +190,7 @@ class Proxy(adapter.Adapter, Generic[T]):
                 # asked for cache bypass
                 self._invalidate_cache(conn, key_prefix)
                 # Pass through the API request bypassing cache
-                response = super(Proxy, self).request(
+                response = super().request(
                     url,
                     method,
                     connect_retries=connect_retries,
@@ -815,6 +815,8 @@ class Proxy(adapter.Adapter, Generic[T]):
             return False
 
 
+# TODO(stephenfin): Remove this and all users. Use of this generally indicates
+# a missing Resource type.
 def _json_response(response, result_key=None, error_message=None):
     """Temporary method to use to bridge from ShadeAdapter to SDK calls."""
     exceptions.raise_from_response(response, error_message=error_message)
@@ -832,11 +834,3 @@ def _json_response(response, result_key=None, error_message=None):
     except JSONDecodeError:
         return response
     return result_json
-
-
-class _ShadeAdapter(Proxy):
-    """Wrapper for shade methods that expect json unpacking."""
-
-    def request(self, url, method, error_message=None, **kwargs):
-        response = super(_ShadeAdapter, self).request(url, method, **kwargs)
-        return _json_response(response, error_message=error_message)
