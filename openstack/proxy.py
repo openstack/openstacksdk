@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 
 try:
     import simplejson
+
     JSONDecodeError = simplejson.scanner.JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
@@ -38,16 +39,24 @@ from openstack import resource
 def _check_resource(strict=False):
     def wrap(method):
         def check(self, expected, actual=None, *args, **kwargs):
-            if (strict and actual is not None and not
-               isinstance(actual, resource.Resource)):
+            if (
+                strict
+                and actual is not None
+                and not isinstance(actual, resource.Resource)
+            ):
                 raise ValueError("A %s must be passed" % expected.__name__)
-            elif (isinstance(actual, resource.Resource) and not
-                  isinstance(actual, expected)):
-                raise ValueError("Expected %s but received %s" % (
-                                 expected.__name__, actual.__class__.__name__))
+            elif isinstance(actual, resource.Resource) and not isinstance(
+                actual, expected
+            ):
+                raise ValueError(
+                    "Expected %s but received %s"
+                    % (expected.__name__, actual.__class__.__name__)
+                )
 
             return method(self, expected, actual, *args, **kwargs)
+
         return check
+
     return wrap
 
 
@@ -68,16 +77,22 @@ class Proxy(adapter.Adapter):
     """
 
     def __init__(
-            self,
-            session,
-            statsd_client=None, statsd_prefix=None,
-            prometheus_counter=None, prometheus_histogram=None,
-            influxdb_config=None, influxdb_client=None,
-            *args, **kwargs):
+        self,
+        session,
+        statsd_client=None,
+        statsd_prefix=None,
+        prometheus_counter=None,
+        prometheus_histogram=None,
+        influxdb_config=None,
+        influxdb_client=None,
+        *args,
+        **kwargs
+    ):
         # NOTE(dtantsur): keystoneauth defaults retriable_status_codes to None,
         # override it with a class-level value.
-        kwargs.setdefault('retriable_status_codes',
-                          self.retriable_status_codes)
+        kwargs.setdefault(
+            'retriable_status_codes', self.retriable_status_codes
+        )
         super(Proxy, self).__init__(session=session, *args, **kwargs)
         self._statsd_client = statsd_client
         self._statsd_prefix = statsd_prefix
@@ -94,12 +109,10 @@ class Proxy(adapter.Adapter):
     def _get_cache_key_prefix(self, url):
         """Calculate cache prefix for the url"""
         name_parts = self._extract_name(
-            url, self.service_type,
-            self.session.get_project_id())
+            url, self.service_type, self.session.get_project_id()
+        )
 
-        return '.'.join(
-            [self.service_type]
-            + name_parts)
+        return '.'.join([self.service_type] + name_parts)
 
     def _invalidate_cache(self, conn, key_prefix):
         """Invalidate all cache entries starting with given prefix"""
@@ -109,10 +122,16 @@ class Proxy(adapter.Adapter):
                 conn._api_cache_keys.remove(k)
 
     def request(
-            self, url, method, error_message=None,
-            raise_exc=False, connect_retries=1,
-            global_request_id=None,
-            *args, **kwargs):
+        self,
+        url,
+        method,
+        error_message=None,
+        raise_exc=False,
+        connect_retries=1,
+        global_request_id=None,
+        *args,
+        **kwargs
+    ):
         conn = self._get_connection()
         if not global_request_id:
             # Per-request setting should take precedence
@@ -125,9 +144,7 @@ class Proxy(adapter.Adapter):
         if conn.cache_enabled:
             # Construct cache key. It consists of:
             # service.name_parts.URL.str(kwargs)
-            key = '.'.join(
-                [key_prefix, url, str(kwargs)]
-            )
+            key = '.'.join([key_prefix, url, str(kwargs)])
 
             # Track cache key for invalidating possibility
             conn._api_cache_keys.add(key)
@@ -137,7 +154,8 @@ class Proxy(adapter.Adapter):
                 # Get the object expiration time from config
                 # default to 0 to disable caching for this resource type
                 expiration_time = int(
-                    conn._cache_expirations.get(key_prefix, 0))
+                    conn._cache_expirations.get(key_prefix, 0)
+                )
                 # Get from cache or execute and cache
                 response = conn._cache.get_or_create(
                     key=key,
@@ -149,9 +167,9 @@ class Proxy(adapter.Adapter):
                             raise_exc=raise_exc,
                             global_request_id=global_request_id,
                             **kwargs
-                        )
+                        ),
                     ),
-                    expiration_time=expiration_time
+                    expiration_time=expiration_time,
                 )
             else:
                 # invalidate cache if we send modification request or user
@@ -159,10 +177,13 @@ class Proxy(adapter.Adapter):
                 self._invalidate_cache(conn, key_prefix)
                 # Pass through the API request bypassing cache
                 response = super(Proxy, self).request(
-                    url, method,
-                    connect_retries=connect_retries, raise_exc=raise_exc,
+                    url,
+                    method,
+                    connect_retries=connect_retries,
+                    raise_exc=raise_exc,
                     global_request_id=global_request_id,
-                    **kwargs)
+                    **kwargs
+                )
 
             for h in response.history:
                 self._report_stats(h)
@@ -178,20 +199,20 @@ class Proxy(adapter.Adapter):
 
     @functools.lru_cache(maxsize=256)
     def _extract_name(self, url, service_type=None, project_id=None):
-        '''Produce a key name to use in logging/metrics from the URL path.
+        """Produce a key name to use in logging/metrics from the URL path.
 
         We want to be able to logic/metric sane general things, so we pull
         the url apart to generate names. The function returns a list because
         there are two different ways in which the elements want to be combined
         below (one for logging, one for statsd)
 
-        Some examples are likely useful:
+        Some examples are likely useful::
 
-        /servers -> ['servers']
-        /servers/{id} -> ['server']
-        /servers/{id}/os-security-groups -> ['server', 'os-security-groups']
-        /v2.0/networks.json -> ['networks']
-        '''
+          /servers -> ['servers']
+          /servers/{id} -> ['server']
+          /servers/{id}/os-security-groups -> ['server', 'os-security-groups']
+          /v2.0/networks.json -> ['networks']
+        """
 
         url_path = urllib.parse.urlparse(url).path.strip()
         # Remove / from the beginning to keep the list indexes of interesting
@@ -201,16 +222,19 @@ class Proxy(adapter.Adapter):
 
         # Special case for neutron, which puts .json on the end of urls
         if url_path.endswith('.json'):
-            url_path = url_path[:-len('.json')]
+            url_path = url_path[: -len('.json')]
 
         # Split url into parts and exclude potential project_id in some urls
         url_parts = [
-            x for x in url_path.split('/') if (
+            x
+            for x in url_path.split('/')
+            if (
                 x != project_id
                 and (
                     not project_id
                     or (project_id and x != 'AUTH_' + project_id)
-                ))
+                )
+            )
         ]
         if url_parts[-1] == 'detail':
             # Special case detail calls
@@ -221,9 +245,12 @@ class Proxy(adapter.Adapter):
             # Strip leading version piece so that
             # GET /v2.0/networks
             # returns ['networks']
-            if (url_parts[0]
-                    and url_parts[0][0] == 'v'
-                    and url_parts[0][1] and url_parts[0][1].isdigit()):
+            if (
+                url_parts[0]
+                and url_parts[0][0] == 'v'
+                and url_parts[0][1]
+                and url_parts[0][1].isdigit()
+            ):
                 url_parts = url_parts[1:]
             name_parts = self._extract_name_consume_url_parts(url_parts)
 
@@ -242,19 +269,21 @@ class Proxy(adapter.Adapter):
         return [part for part in name_parts if part]
 
     def _extract_name_consume_url_parts(self, url_parts):
-        """Pull out every other URL portion - so that
-        GET /servers/{id}/os-security-groups
-        returns ['server', 'os-security-groups']
+        """Pull out every other URL portion.
 
+        For example, ``GET /servers/{id}/os-security-groups`` returns
+        ``['server', 'os-security-groups']``.
         """
         name_parts = []
         for idx in range(0, len(url_parts)):
             if not idx % 2 and url_parts[idx]:
                 # If we are on first segment and it end with 's' stip this 's'
                 # to differentiate LIST and GET_BY_ID
-                if (len(url_parts) > idx + 1
-                        and url_parts[idx][-1] == 's'
-                        and url_parts[idx][-2:] != 'is'):
+                if (
+                    len(url_parts) > idx + 1
+                    and url_parts[idx][-1] == 's'
+                    and url_parts[idx][-2:] != 'is'
+                ):
                     name_parts.append(url_parts[idx][:-1])
                 else:
                     name_parts.append(url_parts[idx])
@@ -276,15 +305,19 @@ class Proxy(adapter.Adapter):
             if response is not None and not method:
                 method = response.request.method
             name_parts = [
-                normalize_metric_name(f) for f in
-                self._extract_name(
-                    url, self.service_type, self.session.get_project_id())
+                normalize_metric_name(f)
+                for f in self._extract_name(
+                    url, self.service_type, self.session.get_project_id()
+                )
             ]
             key = '.'.join(
-                [self._statsd_prefix,
-                 normalize_metric_name(self.service_type), method,
-                 '_'.join(name_parts)
-                 ])
+                [
+                    self._statsd_prefix,
+                    normalize_metric_name(self.service_type),
+                    method,
+                    '_'.join(name_parts),
+                ]
+            )
             with self._statsd_client.pipeline() as pipe:
                 if response is not None:
                     duration = int(response.elapsed.total_seconds() * 1000)
@@ -300,15 +333,17 @@ class Proxy(adapter.Adapter):
             # We do not want errors in metric reporting ever break client
             self.log.exception("Exception reporting metrics")
 
-    def _report_stats_prometheus(self, response, url=None, method=None,
-                                 exc=None):
+    def _report_stats_prometheus(
+        self, response, url=None, method=None, exc=None
+    ):
         if response is not None and not url:
             url = response.request.url
         if response is not None and not method:
             method = response.request.method
         parsed_url = urlparse(url)
         endpoint = "{}://{}{}".format(
-            parsed_url.scheme, parsed_url.netloc, parsed_url.path)
+            parsed_url.scheme, parsed_url.netloc, parsed_url.path
+        )
         if response is not None:
             labels = dict(
                 method=method,
@@ -318,10 +353,12 @@ class Proxy(adapter.Adapter):
             )
             self._prometheus_counter.labels(**labels).inc()
             self._prometheus_histogram.labels(**labels).observe(
-                response.elapsed.total_seconds() * 1000)
+                response.elapsed.total_seconds() * 1000
+            )
 
-    def _report_stats_influxdb(self, response, url=None, method=None,
-                               exc=None):
+    def _report_stats_influxdb(
+        self, response, url=None, method=None, exc=None
+    ):
         # NOTE(gtema): status_code is saved both as tag and field to give
         # ability showing it as a value and not only as a legend.
         # However Influx is not ok with having same name in tags and fields,
@@ -332,16 +369,16 @@ class Proxy(adapter.Adapter):
             method = response.request.method
         tags = dict(
             method=method,
-            name='_'.join([
-                normalize_metric_name(f) for f in
-                self._extract_name(
-                    url, self.service_type,
-                    self.session.get_project_id())
-            ])
+            name='_'.join(
+                [
+                    normalize_metric_name(f)
+                    for f in self._extract_name(
+                        url, self.service_type, self.session.get_project_id()
+                    )
+                ]
+            ),
         )
-        fields = dict(
-            attempted=1
-        )
+        fields = dict(attempted=1)
         if response is not None:
             fields['duration'] = int(response.elapsed.total_seconds() * 1000)
             tags['status_code'] = str(response.status_code)
@@ -356,16 +393,14 @@ class Proxy(adapter.Adapter):
             fields['failed'] = 1
         if 'additional_metric_tags' in self._influxdb_config:
             tags.update(self._influxdb_config['additional_metric_tags'])
-        measurement = self._influxdb_config.get(
-            'measurement', 'openstack_api') \
-            if self._influxdb_config else 'openstack_api'
+        measurement = (
+            self._influxdb_config.get('measurement', 'openstack_api')
+            if self._influxdb_config
+            else 'openstack_api'
+        )
         # Note(gtema) append service name into the measurement name
         measurement = '%s.%s' % (measurement, self.service_type)
-        data = [dict(
-            measurement=measurement,
-            tags=tags,
-            fields=fields
-        )]
+        data = [dict(measurement=measurement, tags=tags, fields=fields)]
         try:
             self._influxdb_client.write_points(data)
         except Exception:
@@ -385,8 +420,8 @@ class Proxy(adapter.Adapter):
         directly on ourselves. Use one of them.
         """
         return getattr(
-            self, '_connection', getattr(
-                self.session, '_sdk_connection', None))
+            self, '_connection', getattr(self.session, '_sdk_connection', None)
+        )
 
     def _get_resource(self, resource_type, value, **attrs):
         """Get a resource object to work on
@@ -404,15 +439,14 @@ class Proxy(adapter.Adapter):
         if value is None:
             # Create a bare resource
             res = resource_type.new(connection=conn, **attrs)
-        elif (isinstance(value, dict)
-              and not isinstance(value, resource.Resource)):
-            res = resource_type._from_munch(
-                value, connection=conn)
+        elif isinstance(value, dict) and not isinstance(
+            value, resource.Resource
+        ):
+            res = resource_type._from_munch(value, connection=conn)
             res._update(**attrs)
         elif not isinstance(value, resource_type):
             # Create from an ID
-            res = resource_type.new(
-                id=value, connection=conn, **attrs)
+            res = resource_type.new(id=value, connection=conn, **attrs)
         else:
             # An existing resource instance
             res = value
@@ -435,8 +469,7 @@ class Proxy(adapter.Adapter):
             value = resource.Resource._get_id(parent)
         return value
 
-    def _find(self, resource_type, name_or_id, ignore_missing=True,
-              **attrs):
+    def _find(self, resource_type, name_or_id, ignore_missing=True, **attrs):
         """Find a resource
 
         :param name_or_id: The name or ID of a resource to find.
@@ -451,9 +484,9 @@ class Proxy(adapter.Adapter):
 
         :returns: An instance of ``resource_type`` or None
         """
-        return resource_type.find(self, name_or_id,
-                                  ignore_missing=ignore_missing,
-                                  **attrs)
+        return resource_type.find(
+            self, name_or_id, ignore_missing=ignore_missing, **attrs
+        )
 
     # TODO(stephenfin): Update docstring for attrs since it's a lie
     @_check_resource(strict=False)
@@ -565,8 +598,15 @@ class Proxy(adapter.Adapter):
         return resource_type.bulk_create(self, data, base_path=base_path)
 
     @_check_resource(strict=False)
-    def _get(self, resource_type, value=None, requires_id=True,
-             base_path=None, skip_cache=False, **attrs):
+    def _get(
+        self,
+        resource_type,
+        value=None,
+        requires_id=True,
+        base_path=None,
+        skip_cache=False,
+        **attrs
+    ):
         """Fetch a resource
 
         :param resource_type: The type of resource to get.
@@ -592,13 +632,16 @@ class Proxy(adapter.Adapter):
         res = self._get_resource(resource_type, value, **attrs)
 
         return res.fetch(
-            self, requires_id=requires_id, base_path=base_path,
+            self,
+            requires_id=requires_id,
+            base_path=base_path,
             skip_cache=skip_cache,
             error_message="No {resource_type} found for {value}".format(
-                resource_type=resource_type.__name__, value=value))
+                resource_type=resource_type.__name__, value=value
+            ),
+        )
 
-    def _list(self, resource_type,
-              paginated=True, base_path=None, **attrs):
+    def _list(self, resource_type, paginated=True, base_path=None, **attrs):
         """List a resource
 
         :param resource_type: The type of resource to list. This should
@@ -622,9 +665,8 @@ class Proxy(adapter.Adapter):
             the ``resource_type``.
         """
         return resource_type.list(
-            self, paginated=paginated,
-            base_path=base_path,
-            **attrs)
+            self, paginated=paginated, base_path=base_path, **attrs
+        )
 
     def _head(self, resource_type, value=None, base_path=None, **attrs):
         """Retrieve a resource's header
@@ -652,34 +694,43 @@ class Proxy(adapter.Adapter):
     def _get_cleanup_dependencies(self):
         return None
 
-    def _service_cleanup(self, dry_run=True, client_status_queue=None,
-                         identified_resources=None, filters=None,
-                         resource_evaluation_fn=None):
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=None,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None,
+    ):
         return None
 
-    def _service_cleanup_del_res(self, del_fn, obj, dry_run=True,
-                                 client_status_queue=None,
-                                 identified_resources=None,
-                                 filters=None,
-                                 resource_evaluation_fn=None):
+    def _service_cleanup_del_res(
+        self,
+        del_fn,
+        obj,
+        dry_run=True,
+        client_status_queue=None,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None,
+    ):
         need_delete = False
         try:
-            if (
-                resource_evaluation_fn
-                and callable(resource_evaluation_fn)
-            ):
+            if resource_evaluation_fn and callable(resource_evaluation_fn):
                 # Ask a user-provided evaluation function if we need to delete
                 # the resource
-                need_del = resource_evaluation_fn(obj, filters,
-                                                  identified_resources)
+                need_del = resource_evaluation_fn(
+                    obj, filters, identified_resources
+                )
                 if isinstance(need_del, bool):
                     # Just double check function returned bool
                     need_delete = need_del
             else:
-                need_delete = \
+                need_delete = (
                     self._service_cleanup_resource_filters_evaluation(
-                        obj,
-                        filters=filters)
+                        obj, filters=filters
+                    )
+                )
 
             if need_delete:
                 if client_status_queue:
@@ -716,8 +767,10 @@ class Proxy(adapter.Adapter):
                     else:
                         # There are filters set, but we can't get required
                         # attribute, so skip the resource
-                        self.log.debug('Requested cleanup attribute %s is not '
-                                       'available on the resource' % k)
+                        self.log.debug(
+                            'Requested cleanup attribute %s is not '
+                            'available on the resource' % k
+                        )
                         part_cond.append(False)
                 except Exception:
                     self.log.exception('Error during condition evaluation')

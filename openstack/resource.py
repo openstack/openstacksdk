@@ -102,10 +102,20 @@ class _BaseComponent:
     # only once when the attribute is retrieved in the code.
     already_warned_deprecation = False
 
-    def __init__(self, name, type=None, default=None, alias=None, aka=None,
-                 alternate_id=False, list_type=None, coerce_to_default=False,
-                 deprecated=False, deprecation_reason=None,
-                 **kwargs):
+    def __init__(
+        self,
+        name,
+        type=None,
+        default=None,
+        alias=None,
+        aka=None,
+        alternate_id=False,
+        list_type=None,
+        coerce_to_default=False,
+        deprecated=False,
+        deprecation_reason=None,
+        **kwargs,
+    ):
         """A typed descriptor for a component that makes up a Resource
 
         :param name: The name this component exists as on the server
@@ -196,8 +206,11 @@ class _BaseComponent:
         if value and deprecated and not self.already_warned_deprecation:
             self.already_warned_deprecation = True
             if not deprecate_reason:
-                LOG.warning("The option [%s] has been deprecated. "
-                            "Please avoid using it.", self.name)
+                LOG.warning(
+                    "The option [%s] has been deprecated. "
+                    "Please avoid using it.",
+                    self.name,
+                )
             else:
                 LOG.warning(deprecate_reason)
         return value
@@ -279,8 +292,9 @@ class _ComponentManager(collections.abc.MutableMapping):
     @property
     def dirty(self):
         """Return a dict of modified attributes"""
-        return dict((key, self.attributes.get(key, None))
-                    for key in self._dirty)
+        return dict(
+            (key, self.attributes.get(key, None)) for key in self._dirty
+        )
 
     def clean(self, only=None):
         """Signal that the resource no longer has modified attributes.
@@ -304,7 +318,6 @@ class _Request:
 
 
 class QueryParameters:
-
     def __init__(self, *names, **mappings):
         """Create a dict of accepted query parameters
 
@@ -342,7 +355,8 @@ class QueryParameters:
         expected_params = list(self._mapping.keys())
         expected_params.extend(
             value.get('name', key) if isinstance(value, dict) else value
-            for key, value in self._mapping.items())
+            for key, value in self._mapping.items()
+        )
 
         if base_path:
             expected_params += utils.get_string_format_keys(base_path)
@@ -353,12 +367,14 @@ class QueryParameters:
         else:
             if not allow_unknown_params:
                 raise exceptions.InvalidResourceQuery(
-                    message="Invalid query params: %s" %
-                    ",".join(invalid_keys),
-                    extra_data=invalid_keys)
+                    message="Invalid query params: %s"
+                    % ",".join(invalid_keys),
+                    extra_data=invalid_keys,
+                )
             else:
                 known_keys = set(query.keys()).intersection(
-                    set(expected_params))
+                    set(expected_params)
+                )
                 return {k: query[k] for k in known_keys}
 
     def _transpose(self, query, resource_type):
@@ -385,7 +401,8 @@ class QueryParameters:
             # single-argument (like int) and double-argument type functions.
             try:
                 provide_resource_type = (
-                    len(inspect.getfullargspec(type_).args) > 1)
+                    len(inspect.getfullargspec(type_).args) > 1
+                )
             except TypeError:
                 provide_resource_type = False
 
@@ -522,26 +539,24 @@ class Resource(dict):
             self._unknown_attrs_in_body.update(attrs)
 
         self._body = _ComponentManager(
-            attributes=body,
-            synchronized=_synchronized)
+            attributes=body, synchronized=_synchronized
+        )
         self._header = _ComponentManager(
-            attributes=header,
-            synchronized=_synchronized)
+            attributes=header, synchronized=_synchronized
+        )
         self._uri = _ComponentManager(
-            attributes=uri,
-            synchronized=_synchronized)
+            attributes=uri, synchronized=_synchronized
+        )
         self._computed = _ComponentManager(
-            attributes=computed,
-            synchronized=_synchronized)
+            attributes=computed, synchronized=_synchronized
+        )
         if self.commit_jsonpatch or self.allow_patch:
             # We need the original body to compare against
             if _synchronized:
                 self._original_body = self._body.attributes.copy()
             elif self.id:
                 # Never record ID as dirty.
-                self._original_body = {
-                    self._alternate_id() or 'id': self.id
-                }
+                self._original_body = {self._alternate_id() or 'id': self.id}
             else:
                 self._original_body = {}
         if self._store_unknown_attrs_as_properties:
@@ -568,8 +583,7 @@ class Resource(dict):
 
     @classmethod
     def _attributes_iterator(cls, components=tuple([Body, Header])):
-        """Iterator over all Resource attributes
-        """
+        """Iterator over all Resource attributes"""
         # isinstance stricly requires this to be a tuple
         # Since we're looking at class definitions we need to include
         # subclasses, so check the whole MRO.
@@ -581,33 +595,40 @@ class Resource(dict):
     def __repr__(self):
         pairs = [
             "%s=%s" % (k, v if v is not None else 'None')
-            for k, v in dict(itertools.chain(
-                self._body.attributes.items(),
-                self._header.attributes.items(),
-                self._uri.attributes.items(),
-                self._computed.attributes.items())).items()
+            for k, v in dict(
+                itertools.chain(
+                    self._body.attributes.items(),
+                    self._header.attributes.items(),
+                    self._uri.attributes.items(),
+                    self._computed.attributes.items(),
+                )
+            ).items()
         ]
         args = ", ".join(pairs)
 
-        return "%s.%s(%s)" % (
-            self.__module__, self.__class__.__name__, args)
+        return "%s.%s(%s)" % (self.__module__, self.__class__.__name__, args)
 
     def __eq__(self, comparand):
         """Return True if another resource has the same contents"""
         if not isinstance(comparand, Resource):
             return False
-        return all([
-            self._body.attributes == comparand._body.attributes,
-            self._header.attributes == comparand._header.attributes,
-            self._uri.attributes == comparand._uri.attributes,
-            self._computed.attributes == comparand._computed.attributes
-        ])
+        return all(
+            [
+                self._body.attributes == comparand._body.attributes,
+                self._header.attributes == comparand._header.attributes,
+                self._uri.attributes == comparand._uri.attributes,
+                self._computed.attributes == comparand._computed.attributes,
+            ]
+        )
 
     def warning_if_attribute_deprecated(self, attr, value):
         if value and self.deprecated:
             if not self.deprecation_reason:
-                LOG.warning("The option [%s] has been deprecated. "
-                            "Please avoid using it.", attr)
+                LOG.warning(
+                    "The option [%s] has been deprecated. "
+                    "Please avoid using it.",
+                    attr,
+                )
             else:
                 LOG.warning(self.deprecation_reason)
 
@@ -632,7 +653,8 @@ class Resource(dict):
                 if name in self._attr_aliases:
                     # Hmm - not found. But hey, the alias exists...
                     return object.__getattribute__(
-                        self, self._attr_aliases[name])
+                        self, self._attr_aliases[name]
+                    )
                 if self._allow_unknown_attrs_in_body:
                     # Last chance, maybe it's in body as attribute which isn't
                     # in the mapping at all...
@@ -661,9 +683,10 @@ class Resource(dict):
                 if component.name == name:
                     warnings.warn(
                         'Access to "%s[%s]" is deprecated. '
-                        'Please access using "%s.%s" attribute.' %
-                        (self.__class__, name, self.__class__, attr),
-                        DeprecationWarning)
+                        'Please access using "%s.%s" attribute.'
+                        % (self.__class__, name, self.__class__, attr),
+                        DeprecationWarning,
+                    )
                     return getattr(self, attr)
         raise KeyError(name)
 
@@ -684,12 +707,14 @@ class Resource(dict):
                 " dict interface.".format(
                     module=self.__module__,
                     cls=self.__class__.__name__,
-                    name=name))
+                    name=name,
+                )
+            )
 
-    def _attributes(self, remote_names=False, components=None,
-                    include_aliases=True):
-        """Generate list of supported attributes
-        """
+    def _attributes(
+        self, remote_names=False, components=None, include_aliases=True
+    ):
+        """Generate list of supported attributes"""
         attributes = []
 
         if not components:
@@ -1029,7 +1054,8 @@ class Resource(dict):
             components.append(Computed)
         if not components:
             raise ValueError(
-                "At least one of `body`, `headers` or `computed` must be True")
+                "At least one of `body`, `headers` or `computed` must be True"
+            )
 
         # isinstance stricly requires this to be a tuple
         components = tuple(components)
@@ -1059,7 +1085,8 @@ class Resource(dict):
                         for raw in value:
                             if isinstance(raw, Resource):
                                 converted.append(
-                                    raw.to_dict(_to_munch=_to_munch))
+                                    raw.to_dict(_to_munch=_to_munch)
+                                )
                             elif isinstance(raw, dict) and _to_munch:
                                 converted.append(munch.Munch(raw))
                             else:
@@ -1078,8 +1105,11 @@ class Resource(dict):
     def _to_munch(self, original_names=True):
         """Convert this resource into a Munch compatible with shade."""
         return self.to_dict(
-            body=True, headers=False,
-            original_names=original_names, _to_munch=True)
+            body=True,
+            headers=False,
+            original_names=original_names,
+            _to_munch=True,
+        )
 
     def _unpack_properties_to_resource_root(self, body):
         if not body:
@@ -1111,16 +1141,16 @@ class Resource(dict):
                 original_body = self._original_body
             else:
                 new = self._unpack_properties_to_resource_root(
-                    self._body.attributes)
+                    self._body.attributes
+                )
                 original_body = self._unpack_properties_to_resource_root(
-                    self._original_body)
+                    self._original_body
+                )
 
             # NOTE(gtema) sort result, since we might need validate it in tests
             body = sorted(
-                list(jsonpatch.make_patch(
-                    original_body,
-                    new).patch),
-                key=operator.itemgetter('path')
+                list(jsonpatch.make_patch(original_body, new).patch),
+                key=operator.itemgetter('path'),
             )
         else:
             if not self._store_unknown_attrs_as_properties:
@@ -1128,7 +1158,8 @@ class Resource(dict):
                 body = self._body.dirty
             else:
                 body = self._unpack_properties_to_resource_root(
-                    self._body.dirty)
+                    self._body.dirty
+                )
 
             if prepend_key and self.resource_key is not None:
                 body = {self.resource_key: body}
@@ -1176,7 +1207,8 @@ class Resource(dict):
         if requires_id:
             if self.id is None:
                 raise exceptions.InvalidRequest(
-                    "Request requires an ID but none was found")
+                    "Request requires an ID but none was found"
+                )
 
             uri = utils.urljoin(uri, self.id)
 
@@ -1217,7 +1249,8 @@ class Resource(dict):
                     self._unknown_attrs_in_body.update(body)
                 elif self._store_unknown_attrs_as_properties:
                     body_attrs = self._pack_attrs_under_properties(
-                        body_attrs, body)
+                        body_attrs, body
+                    )
 
                 self._body.attributes.update(body_attrs)
                 self._body.clean()
@@ -1256,7 +1289,8 @@ class Resource(dict):
         raise ValueError(
             "The session argument to Resource methods requires either an"
             " instance of an openstack.proxy.Proxy object or at the very least"
-            " a raw keystoneauth1.adapter.Adapter.")
+            " a raw keystoneauth1.adapter.Adapter."
+        )
 
     @classmethod
     def _get_microversion_for_list(cls, session):
@@ -1278,8 +1312,9 @@ class Resource(dict):
         if session.default_microversion:
             return session.default_microversion
 
-        return utils.maximum_supported_microversion(session,
-                                                    cls._max_microversion)
+        return utils.maximum_supported_microversion(
+            session, cls._max_microversion
+        )
 
     def _get_microversion_for(self, session, action):
         """Get microversion to use for the given action.
@@ -1298,7 +1333,11 @@ class Resource(dict):
         return self._get_microversion_for_list(session)
 
     def _assert_microversion_for(
-        self, session, action, expected, error_message=None,
+        self,
+        session,
+        action,
+        expected,
+        error_message=None,
     ):
         """Enforce that the microversion for action satisfies the requirement.
 
@@ -1311,6 +1350,7 @@ class Resource(dict):
         :raises: :exc:`~openstack.exceptions.NotSupported` if the version
             used for the action is lower than the expected one.
         """
+
         def _raise(message):
             if error_message:
                 error_message.rstrip('.')
@@ -1323,16 +1363,19 @@ class Resource(dict):
         if expected is None:
             return actual
         elif actual is None:
-            message = ("API version %s is required, but the default "
-                       "version will be used.") % expected
+            message = (
+                "API version %s is required, but the default "
+                "version will be used."
+            ) % expected
             _raise(message)
 
         actual_n = discover.normalize_version_number(actual)
         expected_n = discover.normalize_version_number(expected)
         if actual_n < expected_n:
-            message = ("API version %(expected)s is required, but %(actual)s "
-                       "will be used.") % {'expected': expected,
-                                           'actual': actual}
+            message = (
+                "API version %(expected)s is required, but %(actual)s "
+                "will be used."
+            ) % {'expected': expected, 'actual': actual}
             _raise(message)
 
         return actual
@@ -1357,33 +1400,51 @@ class Resource(dict):
 
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'create')
-        requires_id = (self.create_requires_id
-                       if self.create_requires_id is not None
-                       else self.create_method == 'PUT')
+        requires_id = (
+            self.create_requires_id
+            if self.create_requires_id is not None
+            else self.create_method == 'PUT'
+        )
 
         if self.create_exclude_id_from_body:
             self._body._dirty.discard("id")
 
         if self.create_method == 'PUT':
-            request = self._prepare_request(requires_id=requires_id,
-                                            prepend_key=prepend_key,
-                                            base_path=base_path)
-            response = session.put(request.url,
-                                   json=request.body, headers=request.headers,
-                                   microversion=microversion, params=params)
+            request = self._prepare_request(
+                requires_id=requires_id,
+                prepend_key=prepend_key,
+                base_path=base_path,
+            )
+            response = session.put(
+                request.url,
+                json=request.body,
+                headers=request.headers,
+                microversion=microversion,
+                params=params,
+            )
         elif self.create_method == 'POST':
-            request = self._prepare_request(requires_id=requires_id,
-                                            prepend_key=prepend_key,
-                                            base_path=base_path)
-            response = session.post(request.url,
-                                    json=request.body, headers=request.headers,
-                                    microversion=microversion, params=params)
+            request = self._prepare_request(
+                requires_id=requires_id,
+                prepend_key=prepend_key,
+                base_path=base_path,
+            )
+            response = session.post(
+                request.url,
+                json=request.body,
+                headers=request.headers,
+                microversion=microversion,
+                params=params,
+            )
         else:
             raise exceptions.ResourceFailure(
-                "Invalid create method: %s" % self.create_method)
+                "Invalid create method: %s" % self.create_method
+            )
 
-        has_body = (self.has_body if self.create_returns_body is None
-                    else self.create_returns_body)
+        has_body = (
+            self.has_body
+            if self.create_returns_body is None
+            else self.create_returns_body
+        )
         self.microversion = microversion
         self._translate_response(response, has_body=has_body)
         # direct comparision to False since we need to rule out None
@@ -1420,22 +1481,28 @@ class Resource(dict):
         if not cls.allow_create:
             raise exceptions.MethodNotSupported(cls, "create")
 
-        if not (data and isinstance(data, list)
-                and all([isinstance(x, dict) for x in data])):
+        if not (
+            data
+            and isinstance(data, list)
+            and all([isinstance(x, dict) for x in data])
+        ):
             raise ValueError('Invalid data passed: %s' % data)
 
         session = cls._get_session(session)
         microversion = cls._get_microversion_for(cls, session, 'create')
-        requires_id = (cls.create_requires_id
-                       if cls.create_requires_id is not None
-                       else cls.create_method == 'PUT')
+        requires_id = (
+            cls.create_requires_id
+            if cls.create_requires_id is not None
+            else cls.create_method == 'PUT'
+        )
         if cls.create_method == 'PUT':
             method = session.put
         elif cls.create_method == 'POST':
             method = session.post
         else:
             raise exceptions.ResourceFailure(
-                "Invalid create method: %s" % cls.create_method)
+                "Invalid create method: %s" % cls.create_method
+            )
 
         body = []
         resources = []
@@ -1447,15 +1514,21 @@ class Resource(dict):
             # to return newly created resource objects.
             resource = cls.new(connection=session._get_connection(), **attrs)
             resources.append(resource)
-            request = resource._prepare_request(requires_id=requires_id,
-                                                base_path=base_path)
+            request = resource._prepare_request(
+                requires_id=requires_id, base_path=base_path
+            )
             body.append(request.body)
 
         if prepend_key:
             body = {cls.resources_key: body}
 
-        response = method(request.url, json=body, headers=request.headers,
-                          microversion=microversion, params=params)
+        response = method(
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=microversion,
+            params=params,
+        )
         exceptions.raise_from_response(response)
         data = response.json()
 
@@ -1465,14 +1538,22 @@ class Resource(dict):
         if not isinstance(data, list):
             data = [data]
 
-        has_body = (cls.has_body if cls.create_returns_body is None
-                    else cls.create_returns_body)
+        has_body = (
+            cls.has_body
+            if cls.create_returns_body is None
+            else cls.create_returns_body
+        )
         if has_body and cls.create_returns_body is False:
             return (r.fetch(session) for r in resources)
         else:
-            return (cls.existing(microversion=microversion,
-                                 connection=session._get_connection(),
-                                 **res_dict) for res_dict in data)
+            return (
+                cls.existing(
+                    microversion=microversion,
+                    connection=session._get_connection(),
+                    **res_dict,
+                )
+                for res_dict in data
+            )
 
     def fetch(
         self,
@@ -1505,13 +1586,17 @@ class Resource(dict):
         if not self.allow_fetch:
             raise exceptions.MethodNotSupported(self, "fetch")
 
-        request = self._prepare_request(requires_id=requires_id,
-                                        base_path=base_path)
+        request = self._prepare_request(
+            requires_id=requires_id, base_path=base_path
+        )
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'fetch')
-        response = session.get(request.url, microversion=microversion,
-                               params=params,
-                               skip_cache=skip_cache)
+        response = session.get(
+            request.url,
+            microversion=microversion,
+            params=params,
+            skip_cache=skip_cache,
+        )
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
@@ -1541,8 +1626,7 @@ class Resource(dict):
 
         session = self._get_session(session)
         microversion = self._get_microversion_for(session, 'fetch')
-        response = session.head(request.url,
-                                microversion=microversion)
+        response = session.head(request.url, microversion=microversion)
 
         self.microversion = microversion
         self._translate_response(response, has_body=False)
@@ -1551,8 +1635,9 @@ class Resource(dict):
     @property
     def requires_commit(self):
         """Whether the next commit() call will do anything."""
-        return (self._body.dirty or self._header.dirty
-                or self.allow_empty_commit)
+        return (
+            self._body.dirty or self._header.dirty or self.allow_empty_commit
+        )
 
     def commit(
         self,
@@ -1596,14 +1681,19 @@ class Resource(dict):
         if self.commit_jsonpatch:
             kwargs['patch'] = True
 
-        request = self._prepare_request(prepend_key=prepend_key,
-                                        base_path=base_path,
-                                        **kwargs)
+        request = self._prepare_request(
+            prepend_key=prepend_key, base_path=base_path, **kwargs
+        )
         microversion = self._get_microversion_for(session, 'commit')
 
-        return self._commit(session, request, self.commit_method, microversion,
-                            has_body=has_body,
-                            retry_on_conflict=retry_on_conflict)
+        return self._commit(
+            session,
+            request,
+            self.commit_method,
+            microversion,
+            has_body=has_body,
+            retry_on_conflict=retry_on_conflict,
+        )
 
     def _commit(
         self,
@@ -1629,11 +1719,16 @@ class Resource(dict):
             call = getattr(session, method.lower())
         except AttributeError:
             raise exceptions.ResourceFailure(
-                "Invalid commit method: %s" % method)
+                "Invalid commit method: %s" % method
+            )
 
-        response = call(request.url, json=request.body,
-                        headers=request.headers, microversion=microversion,
-                        **kwargs)
+        response = call(
+            request.url,
+            json=request.body,
+            headers=request.headers,
+            microversion=microversion,
+            **kwargs,
+        )
 
         self.microversion = microversion
         self._translate_response(response, has_body=has_body)
@@ -1708,15 +1803,21 @@ class Resource(dict):
         if not self.allow_patch:
             raise exceptions.MethodNotSupported(self, "patch")
 
-        request = self._prepare_request(prepend_key=prepend_key,
-                                        base_path=base_path, patch=True)
+        request = self._prepare_request(
+            prepend_key=prepend_key, base_path=base_path, patch=True
+        )
         microversion = self._get_microversion_for(session, 'patch')
         if patch:
             request.body += self._convert_patch(patch)
 
-        return self._commit(session, request, 'PATCH', microversion,
-                            has_body=has_body,
-                            retry_on_conflict=retry_on_conflict)
+        return self._commit(
+            session,
+            request,
+            'PATCH',
+            microversion,
+            has_body=has_body,
+            retry_on_conflict=retry_on_conflict,
+        )
 
     def delete(self, session, error_message=None, **kwargs):
         """Delete the remote resource based on this instance.
@@ -1750,8 +1851,8 @@ class Resource(dict):
         microversion = self._get_microversion_for(session, 'delete')
 
         return session.delete(
-            request.url, headers=request.headers,
-            microversion=microversion)
+            request.url, headers=request.headers, microversion=microversion
+        )
 
     @classmethod
     def list(
@@ -1802,8 +1903,10 @@ class Resource(dict):
         if base_path is None:
             base_path = cls.base_path
         params = cls._query_mapping._validate(
-            params, base_path=base_path,
-            allow_unknown_params=allow_unknown_params)
+            params,
+            base_path=base_path,
+            allow_unknown_params=allow_unknown_params,
+        )
         query_params = cls._query_mapping._transpose(params, cls)
         uri = base_path % params
         uri_params = {}
@@ -1812,10 +1915,7 @@ class Resource(dict):
 
         for k, v in params.items():
             # We need to gather URI parts to set them on the resource later
-            if (
-                hasattr(cls, k)
-                and isinstance(getattr(cls, k), URI)
-            ):
+            if hasattr(cls, k) and isinstance(getattr(cls, k), URI):
                 uri_params[k] = v
 
         # Track the total number of resources yielded so we can paginate
@@ -1827,7 +1927,8 @@ class Resource(dict):
                 uri,
                 headers={"Accept": "application/json"},
                 params=query_params.copy(),
-                microversion=microversion)
+                microversion=microversion,
+            )
             exceptions.raise_from_response(response)
             data = response.json()
 
@@ -1857,14 +1958,16 @@ class Resource(dict):
                 value = cls.existing(
                     microversion=microversion,
                     connection=session._get_connection(),
-                    **raw_resource)
+                    **raw_resource,
+                )
                 marker = value.id
                 yield value
                 total_yielded += 1
 
             if resources and paginated:
                 uri, next_params = cls._get_next_link(
-                    uri, response, data, marker, limit, total_yielded)
+                    uri, response, data, marker, limit, total_yielded
+                )
                 try:
                     if next_params['marker'] == last_marker:
                         # If next page marker is same as what we were just
@@ -1905,7 +2008,7 @@ class Resource(dict):
             # Glance has a next field in the main body
             next_link = next_link or data.get('next')
             if next_link and next_link.startswith('/v'):
-                next_link = next_link[next_link.find('/', 1) + 1:]
+                next_link = next_link[next_link.find('/', 1) + 1 :]
 
         if not next_link and 'next' in response.links:
             # RFC5988 specifies Link headers and requests parses them if they
@@ -1956,7 +2059,7 @@ class Resource(dict):
                     the_result = maybe_result
                 else:
                     msg = "More than one %s exists with the name '%s'."
-                    msg = (msg % (cls.__name__, name_or_id))
+                    msg = msg % (cls.__name__, name_or_id)
                     raise exceptions.DuplicateResource(msg)
 
         return the_result
@@ -1998,9 +2101,8 @@ class Resource(dict):
         # Try to short-circuit by looking directly for a matching ID.
         try:
             match = cls.existing(
-                id=name_or_id,
-                connection=session._get_connection(),
-                **params)
+                id=name_or_id, connection=session._get_connection(), **params
+            )
             return match.fetch(session, **params)
         except (exceptions.NotFoundException, exceptions.BadRequestException):
             # NOTE(gtema): There are few places around openstack that return
@@ -2010,8 +2112,10 @@ class Resource(dict):
         if list_base_path:
             params['base_path'] = list_base_path
 
-        if ('name' in cls._query_mapping._mapping.keys()
-                and 'name' not in params):
+        if (
+            'name' in cls._query_mapping._mapping.keys()
+            and 'name' not in params
+        ):
             params['name'] = name_or_id
 
         data = cls.list(session, **params)
@@ -2023,7 +2127,8 @@ class Resource(dict):
         if ignore_missing:
             return None
         raise exceptions.ResourceNotFound(
-            "No %s found for %s" % (cls.__name__, name_or_id))
+            "No %s found for %s" % (cls.__name__, name_or_id)
+        )
 
 
 def _normalize_status(status):
@@ -2076,18 +2181,20 @@ def wait_for_status(
     failures = [f.lower() for f in failures]
     name = "{res}:{id}".format(res=resource.__class__.__name__, id=resource.id)
     msg = "Timeout waiting for {name} to transition to {status}".format(
-        name=name, status=status)
+        name=name, status=status
+    )
 
     for count in utils.iterate_timeout(
-            timeout=wait,
-            message=msg,
-            wait=interval):
+        timeout=wait, message=msg, wait=interval
+    ):
         resource = resource.fetch(session, skip_cache=True)
 
         if not resource:
             raise exceptions.ResourceFailure(
                 "{name} went away while waiting for {status}".format(
-                    name=name, status=status))
+                    name=name, status=status
+                )
+            )
 
         new_status = getattr(resource, attribute)
         normalized_status = _normalize_status(new_status)
@@ -2096,10 +2203,17 @@ def wait_for_status(
         elif normalized_status in failures:
             raise exceptions.ResourceFailure(
                 "{name} transitioned to failure state {status}".format(
-                    name=name, status=new_status))
+                    name=name, status=new_status
+                )
+            )
 
-        LOG.debug('Still waiting for resource %s to reach state %s, '
-                  'current state is %s', name, status, new_status)
+        LOG.debug(
+            'Still waiting for resource %s to reach state %s, '
+            'current state is %s',
+            name,
+            status,
+            new_status,
+        )
 
 
 def wait_for_delete(session, resource, interval, wait):
@@ -2118,11 +2232,12 @@ def wait_for_delete(session, resource, interval, wait):
     """
     orig_resource = resource
     for count in utils.iterate_timeout(
-            timeout=wait,
-            message="Timeout waiting for {res}:{id} to delete".format(
-                res=resource.__class__.__name__,
-                id=resource.id),
-            wait=interval):
+        timeout=wait,
+        message="Timeout waiting for {res}:{id} to delete".format(
+            res=resource.__class__.__name__, id=resource.id
+        ),
+        wait=interval,
+    ):
         try:
             resource = resource.fetch(session, skip_cache=True)
             if not resource:
