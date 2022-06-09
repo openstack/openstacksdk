@@ -44,7 +44,7 @@ class Group(resource.Resource):
     def _action(self, session, body):
         """Preform group actions given the message body."""
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'create')
+        microversion = self._get_microversion(session, action='create')
         url = utils.urljoin(self.base_path, self.id, 'action')
         response = session.post(url, json=body, microversion=microversion)
         exceptions.raise_from_response(response)
@@ -71,7 +71,7 @@ class Group(resource.Resource):
     ):
         """Creates a new group from source."""
         session = cls._get_session(session)
-        microversion = cls._get_microversion_for(cls, session, 'create')
+        microversion = cls._get_microversion(session, action='create')
         url = utils.urljoin(cls.base_path, 'action')
         body = {
             'create-from-src': {

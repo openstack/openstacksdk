@@ -106,7 +106,7 @@ class Backup(resource.Resource):
             raise exceptions.MethodNotSupported(self, "create")
 
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'create')
+        microversion = self._get_microversion(session, action='create')
         requires_id = (self.create_requires_id
                        if self.create_requires_id is not None
                        else self.create_method == 'PUT')

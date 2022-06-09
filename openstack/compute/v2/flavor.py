@@ -145,7 +145,7 @@ class Flavor(resource.Resource):
         before that a separate call is required.
         """
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
-        microversion = self._get_microversion_for(session, 'fetch')
+        microversion = self._get_microversion(session, action='fetch')
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
         specs = response.json().get('extra_specs', {})
@@ -155,7 +155,7 @@ class Flavor(resource.Resource):
     def create_extra_specs(self, session, specs):
         """Creates extra specs for a flavor"""
         url = utils.urljoin(Flavor.base_path, self.id, 'os-extra_specs')
-        microversion = self._get_microversion_for(session, 'create')
+        microversion = self._get_microversion(session, action='create')
         response = session.post(
             url,
             json={'extra_specs': specs},
@@ -169,7 +169,7 @@ class Flavor(resource.Resource):
         """Get individual extra_spec property"""
         url = utils.urljoin(Flavor.base_path, self.id,
                             'os-extra_specs', prop)
-        microversion = self._get_microversion_for(session, 'fetch')
+        microversion = self._get_microversion(session, action='fetch')
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
         val = response.json().get(prop)
@@ -179,7 +179,7 @@ class Flavor(resource.Resource):
         """Update An Extra Spec For A Flavor"""
         url = utils.urljoin(Flavor.base_path, self.id,
                             'os-extra_specs', prop)
-        microversion = self._get_microversion_for(session, 'commit')
+        microversion = self._get_microversion(session, action='commit')
         response = session.put(
             url,
             json={prop: val},
@@ -192,7 +192,7 @@ class Flavor(resource.Resource):
         """Delete An Extra Spec For A Flavor"""
         url = utils.urljoin(Flavor.base_path, self.id,
                             'os-extra_specs', prop)
-        microversion = self._get_microversion_for(session, 'delete')
+        microversion = self._get_microversion(session, action='delete')
         response = session.delete(
             url,
             microversion=microversion)

@@ -63,7 +63,7 @@ class Introspection(resource.Resource):
 
         session = self._get_session(session)
 
-        version = self._get_microversion_for(session, 'delete')
+        version = self._get_microversion(session, action='delete')
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'abort')
         response = session.post(
@@ -89,7 +89,7 @@ class Introspection(resource.Resource):
         """
         session = self._get_session(session)
 
-        version = (self._get_microversion_for(session, 'fetch')
+        version = (self._get_microversion(session, action='fetch')
                    if processed else '1.17')
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'data')

@@ -74,14 +74,10 @@ class ServerMigration(resource.Resource):
 
     _max_microversion = '2.80'
 
-    @classmethod
-    def _get_microversion_for_action(cls, session):
-        return cls._get_microversion_for_list(session)
-
     def _action(self, session, body):
         """Preform server migration actions given the message body."""
         session = self._get_session(session)
-        microversion = self._get_microversion_for_list(session)
+        microversion = self._get_microversion(session, action='list')
 
         url = utils.urljoin(
             self.base_path % {'server_uuid': self.server_id},

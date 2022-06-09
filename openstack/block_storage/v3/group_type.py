@@ -51,7 +51,7 @@ class GroupType(resource.Resource):
         :returns: An updated version of this object.
         """
         url = utils.urljoin(GroupType.base_path, self.id, 'group_specs')
-        microversion = self._get_microversion_for(session, 'fetch')
+        microversion = self._get_microversion(session, action='fetch')
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
         specs = response.json().get('group_specs', {})
@@ -69,7 +69,7 @@ class GroupType(resource.Resource):
         :returns: An updated version of this object.
         """
         url = utils.urljoin(GroupType.base_path, self.id, 'group_specs')
-        microversion = self._get_microversion_for(session, 'create')
+        microversion = self._get_microversion(session, action='create')
         response = session.post(
             url, json={'group_specs': specs}, microversion=microversion,
         )
@@ -86,7 +86,7 @@ class GroupType(resource.Resource):
         :returns: The value of the group spec property.
         """
         url = utils.urljoin(GroupType.base_path, self.id, 'group_specs', prop)
-        microversion = self._get_microversion_for(session, 'fetch')
+        microversion = self._get_microversion(session, action='fetch')
         response = session.get(url, microversion=microversion)
         exceptions.raise_from_response(response)
         val = response.json().get(prop)
@@ -101,7 +101,7 @@ class GroupType(resource.Resource):
         :returns: The updated value of the group spec property.
         """
         url = utils.urljoin(GroupType.base_path, self.id, 'group_specs', prop)
-        microversion = self._get_microversion_for(session, 'commit')
+        microversion = self._get_microversion(session, action='commit')
         response = session.put(
             url, json={prop: val}, microversion=microversion
         )
@@ -117,6 +117,6 @@ class GroupType(resource.Resource):
         :returns: None
         """
         url = utils.urljoin(GroupType.base_path, self.id, 'group_specs', prop)
-        microversion = self._get_microversion_for(session, 'delete')
+        microversion = self._get_microversion(session, action='delete')
         response = session.delete(url, microversion=microversion)
         exceptions.raise_from_response(response)
