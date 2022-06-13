@@ -15,8 +15,6 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
-import munch
-
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
@@ -37,22 +35,33 @@ class IdentityCloudMixin:
 
         With no parameters, returns a full listing of all visible projects.
 
-        :param domain_id: domain ID to scope the searched projects.
-        :param name_or_id: project name or ID.
-        :param filters: a dict containing additional filters to use
+        :param domain_id: Domain ID to scope the searched projects.
+        :param name_or_id: Name or ID of the project(s).
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
             OR
+
             A string containing a jmespath expression for further filtering.
-            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+            Example::
 
-        :returns: a list of ``munch.Munch`` containing the projects
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :raises: ``OpenStackCloudException``: if something goes wrong during
+        :returns: A list of identity ``Project`` objects.
+        :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call.
         """
         if not filters:
             filters = {}
-        query = dict(
-            **filters)
+        query = dict(**filters)
         if name_or_id:
             query['name'] = name_or_id
         if domain_id:
@@ -61,41 +70,86 @@ class IdentityCloudMixin:
         return list(self.identity.projects(**query))
 
     def search_projects(self, name_or_id=None, filters=None, domain_id=None):
-        '''Backwards compatibility method for search_projects
+        """Backwards compatibility method for search_projects
 
         search_projects originally had a parameter list that was name_or_id,
         filters and list had domain_id first. This method exists in this form
         to allow code written with positional parameter to still work. But
         really, use keyword arguments.
-        '''
+
+        :param name_or_id: Name or ID of the project(s).
+        :param filters: dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :param domain_id: Domain ID to scope the searched projects.
+        :returns: A list of identity ``Project`` objects.
+        """
         projects = self.list_projects(domain_id=domain_id, filters=filters)
         return _utils._filter_list(projects, name_or_id, filters)
 
     def get_project(self, name_or_id, filters=None, domain_id=None):
         """Get exactly one project.
 
-        :param name_or_id: project name or ID.
-        :param filters: a dict containing additional filters to use.
-        :param domain_id: domain ID (identity v3 only).
+        :param name_or_id: Name or unique ID of the project.
+        :param filters: **DEPRECATED** A dictionary of meta data to use for
+            further filtering. Elements of this dictionary may, themselves, be
+            dictionaries. Example::
 
-        :returns: a list of ``munch.Munch`` containing the project description.
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
-        :raises: ``OpenStackCloudException``: if something goes wrong during
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :param domain_id: Domain ID to scope the retrieved project.
+        :returns: An identity ``Project`` object.
+        :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call.
         """
         return _utils._get_entity(self, 'project', name_or_id, filters,
                                   domain_id=domain_id)
 
     def update_project(
-        self, name_or_id, enabled=None, domain_id=None, **kwargs
+        self,
+        name_or_id,
+        enabled=None,
+        domain_id=None,
+        **kwargs,
     ):
+        """Update a project
 
+        :param name_or_id: Name or unique ID of the project.
+        :param enabled: Whether the project is enabled or not.
+        :param domain_id: Domain ID to scope the retrieved project.
+        :returns: An identity ``Project`` object.
+        """
         project = self.identity.find_project(
             name_or_id=name_or_id,
-            domain_id=domain_id)
+            domain_id=domain_id,
+        )
         if not project:
-            raise exceptions.SDKException(
-                "Project %s not found." % name_or_id)
+            raise exceptions.SDKException("Project %s not found." % name_or_id)
         if enabled is not None:
             kwargs.update({'enabled': enabled})
         project = self.identity.update_project(project, **kwargs)
@@ -103,8 +157,21 @@ class IdentityCloudMixin:
         return project
 
     def create_project(
-            self, name, domain_id, description=None, enabled=True, **kwargs):
-        """Create a project."""
+        self,
+        name,
+        domain_id,
+        description=None,
+        enabled=True,
+        **kwargs,
+    ):
+        """Create a project.
+
+        :param name:
+        :param domain_id:
+        :param description:
+        :param enabled:
+        :returns: An identity ``Project`` object.
+        """
         attrs = dict(
             name=name,
             description=description,
@@ -118,12 +185,9 @@ class IdentityCloudMixin:
     def delete_project(self, name_or_id, domain_id=None):
         """Delete a project.
 
-        :param string name_or_id: Project name or ID.
-        :param string domain_id: Domain ID containing the project(identity v3
-            only).
-
+        :param name_or_id: Name or unique ID of the project.
+        :param domain_id: Domain ID to scope the retrieved project.
         :returns: True if delete succeeded, False if the project was not found.
-
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
@@ -149,71 +213,89 @@ class IdentityCloudMixin:
     def list_users(self, **kwargs):
         """List users.
 
-        :param domain_id: Domain ID. (v3)
-
-        :returns: a list of ``munch.Munch`` containing the user description.
-
+        :param name:
+        :param domain_id: Domain ID to scope the retrieved users.
+        :returns: A list of identity ``User`` objects.
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
         return list(self.identity.users(**kwargs))
 
-    @_utils.valid_kwargs('domain_id', 'name')
-    def search_users(self, name_or_id=None, filters=None, **kwargs):
+    def search_users(self, name_or_id=None, filters=None, domain_id=None):
         """Search users.
 
-        :param string name_or_id: user name or ID.
-        :param domain_id: Domain ID. (v3)
-        :param filters: a dict containing additional filters to use.
+        :param name_or_id: Name or ID of the user(s).
+        :param domain_id: Domain ID to scope the retrieved users.
+        :param filters: dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
             OR
+
             A string containing a jmespath expression for further filtering.
-            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+            Example::
 
-        :returns: a list of ``munch.Munch`` containing the users
-
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :returns: A list of identity ``User`` objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
+        kwargs = {}
         # NOTE(jdwidari) if name_or_id isn't UUID like then make use of server-
         # side filter for user name https://bit.ly/2qh0Ijk
         # especially important when using LDAP and using page to limit results
         if name_or_id and not _utils._is_uuid_like(name_or_id):
             kwargs['name'] = name_or_id
+        if domain_id:
+            kwargs['domain_id'] = domain_id
         users = self.list_users(**kwargs)
         return _utils._filter_list(users, name_or_id, filters)
 
+    # TODO(stephenfin): Remove 'filters' in a future major version
+    # TODO(stephenfin): Remove 'kwargs' since it doesn't do anything
     @_utils.valid_kwargs('domain_id')
     def get_user(self, name_or_id, filters=None, **kwargs):
         """Get exactly one user.
 
-        :param string name_or_id: user name or ID.
-        :param domain_id: Domain ID. (v3)
-        :param filters: a dict containing additional filters to use.
+        :param name_or_id: Name or unique ID of the user.
+        :param filters: **DEPRECATED** A dictionary of meta data to use for
+            further filtering. Elements of this dictionary may, themselves, be
+            dictionaries. Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
             OR
+
             A string containing a jmespath expression for further filtering.
-            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+            Example::
 
-        :returns: a single ``munch.Munch`` containing the user description.
-
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :returns: an identity ``User`` object
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        if not _utils._is_uuid_like(name_or_id):
-            kwargs['name'] = name_or_id
-
         return _utils._get_entity(self, 'user', name_or_id, filters, **kwargs)
 
+    # TODO(stephenfin): Remove normalize since it doesn't do anything
     def get_user_by_id(self, user_id, normalize=True):
         """Get a user by ID.
 
         :param string user_id: user ID
-        :param bool normalize: Flag to control dict normalization
-
-        :returns: a single ``munch.Munch`` containing the user description
+        :returns: an identity ``User`` object
         """
-        user = self.identity.get_user(user_id)
-
-        return user
+        return self.identity.get_user(user_id)
 
     @_utils.valid_kwargs('name', 'email', 'enabled', 'domain_id', 'password',
                          'description', 'default_project')
@@ -237,8 +319,15 @@ class IdentityCloudMixin:
         return user
 
     def create_user(
-            self, name, password=None, email=None, default_project=None,
-            enabled=True, domain_id=None, description=None):
+        self,
+        name,
+        password=None,
+        email=None,
+        default_project=None,
+        enabled=True,
+        domain_id=None,
+        description=None,
+    ):
         """Create a user."""
         params = self._get_identity_params(domain_id, default_project)
         params.update({'name': name, 'password': password, 'email': email,
@@ -286,9 +375,8 @@ class IdentityCloudMixin:
     def add_user_to_group(self, name_or_id, group_name_or_id):
         """Add a user to a group.
 
-        :param string name_or_id: User name or ID
-        :param string group_name_or_id: Group name or ID
-
+        :param name_or_id: Name or unique ID of the user.
+        :param group_name_or_id: Group name or ID
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
@@ -299,11 +387,9 @@ class IdentityCloudMixin:
     def is_user_in_group(self, name_or_id, group_name_or_id):
         """Check to see if a user is in a group.
 
-        :param string name_or_id: User name or ID
-        :param string group_name_or_id: Group name or ID
-
+        :param name_or_id: Name or unique ID of the user.
+        :param group_name_or_id: Group name or ID
         :returns: True if user is in the group, False otherwise
-
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
@@ -314,9 +400,8 @@ class IdentityCloudMixin:
     def remove_user_from_group(self, name_or_id, group_name_or_id):
         """Remove a user from a group.
 
-        :param string name_or_id: User name or ID
-        :param string group_name_or_id: Group name or ID
-
+        :param name_or_id: Name or unique ID of the user.
+        :param group_name_or_id: Group name or ID
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
@@ -333,18 +418,9 @@ class IdentityCloudMixin:
         :param service_type: Service type. (type or service_type required.)
         :param description: Service description (optional).
         :param enabled: Whether the service is enabled (v3 only)
-
-        :returns: a ``munch.Munch`` containing the services description,
-            i.e. the following attributes::
-            - id: <service id>
-            - name: <service name>
-            - type: <service type>
-            - service_type: <service type>
-            - description: <service description>
-
+        :returns: an identity ``Service`` object
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
-
         """
         type_ = kwargs.pop('type', None)
         service_type = kwargs.pop('service_type', None)
@@ -375,8 +451,7 @@ class IdentityCloudMixin:
     def list_services(self):
         """List all Keystone services.
 
-        :returns: a list of ``munch.Munch`` containing the services description
-
+        :returns: A list of identity ``Service`` object
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -385,32 +460,37 @@ class IdentityCloudMixin:
     def search_services(self, name_or_id=None, filters=None):
         """Search Keystone services.
 
-        :param name_or_id: Name or id of the desired service.
-        :param filters: a dict containing additional filters to use. e.g.
-            {'type': 'network'}.
+        :param name_or_id: Name or ID of the service(s).
+        :param filters: dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
-        :returns: a list of ``munch.Munch`` containing the services description
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :returns: a list of identity ``Service`` objects
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
         services = self.list_services()
         return _utils._filter_list(services, name_or_id, filters)
 
+    # TODO(stephenfin): Remove 'filters' since it's a noop
     def get_service(self, name_or_id, filters=None):
         """Get exactly one Keystone service.
 
-        :param name_or_id: Name or id of the desired service.
-        :param filters: a dict containing additional filters to use. e.g.
-            {'type': 'network'}
-
-        :returns: a ``munch.Munch`` containing the services description,
-            i.e. the following attributes::
-            - id: <service id>
-            - name: <service name>
-            - type: <service type>
-            - description: <service description>
-
+        :param name_or_id: Name or unique ID of the service.
+        :returns: an identity ``Service`` object
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call or if multiple matches are found.
         """
@@ -419,10 +499,8 @@ class IdentityCloudMixin:
     def delete_service(self, name_or_id):
         """Delete a Keystone service.
 
-        :param name_or_id: Service name or id.
-
+        :param name_or_id: Name or unique ID of the service.
         :returns: True if delete succeeded, False otherwise.
-
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call
         """
@@ -430,6 +508,7 @@ class IdentityCloudMixin:
         if service is None:
             self.log.debug("Service %s not found for deleting", name_or_id)
             return False
+
         try:
             self.identity.delete_service(service)
             return True
@@ -439,8 +518,15 @@ class IdentityCloudMixin:
             return False
 
     @_utils.valid_kwargs('public_url', 'internal_url', 'admin_url')
-    def create_endpoint(self, service_name_or_id, url=None, interface=None,
-                        region=None, enabled=True, **kwargs):
+    def create_endpoint(
+        self,
+        service_name_or_id,
+        url=None,
+        interface=None,
+        region=None,
+        enabled=True,
+        **kwargs,
+    ):
         """Create a Keystone endpoint.
 
         :param service_name_or_id: Service name or id for this endpoint.
@@ -451,9 +537,7 @@ class IdentityCloudMixin:
         :param admin_url: Endpoint admin URL.
         :param region: Endpoint region.
         :param enabled: Whether the endpoint is enabled
-
-        :returns: a list of ``munch.Munch`` containing the endpoint description
-
+        :returns: A list of identity ``Endpoint`` objects
         :raises: OpenStackCloudException if the service cannot be found or if
             something goes wrong during the OpenStack API call.
         """
@@ -463,8 +547,9 @@ class IdentityCloudMixin:
 
         if (url or interface) and (public_url or internal_url or admin_url):
             raise exc.OpenStackCloudException(
-                "create_endpoint takes either url and interface OR"
-                " public_url, internal_url, admin_url")
+                "create_endpoint takes either url and interface OR "
+                "public_url, internal_url, admin_url"
+            )
 
         service = self.get_service(name_or_id=service_name_or_id)
         if service is None:
@@ -516,8 +601,7 @@ class IdentityCloudMixin:
     def list_endpoints(self):
         """List Keystone endpoints.
 
-        :returns: a list of ``munch.Munch`` containing the endpoint description
-
+        :returns: A list of identity ``Endpoint`` objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -526,18 +610,25 @@ class IdentityCloudMixin:
     def search_endpoints(self, id=None, filters=None):
         """List Keystone endpoints.
 
-        :param id: endpoint id.
-        :param filters: a dict containing additional filters to use. e.g.
-            {'region': 'region-a.geo-1'}
+        :param id: ID of endpoint(s).
+        :param filters: dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
-        :returns: a list of ``munch.Munch`` containing the endpoint
-            description. Each dict contains the following attributes::
-            - id: <endpoint id>
-            - region: <endpoint region>
-            - public_url: <endpoint public url>
-            - internal_url: <endpoint internal url> (optional)
-            - admin_url: <endpoint admin url> (optional)
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :returns: A list of identity ``Endpoint`` objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -548,30 +639,20 @@ class IdentityCloudMixin:
         endpoints = self.list_endpoints()
         return _utils._filter_list(endpoints, id, filters)
 
+    # TODO(stephenfin): Remove 'filters' since it's a noop
     def get_endpoint(self, id, filters=None):
         """Get exactly one Keystone endpoint.
 
-        :param id: endpoint id.
-        :param filters: a dict containing additional filters to use. e.g.
-            {'region': 'region-a.geo-1'}
-
-        :returns: a ``munch.Munch`` containing the endpoint description.
-            i.e. a ``munch.Munch`` containing the following attributes::
-            - id: <endpoint id>
-            - region: <endpoint region>
-            - public_url: <endpoint public url>
-            - internal_url: <endpoint internal url> (optional)
-            - admin_url: <endpoint admin url> (optional)
+        :param id: ID of endpoint.
+        :returns: An identity ``Endpoint`` object
         """
         return _utils._get_entity(self, 'endpoint', id, filters)
 
     def delete_endpoint(self, id):
         """Delete a Keystone endpoint.
 
-        :param id: Id of the endpoint to delete.
-
+        :param id: ID of the endpoint to delete.
         :returns: True if delete succeeded, False otherwise.
-
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call.
         """
@@ -594,9 +675,7 @@ class IdentityCloudMixin:
         :param name: The name of the domain.
         :param description: A description of the domain.
         :param enabled: Is the domain enabled or not (default True).
-
-        :returns: a ``munch.Munch`` containing the domain representation.
-
+        :returns: The created identity ``Endpoint`` object.
         :raise OpenStackCloudException: if the domain cannot be created.
         """
         domain_ref = {'name': name, 'enabled': enabled}
@@ -604,9 +683,26 @@ class IdentityCloudMixin:
             domain_ref['description'] = description
         return self.identity.create_domain(**domain_ref)
 
+    # TODO(stephenfin): domain_id and name_or_id are the same thing now;
+    # deprecate one of them
     def update_domain(
-            self, domain_id=None, name=None, description=None,
-            enabled=None, name_or_id=None):
+        self,
+        domain_id=None,
+        name=None,
+        description=None,
+        enabled=None,
+        name_or_id=None,
+    ):
+        """Update a Keystone domain
+
+        :param domain_id:
+        :param name:
+        :param description:
+        :param enabled:
+        :param name_or_id: Name or unique ID of the domain.
+        :returns: The updated identity ``Domain`` object.
+        :raise OpenStackCloudException: if the domain cannot be updated
+        """
         if domain_id is None:
             if name_or_id is None:
                 raise exc.OpenStackCloudException(
@@ -625,14 +721,14 @@ class IdentityCloudMixin:
         domain_ref.update({'enabled': enabled} if enabled is not None else {})
         return self.identity.update_domain(domain_id, **domain_ref)
 
+    # TODO(stephenfin): domain_id and name_or_id are the same thing now;
+    # deprecate one of them
     def delete_domain(self, domain_id=None, name_or_id=None):
-        """Delete a domain.
+        """Delete a Keystone domain.
 
         :param domain_id: ID of the domain to delete.
-        :param name_or_id: Name or ID of the domain to delete.
-
+        :param name_or_id: Name or unique ID of the domain.
         :returns: True if delete succeeded, False otherwise.
-
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call.
         """
@@ -661,26 +757,35 @@ class IdentityCloudMixin:
     def list_domains(self, **filters):
         """List Keystone domains.
 
-        :returns: a list of ``munch.Munch`` containing the domain description.
-
+        :returns: A list of identity ``Domain`` objects.
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
         return list(self.identity.domains(**filters))
 
+    # TODO(stephenfin): These arguments are backwards from everything else.
     def search_domains(self, filters=None, name_or_id=None):
         """Search Keystone domains.
 
-        :param name_or_id: domain name or id
-        :param dict filters: A dict containing additional filters to use.
-            Keys to search on are id, name, enabled and description.
+        :param name_or_id: Name or ID of the domain(s).
+        :param filters: dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
-        :returns: a list of ``munch.Munch`` containing the domain description.
-            Each ``munch.Munch`` contains the following attributes::
-            - id: <domain id>
-            - name: <domain name>
-            - description: <domain description>
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :returns: a list of identity ``Domain`` objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -692,40 +797,47 @@ class IdentityCloudMixin:
         else:
             return self.list_domains(**filters)
 
+    # TODO(stephenfin): domain_id and name_or_id are the same thing now;
+    # deprecate one of them
+    # TODO(stephenfin): Remove 'filters' in a future major version
     def get_domain(self, domain_id=None, name_or_id=None, filters=None):
         """Get exactly one Keystone domain.
 
-        :param domain_id: domain id.
-        :param name_or_id: domain name or id.
-        :param dict filters: A dict containing additional filters to use.
-            Keys to search on are id, name, enabled and description.
+        :param domain_id: ID of the domain.
+        :param name_or_id: Name or unique ID of the domain.
+        :param filters: **DEPRECATED** A dictionary of meta data to use for
+            further filtering. Elements of this dictionary may, themselves, be
+            dictionaries. Example::
 
-        :returns: a ``munch.Munch`` containing the domain description, or None
-            if not found. Each ``munch.Munch`` contains the following
-            attributes::
-            - id: <domain id>
-            - name: <domain name>
-            - description: <domain description>
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :returns: an identity ``Domain`` object
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
         if domain_id is None:
-            if not filters:
-                filters = {}
-            return self.identity.find_domain(name_or_id, **filters)
+            return self.identity.find_domain(name_or_id)
         else:
             return self.identity.get_domain(domain_id)
 
     @_utils.valid_kwargs('domain_id')
     @_utils.cache_on_arguments()
     def list_groups(self, **kwargs):
-        """List Keystone Groups.
+        """List Keystone groups.
 
-        :param domain_id: domain id.
-
-        :returns: A list of ``munch.Munch`` containing the group description.
-
+        :param domain_id: Domain ID.
+        :returns: A list of identity ``Group`` objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -735,28 +847,40 @@ class IdentityCloudMixin:
     def search_groups(self, name_or_id=None, filters=None, **kwargs):
         """Search Keystone groups.
 
-        :param name: Group name or id.
-        :param filters: A dict containing additional filters to use.
+        :param name_or_id: Name or ID of the group(s).
+        :param filters: dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
+
+            OR
+
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
         :param domain_id: domain id.
-
-        :returns: A list of ``munch.Munch`` containing the group description.
-
+        :returns: A list of identity ``Group`` objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
         groups = self.list_groups(**kwargs)
         return _utils._filter_list(groups, name_or_id, filters)
 
+    # TODO(stephenfin): Remove filters since it's a noop
+    # TODO(stephenfin): Remove kwargs since it's a noop
     @_utils.valid_kwargs('domain_id')
     def get_group(self, name_or_id, filters=None, **kwargs):
         """Get exactly one Keystone group.
 
-        :param id: Group name or id.
-        :param filters: A dict containing additional filters to use.
-        :param domain_id: domain id.
-
-        :returns: A ``munch.Munch`` containing the group description.
-
+        :param name_or_id: Name or unique ID of the group(s).
+        :returns: An identity ``Group`` object
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -768,9 +892,7 @@ class IdentityCloudMixin:
         :param string name: Group name.
         :param string description: Group description.
         :param string domain: Domain name or ID for the group.
-
-        :returns: A ``munch.Munch`` containing the group description.
-
+        :returns: An identity ``Group`` object
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -791,17 +913,19 @@ class IdentityCloudMixin:
         self.list_groups.invalidate(self)
         return group
 
-    @_utils.valid_kwargs('domain_id')
-    def update_group(self, name_or_id, name=None, description=None,
-                     **kwargs):
+    def update_group(
+        self,
+        name_or_id,
+        name=None,
+        description=None,
+        **kwargs,
+    ):
         """Update an existing group
 
-        :param string name: New group name.
-        :param string description: New group description.
-        :param domain_id: domain id.
-
-        :returns: A ``munch.Munch`` containing the group description.
-
+        :param name_or_id: Name or unique ID of the group.
+        :param name: New group name.
+        :param description: New group description.
+        :returns: The updated identity ``Group`` object.
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -823,20 +947,16 @@ class IdentityCloudMixin:
         self.list_groups.invalidate(self)
         return group
 
-    @_utils.valid_kwargs('domain_id')
-    def delete_group(self, name_or_id, **kwargs):
+    def delete_group(self, name_or_id):
         """Delete a group
 
-        :param name_or_id: ID or name of the group to delete.
-        :param domain_id: domain id.
-
+        :param name_or_id: Name or unique ID of the group.
         :returns: True if delete succeeded, False otherwise.
-
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
         try:
-            group = self.identity.find_group(name_or_id, **kwargs)
+            group = self.identity.find_group(name_or_id)
             if group is None:
                 self.log.debug(
                     "Group %s not found for deleting", name_or_id)
@@ -852,55 +972,51 @@ class IdentityCloudMixin:
                 "Unable to delete group {name}".format(name=name_or_id))
             return False
 
-    @_utils.valid_kwargs('domain_id', 'name')
     def list_roles(self, **kwargs):
         """List Keystone roles.
 
-        :param domain_id: domain id for listing roles
-
-        :returns: a list of ``munch.Munch`` containing the role description.
-
+        :returns: A list of identity ``Role`` objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
         return list(self.identity.roles(**kwargs))
 
-    @_utils.valid_kwargs('domain_id')
-    def search_roles(self, name_or_id=None, filters=None, **kwargs):
+    def search_roles(self, name_or_id=None, filters=None):
         """Seach Keystone roles.
 
-        :param string name: role name or id.
-        :param dict filters: a dict containing additional filters to use.
-        :param domain_id: domain id (v3)
+        :param name: Name or ID of the role(s).
+        :param filters: dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
-        :returns: a list of ``munch.Munch`` containing the role description.
-            Each ``munch.Munch`` contains the following attributes::
+                {
+                  'last_name': 'Smith',
+                  'other': {
+                      'gender': 'Female'
+                  }
+                }
 
-            - id: <role id>
-            - name: <role name>
-            - description: <role description>
+            OR
 
+            A string containing a jmespath expression for further filtering.
+            Example::
+
+                "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+        :returns: a list of identity ``Role`` objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
-        roles = self.list_roles(**kwargs)
+        roles = self.list_roles()
         return _utils._filter_list(roles, name_or_id, filters)
 
+    # TODO(stephenfin): Remove filters since it's a noop
+    # TODO(stephenfin): Remove kwargs since it's a noop
     @_utils.valid_kwargs('domain_id')
     def get_role(self, name_or_id, filters=None, **kwargs):
-        """Get exactly one Keystone role.
+        """Get a Keystone role.
 
-        :param id: role name or id.
-        :param filters: a dict containing additional filters to use.
-        :param domain_id: domain id (v3)
-
-        :returns: a single ``munch.Munch`` containing the role description.
-            Each ``munch.Munch`` contains the following attributes::
-
-            - id: <role id>
-            - name: <role name>
-            - description: <role description>
-
+        :param name_or_id: Name or unique ID of the role.
+        :returns: An identity ``Role`` object if found, else None.
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -955,14 +1071,9 @@ class IdentityCloudMixin:
               'user' and 'group' are mutually exclusive, as are 'domain' and
               'project'.
 
-        :returns: a list of
+        :returns: A list of indentity
             :class:`openstack.identity.v3.role_assignment.RoleAssignment`
-            objects. Contains the following attributes::
-
-            - id: <role id>
-            - user|group: <user or group id>
-            - project|domain: <project or domain id>
-
+            objects
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -975,13 +1086,13 @@ class IdentityCloudMixin:
             filters = {}
 
         # NOTE(samueldmq): the docs above say filters are *IDs*, though if
-        # munch.Munch objects are passed, this still works for backwards
+        # dict or Resource objects are passed, this still works for backwards
         # compatibility as keystoneclient allows either IDs or objects to be
         # passed in.
-        # TODO(samueldmq): fix the docs above to advertise munch.Munch objects
+        # TODO(samueldmq): fix the docs above to advertise Resource objects
         # can be provided as parameters too
         for k, v in filters.items():
-            if isinstance(v, munch.Munch):
+            if isinstance(v, dict):
                 filters[k] = v['id']
 
         for k in ['role', 'group', 'user']:
@@ -1004,9 +1115,7 @@ class IdentityCloudMixin:
 
         :param string name: The name of the role.
         :param domain_id: domain id (v3)
-
-        :returns: a ``munch.Munch`` containing the role description
-
+        :returns: an identity ``Role`` object
         :raise OpenStackCloudException: if the role cannot be created
         """
         kwargs['name'] = name
@@ -1016,12 +1125,10 @@ class IdentityCloudMixin:
     def update_role(self, name_or_id, name, **kwargs):
         """Update a Keystone role.
 
-        :param name_or_id: Name or id of the role to update
+        :param name_or_id: Name or unique ID of the role.
         :param string name: The new role name
         :param domain_id: domain id
-
-        :returns: a ``munch.Munch`` containing the role description
-
+        :returns: an identity ``Role`` object
         :raise OpenStackCloudException: if the role cannot be created
         """
         role = self.get_role(name_or_id, **kwargs)
@@ -1036,11 +1143,9 @@ class IdentityCloudMixin:
     def delete_role(self, name_or_id, **kwargs):
         """Delete a Keystone role.
 
-        :param string id: Name or id of the role to delete.
+        :param name_or_id: Name or unique ID of the role.
         :param domain_id: domain id (v3)
-
         :returns: True if delete succeeded, False otherwise.
-
         :raises: ``OpenStackCloudException`` if something goes wrong during
             the OpenStack API call.
         """
@@ -1102,7 +1207,7 @@ class IdentityCloudMixin:
                    timeout=60):
         """Grant a role to a user.
 
-        :param string name_or_id: The name or id of the role.
+        :param string name_or_id: Name or unique ID of the role.
         :param string user: The name or id of the user.
         :param string group: The name or id of the group. (v3)
         :param string project: The name or id of the project.
@@ -1198,7 +1303,7 @@ class IdentityCloudMixin:
                     wait=False, timeout=60):
         """Revoke a role from a user.
 
-        :param string name_or_id: The name or id of the role.
+        :param string name_or_id: Name or unique ID of the role.
         :param string user: The name or id of the user.
         :param string group: The name or id of the group. (v3)
         :param string project: The name or id of the project.
