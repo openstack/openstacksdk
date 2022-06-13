@@ -21,6 +21,7 @@ Network Resources
    v2/local_ip_association
    v2/metering_label
    v2/metering_label_rule
+   v2/ndp_proxy
    v2/network
    v2/network_ip_availability
    v2/network_segment_range
