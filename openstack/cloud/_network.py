@@ -39,15 +39,15 @@ class NetworkCloudMixin:
     def _has_neutron_extension(self, extension_alias):
         return extension_alias in self._neutron_extensions()
 
+    # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_networks(self, name_or_id=None, filters=None):
         """Search networks
 
         :param name_or_id: Name or ID of the desired network.
-        :param filters: a dict containing additional filters to use. e.g.
+        :param filters: A dict containing additional filters to use. e.g.
             {'router:external': True}
-
-        :returns: a list of ``munch.Munch`` containing the network description.
-
+        :returns: A list of network ``Network`` objects matching the search
+            criteria.
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -58,15 +58,15 @@ class NetworkCloudMixin:
             query.update(filters)
         return list(self.network.networks(**query))
 
+    # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_routers(self, name_or_id=None, filters=None):
         """Search routers
 
         :param name_or_id: Name or ID of the desired router.
-        :param filters: a dict containing additional filters to use. e.g.
+        :param filters: A dict containing additional filters to use. e.g.
             {'admin_state_up': True}
-
-        :returns: a list of ``munch.Munch`` containing the router description.
-
+        :returns: A list of network ``Router`` objects matching the search
+            criteria.
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -77,15 +77,15 @@ class NetworkCloudMixin:
             query.update(filters)
         return list(self.network.routers(**query))
 
+    # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_subnets(self, name_or_id=None, filters=None):
         """Search subnets
 
         :param name_or_id: Name or ID of the desired subnet.
-        :param filters: a dict containing additional filters to use. e.g.
+        :param filters: A dict containing additional filters to use. e.g.
             {'enable_dhcp': True}
-
-        :returns: a list of ``munch.Munch`` containing the subnet description.
-
+        :returns: A list of network ``Subnet`` objects matching the search
+            criteria.
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -96,15 +96,15 @@ class NetworkCloudMixin:
             query.update(filters)
         return list(self.network.subnets(**query))
 
+    # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_ports(self, name_or_id=None, filters=None):
         """Search ports
 
         :param name_or_id: Name or ID of the desired port.
-        :param filters: a dict containing additional filters to use. e.g.
+        :param filters: A dict containing additional filters to use. e.g.
             {'device_id': '2711c67a-b4a7-43dd-ace7-6187b791c3f0'}
-
-        :returns: a list of ``munch.Munch`` containing the port description.
-
+        :returns: A list of network ``Port`` objects matching the search
+            criteria.
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -121,9 +121,8 @@ class NetworkCloudMixin:
     def list_networks(self, filters=None):
         """List all available networks.
 
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of ``munch.Munch`` containing network info.
-
+        :param filters: (optional) A dict of filter conditions to push down.
+        :returns: A list of network ``Network`` objects.
         """
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
@@ -137,9 +136,8 @@ class NetworkCloudMixin:
     def list_routers(self, filters=None):
         """List all available routers.
 
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of router ``munch.Munch``.
-
+        :param filters: (optional) A dict of filter conditions to push down
+        :returns: A list of network ``Router`` objects.
         """
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
@@ -153,9 +151,8 @@ class NetworkCloudMixin:
     def list_subnets(self, filters=None):
         """List all available subnets.
 
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of subnet ``munch.Munch``.
-
+        :param filters: (optional) A dict of filter conditions to push down
+        :returns: A list of network ``Subnet`` objects.
         """
         # If the cloud is running nova-network, just return an empty list.
         if not self.has_service('network'):
@@ -169,9 +166,8 @@ class NetworkCloudMixin:
     def list_ports(self, filters=None):
         """List all available ports.
 
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of port ``munch.Munch``.
-
+        :param filters: (optional) A dict of filter conditions to push down
+        :returns: A list of network ``Port`` objects.
         """
         # If pushdown filters are specified and we do not have batched caching
         # enabled, bypass local caching and push down the filters.
@@ -208,13 +204,14 @@ class NetworkCloudMixin:
             filters = {}
         return list(self.network.ports(**filters))
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_qos_policy(self, name_or_id, filters=None):
         """Get a QoS policy by name or ID.
 
         :param name_or_id: Name or ID of the policy.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                     'last_name': 'Smith',
@@ -227,9 +224,7 @@ class NetworkCloudMixin:
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A policy ``munch.Munch`` or None if no matching network is
-            found.
-
+        :returns: A network ``QoSPolicy`` object if found, else None.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -242,15 +237,15 @@ class NetworkCloudMixin:
             ignore_missing=True,
             **filters)
 
+    # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_qos_policies(self, name_or_id=None, filters=None):
         """Search QoS policies
 
         :param name_or_id: Name or ID of the desired policy.
         :param filters: a dict containing additional filters to use. e.g.
             {'shared': True}
-
-        :returns: a list of ``munch.Munch`` containing the network description.
-
+        :returns: A list of network ``QosPolicy`` objects matching the search
+            criteria.
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -268,9 +263,8 @@ class NetworkCloudMixin:
     def list_qos_rule_types(self, filters=None):
         """List all available QoS rule types.
 
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of rule types ``munch.Munch``.
-
+        :param filters: (optional) A dict of filter conditions to push down
+        :returns: A list of network ``QosRuleType`` objects.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -281,14 +275,27 @@ class NetworkCloudMixin:
             filters = {}
         return list(self.network.qos_rule_types(**filters))
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_qos_rule_type_details(self, rule_type, filters=None):
         """Get a QoS rule type details by rule type name.
 
-        :param string rule_type: Name of the QoS rule type.
+        :param rule_type: Name of the QoS rule type.
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
-        :returns: A rule type details ``munch.Munch`` or None if
-            no matching rule type is found.
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
 
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: A network ``QoSRuleType`` object if found, else None.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -304,9 +311,8 @@ class NetworkCloudMixin:
     def list_qos_policies(self, filters=None):
         """List all available QoS policies.
 
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of policies ``munch.Munch``.
-
+        :param filters: (optional) A dict of filter conditions to push down
+        :returns: A list of network ``QosPolicy`` objects.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -316,13 +322,14 @@ class NetworkCloudMixin:
             filters = {}
         return list(self.network.qos_policies(**filters))
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_network(self, name_or_id, filters=None):
         """Get a network by name or ID.
 
         :param name_or_id: Name or ID of the network.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                     'last_name': 'Smith',
@@ -335,9 +342,7 @@ class NetworkCloudMixin:
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A network ``munch.Munch`` or None if no matching network is
-            found.
-
+        :returns: A network ``Network`` object if found, else None.
         """
         if not filters:
             filters = {}
@@ -347,20 +352,21 @@ class NetworkCloudMixin:
             **filters)
 
     def get_network_by_id(self, id):
-        """ Get a network by ID
+        """Get a network by ID
 
         :param id: ID of the network.
-        :returns: A network ``munch.Munch``.
+        :returns: A network ``Network`` object if found, else None.
         """
         return self.network.get_network(id)
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_router(self, name_or_id, filters=None):
         """Get a router by name or ID.
 
         :param name_or_id: Name or ID of the router.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                     'last_name': 'Smith',
@@ -373,9 +379,7 @@ class NetworkCloudMixin:
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A router ``munch.Munch`` or None if no matching router is
-            found.
-
+        :returns: A network ``Router`` object if found, else None.
         """
         if not filters:
             filters = {}
@@ -384,13 +388,14 @@ class NetworkCloudMixin:
             ignore_missing=True,
             **filters)
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_subnet(self, name_or_id, filters=None):
         """Get a subnet by name or ID.
 
         :param name_or_id: Name or ID of the subnet.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                     'last_name': 'Smith',
@@ -399,9 +404,7 @@ class NetworkCloudMixin:
                     }
                 }
 
-        :returns: A subnet ``munch.Munch`` or None if no matching subnet is
-            found.
-
+        :returns: A network ``Subnet`` object if found, else None.
         """
         if not filters:
             filters = {}
@@ -411,20 +414,21 @@ class NetworkCloudMixin:
             **filters)
 
     def get_subnet_by_id(self, id):
-        """ Get a subnet by ID
+        """Get a subnet by ID
 
         :param id: ID of the subnet.
-        :returns: A subnet ``munch.Munch``.
+        :returns: A network ``Subnet`` object if found, else None.
         """
         return self.network.get_subnet(id)
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_port(self, name_or_id, filters=None):
         """Get a port by name or ID.
 
         :param name_or_id: Name or ID of the port.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                     'last_name': 'Smith',
@@ -437,8 +441,7 @@ class NetworkCloudMixin:
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A port ``munch.Munch`` or None if no matching port is found.
-
+        :returns: A network ``Port`` object if found, else None.
         """
         if not filters:
             filters = {}
@@ -448,18 +451,26 @@ class NetworkCloudMixin:
             **filters)
 
     def get_port_by_id(self, id):
-        """ Get a port by ID
+        """Get a port by ID
 
         :param id: ID of the port.
-        :returns: A port ``munch.Munch``.
+        :returns: A network ``Port`` object if found, else None.
         """
         return self.network.get_port(id)
 
-    def create_network(self, name, shared=False, admin_state_up=True,
-                       external=False, provider=None, project_id=None,
-                       availability_zone_hints=None,
-                       port_security_enabled=None,
-                       mtu_size=None, dns_domain=None):
+    def create_network(
+        self,
+        name,
+        shared=False,
+        admin_state_up=True,
+        external=False,
+        provider=None,
+        project_id=None,
+        availability_zone_hints=None,
+        port_security_enabled=None,
+        mtu_size=None,
+        dns_domain=None,
+    ):
         """Create a network.
 
         :param string name: Name of the network being created.
@@ -479,8 +490,7 @@ class NetworkCloudMixin:
             fragmentation. Minimum value is 68 for IPv4, and 1280 for IPv6.
         :param string dns_domain: Specify the DNS domain associated with
             this network.
-
-        :returns: The network object.
+        :returns: The created network ``Network`` object.
         :raises: OpenStackCloudException on operation error.
         """
         network = {
@@ -566,8 +576,7 @@ class NetworkCloudMixin:
         :param bool port_security_enabled: Enable or disable port security.
         :param string dns_domain: Specify the DNS domain associated with
             this network.
-
-        :returns: The updated network object.
+        :returns: The updated network ``Network`` object.
         :raises: OpenStackCloudException on operation error.
         """
         provider = kwargs.pop('provider', None)
@@ -630,7 +639,7 @@ class NetworkCloudMixin:
         return True
 
     def set_network_quotas(self, name_or_id, **kwargs):
-        """ Set a network quota in a project
+        """Set a network quota in a project
 
         :param name_or_id: project name or id
         :param kwargs: key/value pairs of quota name and quota value
@@ -646,14 +655,13 @@ class NetworkCloudMixin:
         self.network.update_quota(proj.id, **kwargs)
 
     def get_network_quotas(self, name_or_id, details=False):
-        """ Get network quotas for a project
+        """Get network quotas for a project
 
         :param name_or_id: project name or id
         :param details: if set to True it will return details about usage
             of quotas by given project
         :raises: OpenStackCloudException if it's not a valid project
-
-        :returns: Munch object with the quotas
+        :returns: A network ``Quota`` object if found, else None.
         """
         proj = self.get_project(name_or_id)
         if not proj:
@@ -663,12 +671,12 @@ class NetworkCloudMixin:
     def get_network_extensions(self):
         """Get Cloud provided network extensions
 
-        :returns: set of Neutron extension aliases
+        :returns: A set of Neutron extension aliases.
         """
         return self._neutron_extensions()
 
     def delete_network_quotas(self, name_or_id):
-        """ Delete network quotas for a project
+        """Delete network quotas for a project
 
         :param name_or_id: project name or id
         :raises: OpenStackCloudException if it's not a valid project or the
@@ -708,22 +716,35 @@ class NetworkCloudMixin:
         :param source_firewall_group_id: ID of source firewall group.
         :param source_ip_address: IPv4-, IPv6 address or CIDR.
         :param source_port: Port or port range (e.g. 80:90)
-
         :raises: BadRequestException if parameters are malformed
-        :return: created firewall rule
-        :rtype: FirewallRule
+        :returns: The created network ``FirewallRule`` object.
         """
         return self.network.create_firewall_rule(**kwargs)
 
     def delete_firewall_rule(self, name_or_id, filters=None):
         """
         Deletes firewall rule.
+
         Prints debug message in case to-be-deleted resource was not found.
 
         :param name_or_id: firewall rule name or id
-        :param dict filters: optional filters
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :raises: DuplicateResource on multiple matches
-        :return: True if resource is successfully deleted, False otherwise.
+        :returns: True if resource is successfully deleted, False otherwise.
         :rtype: bool
         """
         if not filters:
@@ -739,15 +760,29 @@ class NetworkCloudMixin:
             return False
         return True
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_firewall_rule(self, name_or_id, filters=None):
         """
         Retrieves a single firewall rule.
 
         :param name_or_id: firewall rule name or id
-        :param dict filters: optional filters
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :raises: DuplicateResource on multiple matches
-        :return: firewall rule dict or None if not found
-        :rtype: FirewallRule
+        :returns: A network ``FirewallRule`` object if found, else None.
         """
         if not filters:
             filters = {}
@@ -760,8 +795,22 @@ class NetworkCloudMixin:
         """
         Lists firewall rules.
 
-        :param dict filters: optional filters
-        :return: list of firewall rules
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: A list of network ``FirewallRule`` objects.
         :rtype: list[FirewallRule]
         """
         if not filters:
@@ -778,13 +827,26 @@ class NetworkCloudMixin:
         Updates firewall rule.
 
         :param name_or_id: firewall rule name or id
-        :param dict filters: optional filters
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :param kwargs: firewall rule update parameters.
             See create_firewall_rule docstring for valid parameters.
+        :returns: The updated network ``FirewallRule`` object.
         :raises: BadRequestException if parameters are malformed
         :raises: NotFoundException if resource is not found
-        :return: updated firewall rule
-        :rtype: FirewallRule
         """
         if not filters:
             filters = {}
@@ -832,8 +894,7 @@ class NetworkCloudMixin:
             Defaults to False.
         :raises: BadRequestException if parameters are malformed
         :raises: ResourceNotFound if a resource from firewall_list not found
-        :return: created firewall policy
-        :rtype: FirewallPolicy
+        :returns: The created network ``FirewallPolicy`` object.
         """
         if 'firewall_rules' in kwargs:
             kwargs['firewall_rules'] = self._get_firewall_rule_ids(
@@ -847,9 +908,23 @@ class NetworkCloudMixin:
         Prints debug message in case to-be-deleted resource was not found.
 
         :param name_or_id: firewall policy name or id
-        :param dict filters: optional filters
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :raises: DuplicateResource on multiple matches
-        :return: True if resource is successfully deleted, False otherwise.
+        :returns: True if resource is successfully deleted, False otherwise.
         :rtype: bool
         """
         if not filters:
@@ -865,15 +940,29 @@ class NetworkCloudMixin:
             return False
         return True
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_firewall_policy(self, name_or_id, filters=None):
         """
         Retrieves a single firewall policy.
 
         :param name_or_id: firewall policy name or id
-        :param dict filters: optional filters
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :raises: DuplicateResource on multiple matches
-        :return: firewall policy or None if not found
-        :rtype: FirewallPolicy
+        :returns: A network ``FirewallPolicy`` object if found, else None.
         """
         if not filters:
             filters = {}
@@ -886,8 +975,22 @@ class NetworkCloudMixin:
         """
         Lists firewall policies.
 
-        :param dict filters: optional filters
-        :return: list of firewall policies
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
+        :returns: A list of network ``FirewallPolicy`` objects.
         :rtype: list[FirewallPolicy]
         """
         if not filters:
@@ -901,14 +1004,27 @@ class NetworkCloudMixin:
         Updates firewall policy.
 
         :param name_or_id: firewall policy name or id
-        :param dict filters: optional filters
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
+
+                {
+                    'last_name': 'Smith',
+                    'other': {
+                        'gender': 'Female'
+                    }
+                }
+
+            OR
+            A string containing a jmespath expression for further filtering.
+            Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :param kwargs: firewall policy update parameters
             See create_firewall_policy docstring for valid parameters.
+        :returns: The updated network ``FirewallPolicy`` object.
         :raises: BadRequestException if parameters are malformed
         :raises: DuplicateResource on multiple matches
         :raises: ResourceNotFound if resource is not found
-        :return: updated firewall policy
-        :rtype: FirewallPolicy
         """
         if not filters:
             filters = {}
@@ -924,7 +1040,8 @@ class NetworkCloudMixin:
     def insert_rule_into_policy(self, name_or_id, rule_name_or_id,
                                 insert_after=None, insert_before=None,
                                 filters=None):
-        """
+        """Add firewall rule to a policy.
+
         Adds firewall rule to the firewall_rules list of a firewall policy.
         Short-circuits and returns the firewall policy early if the firewall
         rule id is already present in the firewall_rules list.
@@ -1033,8 +1150,7 @@ class NetworkCloudMixin:
         :raises: DuplicateResource on multiple matches
         :raises: ResourceNotFound if (ingress-, egress-) firewall policy or
             a port is not found.
-        :return: created firewall group
-        :rtype: FirewallGroup
+        :returns: The created network ``FirewallGroup`` object.
         """
         self._lookup_ingress_egress_firewall_policy_ids(kwargs)
         if 'ports' in kwargs:
@@ -1049,7 +1165,7 @@ class NetworkCloudMixin:
         :param name_or_id: firewall group name or id
         :param dict filters: optional filters
         :raises: DuplicateResource on multiple matches
-        :return: True if resource is successfully deleted, False otherwise.
+        :returns: True if resource is successfully deleted, False otherwise.
         :rtype: bool
         """
         if not filters:
@@ -1065,6 +1181,7 @@ class NetworkCloudMixin:
             return False
         return True
 
+    # TODO(stephenfin): Deprecate 'filters'; users should use 'list' for this
     def get_firewall_group(self, name_or_id, filters=None):
         """
         Retrieves firewall group.
@@ -1072,8 +1189,7 @@ class NetworkCloudMixin:
         :param name_or_id: firewall group name or id
         :param dict filters: optional filters
         :raises: DuplicateResource on multiple matches
-        :return: firewall group or None if not found
-        :rtype: FirewallGroup
+        :returns: A network ``FirewallGroup`` object if found, else None.
         """
         if not filters:
             filters = {}
@@ -1086,9 +1202,7 @@ class NetworkCloudMixin:
         """
         Lists firewall groups.
 
-        :param dict filters: optional filters
-        :return: list of firewall groups
-        :rtype: list[FirewallGroup]
+        :returns: A list of network ``FirewallGroup`` objects.
         """
         if not filters:
             filters = {}
@@ -1109,12 +1223,11 @@ class NetworkCloudMixin:
         :param dict filters: optional filters
         :param kwargs: firewall group update parameters
             See create_firewall_group docstring for valid parameters.
+        :returns: The updated network ``FirewallGroup`` object.
         :raises: BadRequestException if parameters are malformed
         :raises: DuplicateResource on multiple matches
         :raises: ResourceNotFound if firewall group, a firewall policy
             (egress, ingress) or port is not found
-        :return: updated firewall group
-        :rtype: FirewallGroup
         """
         if not filters:
             filters = {}
@@ -1160,8 +1273,7 @@ class NetworkCloudMixin:
         :param bool default: Set the QoS policy as default for project.
         :param string project_id: Specify the project ID this QoS policy
             will be created on (admin-only).
-
-        :returns: The QoS policy object.
+        :returns: The created network ``QosPolicy`` object.
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
@@ -1189,8 +1301,7 @@ class NetworkCloudMixin:
         :param bool shared: If True, the QoS policy will be set as shared.
         :param bool default: If True, the QoS policy will be set as default for
             project.
-
-        :returns: The updated QoS policy object.
+        :returns: The updated network ``QosPolicyRule`` object.
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
@@ -1237,8 +1348,12 @@ class NetworkCloudMixin:
 
         return True
 
+    # TODO(stephenfin): Deprecate this in favour of the 'list' function
     def search_qos_bandwidth_limit_rules(
-        self, policy_name_or_id, rule_id=None, filters=None
+        self,
+        policy_name_or_id,
+        rule_id=None,
+        filters=None,
     ):
         """Search QoS bandwidth limit rules
 
@@ -1247,10 +1362,8 @@ class NetworkCloudMixin:
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
             {'max_kbps': 1000}
-
-        :returns: a list of ``munch.Munch`` containing the bandwidth limit
-            rule descriptions.
-
+        :returns: A list of network ``QoSBandwidthLimitRule`` objects matching
+            the search criteria.
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -1262,9 +1375,8 @@ class NetworkCloudMixin:
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
             from rules should be listed.
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of ``munch.Munch`` containing rule info.
-
+        :param filters: (optional) A dict of filter conditions to push down
+        :returns: A list of network ``QoSBandwidthLimitRule`` objects.
         :raises: ``OpenStackCloudResourceNotFound`` if QoS policy will not be
             found.
         """
@@ -1291,10 +1403,8 @@ class NetworkCloudMixin:
         :param string policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
         :param rule_id: ID of the rule.
-
-        :returns: A bandwidth limit rule ``munch.Munch`` or None if
-            no matching rule is found.
-
+        :returns: A network ``QoSBandwidthLimitRule`` object if found, else
+            None.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1310,8 +1420,12 @@ class NetworkCloudMixin:
             rule_id, policy)
 
     @_utils.valid_kwargs("max_burst_kbps", "direction")
-    def create_qos_bandwidth_limit_rule(self, policy_name_or_id, max_kbps,
-                                        **kwargs):
+    def create_qos_bandwidth_limit_rule(
+        self,
+        policy_name_or_id,
+        max_kbps,
+        **kwargs,
+    ):
         """Create a QoS bandwidth limit rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1321,8 +1435,7 @@ class NetworkCloudMixin:
         :param int max_burst_kbps: Maximum burst value (in kilobits).
         :param string direction: Ingress or egress.
             The direction in which the traffic will be limited.
-
-        :returns: The QoS bandwidth limit rule.
+        :returns: The created network ``QoSBandwidthLimitRule`` object.
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
@@ -1359,8 +1472,7 @@ class NetworkCloudMixin:
         :param int max_burst_kbps: Maximum burst value (in kilobits).
         :param string direction: Ingress or egress.
             The direction in which the traffic will be limited.
-
-        :returns: The updated QoS bandwidth limit rule.
+        :returns: The updated network ``QoSBandwidthLimitRule`` object.
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
@@ -1428,8 +1540,13 @@ class NetworkCloudMixin:
 
         return True
 
-    def search_qos_dscp_marking_rules(self, policy_name_or_id, rule_id=None,
-                                      filters=None):
+    # TODO(stephenfin): Deprecate this in favour of the 'list' function
+    def search_qos_dscp_marking_rules(
+        self,
+        policy_name_or_id,
+        rule_id=None,
+        filters=None,
+    ):
         """Search QoS DSCP marking rules
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1437,10 +1554,8 @@ class NetworkCloudMixin:
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
             {'dscp_mark': 32}
-
-        :returns: a list of ``munch.Munch`` containing the dscp marking
-            rule descriptions.
-
+        :returns: A list of network ``QoSDSCPMarkingRule`` objects matching the
+            search criteria.
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -1452,9 +1567,8 @@ class NetworkCloudMixin:
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
             from rules should be listed.
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of ``munch.Munch`` containing rule info.
-
+        :param filters: (optional) A dict of filter conditions to push down
+        :returns: A list of network ``QoSDSCPMarkingRule`` objects.
         :raises: ``OpenStackCloudResourceNotFound`` if QoS policy will not be
             found.
         """
@@ -1481,10 +1595,7 @@ class NetworkCloudMixin:
         :param string policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
         :param rule_id: ID of the rule.
-
-        :returns: A bandwidth limit rule ``munch.Munch`` or None if
-            no matching rule is found.
-
+        :returns: A network ``QoSDSCPMarkingRule`` object if found, else None.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1498,14 +1609,17 @@ class NetworkCloudMixin:
 
         return self.network.get_qos_dscp_marking_rule(rule_id, policy)
 
-    def create_qos_dscp_marking_rule(self, policy_name_or_id, dscp_mark):
+    def create_qos_dscp_marking_rule(
+        self,
+        policy_name_or_id,
+        dscp_mark,
+    ):
         """Create a QoS DSCP marking rule.
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
         :param int dscp_mark: DSCP mark value
-
-        :returns: The QoS DSCP marking rule.
+        :returns: The created network ``QoSDSCPMarkingRule`` object.
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
@@ -1530,8 +1644,7 @@ class NetworkCloudMixin:
             rule is associated.
         :param string rule_id: ID of rule to update.
         :param int dscp_mark: DSCP mark value
-
-        :returns: The updated QoS bandwidth limit rule.
+        :returns: The updated network ``QoSDSCPMarkingRule`` object.
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
@@ -1590,8 +1703,13 @@ class NetworkCloudMixin:
 
         return True
 
-    def search_qos_minimum_bandwidth_rules(self, policy_name_or_id,
-                                           rule_id=None, filters=None):
+    # TODO(stephenfin): Deprecate this in favour of the 'list' function
+    def search_qos_minimum_bandwidth_rules(
+        self,
+        policy_name_or_id,
+        rule_id=None,
+        filters=None,
+    ):
         """Search QoS minimum bandwidth rules
 
         :param string policy_name_or_id: Name or ID of the QoS policy to which
@@ -1599,10 +1717,8 @@ class NetworkCloudMixin:
         :param string rule_id: ID of searched rule.
         :param filters: a dict containing additional filters to use. e.g.
             {'min_kbps': 1000}
-
-        :returns: a list of ``munch.Munch`` containing the bandwidth limit
-            rule descriptions.
-
+        :returns: A list of network ``QoSMinimumBandwidthRule`` objects
+            matching the search criteria.
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.
         """
@@ -1616,9 +1732,8 @@ class NetworkCloudMixin:
 
         :param string policy_name_or_id: Name or ID of the QoS policy from
             from rules should be listed.
-        :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of ``munch.Munch`` containing rule info.
-
+        :param filters: (optional) A dict of filter conditions to push down
+        :returns: A list of network ``QoSMinimumBandwidthRule`` objects.
         :raises: ``OpenStackCloudResourceNotFound`` if QoS policy will not be
             found.
         """
@@ -1646,10 +1761,8 @@ class NetworkCloudMixin:
         :param string policy_name_or_id: Name or ID of the QoS policy to which
             rule should be associated.
         :param rule_id: ID of the rule.
-
-        :returns: A bandwidth limit rule ``munch.Munch`` or None if
-            no matching rule is found.
-
+        :returns: A network ``QoSMinimumBandwidthRule`` object if found, else
+            None.
         """
         if not self._has_neutron_extension('qos'):
             raise exc.OpenStackCloudUnavailableExtension(
@@ -1665,7 +1778,10 @@ class NetworkCloudMixin:
 
     @_utils.valid_kwargs("direction")
     def create_qos_minimum_bandwidth_rule(
-        self, policy_name_or_id, min_kbps, **kwargs
+        self,
+        policy_name_or_id,
+        min_kbps,
+        **kwargs,
     ):
         """Create a QoS minimum bandwidth limit rule.
 
@@ -1674,8 +1790,7 @@ class NetworkCloudMixin:
         :param int min_kbps: Minimum bandwidth value (in kilobits per second).
         :param string direction: Ingress or egress.
             The direction in which the traffic will be available.
-
-        :returns: The QoS minimum bandwidth rule.
+        :returns: The created network ``QoSMinimumBandwidthRule`` object.
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
@@ -1704,8 +1819,7 @@ class NetworkCloudMixin:
         :param int min_kbps: Minimum bandwidth value (in kilobits per second).
         :param string direction: Ingress or egress.
             The direction in which the traffic will be available.
-
-        :returns: The updated QoS minimum bandwidth rule.
+        :returns: The updated network ``QoSMinimumBandwidthRule`` object.
         :raises: OpenStackCloudException on operation error.
         """
         if not self._has_neutron_extension('qos'):
@@ -1773,11 +1887,7 @@ class NetworkCloudMixin:
         :param dict router: The dict object of the router being changed
         :param string subnet_id: The ID of the subnet to use for the interface
         :param string port_id: The ID of the port to use for the interface
-
-        :returns: A ``munch.Munch`` with the router ID (ID),
-            subnet ID (subnet_id), port ID (port_id) and tenant ID
-            (tenant_id).
-
+        :returns: The raw response body from the request.
         :raises: OpenStackCloudException on operation error.
         """
         return self.network.add_interface_to_router(
@@ -1820,8 +1930,7 @@ class NetworkCloudMixin:
         :param string interface_type: One of None, "internal", or "external".
             Controls whether all, internal interfaces or external interfaces
             are returned.
-
-        :returns: A list of port ``munch.Munch`` objects.
+        :returns: A list of network ``Port`` objects.
         """
         # Find only router interface and gateway ports, ignore L3 HA ports etc.
         router_interfaces = self.search_ports(filters={
@@ -1845,10 +1954,16 @@ class NetworkCloudMixin:
                 return router_gateways
         return ports
 
-    def create_router(self, name=None, admin_state_up=True,
-                      ext_gateway_net_id=None, enable_snat=None,
-                      ext_fixed_ips=None, project_id=None,
-                      availability_zone_hints=None):
+    def create_router(
+        self,
+        name=None,
+        admin_state_up=True,
+        ext_gateway_net_id=None,
+        enable_snat=None,
+        ext_fixed_ips=None,
+        project_id=None,
+        availability_zone_hints=None,
+    ):
         """Create a logical router.
 
         :param string name: The router name.
@@ -1869,8 +1984,7 @@ class NetworkCloudMixin:
         :param string project_id: Project ID for the router.
         :param types.ListType availability_zone_hints:
             A list of availability zone hints.
-
-        :returns: The router object.
+        :returns: The created network ``Router`` object.
         :raises: OpenStackCloudException on operation error.
         """
         router = {
@@ -1932,7 +2046,7 @@ class NetworkCloudMixin:
                   }
               ]
 
-        :returns: The router object.
+        :returns: The updated network ``Router`` object.
         :raises: OpenStackCloudException on operation error.
         """
         router = {}
@@ -1986,13 +2100,25 @@ class NetworkCloudMixin:
 
         return True
 
-    def create_subnet(self, network_name_or_id, cidr=None, ip_version=4,
-                      enable_dhcp=False, subnet_name=None, tenant_id=None,
-                      allocation_pools=None,
-                      gateway_ip=None, disable_gateway_ip=False,
-                      dns_nameservers=None, host_routes=None,
-                      ipv6_ra_mode=None, ipv6_address_mode=None,
-                      prefixlen=None, use_default_subnetpool=False, **kwargs):
+    def create_subnet(
+        self,
+        network_name_or_id,
+        cidr=None,
+        ip_version=4,
+        enable_dhcp=False,
+        subnet_name=None,
+        tenant_id=None,
+        allocation_pools=None,
+        gateway_ip=None,
+        disable_gateway_ip=False,
+        dns_nameservers=None,
+        host_routes=None,
+        ipv6_ra_mode=None,
+        ipv6_address_mode=None,
+        prefixlen=None,
+        use_default_subnetpool=False,
+        **kwargs,
+    ):
         """Create a subnet on a specified network.
 
         :param string network_name_or_id: The unique name or ID of the attached
@@ -2050,8 +2176,7 @@ class NetworkCloudMixin:
             ``ip_version`` to obtain a CIDR. It is required to pass ``None`` to
             the ``cidr`` argument when enabling this option.
         :param kwargs: Key value pairs to be passed to the Neutron API.
-
-        :returns: The new subnet object.
+        :returns: The created network ``Subnet`` object.
         :raises: OpenStackCloudException on operation error.
         """
 
@@ -2189,7 +2314,7 @@ class NetworkCloudMixin:
                   }
               ]
 
-        :returns: The updated subnet object.
+        :returns: The updated network ``Subnet`` object.
         :raises: OpenStackCloudException on operation error.
         """
         subnet = {}
@@ -2283,9 +2408,7 @@ class NetworkCloudMixin:
         :param port_security_enabled: The security port state created on
             the network. (Optional)
         :param qos_policy_id: The ID of the QoS policy to apply for port.
-
-        :returns: a ``munch.Munch`` describing the created port.
-
+        :returns: The created network ``Port`` object.
         :raises: ``OpenStackCloudException`` on operation error.
         """
         kwargs['network_id'] = network_id
@@ -2350,9 +2473,7 @@ class NetworkCloudMixin:
         :param port_security_enabled: The security port state created on
             the network. (Optional)
         :param qos_policy_id: The ID of the QoS policy to apply for port.
-
-        :returns: a ``munch.Munch`` describing the updated port.
-
+        :returns: The updated network ``Port`` object.
         :raises: OpenStackCloudException on operation error.
         """
         port = self.get_port(name_or_id=name_or_id)
