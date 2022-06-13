@@ -23,6 +23,7 @@ from openstack.compute.v2 import limits
 from openstack.compute.v2 import migration as _migration
 from openstack.compute.v2 import quota_set as _quota_set
 from openstack.compute.v2 import server as _server
+from openstack.compute.v2 import server_action as _server_action
 from openstack.compute.v2 import server_diagnostics as _server_diagnostics
 from openstack.compute.v2 import server_group as _server_group
 from openstack.compute.v2 import server_interface as _server_interface
@@ -2009,6 +2010,49 @@ class Proxy(proxy.Proxy):
         if not query:
             query = {}
         return res.commit(self, **query)
+
+    # ========== Server actions ==========
+
+    def get_server_action(self, server_action, server, ignore_missing=True):
+        """Get a single server action
+
+        :param server_action: The value can be the ID of a server action or a
+            :class:`~openstack.compute.v2.server_action.ServerAction` instance.
+        :param server: This parameter need to be specified when ServerAction ID
+            is given as value. It can be either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance that the
+            action is associated with.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the server action does not exist. When set to ``True``, no
+            exception will be set when attempting to retrieve a non-existent
+            server action.
+
+        :returns: One :class:`~openstack.compute.v2.server_action.ServerAction`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        server_id = self._get_uri_attribute(server_action, server, 'server_id')
+        server_action = resource.Resource._get_id(server_action)
+
+        return self._get(
+            _server_action.ServerAction,
+            server_id=server_id,
+            action_id=server_action,
+            ignore_missing=ignore_missing,
+        )
+
+    def server_actions(self, server):
+        """Return a generator of server actions
+
+        :param server: The server can be either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server`.
+
+        :returns: A generator of ServerAction objects
+        :rtype: :class:`~openstack.compute.v2.server_action.ServerAction`
+        """
+        server_id = resource.Resource._get_id(server)
+        return self._list(_server_action.ServerAction, server_id=server_id)
 
     # ========== Utilities ==========
 
