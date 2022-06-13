@@ -47,6 +47,11 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return self.config.get_region_name('compute')
 
     def get_flavor_name(self, flavor_id):
+        """Get the name of a flavor.
+
+        :param flavor_id: ID of the flavor.
+        :returns: The name of the flavor if a match if found, else None.
+        """
         flavor = self.get_flavor(flavor_id, get_extra=False)
         if flavor:
             return flavor['name']
@@ -62,6 +67,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :param int ram: Minimum amount of RAM.
         :param string include: If given, will return a flavor whose name
             contains this string as a substring.
+        :param get_extra:
+        :returns: A compute ``Flavor`` object.
+        :raises: :class:`~openstack.exceptions.OpenStackCloudException` if no
+            matching flavour could be found.
         """
         flavors = self.list_flavors(get_extra=get_extra)
         for flavor in sorted(flavors, key=operator.itemgetter('ram')):
@@ -81,30 +90,55 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return extension_name in self._nova_extensions()
 
     def search_keypairs(self, name_or_id=None, filters=None):
+        """Search keypairs.
+
+        :param name_or_id:
+        :param filters:
+        :returns: A list of compute ``Keypair`` objects matching the search
+            criteria.
+        """
         keypairs = self.list_keypairs(
             filters=filters if isinstance(filters, dict) else None
         )
         return _utils._filter_list(keypairs, name_or_id, filters)
 
     def search_flavors(self, name_or_id=None, filters=None, get_extra=True):
+        """Search flavors.
+
+        :param name_or_id:
+        :param flavors:
+        :param get_extra:
+        :returns: A list of compute ``Flavor`` objects matching the search
+            criteria.
+        """
         flavors = self.list_flavors(get_extra=get_extra)
         return _utils._filter_list(flavors, name_or_id, filters)
 
     def search_servers(
-            self, name_or_id=None, filters=None, detailed=False,
-            all_projects=False, bare=False):
+        self, name_or_id=None, filters=None, detailed=False,
+        all_projects=False, bare=False,
+    ):
+        """Search servers.
+
+        :param name_or_id:
+        :param filters:
+        :param detailed:
+        :param all_projects:
+        :param bare:
+        :returns: A list of compute ``Server`` objects matching the search
+            criteria.
+        """
         servers = self.list_servers(
             detailed=detailed, all_projects=all_projects, bare=bare)
         return _utils._filter_list(servers, name_or_id, filters)
 
     def search_server_groups(self, name_or_id=None, filters=None):
-        """Seach server groups.
+        """Search server groups.
 
-        :param name: server group name or ID.
-        :param filters: a dict containing additional filters to use.
-
-        :returns: a list of dicts containing the server groups
-
+        :param name_or_id: Name or unique ID of the server group(s).
+        :param filters: A dict containing additional filters to use.
+        :returns: A list of compute ``ServerGroup`` objects matching the search
+            criteria.
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -114,8 +148,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
     def list_keypairs(self, filters=None):
         """List all available keypairs.
 
-        :returns: A list of ``munch.Munch`` containing keypair info.
-
+        :param filters:
+        :returns: A list of compute ``Keypair`` objects.
         """
         if not filters:
             filters = {}
@@ -128,7 +162,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param bool unavailable: Whether or not to include unavailable zones
             in the output. Defaults to False.
-
         :returns: A list of availability zone names, or an empty list if the
             list could not be fetched.
         """
@@ -152,12 +185,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :param get_extra: Whether or not to fetch extra specs for each flavor.
             Defaults to True. Default behavior value can be overridden in
             clouds.yaml by setting openstack.cloud.get_extra_specs to False.
-        :returns: A list of flavor ``munch.Munch``.
-
+        :returns: A list of compute ``Flavor`` objects.
         """
-        flavors = list(self.compute.flavors(
+        return list(self.compute.flavors(
             details=True, get_extra_specs=get_extra))
-        return flavors
 
     def list_server_security_groups(self, server):
         """List all security groups associated with the given server.
@@ -215,7 +246,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :returns: False if server or security groups are undefined, True
             otherwise.
-
         :raises: ``OpenStackCloudException``, on operation error.
         """
         server, security_groups = self._get_server_security_groups(
@@ -238,7 +268,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :returns: False if server or security groups are undefined, True
             otherwise.
-
         :raises: ``OpenStackCloudException``, on operation error.
         """
         server, security_groups = self._get_server_security_groups(
@@ -264,8 +293,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         return ret
 
-    def list_servers(self, detailed=False, all_projects=False, bare=False,
-                     filters=None):
+    def list_servers(
+        self,
+        detailed=False,
+        all_projects=False,
+        bare=False,
+        filters=None,
+    ):
         """List all available servers.
 
         :param detailed: Whether or not to add detailed additional information.
@@ -277,9 +311,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             be populated as needed from neutron. Setting to True implies
             detailed = False.
         :param filters: Additional query parameters passed to the API server.
-
-        :returns: A list of server ``munch.Munch``.
-
+        :returns: A list of compute ``Server`` objects.
         """
         # If pushdown filters are specified and we do not have batched caching
         # enabled, bypass local caching and push down the filters.
@@ -328,19 +360,17 @@ class ComputeCloudMixin(_normalize.Normalizer):
     def list_server_groups(self):
         """List all available server groups.
 
-        :returns: A list of server group dicts.
-
+        :returns: A list of compute ``ServerGroup`` objects.
         """
         return list(self.compute.server_groups())
 
     def get_compute_limits(self, name_or_id=None):
-        """ Get absolute compute limits for a project
+        """Get absolute compute limits for a project
 
         :param name_or_id: (optional) project name or ID to get limits for
             if different from the current project
         :raises: OpenStackCloudException if it's not a valid project
-
-        :returns:
+        :returns: A compute
             :class:`~openstack.compute.v2.limits.Limits.AbsoluteLimits` object.
         """
         params = {}
@@ -358,9 +388,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """Get a keypair by name or ID.
 
         :param name_or_id: Name or ID of the keypair.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                 'last_name': 'Smith',
@@ -373,8 +403,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A keypair ``munch.Munch`` or None if no matching keypair is
-            found.
+        :returns: A compute ``Keypair`` object if found, else None.
         """
         return _utils._get_entity(self, 'keypair', name_or_id, filters)
 
@@ -382,9 +411,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """Get a flavor by name or ID.
 
         :param name_or_id: Name or ID of the flavor.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                     'last_name': 'Smith',
@@ -396,12 +425,10 @@ class ComputeCloudMixin(_normalize.Normalizer):
             OR
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
+
         :param get_extra: Whether or not the list_flavors call should get the
             extra flavor specs.
-
-        :returns: A flavor ``munch.Munch`` or None if no matching flavor is
-            found.
-
+        :returns: A compute ``Flavor`` object if found, else None.
         """
         if not filters:
             filters = {}
@@ -414,10 +441,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """ Get a flavor by ID
 
         :param id: ID of the flavor.
-        :param get_extra:
-            Whether or not the list_flavors call should get the extra flavor
-            specs.
-        :returns: A flavor ``munch.Munch``.
+        :param get_extra: Whether or not the list_flavors call should get the
+            extra flavor specs.
+        :returns: A compute ``Flavor`` object if found, else None.
         """
         return self.compute.get_flavor(id, get_extra_specs=get_extra)
 
@@ -456,8 +482,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
             return output['output']
 
     def get_server(
-            self, name_or_id=None, filters=None, detailed=False, bare=False,
-            all_projects=False):
+        self,
+        name_or_id=None,
+        filters=None,
+        detailed=False,
+        bare=False,
+        all_projects=False,
+    ):
         """Get a server by name or ID.
 
         :param name_or_id: Name or ID of the server.
@@ -483,10 +514,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             detailed = False.
         :param all_projects: Whether to get server from all projects or just
             the current auth scoped project.
-
-        :returns: A server ``munch.Munch`` or None if no matching server is
-            found.
-
+        :returns: A compute ``Server`` object if found, else None.
         """
         searchfunc = functools.partial(self.search_servers,
                                        detailed=detailed, bare=True,
@@ -507,7 +535,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param id: ID of the server.
 
-        :returns: A server object or None if no matching server is found.
+        :returns: A compute ``Server`` object if found, else None.
         """
         try:
             server = self.compute.get_server(id)
@@ -519,9 +547,9 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """Get a server group by name or ID.
 
         :param name_or_id: Name or ID of the server group.
-        :param filters:
-            A dictionary of meta data to use for further filtering. Elements
-            of this dictionary may, themselves, be dictionaries. Example::
+        :param filters: A dictionary of meta data to use for further filtering.
+            Elements of this dictionary may, themselves, be dictionaries.
+            Example::
 
                 {
                     'policy': 'affinity',
@@ -531,9 +559,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A server groups dict or None if no matching server group
-            is found.
-
+        :returns: A compute ``ServerGroup`` object if found, else None.
         """
         return _utils._get_entity(self, 'server_group', name_or_id,
                                   filters)
@@ -543,7 +569,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param name: Name of the keypair being created.
         :param public_key: Public key for the new keypair.
-
+        :returns: The created compute ``Keypair`` object.
         :raises: OpenStackCloudException on operation error.
         """
         keypair = {
@@ -570,7 +596,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return True
 
     def create_image_snapshot(
-            self, name, server, wait=False, timeout=3600, **metadata):
+        self,
+        name,
+        server,
+        wait=False,
+        timeout=3600,
+        **metadata,
+    ):
         """Create an image by snapshotting an existing server.
 
         ..note::
@@ -585,9 +617,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :param wait: If true, waits for image to be created.
         :param timeout: Seconds to wait for image creation. None is forever.
         :param metadata: Metadata to give newly-created image entity
-
-        :returns: A ``munch.Munch`` of the Image object
-
+        :returns: The created image ``Image`` object.
         :raises: OpenStackCloudException if there are problems uploading
         """
         if not isinstance(server, dict):
@@ -602,18 +632,38 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return image
 
     def get_server_id(self, name_or_id):
+        """Get the ID of a server.
+
+        :param name_or_id:
+        :returns: The name of the server if found, else None.
+        """
         server = self.get_server(name_or_id, bare=True)
         if server:
             return server['id']
         return None
 
     def get_server_private_ip(self, server):
+        """Get the private IP of a server.
+
+        :param server:
+        :returns: The private IP of the server if set, else None.
+        """
         return meta.get_server_private_ip(server, self)
 
     def get_server_public_ip(self, server):
+        """Get the public IP of a server.
+
+        :param server:
+        :returns: The public IP of the server if set, else None.
+        """
         return meta.get_server_external_ipv4(self, server)
 
     def get_server_meta(self, server):
+        """Get the metadata for a server.
+
+        :param server:
+        :returns: The metadata for the server if found, else None.
+        """
         # TODO(mordred) remove once ansible has moved to Inventory interface
         server_vars = meta.get_hostvars_from_server(self, server)
         groups = meta.get_groups_from_server(self, server, server_vars)
@@ -627,14 +677,27 @@ class ComputeCloudMixin(_normalize.Normalizer):
         'block_device_mapping_v2', 'nics', 'scheduler_hints',
         'config_drive', 'admin_pass', 'disk_config')
     def create_server(
-            self, name, image=None, flavor=None,
-            auto_ip=True, ips=None, ip_pool=None,
-            root_volume=None, terminate_volume=False,
-            wait=False, timeout=180, reuse_ips=True,
-            network=None, boot_from_volume=False, volume_size='50',
-            boot_volume=None, volumes=None, nat_destination=None,
-            group=None,
-            **kwargs):
+        self,
+        name,
+        image=None,
+        flavor=None,
+        auto_ip=True,
+        ips=None,
+        ip_pool=None,
+        root_volume=None,
+        terminate_volume=False,
+        wait=False,
+        timeout=180,
+        reuse_ips=True,
+        network=None,
+        boot_from_volume=False,
+        volume_size='50',
+        boot_volume=None,
+        volumes=None,
+        nat_destination=None,
+        group=None,
+        **kwargs,
+    ):
         """Create a virtual server instance.
 
         :param name: Something to name the server.
@@ -709,7 +772,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :param group: ServerGroup dict, name or id to boot the server in.
             If a group is provided in both scheduler_hints and in the group
             param, the group param will win. (Optional, defaults to None)
-        :returns: A ``munch.Munch`` representing the created server.
+        :returns: The created compute ``Server`` object.
         :raises: OpenStackCloudException on operation error.
         """
         # TODO(shade) Image is optional but flavor is not - yet flavor comes
@@ -1023,9 +1086,16 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 return server
 
     def get_active_server(
-            self, server, auto_ip=True, ips=None, ip_pool=None,
-            reuse=True, wait=False, timeout=180, nat_destination=None):
-
+        self,
+        server,
+        auto_ip=True,
+        ips=None,
+        ip_pool=None,
+        reuse=True,
+        wait=False,
+        timeout=180,
+        nat_destination=None,
+    ):
         if server['status'] == 'ERROR':
             if 'fault' in server and 'message' in server['fault']:
                 raise exc.OpenStackCloudException(
@@ -1065,9 +1135,27 @@ class ComputeCloudMixin(_normalize.Normalizer):
                 extra_data=dict(server=server))
         return None
 
-    def rebuild_server(self, server_id, image_id, admin_pass=None,
-                       detailed=False, bare=False,
-                       wait=False, timeout=180):
+    def rebuild_server(
+        self,
+        server_id,
+        image_id,
+        admin_pass=None,
+        detailed=False,
+        bare=False,
+        wait=False,
+        timeout=180,
+    ):
+        """Rebuild a server.
+
+        :param server_id:
+        :param image_id:
+        :param admin_pass:
+        :param detailed:
+        :param bare:
+        :param wait:
+        :param timeout:
+        :returns: A compute ``Server`` object.
+        """
         kwargs = {}
         if image_id:
             kwargs['image'] = image_id
@@ -1097,7 +1185,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :param dict metadata: A dictionary with the key=value pairs
             to set in the server instance. It only updates the key=value pairs
             provided. Existing ones will remain untouched.
-
+        :returns: None
         :raises: OpenStackCloudException on operation error.
         """
         server = self.get_server(name_or_id, bare=True)
@@ -1114,7 +1202,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             to update.
         :param metadata_keys: A list with the keys to be deleted
             from the server instance.
-
+        :returns: None
         :raises: OpenStackCloudException on operation error.
         """
         server = self.get_server(name_or_id, bare=True)
@@ -1126,8 +1214,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
                                             keys=metadata_keys)
 
     def delete_server(
-            self, name_or_id, wait=False, timeout=180, delete_ips=False,
-            delete_ip_retry=1):
+        self,
+        name_or_id,
+        wait=False,
+        timeout=180,
+        delete_ips=False,
+        delete_ip_retry=1,
+    ):
         """Delete a server instance.
 
         :param name_or_id: name or ID of the server to delete
@@ -1137,10 +1230,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
             associated with the instance.
         :param int delete_ip_retry: Number of times to retry deleting
             any floating ips, should the first try be unsuccessful.
-
         :returns: True if delete succeeded, False otherwise if the
             server does not exist.
-
         :raises: OpenStackCloudException on operation error.
         """
         # If delete_ips is True, we need the server to not be bare.
@@ -1243,9 +1334,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
             detailed = False.
         :param name: New name for the server
         :param description: New description for the server
-
-        :returns: a dictionary representing the updated server.
-
+        :returns: The updated compute ``Server`` object.
         :raises: OpenStackCloudException on operation error.
         """
         server = self.compute.find_server(
@@ -1258,14 +1347,12 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         return self._expand_server(server, bare=bare, detailed=detailed)
 
-    def create_server_group(self, name, policies=[], policy=None):
+    def create_server_group(self, name, policies=None, policy=None):
         """Create a new server group.
 
         :param name: Name of the server group being created
         :param policies: List of policies for the server group.
-
-        :returns: a dict representing the new server group.
-
+        :returns: The created compute ``ServerGroup`` object.
         :raises: OpenStackCloudException on operation error.
         """
         sg_attrs = {
@@ -1283,9 +1370,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """Delete a server group.
 
         :param name_or_id: Name or ID of the server group to delete
-
         :returns: True if delete succeeded, False otherwise
-
         :raises: OpenStackCloudException on operation error.
         """
         server_group = self.get_server_group(name_or_id)
@@ -1297,8 +1382,18 @@ class ComputeCloudMixin(_normalize.Normalizer):
         self.compute.delete_server_group(server_group, ignore_missing=False)
         return True
 
-    def create_flavor(self, name, ram, vcpus, disk, flavorid="auto",
-                      ephemeral=0, swap=0, rxtx_factor=1.0, is_public=True):
+    def create_flavor(
+        self,
+        name,
+        ram,
+        vcpus,
+        disk,
+        flavorid="auto",
+        ephemeral=0,
+        swap=0,
+        rxtx_factor=1.0,
+        is_public=True,
+    ):
         """Create a new flavor.
 
         :param name: Descriptive name of the flavor
@@ -1310,9 +1405,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :param swap: Swap space in MB
         :param rxtx_factor: RX/TX factor
         :param is_public: Make flavor accessible to the public
-
-        :returns: A ``munch.Munch`` describing the new flavor.
-
+        :returns: The created compute ``Flavor`` object.
         :raises: OpenStackCloudException on operation error.
         """
         attrs = {
@@ -1335,9 +1428,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """Delete a flavor
 
         :param name_or_id: ID or name of the flavor to delete.
-
         :returns: True if delete succeeded, False otherwise.
-
         :raises: OpenStackCloudException on operation error.
         """
         try:
@@ -1399,9 +1490,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """List access from a private flavor for a project/tenant.
 
         :param string flavor_id: ID of the private flavor.
-
-        :returns: a list of ``munch.Munch`` containing the access description
-
+        :returns: List of dicts with flavor_id and tenant_id attributes.
         :raises: OpenStackCloudException on operation error.
         """
         return self.compute.get_flavor_access(flavor_id)
@@ -1409,7 +1498,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
     def list_hypervisors(self, filters={}):
         """List all hypervisors
 
-        :returns: A list of hypervisor ``munch.Munch``.
+        :param filters:
+        :returns: A list of compute ``Hypervisor`` objects.
         """
 
         return list(self.compute.hypervisors(
@@ -1422,9 +1512,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param name: aggregate name or id.
         :param filters: a dict containing additional filters to use.
-
-        :returns: a list of dicts containing the aggregates
-
+        :returns: A list of compute ``Aggregate`` objects matching the search
+            criteria.
         :raises: ``OpenStackCloudException``: if something goes wrong during
             the OpenStack API call.
         """
@@ -1434,11 +1523,11 @@ class ComputeCloudMixin(_normalize.Normalizer):
     def list_aggregates(self, filters={}):
         """List all available host aggregates.
 
-        :returns: A list of aggregate dicts.
-
+        :returns: A list of compute ``Aggregate`` objects.
         """
         return self.compute.aggregates(allow_unknown_params=True, **filters)
 
+    # TODO(stephenfin): This shouldn't return a munch
     def get_aggregate(self, name_or_id, filters=None):
         """Get an aggregate by name or ID.
 
@@ -1456,7 +1545,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :returns: An aggregate dict or None if no matching aggregate is
             found.
-
         """
         aggregate = self.compute.find_aggregate(
             name_or_id, ignore_missing=True)
@@ -1468,9 +1556,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :param name: Name of the host aggregate being created
         :param availability_zone: Availability zone to assign hosts
-
-        :returns: a dict representing the new host aggregate.
-
+        :returns: The created compute ``Aggregate`` object.
         :raises: OpenStackCloudException on operation error.
         """
         return self.compute.create_aggregate(
@@ -1485,9 +1571,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :param name_or_id: Name or ID of the aggregate being updated.
         :param name: New aggregate name
         :param availability_zone: Availability zone to assign to hosts
-
-        :returns: a dict representing the updated host aggregate.
-
+        :returns: The updated compute ``Aggregate`` object.
         :raises: OpenStackCloudException on operation error.
         """
         aggregate = self.get_aggregate(name_or_id)
@@ -1497,9 +1581,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """Delete a host aggregate.
 
         :param name_or_id: Name or ID of the host aggregate to delete.
-
         :returns: True if delete succeeded, False otherwise.
-
         :raises: OpenStackCloudException on operation error.
         """
         if (
@@ -1588,9 +1670,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """ Get quota for a project
 
         :param name_or_id: project name or id
+        :returns: A compute ``QuotaSet`` object if found, else None.
         :raises: OpenStackCloudException if it's not a valid project
-
-        :returns: Munch object with the quotas
         """
         proj = self.identity.find_project(
             name_or_id, ignore_missing=False)
@@ -1602,13 +1683,13 @@ class ComputeCloudMixin(_normalize.Normalizer):
         :param name_or_id: project name or id
         :raises: OpenStackCloudException if it's not a valid project or the
             nova client call failed
-
-        :returns: dict with the quotas
+        :returns: None
         """
         proj = self.identity.find_project(
             name_or_id, ignore_missing=False)
-        return self.compute.revert_quota_set(proj)
+        self.compute.revert_quota_set(proj)
 
+    # TODO(stephenfin): Convert to proxy methods
     def get_compute_usage(self, name_or_id, start=None, end=None):
         """ Get usage for a specific project
 
