@@ -853,9 +853,6 @@ class TestImage(BaseTestImage):
     def _image_dict(self, fake_image):
         return self.cloud._normalize_image(meta.obj_to_munch(fake_image))
 
-    def _munch_images(self, fake_image):
-        return self.cloud._normalize_images([fake_image])
-
     def _call_create_image(self, name, **kwargs):
         imagefile = tempfile.NamedTemporaryFile(delete=False)
         imagefile.write(b'\0')

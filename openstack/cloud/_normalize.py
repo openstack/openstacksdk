@@ -16,8 +16,6 @@
 # TODO(shade) The normalize functions here should get merged in to
 #             the sdk resource objects.
 
-import datetime
-
 import munch
 
 from openstack import resource
@@ -55,65 +53,11 @@ _SERVER_FIELDS = (
     'tags',
 )
 
-_KEYPAIR_FIELDS = (
-    'fingerprint',
-    'name',
-    'private_key',
-    'public_key',
-    'user_id',
-)
-
-_KEYPAIR_USELESS_FIELDS = (
-    'deleted',
-    'deleted_at',
-    'id',
-    'updated_at',
-)
-
-_COMPUTE_LIMITS_FIELDS = (
-    ('maxPersonality', 'max_personality'),
-    ('maxPersonalitySize', 'max_personality_size'),
-    ('maxServerGroupMembers', 'max_server_group_members'),
-    ('maxServerGroups', 'max_server_groups'),
-    ('maxServerMeta', 'max_server_meta'),
-    ('maxTotalCores', 'max_total_cores'),
-    ('maxTotalInstances', 'max_total_instances'),
-    ('maxTotalKeypairs', 'max_total_keypairs'),
-    ('maxTotalRAMSize', 'max_total_ram_size'),
-    ('totalCoresUsed', 'total_cores_used'),
-    ('totalInstancesUsed', 'total_instances_used'),
-    ('totalRAMUsed', 'total_ram_used'),
-    ('totalServerGroupsUsed', 'total_server_groups_used'),
-)
-
-
 _pushdown_fields = {
     'project': [
         'domain_id'
     ]
 }
-
-
-def _split_filters(obj_name='', filters=None, **kwargs):
-    # Handle jmsepath filters
-    if not filters:
-        filters = {}
-    if not isinstance(filters, dict):
-        return {}, filters
-    # Filter out None values from extra kwargs, because those are
-    # defaults. If you want to search for things with None values,
-    # they're going to need to go into the filters dict
-    for (key, value) in kwargs.items():
-        if value is not None:
-            filters[key] = value
-    pushdown = {}
-    client = {}
-    for (key, value) in filters.items():
-        if key in _pushdown_fields.get(obj_name, {}):
-            pushdown[key] = value
-        else:
-            client[key] = value
-    return pushdown, client
 
 
 def _to_bool(value):
@@ -127,10 +71,6 @@ def _to_bool(value):
 
 def _pop_int(resource, key):
     return int(resource.pop(key, 0) or 0)
-
-
-def _pop_float(resource, key):
-    return float(resource.pop(key, 0) or 0)
 
 
 def _pop_or_get(resource, key, default, strict):
@@ -147,26 +87,6 @@ class Normalizer:
     reasons.
     '''
 
-    def _normalize_compute_limits(self, limits, project_id=None):
-        """ Normalize a limits object.
-
-        Limits modified in this method and shouldn't be modified afterwards.
-        """
-
-        # Copy incoming limits because of shared dicts in unittests
-        limits = limits['absolute'].copy()
-
-        new_limits = munch.Munch()
-        new_limits['location'] = self._get_current_location(
-            project_id=project_id)
-
-        for field in _COMPUTE_LIMITS_FIELDS:
-            new_limits[field[1]] = limits.pop(field[0], None)
-
-        new_limits['properties'] = limits.copy()
-
-        return new_limits
-
     def _remove_novaclient_artifacts(self, item):
         # Remove novaclient artifacts
         item.pop('links', None)
@@ -175,98 +95,6 @@ class Normalizer:
         item.pop('human_id', None)
         item.pop('request_ids', None)
         item.pop('x_openstack_request_ids', None)
-
-    def _normalize_flavors(self, flavors):
-        """ Normalize a list of flavor objects """
-        ret = []
-        for flavor in flavors:
-            ret.append(self._normalize_flavor(flavor))
-        return ret
-
-    def _normalize_flavor(self, flavor):
-        """ Normalize a flavor object """
-        new_flavor = munch.Munch()
-
-        # Copy incoming group because of shared dicts in unittests
-        flavor = flavor.copy()
-
-        # Discard noise
-        self._remove_novaclient_artifacts(flavor)
-        flavor.pop('links', None)
-
-        ephemeral = int(_pop_or_get(
-            flavor, 'OS-FLV-EXT-DATA:ephemeral', 0, self.strict_mode))
-        ephemeral = flavor.pop('ephemeral', ephemeral)
-        is_public = _to_bool(_pop_or_get(
-            flavor, 'os-flavor-access:is_public', True, self.strict_mode))
-        is_public = _to_bool(flavor.pop('is_public', is_public))
-        is_disabled = _to_bool(_pop_or_get(
-            flavor, 'OS-FLV-DISABLED:disabled', False, self.strict_mode))
-        extra_specs = _pop_or_get(
-            flavor, 'OS-FLV-WITH-EXT-SPECS:extra_specs', {}, self.strict_mode)
-        extra_specs = flavor.pop('extra_specs', extra_specs)
-        extra_specs = munch.Munch(extra_specs)
-
-        new_flavor['location'] = self.current_location
-        new_flavor['id'] = flavor.pop('id')
-        new_flavor['name'] = flavor.pop('name')
-        new_flavor['is_public'] = is_public
-        new_flavor['is_disabled'] = is_disabled
-        new_flavor['ram'] = _pop_int(flavor, 'ram')
-        new_flavor['vcpus'] = _pop_int(flavor, 'vcpus')
-        new_flavor['disk'] = _pop_int(flavor, 'disk')
-        new_flavor['ephemeral'] = ephemeral
-        new_flavor['swap'] = _pop_int(flavor, 'swap')
-        new_flavor['rxtx_factor'] = _pop_float(flavor, 'rxtx_factor')
-
-        new_flavor['properties'] = flavor.copy()
-        new_flavor['extra_specs'] = extra_specs
-
-        # Backwards compat with nova - passthrough values
-        if not self.strict_mode:
-            for (k, v) in new_flavor['properties'].items():
-                new_flavor.setdefault(k, v)
-
-        return new_flavor
-
-    def _normalize_keypairs(self, keypairs):
-        """Normalize Nova Keypairs"""
-        ret = []
-        for keypair in keypairs:
-            ret.append(self._normalize_keypair(keypair))
-        return ret
-
-    def _normalize_keypair(self, keypair):
-        """Normalize Ironic Machine"""
-
-        new_keypair = munch.Munch()
-        keypair = keypair.copy()
-
-        # Discard noise
-        self._remove_novaclient_artifacts(keypair)
-
-        new_keypair['location'] = self.current_location
-        for key in _KEYPAIR_FIELDS:
-            new_keypair[key] = keypair.pop(key, None)
-        # These are completely meaningless fields
-        for key in _KEYPAIR_USELESS_FIELDS:
-            keypair.pop(key, None)
-        new_keypair['type'] = keypair.pop('type', 'ssh')
-        # created_at isn't returned from the keypair creation. (what?)
-        new_keypair['created_at'] = keypair.pop(
-            'created_at', datetime.datetime.now().isoformat())
-        # Don't even get me started on this
-        new_keypair['id'] = new_keypair['name']
-
-        new_keypair['properties'] = keypair.copy()
-
-        return new_keypair
-
-    def _normalize_images(self, images):
-        ret = []
-        for image in images:
-            ret.append(self._normalize_image(image))
-        return ret
 
     def _normalize_image(self, image):
         if isinstance(image, resource.Resource):
@@ -351,6 +179,8 @@ class Normalizer:
             new_image['minRam'] = new_image['min_ram']
         return new_image
 
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # secgroups
     def _normalize_secgroups(self, groups):
         """Normalize the structure of security groups
 
@@ -367,6 +197,8 @@ class Normalizer:
             ret.append(self._normalize_secgroup(group))
         return ret
 
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # secgroups
     def _normalize_secgroup(self, group):
 
         ret = munch.Munch()
@@ -400,6 +232,8 @@ class Normalizer:
 
         return ret
 
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # secgroups
     def _normalize_secgroup_rules(self, rules):
         """Normalize the structure of nova security group rules
 
@@ -415,6 +249,8 @@ class Normalizer:
             ret.append(self._normalize_secgroup_rule(rule))
         return ret
 
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # secgroups
     def _normalize_secgroup_rule(self, rule):
         ret = munch.Munch()
         # Copy incoming rule because of shared dicts in unittests
@@ -454,14 +290,6 @@ class Normalizer:
             ret['project_id'] = project_id
             for key, val in ret['properties'].items():
                 ret.setdefault(key, val)
-        return ret
-
-    def _normalize_servers(self, servers):
-        # Here instead of _utils because we need access to region and cloud
-        # name from the cloud object
-        ret = []
-        for server in servers:
-            ret.append(self._normalize_server(server))
         return ret
 
     def _normalize_server(self, server):
@@ -576,6 +404,8 @@ class Normalizer:
                 ret.setdefault(key, val)
         return ret
 
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # floating IPs
     def _normalize_floating_ips(self, ips):
         """Normalize the structure of floating IPs
 
@@ -609,6 +439,8 @@ class Normalizer:
             self._normalize_floating_ip(ip) for ip in ips
         ]
 
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # floating IPs
     def _normalize_floating_ip(self, ip):
         # Copy incoming floating ip because of shared dicts in unittests
         if isinstance(ip, resource.Resource):
@@ -678,230 +510,6 @@ class Normalizer:
                 ret.setdefault(key, val)
 
         return ret
-
-    def _normalize_projects(self, projects):
-        """Normalize the structure of projects
-
-        This makes tenants from keystone v2 look like projects from v3.
-
-        :param list projects: A list of projects to normalize
-
-        :returns: A list of normalized dicts.
-        """
-        ret = []
-        for project in projects:
-            ret.append(self._normalize_project(project))
-        return ret
-
-    def _normalize_project(self, project):
-
-        # Copy incoming project because of shared dicts in unittests
-        project = project.copy()
-
-        # Discard noise
-        self._remove_novaclient_artifacts(project)
-
-        # In both v2 and v3
-        project_id = project.pop('id')
-        name = project.pop('name', '')
-        description = project.pop('description', '')
-        is_enabled = project.pop('enabled', True)
-
-        # v3 additions
-        domain_id = project.pop('domain_id', 'default')
-        parent_id = project.pop('parent_id', None)
-        is_domain = project.pop('is_domain', False)
-
-        # Projects have a special relationship with location
-        location = self._get_identity_location()
-        location['project']['domain_id'] = domain_id
-        location['project']['id'] = parent_id
-
-        ret = munch.Munch(
-            location=location,
-            id=project_id,
-            name=name,
-            description=description,
-            is_enabled=is_enabled,
-            is_domain=is_domain,
-            domain_id=domain_id,
-            properties=project.copy()
-        )
-
-        # Backwards compat
-        if not self.strict_mode:
-            ret['enabled'] = is_enabled
-            ret['parent_id'] = parent_id
-            for key, val in ret['properties'].items():
-                ret.setdefault(key, val)
-
-        return ret
-
-    def _normalize_volume_type_access(self, volume_type_access):
-
-        volume_type_access = volume_type_access.copy()
-
-        volume_type_id = volume_type_access.pop('volume_type_id')
-        project_id = volume_type_access.pop('project_id')
-        ret = munch.Munch(
-            location=self.current_location,
-            project_id=project_id,
-            volume_type_id=volume_type_id,
-            properties=volume_type_access.copy(),
-        )
-        return ret
-
-    def _normalize_volume_type_accesses(self, volume_type_accesses):
-        ret = []
-        for volume_type_access in volume_type_accesses:
-            ret.append(self._normalize_volume_type_access(volume_type_access))
-        return ret
-
-    def _normalize_volume_type(self, volume_type):
-
-        volume_type = volume_type.copy()
-
-        volume_id = volume_type.pop('id')
-        description = volume_type.pop('description', None)
-        name = volume_type.pop('name', None)
-        old_is_public = volume_type.pop('os-volume-type-access:is_public',
-                                        False)
-        is_public = volume_type.pop('is_public', old_is_public)
-        qos_specs_id = volume_type.pop('qos_specs_id', None)
-        extra_specs = volume_type.pop('extra_specs', {})
-        ret = munch.Munch(
-            location=self.current_location,
-            is_public=is_public,
-            id=volume_id,
-            name=name,
-            description=description,
-            qos_specs_id=qos_specs_id,
-            extra_specs=extra_specs,
-            properties=volume_type.copy(),
-        )
-        return ret
-
-    def _normalize_volume_types(self, volume_types):
-        ret = []
-        for volume in volume_types:
-            ret.append(self._normalize_volume_type(volume))
-        return ret
-
-    def _normalize_volumes(self, volumes):
-        """Normalize the structure of volumes
-
-        This makes tenants from cinder v1 look like volumes from v2.
-
-        :param list projects: A list of volumes to normalize
-
-        :returns: A list of normalized dicts.
-        """
-        ret = []
-        for volume in volumes:
-            ret.append(self._normalize_volume(volume))
-        return ret
-
-    def _normalize_volume(self, volume):
-
-        volume = volume.copy()
-
-        # Discard noise
-        self._remove_novaclient_artifacts(volume)
-
-        volume_id = volume.pop('id')
-
-        name = volume.pop('display_name', None)
-        name = volume.pop('name', name)
-
-        description = volume.pop('display_description', None)
-        description = volume.pop('description', description)
-
-        is_bootable = _to_bool(volume.pop('bootable', True))
-        is_encrypted = _to_bool(volume.pop('encrypted', False))
-        can_multiattach = _to_bool(volume.pop('multiattach', False))
-
-        project_id = _pop_or_get(
-            volume, 'os-vol-tenant-attr:tenant_id', None, self.strict_mode)
-        az = volume.pop('availability_zone', None)
-
-        location = self._get_current_location(project_id=project_id, zone=az)
-
-        host = _pop_or_get(
-            volume, 'os-vol-host-attr:host', None, self.strict_mode)
-        replication_extended_status = _pop_or_get(
-            volume, 'os-volume-replication:extended_status',
-            None, self.strict_mode)
-
-        migration_status = _pop_or_get(
-            volume, 'os-vol-mig-status-attr:migstat', None, self.strict_mode)
-        migration_status = volume.pop('migration_status', migration_status)
-        _pop_or_get(volume, 'user_id', None, self.strict_mode)
-        source_volume_id = _pop_or_get(
-            volume, 'source_volid', None, self.strict_mode)
-        replication_driver = _pop_or_get(
-            volume, 'os-volume-replication:driver_data',
-            None, self.strict_mode)
-
-        ret = munch.Munch(
-            location=location,
-            id=volume_id,
-            name=name,
-            description=description,
-            size=_pop_int(volume, 'size'),
-            attachments=volume.pop('attachments', []),
-            status=volume.pop('status'),
-            migration_status=migration_status,
-            host=host,
-            replication_driver=replication_driver,
-            replication_status=volume.pop('replication_status', None),
-            replication_extended_status=replication_extended_status,
-            snapshot_id=volume.pop('snapshot_id', None),
-            created_at=volume.pop('created_at'),
-            updated_at=volume.pop('updated_at', None),
-            source_volume_id=source_volume_id,
-            consistencygroup_id=volume.pop('consistencygroup_id', None),
-            volume_type=volume.pop('volume_type', None),
-            metadata=volume.pop('metadata', {}),
-            is_bootable=is_bootable,
-            is_encrypted=is_encrypted,
-            can_multiattach=can_multiattach,
-            properties=volume.copy(),
-        )
-
-        # Backwards compat
-        if not self.strict_mode:
-            ret['display_name'] = name
-            ret['display_description'] = description
-            ret['bootable'] = is_bootable
-            ret['encrypted'] = is_encrypted
-            ret['multiattach'] = can_multiattach
-            ret['availability_zone'] = az
-            for key, val in ret['properties'].items():
-                ret.setdefault(key, val)
-        return ret
-
-    def _normalize_volume_attachment(self, attachment):
-        """ Normalize a volume attachment object"""
-
-        attachment = attachment.copy()
-
-        # Discard noise
-        self._remove_novaclient_artifacts(attachment)
-        return munch.Munch(**attachment)
-
-    def _normalize_volume_backups(self, backups):
-        ret = []
-        for backup in backups:
-            ret.append(self._normalize_volume_backup(backup))
-        return ret
-
-    def _normalize_volume_backup(self, backup):
-        """ Normalize a volume backup object"""
-
-        backup = backup.copy()
-        # Discard noise
-        self._remove_novaclient_artifacts(backup)
-        return munch.Munch(**backup)
 
     def _normalize_compute_usage(self, usage):
         """ Normalize a compute usage object """
@@ -1112,69 +720,6 @@ class Normalizer:
         ret['properties'] = magnum_service
         return ret
 
-    def _normalize_stacks(self, stacks):
-        """Normalize Heat Stacks"""
-        ret = []
-        for stack in stacks:
-            ret.append(self._normalize_stack(stack))
-        return ret
-
-    def _normalize_stack(self, stack):
-        """Normalize Heat Stack"""
-        if isinstance(stack, resource.Resource):
-            stack = stack.to_dict(ignore_none=True, original_names=True)
-        else:
-            stack = stack.copy()
-
-        # Discard noise
-        self._remove_novaclient_artifacts(stack)
-
-        # Discard things heatclient adds that aren't in the REST
-        stack.pop('action', None)
-        stack.pop('status', None)
-        stack.pop('identifier', None)
-
-        stack_status = None
-
-        stack_status = stack.pop('stack_status', None) or \
-            stack.pop('status', None)
-        (action, status) = stack_status.split('_', 1)
-
-        ret = munch.Munch(
-            id=stack.pop('id'),
-            location=self._get_current_location(),
-            action=action,
-            status=status,
-        )
-        if not self.strict_mode:
-            ret['stack_status'] = stack_status
-
-        for (new_name, old_name) in (
-                ('name', 'stack_name'),
-                ('created_at', 'creation_time'),
-                ('deleted_at', 'deletion_time'),
-                ('updated_at', 'updated_time'),
-                ('description', 'description'),
-                ('is_rollback_enabled', 'disable_rollback'),
-                ('parent', 'parent'),
-                ('notification_topics', 'notification_topics'),
-                ('parameters', 'parameters'),
-                ('outputs', 'outputs'),
-                ('owner', 'stack_owner'),
-                ('status_reason', 'stack_status_reason'),
-                ('stack_user_project_id', 'stack_user_project_id'),
-                ('tempate_description', 'template_description'),
-                ('timeout_mins', 'timeout_mins'),
-                ('tags', 'tags')):
-            value = stack.get(old_name, None)
-            ret[new_name] = value
-            if not self.strict_mode:
-                ret[old_name] = value
-        ret['identifier'] = '{name}/{id}'.format(
-            name=ret['name'], id=ret['id'])
-        # ret['properties'] = stack
-        return ret
-
     def _normalize_machines(self, machines):
         """Normalize Ironic Machines"""
         ret = []
@@ -1193,55 +738,3 @@ class Normalizer:
         self._remove_novaclient_artifacts(machine)
 
         return machine
-
-    def _normalize_roles(self, roles):
-        """Normalize Keystone roles"""
-        ret = []
-        for role in roles:
-            ret.append(self._normalize_role(role))
-        return ret
-
-    def _normalize_role(self, role):
-        """Normalize Identity roles."""
-
-        return munch.Munch(
-            id=role.get('id'),
-            name=role.get('name'),
-            domain_id=role.get('domain_id'),
-            location=self._get_identity_location(),
-            properties={},
-        )
-
-    def _normalize_containers(self, containers):
-        """Normalize Swift Containers"""
-        ret = []
-        for container in containers:
-            ret.append(self._normalize_container(container))
-        return ret
-
-    def _normalize_container(self, container):
-        """Normalize Swift Container."""
-
-        return munch.Munch(
-            name=container.get('name'),
-            bytes=container.get('bytes'),
-            count=container.get('count'),
-        )
-
-    def _normalize_objects(self, objects):
-        """Normalize Swift Objects"""
-        ret = []
-        for object in objects:
-            ret.append(self._normalize_object(object))
-        return ret
-
-    def _normalize_object(self, object):
-        """Normalize Swift Object."""
-
-        return munch.Munch(
-            name=object.get('name'),
-            bytes=object.get('_bytes'),
-            content_type=object.get('content_type'),
-            hash=object.get('_hash'),
-            last_modified=object.get('_last_modified'),
-        )
