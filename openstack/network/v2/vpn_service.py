@@ -13,8 +13,6 @@
 from openstack import resource
 
 
-# NOTE: The VPN service is unmaintained, need to consider remove it
-
 class VPNService(resource.Resource):
     resource_key = 'vpnservice'
     resources_key = 'vpnservices'

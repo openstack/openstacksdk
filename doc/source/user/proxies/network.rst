@@ -241,13 +241,16 @@ Tag Operations
   :noindex:
   :members: set_tags
 
-VPN Operations
-^^^^^^^^^^^^^^
+VPNaaS Operations
+^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.network.v2._proxy.Proxy
   :noindex:
   :members: create_vpn_service, update_vpn_service, delete_vpn_service,
-            get_vpn_service, find_vpn_service, vpn_services
+   get_vpn_service, find_vpn_service, vpn_services, create_vpn_endpoint_group,
+   update_vpn_endpoint_group, delete_vpn_endpoint_group,
+   get_vpn_endpoint_group, find_vpn_endpoint_group, vpn_endpoint_groups
+
 
 IPSecSiteConnection Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

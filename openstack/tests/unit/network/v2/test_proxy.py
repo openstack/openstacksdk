@@ -60,6 +60,7 @@ from openstack.network.v2 import service_profile
 from openstack.network.v2 import service_provider
 from openstack.network.v2 import subnet
 from openstack.network.v2 import subnet_pool
+from openstack.network.v2 import vpn_endpoint_group
 from openstack.network.v2 import vpn_service
 from openstack import proxy as proxy_base
 from openstack.tests.unit import test_proxy_base
@@ -1630,6 +1631,43 @@ class TestNetworkSubnet(TestNetworkProxy):
     def test_subnet_pool_update(self):
         self.verify_update(self.proxy.update_subnet_pool,
                            subnet_pool.SubnetPool)
+
+
+class TestNetworkVpnEndpointGroup(TestNetworkProxy):
+    def test_vpn_endpoint_group_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_vpn_endpoint_group,
+            vpn_endpoint_group.VPNEndpointGroup)
+
+    def test_vpn_endpoint_group_delete(self):
+        self.verify_delete(
+            self.proxy.delete_vpn_endpoint_group,
+            vpn_endpoint_group.VPNEndpointGroup, False)
+
+    def test_vpn_endpoint_group_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_vpn_endpoint_group,
+            vpn_endpoint_group.VPNEndpointGroup, True)
+
+    def test_vpn_endpoint_group_find(self):
+        self.verify_find(
+            self.proxy.find_vpn_endpoint_group,
+            vpn_endpoint_group.VPNEndpointGroup)
+
+    def test_vpn_endpoint_group_get(self):
+        self.verify_get(
+            self.proxy.get_vpn_endpoint_group,
+            vpn_endpoint_group.VPNEndpointGroup)
+
+    def test_vpn_endpoint_groups(self):
+        self.verify_list(
+            self.proxy.vpn_endpoint_groups,
+            vpn_endpoint_group.VPNEndpointGroup)
+
+    def test_vpn_endpoint_group_update(self):
+        self.verify_update(
+            self.proxy.update_vpn_endpoint_group,
+            vpn_endpoint_group.VPNEndpointGroup)
 
 
 class TestNetworkVpnService(TestNetworkProxy):
