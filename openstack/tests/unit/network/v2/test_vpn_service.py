@@ -29,10 +29,10 @@ EXAMPLE = {
 }
 
 
-class TestVPNService(base.TestCase):
+class TestVpnService(base.TestCase):
 
     def test_basic(self):
-        sot = vpn_service.VPNService()
+        sot = vpn_service.VpnService()
         self.assertEqual('vpnservice', sot.resource_key)
         self.assertEqual('vpnservices', sot.resources_key)
         self.assertEqual('/vpn/vpnservices', sot.base_path)
@@ -43,7 +43,7 @@ class TestVPNService(base.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = vpn_service.VPNService(**EXAMPLE)
+        sot = vpn_service.VpnService(**EXAMPLE)
         self.assertTrue(sot.is_admin_state_up)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['external_v4_ip'], sot.external_v4_ip)

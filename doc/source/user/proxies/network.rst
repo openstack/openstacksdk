@@ -249,26 +249,12 @@ VPNaaS Operations
   :members: create_vpn_service, update_vpn_service, delete_vpn_service,
    get_vpn_service, find_vpn_service, vpn_services, create_vpn_endpoint_group,
    update_vpn_endpoint_group, delete_vpn_endpoint_group,
-   get_vpn_endpoint_group, find_vpn_endpoint_group, vpn_endpoint_groups
-
-
-IPSecSiteConnection Operations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: openstack.network.v2._proxy.Proxy
-  :noindex:
-  :members: create_vpn_ipsec_site_connection, update_vpn_ipsec_site_connection,
-            delete_vpn_ipsec_site_connection, get_vpn_ipsec_site_connection,
-            find_vpn_ipsec_site_connection, vpn_ipsec_site_connections
-
-IkePolicy Operations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autoclass:: openstack.network.v2._proxy.Proxy
-  :noindex:
-  :members: create_vpn_ikepolicy, update_vpn_ikepolicy,
-            delete_vpn_ikepolicy, get_vpn_ikepolicy,
-            find_vpn_ikepolicy, vpn_ikepolicies
+   get_vpn_endpoint_group, find_vpn_endpoint_group, vpn_endpoint_groups,
+   create_vpn_ipsec_site_connection, update_vpn_ipsec_site_connection,
+   delete_vpn_ipsec_site_connection, get_vpn_ipsec_site_connection,
+   find_vpn_ipsec_site_connection, vpn_ipsec_site_connections,
+   create_vpn_ikepolicy, update_vpn_ikepolicy, delete_vpn_ikepolicy,
+   get_vpn_ikepolicy, find_vpn_ikepolicy, vpn_ikepolicies
 
 Extension Operations
 ^^^^^^^^^^^^^^^^^^^^

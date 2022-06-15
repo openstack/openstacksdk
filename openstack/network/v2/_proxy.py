@@ -24,9 +24,6 @@ from openstack.network.v2 import firewall_rule as _firewall_rule
 from openstack.network.v2 import flavor as _flavor
 from openstack.network.v2 import floating_ip as _floating_ip
 from openstack.network.v2 import health_monitor as _health_monitor
-from openstack.network.v2 import ikepolicy as _ikepolicy
-from openstack.network.v2 import ipsec_site_connection as \
-    _ipsec_site_connection
 from openstack.network.v2 import l3_conntrack_helper as _l3_conntrack_helper
 from openstack.network.v2 import listener as _listener
 from openstack.network.v2 import load_balancer as _load_balancer
@@ -65,6 +62,9 @@ from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import trunk as _trunk
 from openstack.network.v2 import vpn_endpoint_group as _vpn_endpoint_group
+from openstack.network.v2 import vpn_ikepolicy as _ikepolicy
+from openstack.network.v2 import vpn_ipsec_site_connection as \
+    _ipsec_site_connection
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 
@@ -1169,189 +1169,6 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_health_monitor.HealthMonitor, health_monitor,
                             **attrs)
-
-    def create_vpn_ipsec_site_connection(self, **attrs):
-        """Create a new ipsec site connection from attributes
-
-        :param dict attrs: Keyword arguments which will be used to create a
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`,
-            comprised of the properties on the IPSecSiteConnection class.
-
-        :returns: The results of ipsec site connection creation
-        :rtype:
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`
-        """
-        return self._create(_ipsec_site_connection.IPSecSiteConnection,
-                            **attrs)
-
-    def find_vpn_ipsec_site_connection(self, name_or_id,
-                                       ignore_missing=True, **args):
-        """Find a single ipsec site connection
-
-        :param name_or_id: The name or ID of an ipsec site connection.
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound`
-            will be raised when the resource does not exist.
-            When set to ``True``, None will be returned when
-            attempting to find a nonexistent resource.
-        :param dict args: Any additional parameters to be passed into
-            underlying methods such as query filters.
-        :returns: One
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`
-            or None
-        """
-        return self._find(_ipsec_site_connection.IPSecSiteConnection,
-                          name_or_id, ignore_missing=ignore_missing, **args)
-
-    def get_vpn_ipsec_site_connection(self, ipsec_site_connection):
-        """Get a single ipsec site connection
-
-        :param ipsec_site_connection: The value can be the ID of an ipsec site
-            connection or a
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`
-            instance.
-
-        :returns: One
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-            when no resource can be found.
-        """
-        return self._get(_ipsec_site_connection.IPSecSiteConnection,
-                         ipsec_site_connection)
-
-    def vpn_ipsec_site_connections(self, **query):
-        """Return a generator of ipsec site connections
-
-        :param dict query: Optional query parameters to be sent to limit the
-            resources being returned.
-
-        :returns: A generator of ipsec site connection objects
-        :rtype:
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`
-        """
-        return self._list(_ipsec_site_connection.IPSecSiteConnection, **query)
-
-    def update_vpn_ipsec_site_connection(self, ipsec_site_connection, **attrs):
-        """Update a ipsec site connection
-
-        :ipsec_site_connection: Either the id of an ipsec site connection or
-            a
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`
-            instance.
-        :param dict attrs: The attributes to update on the ipsec site
-            connection represented by ``ipsec_site_connection``.
-
-        :returns: The updated ipsec site connection
-        :rtype:
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`
-        """
-        return self._update(_ipsec_site_connection.IPSecSiteConnection,
-                            ipsec_site_connection, **attrs)
-
-    def delete_vpn_ipsec_site_connection(self, ipsec_site_connection,
-                                         ignore_missing=True):
-        """Delete a ipsec site connection
-
-        :param ipsec_site_connection: The value can be either the ID of an
-            ipsec site connection, or a
-            :class:`~openstack.network.v2.ipsec_site_connection.IPSecSiteConnection`
-            instance.
-        :param bool ignore_missing:
-            When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
-            the ipsec site connection does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent ipsec site connection.
-
-        :returns: ``None``
-        """
-        self._delete(_ipsec_site_connection.IPSecSiteConnection,
-                     ipsec_site_connection, ignore_missing=ignore_missing)
-
-    def create_vpn_ikepolicy(self, **attrs):
-        """Create a new ike policy from attributes
-
-        :param dict attrs: Keyword arguments which will be used to create a
-            :class:`~openstack.network.v2.ikepolicy.IkePolicy`, comprised of
-            the properties on the IkePolicy class.
-
-        :returns: The results of ike policy creation :rtype:
-            :class:`~openstack.network.v2.ikepolicy.IkePolicy`
-        """
-        return self._create(_ikepolicy.IkePolicy,
-                            **attrs)
-
-    def find_vpn_ikepolicy(self, name_or_id,
-                           ignore_missing=True, **args):
-        """Find a single ike policy
-
-        :param name_or_id: The name or ID of an ike policy.
-        :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound`
-            will be raised when the resource does not exist.
-            When set to ``True``, None will be returned when
-            attempting to find a nonexistent resource.
-        :param dict args: Any additional parameters to be passed into
-            underlying methods such as query filters.
-        :returns: One :class:`~openstack.network.v2.ikepolicy.IkePolicy` or
-            None.
-        """
-        return self._find(_ikepolicy.IkePolicy,
-                          name_or_id, ignore_missing=ignore_missing, **args)
-
-    def get_vpn_ikepolicy(self, ikepolicy):
-        """Get a single ike policy
-
-        :param ikepolicy: The value can be the ID of an ikepolicy or a
-            :class:`~openstack.network.v2.ikepolicy.IkePolicy` instance.
-
-        :returns: One :class:`~openstack.network.v2.ikepolicy.IkePolicy`
-        :rtype: :class:`~openstack.network.v2.ikepolicy.IkePolicy`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
-            resource can be found.
-        """
-        return self._get(_ikepolicy.IkePolicy, ikepolicy)
-
-    def vpn_ikepolicies(self, **query):
-        """Return a generator of ike policy
-
-        :param dict query: Optional query parameters to be sent to limit the
-            resources being returned.
-
-        :returns: A generator of ike policy objects
-        :rtype: :class:`~openstack.network.v2.ikepolicy.IkePolicy`
-        """
-        return self._list(_ikepolicy.IkePolicy, **query)
-
-    def update_vpn_ikepolicy(self, ikepolicy, **attrs):
-        """Update a ike policy
-
-        :ikepolicy: Either the id of an ike policy or a
-         :class:`~openstack.network.v2.ikepolicy.IkePolicy` instance.
-        :param dict attrs: The attributes to update on the ike policy
-            represented by ``ikepolicy``.
-
-        :returns: The updated ike policy
-        :rtype: :class:`~openstack.network.v2.ikepolicy.IkePolicy`
-        """
-        return self._update(_ikepolicy.IkePolicy, ikepolicy, **attrs)
-
-    def delete_vpn_ikepolicy(self, ikepolicy, ignore_missing=True):
-        """Delete a ikepolicy
-
-        :param ikepolicy: The value can be either the ID of an ike policy, or
-            a :class:`~openstack.network.v2.ikepolicy.IkePolicy` instance.
-        :param bool ignore_missing:
-            When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound`
-            will be raised when the ike policy does not exist.
-            When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent ike policy.
-
-        :returns: ``None``
-        """
-        self._delete(_ikepolicy.IkePolicy, ikepolicy,
-                     ignore_missing=ignore_missing)
 
     def create_listener(self, **attrs):
         """Create a new listener from attributes
@@ -4558,15 +4375,15 @@ class Proxy(proxy.Proxy):
         """Create a new vpn endpoint group from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`,
-            comprised of the properties on the VPNEndpointGroup class.
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`,
+            comprised of the properties on the VpnEndpointGroup class.
 
         :returns: The results of vpn endpoint group creation.
         :rtype:
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         """
         return self._create(
-            _vpn_endpoint_group.VPNEndpointGroup, **attrs)
+            _vpn_endpoint_group.VpnEndpointGroup, **attrs)
 
     def delete_vpn_endpoint_group(
         self, vpn_endpoint_group, ignore_missing=True
@@ -4575,7 +4392,7 @@ class Proxy(proxy.Proxy):
 
         :param vpn_endpoint_group:
             The value can be either the ID of a vpn service or a
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
             instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
@@ -4586,7 +4403,7 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         self._delete(
-            _vpn_endpoint_group.VPNEndpointGroup, vpn_endpoint_group,
+            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group,
             ignore_missing=ignore_missing)
 
     def find_vpn_endpoint_group(
@@ -4603,11 +4420,11 @@ class Proxy(proxy.Proxy):
         :param dict args: Any additional parameters to be passed into
             underlying methods. such as query filters.
         :returns: One
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
             or None
         """
         return self._find(
-            _vpn_endpoint_group.VPNEndpointGroup, name_or_id,
+            _vpn_endpoint_group.VpnEndpointGroup, name_or_id,
             ignore_missing=ignore_missing, **args)
 
     def get_vpn_endpoint_group(self, vpn_endpoint_group):
@@ -4615,16 +4432,16 @@ class Proxy(proxy.Proxy):
 
         :param vpn_endpoint_group: The value can be the ID of a vpn service
             or a
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
             instance.
 
         :returns: One
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
         return self._get(
-            _vpn_endpoint_group.VPNEndpointGroup, vpn_endpoint_group)
+            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group)
 
     def vpn_endpoint_groups(self, **query):
         """Return a generator of vpn services
@@ -4634,25 +4451,226 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of vpn service objects
         :rtype:
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         """
-        return self._list(_vpn_endpoint_group.VPNEndpointGroup, **query)
+        return self._list(_vpn_endpoint_group.VpnEndpointGroup, **query)
 
     def update_vpn_endpoint_group(self, vpn_endpoint_group, **attrs):
         """Update a vpn service
 
         :param vpn_endpoint_group: Either the id of a vpn service or a
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
             instance.
         :param dict attrs: The attributes to update on the VPN service
             represented by ``vpn_endpoint_group``.
 
         :returns: The updated vpnservice
         :rtype:
-            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
         """
         return self._update(
-            _vpn_endpoint_group.VPNEndpointGroup, vpn_endpoint_group, **attrs)
+            _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group, **attrs)
+
+    # ========== IPSec Site Connection ==========
+    def create_vpn_ipsec_site_connection(self, **attrs):
+        """Create a new ipsec site connection from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`,
+            comprised of the properties on the IPSecSiteConnection class.
+
+        :returns: The results of ipsec site connection creation
+        :rtype:
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
+        """
+        return self._create(
+            _ipsec_site_connection.VpnIPSecSiteConnection,
+            **attrs)
+
+    def find_vpn_ipsec_site_connection(
+        self, name_or_id, ignore_missing=True, **args
+    ):
+        """Find a single ipsec site connection
+
+        :param name_or_id: The name or ID of an ipsec site connection.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound`
+            will be raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
+            or None
+        """
+        return self._find(
+            _ipsec_site_connection.VpnIPSecSiteConnection,
+            name_or_id, ignore_missing=ignore_missing, **args)
+
+    def get_vpn_ipsec_site_connection(self, ipsec_site_connection):
+        """Get a single ipsec site connection
+
+        :param ipsec_site_connection: The value can be the ID of an ipsec site
+            connection or a
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
+            instance.
+
+        :returns: One
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(
+            _ipsec_site_connection.VpnIPSecSiteConnection,
+            ipsec_site_connection)
+
+    def vpn_ipsec_site_connections(self, **query):
+        """Return a generator of ipsec site connections
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned.
+
+        :returns: A generator of ipsec site connection objects
+        :rtype:
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
+        """
+        return self._list(
+            _ipsec_site_connection.VpnIPSecSiteConnection, **query)
+
+    def update_vpn_ipsec_site_connection(self, ipsec_site_connection, **attrs):
+        """Update a ipsec site connection
+
+        :ipsec_site_connection: Either the id of an ipsec site connection or
+            a
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
+            instance.
+        :param dict attrs: The attributes to update on the ipsec site
+            connection represented by ``ipsec_site_connection``.
+
+        :returns: The updated ipsec site connection
+        :rtype:
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
+        """
+        return self._update(
+            _ipsec_site_connection.VpnIPSecSiteConnection,
+            ipsec_site_connection, **attrs)
+
+    def delete_vpn_ipsec_site_connection(
+        self, ipsec_site_connection, ignore_missing=True
+    ):
+        """Delete a ipsec site connection
+
+        :param ipsec_site_connection: The value can be either the ID of an
+            ipsec site connection, or a
+            :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
+            instance.
+        :param bool ignore_missing:
+            When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the ipsec site connection does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent ipsec site connection.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _ipsec_site_connection.VpnIPSecSiteConnection,
+            ipsec_site_connection, ignore_missing=ignore_missing)
+
+    # ========== IKEPolicy ==========
+    def create_vpn_ikepolicy(self, **attrs):
+        """Create a new ike policy from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`,
+            comprised of the properties on the VpnIkePolicy class.
+
+        :returns: The results of ike policy creation :rtype:
+            :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+        """
+        return self._create(
+            _ikepolicy.VpnIkePolicy, **attrs)
+
+    def find_vpn_ikepolicy(
+        self, name_or_id, ignore_missing=True, **args
+    ):
+        """Find a single ike policy
+
+        :param name_or_id: The name or ID of an ike policy.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound`
+            will be raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods such as query filters.
+        :returns: One :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+            or None.
+        """
+        return self._find(
+            _ikepolicy.VpnIkePolicy, name_or_id,
+            ignore_missing=ignore_missing, **args)
+
+    def get_vpn_ikepolicy(self, ikepolicy):
+        """Get a single ike policy
+
+        :param ikepolicy: The value can be the ID of an ikepolicy or a
+            :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+            instance.
+
+        :returns: One :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+        :rtype: :class:`~openstack.network.v2.ikepolicy.VpnIkePolicy`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        return self._get(
+            _ikepolicy.VpnIkePolicy, ikepolicy)
+
+    def vpn_ikepolicies(self, **query):
+        """Return a generator of ike policy
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned.
+
+        :returns: A generator of ike policy objects
+        :rtype: :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+        """
+        return self._list(
+            _ikepolicy.VpnIkePolicy, **query)
+
+    def update_vpn_ikepolicy(self, ikepolicy, **attrs):
+        """Update a ike policy
+
+        :ikepolicy: Either the id of an ike policy or a
+         :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy` instance.
+        :param dict attrs: The attributes to update on the ike policy
+            represented by ``ikepolicy``.
+
+        :returns: The updated ike policy
+        :rtype: :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+        """
+        return self._update(
+            _ikepolicy.VpnIkePolicy, ikepolicy, **attrs)
+
+    def delete_vpn_ikepolicy(self, ikepolicy, ignore_missing=True):
+        """Delete a ikepolicy
+
+        :param ikepolicy: The value can be either the ID of an ike policy, or
+            a :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+            instance.
+        :param bool ignore_missing:
+            When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound`
+            will be raised when the ike policy does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent ike policy.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _ikepolicy.VpnIkePolicy, ikepolicy,
+            ignore_missing=ignore_missing)
 
     # ========== VPN Service ==========
 
@@ -4660,20 +4678,20 @@ class Proxy(proxy.Proxy):
         """Create a new vpn service from attributes
 
         :param dict attrs: Keyword arguments which will be used to create
-            a :class:`~openstack.network.v2.vpn_service.VPNService`,
-            comprised of the properties on the VPNService class.
+            a :class:`~openstack.network.v2.vpn_service.VpnService`,
+            comprised of the properties on the VpnService class.
 
         :returns: The results of vpn service creation
-        :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
+        :rtype: :class:`~openstack.network.v2.vpn_service.VpnService`
         """
-        return self._create(_vpn_service.VPNService, **attrs)
+        return self._create(_vpn_service.VpnService, **attrs)
 
     def delete_vpn_service(self, vpn_service, ignore_missing=True):
         """Delete a vpn service
 
         :param vpn_service:
             The value can be either the ID of a vpn service or a
-            :class:`~openstack.network.v2.vpn_service.VPNService` instance.
+            :class:`~openstack.network.v2.vpn_service.VpnService` instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the vpn service does not exist.
@@ -4682,7 +4700,7 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
-        self._delete(_vpn_service.VPNService, vpn_service,
+        self._delete(_vpn_service.VpnService, vpn_service,
                      ignore_missing=ignore_missing)
 
     def find_vpn_service(self, name_or_id, ignore_missing=True, **args):
@@ -4696,25 +4714,25 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :param dict args: Any additional parameters to be passed into
             underlying methods. such as query filters.
-        :returns: One :class:`~openstack.network.v2.vpn_service.VPNService`
+        :returns: One :class:`~openstack.network.v2.vpn_service.VpnService`
             or None
         """
-        return self._find(_vpn_service.VPNService, name_or_id,
+        return self._find(_vpn_service.VpnService, name_or_id,
                           ignore_missing=ignore_missing, **args)
 
     def get_vpn_service(self, vpn_service):
         """Get a single vpn service
 
         :param vpn_service: The value can be the ID of a vpn service or a
-            :class:`~openstack.network.v2.vpn_service.VPNService`
+            :class:`~openstack.network.v2.vpn_service.VpnService`
             instance.
 
         :returns: One
-            :class:`~openstack.network.v2.vpn_service.VPNService`
+            :class:`~openstack.network.v2.vpn_service.VpnService`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_vpn_service.VPNService, vpn_service)
+        return self._get(_vpn_service.VpnService, vpn_service)
 
     def vpn_services(self, **query):
         """Return a generator of vpn services
@@ -4723,22 +4741,22 @@ class Proxy(proxy.Proxy):
             the resources being returned.
 
         :returns: A generator of vpn service objects
-        :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
+        :rtype: :class:`~openstack.network.v2.vpn_service.VpnService`
         """
-        return self._list(_vpn_service.VPNService, **query)
+        return self._list(_vpn_service.VpnService, **query)
 
     def update_vpn_service(self, vpn_service, **attrs):
         """Update a vpn service
 
         :param vpn_service: Either the id of a vpn service or a
-            :class:`~openstack.network.v2.vpn_service.VPNService` instance.
+            :class:`~openstack.network.v2.vpn_service.VpnService` instance.
         :param dict attrs: The attributes to update on the VPN service
             represented by ``vpn_service``.
 
         :returns: The updated vpnservice
-        :rtype: :class:`~openstack.network.v2.vpn_service.VPNService`
+        :rtype: :class:`~openstack.network.v2.vpn_service.VpnService`
         """
-        return self._update(_vpn_service.VPNService, vpn_service, **attrs)
+        return self._update(_vpn_service.VpnService, vpn_service, **attrs)
 
     def create_floating_ip_port_forwarding(self, floating_ip, **attrs):
         """Create a new floating ip port forwarding from attributes

@@ -13,8 +13,6 @@ Network Resources
    v2/flavor
    v2/floating_ip
    v2/health_monitor
-   v2/ipsec_site_connection
-   v2/ikepolicy
    v2/listener
    v2/load_balancer
    v2/local_ip
@@ -44,3 +42,4 @@ Network Resources
    v2/service_provider
    v2/subnet
    v2/subnet_pool
+   v2/vpn/index

@@ -10,23 +10,23 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import ikepolicy
+from openstack.network.v2 import vpn_ikepolicy
 from openstack.tests.functional import base
 
 
-class TestIkePolicy(base.BaseFunctionalTest):
+class TestVpnIkePolicy(base.BaseFunctionalTest):
 
     ID = None
 
     def setUp(self):
-        super(TestIkePolicy, self).setUp()
+        super(TestVpnIkePolicy, self).setUp()
         if not self.conn._has_neutron_extension('vpnaas_v2'):
             self.skipTest('vpnaas_v2 service not supported by cloud')
         self.IKEPOLICY_NAME = self.getUniqueString('ikepolicy')
         self.UPDATE_NAME = self.getUniqueString('ikepolicy-updated')
         policy = self.conn.network.create_vpn_ikepolicy(
             name=self.IKEPOLICY_NAME)
-        assert isinstance(policy, ikepolicy.IkePolicy)
+        assert isinstance(policy, vpn_ikepolicy.VpnIkePolicy)
         self.assertEqual(self.IKEPOLICY_NAME, policy.name)
         self.ID = policy.id
 
@@ -34,7 +34,7 @@ class TestIkePolicy(base.BaseFunctionalTest):
         ikepolicy = self.conn.network.\
             delete_vpn_ikepolicy(self.ID, ignore_missing=True)
         self.assertIsNone(ikepolicy)
-        super(TestIkePolicy, self).tearDown()
+        super(TestVpnIkePolicy, self).tearDown()
 
     def test_list(self):
         policies = [f.name for f in self.conn.network.vpn_ikepolicies()]

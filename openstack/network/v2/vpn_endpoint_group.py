@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class VPNEndpointGroup(resource.Resource):
+class VpnEndpointGroup(resource.Resource):
     resource_key = 'endpoint_group'
     resources_key = 'endpoint_groups'
     base_path = '/vpn/endpoint-groups'
