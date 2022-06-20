@@ -254,7 +254,9 @@ VPNaaS Operations
    delete_vpn_ipsec_site_connection, get_vpn_ipsec_site_connection,
    find_vpn_ipsec_site_connection, vpn_ipsec_site_connections,
    create_vpn_ikepolicy, update_vpn_ikepolicy, delete_vpn_ikepolicy,
-   get_vpn_ikepolicy, find_vpn_ikepolicy, vpn_ikepolicies
+   get_vpn_ikepolicy, find_vpn_ikepolicy, vpn_ikepolicies,
+   create_vpn_ipsecpolicy, update_vpn_ipsecpolicy, delete_vpn_ipsecpolicy,
+   get_vpn_ipsecpolicy, find_vpn_ipsecpolicy, vpn_ipsecpolicies
 
 Extension Operations
 ^^^^^^^^^^^^^^^^^^^^
