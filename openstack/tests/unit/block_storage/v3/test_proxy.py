@@ -70,6 +70,23 @@ class TestVolume(TestVolumeProxy):
             expected_args=[self.proxy]
         )
 
+    def test_snapshot_create_attrs(self):
+        self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
+
+    def test_snapshot_update(self):
+        self.verify_update(self.proxy.update_snapshot, snapshot.Snapshot)
+
+    def test_snapshot_delete(self):
+        self.verify_delete(self.proxy.delete_snapshot,
+                           snapshot.Snapshot, False)
+
+    def test_snapshot_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_snapshot,
+                           snapshot.Snapshot, True)
+
+    def test_type_get(self):
+        self.verify_get(self.proxy.get_type, type.Type)
+
     def test_backend_pools(self):
         self.verify_list(self.proxy.backend_pools, stats.Pools)
 
