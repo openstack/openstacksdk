@@ -488,7 +488,6 @@ class Proxy(adapter.Adapter):
             self, name_or_id, ignore_missing=ignore_missing, **attrs
         )
 
-    # TODO(stephenfin): Update docstring for attrs since it's a lie
     @_check_resource(strict=False)
     def _delete(self, resource_type, value, ignore_missing=True, **attrs):
         """Delete a resource
@@ -504,10 +503,8 @@ class Proxy(adapter.Adapter):
             raised when the resource does not exist.
             When set to ``True``, no exception will be set when
             attempting to delete a nonexistent resource.
-        :param dict attrs: Attributes to be passed onto the
-            :meth:`~openstack.resource.Resource.delete`
-            method, such as the ID of a parent resource.
-
+        :param dict attrs: Attributes to be used to form the request URL such
+            as the ID of a parent resource.
         :returns: The result of the ``delete``
         :raises: ``ValueError`` if ``value`` is a
             :class:`~openstack.resource.Resource` that doesn't match
@@ -515,7 +512,6 @@ class Proxy(adapter.Adapter):
             :class:`~openstack.exceptions.ResourceNotFound` when
             ignore_missing if ``False`` and a nonexistent resource
             is attempted to be deleted.
-
         """
         res = self._get_resource(resource_type, value, **attrs)
 

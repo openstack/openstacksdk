@@ -630,8 +630,7 @@ class Proxy(proxy.Proxy):
     def delete_l7_rule(self, l7rule, l7_policy, ignore_missing=True):
         """Delete a l7rule
 
-        :param l7rule:
-            The l7rule can be either the ID of a l7rule or a
+        :param l7rule: The l7rule can be either the ID of a l7rule or a
             :class:`~openstack.load_balancer.v2.l7_rule.L7Rule` instance.
         :param l7_policy: The l7_policy can be either the ID of a l7policy or
             :class:`~openstack.load_balancer.v2.l7_policy.L7Policy`
