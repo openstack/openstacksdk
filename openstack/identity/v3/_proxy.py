@@ -120,8 +120,8 @@ class Proxy(proxy.Proxy):
 
         :param credential: Either the ID of a credential or a
             :class:`~openstack.identity.v3.credential.Credential` instance.
-        :attrs kwargs: The attributes to update on the credential represented
-            by ``value``.
+        :param attrs: The attributes to update on the credential represented
+            by ``credential``.
 
         :returns: The updated credential
         :rtype: :class:`~openstack.identity.v3.credential.Credential`
@@ -198,8 +198,8 @@ class Proxy(proxy.Proxy):
 
         :param domain: Either the ID of a domain or a
             :class:`~openstack.identity.v3.domain.Domain` instance.
-        :attrs kwargs: The attributes to update on the domain represented
-            by ``value``.
+        :param attrs: The attributes to update on the domain represented
+            by ``domain``.
 
         :returns: The updated domain
         :rtype: :class:`~openstack.identity.v3.domain.Domain`
@@ -276,11 +276,10 @@ class Proxy(proxy.Proxy):
     def update_endpoint(self, endpoint, **attrs):
         """Update a endpoint
 
-        :param endpoint: Either the ID of a endpoint or a
-            :class:`~openstack.identity.v3.endpoint.Endpoint`
-            instance.
-        :attrs kwargs: The attributes to update on the endpoint represented
-            by ``value``.
+        :param endpoint: Either the ID of an endpoint or a
+            :class:`~openstack.identity.v3.endpoint.Endpoint` instance.
+        :param attrs: The attributes to update on the endpoint represented
+            by ``endpoint``.
 
         :returns: The updated endpoint
         :rtype: :class:`~openstack.identity.v3.endpoint.Endpoint`
@@ -359,8 +358,8 @@ class Proxy(proxy.Proxy):
 
         :param group: Either the ID of a group or a
             :class:`~openstack.identity.v3.group.Group` instance.
-        :attrs kwargs: The attributes to update on the group represented
-            by ``value``.
+        :param attrs: The attributes to update on the group represented
+            by ``group``.
 
         :returns: The updated group
         :rtype: :class:`~openstack.identity.v3.group.Group`
@@ -476,8 +475,8 @@ class Proxy(proxy.Proxy):
 
         :param policy: Either the ID of a policy or a
             :class:`~openstack.identity.v3.policy.Policy` instance.
-        :attrs kwargs: The attributes to update on the policy represented
-            by ``value``.
+        :param attrs: The attributes to update on the policy represented
+            by ``policy``.
 
         :returns: The updated policy
         :rtype: :class:`~openstack.identity.v3.policy.Policy`
@@ -569,8 +568,8 @@ class Proxy(proxy.Proxy):
 
         :param project: Either the ID of a project or a
             :class:`~openstack.identity.v3.project.Project` instance.
-        :attrs kwargs: The attributes to update on the project represented
-            by ``value``.
+        :param attrs: The attributes to update on the project represented
+            by ``project``.
 
         :returns: The updated project
         :rtype: :class:`~openstack.identity.v3.project.Project`
@@ -647,8 +646,8 @@ class Proxy(proxy.Proxy):
 
         :param service: Either the ID of a service or a
             :class:`~openstack.identity.v3.service.Service` instance.
-        :attrs kwargs: The attributes to update on the service represented
-            by ``value``.
+        :param attrs: The attributes to update on the service represented
+            by ``service``.
 
         :returns: The updated service
         :rtype: :class:`~openstack.identity.v3.service.Service`
@@ -725,8 +724,8 @@ class Proxy(proxy.Proxy):
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v3.user.User` instance.
-        :attrs kwargs: The attributes to update on the user represented
-            by ``value``.
+        :param attrs: The attributes to update on the user represented
+            by ``attrs``.
 
         :returns: The updated user
         :rtype: :class:`~openstack.identity.v3.user.User`
@@ -868,8 +867,8 @@ class Proxy(proxy.Proxy):
 
         :param region: Either the ID of a region or a
             :class:`~openstack.identity.v3.region.Region` instance.
-        :attrs kwargs: The attributes to update on the region represented
-            by ``value``.
+        :param attrs: The attributes to update on the region represented
+            by ``region``.
 
         :returns: The updated region.
         :rtype: :class:`~openstack.identity.v3.region.Region`
@@ -1702,8 +1701,8 @@ class Proxy(proxy.Proxy):
         :param protocol: Either the ID of a federation protocol or a
             :class:`~openstack.identity.v3.federation_protocol.FederationProtocol`
             instance.
-        :attrs kwargs: The attributes to update on the federation protocol
-            represented by ``value``.
+        :param attrs: The attributes to update on the federation protocol
+            represented by ``protocol``.
 
         :returns: The updated federation protocol
         :rtype:
@@ -1787,10 +1786,9 @@ class Proxy(proxy.Proxy):
         """Update a mapping
 
         :param mapping: Either the ID of a mapping or a
-            :class:`~openstack.identity.v3.mapping.Mapping`
-            instance.
-        :attrs kwargs: The attributes to update on the mapping represented
-            by ``value``.
+            :class:`~openstack.identity.v3.mapping.Mapping` instance.
+        :param attrs: The attributes to update on the mapping represented
+            by ``mapping``.
 
         :returns: The updated mapping
         :rtype: :class:`~openstack.identity.v3.mapping.Mapping`
@@ -1877,8 +1875,8 @@ class Proxy(proxy.Proxy):
         :param mapping: Either the ID of an identity provider or a
             :class:`~openstack.identity.v3.identity_provider.IdentityProvider`
             instance.
-        :attrs kwargs: The attributes to update on the identity_provider
-            represented by ``value``.
+        :param attrs: The attributes to update on the identity_provider
+            represented by ``identity_provider``.
 
         :returns: The updated identity provider.
         :rtype:

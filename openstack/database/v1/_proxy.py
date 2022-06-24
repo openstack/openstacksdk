@@ -214,10 +214,9 @@ class Proxy(proxy.Proxy):
         """Update a instance
 
         :param instance: Either the id of a instance or a
-            :class:`~openstack.database.v1.instance.Instance`
-            instance.
-        :attrs kwargs: The attributes to update on the instance represented
-            by ``value``.
+            :class:`~openstack.database.v1.instance.Instance` instance.
+        :param attrs: The attributes to update on the instance represented
+            by ``instance``.
 
         :returns: The updated instance
         :rtype: :class:`~openstack.database.v1.instance.Instance`

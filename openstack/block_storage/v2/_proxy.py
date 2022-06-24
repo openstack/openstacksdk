@@ -619,7 +619,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param quota_set: Either the ID of a quota_set or a
             :class:`~openstack.block_storage.v2.quota_set.QuotaSet` instance.
         :param dict query: Optional parameters to be used with update call.
-        :attrs kwargs: The attributes to update on the QuotaSet represented
+        :param attrs: The attributes to update on the QuotaSet represented
             by ``quota_set``.
 
         :returns: The updated QuotaSet

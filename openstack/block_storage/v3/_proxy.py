@@ -1262,7 +1262,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
     # ====== QUOTA SETS ======
     def get_quota_set(self, project, usage=False, **query):
-        """Show quota set information for the project
+        """Show QuotaSet information for the project
 
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
@@ -1282,7 +1282,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             self, usage=usage, **query)
 
     def get_quota_set_defaults(self, project):
-        """Show quota set defaults for the project
+        """Show QuotaSet defaults for the project
 
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
@@ -1299,7 +1299,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             self, base_path='/os-quota-sets/defaults')
 
     def revert_quota_set(self, project, **query):
-        """Reset quota for the project/user.
+        """Reset Quota for the project/user.
 
         :param project: ID or instance of
             :class:`~openstack.identity.project.Project` of the project for
@@ -1312,17 +1312,16 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         res = self._get_resource(
             _quota_set.QuotaSet, None, project_id=project.id)
 
-        if not query:
-            query = {}
         return res.delete(self, **query)
 
     def update_quota_set(self, quota_set, query=None, **attrs):
-        """Update a quota set.
+        """Update a QuotaSet.
 
         :param quota_set: Either the ID of a quota_set or a
             :class:`~openstack.block_storage.v3.quota_set.QuotaSet` instance.
         :param dict query: Optional parameters to be used with update call.
-        :attrs kwargs: The attributes to update on the quota set
+        :param attrs: The attributes to update on the QuotaSet represented
+            by ``quota_set``.
 
         :returns: The updated QuotaSet
         :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`

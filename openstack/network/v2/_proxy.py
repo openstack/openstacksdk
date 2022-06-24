@@ -564,11 +564,10 @@ class Proxy(proxy.Proxy):
     def update_flavor(self, flavor, **attrs):
         """Update a network service flavor
 
-        :param flavor:
-            Either the id of a flavor or a
+        :param flavor: Either the id of a flavor or a
             :class:`~openstack.network.v2.flavor.Flavor` instance.
-        :attrs kwargs: The attributes to update on the flavor represented
-            by ``value``.
+        :param attrs: The attributes to update on the flavor represented
+            by ``flavor``.
 
         :returns: The updated flavor
         :rtype: :class:`~openstack.network.v2.flavor.Flavor`
@@ -1812,12 +1811,12 @@ class Proxy(proxy.Proxy):
     def update_network_segment_range(self, network_segment_range, **attrs):
         """Update a network segment range
 
-        :param network_segment_range: Either the id of a network segment range
+        :param network_segment_range: Either the ID of a network segment range
             or a
             :class:`~openstack.network.v2._network_segment_range.NetworkSegmentRange`
             instance.
-        :attrs kwargs: The attributes to update on the network segment range
-            represented by ``value``.
+        :param attrs: The attributes to update on the network segment range
+            represented by ``network_segment_range``.
 
         :returns: The updated network segment range
         :rtype:
@@ -2274,8 +2273,9 @@ class Proxy(proxy.Proxy):
         return self._list(_qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
                           qos_policy_id=policy.id, **query)
 
-    def update_qos_bandwidth_limit_rule(self, qos_rule, qos_policy,
-                                        **attrs):
+    def update_qos_bandwidth_limit_rule(
+        self, qos_rule, qos_policy, **attrs,
+    ):
         """Update a bandwidth limit rule
 
         :param qos_rule: Either the id of a bandwidth limit rule or a
@@ -2284,8 +2284,8 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :attrs kwargs: The attributes to update on the bandwidth limit rule
-            represented by ``value``.
+        :param attrs: The attributes to update on the bandwidth limit rule
+            represented by ``qos_rule``.
 
         :returns: The updated minimum bandwidth rule
         :rtype:
@@ -2407,8 +2407,8 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :attrs kwargs: The attributes to update on the QoS DSCP marking rule
-            represented by ``value``.
+        :param attrs: The attributes to update on the QoS DSCP marking rule
+            represented by ``qos_rule``.
 
         :returns: The updated QoS DSCP marking rule
         :rtype:
@@ -2535,8 +2535,8 @@ class Proxy(proxy.Proxy):
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy`
             instance.
-        :attrs kwargs: The attributes to update on the minimum bandwidth rule
-            represented by ``value``.
+        :param attrs: The attributes to update on the minimum bandwidth rule
+            represented by ``qos_rule``.
 
         :returns: The updated minimum bandwidth rule
         :rtype:
@@ -2661,17 +2661,20 @@ class Proxy(proxy.Proxy):
         :param qos_policy: The value can be the ID of the QoS policy that the
             rule belongs or a
             :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
-        :attrs kwargs: The attributes to update on the minimum packet rate rule
-            represented by ``value``.
+        :param attrs: The attributes to update on the minimum packet rate rule
+            represented by ``qos_rule``.
 
         :returns: The updated minimum packet rate rule
         :rtype:
             :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`
         """
         policy = self._get_resource(_qos_policy.QoSPolicy, qos_policy)
-        return self._update(_qos_minimum_packet_rate_rule.
-                            QoSMinimumPacketRateRule, qos_rule,
-                            qos_policy_id=policy.id, **attrs)
+        return self._update(
+            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+            qos_rule,
+            qos_policy_id=policy.id,
+            **attrs,
+        )
 
     def create_qos_policy(self, **attrs):
         """Create a new QoS policy from attributes
@@ -2753,10 +2756,9 @@ class Proxy(proxy.Proxy):
         """Update a QoS policy
 
         :param qos_policy: Either the id of a QoS policy or a
-            :class:`~openstack.network.v2.qos_policy.QoSPolicy`
-            instance.
-        :attrs kwargs: The attributes to update on the QoS policy represented
-            by ``value``.
+            :class:`~openstack.network.v2.qos_policy.QoSPolicy` instance.
+        :param attrs: The attributes to update on the QoS policy represented
+            by ``qos_policy``.
 
         :returns: The updated QoS policy
         :rtype: :class:`~openstack.network.v2.qos_policy.QoSPolicy`
@@ -3926,10 +3928,9 @@ class Proxy(proxy.Proxy):
         """Update a segment
 
         :param segment: Either the id of a segment or a
-            :class:`~openstack.network.v2.segment.Segment`
-            instance.
-        :attrs kwargs: The attributes to update on the segment represented
-            by ``value``.
+            :class:`~openstack.network.v2.segment.Segment` instance.
+        :param attrs: The attributes to update on the segment represented
+            by ``segment``.
 
         :returns: The update segment
         :rtype: :class:`~openstack.network.v2.segment.Segment`
@@ -4033,8 +4034,8 @@ class Proxy(proxy.Proxy):
         :param service_profile: Either the id of a service profile or a
             :class:`~openstack.network.v2.service_profile.ServiceProfile`
             instance.
-        :attrs kwargs: The attributes to update on the service profile
-            represented by ``value``.
+        :param attrs: The attributes to update on the service profile
+            represented by ``service_profile``.
 
         :returns: The updated service profile
         :rtype: :class:`~openstack.network.v2.service_profile.ServiceProfile`
@@ -4968,8 +4969,8 @@ class Proxy(proxy.Proxy):
         :param port_forwarding: Either the id of a floating ip port forwarding
             or a
             :class:`~openstack.network.v2.port_forwarding.PortForwarding`instance.
-        :attrs kwargs: The attributes to update on the floating ip port
-            forwarding represented by ``value``.
+        :param attrs: The attributes to update on the floating ip port
+            forwarding represented by ``floating_ip``.
 
         :returns: The updated floating ip port forwarding
         :rtype: :class:`~openstack.network.v2.port_forwarding.PortForwarding`
@@ -5038,8 +5039,8 @@ class Proxy(proxy.Proxy):
             instance.
         :param router: The value can be the ID of a Router or a
             :class:`~openstack.network.v2.router.Router` instance.
-        :attrs kwargs: The attributes to update on the L3 conntrack helper
-            represented by ``value``.
+        :param attrs: The attributes to update on the L3 conntrack helper
+            represented by ``conntrack_helper``.
 
         :returns: The updated conntrack helper
         :rtype:
