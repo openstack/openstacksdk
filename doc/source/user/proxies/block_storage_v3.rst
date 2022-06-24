@@ -70,6 +70,10 @@ Group Type Operations
   :noindex:
   :members: create_group_type, delete_group_type, update_group_type,
             get_group_type, find_group_type, group_types,
+            fetch_group_type_group_specs, create_group_type_group_specs,
+            get_group_type_group_specs_property,
+            update_group_type_group_specs_property,
+            delete_group_type_group_specs_property
 
 Type Operations
 ^^^^^^^^^^^^^^^

@@ -169,6 +169,47 @@ class TestGroupType(TestVolumeProxy):
     def test_group_type_update(self):
         self.verify_update(self.proxy.update_group_type, group_type.GroupType)
 
+    def test_group_type_fetch_group_specs(self):
+        self._verify(
+            "openstack.block_storage.v3.group_type.GroupType.fetch_group_specs",  # noqa: E501
+            self.proxy.fetch_group_type_group_specs,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
+    def test_group_type_create_group_specs(self):
+        self._verify(
+            "openstack.block_storage.v3.group_type.GroupType.create_group_specs",  # noqa: E501
+            self.proxy.create_group_type_group_specs,
+            method_args=["value", {'a': 'b'}],
+            expected_args=[self.proxy],
+            expected_kwargs={"specs": {'a': 'b'}},
+        )
+
+    def test_group_type_get_group_specs_prop(self):
+        self._verify(
+            "openstack.block_storage.v3.group_type.GroupType.get_group_specs_property",  # noqa: E501
+            self.proxy.get_group_type_group_specs_property,
+            method_args=["value", "prop"],
+            expected_args=[self.proxy, "prop"],
+        )
+
+    def test_group_type_update_group_specs_prop(self):
+        self._verify(
+            "openstack.block_storage.v3.group_type.GroupType.update_group_specs_property",  # noqa: E501
+            self.proxy.update_group_type_group_specs_property,
+            method_args=["value", "prop", "val"],
+            expected_args=[self.proxy, "prop", "val"],
+        )
+
+    def test_group_type_delete_group_specs_prop(self):
+        self._verify(
+            "openstack.block_storage.v3.group_type.GroupType.delete_group_specs_property",  # noqa: E501
+            self.proxy.delete_group_type_group_specs_property,
+            method_args=["value", "prop"],
+            expected_args=[self.proxy, "prop"],
+        )
+
 
 class TestExtension(TestVolumeProxy):
     def test_extensions(self):

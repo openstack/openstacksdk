@@ -1082,6 +1082,66 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         return self._update(
             _group_type.GroupType, group_type, **attrs)
 
+    def fetch_group_type_group_specs(self, group_type):
+        """Lists group specs of a group type.
+
+        :param group_type: Either the ID of a group type or a
+            :class:`~openstack.block_storage.v3.group_type.GroupType` instance.
+
+        :returns: One :class:`~openstack.block_storage.v3.group_type.GroupType`
+        """
+        group_type = self._get_resource(_group_type.GroupType, group_type)
+        return group_type.fetch_group_specs(self)
+
+    def create_group_type_group_specs(self, group_type, group_specs):
+        """Create group specs for a group type.
+
+        :param group_type: Either the ID of a group type or a
+            :class:`~openstack.block_storage.v3.group_type.GroupType` instance.
+        :param dict group_specs: dict of extra specs
+
+        :returns: One :class:`~openstack.block_storage.v3.group_type.GroupType`
+        """
+        group_type = self._get_resource(_group_type.GroupType, group_type)
+        return group_type.create_group_specs(self, specs=group_specs)
+
+    def get_group_type_group_specs_property(self, group_type, prop):
+        """Retrieve a group spec property for a group type.
+
+        :param group_type: Either the ID of a group type or a
+            :class:`~openstack.block_storage.v3.group_type.GroupType` instance.
+        :param str prop: Property name.
+
+        :returns: String value of the requested property.
+        """
+        group_type = self._get_resource(_group_type.GroupType, group_type)
+        return group_type.get_group_specs_property(self, prop)
+
+    def update_group_type_group_specs_property(self, group_type, prop, val):
+        """Update a group spec property for a group type.
+
+        :param group_type: Either the ID of a group type or a
+            :class:`~openstack.block_storage.v3.group_type.GroupType` instance.
+        :param str prop: Property name.
+        :param str val: Property value.
+
+        :returns: String value of the requested property.
+        """
+        group_type = self._get_resource(_group_type.GroupType, group_type)
+        return group_type.update_group_specs_property(self, prop, val)
+
+    def delete_group_type_group_specs_property(self, group_type, prop):
+        """Delete a group spec property from a group type.
+
+        :param group_type: Either the ID of a group type or a
+            :class:`~openstack.block_storage.v3.group_type.GroupType` instance.
+        :param str prop: Property name.
+
+        :returns: None
+        """
+        group_type = self._get_resource(_group_type.GroupType, group_type)
+        return group_type.delete_group_specs_property(self, prop)
+
     # ====== QUOTA SETS ======
     def get_quota_set(self, project, usage=False, **query):
         """Show quota set information for the project

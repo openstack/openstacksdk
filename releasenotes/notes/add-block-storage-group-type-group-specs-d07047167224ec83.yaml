@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add support for creating, updating and deleting group type group specs for
+    the block storage service.
