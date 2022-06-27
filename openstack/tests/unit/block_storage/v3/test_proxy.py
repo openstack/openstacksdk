@@ -9,6 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from unittest import mock
 
 from openstack.block_storage.v3 import _proxy
@@ -34,7 +35,6 @@ class TestVolumeProxy(test_proxy_base.TestProxyBase):
 
 
 class TestVolume(TestVolumeProxy):
-
     def test_volume_get(self):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
@@ -42,15 +42,20 @@ class TestVolume(TestVolumeProxy):
         self.verify_find(self.proxy.find_volume, volume.Volume)
 
     def test_volumes_detailed(self):
-        self.verify_list(self.proxy.volumes, volume.Volume,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1,
-                                          "base_path": "/volumes/detail"})
+        self.verify_list(
+            self.proxy.volumes,
+            volume.Volume,
+            method_kwargs={"details": True, "query": 1},
+            expected_kwargs={"query": 1, "base_path": "/volumes/detail"},
+        )
 
     def test_volumes_not_detailed(self):
-        self.verify_list(self.proxy.volumes, volume.Volume,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.volumes,
+            volume.Volume,
+            method_kwargs={"details": False, "query": 1},
+            expected_kwargs={"query": 1},
+        )
 
     def test_volume_create_attrs(self):
         self.verify_create(self.proxy.create_volume, volume.Volume)
@@ -67,42 +72,78 @@ class TestVolume(TestVolumeProxy):
             self.proxy.delete_volume,
             method_args=["value"],
             method_kwargs={"force": True},
-            expected_args=[self.proxy]
+            expected_args=[self.proxy],
         )
 
-    def test_snapshot_create_attrs(self):
-        self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
+    def test_get_volume_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.fetch_metadata",
+            self.proxy.get_volume_metadata,
+            method_args=["value"],
+            expected_args=[self.proxy],
+            expected_result=volume.Volume(id="value", metadata={}),
+        )
 
-    def test_snapshot_update(self):
-        self.verify_update(self.proxy.update_snapshot, snapshot.Snapshot)
+    def test_set_volume_metadata(self):
+        kwargs = {"a": "1", "b": "2"}
+        id = "an_id"
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.set_metadata",
+            self.proxy.set_volume_metadata,
+            method_args=[id],
+            method_kwargs=kwargs,
+            method_result=volume.Volume.existing(id=id, metadata=kwargs),
+            expected_args=[self.proxy],
+            expected_kwargs={'metadata': kwargs},
+            expected_result=volume.Volume.existing(id=id, metadata=kwargs),
+        )
 
-    def test_snapshot_delete(self):
-        self.verify_delete(self.proxy.delete_snapshot,
-                           snapshot.Snapshot, False)
+    def test_delete_volume_metadata(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.delete_metadata_item",
+            self.proxy.delete_volume_metadata,
+            expected_result=None,
+            method_args=["value", ["key"]],
+            expected_args=[self.proxy, "key"],
+        )
 
-    def test_snapshot_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_snapshot,
-                           snapshot.Snapshot, True)
+    def test_volume_wait_for(self):
+        value = volume.Volume(id='1234')
+        self.verify_wait_for_status(
+            self.proxy.wait_for_status,
+            method_args=[value],
+            expected_args=[self.proxy, value, 'available', ['error'], 2, 120],
+        )
 
-    def test_type_get(self):
-        self.verify_get(self.proxy.get_type, type.Type)
 
+class TestPools(TestVolumeProxy):
     def test_backend_pools(self):
         self.verify_list(self.proxy.backend_pools, stats.Pools)
 
+
+class TestLimit(TestVolumeProxy):
     def test_limits_get(self):
         self.verify_get(
-            self.proxy.get_limits, limits.Limit,
+            self.proxy.get_limits,
+            limits.Limit,
             method_args=[],
-            expected_kwargs={'requires_id': False})
+            expected_kwargs={'requires_id': False},
+        )
 
+
+class TestCapabilities(TestVolumeProxy):
     def test_capabilites_get(self):
         self.verify_get(self.proxy.get_capabilities, capabilities.Capabilities)
 
-    def test_resource_filters(self):
-        self.verify_list(self.proxy.resource_filters,
-                         resource_filter.ResourceFilter)
 
+class TestResourceFilter(TestVolumeProxy):
+    def test_resource_filters(self):
+        self.verify_list(
+            self.proxy.resource_filters, resource_filter.ResourceFilter
+        )
+
+
+class TestGroupType(TestVolumeProxy):
     def test_group_type_get(self):
         self.verify_get(self.proxy.get_group_type, group_type.GroupType)
 
@@ -117,100 +158,71 @@ class TestVolume(TestVolumeProxy):
 
     def test_group_type_delete(self):
         self.verify_delete(
-            self.proxy.delete_group_type, group_type.GroupType, False)
+            self.proxy.delete_group_type, group_type.GroupType, False
+        )
 
     def test_group_type_delete_ignore(self):
         self.verify_delete(
-            self.proxy.delete_group_type, group_type.GroupType, True)
+            self.proxy.delete_group_type, group_type.GroupType, True
+        )
 
     def test_group_type_update(self):
         self.verify_update(self.proxy.update_group_type, group_type.GroupType)
 
+
+class TestExtension(TestVolumeProxy):
     def test_extensions(self):
         self.verify_list(self.proxy.extensions, extension.Extension)
 
-    def test_get_volume_metadata(self):
-        self._verify(
-            "openstack.block_storage.v3.volume.Volume.fetch_metadata",
-            self.proxy.get_volume_metadata,
-            method_args=["value"],
-            expected_args=[self.proxy],
-            expected_result=volume.Volume(id="value", metadata={}))
-
-    def test_set_volume_metadata(self):
-        kwargs = {"a": "1", "b": "2"}
-        id = "an_id"
-        self._verify(
-            "openstack.block_storage.v3.volume.Volume.set_metadata",
-            self.proxy.set_volume_metadata,
-            method_args=[id],
-            method_kwargs=kwargs,
-            method_result=volume.Volume.existing(
-                id=id, metadata=kwargs),
-            expected_args=[self.proxy],
-            expected_kwargs={'metadata': kwargs},
-            expected_result=volume.Volume.existing(
-                id=id, metadata=kwargs))
-
-    def test_delete_volume_metadata(self):
-        self._verify(
-            "openstack.block_storage.v3.volume.Volume.delete_metadata_item",
-            self.proxy.delete_volume_metadata,
-            expected_result=None,
-            method_args=["value", ["key"]],
-            expected_args=[self.proxy, "key"])
-
-    def test_volume_wait_for(self):
-        value = volume.Volume(id='1234')
-        self.verify_wait_for_status(
-            self.proxy.wait_for_status,
-            method_args=[value],
-            expected_args=[self.proxy, value, 'available', ['error'], 2, 120])
-
 
 class TestVolumeActions(TestVolumeProxy):
-
     def test_volume_extend(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.extend",
             self.proxy.extend_volume,
             method_args=["value", "new-size"],
-            expected_args=[self.proxy, "new-size"])
+            expected_args=[self.proxy, "new-size"],
+        )
 
     def test_volume_set_readonly_no_argument(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.set_readonly",
             self.proxy.set_volume_readonly,
             method_args=["value"],
-            expected_args=[self.proxy, True])
+            expected_args=[self.proxy, True],
+        )
 
     def test_volume_set_readonly_false(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.set_readonly",
             self.proxy.set_volume_readonly,
             method_args=["value", False],
-            expected_args=[self.proxy, False])
+            expected_args=[self.proxy, False],
+        )
 
     def test_volume_set_bootable(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.set_bootable_status",
             self.proxy.set_volume_bootable_status,
             method_args=["value", True],
-            expected_args=[self.proxy, True])
+            expected_args=[self.proxy, True],
+        )
 
     def test_volume_reset_volume_status(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.reset_status",
             self.proxy.reset_volume_status,
             method_args=["value", '1', '2', '3'],
-            expected_args=[self.proxy, '1', '2', '3'])
+            expected_args=[self.proxy, '1', '2', '3'],
+        )
 
     def test_volume_revert_to_snapshot(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.revert_to_snapshot",
             self.proxy.revert_volume_to_snapshot,
             method_args=["value", '1'],
-            expected_args=[self.proxy, '1'])
+            expected_args=[self.proxy, '1'],
+        )
 
     def test_attach_instance(self):
         self._verify(
@@ -218,7 +230,8 @@ class TestVolumeActions(TestVolumeProxy):
             self.proxy.attach_volume,
             method_args=["value", '1'],
             method_kwargs={'instance': '2'},
-            expected_args=[self.proxy, '1', '2', None])
+            expected_args=[self.proxy, '1', '2', None],
+        )
 
     def test_attach_host(self):
         self._verify(
@@ -226,42 +239,48 @@ class TestVolumeActions(TestVolumeProxy):
             self.proxy.attach_volume,
             method_args=["value", '1'],
             method_kwargs={'host_name': '3'},
-            expected_args=[self.proxy, '1', None, '3'])
+            expected_args=[self.proxy, '1', None, '3'],
+        )
 
     def test_detach_defaults(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.detach",
             self.proxy.detach_volume,
             method_args=["value", '1'],
-            expected_args=[self.proxy, '1', False, None])
+            expected_args=[self.proxy, '1', False, None],
+        )
 
     def test_detach_force(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.detach",
             self.proxy.detach_volume,
             method_args=["value", '1', True, {'a': 'b'}],
-            expected_args=[self.proxy, '1', True, {'a': 'b'}])
+            expected_args=[self.proxy, '1', True, {'a': 'b'}],
+        )
 
     def test_unmanage(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.unmanage",
             self.proxy.unmanage_volume,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_migrate_default(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.migrate",
             self.proxy.migrate_volume,
             method_args=["value", '1'],
-            expected_args=[self.proxy, '1', False, False, None])
+            expected_args=[self.proxy, '1', False, False, None],
+        )
 
     def test_migrate_nondefault(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.migrate",
             self.proxy.migrate_volume,
             method_args=["value", '1', True, True],
-            expected_args=[self.proxy, '1', True, True, None])
+            expected_args=[self.proxy, '1', True, True, None],
+        )
 
     def test_migrate_cluster(self):
         self._verify(
@@ -269,21 +288,24 @@ class TestVolumeActions(TestVolumeProxy):
             self.proxy.migrate_volume,
             method_args=["value"],
             method_kwargs={'cluster': '3'},
-            expected_args=[self.proxy, None, False, False, '3'])
+            expected_args=[self.proxy, None, False, False, '3'],
+        )
 
     def test_complete_migration(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.complete_migration",
             self.proxy.complete_volume_migration,
             method_args=["value", '1'],
-            expected_args=[self.proxy, "1", False])
+            expected_args=[self.proxy, "1", False],
+        )
 
     def test_complete_migration_error(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.complete_migration",
             self.proxy.complete_volume_migration,
             method_args=["value", "1", True],
-            expected_args=[self.proxy, "1", True])
+            expected_args=[self.proxy, "1", True],
+        )
 
     def test_upload_to_image(self):
         self._verify(
@@ -296,8 +318,9 @@ class TestVolumeActions(TestVolumeProxy):
                 "disk_format": None,
                 "container_format": None,
                 "visibility": None,
-                "protected": None
-            })
+                "protected": None,
+            },
+        )
 
     def test_upload_to_image_extended(self):
         self._verify(
@@ -308,7 +331,7 @@ class TestVolumeActions(TestVolumeProxy):
                 "disk_format": "2",
                 "container_format": "3",
                 "visibility": "4",
-                "protected": "5"
+                "protected": "5",
             },
             expected_args=[self.proxy, "1"],
             expected_kwargs={
@@ -316,50 +339,57 @@ class TestVolumeActions(TestVolumeProxy):
                 "disk_format": "2",
                 "container_format": "3",
                 "visibility": "4",
-                "protected": "5"
-            })
+                "protected": "5",
+            },
+        )
 
     def test_reserve(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.reserve",
             self.proxy.reserve_volume,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_unreserve(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.unreserve",
             self.proxy.unreserve_volume,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_begin_detaching(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.begin_detaching",
             self.proxy.begin_volume_detaching,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_abort_detaching(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.abort_detaching",
             self.proxy.abort_volume_detaching,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_init_attachment(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.init_attachment",
             self.proxy.init_volume_attachment,
             method_args=["value", "1"],
-            expected_args=[self.proxy, "1"])
+            expected_args=[self.proxy, "1"],
+        )
 
     def test_terminate_attachment(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.terminate_attachment",
             self.proxy.terminate_volume_attachment,
             method_args=["value", "1"],
-            expected_args=[self.proxy, "1"])
+            expected_args=[self.proxy, "1"],
+        )
 
 
 class TestBackup(TestVolumeProxy):
@@ -367,18 +397,23 @@ class TestBackup(TestVolumeProxy):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
-        self.verify_list(self.proxy.backups, backup.Backup,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1,
-                                          "base_path": "/backups/detail"})
+        self.verify_list(
+            self.proxy.backups,
+            backup.Backup,
+            method_kwargs={"details": True, "query": 1},
+            expected_kwargs={"query": 1, "base_path": "/backups/detail"},
+        )
 
     def test_backups_not_detailed(self):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
-        self.verify_list(self.proxy.backups, backup.Backup,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.backups,
+            backup.Backup,
+            method_kwargs={"details": False, "query": 1},
+            expected_kwargs={"query": 1},
+        )
 
     def test_backup_get(self):
         # NOTE: mock has_service
@@ -410,7 +445,7 @@ class TestBackup(TestVolumeProxy):
             self.proxy.delete_backup,
             method_args=["value"],
             method_kwargs={"force": True},
-            expected_args=[self.proxy]
+            expected_args=[self.proxy],
         )
 
     def test_backup_create_attrs(self):
@@ -429,7 +464,7 @@ class TestBackup(TestVolumeProxy):
             method_args=['volume_id'],
             method_kwargs={'volume_id': 'vol_id', 'name': 'name'},
             expected_args=[self.proxy],
-            expected_kwargs={'volume_id': 'vol_id', 'name': 'name'}
+            expected_kwargs={'volume_id': 'vol_id', 'name': 'name'},
         )
 
     def test_backup_reset(self):
@@ -437,7 +472,8 @@ class TestBackup(TestVolumeProxy):
             "openstack.block_storage.v3.backup.Backup.reset",
             self.proxy.reset_backup,
             method_args=["value", "new_status"],
-            expected_args=[self.proxy, "new_status"])
+            expected_args=[self.proxy, "new_status"],
+        )
 
 
 class TestSnapshot(TestVolumeProxy):
@@ -448,26 +484,34 @@ class TestSnapshot(TestVolumeProxy):
         self.verify_find(self.proxy.find_snapshot, snapshot.Snapshot)
 
     def test_snapshots_detailed(self):
-        self.verify_list(self.proxy.snapshots, snapshot.SnapshotDetail,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1,
-                                          "base_path": "/snapshots/detail"})
+        self.verify_list(
+            self.proxy.snapshots,
+            snapshot.SnapshotDetail,
+            method_kwargs={"details": True, "query": 1},
+            expected_kwargs={"query": 1, "base_path": "/snapshots/detail"},
+        )
 
     def test_snapshots_not_detailed(self):
-        self.verify_list(self.proxy.snapshots, snapshot.Snapshot,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.snapshots,
+            snapshot.Snapshot,
+            method_kwargs={"details": False, "query": 1},
+            expected_kwargs={"query": 1},
+        )
 
     def test_snapshot_create_attrs(self):
         self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
 
+    def test_snapshot_update(self):
+        self.verify_update(self.proxy.update_snapshot, snapshot.Snapshot)
+
     def test_snapshot_delete(self):
-        self.verify_delete(self.proxy.delete_snapshot,
-                           snapshot.Snapshot, False)
+        self.verify_delete(
+            self.proxy.delete_snapshot, snapshot.Snapshot, False
+        )
 
     def test_snapshot_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_snapshot,
-                           snapshot.Snapshot, True)
+        self.verify_delete(self.proxy.delete_snapshot, snapshot.Snapshot, True)
 
     def test_snapshot_delete_force(self):
         self._verify(
@@ -475,7 +519,7 @@ class TestSnapshot(TestVolumeProxy):
             self.proxy.delete_snapshot,
             method_args=["value"],
             method_kwargs={"force": True},
-            expected_args=[self.proxy]
+            expected_args=[self.proxy],
         )
 
     def test_reset(self):
@@ -483,21 +527,24 @@ class TestSnapshot(TestVolumeProxy):
             "openstack.block_storage.v3.snapshot.Snapshot.reset",
             self.proxy.reset_snapshot,
             method_args=["value", "new_status"],
-            expected_args=[self.proxy, "new_status"])
+            expected_args=[self.proxy, "new_status"],
+        )
 
     def test_set_status(self):
         self._verify(
             "openstack.block_storage.v3.snapshot.Snapshot.set_status",
             self.proxy.set_snapshot_status,
             method_args=["value", "new_status"],
-            expected_args=[self.proxy, "new_status", None])
+            expected_args=[self.proxy, "new_status", None],
+        )
 
     def test_set_status_percentage(self):
         self._verify(
             "openstack.block_storage.v3.snapshot.Snapshot.set_status",
             self.proxy.set_snapshot_status,
             method_args=["value", "new_status", "per"],
-            expected_args=[self.proxy, "new_status", "per"])
+            expected_args=[self.proxy, "new_status", "per"],
+        )
 
     def test_get_snapshot_metadata(self):
         self._verify(
@@ -505,7 +552,8 @@ class TestSnapshot(TestVolumeProxy):
             self.proxy.get_snapshot_metadata,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_result=snapshot.Snapshot(id="value", metadata={}))
+            expected_result=snapshot.Snapshot(id="value", metadata={}),
+        )
 
     def test_set_snapshot_metadata(self):
         kwargs = {"a": "1", "b": "2"}
@@ -515,12 +563,11 @@ class TestSnapshot(TestVolumeProxy):
             self.proxy.set_snapshot_metadata,
             method_args=[id],
             method_kwargs=kwargs,
-            method_result=snapshot.Snapshot.existing(
-                id=id, metadata=kwargs),
+            method_result=snapshot.Snapshot.existing(id=id, metadata=kwargs),
             expected_args=[self.proxy],
             expected_kwargs={'metadata': kwargs},
-            expected_result=snapshot.Snapshot.existing(
-                id=id, metadata=kwargs))
+            expected_result=snapshot.Snapshot.existing(id=id, metadata=kwargs),
+        )
 
     def test_delete_snapshot_metadata(self):
         self._verify(
@@ -529,7 +576,8 @@ class TestSnapshot(TestVolumeProxy):
             self.proxy.delete_snapshot_metadata,
             expected_result=None,
             method_args=["value", ["key"]],
-            expected_args=[self.proxy, "key"])
+            expected_args=[self.proxy, "key"],
+        )
 
 
 class TestType(TestVolumeProxy):
@@ -562,11 +610,11 @@ class TestType(TestVolumeProxy):
             self.proxy.update_type_extra_specs,
             method_args=[id],
             method_kwargs=kwargs,
-            method_result=type.Type.existing(id=id,
-                                             extra_specs=kwargs),
+            method_result=type.Type.existing(id=id, extra_specs=kwargs),
             expected_args=[self.proxy],
             expected_kwargs=kwargs,
-            expected_result=kwargs)
+            expected_result=kwargs,
+        )
 
     def test_type_extra_specs_delete(self):
         self._verify(
@@ -574,28 +622,32 @@ class TestType(TestVolumeProxy):
             self.proxy.delete_type_extra_specs,
             expected_result=None,
             method_args=["value", "key"],
-            expected_args=[self.proxy, "key"])
+            expected_args=[self.proxy, "key"],
+        )
 
     def test_type_get_private_access(self):
         self._verify(
             "openstack.block_storage.v3.type.Type.get_private_access",
             self.proxy.get_type_access,
             method_args=["value"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_type_add_private_access(self):
         self._verify(
             "openstack.block_storage.v3.type.Type.add_private_access",
             self.proxy.add_type_access,
             method_args=["value", "a"],
-            expected_args=[self.proxy, "a"])
+            expected_args=[self.proxy, "a"],
+        )
 
     def test_type_remove_private_access(self):
         self._verify(
             "openstack.block_storage.v3.type.Type.remove_private_access",
             self.proxy.remove_type_access,
             method_args=["value", "a"],
-            expected_args=[self.proxy, "a"])
+            expected_args=[self.proxy, "a"],
+        )
 
     def test_type_encryption_get(self):
         self.verify_get(
@@ -603,30 +655,31 @@ class TestType(TestVolumeProxy):
             type.TypeEncryption,
             method_args=['value'],
             expected_args=[],
-            expected_kwargs={
-                'volume_type_id': 'value',
-                'requires_id': False
-            })
+            expected_kwargs={'volume_type_id': 'value', 'requires_id': False},
+        )
 
     def test_type_encryption_create(self):
         self.verify_create(
             self.proxy.create_type_encryption,
             type.TypeEncryption,
             method_kwargs={'volume_type': 'id'},
-            expected_kwargs={'volume_type_id': 'id'}
+            expected_kwargs={'volume_type_id': 'id'},
         )
 
     def test_type_encryption_update(self):
         self.verify_update(
-            self.proxy.update_type_encryption, type.TypeEncryption)
+            self.proxy.update_type_encryption, type.TypeEncryption
+        )
 
     def test_type_encryption_delete(self):
         self.verify_delete(
-            self.proxy.delete_type_encryption, type.TypeEncryption, False)
+            self.proxy.delete_type_encryption, type.TypeEncryption, False
+        )
 
     def test_type_encryption_delete_ignore(self):
         self.verify_delete(
-            self.proxy.delete_type_encryption, type.TypeEncryption, True)
+            self.proxy.delete_type_encryption, type.TypeEncryption, True
+        )
 
 
 class TestQuota(TestVolumeProxy):
@@ -642,7 +695,7 @@ class TestQuota(TestVolumeProxy):
                 'usage': False,
             },
             method_result=quota_set.QuotaSet(),
-            expected_result=quota_set.QuotaSet()
+            expected_result=quota_set.QuotaSet(),
         )
 
     def test_get_query(self):
@@ -650,17 +703,14 @@ class TestQuota(TestVolumeProxy):
             'openstack.resource.Resource.fetch',
             self.proxy.get_quota_set,
             method_args=['prj'],
-            method_kwargs={
-                'usage': True,
-                'user_id': 'uid'
-            },
+            method_kwargs={'usage': True, 'user_id': 'uid'},
             expected_args=[self.proxy],
             expected_kwargs={
                 'error_message': None,
                 'requires_id': False,
                 'usage': True,
-                'user_id': 'uid'
-            }
+                'user_id': 'uid',
+            },
         )
 
     def test_get_defaults(self):
@@ -672,8 +722,8 @@ class TestQuota(TestVolumeProxy):
             expected_kwargs={
                 'error_message': None,
                 'requires_id': False,
-                'base_path': '/os-quota-sets/defaults'
-            }
+                'base_path': '/os-quota-sets/defaults',
+            },
         )
 
     def test_reset(self):
@@ -683,9 +733,7 @@ class TestQuota(TestVolumeProxy):
             method_args=['prj'],
             method_kwargs={'user_id': 'uid'},
             expected_args=[self.proxy],
-            expected_kwargs={
-                'user_id': 'uid'
-            }
+            expected_kwargs={'user_id': 'uid'},
         )
 
     @mock.patch('openstack.proxy.Proxy._get_resource', autospec=True)
@@ -701,12 +749,6 @@ class TestQuota(TestVolumeProxy):
                 'a': 'b',
             },
             expected_args=[self.proxy],
-            expected_kwargs={
-                'user_id': 'uid'
-            }
+            expected_kwargs={'user_id': 'uid'},
         )
-        gr_mock.assert_called_with(
-            self.proxy,
-            quota_set.QuotaSet,
-            'qs', a='b'
-        )
+        gr_mock.assert_called_with(self.proxy, quota_set.QuotaSet, 'qs', a='b')
