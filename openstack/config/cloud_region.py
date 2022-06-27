@@ -1035,6 +1035,10 @@ class CloudRegion:
 
     def get_statsd_client(self):
         if not statsd:
+            if self._statsd_host:
+                self.log.warning(
+                    'StatsD python library is not available. '
+                    'Reporting disabled')
             return None
         statsd_args = {}
         if self._statsd_host:
