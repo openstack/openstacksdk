@@ -196,7 +196,14 @@ class _BaseComponent:
         if value is None:
             return None
 
-        self.warn_if_deprecated_property(value)
+        # This warning are pretty intruisive. Every time attribute is accessed
+        # a warning is being thrown. In Neutron clients we have way too many
+        # places that still refer to tenant_id even they may also properly
+        # support project_id. For now we can silence tenant_id warnings and do
+        # this here rather then addining support for something similar to
+        # "suppress_deprecation_warning".
+        if self.name != "tenant_id":
+            self.warn_if_deprecated_property(value)
         return _convert_type(value, self.type, self.list_type)
 
     def warn_if_deprecated_property(self, value):
