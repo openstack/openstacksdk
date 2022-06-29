@@ -11,6 +11,7 @@
 # under the License.
 
 from openstack import proxy
+from openstack.workflow.v2 import cron_trigger as _cron_trigger
 from openstack.workflow.v2 import execution as _execution
 from openstack.workflow.v2 import workflow as _workflow
 
@@ -165,4 +166,78 @@ class Proxy(proxy.Proxy):
             None
         """
         return self._find(_execution.Execution, name_or_id,
+                          ignore_missing=ignore_missing)
+
+    def create_cron_trigger(self, **attrs):
+        """Create a new cron trigger from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`,
+            comprised of the properties on the CronTrigger class.
+
+        :returns: The results of cron trigger creation
+        :rtype: :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`
+        """
+        return self._create(_cron_trigger.CronTrigger, **attrs)
+
+    def get_cron_trigger(self, cron_trigger):
+        """Get a cron trigger
+
+        :param cron_trigger: The value can be the name of a cron_trigger or
+            :class:`~openstack.workflow.v2.cron_trigger.CronTrigger` instance.
+
+        :returns: One :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            cron triggers matching the criteria could be found.
+        """
+        return self._get(_cron_trigger.CronTrigger, cron_trigger)
+
+    def cron_triggers(self, **query):
+        """Retrieve a generator of cron triggers
+
+        :param kwargs query: Optional query parameters to be sent to
+            restrict the cron triggers to be returned. Available parameters
+            include:
+
+            * limit: Requests at most the specified number of items be
+              returned from the query.
+            * marker: Specifies the ID of the last-seen cron trigger. Use the
+              limit parameter to make an initial limited request and use
+              the ID of the last-seen cron trigger from the response as the
+              marker parameter value in a subsequent limited request.
+
+        :returns: A generator of CronTrigger instances.
+        """
+        return self._list(_cron_trigger.CronTrigger, **query)
+
+    def delete_cron_trigger(self, value, ignore_missing=True):
+        """Delete a cron trigger
+
+        :param value: The value can be either the name of a cron trigger or a
+            :class:`~openstack.workflow.v2.cron_trigger.CronTrigger`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the cron trigger does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent cron trigger.
+
+        :returns: ``None``
+        """
+        return self._delete(_cron_trigger.CronTrigger, value,
+                            ignore_missing=ignore_missing)
+
+    def find_cron_trigger(self, name_or_id, ignore_missing=True):
+        """Find a single cron trigger
+
+        :param name_or_id: The name or ID of a cron trigger.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :returns: One :class:`~openstack.compute.v2.cron_trigger.CronTrigger`
+            or None
+        """
+        return self._find(_cron_trigger.CronTrigger, name_or_id,
                           ignore_missing=ignore_missing)
