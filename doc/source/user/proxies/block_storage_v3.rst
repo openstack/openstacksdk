@@ -17,28 +17,80 @@ Volume Operations
 
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
-  :members: create_volume, delete_volume, get_volume, volumes
+  :members: create_volume, delete_volume, get_volume, find_volume,
+            volumes, get_volume_metadata, set_volume_metadata,
+            delete_volume_metadata, extend_volume, set_volume_readonly,
+            retype_volume, set_volume_bootable_status, reset_volume_status,
+            revert_volume_to_snapshot, attach_volume, detach_volume,
+            unmanage_volume, migrate_volume, complete_volume_migration,
+            upload_volume_to_image, reserve_volume, unreserve_volume,
+            begin_volume_detaching, abort_volume_detaching,
+            init_volume_attachment, terminate_volume_attachment,
+
+Backend Pools Operations
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: backend_pools
 
 Backup Operations
 ^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
-  :members: create_backup, delete_backup, get_backup, backups, restore_backup
+  :members: create_backup, delete_backup, get_backup, find_backup, backups,
+            restore_backup, reset_backup,
+
+Availability Zone Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: availability_zones
+
+Limits Operations
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: get_limits
+
+Capabilities Operations
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: get_capabilities
+
+Group Type Operations
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: create_group_type, delete_group_type, update_group_type,
+            get_group_type, find_group_type, group_types,
 
 Type Operations
 ^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
-  :members: create_type, delete_type, get_type, types
+  :members: create_type, delete_type, update_type, get_type, find_type, types,
+            update_type_extra_specs, delete_type_extra_specs, get_type_access,
+            add_type_access, remove_type_access, get_type_encryption,
+            create_type_encryption, delete_type_encryption,
+            update_type_encryption
 
 Snapshot Operations
 ^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
-  :members: create_snapshot, delete_snapshot, get_snapshot, snapshots
+  :members: create_snapshot, delete_snapshot, update_snapshot, get_snapshot,
+            find_snapshot, snapshots, get_snapshot_metadata,
+            set_snapshot_metadata, delete_snapshot_metadata, reset_snapshot,
+            set_snapshot_status
 
 Stats Operations
 ^^^^^^^^^^^^^^^^
@@ -49,7 +101,15 @@ Stats Operations
 
 QuotaSet Operations
 ^^^^^^^^^^^^^^^^^^^
+
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
   :members: get_quota_set, get_quota_set_defaults,
             revert_quota_set, update_quota_set
+
+Helpers
+^^^^^^^
+
+.. autoclass:: openstack.block_storage.v3._proxy.Proxy
+  :noindex:
+  :members: wait_for_status, wait_for_delete

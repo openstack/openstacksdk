@@ -98,8 +98,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param snapshot: Either the ID of a snapshot or a
             :class:`~openstack.block_storage.v3.snapshot.Snapshot` instance.
-        :attrs kwargs: The attributes to update on the snapshot represented
-            by ``snapshot``.
+        :param dict attrs: The attributes to update on the snapshot.
 
         :returns: The updated snapshot
         :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
@@ -126,6 +125,54 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         else:
             snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
             snapshot.force_delete(self)
+
+    def get_snapshot_metadata(self, snapshot):
+        """Return a dictionary of metadata for a snapshot
+
+        :param snapshot: Either the ID of a snapshot or a
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
+
+        :returns: A
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot` with the
+            snapshot's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
+        """
+        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
+        return snapshot.fetch_metadata(self)
+
+    def set_snapshot_metadata(self, snapshot, **metadata):
+        """Update metadata for a snapshot
+
+        :param snapshot: Either the ID of a snapshot or a
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
+        :param kwargs metadata: Key/value pairs to be updated in the snapshot's
+            metadata. No other metadata is modified by this call. All keys
+            and values are stored as Unicode.
+
+        :returns: A
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot` with the
+            snapshot's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
+        """
+        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
+        return snapshot.set_metadata(self, metadata=metadata)
+
+    def delete_snapshot_metadata(self, snapshot, keys=None):
+        """Delete metadata for a snapshot
+
+        :param snapshot: Either the ID of a snapshot or a
+            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
+        :param list keys: The keys to delete. If left empty complete
+            metadata will be removed.
+
+        :rtype: ``None``
+        """
+        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
+        if keys is not None:
+            for key in keys:
+                snapshot.delete_metadata_item(self, key)
+        else:
+            snapshot.delete_metadata(self)
 
     # ====== SNAPSHOT ACTIONS ======
     def reset_snapshot(self, snapshot, status):
@@ -221,7 +268,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
         :param dict attrs: The attributes to update on the type
-            represented by ``value``.
 
         :returns: The updated type
         :rtype: :class:`~openstack.block_storage.v3.type.Type`
@@ -233,8 +279,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :param type: The value can be either the ID of a type or a
             :class:`~openstack.block_storage.v3.type.Type` instance.
-        :param dict attrs: The extra_spec attributes to update on the
-            type represented by ``value``.
+        :param dict attrs: The extra spec attributes to update on the type
 
         :returns: A dict containing updated extra_specs
         """
@@ -362,17 +407,21 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         self._delete(_type.TypeEncryption, encryption,
                      ignore_missing=ignore_missing)
 
-    def update_type_encryption(self, encryption=None,
-                               volume_type=None, **attrs):
+    def update_type_encryption(
+        self,
+        encryption=None,
+        volume_type=None,
+        **attrs,
+    ):
         """Update a type
+
         :param encryption: The value can be None or a
             :class:`~openstack.block_storage.v3.type.TypeEncryption`
-            instance.  If encryption_id is None then
-            volume_type_id must be specified.
-
+            instance. If this is ``None`` then ``volume_type_id`` must be
+            specified.
         :param volume_type: The value can be the ID of a type or a
-            :class:`~openstack.block_storage.v3.type.Type`
-            instance.  Required if encryption_id is None.
+            :class:`~openstack.block_storage.v3.type.Type` instance.
+            Required if ``encryption_id`` is None.
         :param dict attrs: The attributes to update on the type encryption.
 
         :returns: The updated type encryption
@@ -381,9 +430,11 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         if volume_type:
             volume_type = self._get_resource(_type.Type, volume_type)
-            encryption = self._get(_type.TypeEncryption,
-                                   volume_type=volume_type.id,
-                                   requires_id=False)
+            encryption = self._get(
+                _type.TypeEncryption,
+                volume_type=volume_type.id,
+                requires_id=False,
+            )
 
         return self._update(_type.TypeEncryption, encryption, **attrs)
 
@@ -465,6 +516,52 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         else:
             volume = self._get_resource(_volume.Volume, volume)
             volume.force_delete(self)
+
+    def get_volume_metadata(self, volume):
+        """Return a dictionary of metadata for a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume`.
+
+        :returns: A :class:`~openstack.block_storage.v3.volume.Volume` with the
+            volume's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        return volume.fetch_metadata(self)
+
+    def set_volume_metadata(self, volume, **metadata):
+        """Update metadata for a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume`.
+        :param kwargs metadata: Key/value pairs to be updated in the volume's
+            metadata. No other metadata is modified by this call. All keys
+            and values are stored as Unicode.
+
+        :returns: A :class:`~openstack.block_storage.v3.volume.Volume` with the
+            volume's metadata. All keys and values are Unicode text.
+        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        return volume.set_metadata(self, metadata=metadata)
+
+    def delete_volume_metadata(self, volume, keys=None):
+        """Delete metadata for a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume`.
+        :param list keys: The keys to delete. If left empty complete
+            metadata will be removed.
+
+        :rtype: ``None``
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        if keys is not None:
+            for key in keys:
+                volume.delete_metadata_item(self, key)
+        else:
+            volume.delete_metadata(self)
 
     # ====== VOLUME ACTIONS ======
     def extend_volume(self, volume, size):
@@ -985,6 +1082,96 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         return self._update(
             _group_type.GroupType, group_type, **attrs)
 
+    # ====== QUOTA SETS ======
+    def get_quota_set(self, project, usage=False, **query):
+        """Show quota set information for the project
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be retrieved
+        :param bool usage: When set to ``True`` quota usage and reservations
+            would be filled.
+        :param dict query: Additional query parameters to use.
+
+        :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+        return res.fetch(
+            self, usage=usage, **query)
+
+    def get_quota_set_defaults(self, project):
+        """Show quota set defaults for the project
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be retrieved
+
+        :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+        return res.fetch(
+            self, base_path='/os-quota-sets/defaults')
+
+    def revert_quota_set(self, project, **query):
+        """Reset quota for the project/user.
+
+        :param project: ID or instance of
+            :class:`~openstack.identity.project.Project` of the project for
+            which the quota should be resetted.
+        :param dict query: Additional parameters to be used.
+
+        :returns: ``None``
+        """
+        project = self._get_resource(_project.Project, project)
+        res = self._get_resource(
+            _quota_set.QuotaSet, None, project_id=project.id)
+
+        if not query:
+            query = {}
+        return res.delete(self, **query)
+
+    def update_quota_set(self, quota_set, query=None, **attrs):
+        """Update a quota set.
+
+        :param quota_set: Either the ID of a quota_set or a
+            :class:`~openstack.block_storage.v3.quota_set.QuotaSet` instance.
+        :param dict query: Optional parameters to be used with update call.
+        :attrs kwargs: The attributes to update on the quota set
+
+        :returns: The updated QuotaSet
+        :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
+        """
+        res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
+        if not query:
+            query = {}
+        return res.commit(self, **query)
+
+    # ====== RESOURCE FILTERS ======
+    def resource_filters(self, **query):
+        """Retrieve a generator of resource filters
+
+        :returns: A generator of resource filters.
+        """
+        return self._list(_resource_filter.ResourceFilter, **query)
+
+    # ====== EXTENSIONS ======
+    def extensions(self):
+        """Return a generator of extensions
+
+        :returns: A generator of extension
+        :rtype: :class:`~openstack.block_storage.v3.extension.Extension`
+        """
+        return self._list(_extension.Extension)
+
+    # ====== UTILS ======
     def wait_for_status(self, res, status='available', failures=None,
                         interval=2, wait=120):
         """Wait for a resource to be in a particular status.
@@ -1025,93 +1212,6 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
-
-    def resource_filters(self, **query):
-        """Retrieve a generator of resource filters
-
-        :returns: A generator of resource filters.
-        """
-        return self._list(_resource_filter.ResourceFilter, **query)
-
-    def extensions(self):
-        """Return a generator of extensions
-
-        :returns: A generator of extension
-        :rtype: :class:`~openstack.block_storage.v3.extension.Extension`
-        """
-        return self._list(_extension.Extension)
-
-    def get_quota_set(self, project, usage=False, **query):
-        """Show QuotaSet information for the project
-
-        :param project: ID or instance of
-            :class:`~openstack.identity.project.Project` of the project for
-            which the quota should be retrieved
-        :param bool usage: When set to ``True`` quota usage and reservations
-            would be filled.
-        :param dict query: Additional query parameters to use.
-
-        :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-            when no resource can be found.
-        """
-        project = self._get_resource(_project.Project, project)
-        res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-        return res.fetch(
-            self, usage=usage, **query)
-
-    def get_quota_set_defaults(self, project):
-        """Show QuotaSet defaults for the project
-
-        :param project: ID or instance of
-            :class:`~openstack.identity.project.Project` of the project for
-            which the quota should be retrieved
-
-        :returns: One :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-            when no resource can be found.
-        """
-        project = self._get_resource(_project.Project, project)
-        res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-        return res.fetch(
-            self, base_path='/os-quota-sets/defaults')
-
-    def revert_quota_set(self, project, **query):
-        """Reset Quota for the project/user.
-
-        :param project: ID or instance of
-            :class:`~openstack.identity.project.Project` of the project for
-            which the quota should be resetted.
-        :param dict query: Additional parameters to be used.
-
-        :returns: ``None``
-        """
-        project = self._get_resource(_project.Project, project)
-        res = self._get_resource(
-            _quota_set.QuotaSet, None, project_id=project.id)
-
-        if not query:
-            query = {}
-        return res.delete(self, **query)
-
-    def update_quota_set(self, quota_set, query=None, **attrs):
-        """Update a QuotaSet.
-
-        :param quota_set: Either the ID of a quota_set or a
-            :class:`~openstack.block_storage.v3.quota_set.QuotaSet` instance.
-        :param dict query: Optional parameters to be used with update call.
-        :attrs kwargs: The attributes to update on the QuotaSet represented
-            by ``quota_set``.
-
-        :returns: The updated QuotaSet
-        :rtype: :class:`~openstack.block_storage.v3.quota_set.QuotaSet`
-        """
-        res = self._get_resource(_quota_set.QuotaSet, quota_set, **attrs)
-        if not query:
-            query = {}
-        return res.commit(self, **query)
 
     def _get_cleanup_dependencies(self):
         return {
@@ -1174,97 +1274,3 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
                 identified_resources=identified_resources,
                 filters=filters,
                 resource_evaluation_fn=resource_evaluation_fn)
-
-    def get_volume_metadata(self, volume):
-        """Return a dictionary of metadata for a volume
-
-        :param volume: Either the ID of a volume or a
-            :class:`~openstack.block_storage.v3.volume.Volume`.
-
-        :returns: A :class:`~openstack.block_storage.v3.volume.Volume` with the
-            volume's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
-        """
-        volume = self._get_resource(_volume.Volume, volume)
-        return volume.fetch_metadata(self)
-
-    def set_volume_metadata(self, volume, **metadata):
-        """Update metadata for a volume
-
-        :param volume: Either the ID of a volume or a
-            :class:`~openstack.block_storage.v3.volume.Volume`.
-        :param kwargs metadata: Key/value pairs to be updated in the volume's
-            metadata. No other metadata is modified by this call. All keys
-            and values are stored as Unicode.
-
-        :returns: A :class:`~openstack.block_storage.v3.volume.Volume` with the
-            volume's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
-        """
-        volume = self._get_resource(_volume.Volume, volume)
-        return volume.set_metadata(self, metadata=metadata)
-
-    def delete_volume_metadata(self, volume, keys=None):
-        """Delete metadata for a volume
-
-        :param volume: Either the ID of a volume or a
-            :class:`~openstack.block_storage.v3.volume.Volume`.
-        :param list keys: The keys to delete. If left empty complete
-            metadata will be removed.
-
-        :rtype: ``None``
-        """
-        volume = self._get_resource(_volume.Volume, volume)
-        if keys is not None:
-            for key in keys:
-                volume.delete_metadata_item(self, key)
-        else:
-            volume.delete_metadata(self)
-
-    def get_snapshot_metadata(self, snapshot):
-        """Return a dictionary of metadata for a snapshot
-
-        :param snapshot: Either the ID of a snapshot or a
-            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
-
-        :returns: A
-            :class:`~openstack.block_storage.v3.snapshot.Snapshot` with the
-            snapshot's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
-        """
-        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
-        return snapshot.fetch_metadata(self)
-
-    def set_snapshot_metadata(self, snapshot, **metadata):
-        """Update metadata for a snapshot
-
-        :param snapshot: Either the ID of a snapshot or a
-            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
-        :param kwargs metadata: Key/value pairs to be updated in the snapshot's
-            metadata. No other metadata is modified by this call. All keys
-            and values are stored as Unicode.
-
-        :returns: A
-            :class:`~openstack.block_storage.v3.snapshot.Snapshot` with the
-            snapshot's metadata. All keys and values are Unicode text.
-        :rtype: :class:`~openstack.block_storage.v3.snapshot.Snapshot`
-        """
-        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
-        return snapshot.set_metadata(self, metadata=metadata)
-
-    def delete_snapshot_metadata(self, snapshot, keys=None):
-        """Delete metadata for a snapshot
-
-        :param snapshot: Either the ID of a snapshot or a
-            :class:`~openstack.block_storage.v3.snapshot.Snapshot`.
-        :param list keys: The keys to delete. If left empty complete
-            metadata will be removed.
-
-        :rtype: ``None``
-        """
-        snapshot = self._get_resource(_snapshot.Snapshot, snapshot)
-        if keys is not None:
-            for key in keys:
-                snapshot.delete_metadata_item(self, key)
-        else:
-            snapshot.delete_metadata(self)
