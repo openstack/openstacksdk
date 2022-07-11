@@ -13,31 +13,18 @@
 # import types so that we can reference ListType in sphinx param declarations.
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
+
+import contextlib
+import sys
 import types  # noqa
 import warnings
 
 import jsonpatch
 
-from openstack.cloud import _utils
 from openstack.cloud import exc
-from openstack import utils
 
 
 class BaremetalCloudMixin:
-
-    @property
-    def _baremetal_client(self):
-        if 'baremetal' not in self._raw_clients:
-            client = self._get_raw_client('baremetal')
-            # Do this to force version discovery. We need to do that, because
-            # the endpoint-override trick we do for neutron because
-            # ironicclient just appends a /v1 won't work and will break
-            # keystoneauth - because ironic's versioned discovery endpoint
-            # is non-compliant and doesn't return an actual version dict.
-            client = self._get_versioned_client(
-                'baremetal', min_version=1, max_version='1.latest')
-            self._raw_clients['baremetal'] = client
-        return self._raw_clients['baremetal']
 
     def list_nics(self):
         """Return a list of all bare metal ports."""
@@ -157,8 +144,24 @@ class BaremetalCloudMixin:
 
         return node
 
+    @contextlib.contextmanager
+    def _delete_node_on_error(self, node):
+        try:
+            yield
+        except Exception as exc:
+            self.log.debug("cleaning up node %s because of an error: %s",
+                           node.id, exc)
+            tb = sys.exc_info()[2]
+            try:
+                self.baremetal.delete_node(node)
+            except Exception:
+                self.log.debug("could not remove node %s", node.id,
+                               exc_info=True)
+            raise exc.with_traceback(tb)
+
     def register_machine(self, nics, wait=False, timeout=3600,
-                         lock_timeout=600, **kwargs):
+                         lock_timeout=600, provision_state='available',
+                         **kwargs):
         """Register Baremetal with Ironic
 
         Allows for the registration of Baremetal nodes with Ironic
@@ -172,8 +175,9 @@ class BaremetalCloudMixin:
         created are deleted, and the node is removed from Ironic.
 
         :param nics:
-            An array of MAC addresses that represent the
-            network interfaces for the node to be created.
+            An array of ports that represent the network interfaces for the
+            node to be created. The ports are created after the node is
+            enrolled but before it goes through cleaning.
 
             Example::
 
@@ -193,131 +197,62 @@ class BaremetalCloudMixin:
         :param lock_timeout: Integer value, defaulting to 600 seconds, for
             locks to clear.
 
+        :param provision_state: The expected provision state, one of "enroll"
+            "manageable" or "available". Using "available" results in automated
+            cleaning.
+
         :param kwargs: Key value pairs to be passed to the Ironic API,
-            including uuid, name, chassis_uuid, driver_info, parameters.
+            including uuid, name, chassis_uuid, driver_info, properties.
 
         :raises: OpenStackCloudException on operation error.
 
         :rtype: :class:`~openstack.baremetal.v1.node.Node`.
         :returns: Current state of the node.
         """
+        if provision_state not in ('enroll', 'manageable', 'available'):
+            raise ValueError('Initial provision state must be enroll, '
+                             'manageable or available, got %s'
+                             % provision_state)
 
-        msg = ("Baremetal machine node failed to be created.")
-        port_msg = ("Baremetal machine port failed to be created.")
+        # Available is tricky: it cannot be directly requested on newer API
+        # versions, we need to go through cleaning. But we cannot go through
+        # cleaning until we create ports.
+        if provision_state != 'available':
+            kwargs['provision_state'] = 'enroll'
+        machine = self.baremetal.create_node(**kwargs)
 
-        url = '/nodes'
-        # TODO(TheJulia): At some point we need to figure out how to
-        # handle data across when the requestor is defining newer items
-        # with the older api.
-        machine = self._baremetal_client.post(url,
-                                              json=kwargs,
-                                              error_message=msg,
-                                              microversion="1.6")
+        with self._delete_node_on_error(machine):
+            # Making a node at least manageable
+            if (machine.provision_state == 'enroll'
+                    and provision_state != 'enroll'):
+                machine = self.baremetal.set_node_provision_state(
+                    machine, 'manage', wait=True, timeout=timeout)
+                machine = self.baremetal.wait_for_node_reservation(
+                    machine, timeout=lock_timeout)
 
-        created_nics = []
-        try:
-            for row in nics:
-                payload = {'address': row['mac'],
-                           'node_uuid': machine['uuid']}
-                nic = self._baremetal_client.post('/ports',
-                                                  json=payload,
-                                                  error_message=port_msg)
-                created_nics.append(nic['uuid'])
-
-        except Exception as e:
-            self.log.debug("ironic NIC registration failed", exc_info=True)
-            # TODO(mordred) Handle failures here
+            # Create NICs before trying to run cleaning
+            created_nics = []
             try:
+                for row in nics:
+                    address = row.pop('mac')
+                    nic = self.baremetal.create_port(node_id=machine.id,
+                                                     address=address,
+                                                     **row)
+                    created_nics.append(nic.id)
+
+            except Exception:
                 for uuid in created_nics:
                     try:
-                        port_url = '/ports/{uuid}'.format(uuid=uuid)
-                        # NOTE(TheJulia): Added in hope that it is logged.
-                        port_msg = ('Failed to delete port {port} for node '
-                                    '{node}').format(port=uuid,
-                                                     node=machine['uuid'])
-                        self._baremetal_client.delete(port_url,
-                                                      error_message=port_msg)
+                        self.baremetal.delete_port(uuid)
                     except Exception:
                         pass
-            finally:
-                version = "1.6"
-                msg = "Baremetal machine failed to be deleted."
-                url = '/nodes/{node_id}'.format(
-                    node_id=machine['uuid'])
-                self._baremetal_client.delete(url,
-                                              error_message=msg,
-                                              microversion=version)
-            raise exc.OpenStackCloudException(
-                "Error registering NICs with the baremetal service: %s"
-                % str(e))
+                raise
 
-        with _utils.shade_exceptions(
-                "Error transitioning node to available state"):
-            if wait:
-                for count in utils.iterate_timeout(
-                        timeout,
-                        "Timeout waiting for node transition to "
-                        "available state"):
+            if (machine.provision_state != 'available'
+                    and provision_state == 'available'):
+                machine = self.baremetal.set_node_provision_state(
+                    machine, 'provide', wait=wait, timeout=timeout)
 
-                    machine = self.get_machine(machine['uuid'])
-
-                    # Note(TheJulia): Per the Ironic state code, a node
-                    # that fails returns to enroll state, which means a failed
-                    # node cannot be determined at this point in time.
-                    if machine['provision_state'] in ['enroll']:
-                        self.node_set_provision_state(
-                            machine['uuid'], 'manage')
-                    elif machine['provision_state'] in ['manageable']:
-                        self.node_set_provision_state(
-                            machine['uuid'], 'provide')
-                    elif machine['last_error'] is not None:
-                        raise exc.OpenStackCloudException(
-                            "Machine encountered a failure: %s"
-                            % machine['last_error'])
-
-                    # Note(TheJulia): Earlier versions of Ironic default to
-                    # None and later versions default to available up until
-                    # the introduction of enroll state.
-                    # Note(TheJulia): The node will transition through
-                    # cleaning if it is enabled, and we will wait for
-                    # completion.
-                    elif machine['provision_state'] in ['available', None]:
-                        break
-
-            else:
-                if machine['provision_state'] in ['enroll']:
-                    self.node_set_provision_state(machine['uuid'], 'manage')
-                    # Note(TheJulia): We need to wait for the lock to clear
-                    # before we attempt to set the machine into provide state
-                    # which allows for the transition to available.
-                    for count in utils.iterate_timeout(
-                            lock_timeout,
-                            "Timeout waiting for reservation to clear "
-                            "before setting provide state"):
-                        machine = self.get_machine(machine['uuid'])
-                        if (machine['reservation'] is None
-                                and machine['provision_state'] != 'enroll'):
-                            # NOTE(TheJulia): In this case, the node has
-                            # has moved on from the previous state and is
-                            # likely not being verified, as no lock is
-                            # present on the node.
-                            self.node_set_provision_state(
-                                machine['uuid'], 'provide')
-                            machine = self.get_machine(machine['uuid'])
-                            break
-
-                        elif machine['provision_state'] in [
-                                'cleaning',
-                                'available']:
-                            break
-
-                        elif machine['last_error'] is not None:
-                            raise exc.OpenStackCloudException(
-                                "Machine encountered a failure: %s"
-                                % machine['last_error'])
-        if not isinstance(machine, str):
-            return self._normalize_machine(machine)
-        else:
             return machine
 
     def unregister_machine(self, nics, uuid, wait=None, timeout=600):

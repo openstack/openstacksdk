@@ -1069,7 +1069,6 @@ class TestBaremetalNode(base.IronicTestCase):
         # in testing creation. Surely this hsould be a helper
         # or something. We should fix this.
         node_to_post = {
-            'chassis_uuid': None,
             'driver': None,
             'driver_info': None,
             'name': self.fake_baremetal_node['name'],
@@ -1095,7 +1094,8 @@ class TestBaremetalNode(base.IronicTestCase):
         ])
         return_value = self.cloud.register_machine(nics, **node_to_post)
 
-        self.assertDictEqual(self.fake_baremetal_node, return_value)
+        self.assertEqual(self.uuid, return_value.id)
+        self.assertSubdict(self.fake_baremetal_node, return_value)
         self.assert_calls()
 
     # TODO(TheJulia): We need to de-duplicate these tests.
@@ -1126,13 +1126,6 @@ class TestBaremetalNode(base.IronicTestCase):
                 validate=dict(json=node_to_post),
                 json=self.fake_baremetal_node),
             dict(
-                method='POST',
-                uri=self.get_mock_url(
-                    resource='ports'),
-                validate=dict(json={'address': mac_address,
-                                    'node_uuid': node_uuid}),
-                json=self.fake_baremetal_port),
-            dict(
                 method='PUT',
                 uri=self.get_mock_url(
                     resource='nodes',
@@ -1146,11 +1139,12 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']]),
                 json=manageable_node),
             dict(
-                method='GET',
+                method='POST',
                 uri=self.get_mock_url(
-                    resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']]),
-                json=manageable_node),
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
             dict(
                 method='PUT',
                 uri=self.get_mock_url(
@@ -1164,19 +1158,7 @@ class TestBaremetalNode(base.IronicTestCase):
                     resource='nodes',
                     append=[self.fake_baremetal_node['uuid']]),
                 json=available_node),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']]),
-                json=available_node),
         ])
-        # NOTE(When we migrate to a newer microversion, this test
-        # may require revision. It was written for microversion
-        # ?1.13?, which accidently got reverted to 1.6 at one
-        # point during code being refactored soon after the
-        # change landed. Presently, with the lock at 1.6,
-        # this code is never used in the current code path.
         return_value = self.cloud.register_machine(nics, **node_to_post)
 
         self.assertSubdict(available_node, return_value)
@@ -1206,19 +1188,6 @@ class TestBaremetalNode(base.IronicTestCase):
                 validate=dict(json=node_to_post),
                 json=self.fake_baremetal_node),
             dict(
-                method='POST',
-                uri=self.get_mock_url(
-                    resource='ports'),
-                validate=dict(json={'address': mac_address,
-                                    'node_uuid': node_uuid}),
-                json=self.fake_baremetal_port),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']]),
-                json=self.fake_baremetal_node),
-            dict(
                 method='PUT',
                 uri=self.get_mock_url(
                     resource='nodes',
@@ -1238,6 +1207,13 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']]),
                 json=manageable_node),
             dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+            dict(
                 method='PUT',
                 uri=self.get_mock_url(
                     resource='nodes',
@@ -1249,7 +1225,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 uri=self.get_mock_url(
                     resource='nodes',
                     append=[self.fake_baremetal_node['uuid']]),
-                json=available_node),
+                json=manageable_node),
             dict(
                 method='GET',
                 uri=self.get_mock_url(
@@ -1277,7 +1253,7 @@ class TestBaremetalNode(base.IronicTestCase):
         self.fake_baremetal_node['provision_state'] = 'enroll'
         failed_node = self.fake_baremetal_node.copy()
         failed_node['reservation'] = 'conductor0'
-        failed_node['provision_state'] = 'verifying'
+        failed_node['provision_state'] = 'enroll'
         failed_node['last_error'] = 'kaboom!'
         self.register_uris([
             dict(
@@ -1286,13 +1262,6 @@ class TestBaremetalNode(base.IronicTestCase):
                     resource='nodes'),
                 json=self.fake_baremetal_node,
                 validate=dict(json=node_to_post)),
-            dict(
-                method='POST',
-                uri=self.get_mock_url(
-                    resource='ports'),
-                validate=dict(json={'address': mac_address,
-                                    'node_uuid': node_uuid}),
-                json=self.fake_baremetal_port),
             dict(
                 method='PUT',
                 uri=self.get_mock_url(
@@ -1307,11 +1276,10 @@ class TestBaremetalNode(base.IronicTestCase):
                     append=[self.fake_baremetal_node['uuid']]),
                 json=failed_node),
             dict(
-                method='GET',
+                method='DELETE',
                 uri=self.get_mock_url(
                     resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']]),
-                json=failed_node),
+                    append=[self.fake_baremetal_node['uuid']])),
         ])
 
         self.assertRaises(
@@ -1344,13 +1312,6 @@ class TestBaremetalNode(base.IronicTestCase):
                 json=self.fake_baremetal_node,
                 validate=dict(json=node_to_post)),
             dict(
-                method='POST',
-                uri=self.get_mock_url(
-                    resource='ports'),
-                validate=dict(json={'address': mac_address,
-                                    'node_uuid': node_uuid}),
-                json=self.fake_baremetal_port),
-            dict(
                 method='PUT',
                 uri=self.get_mock_url(
                     resource='nodes',
@@ -1362,13 +1323,12 @@ class TestBaremetalNode(base.IronicTestCase):
                 uri=self.get_mock_url(
                     resource='nodes',
                     append=[self.fake_baremetal_node['uuid']]),
-                json=self.fake_baremetal_node),
+                json=busy_node),
             dict(
-                method='GET',
+                method='DELETE',
                 uri=self.get_mock_url(
                     resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']]),
-                json=busy_node),
+                    append=[self.fake_baremetal_node['uuid']])),
         ])
         # NOTE(TheJulia): This test shortcircuits the timeout loop
         # such that it executes only once. The very last returned
@@ -1395,6 +1355,8 @@ class TestBaremetalNode(base.IronicTestCase):
             'properties': None,
             'uuid': node_uuid}
         self.fake_baremetal_node['provision_state'] = 'enroll'
+        manageable_node = self.fake_baremetal_node.copy()
+        manageable_node['provision_state'] = 'manageable'
         self.register_uris([
             dict(
                 method='POST',
@@ -1402,19 +1364,6 @@ class TestBaremetalNode(base.IronicTestCase):
                     resource='nodes'),
                 json=self.fake_baremetal_node,
                 validate=dict(json=node_to_post)),
-            dict(
-                method='POST',
-                uri=self.get_mock_url(
-                    resource='ports'),
-                validate=dict(json={'address': mac_address,
-                                    'node_uuid': node_uuid}),
-                json=self.fake_baremetal_port),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(
-                    resource='nodes',
-                    append=[self.fake_baremetal_node['uuid']]),
-                json=self.fake_baremetal_node),
             dict(
                 method='PUT',
                 uri=self.get_mock_url(
@@ -1427,7 +1376,32 @@ class TestBaremetalNode(base.IronicTestCase):
                 uri=self.get_mock_url(
                     resource='nodes',
                     append=[self.fake_baremetal_node['uuid']]),
+                json=manageable_node),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+            dict(
+                method='PUT',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid'],
+                            'states', 'provision']),
+                validate=dict(json={'target': 'provide'})),
+            dict(
+                method='GET',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']]),
                 json=self.fake_baremetal_node),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']])),
         ])
         self.assertRaises(
             exc.OpenStackCloudException,
@@ -1462,7 +1436,7 @@ class TestBaremetalNode(base.IronicTestCase):
                 uri=self.get_mock_url(
                     resource='ports'),
                 status_code=400,
-                json={'error': 'invalid'},
+                json={'error': 'no ports for you'},
                 validate=dict(json={'address': mac_address,
                                     'node_uuid': node_uuid})),
             dict(
@@ -1471,9 +1445,63 @@ class TestBaremetalNode(base.IronicTestCase):
                     resource='nodes',
                     append=[self.fake_baremetal_node['uuid']])),
         ])
-        self.assertRaises(exc.OpenStackCloudException,
-                          self.cloud.register_machine,
-                          nics, **node_to_post)
+        self.assertRaisesRegex(exc.OpenStackCloudException,
+                               'no ports for you',
+                               self.cloud.register_machine,
+                               nics, **node_to_post)
+
+        self.assert_calls()
+
+    def test_register_machine_several_ports_create_failed(self):
+        mac_address = '00:01:02:03:04:05'
+        mac_address2 = mac_address[::-1]
+        nics = [{'mac': mac_address}, {'mac': mac_address2}]
+        node_uuid = self.fake_baremetal_node['uuid']
+        node_to_post = {
+            'chassis_uuid': None,
+            'driver': None,
+            'driver_info': None,
+            'name': self.fake_baremetal_node['name'],
+            'properties': None,
+            'uuid': node_uuid}
+        self.fake_baremetal_node['provision_state'] = 'available'
+        self.register_uris([
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='nodes'),
+                json=self.fake_baremetal_node,
+                validate=dict(json=node_to_post)),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                validate=dict(json={'address': mac_address,
+                                    'node_uuid': node_uuid}),
+                json=self.fake_baremetal_port),
+            dict(
+                method='POST',
+                uri=self.get_mock_url(
+                    resource='ports'),
+                status_code=400,
+                json={'error': 'no ports for you'},
+                validate=dict(json={'address': mac_address2,
+                                    'node_uuid': node_uuid})),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='ports',
+                    append=[self.fake_baremetal_port['uuid']])),
+            dict(
+                method='DELETE',
+                uri=self.get_mock_url(
+                    resource='nodes',
+                    append=[self.fake_baremetal_node['uuid']])),
+        ])
+        self.assertRaisesRegex(exc.OpenStackCloudException,
+                               'no ports for you',
+                               self.cloud.register_machine,
+                               nics, **node_to_post)
 
         self.assert_calls()
 
