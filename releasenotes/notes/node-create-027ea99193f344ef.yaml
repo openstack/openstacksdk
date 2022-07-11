@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    Changes the baremetal ``create_node`` call to be closer to how Ironic
+    behaves. If no provision state is requested, the default state of the
+    current microversion is used (which usually means ``enroll``).
+    If the ``available`` state is requested, the node does not go through
+    cleaning (it won't work without creating ports), an old API version is
+    used to achieve this provision state.

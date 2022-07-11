@@ -347,6 +347,7 @@ class TestNodeCreate(base.TestCase):
         self.session.post.side_effect = _change_state
 
     def test_available_old_version(self, mock_prov):
+        self.node.provision_state = 'available'
         result = self.node.create(self.session)
         self.assertIs(result, self.node)
         self.session.post.assert_called_once_with(
@@ -356,24 +357,16 @@ class TestNodeCreate(base.TestCase):
         self.assertFalse(mock_prov.called)
 
     def test_available_new_version(self, mock_prov):
-        def _change_state(*args, **kwargs):
-            self.node.provision_state = 'manageable'
-
         self.session.default_microversion = '1.11'
         self.node.provision_state = 'available'
-        self.new_state = 'enroll'
-        mock_prov.side_effect = _change_state
 
         result = self.node.create(self.session)
         self.assertIs(result, self.node)
         self.session.post.assert_called_once_with(
             mock.ANY, json={'driver': FAKE['driver']},
-            headers=mock.ANY, microversion=self.session.default_microversion,
+            headers=mock.ANY, microversion='1.10',
             params={})
-        mock_prov.assert_has_calls([
-            mock.call(self.node, self.session, 'manage', wait=True),
-            mock.call(self.node, self.session, 'provide', wait=True)
-        ])
+        mock_prov.assert_not_called()
 
     def test_no_enroll_in_old_version(self, mock_prov):
         self.node.provision_state = 'enroll'

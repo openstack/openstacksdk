@@ -59,6 +59,7 @@ EXPECTED_POWER_STATES = {
 """Mapping of target power states to expected power states."""
 
 STATE_VERSIONS = {
+    'available': '1.1',
     'enroll': '1.11',
     'manageable': '1.4',
 }
