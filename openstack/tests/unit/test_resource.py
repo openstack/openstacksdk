@@ -1512,15 +1512,19 @@ class TestResourceActions(base.TestCase):
 
     def _test_create(self, cls, requires_id=False, prepend_key=False,
                      microversion=None, base_path=None, params=None,
-                     id_marked_dirty=True):
+                     id_marked_dirty=True, explicit_microversion=None):
         id = "id" if requires_id else None
         sot = cls(id=id)
         sot._prepare_request = mock.Mock(return_value=self.request)
         sot._translate_response = mock.Mock()
 
         params = params or {}
+        kwargs = params.copy()
+        if explicit_microversion is not None:
+            kwargs['microversion'] = explicit_microversion
+            microversion = explicit_microversion
         result = sot.create(self.session, prepend_key=prepend_key,
-                            base_path=base_path, **params)
+                            base_path=base_path, **kwargs)
 
         id_is_dirty = ('id' in sot._body._dirty)
         self.assertEqual(id_marked_dirty, id_is_dirty)
@@ -1574,6 +1578,17 @@ class TestResourceActions(base.TestCase):
 
         self._test_create(Test, requires_id=True, prepend_key=True,
                           microversion='1.42')
+
+    def test_put_create_with_explicit_microversion(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_create = True
+            create_method = 'PUT'
+            _max_microversion = '1.99'
+
+        self._test_create(Test, requires_id=True, prepend_key=True,
+                          explicit_microversion='1.42')
 
     def test_put_create_with_params(self):
         class Test(resource.Resource):
@@ -1663,6 +1678,29 @@ class TestResourceActions(base.TestCase):
         sot._translate_response.assert_called_once_with(self.response)
         self.assertEqual(result, sot)
 
+    def test_fetch_with_explicit_microversion(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_fetch = True
+            _max_microversion = '1.99'
+
+        sot = Test(id='id')
+        sot._prepare_request = mock.Mock(return_value=self.request)
+        sot._translate_response = mock.Mock()
+
+        result = sot.fetch(self.session, microversion='1.42')
+
+        sot._prepare_request.assert_called_once_with(
+            requires_id=True, base_path=None)
+        self.session.get.assert_called_once_with(
+            self.request.url, microversion='1.42', params={},
+            skip_cache=False)
+
+        self.assertEqual(sot.microversion, '1.42')
+        sot._translate_response.assert_called_once_with(self.response)
+        self.assertEqual(result, sot)
+
     def test_fetch_not_requires_id(self):
         result = self.sot.fetch(self.session, False)
 
@@ -1739,16 +1777,21 @@ class TestResourceActions(base.TestCase):
 
     def _test_commit(self, commit_method='PUT', prepend_key=True,
                      has_body=True, microversion=None,
-                     commit_args=None, expected_args=None, base_path=None):
+                     commit_args=None, expected_args=None, base_path=None,
+                     explicit_microversion=None):
         self.sot.commit_method = commit_method
 
         # Need to make sot look dirty so we can attempt an update
         self.sot._body = mock.Mock()
         self.sot._body.dirty = mock.Mock(return_value={"x": "y"})
 
+        commit_args = commit_args or {}
+        if explicit_microversion is not None:
+            commit_args['microversion'] = explicit_microversion
+            microversion = explicit_microversion
         self.sot.commit(self.session, prepend_key=prepend_key,
                         has_body=has_body, base_path=base_path,
-                        **(commit_args or {}))
+                        **commit_args)
 
         self.sot._prepare_request.assert_called_once_with(
             prepend_key=prepend_key, base_path=base_path)
@@ -1809,6 +1852,10 @@ class TestResourceActions(base.TestCase):
             commit_method='PATCH',
             commit_args={'retry_on_conflict': False},
             expected_args={'retriable_status_codes': {503}})
+
+    def test_commit_put_explicit_microversion(self):
+        self._test_commit(commit_method='PUT', prepend_key=True, has_body=True,
+                          explicit_microversion='1.42')
 
     def test_commit_not_dirty(self):
         self.sot._body = mock.Mock()
@@ -1899,6 +1946,29 @@ class TestResourceActions(base.TestCase):
         sot._translate_response = mock.Mock()
 
         result = sot.delete(self.session)
+
+        sot._prepare_request.assert_called_once_with()
+        self.session.delete.assert_called_once_with(
+            self.request.url,
+            headers='headers',
+            microversion='1.42')
+
+        sot._translate_response.assert_called_once_with(
+            self.response, has_body=False)
+        self.assertEqual(result, sot)
+
+    def test_delete_with_explicit_microversion(self):
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = self.base_path
+            allow_delete = True
+            _max_microversion = '1.99'
+
+        sot = Test(id='id')
+        sot._prepare_request = mock.Mock(return_value=self.request)
+        sot._translate_response = mock.Mock()
+
+        result = sot.delete(self.session, microversion='1.42')
 
         sot._prepare_request.assert_called_once_with()
         self.session.delete.assert_called_once_with(

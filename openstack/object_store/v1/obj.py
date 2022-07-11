@@ -317,13 +317,14 @@ class Object(_base.BaseResource):
         self._translate_response(response, has_body=False)
         return self
 
-    def _raw_delete(self, session):
+    def _raw_delete(self, session, microversion=None):
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, "delete")
 
         request = self._prepare_request()
         session = self._get_session(session)
-        microversion = self._get_microversion(session, action='delete')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='delete')
 
         if self.is_static_large_object is None:
             # Fetch metadata to determine SLO flag
