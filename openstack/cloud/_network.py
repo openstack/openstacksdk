@@ -1933,26 +1933,22 @@ class NetworkCloudMixin:
         :returns: A list of network ``Port`` objects.
         """
         # Find only router interface and gateway ports, ignore L3 HA ports etc.
-        router_interfaces = self.search_ports(filters={
-            'device_id': router['id'],
-            'device_owner': 'network:router_interface'}
-        ) + self.search_ports(filters={
-            'device_id': router['id'],
-            'device_owner': 'network:router_interface_distributed'}
-        ) + self.search_ports(filters={
-            'device_id': router['id'],
-            'device_owner': 'network:ha_router_replicated_interface'})
-        router_gateways = self.search_ports(filters={
-            'device_id': router['id'],
-            'device_owner': 'network:router_gateway'})
-        ports = router_interfaces + router_gateways
+        ports = list(self.network.ports(device_id=router['id']))
 
-        if interface_type:
-            if interface_type == 'internal':
-                return router_interfaces
-            if interface_type == 'external':
-                return router_gateways
-        return ports
+        router_interfaces = (
+            [port for port in ports
+             if (port['device_owner'] in
+                 ['network:router_interface',
+                  'network:router_interface_distributed',
+                  'network:ha_router_replicated_interface'])
+             ] if not interface_type or interface_type == 'internal' else [])
+
+        router_gateways = (
+            [port for port in ports
+             if port['device_owner'] == 'network:router_gateway'
+             ] if not interface_type or interface_type == 'external' else [])
+
+        return router_interfaces + router_gateways
 
     def create_router(
         self,
