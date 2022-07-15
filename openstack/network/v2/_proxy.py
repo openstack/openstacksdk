@@ -64,6 +64,7 @@ from openstack.network.v2 import service_provider as _service_provider
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import trunk as _trunk
+from openstack.network.v2 import vpn_endpoint_group as _vpn_endpoint_group
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 
@@ -4549,6 +4550,111 @@ class Proxy(proxy.Proxy):
         """
         trunk = self._get_resource(_trunk.Trunk, trunk)
         return trunk.get_subports(self)
+
+    # ========== VPNaas ==========
+    # ========== VPN Endpoint group ==========
+
+    def create_vpn_endpoint_group(self, **attrs):
+        """Create a new vpn endpoint group from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`,
+            comprised of the properties on the VPNEndpointGroup class.
+
+        :returns: The results of vpn endpoint group creation.
+        :rtype:
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+        """
+        return self._create(
+            _vpn_endpoint_group.VPNEndpointGroup, **attrs)
+
+    def delete_vpn_endpoint_group(
+        self, vpn_endpoint_group, ignore_missing=True
+    ):
+        """Delete a vpn service
+
+        :param vpn_endpoint_group:
+            The value can be either the ID of a vpn service or a
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the vpn service does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent vpn service.
+
+        :returns: ``None``
+        """
+        self._delete(
+            _vpn_endpoint_group.VPNEndpointGroup, vpn_endpoint_group,
+            ignore_missing=ignore_missing)
+
+    def find_vpn_endpoint_group(
+        self, name_or_id, ignore_missing=True, **args
+    ):
+        """Find a single vpn service
+
+        :param name_or_id: The name or ID of a vpn service.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict args: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            or None
+        """
+        return self._find(
+            _vpn_endpoint_group.VPNEndpointGroup, name_or_id,
+            ignore_missing=ignore_missing, **args)
+
+    def get_vpn_endpoint_group(self, vpn_endpoint_group):
+        """Get a single vpn service
+
+        :param vpn_endpoint_group: The value can be the ID of a vpn service
+            or a
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            instance.
+
+        :returns: One
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(
+            _vpn_endpoint_group.VPNEndpointGroup, vpn_endpoint_group)
+
+    def vpn_endpoint_groups(self, **query):
+        """Return a generator of vpn services
+
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of vpn service objects
+        :rtype:
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+        """
+        return self._list(_vpn_endpoint_group.VPNEndpointGroup, **query)
+
+    def update_vpn_endpoint_group(self, vpn_endpoint_group, **attrs):
+        """Update a vpn service
+
+        :param vpn_endpoint_group: Either the id of a vpn service or a
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+            instance.
+        :param dict attrs: The attributes to update on the VPN service
+            represented by ``vpn_endpoint_group``.
+
+        :returns: The updated vpnservice
+        :rtype:
+            :class:`~openstack.network.v2.vpn_endpoint_group.VPNEndpointGroup`
+        """
+        return self._update(
+            _vpn_endpoint_group.VPNEndpointGroup, vpn_endpoint_group, **attrs)
+
+    # ========== VPN Service ==========
 
     def create_vpn_service(self, **attrs):
         """Create a new vpn service from attributes

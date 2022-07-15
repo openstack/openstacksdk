@@ -10,32 +10,32 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import vpn_service
+from openstack.network.v2 import vpn_endpoint_group
 from openstack.tests.unit import base
 
 
 IDENTIFIER = 'IDENTIFIER'
 EXAMPLE = {
-    "admin_state_up": True,
-    "description": "1",
-    "external_v4_ip": "2",
-    "external_v6_ip": "3",
-    "id": IDENTIFIER,
-    "name": "4",
-    "router_id": "5",
-    "status": "6",
-    "subnet_id": "7",
-    "project_id": "8",
+    "description": "",
+    "project_id": "4ad57e7ce0b24fca8f12b9834d91079d",
+    "tenant_id": "4ad57e7ce0b24fca8f12b9834d91079d",
+    "endpoints": [
+        "10.2.0.0/24",
+        "10.3.0.0/24"
+    ],
+    "type": "cidr",
+    "id": "6ecd9cf3-ca64-46c7-863f-f2eb1b9e838a",
+    "name": "peers"
 }
 
 
-class TestVPNService(base.TestCase):
+class TestVPNEndpointGroup(base.TestCase):
 
     def test_basic(self):
-        sot = vpn_service.VPNService()
-        self.assertEqual('vpnservice', sot.resource_key)
-        self.assertEqual('vpnservices', sot.resources_key)
-        self.assertEqual('/vpn/vpnservices', sot.base_path)
+        sot = vpn_endpoint_group.VPNEndpointGroup()
+        self.assertEqual('endpoint_group', sot.resource_key)
+        self.assertEqual('endpoint_groups', sot.resources_key)
+        self.assertEqual('/vpn/endpoint-groups', sot.base_path)
         self.assertTrue(sot.allow_create)
         self.assertTrue(sot.allow_fetch)
         self.assertTrue(sot.allow_commit)
@@ -43,16 +43,12 @@ class TestVPNService(base.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = vpn_service.VPNService(**EXAMPLE)
-        self.assertTrue(sot.is_admin_state_up)
+        sot = vpn_endpoint_group.VPNEndpointGroup(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
-        self.assertEqual(EXAMPLE['external_v4_ip'], sot.external_v4_ip)
-        self.assertEqual(EXAMPLE['external_v6_ip'], sot.external_v6_ip)
+        self.assertEqual(EXAMPLE['endpoints'], sot.endpoints)
+        self.assertEqual(EXAMPLE['type'], sot.type)
         self.assertEqual(EXAMPLE['id'], sot.id)
         self.assertEqual(EXAMPLE['name'], sot.name)
-        self.assertEqual(EXAMPLE['router_id'], sot.router_id)
-        self.assertEqual(EXAMPLE['status'], sot.status)
-        self.assertEqual(EXAMPLE['subnet_id'], sot.subnet_id)
         self.assertEqual(EXAMPLE['project_id'], sot.project_id)
 
         self.assertDictEqual(
