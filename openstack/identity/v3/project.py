@@ -27,6 +27,8 @@ class Project(resource.Resource, tag.TagMixin):
     allow_list = True
     commit_method = 'PATCH'
 
+    _allow_unknown_attrs_in_body = True
+
     _query_mapping = resource.QueryParameters(
         'domain_id',
         'is_domain',
