@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class IkePolicy(resource.Resource):
+class VpnIkePolicy(resource.Resource):
     resource_key = 'ikepolicy'
     resources_key = 'ikepolicies'
     base_path = '/vpn/ikepolicies'

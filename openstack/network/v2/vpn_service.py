@@ -13,7 +13,7 @@
 from openstack import resource
 
 
-class VPNService(resource.Resource):
+class VpnService(resource.Resource):
     resource_key = 'vpnservice'
     resources_key = 'vpnservices'
     base_path = '/vpn/vpnservices'

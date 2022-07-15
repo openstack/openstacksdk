@@ -29,10 +29,10 @@ EXAMPLE = {
 }
 
 
-class TestVPNEndpointGroup(base.TestCase):
+class TestVpnEndpointGroup(base.TestCase):
 
     def test_basic(self):
-        sot = vpn_endpoint_group.VPNEndpointGroup()
+        sot = vpn_endpoint_group.VpnEndpointGroup()
         self.assertEqual('endpoint_group', sot.resource_key)
         self.assertEqual('endpoint_groups', sot.resources_key)
         self.assertEqual('/vpn/endpoint-groups', sot.base_path)
@@ -43,7 +43,7 @@ class TestVPNEndpointGroup(base.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = vpn_endpoint_group.VPNEndpointGroup(**EXAMPLE)
+        sot = vpn_endpoint_group.VpnEndpointGroup(**EXAMPLE)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['endpoints'], sot.endpoints)
         self.assertEqual(EXAMPLE['type'], sot.type)

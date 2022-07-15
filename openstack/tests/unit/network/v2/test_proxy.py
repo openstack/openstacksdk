@@ -27,8 +27,6 @@ from openstack.network.v2 import firewall_rule
 from openstack.network.v2 import flavor
 from openstack.network.v2 import floating_ip
 from openstack.network.v2 import health_monitor
-from openstack.network.v2 import ikepolicy
-from openstack.network.v2 import ipsec_site_connection
 from openstack.network.v2 import l3_conntrack_helper
 from openstack.network.v2 import listener
 from openstack.network.v2 import load_balancer
@@ -61,6 +59,8 @@ from openstack.network.v2 import service_provider
 from openstack.network.v2 import subnet
 from openstack.network.v2 import subnet_pool
 from openstack.network.v2 import vpn_endpoint_group
+from openstack.network.v2 import vpn_ikepolicy
+from openstack.network.v2 import vpn_ipsec_site_connection
 from openstack.network.v2 import vpn_service
 from openstack import proxy as proxy_base
 from openstack.tests.unit import test_proxy_base
@@ -312,66 +312,6 @@ class TestNetworkHealthMonitor(TestNetworkProxy):
     def test_health_monitor_update(self):
         self.verify_update(self.proxy.update_health_monitor,
                            health_monitor.HealthMonitor)
-
-
-class TestNetworkSiteConnection(TestNetworkProxy):
-    def test_ipsec_site_connection_create_attrs(self):
-        self.verify_create(self.proxy.create_vpn_ipsec_site_connection,
-                           ipsec_site_connection.IPSecSiteConnection)
-
-    def test_ipsec_site_connection_delete(self):
-        self.verify_delete(self.proxy.delete_vpn_ipsec_site_connection,
-                           ipsec_site_connection.IPSecSiteConnection, False)
-
-    def test_ipsec_site_connection_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_vpn_ipsec_site_connection,
-                           ipsec_site_connection.IPSecSiteConnection, True)
-
-    def test_ipsec_site_connection_find(self):
-        self.verify_find(self.proxy.find_vpn_ipsec_site_connection,
-                         ipsec_site_connection.IPSecSiteConnection)
-
-    def test_ipsec_site_connection_get(self):
-        self.verify_get(self.proxy.get_vpn_ipsec_site_connection,
-                        ipsec_site_connection.IPSecSiteConnection)
-
-    def test_ipsec_site_connections(self):
-        self.verify_list(self.proxy.vpn_ipsec_site_connections,
-                         ipsec_site_connection.IPSecSiteConnection)
-
-    def test_ipsec_site_connection_update(self):
-        self.verify_update(self.proxy.update_vpn_ipsec_site_connection,
-                           ipsec_site_connection.IPSecSiteConnection)
-
-
-class TestNetworkIkePolicy(TestNetworkProxy):
-    def test_ikepolicy_create_attrs(self):
-        self.verify_create(self.proxy.create_vpn_ikepolicy,
-                           ikepolicy.IkePolicy)
-
-    def test_ikepolicy_delete(self):
-        self.verify_delete(self.proxy.delete_vpn_ikepolicy,
-                           ikepolicy.IkePolicy, False)
-
-    def test_ikepolicy_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_vpn_ikepolicy,
-                           ikepolicy.IkePolicy, True)
-
-    def test_ikepolicy_find(self):
-        self.verify_find(self.proxy.find_vpn_ikepolicy,
-                         ikepolicy.IkePolicy)
-
-    def test_ikepolicy_get(self):
-        self.verify_get(self.proxy.get_vpn_ikepolicy,
-                        ikepolicy.IkePolicy)
-
-    def test_ikepolicies(self):
-        self.verify_list(self.proxy.vpn_ikepolicies,
-                         ikepolicy.IkePolicy)
-
-    def test_ikepolicy_update(self):
-        self.verify_update(self.proxy.update_vpn_ikepolicy,
-                           ikepolicy.IkePolicy)
 
 
 class TestNetworkListener(TestNetworkProxy):
@@ -1637,65 +1577,139 @@ class TestNetworkVpnEndpointGroup(TestNetworkProxy):
     def test_vpn_endpoint_group_create_attrs(self):
         self.verify_create(
             self.proxy.create_vpn_endpoint_group,
-            vpn_endpoint_group.VPNEndpointGroup)
+            vpn_endpoint_group.VpnEndpointGroup)
 
     def test_vpn_endpoint_group_delete(self):
         self.verify_delete(
             self.proxy.delete_vpn_endpoint_group,
-            vpn_endpoint_group.VPNEndpointGroup, False)
+            vpn_endpoint_group.VpnEndpointGroup, False)
 
     def test_vpn_endpoint_group_delete_ignore(self):
         self.verify_delete(
             self.proxy.delete_vpn_endpoint_group,
-            vpn_endpoint_group.VPNEndpointGroup, True)
+            vpn_endpoint_group.VpnEndpointGroup, True)
 
     def test_vpn_endpoint_group_find(self):
         self.verify_find(
             self.proxy.find_vpn_endpoint_group,
-            vpn_endpoint_group.VPNEndpointGroup)
+            vpn_endpoint_group.VpnEndpointGroup)
 
     def test_vpn_endpoint_group_get(self):
         self.verify_get(
             self.proxy.get_vpn_endpoint_group,
-            vpn_endpoint_group.VPNEndpointGroup)
+            vpn_endpoint_group.VpnEndpointGroup)
 
     def test_vpn_endpoint_groups(self):
         self.verify_list(
             self.proxy.vpn_endpoint_groups,
-            vpn_endpoint_group.VPNEndpointGroup)
+            vpn_endpoint_group.VpnEndpointGroup)
 
     def test_vpn_endpoint_group_update(self):
         self.verify_update(
             self.proxy.update_vpn_endpoint_group,
-            vpn_endpoint_group.VPNEndpointGroup)
+            vpn_endpoint_group.VpnEndpointGroup)
+
+
+class TestNetworkVpnSiteConnection(TestNetworkProxy):
+    def test_ipsec_site_connection_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_vpn_ipsec_site_connection,
+            vpn_ipsec_site_connection.VpnIPSecSiteConnection)
+
+    def test_ipsec_site_connection_delete(self):
+        self.verify_delete(
+            self.proxy.delete_vpn_ipsec_site_connection,
+            vpn_ipsec_site_connection.VpnIPSecSiteConnection, False)
+
+    def test_ipsec_site_connection_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_vpn_ipsec_site_connection,
+            vpn_ipsec_site_connection.VpnIPSecSiteConnection, True)
+
+    def test_ipsec_site_connection_find(self):
+        self.verify_find(
+            self.proxy.find_vpn_ipsec_site_connection,
+            vpn_ipsec_site_connection.VpnIPSecSiteConnection)
+
+    def test_ipsec_site_connection_get(self):
+        self.verify_get(
+            self.proxy.get_vpn_ipsec_site_connection,
+            vpn_ipsec_site_connection.VpnIPSecSiteConnection)
+
+    def test_ipsec_site_connections(self):
+        self.verify_list(
+            self.proxy.vpn_ipsec_site_connections,
+            vpn_ipsec_site_connection.VpnIPSecSiteConnection)
+
+    def test_ipsec_site_connection_update(self):
+        self.verify_update(
+            self.proxy.update_vpn_ipsec_site_connection,
+            vpn_ipsec_site_connection.VpnIPSecSiteConnection)
+
+
+class TestNetworkVpnIkePolicy(TestNetworkProxy):
+    def test_ikepolicy_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_vpn_ikepolicy,
+            vpn_ikepolicy.VpnIkePolicy)
+
+    def test_ikepolicy_delete(self):
+        self.verify_delete(
+            self.proxy.delete_vpn_ikepolicy,
+            vpn_ikepolicy.VpnIkePolicy, False)
+
+    def test_ikepolicy_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_vpn_ikepolicy,
+            vpn_ikepolicy.VpnIkePolicy, True)
+
+    def test_ikepolicy_find(self):
+        self.verify_find(
+            self.proxy.find_vpn_ikepolicy,
+            vpn_ikepolicy.VpnIkePolicy)
+
+    def test_ikepolicy_get(self):
+        self.verify_get(
+            self.proxy.get_vpn_ikepolicy,
+            vpn_ikepolicy.VpnIkePolicy)
+
+    def test_ikepolicies(self):
+        self.verify_list(
+            self.proxy.vpn_ikepolicies,
+            vpn_ikepolicy.VpnIkePolicy)
+
+    def test_ikepolicy_update(self):
+        self.verify_update(
+            self.proxy.update_vpn_ikepolicy,
+            vpn_ikepolicy.VpnIkePolicy)
 
 
 class TestNetworkVpnService(TestNetworkProxy):
     def test_vpn_service_create_attrs(self):
         self.verify_create(self.proxy.create_vpn_service,
-                           vpn_service.VPNService)
+                           vpn_service.VpnService)
 
     def test_vpn_service_delete(self):
         self.verify_delete(self.proxy.delete_vpn_service,
-                           vpn_service.VPNService, False)
+                           vpn_service.VpnService, False)
 
     def test_vpn_service_delete_ignore(self):
         self.verify_delete(self.proxy.delete_vpn_service,
-                           vpn_service.VPNService, True)
+                           vpn_service.VpnService, True)
 
     def test_vpn_service_find(self):
         self.verify_find(self.proxy.find_vpn_service,
-                         vpn_service.VPNService)
+                         vpn_service.VpnService)
 
     def test_vpn_service_get(self):
-        self.verify_get(self.proxy.get_vpn_service, vpn_service.VPNService)
+        self.verify_get(self.proxy.get_vpn_service, vpn_service.VpnService)
 
     def test_vpn_services(self):
-        self.verify_list(self.proxy.vpn_services, vpn_service.VPNService)
+        self.verify_list(self.proxy.vpn_services, vpn_service.VpnService)
 
     def test_vpn_service_update(self):
         self.verify_update(self.proxy.update_vpn_service,
-                           vpn_service.VPNService)
+                           vpn_service.VpnService)
 
 
 class TestNetworkServiceProvider(TestNetworkProxy):
