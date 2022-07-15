@@ -61,6 +61,7 @@ from openstack.network.v2 import subnet_pool
 from openstack.network.v2 import vpn_endpoint_group
 from openstack.network.v2 import vpn_ikepolicy
 from openstack.network.v2 import vpn_ipsec_site_connection
+from openstack.network.v2 import vpn_ipsecpolicy
 from openstack.network.v2 import vpn_service
 from openstack import proxy as proxy_base
 from openstack.tests.unit import test_proxy_base
@@ -1682,6 +1683,43 @@ class TestNetworkVpnIkePolicy(TestNetworkProxy):
         self.verify_update(
             self.proxy.update_vpn_ikepolicy,
             vpn_ikepolicy.VpnIkePolicy)
+
+
+class TestNetworkVpnIpsecPolicy(TestNetworkProxy):
+    def test_ipsecpolicy_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_vpn_ipsecpolicy,
+            vpn_ipsecpolicy.VpnIpsecPolicy)
+
+    def test_ipsecpolicy_delete(self):
+        self.verify_delete(
+            self.proxy.delete_vpn_ipsecpolicy,
+            vpn_ipsecpolicy.VpnIpsecPolicy, False)
+
+    def test_ipsecpolicy_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_vpn_ipsecpolicy,
+            vpn_ipsecpolicy.VpnIpsecPolicy, True)
+
+    def test_ipsecpolicy_find(self):
+        self.verify_find(
+            self.proxy.find_vpn_ipsecpolicy,
+            vpn_ipsecpolicy.VpnIpsecPolicy)
+
+    def test_ipsecpolicy_get(self):
+        self.verify_get(
+            self.proxy.get_vpn_ipsecpolicy,
+            vpn_ipsecpolicy.VpnIpsecPolicy)
+
+    def test_ipsecpolicies(self):
+        self.verify_list(
+            self.proxy.vpn_ipsecpolicies,
+            vpn_ipsecpolicy.VpnIpsecPolicy)
+
+    def test_ipsecpolicy_update(self):
+        self.verify_update(
+            self.proxy.update_vpn_ipsecpolicy,
+            vpn_ipsecpolicy.VpnIpsecPolicy)
 
 
 class TestNetworkVpnService(TestNetworkProxy):
