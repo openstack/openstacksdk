@@ -16,6 +16,7 @@ from openstack.block_storage.v3 import _proxy
 from openstack.block_storage.v3 import backup
 from openstack.block_storage.v3 import capabilities
 from openstack.block_storage.v3 import extension
+from openstack.block_storage.v3 import group
 from openstack.block_storage.v3 import group_type
 from openstack.block_storage.v3 import limits
 from openstack.block_storage.v3 import quota_set
@@ -141,6 +142,43 @@ class TestResourceFilter(TestVolumeProxy):
         self.verify_list(
             self.proxy.resource_filters, resource_filter.ResourceFilter
         )
+
+
+class TestGroup(TestVolumeProxy):
+    def test_group_get(self):
+        self.verify_get(self.proxy.get_group, group.Group)
+
+    def test_group_find(self):
+        self.verify_find(self.proxy.find_group, group.Group)
+
+    def test_groups(self):
+        self.verify_list(self.proxy.groups, group.Group)
+
+    def test_group_create(self):
+        self.verify_create(self.proxy.create_group, group.Group)
+
+    def test_group_create_from_source(self):
+        self._verify(
+            "openstack.block_storage.v3.group.Group.create_from_source",
+            self.proxy.create_group_from_source,
+            method_args=[],
+            expected_args=[self.proxy],
+        )
+
+    def test_group_delete(self):
+        self._verify(
+            "openstack.block_storage.v3.group.Group.delete",
+            self.proxy.delete_group,
+            method_args=['delete_volumes'],
+            expected_args=[self.proxy],
+            expected_kwargs={'delete_volumes': False},
+        )
+
+    def test_group_update(self):
+        self.verify_update(self.proxy.update_group, group.Group)
+
+    def reset_group_state(self):
+        self._verify(self.proxy.reset_group_state, group.Group)
 
 
 class TestGroupType(TestVolumeProxy):

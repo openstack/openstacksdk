@@ -49,6 +49,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     #: Extended replication status on this volume.
     extended_replication_status = resource.Body(
         "os-volume-replication:extended_status")
+    #: The ID of the group that the volume belongs to.
+    group_id = resource.Body("group_id")
     #: The volume's current back-end.
     host = resource.Body("os-vol-host-attr:host")
     #: The ID of the image from which you want to create the volume.
