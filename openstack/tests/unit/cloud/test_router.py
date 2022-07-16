@@ -366,33 +366,23 @@ class TestRouter(base.TestCase):
                           'mickey')
         self.assert_calls()
 
-    def _get_mock_dict(self, owner, json):
-        return dict(method='GET',
-                    uri=self.get_mock_url(
-                        'network', 'public', append=['v2.0', 'ports'],
-                        qs_elements=["device_id=%s" % self.router_id,
-                                     "device_owner=network:%s" % owner]),
-                    json=json)
-
     def _test_list_router_interfaces(self, router, interface_type,
-                                     router_type="normal",
                                      expected_result=None):
-        if router_type == "normal":
-            device_owner = 'router_interface'
-        elif router_type == "ha":
-            device_owner = 'ha_router_replicated_interface'
-        elif router_type == "dvr":
-            device_owner = 'router_interface_distributed'
-        internal_port = {
-            'id': 'internal_port_id',
-            'fixed_ips': [{
-                'subnet_id': 'internal_subnet_id',
-                'ip_address': "10.0.0.1"
-            }],
-            'device_id': self.router_id,
-            'device_owner': 'network:%s' % device_owner
-        }
-        external_port = {
+        internal_ports = [
+            {
+                'id': 'internal_port_id',
+                'fixed_ips': [{
+                    'subnet_id': 'internal_subnet_id',
+                    'ip_address': "10.0.0.1"
+                }],
+                'device_id': self.router_id,
+                'device_owner': device_owner
+            }
+            for device_owner in ['network:router_interface',
+                                 'network:ha_router_replicated_interface',
+                                 'network:router_interface_distributed']]
+
+        external_ports = [{
             'id': 'external_port_id',
             'fixed_ips': [{
                 'subnet_id': 'external_subnet_id',
@@ -400,28 +390,23 @@ class TestRouter(base.TestCase):
             }],
             'device_id': self.router_id,
             'device_owner': 'network:router_gateway'
-        }
+        }]
+
         if expected_result is None:
             if interface_type == "internal":
-                expected_result = [internal_port]
+                expected_result = internal_ports
             elif interface_type == "external":
-                expected_result = [external_port]
+                expected_result = external_ports
             else:
-                expected_result = [internal_port, external_port]
+                expected_result = internal_ports + external_ports
 
-        mock_uris = []
-        for port_type in ['router_interface',
-                          'router_interface_distributed',
-                          'ha_router_replicated_interface']:
-            if port_type == device_owner:
-                ports = {'ports': [internal_port]}
-            else:
-                ports = {'ports': []}
-            mock_uris.append(self._get_mock_dict(port_type, ports))
-        mock_uris.append(self._get_mock_dict('router_gateway',
-                                             {'ports': [external_port]}))
+        mock_uri = dict(method='GET',
+                        uri=self.get_mock_url(
+                            'network', 'public', append=['v2.0', 'ports'],
+                            qs_elements=["device_id=%s" % self.router_id]),
+                        json={'ports': (internal_ports + external_ports)})
 
-        self.register_uris(mock_uris)
+        self.register_uris([mock_uri])
         ret = self.cloud.list_router_interfaces(router, interface_type)
         self.assertEqual(
             [_port.Port(**i).to_dict(computed=False) for i in expected_result],
@@ -449,11 +434,3 @@ class TestRouter(base.TestCase):
     def test_list_router_interfaces_external(self):
         self._test_list_router_interfaces(self.router,
                                           interface_type="external")
-
-    def test_list_router_interfaces_internal_ha(self):
-        self._test_list_router_interfaces(self.router, router_type="ha",
-                                          interface_type="internal")
-
-    def test_list_router_interfaces_internal_dvr(self):
-        self._test_list_router_interfaces(self.router, router_type="dvr",
-                                          interface_type="internal")
