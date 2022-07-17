@@ -874,7 +874,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
 
     def add_ip_list(
             self, server, ips, wait=False, timeout=60,
-            fixed_address=None):
+            fixed_address=None, nat_destination=None):
         """Attach a list of IPs to a server.
 
         :param server: a server object
@@ -885,6 +885,9 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
                         See the ``wait`` parameter.
         :param fixed_address: (optional) Fixed address of the server to
                                          attach the IP to
+        :param nat_destination: (optional) Name or ID of the network that
+                                          the fixed IP to attach the
+                                          floating IP should be on
 
         :returns: The updated server ``munch.Munch``
 
@@ -899,7 +902,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
                 id=None, filters={'floating_ip_address': ip})
             server = self._attach_ip_to_server(
                 server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
-                fixed_address=fixed_address)
+                fixed_address=fixed_address, nat_destination=nat_destination)
         return server
 
     def add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
@@ -987,7 +990,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         elif ips:
             server = self.add_ip_list(
                 server, ips, wait=wait, timeout=timeout,
-                fixed_address=fixed_address)
+                fixed_address=fixed_address, nat_destination=nat_destination)
         elif auto_ip:
             if self._needs_floating_ip(server, nat_destination):
                 server = self._add_auto_ip(
