@@ -670,7 +670,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return dict(server_vars=server_vars, groups=groups)
 
     @_utils.valid_kwargs(
-        'meta', 'files', 'userdata',
+        'meta', 'files', 'userdata', 'description',
         'reservation_id', 'return_raw', 'min_count',
         'max_count', 'security_groups', 'key_name',
         'availability_zone', 'block_device_mapping',
