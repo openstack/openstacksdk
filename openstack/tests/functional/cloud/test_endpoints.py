@@ -202,5 +202,5 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
                 if e['id'] == endpoint['id']:
                     found = True
                     break
-        self.failUnlessEqual(
+        self.assertEqual(
             False, found, message='new endpoint was not deleted!')

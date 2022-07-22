@@ -113,7 +113,7 @@ class TestServices(base.KeystoneBaseFunctionalTest):
             if s['id'] == service['id']:
                 found = True
                 break
-        self.failUnlessEqual(False, found, message='service was not deleted!')
+        self.assertEqual(False, found, message='service was not deleted!')
 
     def test_delete_service_by_id(self):
         # Test delete by id
@@ -126,4 +126,4 @@ class TestServices(base.KeystoneBaseFunctionalTest):
         for s in observed_services:
             if s['id'] == service['id']:
                 found = True
-        self.failUnlessEqual(False, found, message='service was not deleted!')
+        self.assertEqual(False, found, message='service was not deleted!')
