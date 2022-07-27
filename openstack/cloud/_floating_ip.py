@@ -890,15 +890,17 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
-        if type(ips) == list:
-            ip = ips[0]
-        else:
-            ip = ips
-        f_ip = self.get_floating_ip(
-            id=None, filters={'floating_ip_address': ip})
-        return self._attach_ip_to_server(
-            server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
-            fixed_address=fixed_address)
+
+        if type(ips) != list:
+            ips = [ips]
+
+        for ip in ips:
+            f_ip = self.get_floating_ip(
+                id=None, filters={'floating_ip_address': ip})
+            server = self._attach_ip_to_server(
+                server=server, floating_ip=f_ip, wait=wait, timeout=timeout,
+                fixed_address=fixed_address)
+        return server
 
     def add_auto_ip(self, server, wait=False, timeout=60, reuse=True):
         """Add a floating IP to a server.
