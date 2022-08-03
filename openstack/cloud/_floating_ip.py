@@ -997,34 +997,47 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
     def _needs_floating_ip(self, server, nat_destination):
         """Figure out if auto_ip should add a floating ip to this server.
 
-        If the server has a public_v4 it does not need a floating ip.
+        If the server has a floating ip it does not need another one.
 
-        If the server does not have a private_v4 it does not need a
+        If the server does not have a fixed ip address it does not need a
         floating ip.
 
         If self.private then the server does not need a floating ip.
 
-        If the cloud runs nova, and the server has a private_v4 and not
-        a public_v4, then the server needs a floating ip.
+        If the cloud runs nova, and the server has a private address and not a
+        public address, then the server needs a floating ip.
 
-        If the server has a private_v4 and no public_v4 and the cloud has
-        a network from which floating IPs come that is connected via a
-        router to the network from which the private_v4 address came,
+        If the server has a fixed ip address and no floating ip address and the
+        cloud has a network from which floating IPs come that is connected via
+        a router to the network from which the fixed ip address came,
         then the server needs a floating ip.
 
-        If the server has a private_v4 and no public_v4 and the cloud
-        does not have a network from which floating ips come, or it has
+        If the server has a fixed ip address and no floating ip address and the
+        cloud does not have a network from which floating ips come, or it has
         one but that network is not connected to the network from which
-        the server's private_v4 address came via a router, then the
+        the server's fixed ip address came via a router, then the
         server does not need a floating ip.
         """
         if not self._has_floating_ips():
             return False
 
-        if server['public_v4']:
+        if server['addresses'] is None:
+            # fetch missing server details, e.g. because
+            # meta.add_server_interfaces() was not called
+            server = self.compute.get_server(server)
+
+        if server['public_v4'] \
+           or any([any([address['OS-EXT-IPS:type'] == 'floating'
+                        for address in addresses])
+                   for addresses
+                   in (server['addresses'] or {}).values()]):
             return False
 
-        if not server['private_v4']:
+        if not server['private_v4'] \
+           and not any([any([address['OS-EXT-IPS:type'] == 'fixed'
+                             for address in addresses])
+                        for addresses
+                        in (server['addresses'] or {}).values()]):
             return False
 
         if self.private:
