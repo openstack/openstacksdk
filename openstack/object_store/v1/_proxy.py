@@ -1011,3 +1011,82 @@ class Proxy(proxy.Proxy):
                 self.delete_object(obj, ignore_missing=True)
                 deleted = True
         return deleted
+
+    # ========== Project Cleanup ==========
+    def _get_cleanup_dependencies(self):
+        return {
+            'object_store': {
+                'before': []
+            }
+        }
+
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=None,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None
+    ):
+        is_bulk_delete_supported = False
+        bulk_delete_max_per_request = None
+        try:
+            caps = self.get_info()
+        except exceptions.SDKException:
+            pass
+        else:
+            bulk_delete = caps.swift.get("bulk_delete", {})
+            is_bulk_delete_supported = bulk_delete is not None
+            bulk_delete_max_per_request = bulk_delete.get(
+                "max_deletes_per_request", 100)
+
+        elements = []
+        for cont in self.containers():
+            # Iterate over objects inside container
+            objects_remaining = False
+            for obj in self.objects(cont):
+                need_delete = self._service_cleanup_del_res(
+                    self.delete_object,
+                    obj,
+                    dry_run=True,
+                    client_status_queue=client_status_queue,
+                    identified_resources=identified_resources,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn)
+                if need_delete:
+                    if not is_bulk_delete_supported and not dry_run:
+                        self.delete_object(obj, cont)
+                    else:
+                        elements.append(f"{cont.name}/{obj.name}")
+                        if len(elements) >= bulk_delete_max_per_request:
+                            self._bulk_delete(elements, dry_run=dry_run)
+                            elements.clear()
+                else:
+                    objects_remaining = True
+
+            if len(elements) > 0:
+                self._bulk_delete(elements, dry_run=dry_run)
+                elements.clear()
+
+            # Eventually delete container itself
+            if not objects_remaining:
+                self._service_cleanup_del_res(
+                    self.delete_container,
+                    cont,
+                    dry_run=dry_run,
+                    client_status_queue=client_status_queue,
+                    identified_resources=identified_resources,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn)
+
+    def _bulk_delete(self, elements, dry_run=False):
+        data = "\n".join([parse.quote(x) for x in elements])
+        if not dry_run:
+            self.delete(
+                "?bulk-delete",
+                data=data,
+                headers={
+                    'Content-Type': 'text/plain',
+                    'Accept': 'application/json'
+                }
+            )

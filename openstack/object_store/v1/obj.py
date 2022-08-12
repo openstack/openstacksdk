@@ -163,7 +163,10 @@ class Object(_base.BaseResource):
     timestamp = resource.Header("x-timestamp")
     #: The date and time that the object was created or the last
     #: time that the metadata was changed.
-    last_modified_at = resource.Header("last-modified", alias='_last_modified')
+    last_modified_at = resource.Header(
+        "last-modified",
+        alias='_last_modified',
+        aka='updated_at')
 
     # Headers for PUT and POST requests
     #: Set to chunked to enable chunked transfer encoding. If used,

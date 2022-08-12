@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Project cleanup now supports cleaning Swift (object-store). If supported
+    by the server bulk deletion is used. Currently only filtering based on
+    updated_at (last_modified) is supported.
