@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
 from unittest import mock
 
 from openstack.compute.v2 import _proxy
@@ -30,6 +31,7 @@ from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import server_migration
 from openstack.compute.v2 import server_remote_console
 from openstack.compute.v2 import service
+from openstack.compute.v2 import usage
 from openstack import resource
 from openstack.tests.unit import test_proxy_base
 
@@ -1104,6 +1106,43 @@ class TestCompute(TestComputeProxy):
             self.proxy.remove_security_group_from_server,
             method_args=["value", {'id': 'id', 'name': 'sg'}],
             expected_args=[self.proxy, 'sg'])
+
+    def test_usages(self):
+        self.verify_list(self.proxy.usages, usage.Usage)
+
+    def test_usages__with_kwargs(self):
+        now = datetime.datetime.utcnow()
+        start = now - datetime.timedelta(weeks=4)
+        end = end = now + datetime.timedelta(days=1)
+        self.verify_list(
+            self.proxy.usages,
+            usage.Usage,
+            method_kwargs={'start': start, 'end': end},
+            expected_kwargs={'start': start, 'end': end},
+        )
+
+    def test_get_usage(self):
+        self._verify(
+            "openstack.compute.v2.usage.Usage.fetch",
+            self.proxy.get_usage,
+            method_args=['value'],
+            method_kwargs={},
+            expected_args=[self.proxy],
+            expected_kwargs={},
+        )
+
+    def test_get_usage__with_kwargs(self):
+        now = datetime.datetime.utcnow()
+        start = now - datetime.timedelta(weeks=4)
+        end = end = now + datetime.timedelta(days=1)
+        self._verify(
+            "openstack.compute.v2.usage.Usage.fetch",
+            self.proxy.get_usage,
+            method_args=['value'],
+            method_kwargs={'start': start, 'end': end},
+            expected_args=[self.proxy],
+            expected_kwargs={'start': start, 'end': end},
+        )
 
     def test_create_server_remote_console(self):
         self.verify_create(
