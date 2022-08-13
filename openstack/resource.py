@@ -1953,6 +1953,9 @@ class Resource(dict):
             checked against the :data:`~openstack.resource.Resource.base_path`
             format string to see if any path fragments need to be filled in by
             the contents of this argument.
+            Parameters supported as filters by the server side are passed in
+            the API call, remaining parameters are applied as filters to the
+            retrieved results.
 
         :return: A generator of :class:`Resource` objects.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1969,12 +1972,24 @@ class Resource(dict):
 
         if base_path is None:
             base_path = cls.base_path
-        params = cls._query_mapping._validate(
+        api_filters = cls._query_mapping._validate(
             params,
             base_path=base_path,
-            allow_unknown_params=allow_unknown_params,
+            allow_unknown_params=True,
         )
-        query_params = cls._query_mapping._transpose(params, cls)
+        client_filters = dict()
+        # Gather query parameters which are not supported by the server
+        for (k, v) in params.items():
+            if (
+                # Known attr
+                hasattr(cls, k)
+                # Is real attr property
+                and isinstance(getattr(cls, k), Body)
+                # not included in the query_params
+                and k not in cls._query_mapping._mapping.keys()
+            ):
+                client_filters[k] = v
+        query_params = cls._query_mapping._transpose(api_filters, cls)
         uri = base_path % params
         uri_params = {}
 
@@ -1984,6 +1999,18 @@ class Resource(dict):
             # We need to gather URI parts to set them on the resource later
             if hasattr(cls, k) and isinstance(getattr(cls, k), URI):
                 uri_params[k] = v
+
+        def _dict_filter(f, d):
+            """Dict param based filtering"""
+            if not d:
+                return False
+            for key in f.keys():
+                if isinstance(f[key], dict):
+                    if not _dict_filter(f[key], d.get(key, None)):
+                        return False
+                elif d.get(key, None) != f[key]:
+                    return False
+            return True
 
         # Track the total number of resources yielded so we can paginate
         # swift objects
@@ -2028,7 +2055,20 @@ class Resource(dict):
                     **raw_resource,
                 )
                 marker = value.id
-                yield value
+                filters_matched = True
+                # Iterate over client filters and return only if matching
+                for key in client_filters.keys():
+                    if isinstance(client_filters[key], dict):
+                        if not _dict_filter(
+                                client_filters[key], value.get(key, None)):
+                            filters_matched = False
+                            break
+                    elif value.get(key, None) != client_filters[key]:
+                        filters_matched = False
+                        break
+
+                if filters_matched:
+                    yield value
                 total_yielded += 1
 
             if resources and paginated:

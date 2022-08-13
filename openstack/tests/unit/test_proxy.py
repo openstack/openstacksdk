@@ -43,6 +43,16 @@ class ListableResource(resource.Resource):
     allow_list = True
 
 
+class FilterableResource(resource.Resource):
+    allow_list = True
+    base_path = '/fakes'
+
+    _query_mapping = resource.QueryParameters('a')
+    a = resource.Body('a')
+    b = resource.Body('b')
+    c = resource.Body('c')
+
+
 class HeadableResource(resource.Resource):
     allow_head = True
 
@@ -460,6 +470,28 @@ class TestProxyList(base.TestCase):
 
     def test_list_override_base_path(self):
         self._test_list(False, base_path='dummy')
+
+    def test_list_filters_jmespath(self):
+        fake_response = [
+            FilterableResource(a='a1', b='b1', c='c'),
+            FilterableResource(a='a2', b='b2', c='c'),
+            FilterableResource(a='a3', b='b3', c='c'),
+        ]
+        FilterableResource.list = mock.Mock()
+        FilterableResource.list.return_value = fake_response
+
+        rv = self.sot._list(
+            FilterableResource, paginated=False,
+            base_path=None, jmespath_filters="[?c=='c']"
+        )
+        self.assertEqual(3, len(rv))
+
+        # Test filtering based on unknown attribute
+        rv = self.sot._list(
+            FilterableResource, paginated=False,
+            base_path=None, jmespath_filters="[?d=='c']"
+        )
+        self.assertEqual(0, len(rv))
 
 
 class TestProxyHead(base.TestCase):

@@ -153,8 +153,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         """
         if not filters:
             filters = {}
-        return list(self.compute.keypairs(allow_unknown_params=True,
-                                          **filters))
+        return list(self.compute.keypairs(**filters))
 
     @_utils.cache_on_arguments()
     def list_availability_zone_names(self, unavailable=False):
@@ -353,7 +352,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
         return [
             self._expand_server(server, detailed, bare)
             for server in self.compute.servers(
-                all_projects=all_projects, allow_unknown_params=True,
+                all_projects=all_projects,
                 **filters)
         ]
 
@@ -1504,7 +1503,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         return list(self.compute.hypervisors(
             details=True,
-            allow_unknown_params=True,
             **filters))
 
     def search_aggregates(self, name_or_id=None, filters=None):
@@ -1525,7 +1523,7 @@ class ComputeCloudMixin(_normalize.Normalizer):
 
         :returns: A list of compute ``Aggregate`` objects.
         """
-        return self.compute.aggregates(allow_unknown_params=True, **filters)
+        return self.compute.aggregates(**filters)
 
     # TODO(stephenfin): This shouldn't return a munch
     def get_aggregate(self, name_or_id, filters=None):
