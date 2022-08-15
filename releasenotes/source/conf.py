@@ -59,7 +59,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-copyright = u'2017, Various members of the OpenStack Foundation'
+copyright = '2017, Various members of the OpenStack Foundation'
 
 # Release notes are version independent.
 # The short X.Y version.
@@ -198,8 +198,8 @@ htmlhelp_basename = 'shadeReleaseNotesdoc'
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     ('index', 'shadeReleaseNotes.tex',
-     u'Shade Release Notes Documentation',
-     u'Shade Developers', 'manual'),
+     'Shade Release Notes Documentation',
+     'Shade Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -229,8 +229,8 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'shadereleasenotes',
-     u'shade Release Notes Documentation',
-     [u'shade Developers'], 1)
+     'shade Release Notes Documentation',
+     ['shade Developers'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -244,10 +244,10 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'shadeReleaseNotes',
-     u'shade Release Notes Documentation',
-     u'shade Developers', 'shadeReleaseNotes',
-     u'A client library for interacting with OpenStack clouds',
-     u'Miscellaneous'),
+     'shade Release Notes Documentation',
+     'shade Developers', 'shadeReleaseNotes',
+     'A client library for interacting with OpenStack clouds',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.

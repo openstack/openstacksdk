@@ -48,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-copyright = u'2017, Various members of the OpenStack Foundation'
+copyright = '2017, Various members of the OpenStack Foundation'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
@@ -79,8 +79,8 @@ htmlhelp_basename = 'openstacksdkdoc'
 latex_documents = [
     ('index',
      'doc-openstacksdk.tex',
-     u'OpenStackSDK Documentation',
-     u'OpenStack Foundation', 'manual'),
+     'OpenStackSDK Documentation',
+     'OpenStack Foundation', 'manual'),
 ]
 
 # Allow deeper levels of nesting for \begin...\end stanzas
