@@ -66,7 +66,7 @@ class Info(resource.Resource):
         url = "{scheme}://{netloc}/info".format(
             scheme=endpoint.scheme, netloc=endpoint.netloc)
 
-        microversion = self._get_microversion_for(session, 'fetch')
+        microversion = self._get_microversion(session, action='fetch')
         response = session.get(url, microversion=microversion)
         kwargs = {}
         if error_message:

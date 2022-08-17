@@ -54,38 +54,86 @@ class ServerGroup(resource.Resource):
     #: The user ID who owns the server group
     user_id = resource.Body('user_id')
 
-    def _get_microversion_for(self, session, action):
-        """Get microversion to use for the given action.
+    # TODO(stephenfin): It would be nice to have a hookpoint to do this
+    # microversion-based request manipulation, but we don't have anything like
+    # that right now
+    def create(self, session, prepend_key=True, base_path=None, **params):
+        """Create a remote resource based on this instance.
 
-        The base version uses :meth:`_get_microversion_for_list`.
-        Subclasses can override this method if more complex logic is needed.
-
-        :param session: :class`keystoneauth1.adapter.Adapter`
-        :param action: One of "fetch", "commit", "create", "delete", "patch".
-            Unused in the base implementation.
-        :return: microversion as string or ``None``
+        :param session: The session to use for making this request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param prepend_key: A boolean indicating whether the resource_key
+            should be prepended in a resource creation request. Default to
+            True.
+        :param str base_path: Base part of the URI for creating resources, if
+            different from :data:`~openstack.resource.Resource.base_path`.
+        :param dict params: Additional params to pass.
+        :return: This :class:`Resource` instance.
+        :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
+            :data:`Resource.allow_create` is not set to ``True``.
         """
-        if action not in ('fetch', 'commit', 'create', 'delete', 'patch'):
-            raise ValueError('Invalid action: %s' % action)
+        if not self.allow_create:
+            raise exceptions.MethodNotSupported(self, 'create')
 
-        microversion = self._get_microversion_for_list(session)
-        if action == 'create':
-            # `policy` and `rules` are added with mv=2.64. In it also
-            # `policies` are removed.
-            if utils.supports_microversion(session, '2.64'):
-                if self.policies:
-                    if not self.policy and isinstance(self.policies, list):
-                        self.policy = self.policies[0]
-                    self._body.clean(only={'policies'})
-                microversion = self._max_microversion
-            else:
-                if self.rules:
-                    message = ("API version %s is required to set rules, but "
-                               "it is not available.") % 2.64
-                    raise exceptions.NotSupported(message)
-                if self.policy:
-                    if not self.policies:
-                        self.policies = [self.policy]
-                    self._body.clean(only={'policy'})
+        session = self._get_session(session)
+        microversion = self._get_microversion(session, action='create')
+        requires_id = (
+            self.create_requires_id
+            if self.create_requires_id is not None
+            else self.create_method == 'PUT'
+        )
 
-        return microversion
+        if self.create_exclude_id_from_body:
+            self._body._dirty.discard("id")
+
+        # `policy` and `rules` are added with mv=2.64. In it also
+        # `policies` are removed.
+        if utils.supports_microversion(session, '2.64'):
+            if self.policies:
+                if not self.policy and isinstance(self.policies, list):
+                    self.policy = self.policies[0]
+                self._body.clean(only={'policies'})
+            microversion = self._max_microversion
+        else:  # microversion < 2.64
+            if self.rules:
+                msg = (
+                    "API version 2.64 is required to set rules, but "
+                    "it is not available."
+                )
+                raise exceptions.NotSupported(msg)
+
+            if self.policy:
+                if not self.policies:
+                    self.policies = [self.policy]
+                self._body.clean(only={'policy'})
+
+        if self.create_method == 'POST':
+            request = self._prepare_request(
+                requires_id=requires_id,
+                prepend_key=prepend_key,
+                base_path=base_path,
+            )
+            response = session.post(
+                request.url,
+                json=request.body,
+                headers=request.headers,
+                microversion=microversion,
+                params=params,
+            )
+        else:
+            raise exceptions.ResourceFailure(
+                "Invalid create method: %s" % self.create_method
+            )
+
+        has_body = (
+            self.has_body
+            if self.create_returns_body is None
+            else self.create_returns_body
+        )
+        self.microversion = microversion
+        self._translate_response(response, has_body=has_body)
+        # direct comparision to False since we need to rule out None
+        if self.has_body and self.create_returns_body is False:
+            # fetch the body if it's required but not returned by create
+            return self.fetch(session)
+        return self

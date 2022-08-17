@@ -3086,7 +3086,7 @@ class TestWaitForDelete(base.TestCase):
             self.cloud.compute, res, 0.1, 0.3)
 
 
-@mock.patch.object(resource.Resource, '_get_microversion_for', autospec=True)
+@mock.patch.object(resource.Resource, '_get_microversion', autospec=True)
 class TestAssertMicroversionFor(base.TestCase):
     session = mock.Mock()
     res = resource.Resource()
@@ -3097,7 +3097,7 @@ class TestAssertMicroversionFor(base.TestCase):
         self.assertEqual(
             '1.42',
             self.res._assert_microversion_for(self.session, 'fetch', '1.6'))
-        mock_get_ver.assert_called_once_with(self.res, self.session, 'fetch')
+        mock_get_ver.assert_called_once_with(self.session, action='fetch')
 
     def test_incompatible(self, mock_get_ver):
         mock_get_ver.return_value = '1.1'
@@ -3106,7 +3106,7 @@ class TestAssertMicroversionFor(base.TestCase):
                                '1.6 is required, but 1.1 will be used',
                                self.res._assert_microversion_for,
                                self.session, 'fetch', '1.6')
-        mock_get_ver.assert_called_once_with(self.res, self.session, 'fetch')
+        mock_get_ver.assert_called_once_with(self.session, action='fetch')
 
     def test_custom_message(self, mock_get_ver):
         mock_get_ver.return_value = '1.1'
@@ -3116,7 +3116,7 @@ class TestAssertMicroversionFor(base.TestCase):
                                self.res._assert_microversion_for,
                                self.session, 'fetch', '1.6',
                                error_message='boom')
-        mock_get_ver.assert_called_once_with(self.res, self.session, 'fetch')
+        mock_get_ver.assert_called_once_with(self.session, action='fetch')
 
     def test_none(self, mock_get_ver):
         mock_get_ver.return_value = None
@@ -3125,4 +3125,4 @@ class TestAssertMicroversionFor(base.TestCase):
                                '1.6 is required, but the default version',
                                self.res._assert_microversion_for,
                                self.session, 'fetch', '1.6')
-        mock_get_ver.assert_called_once_with(self.res, self.session, 'fetch')
+        mock_get_ver.assert_called_once_with(self.session, action='fetch')

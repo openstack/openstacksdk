@@ -1300,8 +1300,8 @@ class Resource(dict):
         )
 
     @classmethod
-    def _get_microversion_for_list(cls, session):
-        """Get microversion to use when listing resources.
+    def _get_microversion(cls, session, *, action):
+        """Get microversion to use for the given action.
 
         The base version uses the following logic:
 
@@ -1313,31 +1313,28 @@ class Resource(dict):
 
         Subclasses can override this method if more complex logic is needed.
 
-        :param session: :class`keystoneauth1.adapter.Adapter`
-        :return: microversion as string or ``None``
+        :param session: The session to use for making the request.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param action: One of "fetch", "commit", "create", "delete", "patch".
+        :type action: str
+        :return: Microversion as string or ``None``
         """
+        if action not in {
+            'list',
+            'fetch',
+            'commit',
+            'create',
+            'delete',
+            'patch',
+        }:
+            raise ValueError('Invalid action: %s' % action)
+
         if session.default_microversion:
             return session.default_microversion
 
         return utils.maximum_supported_microversion(
             session, cls._max_microversion
         )
-
-    def _get_microversion_for(self, session, action):
-        """Get microversion to use for the given action.
-
-        The base version uses :meth:`_get_microversion_for_list`.
-        Subclasses can override this method if more complex logic is needed.
-
-        :param session: :class`keystoneauth1.adapter.Adapter`
-        :param action: One of "fetch", "commit", "create", "delete", "patch".
-            Unused in the base implementation.
-        :return: microversion as string or ``None``
-        """
-        if action not in ('fetch', 'commit', 'create', 'delete', 'patch'):
-            raise ValueError('Invalid action: %s' % action)
-
-        return self._get_microversion_for_list(session)
 
     def _assert_microversion_for(
         self,
@@ -1365,7 +1362,7 @@ class Resource(dict):
 
             raise exceptions.NotSupported(message)
 
-        actual = self._get_microversion_for(session, action)
+        actual = self._get_microversion(session, action=action)
 
         if expected is None:
             return actual
@@ -1403,10 +1400,10 @@ class Resource(dict):
             :data:`Resource.allow_create` is not set to ``True``.
         """
         if not self.allow_create:
-            raise exceptions.MethodNotSupported(self, "create")
+            raise exceptions.MethodNotSupported(self, 'create')
 
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'create')
+        microversion = self._get_microversion(session, action='create')
         requires_id = (
             self.create_requires_id
             if self.create_requires_id is not None
@@ -1486,7 +1483,7 @@ class Resource(dict):
             :data:`Resource.allow_create` is not set to ``True``.
         """
         if not cls.allow_create:
-            raise exceptions.MethodNotSupported(cls, "create")
+            raise exceptions.MethodNotSupported(cls, 'create')
 
         if not (
             data
@@ -1496,7 +1493,7 @@ class Resource(dict):
             raise ValueError('Invalid data passed: %s' % data)
 
         session = cls._get_session(session)
-        microversion = cls._get_microversion_for(cls, session, 'create')
+        microversion = cls._get_microversion(session, action='create')
         requires_id = (
             cls.create_requires_id
             if cls.create_requires_id is not None
@@ -1591,13 +1588,13 @@ class Resource(dict):
             the resource was not found.
         """
         if not self.allow_fetch:
-            raise exceptions.MethodNotSupported(self, "fetch")
+            raise exceptions.MethodNotSupported(self, 'fetch')
 
         request = self._prepare_request(
             requires_id=requires_id, base_path=base_path
         )
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'fetch')
+        microversion = self._get_microversion(session, action='fetch')
         response = session.get(
             request.url,
             microversion=microversion,
@@ -1627,12 +1624,12 @@ class Resource(dict):
             was not found.
         """
         if not self.allow_head:
-            raise exceptions.MethodNotSupported(self, "head")
-
-        request = self._prepare_request(base_path=base_path)
+            raise exceptions.MethodNotSupported(self, 'head')
 
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'fetch')
+        microversion = self._get_microversion(session, action='fetch')
+
+        request = self._prepare_request(base_path=base_path)
         response = session.head(request.url, microversion=microversion)
 
         self.microversion = microversion
@@ -1681,7 +1678,7 @@ class Resource(dict):
             return self
 
         if not self.allow_commit:
-            raise exceptions.MethodNotSupported(self, "commit")
+            raise exceptions.MethodNotSupported(self, 'commit')
 
         # Avoid providing patch unconditionally to avoid breaking subclasses
         # without it.
@@ -1691,7 +1688,7 @@ class Resource(dict):
         request = self._prepare_request(
             prepend_key=prepend_key, base_path=base_path, **kwargs
         )
-        microversion = self._get_microversion_for(session, 'commit')
+        microversion = self._get_microversion(session, action='commit')
 
         return self._commit(
             session,
@@ -1808,12 +1805,12 @@ class Resource(dict):
             return self
 
         if not self.allow_patch:
-            raise exceptions.MethodNotSupported(self, "patch")
+            raise exceptions.MethodNotSupported(self, 'patch')
 
         request = self._prepare_request(
             prepend_key=prepend_key, base_path=base_path, patch=True
         )
-        microversion = self._get_microversion_for(session, 'patch')
+        microversion = self._get_microversion(session, action='patch')
         if patch:
             request.body += self._convert_patch(patch)
 
@@ -1851,11 +1848,11 @@ class Resource(dict):
 
     def _raw_delete(self, session, **kwargs):
         if not self.allow_delete:
-            raise exceptions.MethodNotSupported(self, "delete")
+            raise exceptions.MethodNotSupported(self, 'delete')
 
         request = self._prepare_request(**kwargs)
         session = self._get_session(session)
-        microversion = self._get_microversion_for(session, 'delete')
+        microversion = self._get_microversion(session, action='delete')
 
         return session.delete(
             request.url, headers=request.headers, microversion=microversion
@@ -1903,9 +1900,10 @@ class Resource(dict):
             contains invalid params.
         """
         if not cls.allow_list:
-            raise exceptions.MethodNotSupported(cls, "list")
+            raise exceptions.MethodNotSupported(cls, 'list')
+
         session = cls._get_session(session)
-        microversion = cls._get_microversion_for_list(session)
+        microversion = cls._get_microversion(session, action='list')
 
         if base_path is None:
             base_path = cls.base_path

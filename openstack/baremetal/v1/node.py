@@ -768,7 +768,7 @@ class Node(_common.ListMixin, resource.Resource):
             fails for a required interface.
         """
         session = self._get_session(session)
-        version = self._get_microversion_for(session, 'fetch')
+        version = self._get_microversion(session, action='fetch')
 
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'validate')
@@ -818,7 +818,7 @@ class Node(_common.ListMixin, resource.Resource):
 
     def _do_maintenance_action(self, session, verb, body=None):
         session = self._get_session(session)
-        version = self._get_microversion_for(session, 'commit')
+        version = self._get_microversion(session, action='commit')
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'maintenance')
         response = getattr(session, verb)(
@@ -837,7 +837,7 @@ class Node(_common.ListMixin, resource.Resource):
             reboot
         """
         session = self._get_session(session)
-        version = self._get_microversion_for(session, 'commit')
+        version = self._get_microversion(session, action='commit')
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'management', 'boot_device')
 
@@ -1007,7 +1007,7 @@ class Node(_common.ListMixin, resource.Resource):
         :returns: The HTTP response.
         """
         session = self._get_session(session)
-        version = self._get_microversion_for(session, 'commit')
+        version = self._get_microversion(session, action='commit')
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'vendor_passthru?method={}'
                                     .format(method))
@@ -1032,7 +1032,7 @@ class Node(_common.ListMixin, resource.Resource):
         :returns: The HTTP response.
         """
         session = self._get_session(session)
-        version = self._get_microversion_for(session, 'fetch')
+        version = self._get_microversion(session, action='fetch')
         request = self._prepare_request(requires_id=True)
         request.url = utils.urljoin(request.url, 'vendor_passthru/methods')
 
