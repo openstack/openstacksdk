@@ -116,6 +116,9 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     has_config_drive = resource.Body('config_drive')
     #: An ID representing the host of this server.
     host_id = resource.Body('hostId')
+    #: A fault object. Only available when the server status
+    #: is ERROR or DELETED and a fault occurred.
+    fault = resource.Body('fault')
     #: The host status.
     host_status = resource.Body('host_status')
     #: The hostname set on the instance when it is booted.
