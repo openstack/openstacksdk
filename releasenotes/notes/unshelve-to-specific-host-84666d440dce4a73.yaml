@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add SDK support for Nova microversion 2.91. This microversion
+    allows specifying a destination host to unshelve a shelve
+    offloaded server. And availability zone can be set to None to unpin
+    the availability zone of a server.

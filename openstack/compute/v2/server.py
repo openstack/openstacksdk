@@ -40,6 +40,11 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     allow_delete = True
     allow_list = True
 
+    # Sentinel used to differentiate API called without parameter or None
+    # Ex unshelve API can be called without an availability_zone or with
+    # availability_zone = None to unpin the az.
+    _sentinel = object()
+
     _query_mapping = resource.QueryParameters(
         "auto_disk_config", "availability_zone",
         "created_at", "description", "flavor",
@@ -65,7 +70,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         **tag.TagMixin._tag_query_parameters
     )
 
-    _max_microversion = '2.73'
+    _max_microversion = '2.91'
 
     #: A list of dictionaries holding links relevant to this server.
     links = resource.Body('links')
@@ -497,10 +502,26 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"shelve": None}
         self._action(session, body)
 
-    def unshelve(self, session, availability_zone=None):
-        body = {"unshelve": None}
-        if availability_zone:
-            body["unshelve"] = {"availability_zone": availability_zone}
+    def unshelve(self, session, availability_zone=_sentinel, host=None):
+        """
+        Unshelve -- Unshelve the server.
+
+        :param availability_zone: If specified the instance will be unshelved
+            to the availability_zone.
+            If None is passed the instance defined availability_zone is unpin
+            and the instance will be scheduled to any availability_zone (free
+            scheduling).
+            If not specified the instance will be unshelved to either its
+            defined availability_zone or any availability_zone
+            (free scheduling).
+        :param host: If specified the host to unshelve the instance.
+        """
+        data = {}
+        if host:
+            data["host"] = host
+        if availability_zone is None or isinstance(availability_zone, str):
+            data["availability_zone"] = availability_zone
+        body = {'unshelve': data or None}
         self._action(session, body)
 
     def migrate(self, session):

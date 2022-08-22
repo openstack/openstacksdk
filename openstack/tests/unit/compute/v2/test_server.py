@@ -893,6 +893,56 @@ class TestServer(base.TestCase):
             microversion=self.sess.default_microversion,
         )
 
+    def test_unshelve_unpin_az(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.unshelve(self.sess, availability_zone=None)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"unshelve": {
+            "availability_zone": None
+        }}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers,
+            microversion=self.sess.default_microversion)
+
+    def test_unshelve_host(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.unshelve(self.sess, host=sot.hypervisor_hostname)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"unshelve": {
+            "host": sot.hypervisor_hostname
+        }}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers,
+            microversion=self.sess.default_microversion)
+
+    def test_unshelve_host_and_availability_zone(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.unshelve(
+            self.sess,
+            availability_zone=sot.availability_zone,
+            host=sot.hypervisor_hostname
+        )
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {"unshelve": {
+            "availability_zone": sot.availability_zone,
+            "host": sot.hypervisor_hostname
+        }}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers,
+            microversion=self.sess.default_microversion)
+
     def test_migrate(self):
         sot = server.Server(**EXAMPLE)
 
