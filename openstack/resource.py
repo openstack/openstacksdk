@@ -1019,6 +1019,34 @@ class Resource(dict):
         """
         return cls(_synchronized=synchronized, connection=connection, **obj)
 
+    def _attr_to_dict(self, attr, to_munch):
+        """For a given attribute, convert it into a form suitable for a dict value.
+
+        :param bool attr: Attribute name to convert
+
+        :return: A dictionary of key/value pairs where keys are named
+            as they exist as attributes of this class.
+        :param bool _to_munch: Converts subresources to munch instead of dict.
+        """
+        value = getattr(self, attr, None)
+        if isinstance(value, Resource):
+            return value.to_dict(_to_munch=to_munch)
+        elif isinstance(value, dict) and to_munch:
+            return munch.Munch(value)
+        elif value and isinstance(value, list):
+            converted = []
+            for raw in value:
+                if isinstance(raw, Resource):
+                    converted.append(
+                        raw.to_dict(_to_munch=to_munch)
+                    )
+                elif isinstance(raw, dict) and to_munch:
+                    converted.append(munch.Munch(raw))
+                else:
+                    converted.append(raw)
+            return converted
+        return value
+
     def to_dict(
         self,
         body=True,
@@ -1067,6 +1095,15 @@ class Resource(dict):
         # isinstance stricly requires this to be a tuple
         components = tuple(components)
 
+        if body and self._allow_unknown_attrs_in_body:
+            for key in self._unknown_attrs_in_body:
+                converted = self._attr_to_dict(
+                    key,
+                    to_munch=_to_munch,
+                )
+                if not ignore_none or converted is not None:
+                    mapping[key] = converted
+
         # NOTE: This is similar to the implementation in _get_mapping
         # but is slightly different in that we're looking at an instance
         # and we're mapping names on this class to their actual stored
@@ -1080,27 +1117,13 @@ class Resource(dict):
                 # Make sure base classes don't end up overwriting
                 # mappings we've found previously in subclasses.
                 if key not in mapping:
-                    value = getattr(self, attr, None)
-                    if ignore_none and value is None:
+                    converted = self._attr_to_dict(
+                        attr,
+                        to_munch=_to_munch,
+                    )
+                    if ignore_none and converted is None:
                         continue
-                    if isinstance(value, Resource):
-                        mapping[key] = value.to_dict(_to_munch=_to_munch)
-                    elif isinstance(value, dict) and _to_munch:
-                        mapping[key] = munch.Munch(value)
-                    elif value and isinstance(value, list):
-                        converted = []
-                        for raw in value:
-                            if isinstance(raw, Resource):
-                                converted.append(
-                                    raw.to_dict(_to_munch=_to_munch)
-                                )
-                            elif isinstance(raw, dict) and _to_munch:
-                                converted.append(munch.Munch(raw))
-                            else:
-                                converted.append(raw)
-                        mapping[key] = converted
-                    else:
-                        mapping[key] = value
+                    mapping[key] = converted
 
         return mapping
 

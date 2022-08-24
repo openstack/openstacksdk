@@ -883,6 +883,22 @@ class TestResource(base.TestCase):
         }
         self.assertEqual(expected, res.to_dict())
 
+    def test_to_dict_with_unknown_attrs_in_body(self):
+        class Test(resource.Resource):
+            foo = resource.Body('foo')
+            _allow_unknown_attrs_in_body = True
+
+        res = Test(id='FAKE_ID', foo='FOO', bar='BAR')
+
+        expected = {
+            'id': 'FAKE_ID',
+            'name': None,
+            'location': None,
+            'foo': 'FOO',
+            'bar': 'BAR',
+        }
+        self.assertEqual(expected, res.to_dict())
+
     def test_json_dumps_from_resource(self):
         class Test(resource.Resource):
             foo = resource.Body('foo_remote')
