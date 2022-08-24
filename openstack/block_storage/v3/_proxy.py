@@ -465,7 +465,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             when no resource can be found.
         """
         return self._find(_volume.Volume, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing,
+                          list_base_path='/volumes/detail')
 
     def volumes(self, details=True, **query):
         """Retrieve a generator of volumes

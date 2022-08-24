@@ -40,7 +40,9 @@ class TestVolume(TestVolumeProxy):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
     def test_volume_find(self):
-        self.verify_find(self.proxy.find_volume, volume.Volume)
+        self.verify_find(self.proxy.find_volume, volume.Volume,
+                         expected_kwargs=dict(
+                             list_base_path='/volumes/detail'))
 
     def test_volumes_detailed(self):
         self.verify_list(
