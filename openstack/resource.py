@@ -695,6 +695,9 @@ class Resource(dict):
                         DeprecationWarning,
                     )
                     return getattr(self, attr)
+            if self._allow_unknown_attrs_in_body:
+                if name in self._unknown_attrs_in_body:
+                    return self._unknown_attrs_in_body[name]
         raise KeyError(name)
 
     def __delitem__(self, name):
