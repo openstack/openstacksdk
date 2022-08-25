@@ -1,0 +1,4 @@
+---
+features:
+  -|
+    Adds support to query metadef namespaces from glance.
