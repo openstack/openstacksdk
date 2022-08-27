@@ -1410,7 +1410,15 @@ class Resource(dict):
 
         return actual
 
-    def create(self, session, prepend_key=True, base_path=None, **params):
+    def create(
+        self,
+        session,
+        prepend_key=True,
+        base_path=None,
+        *,
+        microversion=None,
+        **params
+    ):
         """Create a remote resource based on this instance.
 
         :param session: The session to use for making this request.
@@ -1420,6 +1428,7 @@ class Resource(dict):
             True.
         :param str base_path: Base part of the URI for creating resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
+        :param str microversion: API version to override the negotiated one.
         :param dict params: Additional params to pass.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1429,7 +1438,8 @@ class Resource(dict):
             raise exceptions.MethodNotSupported(self, 'create')
 
         session = self._get_session(session)
-        microversion = self._get_microversion(session, action='create')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='create')
         requires_id = (
             self.create_requires_id
             if self.create_requires_id is not None
@@ -1490,6 +1500,8 @@ class Resource(dict):
         data,
         prepend_key=True,
         base_path=None,
+        *,
+        microversion=None,
         **params,
     ):
         """Create multiple remote resources based on this class and data.
@@ -1502,6 +1514,7 @@ class Resource(dict):
             True.
         :param str base_path: Base part of the URI for creating resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
+        :param str microversion: API version to override the negotiated one.
         :param dict params: Additional params to pass.
 
         :return: A generator of :class:`Resource` objects.
@@ -1519,7 +1532,8 @@ class Resource(dict):
             raise ValueError('Invalid data passed: %s' % data)
 
         session = cls._get_session(session)
-        microversion = cls._get_microversion(session, action='create')
+        if microversion is None:
+            microversion = cls._get_microversion(session, action='create')
         requires_id = (
             cls.create_requires_id
             if cls.create_requires_id is not None
@@ -1592,6 +1606,8 @@ class Resource(dict):
         base_path=None,
         error_message=None,
         skip_cache=False,
+        *,
+        microversion=None,
         **params,
     ):
         """Get a remote resource based on this instance.
@@ -1606,6 +1622,7 @@ class Resource(dict):
             requested object does not exist.
         :param bool skip_cache: A boolean indicating whether optional API
             cache should be skipped for this invocation.
+        :param str microversion: API version to override the negotiated one.
         :param dict params: Additional parameters that can be consumed.
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1620,7 +1637,8 @@ class Resource(dict):
             requires_id=requires_id, base_path=base_path
         )
         session = self._get_session(session)
-        microversion = self._get_microversion(session, action='fetch')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='fetch')
         response = session.get(
             request.url,
             microversion=microversion,
@@ -1635,13 +1653,14 @@ class Resource(dict):
         self._translate_response(response, **kwargs)
         return self
 
-    def head(self, session, base_path=None):
+    def head(self, session, base_path=None, *, microversion=None):
         """Get headers from a remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
         :param str base_path: Base part of the URI for fetching resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
+        :param str microversion: API version to override the negotiated one.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1653,7 +1672,8 @@ class Resource(dict):
             raise exceptions.MethodNotSupported(self, 'head')
 
         session = self._get_session(session)
-        microversion = self._get_microversion(session, action='fetch')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='fetch')
 
         request = self._prepare_request(base_path=base_path)
         response = session.head(request.url, microversion=microversion)
@@ -1676,6 +1696,8 @@ class Resource(dict):
         has_body=True,
         retry_on_conflict=None,
         base_path=None,
+        *,
+        microversion=None,
         **kwargs,
     ):
         """Commit the state of the instance to the remote resource.
@@ -1689,6 +1711,7 @@ class Resource(dict):
             CONFLICT (409). Value of ``None`` leaves the `Adapter` defaults.
         :param str base_path: Base part of the URI for modifying resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
+        :param str microversion: API version to override the negotiated one.
         :param dict kwargs: Parameters that will be passed to
             _prepare_request()
 
@@ -1714,7 +1737,8 @@ class Resource(dict):
         request = self._prepare_request(
             prepend_key=prepend_key, base_path=base_path, **kwargs
         )
-        microversion = self._get_microversion(session, action='commit')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='commit')
 
         return self._commit(
             session,
@@ -1800,6 +1824,8 @@ class Resource(dict):
         has_body=True,
         retry_on_conflict=None,
         base_path=None,
+        *,
+        microversion=None,
     ):
         """Patch the remote resource.
 
@@ -1818,6 +1844,7 @@ class Resource(dict):
             CONFLICT (409). Value of ``None`` leaves the `Adapter` defaults.
         :param str base_path: Base part of the URI for modifying resources, if
             different from :data:`~openstack.resource.Resource.base_path`.
+        :param str microversion: API version to override the negotiated one.
 
         :return: This :class:`Resource` instance.
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
@@ -1836,7 +1863,8 @@ class Resource(dict):
         request = self._prepare_request(
             prepend_key=prepend_key, base_path=base_path, patch=True
         )
-        microversion = self._get_microversion(session, action='patch')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='patch')
         if patch:
             request.body += self._convert_patch(patch)
 
@@ -1849,11 +1877,13 @@ class Resource(dict):
             retry_on_conflict=retry_on_conflict,
         )
 
-    def delete(self, session, error_message=None, **kwargs):
+    def delete(self, session, error_message=None, *, microversion=None,
+               **kwargs):
         """Delete the remote resource based on this instance.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
+        :param str microversion: API version to override the negotiated one.
         :param dict kwargs: Parameters that will be passed to
             _prepare_request()
 
@@ -1864,7 +1894,8 @@ class Resource(dict):
             the resource was not found.
         """
 
-        response = self._raw_delete(session, **kwargs)
+        response = self._raw_delete(session, microversion=microversion,
+                                    **kwargs)
         kwargs = {}
         if error_message:
             kwargs['error_message'] = error_message
@@ -1872,13 +1903,14 @@ class Resource(dict):
         self._translate_response(response, has_body=False, **kwargs)
         return self
 
-    def _raw_delete(self, session, **kwargs):
+    def _raw_delete(self, session, microversion=None, **kwargs):
         if not self.allow_delete:
             raise exceptions.MethodNotSupported(self, 'delete')
 
         request = self._prepare_request(**kwargs)
         session = self._get_session(session)
-        microversion = self._get_microversion(session, action='delete')
+        if microversion is None:
+            microversion = self._get_microversion(session, action='delete')
 
         return session.delete(
             request.url, headers=request.headers, microversion=microversion
@@ -1891,6 +1923,8 @@ class Resource(dict):
         paginated=True,
         base_path=None,
         allow_unknown_params=False,
+        *,
+        microversion=None,
         **params,
     ):
         """This method is a generator which yields resource objects.
@@ -1910,6 +1944,7 @@ class Resource(dict):
             unknown query parameters. This allows getting list of 'filters' and
             passing everything known to the server. ``False`` will result in
             validation exception when unknown query parameters are passed.
+        :param str microversion: API version to override the negotiated one.
         :param dict params: These keyword arguments are passed through the
             :meth:`~openstack.resource.QueryParamter._transpose` method
             to find if any of them match expected query parameters to be sent
@@ -1929,7 +1964,8 @@ class Resource(dict):
             raise exceptions.MethodNotSupported(cls, 'list')
 
         session = cls._get_session(session)
-        microversion = cls._get_microversion(session, action='list')
+        if microversion is None:
+            microversion = cls._get_microversion(session, action='list')
 
         if base_path is None:
             base_path = cls.base_path
@@ -2102,6 +2138,8 @@ class Resource(dict):
         name_or_id,
         ignore_missing=True,
         list_base_path=None,
+        *,
+        microversion=None,
         **params,
     ):
         """Find a resource by its name or id.
@@ -2116,6 +2154,7 @@ class Resource(dict):
             returned when attempting to find a nonexistent resource.
         :param str list_base_path: base_path to be used when need listing
             resources.
+        :param str microversion: API version to override the negotiated one.
         :param dict params: Any additional parameters to be passed into
             underlying methods, such as to
             :meth:`~openstack.resource.Resource.existing` in order to pass on
@@ -2134,7 +2173,7 @@ class Resource(dict):
             match = cls.existing(
                 id=name_or_id, connection=session._get_connection(), **params
             )
-            return match.fetch(session, **params)
+            return match.fetch(session, microversion=microversion, **params)
         except (exceptions.NotFoundException, exceptions.BadRequestException):
             # NOTE(gtema): There are few places around openstack that return
             # 400 if we try to GET resource and it doesn't exist.
