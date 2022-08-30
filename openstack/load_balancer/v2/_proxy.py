@@ -129,6 +129,26 @@ class Proxy(proxy.Proxy):
 
     def wait_for_load_balancer(self, name_or_id, status='ACTIVE',
                                failures=['ERROR'], interval=2, wait=300):
+        """Wait for load balancer status
+
+        :param name_or_id: The name or ID of the load balancer.
+        :param status: Desired status.
+        :param failures: Statuses that would be interpreted as failures.
+            Default to ['ERROR'].
+        :type failures: :py:class:`list`
+        :param interval: Number of seconds to wait between consecutive
+            checks. Defaults to 2.
+        :param wait: Maximum number of seconds to wait before the status
+            to be reached. Defaults to 300.
+        :returns: The load balancer is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to the desired status failed to occur within the specified wait
+            time.
+        :raises: :class:`~openstack.exceptions.ResourceFailure` if the resource
+            has transited to one of the failure statuses.
+        :raises: :class:`~AttributeError` if the resource does not have a
+            ``status`` attribute.
+        """
         lb = self._find(_lb.LoadBalancer, name_or_id, ignore_missing=False)
 
         return resource.wait_for_status(self, lb, status, failures, interval,
