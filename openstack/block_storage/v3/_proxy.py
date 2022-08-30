@@ -1398,36 +1398,51 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             }
         }
 
-    def _service_cleanup(self, dry_run=True, client_status_queue=None,
-                         identified_resources=None,
-                         filters=None, resource_evaluation_fn=None):
-        backups = []
-        for obj in self.backups(details=False):
-            need_delete = self._service_cleanup_del_res(
-                self.delete_backup,
-                obj,
-                dry_run=dry_run,
-                client_status_queue=client_status_queue,
-                identified_resources=identified_resources,
-                filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn)
-            if not dry_run and need_delete:
-                backups.append(obj)
+    def _service_cleanup(
+        self,
+        dry_run=True,
+        client_status_queue=None,
+        identified_resources=None,
+        filters=None,
+        resource_evaluation_fn=None
+    ):
+        # It is not possible to delete backup if there are dependent backups.
+        # In order to be able to do cleanup those is required to have at least
+        # 2 iterations (first cleans up backups with has no dependent backups,
+        # and in 2nd iteration there should be no backups with dependencies
+        # remaining.
+        for i in range(1, 2):
+            backups = []
+            for obj in self.backups(details=False):
+                if (
+                    (i == 1 and not obj.has_dependent_backups)
+                    or i != 1
+                ):
+                    need_delete = self._service_cleanup_del_res(
+                        self.delete_backup,
+                        obj,
+                        dry_run=True,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn)
+                    if not dry_run and need_delete:
+                        backups.append(obj)
 
-        # Before deleting snapshots need to wait for backups to be deleted
-        for obj in backups:
-            try:
-                self.wait_for_delete(obj)
-            except exceptions.SDKException:
-                # Well, did our best, still try further
-                pass
+            # Before proceeding need to wait for backups to be deleted
+            for obj in backups:
+                try:
+                    self.wait_for_delete(obj)
+                except exceptions.SDKException:
+                    # Well, did our best, still try further
+                    pass
 
         snapshots = []
         for obj in self.snapshots(details=False):
             need_delete = self._service_cleanup_del_res(
                 self.delete_snapshot,
                 obj,
-                dry_run=dry_run,
+                dry_run=True,
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
