@@ -32,6 +32,7 @@ _RAW_PROPERTIES = ('is_protected', 'tags')
 
 class Proxy(_base_proxy.BaseImageProxy):
 
+    # ====== IMAGES ======
     def _create_image(self, **kwargs):
         """Create image resource from attributes
         """
@@ -564,6 +565,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         image = self._get_resource(_image.Image, image)
         image.remove_tag(self, tag)
 
+    # ====== IMAGE MEMBERS ======
     def add_member(self, image, **attrs):
         """Create a new member from attributes
 
@@ -669,6 +671,17 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._update(_member.Member, member_id=member_id,
                             image_id=image_id, **attrs)
 
+    # ====== METADEF NAMESPACES ======
+    def metadef_namespaces(self, **query):
+        """Get a info about image metadef namespaces
+
+        :returns: A generator object of metadef namespaces
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._list(_metadef_namespace.MetadefNamespace, **query)
+
+    # ====== SCHEMAS ======
     def get_images_schema(self):
         """Get images schema
 
@@ -709,6 +722,27 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/member')
 
+    def get_tasks_schema(self):
+        """Get image tasks schema
+
+        :returns: One :class:`~openstack.image.v2.schema.Schema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_schema.Schema, requires_id=False,
+                         base_path='/schemas/tasks')
+
+    def get_task_schema(self):
+        """Get image task schema
+
+        :returns: One :class:`~openstack.image.v2.schema.Schema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_schema.Schema, requires_id=False,
+                         base_path='/schemas/task')
+
+    # ====== TASKS ======
     def tasks(self, **query):
         """Return a generator of tasks
 
@@ -806,26 +840,7 @@ class Proxy(_base_proxy.BaseImageProxy):
             self.log.debug('Still waiting for resource %s to reach state %s, '
                            'current state is %s', name, status, new_status)
 
-    def get_tasks_schema(self):
-        """Get image tasks schema
-
-        :returns: One :class:`~openstack.image.v2.schema.Schema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-            when no resource can be found.
-        """
-        return self._get(_schema.Schema, requires_id=False,
-                         base_path='/schemas/tasks')
-
-    def get_task_schema(self):
-        """Get image task schema
-
-        :returns: One :class:`~openstack.image.v2.schema.Schema`
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-            when no resource can be found.
-        """
-        return self._get(_schema.Schema, requires_id=False,
-                         base_path='/schemas/task')
-
+    # ====== STORES ======
     def stores(self, **query):
         """Return a generator of supported image stores
 
@@ -834,6 +849,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         return self._list(_si.Store, **query)
 
+    # ====== IMPORTS ======
     def get_import_info(self):
         """Get a info about image constraints
 
@@ -842,12 +858,3 @@ class Proxy(_base_proxy.BaseImageProxy):
             when no resource can be found.
         """
         return self._get(_si.Import, require_id=False)
-
-    def metadef_namespaces(self, **query):
-        """Get a info about image metadef namespaces
-
-        :returns: A generator object of metadef namespaces
-        :raises: :class:`~openstack.exceptions.ResourceNotFound`
-            when no resource can be found.
-        """
-        return self._list(_metadef_namespace.MetadefNamespace, **query)
