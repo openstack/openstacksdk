@@ -1250,7 +1250,9 @@ class Resource(dict):
         """
         if has_body is None:
             has_body = self.has_body
+
         exceptions.raise_from_response(response, error_message=error_message)
+
         if has_body:
             try:
                 body = response.json()
@@ -1622,7 +1624,7 @@ class Resource(dict):
             raise exceptions.MethodNotSupported(self, 'fetch')
 
         request = self._prepare_request(
-            requires_id=requires_id, base_path=base_path
+            requires_id=requires_id, base_path=base_path,
         )
         session = self._get_session(session)
         if microversion is None:
@@ -1707,6 +1709,9 @@ class Resource(dict):
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_commit` is not set to ``True``.
         """
+        if not self.allow_commit:
+            raise exceptions.MethodNotSupported(self, 'commit')
+
         # The id cannot be dirty for an commit
         self._body._dirty.discard("id")
 
@@ -1714,16 +1719,15 @@ class Resource(dict):
         if not self.requires_commit:
             return self
 
-        if not self.allow_commit:
-            raise exceptions.MethodNotSupported(self, 'commit')
-
         # Avoid providing patch unconditionally to avoid breaking subclasses
         # without it.
         if self.commit_jsonpatch:
             kwargs['patch'] = True
 
         request = self._prepare_request(
-            prepend_key=prepend_key, base_path=base_path, **kwargs
+            prepend_key=prepend_key,
+            base_path=base_path,
+            **kwargs,
         )
         if microversion is None:
             microversion = self._get_microversion(session, action='commit')
@@ -1774,6 +1778,7 @@ class Resource(dict):
 
         self.microversion = microversion
         self._translate_response(response, has_body=has_body)
+
         return self
 
     def _convert_patch(self, patch):
@@ -1838,6 +1843,9 @@ class Resource(dict):
         :raises: :exc:`~openstack.exceptions.MethodNotSupported` if
             :data:`Resource.allow_patch` is not set to ``True``.
         """
+        if not self.allow_patch:
+            raise exceptions.MethodNotSupported(self, 'patch')
+
         # The id cannot be dirty for an commit
         self._body._dirty.discard("id")
 
@@ -1845,11 +1853,10 @@ class Resource(dict):
         if not patch and not self.requires_commit:
             return self
 
-        if not self.allow_patch:
-            raise exceptions.MethodNotSupported(self, 'patch')
-
         request = self._prepare_request(
-            prepend_key=prepend_key, base_path=base_path, patch=True
+            prepend_key=prepend_key,
+            base_path=base_path,
+            patch=True,
         )
         if microversion is None:
             microversion = self._get_microversion(session, action='patch')
@@ -1901,7 +1908,9 @@ class Resource(dict):
             microversion = self._get_microversion(session, action='delete')
 
         return session.delete(
-            request.url, headers=request.headers, microversion=microversion
+            request.url,
+            headers=request.headers,
+            microversion=microversion,
         )
 
     @classmethod
