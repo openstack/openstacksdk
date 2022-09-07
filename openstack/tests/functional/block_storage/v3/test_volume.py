@@ -17,34 +17,55 @@ from openstack.tests.functional.block_storage.v3 import base
 class TestVolume(base.BaseBlockStorageTest):
 
     def setUp(self):
-        super(TestVolume, self).setUp()
+        super().setUp()
 
         if not self.user_cloud.has_service('block-storage'):
             self.skipTest('block-storage service not supported by cloud')
 
-        self.VOLUME_NAME = self.getUniqueString()
-        self.VOLUME_ID = None
+        volume_name = self.getUniqueString()
 
-        volume = self.user_cloud.block_storage.create_volume(
-            name=self.VOLUME_NAME,
-            size=1)
+        self.volume = self.user_cloud.block_storage.create_volume(
+            name=volume_name,
+            size=1,
+        )
         self.user_cloud.block_storage.wait_for_status(
-            volume,
+            self.volume,
             status='available',
             failures=['error'],
             interval=2,
-            wait=self._wait_for_timeout)
-        assert isinstance(volume, _volume.Volume)
-        self.assertEqual(self.VOLUME_NAME, volume.name)
-        self.VOLUME_ID = volume.id
+            wait=self._wait_for_timeout,
+        )
+        self.assertIsInstance(self.volume, _volume.Volume)
+        self.assertEqual(volume_name, self.volume.name)
 
     def tearDown(self):
-        sot = self.user_cloud.block_storage.delete_volume(
-            self.VOLUME_ID,
-            ignore_missing=False)
-        self.assertIsNone(sot)
-        super(TestVolume, self).tearDown()
+        self.user_cloud.block_storage.delete_volume(self.volume)
+        super().tearDown()
 
-    def test_get(self):
-        sot = self.user_cloud.block_storage.get_volume(self.VOLUME_ID)
-        self.assertEqual(self.VOLUME_NAME, sot.name)
+    def test_volume(self):
+        # get
+        volume = self.user_cloud.block_storage.get_volume(self.volume.id)
+        self.assertEqual(self.volume.name, volume.name)
+
+        # find
+        volume = self.user_cloud.block_storage.find_volume(self.volume.name)
+        self.assertEqual(self.volume.id, volume.id)
+
+        # list
+        volumes = self.user_cloud.block_storage.volumes()
+        # other tests may have created volumes so we don't assert that this is
+        # the *only* volume present
+        self.assertIn(self.volume.id, {v.id for v in volumes})
+
+        # update
+        volume_name = self.getUniqueString()
+        volume_description = self.getUniqueString()
+        volume = self.user_cloud.block_storage.update_volume(
+            self.volume,
+            name=volume_name,
+            description=volume_description,
+        )
+        self.assertIsInstance(volume, _volume.Volume)
+        volume = self.user_cloud.block_storage.get_volume(self.volume.id)
+        self.assertEqual(volume_name, volume.name)
+        self.assertEqual(volume_description, volume.description)

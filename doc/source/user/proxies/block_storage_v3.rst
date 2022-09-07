@@ -17,8 +17,8 @@ Volume Operations
 
 .. autoclass:: openstack.block_storage.v3._proxy.Proxy
   :noindex:
-  :members: create_volume, delete_volume, get_volume, find_volume,
-            volumes, get_volume_metadata, set_volume_metadata,
+  :members: create_volume, delete_volume, update_volume, get_volume,
+            find_volume, volumes, get_volume_metadata, set_volume_metadata,
             delete_volume_metadata, extend_volume, set_volume_readonly,
             retype_volume, set_volume_bootable_status, reset_volume_status,
             revert_volume_to_snapshot, attach_volume, detach_volume,

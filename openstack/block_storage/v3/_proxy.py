@@ -520,6 +520,18 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             volume = self._get_resource(_volume.Volume, volume)
             volume.force_delete(self)
 
+    def update_volume(self, volume, **attrs):
+        """Update a volume
+
+        :param volume: Either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume` instance.
+        :param dict attrs: The attributes to update on the volume.
+
+        :returns: The updated volume
+        :rtype: :class:`~openstack.block_storage.v3.volume.Volume`
+        """
+        return self._update(_volume.Volume, volume, **attrs)
+
     def get_volume_metadata(self, volume):
         """Return a dictionary of metadata for a volume
 

@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Added ``update_volume`` to the block storage proxy.
