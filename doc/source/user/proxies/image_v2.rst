@@ -58,4 +58,12 @@ Metadef Namespace Operations
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
   :noindex:
-  :members: metadef_namespaces
+  :members: create_metadef_namespace, delete_metadef_namespace,
+            get_metadef_namespace, metadef_namespaces, update_metadef_namespace
+
+Helpers
+^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+   :noindex:
+   :members: wait_for_delete

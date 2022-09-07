@@ -13,19 +13,27 @@
 from openstack.image.v2 import metadef_namespace
 from openstack.tests.unit import base
 
+
 EXAMPLE = {
     'display_name': 'Cinder Volume Type',
-    'created_at': '2014-08-28T17:13:06Z',
-    'is_protected': True,
+    'created_at': '2022-08-24T17:46:24Z',
+    'protected': True,
     'namespace': 'OS::Cinder::Volumetype',
+    'description': (
+        'The Cinder volume type configuration option. Volume type '
+        'assignment provides a mechanism not only to provide scheduling to a '
+        'specific storage back-end, but also can be used to specify specific '
+        'information for a back-end storage device to act upon.'
+    ),
+    'visibility': 'public',
     'owner': 'admin',
     'resource_type_associations': [
         {
-            'created_at': '2014-08-28T17:13:06Z',
             'name': 'OS::Glance::Image',
-            'updated_at': '2014-08-28T17:13:06Z'
-        }
-    ]
+            'prefix': 'cinder_',
+            'created_at': '2022-08-24T17:46:24Z',
+        },
+    ],
 }
 
 
@@ -36,18 +44,22 @@ class TestMetadefNamespace(base.TestCase):
         self.assertEqual('namespaces', sot.resources_key)
         self.assertEqual('/metadefs/namespaces', sot.base_path)
         self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_commit)
         self.assertTrue(sot.allow_list)
+        self.assertTrue(sot.allow_delete)
 
     def test_make_it(self):
         sot = metadef_namespace.MetadefNamespace(**EXAMPLE)
         self.assertEqual(EXAMPLE['namespace'], sot.namespace)
+        self.assertEqual(EXAMPLE['visibility'], sot.visibility)
         self.assertEqual(EXAMPLE['owner'], sot.owner)
         self.assertEqual(EXAMPLE['created_at'], sot.created_at)
-        self.assertEqual(EXAMPLE['is_protected'], sot.is_protected)
+        self.assertEqual(EXAMPLE['protected'], sot.is_protected)
         self.assertEqual(EXAMPLE['display_name'], sot.display_name)
-        self.assertListEqual(EXAMPLE['resource_type_associations'],
-                             sot.resource_type_associations)
-
+        self.assertEqual(
+            EXAMPLE['resource_type_associations'],
+            sot.resource_type_associations,
+        )
         self.assertDictEqual(
             {
                 'limit': 'limit',
@@ -56,4 +68,6 @@ class TestMetadefNamespace(base.TestCase):
                 'sort_dir': 'sort_dir',
                 'sort_key': 'sort_key',
                 'visibility': 'visibility'
-            }, sot._query_mapping._mapping)
+            },
+            sot._query_mapping._mapping,
+        )

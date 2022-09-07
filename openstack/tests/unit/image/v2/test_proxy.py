@@ -410,10 +410,46 @@ class TestMember(TestImageProxy):
 
 
 class TestMetadefNamespace(TestImageProxy):
+    def test_metadef_namespace_create(self):
+        self.verify_create(
+            self.proxy.create_metadef_namespace,
+            metadef_namespace.MetadefNamespace,
+        )
+
+    def test_metadef_namespace_delete(self):
+        self.verify_delete(
+            self.proxy.delete_metadef_namespace,
+            metadef_namespace.MetadefNamespace,
+            False,
+        )
+
+    def test_metadef_namespace_delete__ignore(self):
+        self.verify_delete(
+            self.proxy.delete_metadef_namespace,
+            metadef_namespace.MetadefNamespace,
+            True,
+        )
+
+    def test_metadef_namespace_get(self):
+        self.verify_get(
+            self.proxy.get_metadef_namespace,
+            metadef_namespace.MetadefNamespace,
+        )
+
     def test_metadef_namespaces(self):
         self.verify_list(
             self.proxy.metadef_namespaces,
             metadef_namespace.MetadefNamespace,
+        )
+
+    def test_metadef_namespace_update(self):
+        # we're (intentionally) adding an additional field, 'namespace', to the
+        # request body
+        self.verify_update(
+            self.proxy.update_metadef_namespace,
+            metadef_namespace.MetadefNamespace,
+            method_kwargs={'is_protected': True},
+            expected_kwargs={'namespace': 'resource_id', 'is_protected': True},
         )
 
 

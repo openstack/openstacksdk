@@ -13,13 +13,15 @@
 from openstack import resource
 
 
-# TODO(schwicke): create and delete still need to be implemented
 class MetadefNamespace(resource.Resource):
     resources_key = 'namespaces'
     base_path = '/metadefs/namespaces'
 
+    allow_create = True
     allow_fetch = True
+    allow_commit = True
     allow_list = True
+    allow_delete = True
 
     _query_mapping = resource.QueryParameters(
         "limit",
@@ -27,15 +29,45 @@ class MetadefNamespace(resource.Resource):
         "resource_types",
         "sort_dir",
         "sort_key",
-        "visibility"
+        "visibility",
     )
+
     created_at = resource.Body('created_at')
     description = resource.Body('description')
     display_name = resource.Body('display_name')
     is_protected = resource.Body('protected', type=bool)
-    namespace = resource.Body('namespace')
+    namespace = resource.Body('namespace', alternate_id=True)
     owner = resource.Body('owner')
-    resource_type_associations = resource.Body('resource_type_associations',
-                                               type=list,
-                                               list_type=dict)
+    resource_type_associations = resource.Body(
+        'resource_type_associations',
+        type=list,
+        list_type=dict,
+    )
+    updated_at = resource.Body('updated_at')
     visibility = resource.Body('visibility')
+
+    def _commit(
+        self,
+        session,
+        request,
+        method,
+        microversion,
+        has_body=True,
+        retry_on_conflict=None,
+    ):
+        # Rather annoyingly, Glance insists on us providing the 'namespace'
+        # argument, even if we're not changing it. We need to add this here
+        # since it won't be included if Resource.commit thinks its unchanged
+        # TODO(stephenfin): Eventually we could indicate attributes that are
+        # required in the body on update, like the 'requires_id' and
+        # 'create_requires_id' do for the ID in the URL
+        request.body['namespace'] = self.namespace
+
+        return super()._commit(
+            session,
+            request,
+            method,
+            microversion,
+            has_body=True,
+            retry_on_conflict=None,
+        )
