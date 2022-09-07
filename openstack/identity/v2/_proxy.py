@@ -109,8 +109,8 @@ class Proxy(proxy.Proxy):
 
         :param role: Either the ID of a role or a
             :class:`~openstack.identity.v2.role.Role` instance.
-        :attrs kwargs: The attributes to update on the role represented
-            by ``value``.
+        :param attrs: The attributes to update on the role represented
+            by ``role``.
 
         :returns: The updated role
         :rtype: :class:`~openstack.identity.v2.role.Role`
@@ -186,8 +186,8 @@ class Proxy(proxy.Proxy):
 
         :param tenant: Either the ID of a tenant or a
             :class:`~openstack.identity.v2.tenant.Tenant` instance.
-        :attrs kwargs: The attributes to update on the tenant represented
-            by ``value``.
+        :param attrs: The attributes to update on the tenant represented
+            by ``tenant``.
 
         :returns: The updated tenant
         :rtype: :class:`~openstack.identity.v2.tenant.Tenant`
@@ -263,8 +263,8 @@ class Proxy(proxy.Proxy):
 
         :param user: Either the ID of a user or a
             :class:`~openstack.identity.v2.user.User` instance.
-        :attrs kwargs: The attributes to update on the user represented
-            by ``value``.
+        :param attrs: The attributes to update on the user represented
+            by ``user``.
 
         :returns: The updated user
         :rtype: :class:`~openstack.identity.v2.user.User`

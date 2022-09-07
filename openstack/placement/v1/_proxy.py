@@ -59,7 +59,7 @@ class Proxy(proxy.Proxy):
             class or an
             :class:`~openstack.placement.v1.resource_class.ResourceClass`,
             instance.
-        :attrs kwargs: The attributes to update on the resource class
+        :param attrs: The attributes to update on the resource class
             represented by ``resource_class``.
 
         :returns: The updated resource class
@@ -138,7 +138,7 @@ class Proxy(proxy.Proxy):
             provider or an
             :class:`~openstack.placement.v1.resource_provider.ResourceProvider`,
             instance.
-        :attrs kwargs: The attributes to update on the resource provider
+        :param attrs: The attributes to update on the resource provider
             represented by ``resource_provider``.
 
         :returns: The updated resource provider

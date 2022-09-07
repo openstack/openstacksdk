@@ -507,8 +507,8 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :param image: Either the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
-        :attrs kwargs: The attributes to update on the image represented
-            by ``value``.
+        :param attrs: The attributes to update on the image represented
+            by ``image``.
 
         :returns: The updated image
         :rtype: :class:`~openstack.image.v2.image.Image`
@@ -657,8 +657,8 @@ class Proxy(_base_proxy.BaseImageProxy):
         :param image: This is the image that the member belongs to.
             The value can be the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
-        :attrs kwargs: The attributes to update on the member represented
-            by ``value``.
+        :param attrs: The attributes to update on the member represented
+            by ``member``.
 
         :returns: The updated member
         :rtype: :class:`~openstack.image.v2.member.Member`

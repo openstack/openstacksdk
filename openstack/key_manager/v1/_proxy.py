@@ -90,10 +90,9 @@ class Proxy(proxy.Proxy):
         """Update a container
 
         :param container: Either the id of a container or a
-            :class:`~openstack.key_manager.v1.container.Container`
-            instance.
-        :attrs kwargs: The attributes to update on the container represented
-            by ``value``.
+            :class:`~openstack.key_manager.v1.container.Container` instance.
+        :param attrs: The attributes to update on the container represented
+            by ``container``.
 
         :returns: The updated container
         :rtype: :class:`~openstack.key_manager.v1.container.Container`
@@ -170,10 +169,9 @@ class Proxy(proxy.Proxy):
         """Update a order
 
         :param order: Either the id of a order or a
-            :class:`~openstack.key_manager.v1.order.Order`
-            instance.
-        :attrs kwargs: The attributes to update on the order represented
-            by ``value``.
+            :class:`~openstack.key_manager.v1.order.Order` instance.
+        :param attrs: The attributes to update on the order represented
+            by ``order``.
 
         :returns: The updated order
         :rtype: :class:`~openstack.key_manager.v1.order.Order`
@@ -251,10 +249,9 @@ class Proxy(proxy.Proxy):
         """Update a secret
 
         :param secret: Either the id of a secret or a
-            :class:`~openstack.key_manager.v1.secret.Secret`
-            instance.
-        :attrs kwargs: The attributes to update on the secret represented
-            by ``value``.
+            :class:`~openstack.key_manager.v1.secret.Secret` instance.
+        :param attrs: The attributes to update on the secret represented
+            by ``secret``.
 
         :returns: The updated secret
         :rtype: :class:`~openstack.key_manager.v1.secret.Secret`
