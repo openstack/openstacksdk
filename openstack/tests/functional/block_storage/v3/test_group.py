@@ -20,9 +20,6 @@ class TestGroup(base.BaseBlockStorageTest):
     def setUp(self):
         super().setUp()
 
-        if not self.user_cloud.has_service('block-storage'):
-            self.skipTest('block-storage service not supported by cloud')
-
         # there will always be at least one volume type, i.e. the default one
         volume_types = list(self.conn.block_storage.types())
         self.volume_type = volume_types[0]
