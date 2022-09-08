@@ -257,11 +257,20 @@ class Node(_common.ListMixin, resource.Resource):
 
         The overridden version is capable of handling the populated
         ``provision_state`` field of one of three values: ``enroll``,
-        ``manageable`` or ``available``. The default is currently
-        ``available``, since it's the only state supported by all API versions.
+        ``manageable`` or ``available``. If not provided, the server default
+        is used (``enroll`` in newer versions of Ironic).
+
+        This call does not cause a node to go through automated cleaning.
+        If you need it, use ``provision_state=manageable`` followed by
+        a call to :meth:`set_provision_state`.
 
         Note that Bare Metal API 1.4 is required for ``manageable`` and
         1.11 is required for ``enroll``.
+
+        .. warning::
+            Using ``provision_state=available`` is only possible with API
+            versions 1.1 to 1.10 and thus is incompatible with setting any
+            fields that appeared after 1.11.
 
         :param session: The session to use for making this request.
         :type session: :class:`~keystoneauth1.adapter.Adapter`
@@ -274,44 +283,41 @@ class Node(_common.ListMixin, resource.Resource):
             supported by the server.
         """
         expected_provision_state = self.provision_state
-        if expected_provision_state is None:
-            expected_provision_state = 'available'
-
-        if expected_provision_state not in ('enroll',
-                                            'manageable',
-                                            'available'):
-            raise ValueError(
-                "Node's provision_state must be one of 'enroll', "
-                "'manageable' or 'available' for creation, got %s" %
-                expected_provision_state)
 
         session = self._get_session(session)
-        # Verify that the requested provision state is reachable with the API
-        # version we are going to use.
-        try:
-            expected_version = _common.STATE_VERSIONS[expected_provision_state]
-        except KeyError:
-            pass
+        if expected_provision_state is not None:
+            # Verify that the requested provision state is reachable with
+            # the API version we are going to use.
+            try:
+                microversion = _common.STATE_VERSIONS[
+                    expected_provision_state]
+            except KeyError:
+                raise ValueError(
+                    "Node's provision_state must be one of %s for creation, "
+                    "got %s" % (', '.join(_common.STATE_VERSIONS),
+                                expected_provision_state))
+            else:
+                error_message = ("Cannot create a node with initial provision "
+                                 "state %s" % expected_provision_state)
+                # Nodes cannot be created as available using new API versions
+                maximum = ('1.10' if expected_provision_state == 'available'
+                           else None)
+                microversion = self._assert_microversion_for(
+                    session, 'create', microversion, maximum=maximum,
+                    error_message=error_message,
+                )
         else:
-            self._assert_microversion_for(
-                session, 'create', expected_version,
-                error_message="Cannot create a node with initial provision "
-                "state %s" % expected_provision_state)
+            microversion = None  # use the base negotiation
 
         # Ironic cannot set provision_state itself, so marking it as unchanged
         self._clean_body_attrs({'provision_state'})
-        super(Node, self).create(session, *args, **kwargs)
 
-        if (self.provision_state == 'enroll'
-                and expected_provision_state != 'enroll'):
-            self.set_provision_state(session, 'manage', wait=True)
+        super(Node, self).create(session, *args, microversion=microversion,
+                                 **kwargs)
 
-        if (self.provision_state == 'manageable'
-                and expected_provision_state == 'available'):
-            self.set_provision_state(session, 'provide', wait=True)
-
-        if (self.provision_state == 'available'
-                and expected_provision_state == 'manageable'):
+        if (expected_provision_state == 'manageable'
+                and self.provision_state != 'manageable'):
+            # Manageable is not reachable directly
             self.set_provision_state(session, 'manage', wait=True)
 
         return self

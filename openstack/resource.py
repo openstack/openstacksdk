@@ -1358,6 +1358,7 @@ class Resource(dict):
         action,
         expected,
         error_message=None,
+        maximum=None,
     ):
         """Enforce that the microversion for action satisfies the requirement.
 
@@ -1366,6 +1367,7 @@ class Resource(dict):
         :param expected: Expected microversion.
         :param error_message: Optional error message with details. Will be
             prepended to the message generated here.
+        :param maximum: Maximum microversion.
         :return: resulting microversion as string.
         :raises: :exc:`~openstack.exceptions.NotSupported` if the version
             used for the action is lower than the expected one.
@@ -1380,23 +1382,29 @@ class Resource(dict):
 
         actual = self._get_microversion(session, action=action)
 
-        if expected is None:
-            return actual
-        elif actual is None:
+        if actual is None:
             message = (
                 "API version %s is required, but the default "
                 "version will be used."
             ) % expected
             _raise(message)
-
         actual_n = discover.normalize_version_number(actual)
-        expected_n = discover.normalize_version_number(expected)
-        if actual_n < expected_n:
-            message = (
-                "API version %(expected)s is required, but %(actual)s "
-                "will be used."
-            ) % {'expected': expected, 'actual': actual}
-            _raise(message)
+
+        if expected is not None:
+            expected_n = discover.normalize_version_number(expected)
+            if actual_n < expected_n:
+                message = (
+                    "API version %(expected)s is required, but %(actual)s "
+                    "will be used."
+                ) % {'expected': expected, 'actual': actual}
+                _raise(message)
+        if maximum is not None:
+            maximum_n = discover.normalize_version_number(maximum)
+            # Assume that if a service supports higher versions, it also
+            # supports lower ones. Breaks for services that remove old API
+            # versions (which is not something they should do).
+            if actual_n > maximum_n:
+                return maximum
 
         return actual
 

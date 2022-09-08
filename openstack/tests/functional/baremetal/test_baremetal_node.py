@@ -22,7 +22,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         node = self.create_node(name='node-name')
         self.assertEqual(node.name, 'node-name')
         self.assertEqual(node.driver, 'fake-hardware')
-        self.assertEqual(node.provision_state, 'available')
+        self.assertEqual(node.provision_state, 'enroll')
         self.assertFalse(node.is_maintenance)
 
         # NOTE(dtantsur): get_node and find_node only differ in handing missing
@@ -45,6 +45,16 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
         nodes = self.conn.baremetal.nodes()
         self.assertIn(node.id, [n.id for n in nodes])
+
+        self.conn.baremetal.delete_node(node, ignore_missing=False)
+        self.assertRaises(exceptions.ResourceNotFound,
+                          self.conn.baremetal.get_node, self.node_id)
+
+    def test_node_create_in_available(self):
+        node = self.create_node(name='node-name', provision_state='available')
+        self.assertEqual(node.name, 'node-name')
+        self.assertEqual(node.driver, 'fake-hardware')
+        self.assertEqual(node.provision_state, 'available')
 
         self.conn.baremetal.delete_node(node, ignore_missing=False)
         self.assertRaises(exceptions.ResourceNotFound,
@@ -128,7 +138,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.create_node(name='node-name', extra={'foo': 'bar'})
         node = next(n for n in
                     self.conn.baremetal.nodes(details=True,
-                                              provision_state='available',
+                                              provision_state='enroll',
                                               is_maintenance=False,
                                               associated=False)
                     if n.name == 'node-name')
@@ -139,7 +149,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
         self.conn.baremetal.delete_node(node, ignore_missing=False)
 
     def test_node_create_in_enroll_provide(self):
-        node = self.create_node(provision_state='enroll')
+        node = self.create_node()
         self.node_id = node.id
 
         self.assertEqual(node.driver, 'fake-hardware')
@@ -157,7 +167,7 @@ class TestBareMetalNode(base.BaseBaremetalTest):
 
     def test_node_create_in_enroll_provide_by_name(self):
         name = 'node-%d' % random.randint(0, 1000)
-        node = self.create_node(provision_state='enroll', name=name)
+        node = self.create_node(name=name)
         self.node_id = node.id
 
         self.assertEqual(node.driver, 'fake-hardware')
@@ -297,16 +307,6 @@ class TestNodeRetired(base.BaseBaremetalTest):
 
         node = self.create_node()
 
-        # Set retired when node state available should fail!
-        self.assertRaises(
-            exceptions.ConflictException,
-            self.conn.baremetal.update_node, node, is_retired=True)
-
-        # Set node state to manageable
-        self.conn.baremetal.set_node_provision_state(node, 'manage',
-                                                     wait=True)
-        self.assertEqual(node.provision_state, 'manageable')
-
         # Set retired without reason
         node = self.conn.baremetal.update_node(node, is_retired=True)
         self.assertTrue(node.is_retired)
@@ -347,6 +347,14 @@ class TestNodeRetired(base.BaseBaremetalTest):
         node = self.conn.baremetal.get_node(node.id)
         self.assertTrue(node.is_retired)
         self.assertEqual(reason, node.retired_reason)
+
+    def test_retired_in_available(self):
+        node = self.create_node(provision_state='available')
+
+        # Set retired when node state available should fail!
+        self.assertRaises(
+            exceptions.ConflictException,
+            self.conn.baremetal.update_node, node, is_retired=True)
 
 
 class TestBareMetalNodeFields(base.BaseBaremetalTest):

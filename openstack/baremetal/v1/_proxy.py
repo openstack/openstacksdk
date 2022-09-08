@@ -276,6 +276,9 @@ class Proxy(proxy.Proxy):
     def create_node(self, **attrs):
         """Create a new node from attributes.
 
+        See :meth:`~openstack.baremetal.v1.node.Node.create` for an explanation
+        of the initial provision state.
+
         :param dict attrs: Keyword arguments that will be used to create a
             :class:`~openstack.baremetal.v1.node.Node`.
 
