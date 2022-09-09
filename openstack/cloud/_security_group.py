@@ -57,8 +57,7 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
             # pass filters dict to the list to filter as much as possible on
             # the server side
             return list(
-                self.network.security_groups(allow_unknown_params=True,
-                                             **filters))
+                self.network.security_groups(**filters))
 
         # Handle nova security groups
         else:

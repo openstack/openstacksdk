@@ -2333,30 +2333,6 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(self.session.get.call_args_list[0][0][0],
                          Test.base_path % {"something": uri_param})
 
-    def test_invalid_list_params(self):
-        id = 1
-        qp = "query param!"
-        qp_name = "query-param"
-        uri_param = "uri param!"
-
-        mock_response = mock.Mock()
-        mock_response.json.side_effect = [[{"id": id}],
-                                          []]
-
-        self.session.get.return_value = mock_response
-
-        class Test(self.test_class):
-            _query_mapping = resource.QueryParameters(query_param=qp_name)
-            base_path = "/%(something)s/blah"
-            something = resource.URI("something")
-
-        try:
-            list(Test.list(self.session, paginated=True, query_param=qp,
-                           something=uri_param, something_wrong=True))
-            self.assertFail('The above line should fail')
-        except exceptions.InvalidResourceQuery as err:
-            self.assertEqual(str(err), 'Invalid query params: something_wrong')
-
     def test_allow_invalid_list_params(self):
         qp = "query param!"
         qp_name = "query-param"
@@ -2383,6 +2359,40 @@ class TestResourceActions(base.TestCase):
             microversion=None,
             params={qp_name: qp}
         )
+
+    def test_list_client_filters(self):
+        qp = "query param!"
+        uri_param = "uri param!"
+
+        mock_empty = mock.Mock()
+        mock_empty.status_code = 200
+        mock_empty.links = {}
+        mock_empty.json.return_value = {"resources": [
+            {"a": "1", "b": "1"},
+            {"a": "1", "b": "2"},
+        ]}
+
+        self.session.get.side_effect = [mock_empty]
+
+        class Test(self.test_class):
+            _query_mapping = resource.QueryParameters('a')
+            base_path = "/%(something)s/blah"
+            something = resource.URI("something")
+            a = resource.Body("a")
+            b = resource.Body("b")
+
+        res = list(Test.list(
+            self.session, paginated=True, query_param=qp,
+            allow_unknown_params=True, something=uri_param,
+            a='1', b='2'))
+        self.session.get.assert_called_once_with(
+            "/{something}/blah".format(something=uri_param),
+            headers={'Accept': 'application/json'},
+            microversion=None,
+            params={'a': '1'}
+        )
+        self.assertEqual(1, len(res))
+        self.assertEqual("2", res[0].b)
 
     def test_values_as_list_params(self):
         id = 1

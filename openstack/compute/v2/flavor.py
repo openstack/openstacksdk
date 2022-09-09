@@ -86,8 +86,13 @@ class Flavor(resource.Resource):
             return super().__getattribute__(name)
 
     @classmethod
-    def list(cls, session, paginated=True, base_path='/flavors/detail',
-             allow_unknown_params=False, **params):
+    def list(
+        cls,
+        session,
+        paginated=True,
+        base_path='/flavors/detail',
+        **params
+    ):
         # Find will invoke list when name was passed. Since we want to return
         # flavor with details (same as direct get) we need to swap default here
         # and list with "/flavors" if no details explicitely requested
@@ -98,7 +103,6 @@ class Flavor(resource.Resource):
         return super(Flavor, cls).list(
             session, paginated=paginated,
             base_path=base_path,
-            allow_unknown_params=allow_unknown_params,
             **params)
 
     def _action(self, session, body, microversion=None):

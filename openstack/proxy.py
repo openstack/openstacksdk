@@ -21,6 +21,7 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 import iso8601
+import jmespath
 from keystoneauth1 import adapter
 
 from openstack import _log
@@ -637,7 +638,14 @@ class Proxy(adapter.Adapter):
             ),
         )
 
-    def _list(self, resource_type, paginated=True, base_path=None, **attrs):
+    def _list(
+        self,
+        resource_type,
+        paginated=True,
+        base_path=None,
+        jmespath_filters=None,
+        **attrs
+    ):
         """List a resource
 
         :param resource_type: The type of resource to list. This should
@@ -650,6 +658,9 @@ class Proxy(adapter.Adapter):
         :param str base_path: Base part of the URI for listing resources, if
             different from
             :data:`~openstack.resource.Resource.base_path`.
+        :param str jmespath_filters: A string containing a jmespath expression
+            for further filtering.
+
         :param dict attrs: Attributes to be passed onto the
             :meth:`~openstack.resource.Resource.list` method. These should
             correspond to either :class:`~openstack.resource.URI` values
@@ -660,9 +671,16 @@ class Proxy(adapter.Adapter):
             :class:`~openstack.resource.Resource` that doesn't match
             the ``resource_type``.
         """
-        return resource_type.list(
-            self, paginated=paginated, base_path=base_path, **attrs
+
+        data = resource_type.list(
+            self, paginated=paginated, base_path=base_path,
+            **attrs
         )
+
+        if jmespath_filters and isinstance(jmespath_filters, str):
+            return jmespath.search(jmespath_filters, data)
+
+        return data
 
     def _head(self, resource_type, value=None, base_path=None, **attrs):
         """Retrieve a resource's header
