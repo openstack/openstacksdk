@@ -2099,34 +2099,40 @@ class Resource(dict):
     def _get_next_link(cls, uri, response, data, marker, limit, total_yielded):
         next_link = None
         params = {}
+
         if isinstance(data, dict):
             pagination_key = cls.pagination_key
 
             if not pagination_key and 'links' in data:
                 # api-wg guidelines are for a links dict in the main body
                 pagination_key = 'links'
+
             if not pagination_key and cls.resources_key:
                 # Nova has a {key}_links dict in the main body
                 pagination_key = '{key}_links'.format(key=cls.resources_key)
+
             if pagination_key:
                 links = data.get(pagination_key, {})
                 # keystone might return a dict
                 if isinstance(links, dict):
                     links = ({k: v} for k, v in links.items())
+
                 for item in links:
                     if item.get('rel') == 'next' and 'href' in item:
                         next_link = item['href']
                         break
+
             # Glance has a next field in the main body
             next_link = next_link or data.get('next')
             if next_link and next_link.startswith('/v'):
-                next_link = next_link[next_link.find('/', 1) + 1 :]
+                next_link = next_link[next_link.find('/', 1):]
 
         if not next_link and 'next' in response.links:
             # RFC5988 specifies Link headers and requests parses them if they
             # are there. We prefer link dicts in resource body, but if those
             # aren't there and Link headers are, use them.
             next_link = response.links['next']['uri']
+
         # Swift provides a count of resources in a header and a list body
         if not next_link and cls.pagination_key:
             total_count = response.headers.get(cls.pagination_key)
@@ -2154,6 +2160,7 @@ class Resource(dict):
             next_link = uri
             params['marker'] = marker
             params['limit'] = limit
+
         return next_link, params
 
     @classmethod

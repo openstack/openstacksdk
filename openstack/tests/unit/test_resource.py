@@ -2205,6 +2205,65 @@ class TestResourceActions(base.TestCase):
         self.assertEqual(3, len(self.session.get.call_args_list))
         self.assertIsInstance(results[0], self.test_class)
 
+    def test_list_response_paginated_with_next_field(self):
+        """Test pagination with a 'next' field in the response.
+
+        Glance doesn't return a 'links' field in the response. Instead, it
+        returns a 'first' field and, if there are more pages, a 'next' field in
+        the response body. Ensure we correctly parse these.
+        """
+        class Test(resource.Resource):
+            service = self.service_name
+            base_path = '/foos/bars'
+            resources_key = 'bars'
+            allow_list = True
+            _query_mapping = resource.QueryParameters("wow")
+
+        ids = [1, 2]
+        mock_response = mock.Mock()
+        mock_response.status_code = 200
+        mock_response.links = {}
+        mock_response.json.side_effect = [
+            {
+                "bars": [{"id": ids[0]}],
+                "first": "/v2/foos/bars?wow=cool",
+                "next": "/v2/foos/bars?marker=baz&wow=cool",
+            },
+            {
+                "bars": [{"id": ids[1]}],
+                "first": "/v2/foos/bars?wow=cool",
+            },
+        ]
+
+        self.session.get.return_value = mock_response
+
+        results = list(Test.list(self.session, paginated=True, wow="cool"))
+
+        self.assertEqual(2, len(results))
+        self.assertEqual(ids[0], results[0].id)
+        self.assertEqual(ids[1], results[1].id)
+        self.assertEqual(
+            mock.call(
+                Test.base_path,
+                headers={'Accept': 'application/json'},
+                params={'wow': 'cool'},
+                microversion=None,
+            ),
+            self.session.get.mock_calls[0]
+        )
+        self.assertEqual(
+            mock.call(
+                '/foos/bars',
+                headers={'Accept': 'application/json'},
+                params={'wow': ['cool'], 'marker': ['baz']},
+                microversion=None,
+            ),
+            self.session.get.mock_calls[2],
+        )
+
+        self.assertEqual(2, len(self.session.get.call_args_list))
+        self.assertIsInstance(results[0], Test)
+
     def test_list_response_paginated_with_microversions(self):
         class Test(resource.Resource):
             service = self.service_name
