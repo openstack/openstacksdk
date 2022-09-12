@@ -20,6 +20,7 @@ from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
 from openstack.image.v2 import metadef_namespace
+from openstack.image.v2 import metadef_schema
 from openstack.image.v2 import schema
 from openstack.image.v2 import service_info as si
 from openstack.image.v2 import task
@@ -598,3 +599,95 @@ class TestMisc(TestImageProxy):
             method_kwargs={},
             expected_args=[si.Import],
             expected_kwargs={'require_id': False})
+
+
+class TestMetadefSchema(TestImageProxy):
+    def test_metadef_namespace_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_namespace_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/namespace',
+                'requires_id': False})
+
+    def test_metadef_namespaces_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_namespaces_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/namespaces',
+                'requires_id': False})
+
+    def test_metadef_resource_type_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_resource_type_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/resource_type',
+                'requires_id': False})
+
+    def test_metadef_resource_types_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_resource_types_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/resource_types',
+                'requires_id': False})
+
+    def test_metadef_object_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_object_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/object',
+                'requires_id': False})
+
+    def test_metadef_objects_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_objects_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/objects',
+                'requires_id': False})
+
+    def test_metadef_property_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_property_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/property',
+                'requires_id': False})
+
+    def test_metadef_properties_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_properties_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/properties',
+                'requires_id': False})
+
+    def test_metadef_tag_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_tag_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/tag',
+                'requires_id': False})
+
+    def test_metadef_tags_schema_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_metadef_tags_schema,
+            expected_args=[metadef_schema.MetadefSchema],
+            expected_kwargs={
+                'base_path': '/schemas/metadefs/tags',
+                'requires_id': False})

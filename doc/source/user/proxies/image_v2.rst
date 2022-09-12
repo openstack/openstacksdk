@@ -43,7 +43,12 @@ Schema Operations
 .. autoclass:: openstack.image.v2._proxy.Proxy
   :noindex:
   :members: get_images_schema, get_image_schema, get_members_schema,
-            get_member_schema, get_tasks_schema, get_task_schema
+            get_member_schema, get_tasks_schema, get_task_schema,
+            get_metadef_namespace_schema, get_metadef_namespaces_schema,
+            get_metadef_resource_type_schema, get_metadef_resource_types_schema,
+            get_metadef_object_schema, get_metadef_objects_schema,
+            get_metadef_property_schema, get_metadef_properties_schema,
+            get_metadef_tag_schema, get_metadef_tags_schema
 
 Service Info Discovery Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -54,7 +59,7 @@ Service Info Discovery Operations
 
 
 Metadef Namespace Operations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
   :noindex:

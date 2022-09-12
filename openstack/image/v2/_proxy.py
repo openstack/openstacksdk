@@ -18,6 +18,7 @@ from openstack.image import _base_proxy
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import metadef_namespace as _metadef_namespace
+from openstack.image.v2 import metadef_schema as _metadef_schema
 from openstack.image.v2 import schema as _schema
 from openstack.image.v2 import service_info as _si
 from openstack.image.v2 import task as _task
@@ -816,6 +817,106 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         return self._get(_schema.Schema, requires_id=False,
                          base_path='/schemas/task')
+
+    def get_metadef_namespace_schema(self):
+        """Get metadata definition namespace schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/namespace')
+
+    def get_metadef_namespaces_schema(self):
+        """Get metadata definition namespaces schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/namespaces')
+
+    def get_metadef_resource_type_schema(self):
+        """Get metadata definition resource type association schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/resource_type')
+
+    def get_metadef_resource_types_schema(self):
+        """Get metadata definition resource type associations schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/resource_types')
+
+    def get_metadef_object_schema(self):
+        """Get metadata definition object schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/object')
+
+    def get_metadef_objects_schema(self):
+        """Get metadata definition objects schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/objects')
+
+    def get_metadef_property_schema(self):
+        """Get metadata definition property schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/property')
+
+    def get_metadef_properties_schema(self):
+        """Get metadata definition properties schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/properties')
+
+    def get_metadef_tag_schema(self):
+        """Get metadata definition tag schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/tag')
+
+    def get_metadef_tags_schema(self):
+        """Get metadata definition tags schema
+
+        :returns: One :class:`~openstack.image.v2.metadef_schema.MetadefSchema`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
+                         base_path='/schemas/metadefs/tags')
 
     # ====== TASKS ======
     def tasks(self, **query):
