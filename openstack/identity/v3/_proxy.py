@@ -44,6 +44,7 @@ from openstack.identity.v3 import system as _system
 from openstack.identity.v3 import trust as _trust
 from openstack.identity.v3 import user as _user
 from openstack import proxy
+from openstack import utils
 
 
 class Proxy(proxy.Proxy):
@@ -404,6 +405,21 @@ class Proxy(proxy.Proxy):
         user = self._get_resource(_user.User, user)
         group = self._get_resource(_group.Group, group)
         return group.check_user(self, user)
+
+    def group_users(self, group, **attrs):
+        """List users in a group
+
+        :param group: Either the ID of a group or a
+            :class:`~openstack.identity.v3.group.Group` instance.
+        :param attrs: Only password_expires_at can be filter for result.
+
+        :return: List of :class:`~openstack.identity.v3.user.User`
+        """
+        group = self._get_resource(_group.Group, group)
+        base_path = utils.urljoin(
+            group.base_path, group.id, 'users')
+        users = self._list(_user.User, base_path=base_path, **attrs)
+        return users
 
     def create_policy(self, **attrs):
         """Create a new policy from attributes
