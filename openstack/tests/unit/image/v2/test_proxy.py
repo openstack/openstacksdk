@@ -409,6 +409,14 @@ class TestMember(TestImageProxy):
                          expected_kwargs={'image_id': 'image_1'})
 
 
+class TestMetadefNamespace(TestImageProxy):
+    def test_metadef_namespaces(self):
+        self.verify_list(
+            self.proxy.metadef_namespaces,
+            metadef_namespace.MetadefNamespace,
+        )
+
+
 class TestSchema(TestImageProxy):
     def test_images_schema_get(self):
         self._verify(
@@ -554,9 +562,3 @@ class TestMisc(TestImageProxy):
             method_kwargs={},
             expected_args=[si.Import],
             expected_kwargs={'require_id': False})
-
-
-class TestMetadefNamespace(TestImageProxy):
-    def test_metadef_namespaces(self):
-        self.verify_list(self.proxy.metadef_namespaces,
-                         metadef_namespace.MetadefNamespace)

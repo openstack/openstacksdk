@@ -33,6 +33,7 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
     _SHADE_IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
     _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
 
+    # ====== IMAGES ======
     def create_image(
         self, name, filename=None,
         container=None,
