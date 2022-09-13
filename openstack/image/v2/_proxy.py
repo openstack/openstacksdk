@@ -17,6 +17,7 @@ from openstack import exceptions
 from openstack.image import _base_proxy
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
+from openstack.image.v2 import metadef_namespace as _metadef_namespace
 from openstack.image.v2 import schema as _schema
 from openstack.image.v2 import service_info as _si
 from openstack.image.v2 import task as _task
@@ -841,3 +842,12 @@ class Proxy(_base_proxy.BaseImageProxy):
             when no resource can be found.
         """
         return self._get(_si.Import, require_id=False)
+
+    def metadef_namespaces(self, **query):
+        """Get a info about image metadef namespaces
+
+        :returns: A generator object of metadef namespaces
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._list(_metadef_namespace.MetadefNamespace, **query)

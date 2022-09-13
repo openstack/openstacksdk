@@ -19,6 +19,7 @@ from openstack import exceptions
 from openstack.image.v2 import _proxy
 from openstack.image.v2 import image
 from openstack.image.v2 import member
+from openstack.image.v2 import metadef_namespace
 from openstack.image.v2 import schema
 from openstack.image.v2 import service_info as si
 from openstack.image.v2 import task
@@ -553,3 +554,9 @@ class TestMisc(TestImageProxy):
             method_kwargs={},
             expected_args=[si.Import],
             expected_kwargs={'require_id': False})
+
+
+class TestMetadefNamespace(TestImageProxy):
+    def test_metadef_namespaces(self):
+        self.verify_list(self.proxy.metadef_namespaces,
+                         metadef_namespace.MetadefNamespace)

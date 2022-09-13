@@ -14,5 +14,6 @@ Image v2 Resources
 
    v2/image
    v2/member
+   v2/metadef_namespace
    v2/task
    v2/service_info
