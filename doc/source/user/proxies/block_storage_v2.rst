@@ -53,3 +53,10 @@ QuotaSet Operations
   :noindex:
   :members: get_quota_set, get_quota_set_defaults,
             revert_quota_set, update_quota_set
+
+Helpers
+^^^^^^^
+
+.. autoclass:: openstack.block_storage.v2._proxy.Proxy
+   :noindex:
+   :members: wait_for_status, wait_for_delete
