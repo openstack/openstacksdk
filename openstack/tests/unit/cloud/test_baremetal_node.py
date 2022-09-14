@@ -1063,7 +1063,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def test_register_machine(self):
         mac_address = '00:01:02:03:04:05'
-        nics = [{'mac': mac_address}]
+        nics = [{'address': mac_address}]
         node_uuid = self.fake_baremetal_node['uuid']
         # TODO(TheJulia): There is a lot of duplication
         # in testing creation. Surely this hsould be a helper
@@ -1104,7 +1104,7 @@ class TestBaremetalNode(base.IronicTestCase):
     # accounted for newer microversions.
     def test_register_machine_enroll(self):
         mac_address = '00:01:02:03:04:05'
-        nics = [{'mac': mac_address}]
+        nics = [{'address': mac_address, 'pxe_enabled': False}]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,
@@ -1143,7 +1143,8 @@ class TestBaremetalNode(base.IronicTestCase):
                 uri=self.get_mock_url(
                     resource='ports'),
                 validate=dict(json={'address': mac_address,
-                                    'node_uuid': node_uuid}),
+                                    'node_uuid': node_uuid,
+                                    'pxe_enabled': False}),
                 json=self.fake_baremetal_port),
             dict(
                 method='PUT',
@@ -1166,7 +1167,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def test_register_machine_enroll_wait(self):
         mac_address = self.fake_baremetal_port
-        nics = [{'mac': mac_address}]
+        nics = [{'address': mac_address}]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,
@@ -1241,7 +1242,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def test_register_machine_enroll_failure(self):
         mac_address = '00:01:02:03:04:05'
-        nics = [{'mac': mac_address}]
+        nics = [{'address': mac_address}]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,
@@ -1291,7 +1292,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def test_register_machine_enroll_timeout(self):
         mac_address = '00:01:02:03:04:05'
-        nics = [{'mac': mac_address}]
+        nics = [{'address': mac_address}]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,
@@ -1345,7 +1346,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def test_register_machine_enroll_timeout_wait(self):
         mac_address = '00:01:02:03:04:05'
-        nics = [{'mac': mac_address}]
+        nics = [{'address': mac_address}]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,
@@ -1414,7 +1415,7 @@ class TestBaremetalNode(base.IronicTestCase):
 
     def test_register_machine_port_create_failed(self):
         mac_address = '00:01:02:03:04:05'
-        nics = [{'mac': mac_address}]
+        nics = [{'address': mac_address}]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,
@@ -1455,7 +1456,8 @@ class TestBaremetalNode(base.IronicTestCase):
     def test_register_machine_several_ports_create_failed(self):
         mac_address = '00:01:02:03:04:05'
         mac_address2 = mac_address[::-1]
-        nics = [{'mac': mac_address}, {'mac': mac_address2}]
+        # Verify a couple of ways to provide MACs
+        nics = [mac_address, {'mac': mac_address2}]
         node_uuid = self.fake_baremetal_node['uuid']
         node_to_post = {
             'chassis_uuid': None,

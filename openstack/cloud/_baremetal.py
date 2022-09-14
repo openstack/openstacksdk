@@ -24,6 +24,25 @@ import jsonpatch
 from openstack.cloud import exc
 
 
+def _normalize_port_list(nics):
+    ports = []
+    for row in nics:
+        if isinstance(row, str):
+            address = row
+            row = {}
+        elif 'mac' in row:
+            address = row.pop('mac')
+        else:
+            try:
+                address = row.pop('address')
+            except KeyError:
+                raise TypeError(
+                    "Either 'address' or 'mac' must be provided "
+                    "for port %s" % row)
+        ports.append(dict(row, address=address))
+    return ports
+
+
 class BaremetalCloudMixin:
 
     def list_nics(self):
@@ -182,9 +201,11 @@ class BaremetalCloudMixin:
             Example::
 
                 [
-                    {'mac': 'aa:bb:cc:dd:ee:01'},
-                    {'mac': 'aa:bb:cc:dd:ee:02'}
+                    {'address': 'aa:bb:cc:dd:ee:01'},
+                    {'address': 'aa:bb:cc:dd:ee:02'}
                 ]
+
+            Alternatively, you can provide an array of MAC addresses.
 
         :param wait: Boolean value, defaulting to false, to wait for the node
             to reach the available state where the node can be provisioned. It
@@ -233,11 +254,9 @@ class BaremetalCloudMixin:
             # Create NICs before trying to run cleaning
             created_nics = []
             try:
-                for row in nics:
-                    address = row.pop('mac')
+                for port in _normalize_port_list(nics):
                     nic = self.baremetal.create_port(node_id=machine.id,
-                                                     address=address,
-                                                     **row)
+                                                     **port)
                     created_nics.append(nic.id)
 
             except Exception:
@@ -295,9 +314,9 @@ class BaremetalCloudMixin:
                 "Error unregistering node '%s': Exception occured while"
                 " waiting to be able to proceed: %s" % (machine['uuid'], e))
 
-        for nic in nics:
+        for nic in _normalize_port_list(nics):
             try:
-                port = next(self.baremetal.ports(address=nic['mac']))
+                port = next(self.baremetal.ports(address=nic['address']))
             except StopIteration:
                 continue
             self.baremetal.delete_port(port.id)
