@@ -172,3 +172,10 @@ Migration Operations
 .. autoclass:: openstack.compute.v2._proxy.Proxy
   :noindex:
   :members: migrations
+
+Helpers
+^^^^^^^
+
+.. autoclass:: openstack.compute.v2._proxy.Proxy
+   :noindex:
+   :members: wait_for_delete
