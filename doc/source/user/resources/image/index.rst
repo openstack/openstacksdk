@@ -20,6 +20,7 @@ Image v2 Resources
    v2/metadef_namespace
    v2/metadef_object
    v2/metadef_resource_type
+   v2/metadef_property
    v2/metadef_schema
    v2/task
    v2/service_info

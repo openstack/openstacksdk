@@ -84,6 +84,16 @@ Metadef Resource Type Operations
             create_metadef_resource_type_association,
             delete_metadef_resource_type_association
 
+
+Metadef Property Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+  :noindex:
+  :members: create_metadef_property, update_metadef_property,
+            delete_metadef_property, get_metadef_property
+
+
 Helpers
 ^^^^^^^
 
