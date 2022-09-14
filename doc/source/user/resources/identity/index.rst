@@ -1,6 +1,8 @@
-Identity v2 Resources
-=====================
+Identity Resources
+==================
 
+Identity v2 Resources
+---------------------
 .. toctree::
    :maxdepth: 1
 
@@ -10,7 +12,7 @@ Identity v2 Resources
    v2/user
 
 Identity v3 Resources
-=====================
+---------------------
 
 .. toctree::
    :maxdepth: 1
