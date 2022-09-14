@@ -1,5 +1,5 @@
-Object Store Resources
-======================
+Workflow Resources
+==================
 
 .. toctree::
    :maxdepth: 1
