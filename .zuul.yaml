@@ -425,6 +425,12 @@
       - openstack/openstacksdk
 
 - job:
+    name: bifrost-integration-openstacksdk-src
+    parent: bifrost-integration-tinyipa-ubuntu-focal
+    required-projects:
+      - openstack/openstacksdk
+
+- job:
     name: ironic-inspector-tempest-openstacksdk-src
     parent: ironic-inspector-tempest
     required-projects:
@@ -474,7 +480,7 @@
         # Ironic jobs, non-voting to avoid tight coupling
         - ironic-inspector-tempest-openstacksdk-src:
             voting: false
-        - bifrost-integration-tinyipa-ubuntu-focal:
+        - bifrost-integration-openstacksdk-src:
             voting: false
         - metalsmith-integration-openstacksdk-src:
             voting: false
