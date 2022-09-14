@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The default behavior of the ``register_machine`` call has been modified to
+    run cleaning by default, if enabled in Ironic. You can pass
+    ``provision_state="enroll"/"manageable"`` to avoid it.
