@@ -1224,6 +1224,14 @@ class TestCompute(TestComputeProxy):
             expected_args=[self.proxy],
         )
 
+    def test_server_shelve_offload(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.shelve_offload",
+            self.proxy.shelve_offload_server,
+            method_args=["value"],
+            expected_args=[self.proxy],
+        )
+
     def test_server_unshelve(self):
         self._verify(
             "openstack.compute.v2.server.Server.unshelve",

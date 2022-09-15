@@ -1135,6 +1135,25 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.shelve(self)
 
+    def shelve_offload_server(self, server):
+        """Shelve-offloads, or removes, a server
+
+        Data and resource associations are deleted.
+
+        Policy defaults enable only users with administrative role or the owner
+        of the server to perform this operation. Cloud provides could change
+        this permission though.
+
+        Note that in some clouds, shelved servers are automatically offloaded,
+        sometimes after a certain time period.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.shelve_offload(self)
+
     def unshelve_server(self, server):
         """Unshelves or restores a shelved server.
 

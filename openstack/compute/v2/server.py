@@ -537,6 +537,10 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"shelve": None}
         self._action(session, body)
 
+    def shelve_offload(self, session):
+        body = {"shelveOffload": None}
+        self._action(session, body)
+
     def unshelve(self, session, availability_zone=_sentinel, host=None):
         """
         Unshelve -- Unshelve the server.
