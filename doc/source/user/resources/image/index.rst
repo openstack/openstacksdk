@@ -1,5 +1,8 @@
+Image Resources
+===============
+
 Image v1 Resources
-==================
+------------------
 
 .. toctree::
    :maxdepth: 1
@@ -7,7 +10,7 @@ Image v1 Resources
    v1/image
 
 Image v2 Resources
-==================
+------------------
 
 .. toctree::
    :maxdepth: 1
