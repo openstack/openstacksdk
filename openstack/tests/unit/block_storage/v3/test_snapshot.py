@@ -23,6 +23,7 @@ SNAPSHOT = {
     "status": "creating",
     "description": "Daily backup",
     "created_at": "2015-03-09T12:14:57.233772",
+    "updated_at": None,
     "metadata": {},
     "volume_id": "5aa119a8-d25b-45a7-8d1b-88e127885635",
     "size": 1,
@@ -62,6 +63,7 @@ class TestSnapshot(base.TestCase):
         self.assertEqual(SNAPSHOT["id"], sot.id)
         self.assertEqual(SNAPSHOT["status"], sot.status)
         self.assertEqual(SNAPSHOT["created_at"], sot.created_at)
+        self.assertEqual(SNAPSHOT["updated_at"], sot.updated_at)
         self.assertEqual(SNAPSHOT["metadata"], sot.metadata)
         self.assertEqual(SNAPSHOT["volume_id"], sot.volume_id)
         self.assertEqual(SNAPSHOT["size"], sot.size)
