@@ -63,9 +63,9 @@ from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import trunk as _trunk
 from openstack.network.v2 import vpn_endpoint_group as _vpn_endpoint_group
 from openstack.network.v2 import vpn_ikepolicy as _ikepolicy
+from openstack.network.v2 import vpn_ipsec_policy as _ipsec_policy
 from openstack.network.v2 import vpn_ipsec_site_connection as \
     _ipsec_site_connection
-from openstack.network.v2 import vpn_ipsecpolicy as _ipsecpolicy
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 
@@ -4473,15 +4473,15 @@ class Proxy(proxy.Proxy):
         return self._update(
             _vpn_endpoint_group.VpnEndpointGroup, vpn_endpoint_group, **attrs)
 
-    # ========== IPSec Site Connection ==========
+    # ========== IPsec Site Connection ==========
     def create_vpn_ipsec_site_connection(self, **attrs):
-        """Create a new ipsec site connection from attributes
+        """Create a new IPsec site connection from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`,
             comprised of the properties on the IPSecSiteConnection class.
 
-        :returns: The results of ipsec site connection creation
+        :returns: The results of IPsec site connection creation
         :rtype:
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         """
@@ -4492,9 +4492,9 @@ class Proxy(proxy.Proxy):
     def find_vpn_ipsec_site_connection(
         self, name_or_id, ignore_missing=True, **args
     ):
-        """Find a single ipsec site connection
+        """Find a single IPsec site connection
 
-        :param name_or_id: The name or ID of an ipsec site connection.
+        :param name_or_id: The name or ID of an IPsec site connection.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound`
             will be raised when the resource does not exist.
@@ -4511,9 +4511,9 @@ class Proxy(proxy.Proxy):
             name_or_id, ignore_missing=ignore_missing, **args)
 
     def get_vpn_ipsec_site_connection(self, ipsec_site_connection):
-        """Get a single ipsec site connection
+        """Get a single IPsec site connection
 
-        :param ipsec_site_connection: The value can be the ID of an ipsec site
+        :param ipsec_site_connection: The value can be the ID of an IPsec site
             connection or a
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
             instance.
@@ -4528,12 +4528,12 @@ class Proxy(proxy.Proxy):
             ipsec_site_connection)
 
     def vpn_ipsec_site_connections(self, **query):
-        """Return a generator of ipsec site connections
+        """Return a generator of IPsec site connections
 
         :param dict query: Optional query parameters to be sent to limit the
             resources being returned.
 
-        :returns: A generator of ipsec site connection objects
+        :returns: A generator of IPsec site connection objects
         :rtype:
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         """
@@ -4541,16 +4541,16 @@ class Proxy(proxy.Proxy):
             _ipsec_site_connection.VpnIPSecSiteConnection, **query)
 
     def update_vpn_ipsec_site_connection(self, ipsec_site_connection, **attrs):
-        """Update a ipsec site connection
+        """Update a IPsec site connection
 
-        :ipsec_site_connection: Either the id of an ipsec site connection or
+        :ipsec_site_connection: Either the id of an IPsec site connection or
             a
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
             instance.
-        :param dict attrs: The attributes to update on the ipsec site
+        :param dict attrs: The attributes to update on the IPsec site
             connection represented by ``ipsec_site_connection``.
 
-        :returns: The updated ipsec site connection
+        :returns: The updated IPsec site connection
         :rtype:
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
         """
@@ -4561,18 +4561,18 @@ class Proxy(proxy.Proxy):
     def delete_vpn_ipsec_site_connection(
         self, ipsec_site_connection, ignore_missing=True
     ):
-        """Delete a ipsec site connection
+        """Delete a IPsec site connection
 
         :param ipsec_site_connection: The value can be either the ID of an
-            ipsec site connection, or a
+            IPsec site connection, or a
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
             instance.
         :param bool ignore_missing:
             When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
-            the ipsec site connection does not exist.
+            the IPsec site connection does not exist.
             When set to ``True``, no exception will be set when attempting to
-            delete a nonexistent ipsec site connection.
+            delete a nonexistent IPsec site connection.
 
         :returns: ``None``
         """
@@ -4675,25 +4675,25 @@ class Proxy(proxy.Proxy):
             ignore_missing=ignore_missing)
 
     # ========== IPSecPolicy ==========
-    def create_vpn_ipsecpolicy(self, **attrs):
-        """Create a new ipsec policy from attributes
+    def create_vpn_ipsec_policy(self, **attrs):
+        """Create a new IPsec policy from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
-            :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`,
+            :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`,
             comprised of the properties on the VpnIpsecPolicy class.
 
-        :returns: The results of ipsec policy creation :rtype:
-            :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`
+        :returns: The results of IPsec policy creation :rtype:
+            :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         """
         return self._create(
-            _ipsecpolicy.VpnIpsecPolicy, **attrs)
+            _ipsec_policy.VpnIpsecPolicy, **attrs)
 
-    def find_vpn_ipsecpolicy(
+    def find_vpn_ipsec_policy(
         self, name_or_id, ignore_missing=True, **args
     ):
-        """Find a single ipsec policy
+        """Find a single IPsec policy
 
-        :param name_or_id: The name or ID of an ipsec policy.
+        :param name_or_id: The name or ID of an IPsec policy.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound`
             will be raised when the resource does not exist.  When set to
@@ -4702,74 +4702,74 @@ class Proxy(proxy.Proxy):
         :param dict args: Any additional parameters to be passed into
             underlying methods such as query filters.
         :returns: One
-            :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`
+            :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
             or None.
         """
         return self._find(
-            _ipsecpolicy.VpnIpsecPolicy, name_or_id,
+            _ipsec_policy.VpnIpsecPolicy, name_or_id,
             ignore_missing=ignore_missing, **args)
 
-    def get_vpn_ipsecpolicy(self, ipsecpolicy):
-        """Get a single ipsec policy
+    def get_vpn_ipsec_policy(self, ipsec_policy):
+        """Get a single IPsec policy
 
-        :param ipsecpolicy: The value can be the ID of an ipsecpolicy or a
-            :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`
+        :param ipsec_policy: The value can be the ID of an IPcec policy or a
+            :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
             instance.
 
         :returns: One
-            :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`
-        :rtype: :class:`~openstack.network.v2.ipsecpolicy.VpnIpsecPolicy`
+            :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
+        :rtype: :class:`~openstack.network.v2.ipsec_policy.VpnIpsecPolicy`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
         """
         return self._get(
-            _ipsecpolicy.VpnIpsecPolicy, ipsecpolicy)
+            _ipsec_policy.VpnIpsecPolicy, ipsec_policy)
 
-    def vpn_ipsecpolicies(self, **query):
-        """Return a generator of ipsec policy
+    def vpn_ipsec_policies(self, **query):
+        """Return a generator of IPsec policies
 
         :param dict query: Optional query parameters to be sent to limit the
             resources being returned.
 
-        :returns: A generator of ipsec policy objects
-        :rtype: :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`
+        :returns: A generator of IPsec policy objects
+        :rtype: :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         """
         return self._list(
-            _ipsecpolicy.VpnIpsecPolicy, **query)
+            _ipsec_policy.VpnIpsecPolicy, **query)
 
-    def update_vpn_ipsecpolicy(self, ipsecpolicy, **attrs):
-        """Update a ipsec policy
+    def update_vpn_ipsec_policy(self, ipsec_policy, **attrs):
+        """Update an IPsec policy
 
-        :ipsecpolicy: Either the id of an ipsec policy or a
-            :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`
+        :ipsec_policy: Either the id of an IPsec policy or a
+            :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
             instance.
-        :param dict attrs: The attributes to update on the ipsec policy
-            represented by ``ipsecpolicy``.
+        :param dict attrs: The attributes to update on the IPsec policy
+            represented by ``ipsec_policy``.
 
-        :returns: The updated ipsec policy
-        :rtype: :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`
+        :returns: The updated IPsec policy
+        :rtype: :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
         """
         return self._update(
-            _ipsecpolicy.VpnIpsecPolicy, ipsecpolicy, **attrs)
+            _ipsec_policy.VpnIpsecPolicy, ipsec_policy, **attrs)
 
-    def delete_vpn_ipsecpolicy(self, ipsecpolicy, ignore_missing=True):
-        """Delete a ipsecpolicy
+    def delete_vpn_ipsec_policy(self, ipsec_policy, ignore_missing=True):
+        """Delete an IPsec policy
 
-        :param ipsecpolicy: The value can be either the ID of an ipsec policy,
+        :param ipsec_policy: The value can be either the ID of an IPsec policy,
             or a
-            :class:`~openstack.network.v2.vpn_ipsecpolicy.VpnIpsecPolicy`
+            :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
             instance.
         :param bool ignore_missing:
             When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound`
-            will be raised when the ipsec policy does not exist.  When set to
+            will be raised when the IPsec policy does not exist.  When set to
             ``True``, no exception will be set when attempting to delete a
-            nonexistent ipsec policy.
+            nonexistent IPsec policy.
 
         :returns: ``None``
         """
         self._delete(
-            _ipsecpolicy.VpnIpsecPolicy, ipsecpolicy,
+            _ipsec_policy.VpnIpsecPolicy, ipsec_policy,
             ignore_missing=ignore_missing)
 
     # ========== VPN Service ==========
