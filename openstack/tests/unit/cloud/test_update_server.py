@@ -48,7 +48,7 @@ class TestUpdateServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=%s' % self.server_name]),
                  json={'servers': [self.fake_server]}),
             dict(method='PUT',
@@ -80,7 +80,7 @@ class TestUpdateServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=%s' % self.server_name]),
                  json={'servers': [self.fake_server]}),
             dict(method='PUT',

@@ -660,7 +660,8 @@ class Proxy(proxy.Proxy):
         :returns: One :class:`~openstack.compute.v2.server.Server` or None
         """
         return self._find(_server.Server, name_or_id,
-                          ignore_missing=ignore_missing)
+                          ignore_missing=ignore_missing,
+                          list_base_path='/servers/detail')
 
     def get_server(self, server):
         """Get a single server

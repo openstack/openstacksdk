@@ -38,7 +38,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=daffy']),
                  json={'servers': [server]}),
             dict(method='DELETE',
@@ -61,7 +61,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=tweety']),
                  json={'servers': []}),
         ])
@@ -78,7 +78,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=speedy']),
                  json={'servers': []}),
         ])
@@ -98,7 +98,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=wily']),
                  json={'servers': [server]}),
             dict(method='DELETE',
@@ -130,7 +130,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=speedy']),
                  json={'servers': [server]}),
             dict(method='DELETE',
@@ -167,7 +167,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=porky']),
                  json={'servers': [server]}),
             dict(method='DELETE',
@@ -193,7 +193,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=porky']),
                  json={'servers': [server]}),
             dict(method='GET',
@@ -246,7 +246,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=porky']),
                  json={'servers': [server]}),
             dict(method='GET',
@@ -283,7 +283,7 @@ class TestDeleteServer(base.TestCase):
                  status_code=404),
             dict(method='GET',
                  uri=self.get_mock_url(
-                     'compute', 'public', append=['servers'],
+                     'compute', 'public', append=['servers', 'detail'],
                      qs_elements=['name=porky']),
                  json={'servers': [server]}),
             dict(method='GET',
