@@ -14,6 +14,7 @@ from openstack import resource
 
 
 class VpnIkePolicy(resource.Resource):
+    """VPN IKE policy extension."""
     resource_key = 'ikepolicy'
     resources_key = 'ikepolicies'
     base_path = '/vpn/ikepolicies'
