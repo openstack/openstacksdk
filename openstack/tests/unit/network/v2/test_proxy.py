@@ -59,7 +59,7 @@ from openstack.network.v2 import service_provider
 from openstack.network.v2 import subnet
 from openstack.network.v2 import subnet_pool
 from openstack.network.v2 import vpn_endpoint_group
-from openstack.network.v2 import vpn_ikepolicy
+from openstack.network.v2 import vpn_ike_policy
 from openstack.network.v2 import vpn_ipsec_policy
 from openstack.network.v2 import vpn_ipsec_site_connection
 from openstack.network.v2 import vpn_service
@@ -1649,40 +1649,40 @@ class TestNetworkVpnSiteConnection(TestNetworkProxy):
 
 
 class TestNetworkVpnIkePolicy(TestNetworkProxy):
-    def test_ikepolicy_create_attrs(self):
+    def test_ike_policy_create_attrs(self):
         self.verify_create(
-            self.proxy.create_vpn_ikepolicy,
-            vpn_ikepolicy.VpnIkePolicy)
+            self.proxy.create_vpn_ike_policy,
+            vpn_ike_policy.VpnIkePolicy)
 
-    def test_ikepolicy_delete(self):
+    def test_ike_policy_delete(self):
         self.verify_delete(
-            self.proxy.delete_vpn_ikepolicy,
-            vpn_ikepolicy.VpnIkePolicy, False)
+            self.proxy.delete_vpn_ike_policy,
+            vpn_ike_policy.VpnIkePolicy, False)
 
-    def test_ikepolicy_delete_ignore(self):
+    def test_ike_policy_delete_ignore(self):
         self.verify_delete(
-            self.proxy.delete_vpn_ikepolicy,
-            vpn_ikepolicy.VpnIkePolicy, True)
+            self.proxy.delete_vpn_ike_policy,
+            vpn_ike_policy.VpnIkePolicy, True)
 
-    def test_ikepolicy_find(self):
+    def test_ike_policy_find(self):
         self.verify_find(
-            self.proxy.find_vpn_ikepolicy,
-            vpn_ikepolicy.VpnIkePolicy)
+            self.proxy.find_vpn_ike_policy,
+            vpn_ike_policy.VpnIkePolicy)
 
-    def test_ikepolicy_get(self):
+    def test_ike_policy_get(self):
         self.verify_get(
-            self.proxy.get_vpn_ikepolicy,
-            vpn_ikepolicy.VpnIkePolicy)
+            self.proxy.get_vpn_ike_policy,
+            vpn_ike_policy.VpnIkePolicy)
 
-    def test_ikepolicies(self):
+    def test_ike_policies(self):
         self.verify_list(
-            self.proxy.vpn_ikepolicies,
-            vpn_ikepolicy.VpnIkePolicy)
+            self.proxy.vpn_ike_policies,
+            vpn_ike_policy.VpnIkePolicy)
 
-    def test_ikepolicy_update(self):
+    def test_ike_policy_update(self):
         self.verify_update(
-            self.proxy.update_vpn_ikepolicy,
-            vpn_ikepolicy.VpnIkePolicy)
+            self.proxy.update_vpn_ike_policy,
+            vpn_ike_policy.VpnIkePolicy)
 
 
 class TestNetworkVpnIpsecPolicy(TestNetworkProxy):

@@ -6,6 +6,6 @@ VPNaaS Resources
 
    endpoint_group
    ipsec_site_connection
-   ikepolicy
+   ike_policy
    ipsec_policy
    service
