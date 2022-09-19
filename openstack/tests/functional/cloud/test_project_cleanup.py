@@ -187,7 +187,7 @@ class TestProjectCleanup(base.BaseFunctionalTest):
         vol_ids = list(obj.id for obj in objects)
         self.assertIn(vol.id, vol_ids)
 
-        # Ensure network still exists
+        # Ensure volume still exists
         vol_check = self.conn.block_storage.get_volume(vol.id)
         self.assertEqual(vol.name, vol_check.name)
 
@@ -196,9 +196,10 @@ class TestProjectCleanup(base.BaseFunctionalTest):
             dry_run=False,
             wait_timeout=600,
             status_queue=status_queue)
-        objects = []
-        while not status_queue.empty():
-            objects.append(status_queue.get())
+        # Ensure no backups remain
+        self.assertEqual(0, len(list(self.conn.block_storage.backups())))
+        # Ensure no snapshots remain
+        self.assertEqual(0, len(list(self.conn.block_storage.snapshots())))
 
     def test_cleanup_swift(self):
         if not self.user_cloud.has_service('object-store'):

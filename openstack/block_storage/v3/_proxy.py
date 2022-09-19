@@ -1504,42 +1504,68 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         resource_evaluation_fn=None
     ):
         # It is not possible to delete backup if there are dependent backups.
-        # In order to be able to do cleanup those is required to have at least
-        # 2 iterations (first cleans up backups with has no dependent backups,
-        # and in 2nd iteration there should be no backups with dependencies
-        # remaining.
-        for i in range(1, 2):
-            backups = []
+        # In order to be able to do cleanup those is required to have multiple
+        # iterations (first clean up backups with has no dependent backups, and
+        # in next iterations there should be no backups with dependencies
+        # remaining. Logically we can have also failures, therefore it is
+        # required to limit amount of iterations we do (currently pick 10).  In
+        # dry_run all those iterations are doing not what we want, therefore
+        # only iterate in a real cleanup mode.
+        if dry_run:
+            # Just iterate and evaluate backups in dry_run mode
             for obj in self.backups(details=False):
-                if (
-                    (i == 1 and not obj.has_dependent_backups)
-                    or i != 1
+                need_delete = self._service_cleanup_del_res(
+                    self.delete_backup,
+                    obj,
+                    dry_run=dry_run,
+                    client_status_queue=client_status_queue,
+                    identified_resources=identified_resources,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn)
+        else:
+            # Set initial iterations conditions
+            need_backup_iteration = True
+            max_iterations = 10
+            while need_backup_iteration and max_iterations > 0:
+                # Reset iteration controls
+                need_backup_iteration = False
+                max_iterations -= 1
+                backups = []
+                # To increase success chance sort backups by age, dependent
+                # backups are logically younger.
+                for obj in self.backups(
+                        details=True, sort_key='created_at', sort_dir='desc'
                 ):
-                    need_delete = self._service_cleanup_del_res(
-                        self.delete_backup,
-                        obj,
-                        dry_run=True,
-                        client_status_queue=client_status_queue,
-                        identified_resources=identified_resources,
-                        filters=filters,
-                        resource_evaluation_fn=resource_evaluation_fn)
-                    if not dry_run and need_delete:
-                        backups.append(obj)
+                    if not obj.has_dependent_backups:
+                        # If no dependent backups - go with it
+                        need_delete = self._service_cleanup_del_res(
+                            self.delete_backup,
+                            obj,
+                            dry_run=dry_run,
+                            client_status_queue=client_status_queue,
+                            identified_resources=identified_resources,
+                            filters=filters,
+                            resource_evaluation_fn=resource_evaluation_fn)
+                        if not dry_run and need_delete:
+                            backups.append(obj)
+                    else:
+                        # Otherwise we need another iteration
+                        need_backup_iteration = True
 
-            # Before proceeding need to wait for backups to be deleted
-            for obj in backups:
-                try:
-                    self.wait_for_delete(obj)
-                except exceptions.SDKException:
-                    # Well, did our best, still try further
-                    pass
+                # Before proceeding need to wait for backups to be deleted
+                for obj in backups:
+                    try:
+                        self.wait_for_delete(obj)
+                    except exceptions.SDKException:
+                        # Well, did our best, still try further
+                        pass
 
         snapshots = []
         for obj in self.snapshots(details=False):
             need_delete = self._service_cleanup_del_res(
                 self.delete_snapshot,
                 obj,
-                dry_run=True,
+                dry_run=dry_run,
                 client_status_queue=client_status_queue,
                 identified_resources=identified_resources,
                 filters=filters,
