@@ -21,6 +21,7 @@ from openstack.image.v2 import cache as _cache
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import metadef_namespace as _metadef_namespace
+from openstack.image.v2 import metadef_object as _metadef_object
 from openstack.image.v2 import metadef_resource_type as _metadef_resource_type
 from openstack.image.v2 import metadef_schema as _metadef_schema
 from openstack.image.v2 import schema as _schema
@@ -566,6 +567,53 @@ class TestMetadefNamespace(TestImageProxy):
             _metadef_namespace.MetadefNamespace,
             method_kwargs={'is_protected': True},
             expected_kwargs={'namespace': 'resource_id', 'is_protected': True},
+        )
+
+
+class TestMetadefObject(TestImageProxy):
+    def test_create_metadef_object(self):
+        self.verify_create(
+            self.proxy.create_metadef_object,
+            _metadef_object.MetadefObject,
+            method_kwargs={"namespace": "test_namespace_name"},
+            expected_kwargs={"namespace_name": "test_namespace_name"},
+        )
+
+    def test_get_metadef_object(self):
+        self.verify_get(
+            self.proxy.get_metadef_object,
+            _metadef_object.MetadefObject,
+            method_kwargs={"namespace": "test_namespace_name"},
+            expected_kwargs={
+                "namespace_name": "test_namespace_name",
+                'name': 'resource_id',
+            },
+            expected_args=[],
+        )
+
+    def test_metadef_objects(self):
+        self.verify_list(
+            self.proxy.metadef_objects,
+            _metadef_object.MetadefObject,
+            method_kwargs={"namespace": "test_namespace_name"},
+            expected_kwargs={"namespace_name": "test_namespace_name"},
+        )
+
+    def test_update_metadef_object(self):
+        self.verify_update(
+            self.proxy.update_metadef_object,
+            _metadef_object.MetadefObject,
+            method_kwargs={"namespace": "test_namespace_name"},
+            expected_kwargs={"namespace_name": "test_namespace_name"},
+        )
+
+    def test_delete_metadef_object(self):
+        self.verify_delete(
+            self.proxy.delete_metadef_object,
+            _metadef_object.MetadefObject,
+            False,
+            method_kwargs={"namespace": "test_namespace_name"},
+            expected_kwargs={"namespace_name": "test_namespace_name"},
         )
 
 
