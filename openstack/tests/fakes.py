@@ -374,6 +374,7 @@ class FakeVolumeSnapshot:
         self.description = description
         self.size = size
         self.created_at = '1900-01-01 12:34:56'
+        self.updated_at = None
         self.volume_id = '12345'
         self.metadata = {}
 

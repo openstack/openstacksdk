@@ -50,6 +50,8 @@ class Snapshot(resource.Resource, metadata.MetadataMixin):
     #: The current status of this snapshot. Potential values are creating,
     #: available, deleting, error, and error_deleting.
     status = resource.Body("status")
+    #: The date and time when the resource was updated.
+    updated_at = resource.Body("updated_at")
     #: The ID of the volume this snapshot was taken of.
     volume_id = resource.Body("volume_id")
 
