@@ -24,29 +24,30 @@ class TestFirewallPolicy(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestFirewallPolicy, self).setUp()
-        if not self.conn._has_neutron_extension('fwaas_v2'):
-            self.skipTest('fwaas_v2 service not supported by cloud')
+        if not self.user_cloud._has_neutron_extension("fwaas_v2"):
+            self.skipTest("fwaas_v2 service not supported by cloud")
         self.NAME = self.getUniqueString()
-        sot = self.conn.network.create_firewall_policy(name=self.NAME)
+        sot = self.user_cloud.network.create_firewall_policy(name=self.NAME)
         assert isinstance(sot, firewall_policy.FirewallPolicy)
         self.assertEqual(self.NAME, sot.name)
         self.ID = sot.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_firewall_policy(self.ID,
-                                                       ignore_missing=False)
+        sot = self.user_cloud.network.delete_firewall_policy(
+            self.ID, ignore_missing=False
+        )
         self.assertIs(None, sot)
         super(TestFirewallPolicy, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_firewall_policy(self.NAME)
+        sot = self.user_cloud.network.find_firewall_policy(self.NAME)
         self.assertEqual(self.ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_firewall_policy(self.ID)
+        sot = self.user_cloud.network.get_firewall_policy(self.ID)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.ID, sot.id)
 
     def test_list(self):
-        names = [o.name for o in self.conn.network.firewall_policies()]
+        names = [o.name for o in self.user_cloud.network.firewall_policies()]
         self.assertIn(self.NAME, names)

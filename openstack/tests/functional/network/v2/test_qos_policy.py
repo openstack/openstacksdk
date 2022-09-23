@@ -26,13 +26,16 @@ class TestQoSPolicy(base.BaseFunctionalTest):
     def setUp(self):
         super(TestQoSPolicy, self).setUp()
 
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         # Skip the tests if qos extension is not enabled.
-        if not self.conn.network.find_extension('qos'):
-            self.skipTest('Network qos extension disabled')
+        if not self.operator_cloud.network.find_extension("qos"):
+            self.skipTest("Network qos extension disabled")
 
         self.QOS_POLICY_NAME = self.getUniqueString()
         self.QOS_POLICY_NAME_UPDATED = self.getUniqueString()
-        qos = self.conn.network.create_qos_policy(
+        qos = self.operator_cloud.network.create_qos_policy(
             description=self.QOS_POLICY_DESCRIPTION,
             name=self.QOS_POLICY_NAME,
             shared=self.IS_SHARED,
@@ -43,16 +46,16 @@ class TestQoSPolicy(base.BaseFunctionalTest):
         self.QOS_POLICY_ID = qos.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_qos_policy(self.QOS_POLICY_ID)
+        sot = self.operator_cloud.network.delete_qos_policy(self.QOS_POLICY_ID)
         self.assertIsNone(sot)
         super(TestQoSPolicy, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_qos_policy(self.QOS_POLICY_NAME)
+        sot = self.operator_cloud.network.find_qos_policy(self.QOS_POLICY_NAME)
         self.assertEqual(self.QOS_POLICY_ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_qos_policy(self.QOS_POLICY_ID)
+        sot = self.operator_cloud.network.get_qos_policy(self.QOS_POLICY_ID)
         self.assertEqual(self.QOS_POLICY_NAME, sot.name)
         self.assertEqual(self.IS_SHARED, sot.is_shared)
         self.assertEqual(self.RULES, sot.rules)
@@ -60,23 +63,23 @@ class TestQoSPolicy(base.BaseFunctionalTest):
         self.assertEqual(self.IS_DEFAULT, sot.is_default)
 
     def test_list(self):
-        names = [o.name for o in self.conn.network.qos_policies()]
+        names = [o.name for o in self.operator_cloud.network.qos_policies()]
         self.assertIn(self.QOS_POLICY_NAME, names)
 
     def test_update(self):
-        sot = self.conn.network.update_qos_policy(
-            self.QOS_POLICY_ID,
-            name=self.QOS_POLICY_NAME_UPDATED)
+        sot = self.operator_cloud.network.update_qos_policy(
+            self.QOS_POLICY_ID, name=self.QOS_POLICY_NAME_UPDATED
+        )
         self.assertEqual(self.QOS_POLICY_NAME_UPDATED, sot.name)
 
     def test_set_tags(self):
-        sot = self.conn.network.get_qos_policy(self.QOS_POLICY_ID)
+        sot = self.operator_cloud.network.get_qos_policy(self.QOS_POLICY_ID)
         self.assertEqual([], sot.tags)
 
-        self.conn.network.set_tags(sot, ['blue'])
-        sot = self.conn.network.get_qos_policy(self.QOS_POLICY_ID)
-        self.assertEqual(['blue'], sot.tags)
+        self.operator_cloud.network.set_tags(sot, ["blue"])
+        sot = self.operator_cloud.network.get_qos_policy(self.QOS_POLICY_ID)
+        self.assertEqual(["blue"], sot.tags)
 
-        self.conn.network.set_tags(sot, [])
-        sot = self.conn.network.get_qos_policy(self.QOS_POLICY_ID)
+        self.operator_cloud.network.set_tags(sot, [])
+        sot = self.operator_cloud.network.get_qos_policy(self.QOS_POLICY_ID)
         self.assertEqual([], sot.tags)

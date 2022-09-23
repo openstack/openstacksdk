@@ -25,7 +25,7 @@ class TestAddressScope(base.BaseFunctionalTest):
         super(TestAddressScope, self).setUp()
         self.ADDRESS_SCOPE_NAME = self.getUniqueString()
         self.ADDRESS_SCOPE_NAME_UPDATED = self.getUniqueString()
-        address_scope = self.conn.network.create_address_scope(
+        address_scope = self.user_cloud.network.create_address_scope(
             ip_version=self.IP_VERSION,
             name=self.ADDRESS_SCOPE_NAME,
             shared=self.IS_SHARED,
@@ -35,26 +35,28 @@ class TestAddressScope(base.BaseFunctionalTest):
         self.ADDRESS_SCOPE_ID = address_scope.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_address_scope(self.ADDRESS_SCOPE_ID)
+        sot = self.user_cloud.network.delete_address_scope(
+            self.ADDRESS_SCOPE_ID)
         self.assertIsNone(sot)
         super(TestAddressScope, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_address_scope(self.ADDRESS_SCOPE_NAME)
+        sot = self.user_cloud.network.find_address_scope(
+            self.ADDRESS_SCOPE_NAME)
         self.assertEqual(self.ADDRESS_SCOPE_ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_address_scope(self.ADDRESS_SCOPE_ID)
+        sot = self.user_cloud.network.get_address_scope(self.ADDRESS_SCOPE_ID)
         self.assertEqual(self.ADDRESS_SCOPE_NAME, sot.name)
         self.assertEqual(self.IS_SHARED, sot.is_shared)
         self.assertEqual(self.IP_VERSION, sot.ip_version)
 
     def test_list(self):
-        names = [o.name for o in self.conn.network.address_scopes()]
+        names = [o.name for o in self.user_cloud.network.address_scopes()]
         self.assertIn(self.ADDRESS_SCOPE_NAME, names)
 
     def test_update(self):
-        sot = self.conn.network.update_address_scope(
-            self.ADDRESS_SCOPE_ID,
-            name=self.ADDRESS_SCOPE_NAME_UPDATED)
+        sot = self.user_cloud.network.update_address_scope(
+            self.ADDRESS_SCOPE_ID, name=self.ADDRESS_SCOPE_NAME_UPDATED
+        )
         self.assertEqual(self.ADDRESS_SCOPE_NAME_UPDATED, sot.name)

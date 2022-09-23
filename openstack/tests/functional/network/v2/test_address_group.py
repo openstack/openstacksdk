@@ -18,64 +18,71 @@ from openstack.tests.functional import base
 class TestAddressGroup(base.BaseFunctionalTest):
 
     ADDRESS_GROUP_ID = None
-    ADDRESSES = ['10.0.0.1/32', '2001:db8::/32']
+    ADDRESSES = ["10.0.0.1/32", "2001:db8::/32"]
 
     def setUp(self):
         super(TestAddressGroup, self).setUp()
 
         # Skip the tests if address group extension is not enabled.
-        if not self.conn.network.find_extension('address-group'):
-            self.skipTest('Network Address Group extension disabled')
+        if not self.user_cloud.network.find_extension("address-group"):
+            self.skipTest("Network Address Group extension disabled")
 
         self.ADDRESS_GROUP_NAME = self.getUniqueString()
         self.ADDRESS_GROUP_DESCRIPTION = self.getUniqueString()
         self.ADDRESS_GROUP_NAME_UPDATED = self.getUniqueString()
         self.ADDRESS_GROUP_DESCRIPTION_UPDATED = self.getUniqueString()
-        address_group = self.conn.network.create_address_group(
+        address_group = self.user_cloud.network.create_address_group(
             name=self.ADDRESS_GROUP_NAME,
             description=self.ADDRESS_GROUP_DESCRIPTION,
-            addresses=self.ADDRESSES
+            addresses=self.ADDRESSES,
         )
         assert isinstance(address_group, _address_group.AddressGroup)
         self.assertEqual(self.ADDRESS_GROUP_NAME, address_group.name)
-        self.assertEqual(self.ADDRESS_GROUP_DESCRIPTION,
-                         address_group.description)
+        self.assertEqual(
+            self.ADDRESS_GROUP_DESCRIPTION, address_group.description
+        )
         self.assertCountEqual(self.ADDRESSES, address_group.addresses)
         self.ADDRESS_GROUP_ID = address_group.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_address_group(self.ADDRESS_GROUP_ID)
+        sot = self.user_cloud.network.delete_address_group(
+            self.ADDRESS_GROUP_ID)
         self.assertIsNone(sot)
         super(TestAddressGroup, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_address_group(self.ADDRESS_GROUP_NAME)
+        sot = self.user_cloud.network.find_address_group(
+            self.ADDRESS_GROUP_NAME)
         self.assertEqual(self.ADDRESS_GROUP_ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_address_group(self.ADDRESS_GROUP_ID)
+        sot = self.user_cloud.network.get_address_group(self.ADDRESS_GROUP_ID)
         self.assertEqual(self.ADDRESS_GROUP_NAME, sot.name)
 
     def test_list(self):
-        names = [ag.name for ag in self.conn.network.address_groups()]
+        names = [ag.name for ag in self.user_cloud.network.address_groups()]
         self.assertIn(self.ADDRESS_GROUP_NAME, names)
 
     def test_update(self):
-        sot = self.conn.network.update_address_group(
+        sot = self.user_cloud.network.update_address_group(
             self.ADDRESS_GROUP_ID,
             name=self.ADDRESS_GROUP_NAME_UPDATED,
-            description=self.ADDRESS_GROUP_DESCRIPTION_UPDATED)
+            description=self.ADDRESS_GROUP_DESCRIPTION_UPDATED,
+        )
         self.assertEqual(self.ADDRESS_GROUP_NAME_UPDATED, sot.name)
-        self.assertEqual(self.ADDRESS_GROUP_DESCRIPTION_UPDATED,
-                         sot.description)
+        self.assertEqual(
+            self.ADDRESS_GROUP_DESCRIPTION_UPDATED, sot.description
+        )
 
     def test_add_remove_addresses(self):
-        addrs = ['127.0.0.1/32', 'fe80::/10']
-        sot = self.conn.network.add_addresses_to_address_group(
-            self.ADDRESS_GROUP_ID, addrs)
+        addrs = ["127.0.0.1/32", "fe80::/10"]
+        sot = self.user_cloud.network.add_addresses_to_address_group(
+            self.ADDRESS_GROUP_ID, addrs
+        )
         updated_addrs = self.ADDRESSES.copy()
         updated_addrs.extend(addrs)
         self.assertCountEqual(updated_addrs, sot.addresses)
-        sot = self.conn.network.remove_addresses_from_address_group(
-            self.ADDRESS_GROUP_ID, addrs)
+        sot = self.user_cloud.network.remove_addresses_from_address_group(
+            self.ADDRESS_GROUP_ID, addrs
+        )
         self.assertCountEqual(self.ADDRESSES, sot.addresses)

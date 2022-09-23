@@ -31,17 +31,18 @@ class TestRouterInterface(base.BaseFunctionalTest):
         self.ROUTER_NAME = self.getUniqueString()
         self.NET_NAME = self.getUniqueString()
         self.SUB_NAME = self.getUniqueString()
-        sot = self.conn.network.create_router(name=self.ROUTER_NAME)
+        sot = self.user_cloud.network.create_router(name=self.ROUTER_NAME)
         assert isinstance(sot, router.Router)
         self.assertEqual(self.ROUTER_NAME, sot.name)
-        net = self.conn.network.create_network(name=self.NET_NAME)
+        net = self.user_cloud.network.create_network(name=self.NET_NAME)
         assert isinstance(net, network.Network)
         self.assertEqual(self.NET_NAME, net.name)
-        sub = self.conn.network.create_subnet(
+        sub = self.user_cloud.network.create_subnet(
             name=self.SUB_NAME,
             ip_version=self.IPV4,
             network_id=net.id,
-            cidr=self.CIDR)
+            cidr=self.CIDR,
+        )
         assert isinstance(sub, subnet.Subnet)
         self.assertEqual(self.SUB_NAME, sub.name)
         self.ROUTER_ID = sot.id
@@ -50,25 +51,30 @@ class TestRouterInterface(base.BaseFunctionalTest):
         self.SUB_ID = sub.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_router(
-            self.ROUTER_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_router(
+            self.ROUTER_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_subnet(
-            self.SUB_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_subnet(
+            self.SUB_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_network(
-            self.NET_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_network(
+            self.NET_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestRouterInterface, self).tearDown()
 
     def test_router_add_remove_interface(self):
-        iface = self.ROT.add_interface(self.conn.network,
-                                       subnet_id=self.SUB_ID)
+        iface = self.ROT.add_interface(
+            self.user_cloud.network, subnet_id=self.SUB_ID
+        )
         self._verification(iface)
-        iface = self.ROT.remove_interface(self.conn.network,
-                                          subnet_id=self.SUB_ID)
+        iface = self.ROT.remove_interface(
+            self.user_cloud.network, subnet_id=self.SUB_ID
+        )
         self._verification(iface)
 
     def _verification(self, interface):
-        self.assertEqual(interface['subnet_id'], self.SUB_ID)
-        self.assertIn('port_id', interface)
+        self.assertEqual(interface["subnet_id"], self.SUB_ID)
+        self.assertIn("port_id", interface)

@@ -19,10 +19,8 @@ def create_network(conn, name, cidr):
     try:
         network = conn.network.create_network(name=name)
         subnet = conn.network.create_subnet(
-            name=name,
-            ip_version=4,
-            network_id=network.id,
-            cidr=cidr)
+            name=name, ip_version=4, network_id=network.id, cidr=cidr
+        )
         return (network, subnet)
     except Exception as e:
         print(str(e))
@@ -44,50 +42,57 @@ class TestNetwork(base.BaseFunctionalTest):
     def setUp(self):
         super(TestNetwork, self).setUp()
         self.NAME = self.getUniqueString()
-        sot = self.conn.network.create_network(name=self.NAME)
+        sot = self.user_cloud.network.create_network(name=self.NAME)
         assert isinstance(sot, network.Network)
         self.assertEqual(self.NAME, sot.name)
         self.ID = sot.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_network(self.ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_network(
+            self.ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestNetwork, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_network(self.NAME)
+        sot = self.user_cloud.network.find_network(self.NAME)
         self.assertEqual(self.ID, sot.id)
 
     def test_find_with_filter(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud required for this test")
         project_id_1 = "1"
         project_id_2 = "2"
-        sot1 = self.conn.network.create_network(name=self.NAME,
-                                                project_id=project_id_1)
-        sot2 = self.conn.network.create_network(name=self.NAME,
-                                                project_id=project_id_2)
-        sot = self.conn.network.find_network(self.NAME,
-                                             project_id=project_id_1)
+        sot1 = self.operator_cloud.network.create_network(
+            name=self.NAME, project_id=project_id_1
+        )
+        sot2 = self.operator_cloud.network.create_network(
+            name=self.NAME, project_id=project_id_2
+        )
+        sot = self.operator_cloud.network.find_network(
+            self.NAME, project_id=project_id_1
+        )
         self.assertEqual(project_id_1, sot.project_id)
-        self.conn.network.delete_network(sot1.id)
-        self.conn.network.delete_network(sot2.id)
+        self.operator_cloud.network.delete_network(sot1.id)
+        self.operator_cloud.network.delete_network(sot2.id)
 
     def test_get(self):
-        sot = self.conn.network.get_network(self.ID)
+        sot = self.user_cloud.network.get_network(self.ID)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.ID, sot.id)
 
     def test_list(self):
-        names = [o.name for o in self.conn.network.networks()]
+        names = [o.name for o in self.user_cloud.network.networks()]
         self.assertIn(self.NAME, names)
 
     def test_set_tags(self):
-        sot = self.conn.network.get_network(self.ID)
+        sot = self.user_cloud.network.get_network(self.ID)
         self.assertEqual([], sot.tags)
 
-        self.conn.network.set_tags(sot, ['blue'])
-        sot = self.conn.network.get_network(self.ID)
-        self.assertEqual(['blue'], sot.tags)
+        self.user_cloud.network.set_tags(sot, ["blue"])
+        sot = self.user_cloud.network.get_network(self.ID)
+        self.assertEqual(["blue"], sot.tags)
 
-        self.conn.network.set_tags(sot, [])
-        sot = self.conn.network.get_network(self.ID)
+        self.user_cloud.network.set_tags(sot, [])
+        sot = self.user_cloud.network.get_network(self.ID)
         self.assertEqual([], sot.tags)

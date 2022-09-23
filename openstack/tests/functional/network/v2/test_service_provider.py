@@ -15,8 +15,9 @@ from openstack.tests.functional import base
 
 class TestServiceProvider(base.BaseFunctionalTest):
     def test_list(self):
-        providers = list(self.conn.network.service_providers())
+        providers = list(self.user_cloud.network.service_providers())
         names = [o.name for o in providers]
         service_types = [o.service_type for o in providers]
-        self.assertIn('ha', names)
-        self.assertIn('L3_ROUTER_NAT', service_types)
+        if self.user_cloud._has_neutron_extension("l3-ha"):
+            self.assertIn("ha", names)
+            self.assertIn("L3_ROUTER_NAT", service_types)

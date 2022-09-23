@@ -23,44 +23,50 @@ class TestRouter(base.BaseFunctionalTest):
         super(TestRouter, self).setUp()
         self.NAME = self.getUniqueString()
         self.UPDATE_NAME = self.getUniqueString()
-        sot = self.conn.network.create_router(name=self.NAME)
+        sot = self.user_cloud.network.create_router(name=self.NAME)
         assert isinstance(sot, router.Router)
         self.assertEqual(self.NAME, sot.name)
         self.ID = sot.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_router(self.ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_router(
+            self.ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestRouter, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_router(self.NAME)
+        sot = self.user_cloud.network.find_router(self.NAME)
         self.assertEqual(self.ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_router(self.ID)
+        sot = self.user_cloud.network.get_router(self.ID)
         self.assertEqual(self.NAME, sot.name)
         self.assertEqual(self.ID, sot.id)
-        self.assertFalse(sot.is_ha)
+        if not self.user_cloud._has_neutron_extension("l3-ha"):
+            self.assertFalse(sot.is_ha)
 
     def test_list(self):
-        names = [o.name for o in self.conn.network.routers()]
+        names = [o.name for o in self.user_cloud.network.routers()]
         self.assertIn(self.NAME, names)
-        ha = [o.is_ha for o in self.conn.network.routers()]
-        self.assertIn(False, ha)
+        if not self.user_cloud._has_neutron_extension("l3-ha"):
+            ha = [o.is_ha for o in self.user_cloud.network.routers()]
+            self.assertIn(False, ha)
 
     def test_update(self):
-        sot = self.conn.network.update_router(self.ID, name=self.UPDATE_NAME)
+        sot = self.user_cloud.network.update_router(
+            self.ID, name=self.UPDATE_NAME
+        )
         self.assertEqual(self.UPDATE_NAME, sot.name)
 
     def test_set_tags(self):
-        sot = self.conn.network.get_router(self.ID)
+        sot = self.user_cloud.network.get_router(self.ID)
         self.assertEqual([], sot.tags)
 
-        self.conn.network.set_tags(sot, ['blue'])
-        sot = self.conn.network.get_router(self.ID)
-        self.assertEqual(['blue'], sot.tags)
+        self.user_cloud.network.set_tags(sot, ["blue"])
+        sot = self.user_cloud.network.get_router(self.ID)
+        self.assertEqual(["blue"], sot.tags)
 
-        self.conn.network.set_tags(sot, [])
-        sot = self.conn.network.get_router(self.ID)
+        self.user_cloud.network.set_tags(sot, [])
+        sot = self.user_cloud.network.get_router(self.ID)
         self.assertEqual([], sot.tags)

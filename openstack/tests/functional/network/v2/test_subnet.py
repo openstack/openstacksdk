@@ -31,36 +31,38 @@ class TestSubnet(base.BaseFunctionalTest):
         self.NET_NAME = self.getUniqueString()
         self.SUB_NAME = self.getUniqueString()
         self.UPDATE_NAME = self.getUniqueString()
-        net = self.conn.network.create_network(name=self.NET_NAME)
+        net = self.user_cloud.network.create_network(name=self.NET_NAME)
         assert isinstance(net, network.Network)
         self.assertEqual(self.NET_NAME, net.name)
         self.NET_ID = net.id
-        sub = self.conn.network.create_subnet(
+        sub = self.user_cloud.network.create_subnet(
             name=self.SUB_NAME,
             ip_version=self.IPV4,
             network_id=self.NET_ID,
             cidr=self.CIDR,
             dns_nameservers=self.DNS_SERVERS,
             allocation_pools=self.POOL,
-            host_routes=self.ROUTES)
+            host_routes=self.ROUTES,
+        )
         assert isinstance(sub, subnet.Subnet)
         self.assertEqual(self.SUB_NAME, sub.name)
         self.SUB_ID = sub.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_subnet(self.SUB_ID)
+        sot = self.user_cloud.network.delete_subnet(self.SUB_ID)
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_network(
-            self.NET_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_network(
+            self.NET_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestSubnet, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_subnet(self.SUB_NAME)
+        sot = self.user_cloud.network.find_subnet(self.SUB_NAME)
         self.assertEqual(self.SUB_ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_subnet(self.SUB_ID)
+        sot = self.user_cloud.network.get_subnet(self.SUB_ID)
         self.assertEqual(self.SUB_NAME, sot.name)
         self.assertEqual(self.SUB_ID, sot.id)
         self.assertEqual(self.DNS_SERVERS, sot.dns_nameservers)
@@ -72,22 +74,23 @@ class TestSubnet(base.BaseFunctionalTest):
         self.assertTrue(sot.is_dhcp_enabled)
 
     def test_list(self):
-        names = [o.name for o in self.conn.network.subnets()]
+        names = [o.name for o in self.user_cloud.network.subnets()]
         self.assertIn(self.SUB_NAME, names)
 
     def test_update(self):
-        sot = self.conn.network.update_subnet(self.SUB_ID,
-                                              name=self.UPDATE_NAME)
+        sot = self.user_cloud.network.update_subnet(
+            self.SUB_ID, name=self.UPDATE_NAME
+        )
         self.assertEqual(self.UPDATE_NAME, sot.name)
 
     def test_set_tags(self):
-        sot = self.conn.network.get_subnet(self.SUB_ID)
+        sot = self.user_cloud.network.get_subnet(self.SUB_ID)
         self.assertEqual([], sot.tags)
 
-        self.conn.network.set_tags(sot, ['blue'])
-        sot = self.conn.network.get_subnet(self.SUB_ID)
-        self.assertEqual(['blue'], sot.tags)
+        self.user_cloud.network.set_tags(sot, ["blue"])
+        sot = self.user_cloud.network.get_subnet(self.SUB_ID)
+        self.assertEqual(["blue"], sot.tags)
 
-        self.conn.network.set_tags(sot, [])
-        sot = self.conn.network.get_subnet(self.SUB_ID)
+        self.user_cloud.network.set_tags(sot, [])
+        sot = self.user_cloud.network.get_subnet(self.SUB_ID)
         self.assertEqual([], sot.tags)

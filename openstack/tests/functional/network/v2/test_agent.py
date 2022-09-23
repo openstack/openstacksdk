@@ -19,7 +19,7 @@ from openstack.tests.functional import base
 class TestAgent(base.BaseFunctionalTest):
 
     AGENT = None
-    DESC = 'test description'
+    DESC = "test description"
 
     def validate_uuid(self, s):
         try:
@@ -30,21 +30,27 @@ class TestAgent(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestAgent, self).setUp()
-        agent_list = list(self.conn.network.agents())
+        if not self.user_cloud._has_neutron_extension("agent"):
+            self.skipTest("Neutron agent extension is required for this test")
+
+        agent_list = list(self.user_cloud.network.agents())
+        if len(agent_list) == 0:
+            self.skipTest("No agents available")
         self.AGENT = agent_list[0]
         assert isinstance(self.AGENT, agent.Agent)
 
     def test_list(self):
-        agent_list = list(self.conn.network.agents())
+        agent_list = list(self.user_cloud.network.agents())
         self.AGENT = agent_list[0]
         assert isinstance(self.AGENT, agent.Agent)
         self.assertTrue(self.validate_uuid(self.AGENT.id))
 
     def test_get(self):
-        sot = self.conn.network.get_agent(self.AGENT.id)
+        sot = self.user_cloud.network.get_agent(self.AGENT.id)
         self.assertEqual(self.AGENT.id, sot.id)
 
     def test_update(self):
-        sot = self.conn.network.update_agent(self.AGENT.id,
-                                             description=self.DESC)
+        sot = self.user_cloud.network.update_agent(
+            self.AGENT.id, description=self.DESC
+        )
         self.assertEqual(self.DESC, sot.description)
