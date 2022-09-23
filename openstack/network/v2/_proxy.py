@@ -5122,11 +5122,15 @@ class Proxy(proxy.Proxy):
                 self.log.debug('Looking at port %s' % port)
                 if port.device_owner in [
                     'network:router_interface',
-                    'network:router_interface_distributed'
+                    'network:router_interface_distributed',
+                    'network:ha_router_replicated_interface'
                 ]:
                     router_if.append(port)
                 elif port.device_owner == 'network:dhcp':
                     # we don't treat DHCP as a real port
+                    continue
+                elif port.device_owner is None or port.device_owner == '':
+                    # Nobody owns the port - go with it
                     continue
                 elif (
                     identified_resources
@@ -5172,6 +5176,21 @@ class Proxy(proxy.Proxy):
                     identified_resources=identified_resources,
                     filters=None,
                     resource_evaluation_fn=None)
+            # Drop ports not belonging to anybody
+            for port in self.ports(
+                project_id=project_id,
+                network_id=net.id
+            ):
+                if port.device_owner is None or port.device_owner == '':
+                    self._service_cleanup_del_res(
+                        self.delete_port,
+                        port,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=None,
+                        resource_evaluation_fn=None)
+
             # Drop all subnets in the net (no further conditions)
             for obj in self.subnets(
                 project_id=project_id,
