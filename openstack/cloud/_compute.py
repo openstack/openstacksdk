@@ -1096,7 +1096,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
         nat_destination=None,
     ):
         if server['status'] == 'ERROR':
-            if 'fault' in server and 'message' in server['fault']:
+            if ('fault' in server and server['fault'] is not None
+                    and 'message' in server['fault']):
                 raise exc.OpenStackCloudException(
                     "Error in creating the server."
                     " Compute service reports fault: {reason}".format(
