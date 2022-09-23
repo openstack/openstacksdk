@@ -20,7 +20,5 @@ class BaseBlockStorageTest(base.BaseFunctionalTest):
     def setUp(self):
         super(BaseBlockStorageTest, self).setUp()
         self._set_user_cloud(block_storage_api_version='3')
-        self._set_operator_cloud(block_storage_api_version='3')
-
         if not self.user_cloud.has_service('block-storage', '3'):
             self.skipTest('block-storage service not supported by cloud')
