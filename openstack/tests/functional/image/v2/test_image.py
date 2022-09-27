@@ -10,25 +10,21 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack import connection
-from openstack.tests.functional import base
+from openstack.image.v2 import image as _image
+from openstack.tests.functional.image.v2 import base
 
+# NOTE(stephenfin): This is referenced in the Compute functional tests to avoid
+# attempts to boot from it.
 TEST_IMAGE_NAME = 'Test Image'
 
 
-class TestImage(base.BaseFunctionalTest):
-
-    class ImageOpts:
-        def __init__(self):
-            self.image_api_version = '2'
+class TestImage(base.BaseImageTest):
 
     def setUp(self):
-        super(TestImage, self).setUp()
-        opts = self.ImageOpts()
-        self.conn = connection.from_config(
-            cloud_name=base.TEST_CLOUD_NAME, options=opts)
+        super().setUp()
 
-        self.img = self.conn.image.create_image(
+        # there's a limit on name length
+        self.image = self.conn.image.create_image(
             name=TEST_IMAGE_NAME,
             disk_format='raw',
             container_format='bare',
@@ -37,48 +33,61 @@ class TestImage(base.BaseFunctionalTest):
             # we need to just replace the image upload code with the stuff
             # from shade. Figuring out mapping the crap-tastic arbitrary
             # extra key-value pairs into Resource is going to be fun.
-            properties=dict(
-                description="This is not an image"
-            ),
-            data=open('CONTRIBUTING.rst', 'r')
+            properties={
+                'description': 'This is not an image',
+            },
+            data=open('CONTRIBUTING.rst', 'r'),
         )
-        self.addCleanup(self.conn.image.delete_image, self.img)
+        self.assertIsInstance(self.image, _image.Image)
+        self.assertEqual(TEST_IMAGE_NAME, self.image.name)
 
-    def test_get_image(self):
-        img2 = self.conn.image.get_image(self.img)
-        self.assertEqual(self.img, img2)
+    def tearDown(self):
+        # we do this in tearDown rather than via 'addCleanup' since we want to
+        # wait for the deletion of the resource to ensure it completes
+        self.conn.image.delete_image(self.image)
+        self.conn.image.wait_for_delete(self.image)
 
-    def test_get_images_schema(self):
-        schema = self.conn.image.get_images_schema()
-        self.assertIsNotNone(schema)
+        super().tearDown()
 
-    def test_get_image_schema(self):
-        schema = self.conn.image.get_image_schema()
-        self.assertIsNotNone(schema)
+    def test_images(self):
+        # get image
+        image = self.conn.image.get_image(self.image.id)
+        self.assertEqual(self.image.name, image.name)
 
-    def test_get_members_schema(self):
-        schema = self.conn.image.get_members_schema()
-        self.assertIsNotNone(schema)
+        # find image
+        image = self.conn.image.find_image(self.image.name)
+        self.assertEqual(self.image.id, image.id)
 
-    def test_get_member_schema(self):
-        schema = self.conn.image.get_member_schema()
-        self.assertIsNotNone(schema)
+        # list
+        images = list(self.conn.image.images())
+        # there are many other images so we don't assert that this is the
+        # *only* image present
+        self.assertIn(self.image.id, {i.id for i in images})
 
-    def test_list_tasks(self):
-        tasks = self.conn.image.tasks()
-        self.assertIsNotNone(tasks)
+        # update
+        image_name = self.getUniqueString()
+        image = self.conn.image.update_image(
+            self.image,
+            name=image_name,
+        )
+        self.assertIsInstance(image, _image.Image)
+        image = self.conn.image.get_image(self.image.id)
+        self.assertEqual(image_name, image.name)
 
     def test_tags(self):
-        img = self.conn.image.get_image(self.img)
-        self.conn.image.add_tag(img, 't1')
-        self.conn.image.add_tag(img, 't2')
-        # Ensure list with array of tags return us our image
-        list_img = list(self.conn.image.images(tag=['t1', 't2']))[0]
-        self.assertEqual(img.id, list_img.id)
-        self.assertIn('t1', list_img.tags)
-        self.assertIn('t2', list_img.tags)
-        self.conn.image.remove_tag(img, 't1')
-        # Refetch img to verify tags
-        img = self.conn.image.get_image(self.img)
-        self.assertIn('t2', img.tags)
-        self.assertNotIn('t1', img.tags)
+        # add tag
+        image = self.conn.image.get_image(self.image)
+        self.conn.image.add_tag(image, 't1')
+        self.conn.image.add_tag(image, 't2')
+
+        # filter image by tags
+        image = list(self.conn.image.images(tag=['t1', 't2']))[0]
+        self.assertEqual(image.id, image.id)
+        self.assertIn('t1', image.tags)
+        self.assertIn('t2', image.tags)
+
+        # remove tag
+        self.conn.image.remove_tag(image, 't1')
+        image = self.conn.image.get_image(self.image)
+        self.assertIn('t2', image.tags)
+        self.assertNotIn('t1', image.tags)
