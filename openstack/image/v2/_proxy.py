@@ -672,14 +672,89 @@ class Proxy(_base_proxy.BaseImageProxy):
                             image_id=image_id, **attrs)
 
     # ====== METADEF NAMESPACES ======
+    def create_metadef_namespace(self, **attrs):
+        """Create a new metadef namespace from attributes
+
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            comprised of the properties on the MetadefNamespace class.
+
+        :returns: The results of metadef namespace creation
+        :rtype: :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+        """
+        return self._create(_metadef_namespace.MetadefNamespace, **attrs)
+
+    def delete_metadef_namespace(self, metadef_namespace, ignore_missing=True):
+        """Delete a metadef namespace
+
+        :param metadef_namespace: The value can be either the name of a metadef
+            namespace or a
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :param bool ignore_missing: When set to ``False``,
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the metadef namespace does not exist.
+        :returns: ``None``
+        """
+        self._delete(
+            _metadef_namespace.MetadefNamespace,
+            metadef_namespace,
+            ignore_missing=ignore_missing,
+        )
+
+    # NOTE(stephenfin): There is no 'find_metadef_namespace' since namespaces
+    # are identified by the namespace name, not an arbitrary UUID, meaning
+    # 'find_metadef_namespace' would be identical to 'get_metadef_namespace'
+
+    def get_metadef_namespace(self, metadef_namespace):
+        """Get a single metadef namespace
+
+        :param metadef_namespace: Either the name of a metadef namespace or an
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+
+        :returns: One
+            :class:`~~openstack.image.v2.metadef_namespace.MetadefNamespace`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        """
+        return self._get(
+            _metadef_namespace.MetadefNamespace,
+            metadef_namespace,
+        )
+
     def metadef_namespaces(self, **query):
-        """Get a info about image metadef namespaces
+        """Return a generator of metadef namespaces
 
         :returns: A generator object of metadef namespaces
+        :rtype: :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
         return self._list(_metadef_namespace.MetadefNamespace, **query)
+
+    def update_metadef_namespace(self, metadef_namespace, **attrs):
+        """Update a server
+
+        :param metadef_namespace: Either the name of a metadef namespace or an
+            :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+            instance.
+        :param attrs: The attributes to update on the metadef namespace
+            represented by ``metadef_namespace``.
+
+        :returns: The updated metadef namespace
+        :rtype: :class:`~openstack.image.v2.metadef_namespace.MetadefNamespace`
+        """
+        # rather annoyingly, Glance insists on us providing the 'namespace'
+        # argument, even if we're not changing it...
+        if 'namespace' not in attrs:
+            attrs['namespace'] = resource.Resource._get_id(metadef_namespace)
+
+        return self._update(
+            _metadef_namespace.MetadefNamespace,
+            metadef_namespace,
+            **attrs,
+        )
 
     # ====== SCHEMAS ======
     def get_images_schema(self):
@@ -858,3 +933,19 @@ class Proxy(_base_proxy.BaseImageProxy):
             when no resource can be found.
         """
         return self._get(_si.Import, require_id=False)
+
+    # ====== UTILS ======
+    def wait_for_delete(self, res, interval=2, wait=120):
+        """Wait for a resource to be deleted.
+
+        :param res: The resource to wait on to be deleted.
+        :type resource: A :class:`~openstack.resource.Resource` object.
+        :param interval: Number of seconds to wait before to consecutive
+            checks. Default to 2.
+        :param wait: Maximum number of seconds to wait before the change.
+            Default to 120.
+        :returns: The resource is returned on success.
+        :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
+            to delete failed to occur in the specified seconds.
+        """
+        return resource.wait_for_delete(self, res, interval, wait)
