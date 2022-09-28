@@ -856,6 +856,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
             f_ip = self.create_floating_ip(
                 server=server,
                 network=network, nat_destination=nat_destination,
+                fixed_address=fixed_address,
                 wait=wait, timeout=timeout)
             timeout = timeout - (time.time() - start_time)
             # Wait for cache invalidation time so that we don't try
