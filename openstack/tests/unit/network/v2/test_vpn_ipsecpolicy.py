@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import vpn_ipsecpolicy
+from openstack.network.v2 import vpn_ipsec_policy
 from openstack.tests.unit import base
 
 
@@ -30,7 +30,7 @@ EXAMPLE = {
 class TestVpnIpsecPolicy(base.TestCase):
 
     def test_basic(self):
-        sot = vpn_ipsecpolicy.VpnIpsecPolicy()
+        sot = vpn_ipsec_policy.VpnIpsecPolicy()
         self.assertEqual('ipsecpolicy', sot.resource_key)
         self.assertEqual('ipsecpolicies', sot.resources_key)
         self.assertEqual('/vpn/ipsecpolicies', sot.base_path)
@@ -41,7 +41,7 @@ class TestVpnIpsecPolicy(base.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = vpn_ipsecpolicy.VpnIpsecPolicy(**EXAMPLE)
+        sot = vpn_ipsec_policy.VpnIpsecPolicy(**EXAMPLE)
         self.assertEqual(EXAMPLE['auth_algorithm'], sot.auth_algorithm)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['encryption_algorithm'],
