@@ -84,7 +84,10 @@ class BaseResource(resource.Resource):
         self.metadata = dict()
 
         for header in headers:
-            if header.startswith(self._custom_metadata_prefix):
+            # RADOS and other stuff in front may actually lowcase headers
+            if header.lower().startswith(
+                    self._custom_metadata_prefix.lower()
+            ):
                 key = header[len(self._custom_metadata_prefix):].lower()
                 self.metadata[key] = headers[header]
 
