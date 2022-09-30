@@ -38,7 +38,6 @@ class TestMapping(base.TestCase):
 
         self.assertDictEqual(
             {
-                'id': 'id',
                 'limit': 'limit',
                 'marker': 'marker',
             },

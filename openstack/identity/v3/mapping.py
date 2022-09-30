@@ -27,9 +27,7 @@ class Mapping(resource.Resource):
     create_method = 'PUT'
     commit_method = 'PATCH'
 
-    _query_mapping = resource.QueryParameters(
-        'id',
-    )
+    _query_mapping = resource.QueryParameters()
 
     # Properties
     #: The rules of this mapping. *Type: list*
