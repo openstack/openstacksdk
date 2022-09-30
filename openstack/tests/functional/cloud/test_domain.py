@@ -25,6 +25,8 @@ class TestDomain(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestDomain, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
         i_ver = self.operator_cloud.config.get_api_version('identity')
         if i_ver in ('2', '2.0'):
             self.skipTest('Identity service does not support domains')

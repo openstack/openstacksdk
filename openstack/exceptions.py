@@ -112,6 +112,11 @@ class BadRequestException(HttpException):
     pass
 
 
+class ForbiddenException(HttpException):
+    """HTTP 403 Forbidden Request."""
+    pass
+
+
 class ConflictException(HttpException):
     """HTTP 409 Conflict."""
     pass
@@ -187,12 +192,14 @@ def raise_from_response(response, error_message=None):
     if response.status_code < 400:
         return
 
-    if response.status_code == 409:
-        cls = ConflictException
+    if response.status_code == 400:
+        cls = BadRequestException
+    elif response.status_code == 403:
+        cls = ForbiddenException
     elif response.status_code == 404:
         cls = NotFoundException
-    elif response.status_code == 400:
-        cls = BadRequestException
+    elif response.status_code == 409:
+        cls = ConflictException
     elif response.status_code == 412:
         cls = PreconditionFailedException
     else:

@@ -2226,7 +2226,8 @@ class Resource(dict):
                 id=name_or_id, connection=session._get_connection(), **params
             )
             return match.fetch(session, microversion=microversion, **params)
-        except (exceptions.NotFoundException, exceptions.BadRequestException):
+        except (exceptions.NotFoundException, exceptions.BadRequestException,
+                exceptions.ForbiddenException):
             # NOTE(gtema): There are few places around openstack that return
             # 400 if we try to GET resource and it doesn't exist.
             pass

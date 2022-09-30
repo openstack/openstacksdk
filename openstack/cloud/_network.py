@@ -1,3 +1,4 @@
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -663,9 +664,8 @@ class NetworkCloudMixin:
         :raises: OpenStackCloudException if it's not a valid project
         :returns: A network ``Quota`` object if found, else None.
         """
-        proj = self.get_project(name_or_id)
-        if not proj:
-            raise exc.OpenStackCloudException("project does not exist")
+        proj = self.identity.find_project(
+            name_or_id, ignore_missing=False)
         return self.network.get_quota(proj.id, details)
 
     def get_network_extensions(self):

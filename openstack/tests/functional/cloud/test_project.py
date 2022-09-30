@@ -28,6 +28,9 @@ class TestProject(base.KeystoneBaseFunctionalTest):
 
     def setUp(self):
         super(TestProject, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         self.new_project_name = self.getUniqueString('project')
         self.addCleanup(self._cleanup_projects)
 

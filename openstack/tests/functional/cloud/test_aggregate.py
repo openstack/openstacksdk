@@ -23,6 +23,8 @@ from openstack.tests.functional import base
 class TestAggregate(base.BaseFunctionalTest):
 
     def test_aggregates(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
         aggregate_name = self.getUniqueString()
         availability_zone = self.getUniqueString()
         self.addCleanup(self.cleanup, aggregate_name)

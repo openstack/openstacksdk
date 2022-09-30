@@ -25,6 +25,22 @@ class TestSecurityGroups(base.BaseFunctionalTest):
         sg1 = self.user_cloud.create_security_group(
             name="sg1", description="sg1")
         self.addCleanup(self.user_cloud.delete_security_group, sg1['id'])
+        if self.user_cloud.has_service('network'):
+            # Neutron defaults to all_tenants=1 when admin
+            sg_list = self.user_cloud.list_security_groups()
+            self.assertIn(sg1['id'], [sg['id'] for sg in sg_list])
+
+        else:
+            # Nova does not list all tenants by default
+            sg_list = self.operator_cloud.list_security_groups()
+
+    def test_create_list_security_groups_operator(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
+        sg1 = self.user_cloud.create_security_group(
+            name="sg1", description="sg1")
+        self.addCleanup(self.user_cloud.delete_security_group, sg1['id'])
         sg2 = self.operator_cloud.create_security_group(
             name="sg2", description="sg2")
         self.addCleanup(self.operator_cloud.delete_security_group, sg2['id'])

@@ -34,6 +34,8 @@ class TestEndpoints(base.KeystoneBaseFunctionalTest):
 
     def setUp(self):
         super(TestEndpoints, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
 
         # Generate a random name for services and regions in this test
         self.new_item_name = 'test_' + ''.join(

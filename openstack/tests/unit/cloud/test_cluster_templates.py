@@ -13,7 +13,7 @@
 import munch
 import testtools
 
-import openstack.cloud
+from openstack import exceptions
 from openstack.tests.unit import base
 
 
@@ -198,7 +198,7 @@ class TestClusterTemplates(base.TestCase):
         # match the more specific HTTPError, even though it's a subclass
         # of OpenStackCloudException.
         with testtools.ExpectedException(
-                openstack.cloud.OpenStackCloudHTTPError):
+                exceptions.ForbiddenException):
             self.cloud.create_cluster_template('fake-cluster-template')
         self.assert_calls()
 

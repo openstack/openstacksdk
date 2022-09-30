@@ -27,6 +27,9 @@ class TestProjectCleanup(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestProjectCleanup, self).setUp()
+        if not self.user_cloud_alt:
+            self.skipTest("Alternate demo cloud is required for this test")
+
         self.conn = self.user_cloud_alt
         self.network_name = self.getUniqueString('network')
 

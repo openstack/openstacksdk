@@ -14,7 +14,7 @@
 import testtools
 from testtools import matchers
 
-import openstack.cloud
+from openstack import exceptions
 from openstack.tests.unit import base
 
 
@@ -248,7 +248,7 @@ class TestIdentityRoles(base.TestCase):
                  status_code=403)
         ])
         with testtools.ExpectedException(
-            openstack.cloud.exc.OpenStackCloudHTTPError
+            exceptions.ForbiddenException
         ):
             self.cloud.list_role_assignments()
         self.assert_calls()

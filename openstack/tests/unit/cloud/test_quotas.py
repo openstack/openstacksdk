@@ -212,7 +212,7 @@ class TestQuotas(base.TestCase):
             'port': 500
         }
         project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+                                                  id_get=True)[0]
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(
@@ -272,7 +272,7 @@ class TestQuotas(base.TestCase):
                 'reserved': 0}
         }
         project = self.mock_for_keystone_projects(project_count=1,
-                                                  list_get=True)[0]
+                                                  id_get=True)[0]
         self.register_uris([
             dict(method='GET',
                  uri=self.get_mock_url(

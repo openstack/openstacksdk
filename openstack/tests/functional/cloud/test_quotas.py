@@ -22,8 +22,16 @@ from openstack.tests.functional import base
 
 class TestComputeQuotas(base.BaseFunctionalTest):
 
-    def test_quotas(self):
+    def test_get_quotas(self):
         '''Test quotas functionality'''
+        self.user_cloud.get_compute_quotas(
+            self.user_cloud.current_project_id)
+
+    def test_set_quotas(self):
+        '''Test quotas functionality'''
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         quotas = self.operator_cloud.get_compute_quotas('demo')
         cores = quotas['cores']
         self.operator_cloud.set_compute_quotas('demo', cores=cores + 1)
@@ -39,11 +47,20 @@ class TestVolumeQuotas(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestVolumeQuotas, self).setUp()
-        if not self.operator_cloud.has_service('volume'):
+        if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
 
-    def test_quotas(self):
-        '''Test quotas functionality'''
+    def test_get_quotas(self):
+        '''Test get quotas functionality'''
+        self.user_cloud.get_volume_quotas(
+            self.user_cloud.current_project_id
+        )
+
+    def test_set_quotas(self):
+        '''Test set quotas functionality'''
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         quotas = self.operator_cloud.get_volume_quotas('demo')
         volumes = quotas['volumes']
         self.operator_cloud.set_volume_quotas('demo', volumes=volumes + 1)
@@ -58,13 +75,18 @@ class TestVolumeQuotas(base.BaseFunctionalTest):
 
 class TestNetworkQuotas(base.BaseFunctionalTest):
 
-    def setUp(self):
-        super(TestNetworkQuotas, self).setUp()
-        if not self.operator_cloud.has_service('network'):
-            self.skipTest('network service not supported by cloud')
+    def test_get_quotas(self):
+        '''Test get quotas functionality'''
+        self.user_cloud.get_network_quotas(
+            self.user_cloud.current_project_id)
 
     def test_quotas(self):
         '''Test quotas functionality'''
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+        if not self.operator_cloud.has_service('network'):
+            self.skipTest('network service not supported by cloud')
+
         quotas = self.operator_cloud.get_network_quotas('demo')
         network = quotas['networks']
         self.operator_cloud.set_network_quotas('demo', networks=network + 1)
@@ -77,6 +99,11 @@ class TestNetworkQuotas(base.BaseFunctionalTest):
             self.operator_cloud.get_network_quotas('demo')['networks'])
 
     def test_get_quotas_details(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+        if not self.operator_cloud.has_service('network'):
+            self.skipTest('network service not supported by cloud')
+
         quotas = [
             'floating_ips', 'networks', 'ports',
             'rbac_policies', 'routers', 'subnets',

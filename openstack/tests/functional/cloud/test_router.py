@@ -34,6 +34,8 @@ EXPECTED_GW_INFO_FIELDS = ('network_id', 'enable_snat', 'external_fixed_ips')
 class TestRouter(base.BaseFunctionalTest):
     def setUp(self):
         super(TestRouter, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud required for this test")
         if not self.operator_cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')
 
