@@ -62,7 +62,7 @@ from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
 from openstack.network.v2 import trunk as _trunk
 from openstack.network.v2 import vpn_endpoint_group as _vpn_endpoint_group
-from openstack.network.v2 import vpn_ikepolicy as _ikepolicy
+from openstack.network.v2 import vpn_ike_policy as _ike_policy
 from openstack.network.v2 import vpn_ipsec_policy as _ipsec_policy
 from openstack.network.v2 import vpn_ipsec_site_connection as \
     _ipsec_site_connection
@@ -4581,25 +4581,25 @@ class Proxy(proxy.Proxy):
             ipsec_site_connection, ignore_missing=ignore_missing)
 
     # ========== IKEPolicy ==========
-    def create_vpn_ikepolicy(self, **attrs):
+    def create_vpn_ike_policy(self, **attrs):
         """Create a new ike policy from attributes
 
         :param dict attrs: Keyword arguments which will be used to create a
-            :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`,
+            :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`,
             comprised of the properties on the VpnIkePolicy class.
 
         :returns: The results of ike policy creation :rtype:
-            :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+            :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
         """
         return self._create(
-            _ikepolicy.VpnIkePolicy, **attrs)
+            _ike_policy.VpnIkePolicy, **attrs)
 
-    def find_vpn_ikepolicy(
+    def find_vpn_ike_policy(
         self, name_or_id, ignore_missing=True, **args
     ):
         """Find a single ike policy
 
-        :param name_or_id: The name or ID of an ike policy.
+        :param name_or_id: The name or ID of an IKE policy.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound`
             will be raised when the resource does not exist.
@@ -4607,59 +4607,60 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :param dict args: Any additional parameters to be passed into
             underlying methods such as query filters.
-        :returns: One :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
-            or None.
+        :returns: One
+            :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy` or None.
         """
         return self._find(
-            _ikepolicy.VpnIkePolicy, name_or_id,
+            _ike_policy.VpnIkePolicy, name_or_id,
             ignore_missing=ignore_missing, **args)
 
-    def get_vpn_ikepolicy(self, ikepolicy):
+    def get_vpn_ike_policy(self, ike_policy):
         """Get a single ike policy
 
-        :param ikepolicy: The value can be the ID of an ikepolicy or a
-            :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+        :param ike_policy: The value can be the ID of an IKE policy or a
+            :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
             instance.
 
-        :returns: One :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
-        :rtype: :class:`~openstack.network.v2.ikepolicy.VpnIkePolicy`
+        :returns: One
+            :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
+        :rtype: :class:`~openstack.network.v2.ike_policy.VpnIkePolicy`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
         """
         return self._get(
-            _ikepolicy.VpnIkePolicy, ikepolicy)
+            _ike_policy.VpnIkePolicy, ike_policy)
 
-    def vpn_ikepolicies(self, **query):
-        """Return a generator of ike policy
+    def vpn_ike_policies(self, **query):
+        """Return a generator of IKE policies
 
         :param dict query: Optional query parameters to be sent to limit the
             resources being returned.
 
         :returns: A generator of ike policy objects
-        :rtype: :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+        :rtype: :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
         """
-        return self._list(
-            _ikepolicy.VpnIkePolicy, **query)
+        return self._list(_ike_policy.VpnIkePolicy, **query)
 
-    def update_vpn_ikepolicy(self, ikepolicy, **attrs):
-        """Update a ike policy
+    def update_vpn_ike_policy(self, ike_policy, **attrs):
+        """Update an IKE policy
 
-        :ikepolicy: Either the id of an ike policy or a
-         :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy` instance.
+        :ike_policy: Either the IK of an IKE policy or a
+            :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
+            instance.
         :param dict attrs: The attributes to update on the ike policy
-            represented by ``ikepolicy``.
+            represented by ``ike_policy``.
 
         :returns: The updated ike policy
-        :rtype: :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+        :rtype: :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
         """
         return self._update(
-            _ikepolicy.VpnIkePolicy, ikepolicy, **attrs)
+            _ike_policy.VpnIkePolicy, ike_policy, **attrs)
 
-    def delete_vpn_ikepolicy(self, ikepolicy, ignore_missing=True):
-        """Delete a ikepolicy
+    def delete_vpn_ike_policy(self, ike_policy, ignore_missing=True):
+        """Delete an IKE policy
 
-        :param ikepolicy: The value can be either the ID of an ike policy, or
-            a :class:`~openstack.network.v2.vpn_ikepolicy.VpnIkePolicy`
+        :param ike_policy: The value can be either the ID of an ike policy, or
+            a :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
             instance.
         :param bool ignore_missing:
             When set to ``False``
@@ -4671,7 +4672,7 @@ class Proxy(proxy.Proxy):
         :returns: ``None``
         """
         self._delete(
-            _ikepolicy.VpnIkePolicy, ikepolicy,
+            _ike_policy.VpnIkePolicy, ike_policy,
             ignore_missing=ignore_missing)
 
     # ========== IPSecPolicy ==========

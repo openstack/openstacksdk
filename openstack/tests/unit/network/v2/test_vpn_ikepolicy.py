@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack.network.v2 import vpn_ikepolicy
+from openstack.network.v2 import vpn_ike_policy
 from openstack.tests.unit import base
 
 
@@ -32,7 +32,7 @@ EXAMPLE = {
 class TestVpnIkePolicy(base.TestCase):
 
     def test_basic(self):
-        sot = vpn_ikepolicy.VpnIkePolicy()
+        sot = vpn_ike_policy.VpnIkePolicy()
         self.assertEqual('ikepolicy', sot.resource_key)
         self.assertEqual('ikepolicies', sot.resources_key)
         self.assertEqual('/vpn/ikepolicies', sot.base_path)
@@ -43,7 +43,7 @@ class TestVpnIkePolicy(base.TestCase):
         self.assertTrue(sot.allow_list)
 
     def test_make_it(self):
-        sot = vpn_ikepolicy.VpnIkePolicy(**EXAMPLE)
+        sot = vpn_ike_policy.VpnIkePolicy(**EXAMPLE)
         self.assertEqual(EXAMPLE['auth_algorithm'], sot.auth_algorithm)
         self.assertEqual(EXAMPLE['description'], sot.description)
         self.assertEqual(EXAMPLE['encryption_algorithm'],
