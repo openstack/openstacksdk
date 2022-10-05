@@ -436,6 +436,41 @@
     required-projects:
       - openstack/openstacksdk
 
+- job:
+    name: openstacksdk-acceptance-base
+    parent: openstack-tox
+    description: Acceptance test of the OpenStackSDK on real clouds
+    pre-run:
+      - playbooks/acceptance/pre.yaml
+    post-run:
+      - playbooks/acceptance/post.yaml
+
+- job:
+    name: openstacksdk-acceptance-devstack
+    parent: openstacksdk-functional-devstack
+    description: Acceptance test of the OpenStackSDK on real clouds
+    run:
+      - playbooks/acceptance/run-with-devstack.yaml
+    post-run:
+      - playbooks/acceptance/post.yaml
+    vars:
+      tox_envlist: acceptance-regular-user
+      tox_environment:
+        OPENSTACKSDK_DEMO_CLOUD: acceptance
+        OS_CLOUD: acceptance
+        OS_TEST_CLOUD: acceptance
+      openstack_credentials:
+        auth:
+          auth_url: "https://{{ hostvars['controller']['nodepool']['private_ipv4'] }}/identity"
+          username: demo
+          password: secretadmin
+          project_domain_id: default
+          project_name: demo
+          user_domain_id: default
+        identity_api_version: '3'
+        region_name: RegionOne
+        volume_api_version: '3'
+
 - project-template:
     name: openstacksdk-functional-tips
     check:
@@ -486,6 +521,9 @@
             voting: false
         - ansible-collections-openstack-functional-devstack:
             voting: false
+    post-review:
+      jobs:
+        - openstacksdk-acceptance-devstack
     gate:
       jobs:
         - opendev-buildset-registry

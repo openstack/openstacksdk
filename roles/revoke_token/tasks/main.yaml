@@ -1,0 +1,7 @@
+- name: Revoke token
+  delegate_to: localhost
+  no_log: true
+  os_auth_revoke:
+    cloud: "{{ cloud }}"
+    revoke_token: "{{ token }}"
+  failed_when: false

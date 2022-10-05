@@ -1,0 +1,11 @@
+- name: Create OpenStack config dir
+  ansible.builtin.file:
+    dest: ~/.config/openstack
+    state: directory
+    recurse: true
+
+- name: Deploy clouds.yaml
+  ansible.builtin.template:
+    src: clouds.yaml.j2
+    dest: ~/.config/openstack/clouds.yaml
+    mode: 0440
