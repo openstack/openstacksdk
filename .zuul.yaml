@@ -428,6 +428,7 @@
     name: bifrost-integration-openstacksdk-src
     parent: bifrost-integration-tinyipa-ubuntu-focal
     required-projects:
+      - openstack/ansible-collections-openstack
       - openstack/openstacksdk
 
 - job:
