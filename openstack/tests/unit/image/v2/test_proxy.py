@@ -20,6 +20,7 @@ from openstack.image.v2 import _proxy
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import metadef_namespace as _metadef_namespace
+from openstack.image.v2 import metadef_resource_type as _metadef_resource_type
 from openstack.image.v2 import metadef_schema as _metadef_schema
 from openstack.image.v2 import schema as _schema
 from openstack.image.v2 import service_info as _service_info
@@ -530,6 +531,50 @@ class TestMetadefNamespace(TestImageProxy):
             _metadef_namespace.MetadefNamespace,
             method_kwargs={'is_protected': True},
             expected_kwargs={'namespace': 'resource_id', 'is_protected': True},
+        )
+
+
+class TestMetadefResourceType(TestImageProxy):
+    def test_metadef_resource_types(self):
+        self.verify_list(
+            self.proxy.metadef_resource_types,
+            _metadef_resource_type.MetadefResourceType
+        )
+
+
+class TestMetadefResourceTypeAssociation(TestImageProxy):
+    def test_create_metadef_resource_type_association(self):
+        self.verify_create(
+            self.proxy.create_metadef_resource_type_association,
+            _metadef_resource_type.MetadefResourceTypeAssociation,
+            method_kwargs={'metadef_namespace': 'namespace_name'},
+            expected_kwargs={'namespace_name': 'namespace_name'}
+        )
+
+    def test_delete_metadef_resource_type_association(self):
+        self.verify_delete(
+            self.proxy.delete_metadef_resource_type_association,
+            _metadef_resource_type.MetadefResourceTypeAssociation,
+            False,
+            method_kwargs={'metadef_namespace': 'namespace_name'},
+            expected_kwargs={'namespace_name': 'namespace_name'}
+        )
+
+    def test_delete_metadef_resource_type_association_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_metadef_resource_type_association,
+            _metadef_resource_type.MetadefResourceTypeAssociation,
+            True,
+            method_kwargs={'metadef_namespace': 'namespace_name'},
+            expected_kwargs={'namespace_name': 'namespace_name'}
+        )
+
+    def test_metadef_resource_type_associations(self):
+        self.verify_list(
+            self.proxy.metadef_resource_type_associations,
+            _metadef_resource_type.MetadefResourceTypeAssociation,
+            method_kwargs={'metadef_namespace': 'namespace_name'},
+            expected_kwargs={'namespace_name': 'namespace_name'}
         )
 
 
