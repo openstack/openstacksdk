@@ -168,6 +168,12 @@ class TestIdentityProxyGroup(TestIdentityProxyBase):
             ]
         )
 
+    def test_group_users(self):
+        self.verify_list(
+            self.proxy.group_users, user.User,
+            method_kwargs={"group": 'group', "attrs": 1},
+            expected_kwargs={"attrs": 1})
+
 
 class TestIdentityProxyPolicy(TestIdentityProxyBase):
 

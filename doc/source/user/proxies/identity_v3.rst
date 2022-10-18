@@ -43,7 +43,7 @@ Group Operations
   :noindex:
   :members: create_group, update_group, delete_group, get_group, find_group,
             groups, add_user_to_group, remove_user_from_group,
-            check_user_in_group
+            check_user_in_group, group_users
 
 Policy Operations
 ^^^^^^^^^^^^^^^^^
