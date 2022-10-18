@@ -348,7 +348,8 @@ class BlockStorageCloudMixin:
         :raises: OpenStackCloudException on operation error.
         """
         self.compute.delete_volume_attachment(
-            volume['id'], server['id'],
+            server=server['id'],
+            volume=volume['id'],
             ignore_missing=False,
         )
         if wait:
@@ -396,11 +397,14 @@ class BlockStorageCloudMixin:
                 % (volume['id'], volume['status'])
             )
 
-        payload = {'volumeId': volume['id']}
+        payload = {}
         if device:
             payload['device'] = device
         attachment = self.compute.create_volume_attachment(
-            server=server['id'], **payload)
+            server=server['id'],
+            volume=volume['id'],
+            **payload,
+        )
 
         if wait:
             if not hasattr(volume, 'fetch'):
