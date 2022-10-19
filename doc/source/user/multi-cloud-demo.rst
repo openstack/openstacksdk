@@ -294,7 +294,7 @@ Much more complex clouds.yaml example
 
     my-internap:
       auth:
-        auth_url: https://identity.api.cloud.iweb.com
+        auth_url: https://identity.api.cloud.inap.com
         username: api-55f9a00fb2619
         project_name: inap-17037
       identity_api_version: 3

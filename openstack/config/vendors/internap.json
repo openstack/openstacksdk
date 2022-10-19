@@ -2,7 +2,7 @@
   "name": "internap",
   "profile": {
     "auth": {
-      "auth_url": "https://identity.api.cloud.iweb.com"
+      "auth_url": "https://identity.api.cloud.inap.com"
     },
     "regions": [
       "ams01",
