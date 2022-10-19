@@ -197,7 +197,9 @@ class TestFloatingIP(base.TestCase):
         self.cloud.add_ips_to_server(server_dict, ips=ips)
 
         mock_add_ip_list.assert_called_with(
-            server_dict, ips, wait=False, timeout=60, fixed_address=None)
+            server_dict, ips, wait=False, timeout=60,
+            fixed_address=None,
+            nat_destination=None)
 
     @patch.object(connection.Connection, '_needs_floating_ip')
     @patch.object(connection.Connection, '_add_auto_ip')
