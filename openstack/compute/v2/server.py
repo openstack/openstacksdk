@@ -491,12 +491,24 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"migrate": None}
         self._action(session, body)
 
+    def trigger_crash_dump(self, session):
+        body = {"trigger_crash_dump": None}
+        self._action(session, body)
+
     def get_console_output(self, session, length=None):
         body = {"os-getConsoleOutput": {}}
         if length is not None:
             body["os-getConsoleOutput"]["length"] = length
         resp = self._action(session, body)
         return resp.json()
+
+    def get_console_url(self, session, console_type):
+        action = CONSOLE_TYPE_ACTION_MAPPING.get(console_type)
+        if not action:
+            raise ValueError("Unsupported console type %s" % console_type)
+        body = {action: {'type': console_type}}
+        resp = self._action(session, body)
+        return resp.json().get('console')
 
     def live_migrate(self, session, host, force, block_migration,
                      disk_over_commit=False):
@@ -516,14 +528,6 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
                 force=force,
                 block_migration=block_migration,
                 disk_over_commit=disk_over_commit)
-
-    def get_console_url(self, session, console_type):
-        action = CONSOLE_TYPE_ACTION_MAPPING.get(console_type)
-        if not action:
-            raise ValueError("Unsupported console type %s" % console_type)
-        body = {action: {'type': console_type}}
-        resp = self._action(session, body)
-        return resp.json().get('console')
 
     def _live_migrate_30(self, session, host, force, block_migration):
         microversion = '2.30'
