@@ -530,7 +530,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         image.deactivate(self)
 
     def reactivate_image(self, image):
-        """Deactivate an image
+        """Reactivate an image
 
         :param image: Either the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
