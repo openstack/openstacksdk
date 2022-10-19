@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from openstack import exceptions
 from openstack.image.v2 import service_info as si
 from openstack.tests.unit import base
 
@@ -26,7 +29,7 @@ EXAMPLE_IMPORT = {
     }
 }
 EXAMPLE_STORE = {
-    'id': 'fast',
+    'id': IDENTIFIER,
     'description': 'Fast access to rbd store',
     'default': True
 }
@@ -49,6 +52,16 @@ class TestStore(base.TestCase):
         self.assertEqual(EXAMPLE_STORE['id'], sot.id)
         self.assertEqual(EXAMPLE_STORE['description'], sot.description)
         self.assertEqual(EXAMPLE_STORE['default'], sot.is_default)
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_delete_image(self):
+        sot = si.Store(**EXAMPLE_STORE)
+        session = mock.Mock()
+        session.delete = mock.Mock()
+
+        sot.delete_image(session, image='image_id')
+
+        session.delete.assert_called_with('stores/IDENTIFIER/image_id')
 
 
 class TestImport(base.TestCase):
