@@ -598,7 +598,7 @@ class TestMisc(TestImageProxy):
             method_args=[],
             method_kwargs={},
             expected_args=[si.Import],
-            expected_kwargs={'require_id': False})
+            expected_kwargs={'requires_id': False})
 
 
 class TestMetadefSchema(TestImageProxy):
