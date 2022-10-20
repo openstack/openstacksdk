@@ -264,15 +264,32 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         """
         self._action(session, "reactivate")
 
-    def upload(self, session):
-        """Upload data into an existing image"""
+    def upload(self, session, *, data=None):
+        """Upload data into an existing image
+
+        :param session: The session to use for making this request
+        :param data: Optional data to be uploaded. If not provided, the
+            `~Image.data` attribute will be used
+        :returns: The server response
+        """
+        if data:
+            self.data = data
         url = utils.urljoin(self.base_path, self.id, 'file')
         return session.put(url, data=self.data,
                            headers={"Content-Type": "application/octet-stream",
                                     "Accept": ""})
 
-    def stage(self, session):
-        """Stage binary image data into an existing image"""
+    def stage(self, session, *, data=None):
+        """Stage binary image data into an existing image
+
+        :param session: The session to use for making this request
+        :param data: Optional data to be uploaded. If not provided, the
+            `~Image.data` attribute will be used
+        :returns: The server response
+        """
+        if data:
+            self.data = data
+
         url = utils.urljoin(self.base_path, self.id, 'stage')
         response = session.put(
             url, data=self.data,
