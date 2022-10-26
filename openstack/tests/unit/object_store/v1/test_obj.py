@@ -116,6 +116,15 @@ class TestObject(base_test_object.BaseTestObject):
         self.assertEqual(self.headers['Content-Type'], sot.content_type)
         self.assertEqual(self.headers['X-Delete-At'], sot.delete_at)
 
+        # Verify that we also properly process lowcased headers
+        # All headers are processed in _base._set_metadata therefore invoke it
+        # here directly
+        sot._set_metadata(headers={"x-object-meta-foo": "bar"})
+        self.assert_no_calls()
+
+        # Attributes from header
+        self.assertEqual("bar", sot.metadata["foo"])
+
     def test_download(self):
         headers = {
             'X-Newest': 'True',
