@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add search_resources method implementing generic search interface accepting
+    resource name (as "service.resource"), name_or_id and list of additional
+    filters and returning 0 or many resources matching those. This interface is
+    primarily designed to be used by Ansible modules.
