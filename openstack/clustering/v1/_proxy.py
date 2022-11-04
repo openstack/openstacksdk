@@ -28,6 +28,21 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "action": _action.Action,
+        "build_info": build_info.BuildInfo,
+        "cluster": _cluster.Cluster,
+        "cluster_attr": _cluster_attr.ClusterAttr,
+        "cluster_policy": _cluster_policy.ClusterPolicy,
+        "event": _event.Event,
+        "node": _node.Node,
+        "policy": _policy.Policy,
+        "policy_type": _policy_type.PolicyType,
+        "profile": _profile.Profile,
+        "profile_type": _profile_type.ProfileType,
+        "receiver": _receiver.Receiver,
+        "service": _service.Service,
+    }
 
     def get_build_info(self):
         """Get build info for service engine and API

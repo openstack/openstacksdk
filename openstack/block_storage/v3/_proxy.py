@@ -31,6 +31,22 @@ from openstack import resource
 
 
 class Proxy(_base_proxy.BaseBlockStorageProxy):
+    _resource_registry = {
+        "availability_zone": availability_zone.AvailabilityZone,
+        "backup": _backup.Backup,
+        "capabilities": _capabilities.Capabilities,
+        "extension": _extension.Extension,
+        "group": _group.Group,
+        "group_snapshot": _group_snapshot.GroupSnapshot,
+        "group_type": _group_type,
+        "limits": _limits.Limit,
+        "quota_set": _quota_set.QuotaSet,
+        "resource_filter": _resource_filter.ResourceFilter,
+        "snapshot": _snapshot.Snapshot,
+        "stats_pools": _stats.Pools,
+        "type": _type.Type,
+        "volume": _volume.Volume
+    }
 
     # ====== SNAPSHOTS ======
     def get_snapshot(self, snapshot):

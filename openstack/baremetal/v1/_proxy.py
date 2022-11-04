@@ -30,6 +30,19 @@ class Proxy(proxy.Proxy):
 
     retriable_status_codes = _common.RETRIABLE_STATUS_CODES
 
+    _resource_registry = {
+        "allocation": _allocation.Allocation,
+        "chassis": _chassis.Chassis,
+        "conductor": _conductor.Conductor,
+        "deploy_template": _deploytemplates.DeployTemplate,
+        "driver": _driver.Driver,
+        "node": _node.Node,
+        "port": _port.Port,
+        "port_group": _portgroup.PortGroup,
+        "volume_connector": _volumeconnector.VolumeConnector,
+        "volume_target": _volumetarget.VolumeTarget,
+    }
+
     def _get_with_fields(self, resource_type, value, fields=None):
         """Fetch a bare metal resource.
 

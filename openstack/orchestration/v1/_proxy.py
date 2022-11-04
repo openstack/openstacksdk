@@ -25,6 +25,15 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "resource": _resource.Resource,
+        "software_config": _sc.SoftwareConfig,
+        "software_deployment": _sd.SoftwareDeployment,
+        "stack": _stack.Stack,
+        "stack_environment": _stack_environment.StackEnvironment,
+        "stack_files": _stack_files.StackFiles,
+        "stack_template": _stack_template.StackTemplate,
+    }
 
     def _extract_name_consume_url_parts(self, url_parts):
         if (len(url_parts) == 3 and url_parts[0] == 'software_deployments'

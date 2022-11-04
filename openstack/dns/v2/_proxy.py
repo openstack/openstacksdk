@@ -20,6 +20,14 @@ from openstack import proxy
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "floating_ip": _fip.FloatingIP,
+        "recordset": _rs.Recordset,
+        "zone": _zone.Zone,
+        "zone_export": _zone_export.ZoneExport,
+        "zone_import": _zone_import.ZoneImport,
+        "zone_transfer_request": _zone_transfer.ZoneTransferRequest,
+    }
 
     # ======== Zones ========
     def zones(self, **query):

@@ -30,6 +30,22 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "amphora": _amphora.Amphora,
+        "availability_zone": _availability_zone.AvailabilityZone,
+        "availability_zone_profile":
+            _availability_zone_profile.AvailabilityZoneProfile,
+        "flavor": _flavor.Flavor,
+        "flavor_profile": _flavor_profile.FlavorProfile,
+        "health_monitor": _hm.HealthMonitor,
+        "l7_policy": _l7policy.L7Policy,
+        "l7_rule": _l7rule.L7Rule,
+        "load_balancer": _lb.LoadBalancer,
+        "member": _member.Member,
+        "pool": _pool.Pool,
+        "provider": _provider.Provider,
+        "quota": _quota.Quota
+    }
 
     def create_load_balancer(self, **attrs):
         """Create a new load balancer from attributes

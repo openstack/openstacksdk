@@ -48,6 +48,40 @@ from openstack import utils
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "application_credential":
+            _application_credential.ApplicationCredential,
+        "credential": _credential.Credential,
+        "domain": _domain.Domain,
+        "endpoint": _endpoint.Endpoint,
+        "federation_protocol": _federation_protocol.FederationProtocol,
+        "group": _group.Group,
+        "identity_provider": _identity_provider.IdentityProvider,
+        "limit": _limit.Limit,
+        "mapping": _mapping.Mapping,
+        "policy": _policy.Policy,
+        "project": _project.Project,
+        "region": _region.Region,
+        "registered_limit": _registered_limit.RegisteredLimit,
+        "role": _role.Role,
+        "role_assignment": _role_assignment.RoleAssignment,
+        "role_domain_group_assignment":
+            _role_domain_group_assignment.RoleDomainGroupAssignment,
+        "role_domain_user_assignment":
+            _role_domain_user_assignment.RoleDomainUserAssignment,
+        "role_project_group_assignment":
+            _role_project_group_assignment.RoleProjectGroupAssignment,
+        "role_project_user_assignment":
+            _role_project_user_assignment.RoleProjectUserAssignment,
+        "role_system_group_assignment":
+            _role_system_group_assignment.RoleSystemGroupAssignment,
+        "role_system_user_assignment":
+            _role_system_user_assignment.RoleSystemUserAssignment,
+        "service": _service.Service,
+        "system": _system.System,
+        "trust": _trust.Trust,
+        "user": _user.User,
+    }
 
     def create_credential(self, **attrs):
         """Create a new credential from attributes

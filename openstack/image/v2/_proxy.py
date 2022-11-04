@@ -32,6 +32,15 @@ _RAW_PROPERTIES = ('is_protected', 'tags')
 
 
 class Proxy(_base_proxy.BaseImageProxy):
+    _resource_registry = {
+        "image": _image.Image,
+        "image_member": _member.Member,
+        "metadef_namespace": _metadef_namespace.MetadefNamespace,
+        "schema": _schema.Schema,
+        "info_import": _si.Import,
+        "info_store": _si.Store,
+        "task": _task.Task
+    }
 
     # ====== IMAGES ======
     def _create_image(self, **kwargs):

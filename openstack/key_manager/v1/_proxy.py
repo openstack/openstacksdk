@@ -17,6 +17,11 @@ from openstack import proxy
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "container": _container.Container,
+        "order": _order.Order,
+        "secret": _secret.Secret,
+    }
 
     def create_container(self, **attrs):
         """Create a new container from attributes
