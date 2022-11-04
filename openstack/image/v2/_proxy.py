@@ -1017,12 +1017,14 @@ class Proxy(_base_proxy.BaseImageProxy):
                            'current state is %s', name, status, new_status)
 
     # ====== STORES ======
-    def stores(self, **query):
+    def stores(self, details=False, **query):
         """Return a generator of supported image stores
 
         :returns: A generator of store objects
         :rtype: :class:`~openstack.image.v2.service_info.Store`
         """
+        if details:
+            query['base_path'] = utils.urljoin(_si.Store, 'details')
         return self._list(_si.Store, **query)
 
     # ====== IMPORTS ======
