@@ -1033,7 +1033,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_si.Import, require_id=False)
+        return self._get(_si.Import, requires_id=False)
 
     # ====== UTILS ======
     def wait_for_delete(self, res, interval=2, wait=120):
