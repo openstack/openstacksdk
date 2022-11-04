@@ -50,6 +50,8 @@ class Backup(resource.Resource):
     data_timestamp = resource.Body('data_timestamp')
     #: backup description
     description = resource.Body("description")
+    #: The UUID of the encryption key. Only included for encrypted volumes.
+    encryption_key_id = resource.Body("encryption_key_id")
     #: Backup fail reason
     fail_reason = resource.Body("fail_reason")
     #: Force backup
@@ -85,6 +87,8 @@ class Backup(resource.Resource):
     user_id = resource.Body('user_id')
     #: The UUID of the volume.
     volume_id = resource.Body("volume_id")
+
+    _max_microversion = "3.64"
 
     def create(self, session, prepend_key=True, base_path=None, **params):
         """Create a remote resource based on this instance.

@@ -27,6 +27,7 @@ BACKUP = {
     "created_at": "2018-04-02T10:35:27.000000",
     "updated_at": "2018-04-03T10:35:27.000000",
     "description": 'description',
+    "encryption_key_id": "fake_encry_id",
     "fail_reason": 'fail reason',
     "id": FAKE_ID,
     "name": "backup001",
@@ -55,7 +56,7 @@ class TestBackup(base.TestCase):
         self.sess = mock.Mock(spec=adapter.Adapter)
         self.sess.get = mock.Mock()
         self.sess.post = mock.Mock(return_value=self.resp)
-        self.sess.default_microversion = None
+        self.sess.default_microversion = "3.64"
 
     def test_basic(self):
         sot = backup.Backup(BACKUP)
@@ -67,6 +68,7 @@ class TestBackup(base.TestCase):
         self.assertTrue(sot.allow_list)
         self.assertTrue(sot.allow_get)
         self.assertTrue(sot.allow_fetch)
+        self.assertIsNotNone(sot._max_microversion)
 
         self.assertDictEqual(
             {
@@ -104,6 +106,7 @@ class TestBackup(base.TestCase):
                          sot.project_id)
         self.assertEqual(BACKUP['metadata'], sot.metadata)
         self.assertEqual(BACKUP['user_id'], sot.user_id)
+        self.assertEqual(BACKUP['encryption_key_id'], sot.encryption_key_id)
 
     def test_create_incremental(self):
         sot = backup.Backup(is_incremental=True)
@@ -124,7 +127,7 @@ class TestBackup(base.TestCase):
                     'incremental': True,
                 }
             },
-            microversion=None,
+            microversion="3.64",
             params={}
         )
 
@@ -137,7 +140,7 @@ class TestBackup(base.TestCase):
                     'incremental': False,
                 }
             },
-            microversion=None,
+            microversion="3.64",
             params={}
         )
 
