@@ -17,13 +17,13 @@ import requests
 
 from openstack import exceptions
 from openstack.image.v2 import _proxy
-from openstack.image.v2 import image
-from openstack.image.v2 import member
-from openstack.image.v2 import metadef_namespace
-from openstack.image.v2 import metadef_schema
-from openstack.image.v2 import schema
-from openstack.image.v2 import service_info as si
-from openstack.image.v2 import task
+from openstack.image.v2 import image as _image
+from openstack.image.v2 import member as _member
+from openstack.image.v2 import metadef_namespace as _metadef_namespace
+from openstack.image.v2 import metadef_schema as _metadef_schema
+from openstack.image.v2 import schema as _schema
+from openstack.image.v2 import service_info as _service_info
+from openstack.image.v2 import task as _task
 from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base
 
@@ -51,13 +51,15 @@ class TestImageProxy(test_proxy_base.TestProxyBase):
 class TestImage(TestImageProxy):
     def test_image_import_no_required_attrs(self):
         # container_format and disk_format are required attrs of the image
-        existing_image = image.Image(id="id")
-        self.assertRaises(exceptions.InvalidRequest,
-                          self.proxy.import_image,
-                          existing_image)
+        existing_image = _image.Image(id="id")
+        self.assertRaises(
+            exceptions.InvalidRequest,
+            self.proxy.import_image,
+            existing_image,
+        )
 
     def test_image_import(self):
-        original_image = image.Image(**EXAMPLE)
+        original_image = _image.Image(**EXAMPLE)
         self._verify(
             "openstack.image.v2.image.Image.import_image",
             self.proxy.import_image,
@@ -70,45 +72,52 @@ class TestImage(TestImageProxy):
                 "stores": [],
                 "all_stores": None,
                 "all_stores_must_succeed": None,
-            })
+            },
+        )
 
     def test_image_create_conflict(self):
         self.assertRaises(
-            exceptions.SDKException, self.proxy.create_image,
-            name='fake', filename='fake', data='fake',
-            container='bare', disk_format='raw'
+            exceptions.SDKException,
+            self.proxy.create_image,
+            name='fake',
+            filename='fake',
+            data='fake',
+            container='bare',
+            disk_format='raw',
         )
 
     def test_image_create_checksum_match(self):
-        fake_image = image.Image(
-            id="fake", properties={
+        fake_image = _image.Image(
+            id="fake",
+            properties={
                 self.proxy._IMAGE_MD5_KEY: 'fake_md5',
-                self.proxy._IMAGE_SHA256_KEY: 'fake_sha256'
-            })
+                self.proxy._IMAGE_SHA256_KEY: 'fake_sha256',
+            },
+        )
         self.proxy.find_image = mock.Mock(return_value=fake_image)
 
         self.proxy._upload_image = mock.Mock()
 
         res = self.proxy.create_image(
-            name='fake',
-            md5='fake_md5', sha256='fake_sha256'
+            name='fake', md5='fake_md5', sha256='fake_sha256'
         )
         self.assertEqual(fake_image, res)
         self.proxy._upload_image.assert_not_called()
 
     def test_image_create_checksum_mismatch(self):
-        fake_image = image.Image(
-            id="fake", properties={
+        fake_image = _image.Image(
+            id="fake",
+            properties={
                 self.proxy._IMAGE_MD5_KEY: 'fake_md5',
-                self.proxy._IMAGE_SHA256_KEY: 'fake_sha256'
-            })
+                self.proxy._IMAGE_SHA256_KEY: 'fake_sha256',
+            },
+        )
         self.proxy.find_image = mock.Mock(return_value=fake_image)
 
         self.proxy._upload_image = mock.Mock()
 
         self.proxy.create_image(
-            name='fake', data=b'fake',
-            md5='fake2_md5', sha256='fake2_sha256'
+            name='fake', data=b'fake', md5='fake2_md5', sha256='fake2_sha256'
         )
         self.proxy._upload_image.assert_called()
 
@@ -118,45 +127,61 @@ class TestImage(TestImageProxy):
         self.proxy._upload_image = mock.Mock()
 
         self.proxy.create_image(
-            name='fake', data=b'fake', allow_duplicates=True,
+            name='fake',
+            data=b'fake',
+            allow_duplicates=True,
         )
 
         self.proxy.find_image.assert_not_called()
 
     def test_image_create_validate_checksum_data_binary(self):
-        """ Pass real data as binary"""
+        """Pass real data as binary"""
         self.proxy.find_image = mock.Mock()
 
         self.proxy._upload_image = mock.Mock()
 
         self.proxy.create_image(
-            name='fake', data=b'fake', validate_checksum=True,
-            container='bare', disk_format='raw'
+            name='fake',
+            data=b'fake',
+            validate_checksum=True,
+            container='bare',
+            disk_format='raw',
         )
 
         self.proxy.find_image.assert_called_with('fake')
 
         self.proxy._upload_image.assert_called_with(
-            'fake', container_format='bare', disk_format='raw',
-            filename=None, data=b'fake', meta={},
+            'fake',
+            container_format='bare',
+            disk_format='raw',
+            filename=None,
+            data=b'fake',
+            meta={},
             properties={
                 self.proxy._IMAGE_MD5_KEY: '144c9defac04969c7bfad8efaa8ea194',
                 self.proxy._IMAGE_SHA256_KEY: 'b5d54c39e66671c9731b9f471e585'
-                                              'd8262cd4f54963f0c93082d8dcf33'
-                                              '4d4c78',
-                self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
-            timeout=3600, validate_checksum=True,
+                'd8262cd4f54963f0c93082d8dcf33'
+                '4d4c78',
+                self.proxy._IMAGE_OBJECT_KEY: 'bare/fake',
+            },
+            timeout=3600,
+            validate_checksum=True,
             use_import=False,
             stores=None,
             all_stores=None,
             all_stores_must_succeed=None,
-            wait=False)
+            wait=False,
+        )
 
     def test_image_create_validate_checksum_data_not_binary(self):
         self.assertRaises(
-            exceptions.SDKException, self.proxy.create_image,
-            name='fake', data=io.StringIO(), validate_checksum=True,
-            container='bare', disk_format='raw'
+            exceptions.SDKException,
+            self.proxy.create_image,
+            name='fake',
+            data=io.StringIO(),
+            validate_checksum=True,
+            container='bare',
+            disk_format='raw',
         )
 
     def test_image_create_data_binary(self):
@@ -168,53 +193,71 @@ class TestImage(TestImageProxy):
         data = io.BytesIO(b'\0\0')
 
         self.proxy.create_image(
-            name='fake', data=data, validate_checksum=False,
-            container='bare', disk_format='raw'
+            name='fake',
+            data=data,
+            validate_checksum=False,
+            container='bare',
+            disk_format='raw',
         )
 
         self.proxy._upload_image.assert_called_with(
-            'fake', container_format='bare', disk_format='raw',
-            filename=None, data=data, meta={},
+            'fake',
+            container_format='bare',
+            disk_format='raw',
+            filename=None,
+            data=data,
+            meta={},
             properties={
                 self.proxy._IMAGE_MD5_KEY: '',
                 self.proxy._IMAGE_SHA256_KEY: '',
-                self.proxy._IMAGE_OBJECT_KEY: 'bare/fake'},
-            timeout=3600, validate_checksum=False,
+                self.proxy._IMAGE_OBJECT_KEY: 'bare/fake',
+            },
+            timeout=3600,
+            validate_checksum=False,
             use_import=False,
             stores=None,
             all_stores=None,
             all_stores_must_succeed=None,
-            wait=False)
+            wait=False,
+        )
 
     def test_image_create_without_filename(self):
         self.proxy._create_image = mock.Mock()
 
         self.proxy.create_image(
             allow_duplicates=True,
-            name='fake', disk_format="fake_dformat",
-            container_format="fake_cformat"
+            name='fake',
+            disk_format="fake_dformat",
+            container_format="fake_cformat",
         )
         self.proxy._create_image.assert_called_with(
-            container_format='fake_cformat', disk_format='fake_dformat',
-            name='fake', properties=mock.ANY)
+            container_format='fake_cformat',
+            disk_format='fake_dformat',
+            name='fake',
+            properties=mock.ANY,
+        )
 
     def test_image_create_protected(self):
         self.proxy.find_image = mock.Mock()
 
-        created_image = mock.Mock(spec=image.Image(id="id"))
+        created_image = mock.Mock(spec=_image.Image(id="id"))
         self.proxy._create = mock.Mock()
         self.proxy._create.return_value = created_image
         self.proxy._create.return_value.image_import_methods = []
 
         created_image.upload = mock.Mock()
-        created_image.upload.return_value = FakeResponse(response="",
-                                                         status_code=200)
+        created_image.upload.return_value = FakeResponse(
+            response="", status_code=200
+        )
 
         properties = {"is_protected": True}
 
         self.proxy.create_image(
-            name="fake", data="data", container_format="bare",
-            disk_format="raw", **properties
+            name="fake",
+            data="data",
+            container_format="bare",
+            disk_format="raw",
+            **properties
         )
 
         args, kwargs = self.proxy._create.call_args
@@ -228,23 +271,26 @@ class TestImage(TestImageProxy):
         # NOTE: This doesn't use any of the base class verify methods
         # because it ends up making two separate calls to complete the
         # operation.
-        created_image = mock.Mock(spec=image.Image(id="id"))
+        created_image = mock.Mock(spec=_image.Image(id="id"))
 
         self.proxy._create = mock.Mock()
         self.proxy._create.return_value = created_image
 
-        rv = self.proxy.upload_image(data="data", container_format="x",
-                                     disk_format="y", name="z")
+        rv = self.proxy.upload_image(
+            data="data", container_format="x", disk_format="y", name="z"
+        )
 
-        self.proxy._create.assert_called_with(image.Image,
-                                              container_format="x",
-                                              disk_format="y",
-                                              name="z")
+        self.proxy._create.assert_called_with(
+            _image.Image,
+            container_format="x",
+            disk_format="y",
+            name="z",
+        )
         created_image.upload.assert_called_with(self.proxy)
         self.assertEqual(rv, created_image)
 
     def test_image_download(self):
-        original_image = image.Image(**EXAMPLE)
+        original_image = _image.Image(**EXAMPLE)
         self._verify(
             'openstack.image.v2.image.Image.download',
             self.proxy.download_image,
@@ -252,120 +298,130 @@ class TestImage(TestImageProxy):
             method_kwargs={
                 'output': 'some_output',
                 'chunk_size': 1,
-                'stream': True
+                'stream': True,
             },
             expected_args=[self.proxy],
             expected_kwargs={
                 'output': 'some_output',
                 'chunk_size': 1,
                 'stream': True,
-            })
+            },
+        )
 
     @mock.patch("openstack.image.v2.image.Image.fetch")
     def test_image_stage(self, mock_fetch):
-        img = image.Image(id="id", status="queued")
-        img.stage = mock.Mock()
+        image = _image.Image(id="id", status="queued")
+        image.stage = mock.Mock()
 
-        self.proxy.stage_image(image=img)
+        self.proxy.stage_image(image=image)
         mock_fetch.assert_called()
-        img.stage.assert_called_with(self.proxy)
+        image.stage.assert_called_with(self.proxy)
 
     @mock.patch("openstack.image.v2.image.Image.fetch")
     def test_image_stage_with_data(self, mock_fetch):
-        img = image.Image(id="id", status="queued")
-        img.stage = mock.Mock()
-        mock_fetch.return_value = img
+        image = _image.Image(id="id", status="queued")
+        image.stage = mock.Mock()
+        mock_fetch.return_value = image
 
-        rv = self.proxy.stage_image(image=img, data="data")
+        rv = self.proxy.stage_image(image=image, data="data")
 
-        img.stage.assert_called_with(self.proxy)
+        image.stage.assert_called_with(self.proxy)
         mock_fetch.assert_called()
         self.assertEqual(rv.data, "data")
 
     def test_image_stage_wrong_status(self):
-        img = image.Image(id="id", status="active")
-        img.stage = mock.Mock()
+        image = _image.Image(id="id", status="active")
+        image.stage = mock.Mock()
 
         self.assertRaises(
             exceptions.SDKException,
             self.proxy.stage_image,
-            img,
-            "data"
+            image,
+            "data",
         )
 
     def test_image_delete(self):
-        self.verify_delete(self.proxy.delete_image, image.Image, False)
+        self.verify_delete(self.proxy.delete_image, _image.Image, False)
 
     def test_image_delete__ignore(self):
-        self.verify_delete(self.proxy.delete_image, image.Image, True)
+        self.verify_delete(self.proxy.delete_image, _image.Image, True)
 
     def test_delete_image__from_store(self):
-        store = si.Store(id='fast', is_default=True)
+        store = _service_info.Store(id='fast', is_default=True)
         store.delete_image = mock.Mock()
-        img = image.Image(id="id", status="queued")
+        image = _image.Image(id="id", status="queued")
 
-        self.proxy.delete_image(img, store=store)
+        self.proxy.delete_image(image, store=store)
 
         store.delete_image.assert_called_with(
             self.proxy,
-            img,
+            image,
             ignore_missing=True,
         )
 
     @mock.patch("openstack.resource.Resource._translate_response")
     @mock.patch("openstack.proxy.Proxy._get")
     @mock.patch("openstack.image.v2.image.Image.commit")
-    def test_image_update(self, mock_commit_image, mock_get_image,
-                          mock_transpose):
-        original_image = image.Image(**EXAMPLE)
+    def test_image_update(
+        self, mock_commit_image, mock_get_image, mock_transpose
+    ):
+        original_image = _image.Image(**EXAMPLE)
         mock_get_image.return_value = original_image
         EXAMPLE['name'] = 'fake_name'
-        updated_image = image.Image(**EXAMPLE)
+        updated_image = _image.Image(**EXAMPLE)
         mock_commit_image.return_value = updated_image.to_dict()
-        result = self.proxy.update_image(original_image,
-                                         **updated_image.to_dict())
+        result = self.proxy.update_image(
+            original_image, **updated_image.to_dict()
+        )
         self.assertEqual('fake_name', result.get('name'))
 
     def test_image_get(self):
-        self.verify_get(self.proxy.get_image, image.Image)
+        self.verify_get(self.proxy.get_image, _image.Image)
 
     def test_images(self):
-        self.verify_list(self.proxy.images, image.Image)
+        self.verify_list(self.proxy.images, _image.Image)
 
     def test_add_tag(self):
         self._verify(
             "openstack.image.v2.image.Image.add_tag",
             self.proxy.add_tag,
             method_args=["image", "tag"],
-            expected_args=[self.proxy, "tag"])
+            expected_args=[self.proxy, "tag"],
+        )
 
     def test_remove_tag(self):
         self._verify(
             "openstack.image.v2.image.Image.remove_tag",
             self.proxy.remove_tag,
             method_args=["image", "tag"],
-            expected_args=[self.proxy, "tag"])
+            expected_args=[self.proxy, "tag"],
+        )
 
     def test_deactivate_image(self):
         self._verify(
             "openstack.image.v2.image.Image.deactivate",
             self.proxy.deactivate_image,
             method_args=["image"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
     def test_reactivate_image(self):
         self._verify(
             "openstack.image.v2.image.Image.reactivate",
             self.proxy.reactivate_image,
             method_args=["image"],
-            expected_args=[self.proxy])
+            expected_args=[self.proxy],
+        )
 
 
 class TestMember(TestImageProxy):
     def test_member_create(self):
-        self.verify_create(self.proxy.add_member, member.Member,
-                           method_kwargs={"image": "test_id"},
-                           expected_kwargs={"image_id": "test_id"})
+        self.verify_create(
+            self.proxy.add_member,
+            _member.Member,
+            method_kwargs={"image": "test_id"},
+            expected_kwargs={"image_id": "test_id"},
+        )
 
     def test_member_delete(self):
         self._verify(
@@ -373,11 +429,13 @@ class TestMember(TestImageProxy):
             self.proxy.remove_member,
             method_args=["member_id"],
             method_kwargs={"image": "image_id", "ignore_missing": False},
-            expected_args=[member.Member],
+            expected_args=[_member.Member],
             expected_kwargs={
                 "member_id": "member_id",
                 "image_id": "image_id",
-                "ignore_missing": False})
+                "ignore_missing": False,
+            },
+        )
 
     def test_member_delete_ignore(self):
         self._verify(
@@ -385,19 +443,22 @@ class TestMember(TestImageProxy):
             self.proxy.remove_member,
             method_args=["member_id"],
             method_kwargs={"image": "image_id"},
-            expected_args=[member.Member],
+            expected_args=[_member.Member],
             expected_kwargs={
                 "member_id": "member_id",
                 "image_id": "image_id",
-                "ignore_missing": True})
+                "ignore_missing": True,
+            },
+        )
 
     def test_member_update(self):
         self._verify(
             "openstack.proxy.Proxy._update",
             self.proxy.update_member,
             method_args=['member_id', 'image_id'],
-            expected_args=[member.Member],
-            expected_kwargs={'member_id': 'member_id', 'image_id': 'image_id'})
+            expected_args=[_member.Member],
+            expected_kwargs={'member_id': 'member_id', 'image_id': 'image_id'},
+        )
 
     def test_member_get(self):
         self._verify(
@@ -405,8 +466,9 @@ class TestMember(TestImageProxy):
             self.proxy.get_member,
             method_args=['member_id'],
             method_kwargs={"image": "image_id"},
-            expected_args=[member.Member],
-            expected_kwargs={'member_id': 'member_id', 'image_id': 'image_id'})
+            expected_args=[_member.Member],
+            expected_kwargs={'member_id': 'member_id', 'image_id': 'image_id'},
+        )
 
     def test_member_find(self):
         self._verify(
@@ -414,46 +476,50 @@ class TestMember(TestImageProxy):
             self.proxy.find_member,
             method_args=['member_id'],
             method_kwargs={"image": "image_id"},
-            expected_args=[member.Member, "member_id"],
-            expected_kwargs={'ignore_missing': True, 'image_id': 'image_id'})
+            expected_args=[_member.Member, "member_id"],
+            expected_kwargs={'ignore_missing': True, 'image_id': 'image_id'},
+        )
 
     def test_members(self):
-        self.verify_list(self.proxy.members, member.Member,
-                         method_kwargs={'image': 'image_1'},
-                         expected_kwargs={'image_id': 'image_1'})
+        self.verify_list(
+            self.proxy.members,
+            _member.Member,
+            method_kwargs={'image': 'image_1'},
+            expected_kwargs={'image_id': 'image_1'},
+        )
 
 
 class TestMetadefNamespace(TestImageProxy):
     def test_metadef_namespace_create(self):
         self.verify_create(
             self.proxy.create_metadef_namespace,
-            metadef_namespace.MetadefNamespace,
+            _metadef_namespace.MetadefNamespace,
         )
 
     def test_metadef_namespace_delete(self):
         self.verify_delete(
             self.proxy.delete_metadef_namespace,
-            metadef_namespace.MetadefNamespace,
+            _metadef_namespace.MetadefNamespace,
             False,
         )
 
     def test_metadef_namespace_delete__ignore(self):
         self.verify_delete(
             self.proxy.delete_metadef_namespace,
-            metadef_namespace.MetadefNamespace,
+            _metadef_namespace.MetadefNamespace,
             True,
         )
 
     def test_metadef_namespace_get(self):
         self.verify_get(
             self.proxy.get_metadef_namespace,
-            metadef_namespace.MetadefNamespace,
+            _metadef_namespace.MetadefNamespace,
         )
 
     def test_metadef_namespaces(self):
         self.verify_list(
             self.proxy.metadef_namespaces,
-            metadef_namespace.MetadefNamespace,
+            _metadef_namespace.MetadefNamespace,
         )
 
     def test_metadef_namespace_update(self):
@@ -461,7 +527,7 @@ class TestMetadefNamespace(TestImageProxy):
         # request body
         self.verify_update(
             self.proxy.update_metadef_namespace,
-            metadef_namespace.MetadefNamespace,
+            _metadef_namespace.MetadefNamespace,
             method_kwargs={'is_protected': True},
             expected_kwargs={'namespace': 'resource_id', 'is_protected': True},
         )
@@ -472,114 +538,123 @@ class TestSchema(TestImageProxy):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_images_schema,
-            expected_args=[schema.Schema],
+            expected_args=[_schema.Schema],
             expected_kwargs={
-                'base_path': '/schemas/images', 'requires_id': False})
+                'base_path': '/schemas/images',
+                'requires_id': False,
+            },
+        )
 
     def test_image_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_image_schema,
-            expected_args=[schema.Schema],
+            expected_args=[_schema.Schema],
             expected_kwargs={
-                'base_path': '/schemas/image', 'requires_id': False})
+                'base_path': '/schemas/image',
+                'requires_id': False,
+            },
+        )
 
     def test_members_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_members_schema,
-            expected_args=[schema.Schema],
+            expected_args=[_schema.Schema],
             expected_kwargs={
-                'base_path': '/schemas/members', 'requires_id': False})
+                'base_path': '/schemas/members',
+                'requires_id': False,
+            },
+        )
 
     def test_member_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_member_schema,
-            expected_args=[schema.Schema],
+            expected_args=[_schema.Schema],
             expected_kwargs={
-                'base_path': '/schemas/member', 'requires_id': False})
+                'base_path': '/schemas/member',
+                'requires_id': False,
+            },
+        )
 
 
 class TestTask(TestImageProxy):
     def test_task_get(self):
-        self.verify_get(self.proxy.get_task, task.Task)
+        self.verify_get(self.proxy.get_task, _task.Task)
 
     def test_tasks(self):
-        self.verify_list(self.proxy.tasks, task.Task)
+        self.verify_list(self.proxy.tasks, _task.Task)
 
     def test_task_create(self):
-        self.verify_create(self.proxy.create_task, task.Task)
+        self.verify_create(self.proxy.create_task, _task.Task)
 
     def test_wait_for_task_immediate_status(self):
         status = 'success'
-        res = task.Task(id='1234', status=status)
+        res = _task.Task(id='1234', status=status)
 
-        result = self.proxy.wait_for_task(
-            res, status, "failure", 0.01, 0.1)
+        result = self.proxy.wait_for_task(res, status, "failure", 0.01, 0.1)
 
         self.assertEqual(res, result)
 
     def test_wait_for_task_immediate_status_case(self):
         status = "SUCcess"
-        res = task.Task(id='1234', status=status)
+        res = _task.Task(id='1234', status=status)
 
-        result = self.proxy.wait_for_task(
-            res, status, "failure", 0.01, 0.1)
+        result = self.proxy.wait_for_task(res, status, "failure", 0.01, 0.1)
 
         self.assertEqual(res, result)
 
     def test_wait_for_task_error_396(self):
         # Ensure we create a new task when we get 396 error
-        res = task.Task(
-            id='id', status='waiting',
-            type='some_type', input='some_input', result='some_result'
+        res = _task.Task(
+            id='id',
+            status='waiting',
+            type='some_type',
+            input='some_input',
+            result='some_result',
         )
 
         mock_fetch = mock.Mock()
         mock_fetch.side_effect = [
-            task.Task(
-                id='id', status='failure',
-                type='some_type', input='some_input', result='some_result',
-                message=_proxy._IMAGE_ERROR_396
+            _task.Task(
+                id='id',
+                status='failure',
+                type='some_type',
+                input='some_input',
+                result='some_result',
+                message=_proxy._IMAGE_ERROR_396,
             ),
-            task.Task(id='fake', status='waiting'),
-            task.Task(id='fake', status='success'),
+            _task.Task(id='fake', status='waiting'),
+            _task.Task(id='fake', status='success'),
         ]
 
         self.proxy._create = mock.Mock()
         self.proxy._create.side_effect = [
-            task.Task(id='fake', status='success')
+            _task.Task(id='fake', status='success')
         ]
 
-        with mock.patch.object(task.Task,
-                               'fetch', mock_fetch):
-
-            result = self.proxy.wait_for_task(
-                res, interval=0.01, wait=0.5)
+        with mock.patch.object(_task.Task, 'fetch', mock_fetch):
+            result = self.proxy.wait_for_task(res, interval=0.01, wait=0.5)
 
             self.assertEqual('success', result.status)
 
             self.proxy._create.assert_called_with(
-                mock.ANY,
-                input=res.input,
-                type=res.type)
+                mock.ANY, input=res.input, type=res.type
+            )
 
     def test_wait_for_task_wait(self):
-        res = task.Task(id='id', status='waiting')
+        res = _task.Task(id='id', status='waiting')
 
         mock_fetch = mock.Mock()
         mock_fetch.side_effect = [
-            task.Task(id='id', status='waiting'),
-            task.Task(id='id', status='waiting'),
-            task.Task(id='id', status='success'),
+            _task.Task(id='id', status='waiting'),
+            _task.Task(id='id', status='waiting'),
+            _task.Task(id='id', status='success'),
         ]
 
-        with mock.patch.object(task.Task,
-                               'fetch', mock_fetch):
-
-            result = self.proxy.wait_for_task(
-                res, interval=0.01, wait=0.5)
+        with mock.patch.object(_task.Task, 'fetch', mock_fetch):
+            result = self.proxy.wait_for_task(res, interval=0.01, wait=0.5)
 
             self.assertEqual('success', result.status)
 
@@ -587,22 +662,28 @@ class TestTask(TestImageProxy):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_tasks_schema,
-            expected_args=[schema.Schema],
+            expected_args=[_schema.Schema],
             expected_kwargs={
-                'base_path': '/schemas/tasks', 'requires_id': False})
+                'base_path': '/schemas/tasks',
+                'requires_id': False,
+            },
+        )
 
     def test_task_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_task_schema,
-            expected_args=[schema.Schema],
+            expected_args=[_schema.Schema],
             expected_kwargs={
-                'base_path': '/schemas/task', 'requires_id': False})
+                'base_path': '/schemas/task',
+                'requires_id': False,
+            },
+        )
 
 
 class TestMisc(TestImageProxy):
     def test_stores(self):
-        self.verify_list(self.proxy.stores, si.Store)
+        self.verify_list(self.proxy.stores, _service_info.Store)
 
     def test_import_info(self):
         self._verify(
@@ -610,8 +691,9 @@ class TestMisc(TestImageProxy):
             self.proxy.get_import_info,
             method_args=[],
             method_kwargs={},
-            expected_args=[si.Import],
-            expected_kwargs={'requires_id': False})
+            expected_args=[_service_info.Import],
+            expected_kwargs={'requires_id': False},
+        )
 
 
 class TestMetadefSchema(TestImageProxy):
@@ -619,88 +701,108 @@ class TestMetadefSchema(TestImageProxy):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_namespace_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/namespace',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_namespaces_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_namespaces_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/namespaces',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_resource_type_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_resource_type_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/resource_type',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_resource_types_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_resource_types_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/resource_types',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_object_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_object_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/object',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_objects_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_objects_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/objects',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_property_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_property_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/property',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_properties_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_properties_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/properties',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_tag_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_tag_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/tag',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
 
     def test_metadef_tags_schema_get(self):
         self._verify(
             "openstack.proxy.Proxy._get",
             self.proxy.get_metadef_tags_schema,
-            expected_args=[metadef_schema.MetadefSchema],
+            expected_args=[_metadef_schema.MetadefSchema],
             expected_kwargs={
                 'base_path': '/schemas/metadefs/tags',
-                'requires_id': False})
+                'requires_id': False,
+            },
+        )
