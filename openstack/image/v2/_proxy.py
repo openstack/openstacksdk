@@ -453,11 +453,15 @@ class Proxy(_base_proxy.BaseImageProxy):
         return image.download(
             self, stream=stream, output=output, chunk_size=chunk_size)
 
-    def delete_image(self, image, ignore_missing=True):
+    def delete_image(self, image, *, store=None, ignore_missing=True):
         """Delete an image
 
         :param image: The value can be either the ID of an image or a
             :class:`~openstack.image.v2.image.Image` instance.
+        :param store: The value can be either the ID of a store or a
+            :class:`~openstack.image.v2.service_info.Store` instance that the
+            image is associated with. If specified, the image will only be
+            deleted from the specified store.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be
             raised when the image does not exist.
@@ -466,7 +470,11 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :returns: ``None``
         """
-        self._delete(_image.Image, image, ignore_missing=ignore_missing)
+        if store:
+            store = self._get_resource(_si.Store, store)
+            store.delete_image(self, image, ignore_missing=ignore_missing)
+        else:
+            self._delete(_image.Image, image, ignore_missing=ignore_missing)
 
     def find_image(self, name_or_id, ignore_missing=True):
         """Find a single image

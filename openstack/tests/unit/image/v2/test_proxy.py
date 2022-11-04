@@ -296,8 +296,21 @@ class TestImage(TestImageProxy):
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, image.Image, False)
 
-    def test_image_delete_ignore(self):
+    def test_image_delete__ignore(self):
         self.verify_delete(self.proxy.delete_image, image.Image, True)
+
+    def test_delete_image__from_store(self):
+        store = si.Store(id='fast', is_default=True)
+        store.delete_image = mock.Mock()
+        img = image.Image(id="id", status="queued")
+
+        self.proxy.delete_image(img, store=store)
+
+        store.delete_image.assert_called_with(
+            self.proxy,
+            img,
+            ignore_missing=True,
+        )
 
     @mock.patch("openstack.resource.Resource._translate_response")
     @mock.patch("openstack.proxy.Proxy._get")
