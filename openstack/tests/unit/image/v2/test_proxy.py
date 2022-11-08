@@ -64,12 +64,18 @@ class TestImage(TestImageProxy):
         self._verify(
             "openstack.image.v2.image.Image.import_image",
             self.proxy.import_image,
-            method_args=[original_image, "method", "uri"],
+            method_args=[original_image, "method"],
+            method_kwargs={
+                "uri": "uri",
+            },
             expected_args=[self.proxy],
             expected_kwargs={
                 "method": "method",
                 "store": None,
                 "uri": "uri",
+                "remote_region": None,
+                "remote_image_id": None,
+                "remote_service_interface": None,
                 "stores": [],
                 "all_stores": None,
                 "all_stores_must_succeed": None,

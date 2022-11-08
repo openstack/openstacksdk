@@ -298,44 +298,66 @@ class Image(resource.Resource, tag.TagMixin, _download.DownloadMixin):
         self._translate_response(response, has_body=False)
         return self
 
-    def import_image(self, session, method='glance-direct', uri=None,
-                     store=None, stores=None, all_stores=None,
-                     all_stores_must_succeed=None):
+    def import_image(
+        self,
+        session,
+        method='glance-direct',
+        *,
+        uri=None,
+        remote_region=None,
+        remote_image_id=None,
+        remote_service_interface=None,
+        store=None,
+        stores=None,
+        all_stores=None,
+        all_stores_must_succeed=None,
+    ):
         """Import Image via interoperable image import process"""
         if all_stores and (store or stores):
             raise exceptions.InvalidRequest(
-                "all_stores is mutually exclusive with"
-                " store and stores")
+                'all_stores is mutually exclusive with store and stores'
+            )
         if store and stores:
             raise exceptions.InvalidRequest(
-                "store and stores are mutually exclusive."
-                " Please just use stores.")
+                'store and stores are mutually exclusive. stores should be '
+                'preferred.'
+            )
         if store:
             stores = [store]
         else:
             stores = stores or []
 
         url = utils.urljoin(self.base_path, self.id, 'import')
-        json = {'method': {'name': method}}
+        data = {'method': {'name': method}}
+
         if uri:
-            if method == 'web-download':
-                json['method']['uri'] = uri
-            else:
-                raise exceptions.InvalidRequest('URI is only supported with '
-                                                'method: "web-download"')
+            if method != 'web-download':
+                raise exceptions.InvalidRequest(
+                    'URI is only supported with method: "web-download"'
+                )
+            data['method']['uri'] = uri
+
+        if remote_region and remote_image_id:
+            if remote_service_interface:
+                data['method']['glance_service_interface'] = \
+                    remote_service_interface
+                data['method']['glance_region'] = remote_region
+                data['method']['glance_image_id'] = remote_image_id
+
         if all_stores is not None:
-            json['all_stores'] = all_stores
+            data['all_stores'] = all_stores
         if all_stores_must_succeed is not None:
-            json['all_stores_must_succeed'] = all_stores_must_succeed
+            data['all_stores_must_succeed'] = all_stores_must_succeed
         for s in stores:
-            json.setdefault('stores', [])
-            json['stores'].append(s.id)
+            data.setdefault('stores', [])
+            data['stores'].append(s.id)
 
         headers = {}
         # Backward compat
         if store is not None:
             headers = {'X-Image-Meta-Store': store.id}
-        session.post(url, json=json, headers=headers)
+
+        return session.post(url, json=data, headers=headers)
 
     def _consume_header_attrs(self, attrs):
         self.image_import_methods = []

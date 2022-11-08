@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    The ``openstack.image.Image.import_image`` method and ``import_image``
+    image proxy method now accept the following additional paramters:
+
+    - ``remote_region``
+    - ``remote_image_id``
+    - ``remote_service_interface``
+
+    These are required to support the ``glance-download`` image import
+    method.

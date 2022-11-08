@@ -50,7 +50,14 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._create(_image.Image, **kwargs)
 
     def import_image(
-        self, image, method='glance-direct', uri=None,
+        self,
+        image,
+        method='glance-direct',
+        *,
+        uri=None,
+        remote_region=None,
+        remote_image_id=None,
+        remote_service_interface=None,
         store=None,
         stores=None,
         all_stores=None,
@@ -67,12 +74,23 @@ class Proxy(_base_proxy.BaseImageProxy):
             The value can be the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
         :param method:
-            Method to use for importing the image.
-            A valid value is glance-direct or web-download.
+            Method to use for importing the image. Not all deployments support
+            all methods. One of: ``glance-direct`` (default), ``web-download``,
+            ``glance-download``, or ``copy-image``. Use of ``glance-direct``
+            requires the image be first staged.
         :param uri:
             Required only if using the web-download import method.
             This url is where the data is made available to the Image
             service.
+        :param remote_region:
+            The remote glance region to download the image from when using
+            glance-download.
+        :param remote_image_id:
+            The ID of the image to import from the remote glance when using
+            glance-download.
+        :param remote_service_interface:
+            The remote glance service interface to use when using
+            glance-download
         :param store:
             Used when enabled_backends is activated in glance. The value
             can be the id of a store or a
@@ -95,17 +113,19 @@ class Proxy(_base_proxy.BaseImageProxy):
             the stores where the data has been correctly uploaded.
             Default is True.
 
-        :returns: None
+        :returns: The raw response from the request.
         """
         image = self._get_resource(_image.Image, image)
         if all_stores and (store or stores):
             raise exceptions.InvalidRequest(
-                "all_stores is mutually exclusive with"
-                " store and stores")
+                "all_stores is mutually exclusive with "
+                "store and stores"
+            )
         if store is not None:
             if stores:
                 raise exceptions.InvalidRequest(
-                    "store and stores are mutually exclusive")
+                    "store and stores are mutually exclusive"
+                )
             store = self._get_resource(_si.Store, store)
 
         stores = stores or []
@@ -118,11 +138,17 @@ class Proxy(_base_proxy.BaseImageProxy):
         # disk_format are required for using image import process
         if not all([image.container_format, image.disk_format]):
             raise exceptions.InvalidRequest(
-                "Both container_format and disk_format are required for"
-                " importing an image")
+                "Both container_format and disk_format are required for "
+                "importing an image"
+            )
 
-        image.import_image(
-            self, method=method, uri=uri,
+        return image.import_image(
+            self,
+            method=method,
+            uri=uri,
+            remote_region=remote_region,
+            remote_image_id=remote_image_id,
+            remote_service_interface=remote_service_interface,
             store=store,
             stores=stores,
             all_stores=all_stores,
