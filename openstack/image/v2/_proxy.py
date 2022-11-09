@@ -40,13 +40,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         "schema": _schema.Schema,
         "info_import": _si.Import,
         "info_store": _si.Store,
-        "task": _task.Task
+        "task": _task.Task,
     }
 
     # ====== IMAGES ======
     def _create_image(self, **kwargs):
-        """Create image resource from attributes
-        """
+        """Create image resource from attributes"""
         return self._create(_image.Image, **kwargs)
 
     def import_image(
@@ -70,43 +69,34 @@ class Proxy(_base_proxy.BaseImageProxy):
         Image Service download it by itself without sending binary data at
         image creation.
 
-        :param image:
-            The value can be the ID of a image or a
+        :param image: The value can be the ID of a image or a
             :class:`~openstack.image.v2.image.Image` instance.
-        :param method:
-            Method to use for importing the image. Not all deployments support
-            all methods. One of: ``glance-direct`` (default), ``web-download``,
-            ``glance-download``, or ``copy-image``. Use of ``glance-direct``
-            requires the image be first staged.
-        :param uri:
-            Required only if using the web-download import method.
+        :param method: Method to use for importing the image. Not all
+            deployments support all methods. One of: ``glance-direct``
+            (default), ``web-download``, ``glance-download``, or
+            ``copy-image``. Use of ``glance-direct`` requires the image be
+            first staged.
+        :param uri: Required only if using the ``web-download`` import method.
             This url is where the data is made available to the Image
             service.
-        :param remote_region:
-            The remote glance region to download the image from when using
-            glance-download.
-        :param remote_image_id:
-            The ID of the image to import from the remote glance when using
-            glance-download.
-        :param remote_service_interface:
-            The remote glance service interface to use when using
-            glance-download
-        :param store:
-            Used when enabled_backends is activated in glance. The value
-            can be the id of a store or a
+        :param remote_region: The remote glance region to download the image
+            from when using glance-download.
+        :param remote_image_id: The ID of the image to import from the
+            remote glance when using glance-download.
+        :param remote_service_interface: The remote glance service interface to
+            use when using glance-download.
+        :param store: Used when enabled_backends is activated in glance. The
+            value can be the id of a store or a.
             :class:`~openstack.image.v2.service_info.Store` instance.
-        :param stores:
-            List of stores to be used when enabled_backends is activated
-            in glance. List values can be the id of a store or a
+        :param stores: List of stores to be used when enabled_backends is
+            activated in glance. List values can be the id of a store or a
             :class:`~openstack.image.v2.service_info.Store` instance.
-        :param all_stores:
-            Upload to all available stores. Mutually exclusive with
-            ``store`` and ``stores``.
-        :param all_stores_must_succeed:
-            When set to True, if an error occurs during the upload in at
-            least one store, the worfklow fails, the data is deleted
-            from stores where copying is done (not staging), and the
-            state of the image is unchanged. When set to False, the
+        :param all_stores: Upload to all available stores. Mutually exclusive
+            with ``store`` and ``stores``.
+        :param all_stores_must_succeed: When set to True, if an error occurs
+            during the upload in at least one store, the worfklow fails, the
+            data is deleted from stores where copying is done (not staging),
+            and the state of the image is unchanged. When set to False, the
             workflow will fail (data deleted from stores, …) only if the
             import fails on all stores specified by the user. In case of
             a partial success, the locations added to the image will be
@@ -118,8 +108,7 @@ class Proxy(_base_proxy.BaseImageProxy):
         image = self._get_resource(_image.Image, image)
         if all_stores and (store or stores):
             raise exceptions.InvalidRequest(
-                "all_stores is mutually exclusive with "
-                "store and stores"
+                "all_stores is mutually exclusive with store and stores"
             )
         if store is not None:
             if stores:
@@ -169,10 +158,10 @@ class Proxy(_base_proxy.BaseImageProxy):
         image = self._get_resource(_image.Image, image)
 
         if 'queued' != image.status:
-            raise exceptions.SDKException('Image stage is only possible for '
-                                          'images in the queued state.'
-                                          ' Current state is {status}'
-                                          .format(status=image.status))
+            raise exceptions.SDKException(
+                'Image stage is only possible for images in the queued state. '
+                'Current state is {status}'.format(status=image.status)
+            )
 
         if filename:
             image.data = open(filename, 'rb')
@@ -185,14 +174,15 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         return image
 
-    def upload_image(self, container_format=None, disk_format=None,
-                     data=None, **attrs):
+    def upload_image(
+        self, container_format=None, disk_format=None, data=None, **attrs
+    ):
         """Create and upload a new image from attributes
 
         .. warning:
-          This method is deprecated - and also doesn't work very well.
-          Please stop using it immediately and switch to
-          `create_image`.
+
+           This method is deprecated - and also doesn't work very well.
+           Please stop using it immediately and switch to `create_image`.
 
         :param container_format: Format of the container.
             A valid value is ami, ari, aki, bare, ovf, ova, or docker.
@@ -215,11 +205,15 @@ class Proxy(_base_proxy.BaseImageProxy):
         # not being set.
         if not all([container_format, disk_format]):
             raise exceptions.InvalidRequest(
-                "Both container_format and disk_format are required")
+                "Both container_format and disk_format are required"
+            )
 
-        img = self._create(_image.Image, disk_format=disk_format,
-                           container_format=container_format,
-                           **attrs)
+        img = self._create(
+            _image.Image,
+            disk_format=disk_format,
+            container_format=container_format,
+            **attrs,
+        )
 
         # TODO(briancurtin): Perhaps we should run img.upload_image
         # in a background thread and just return what is called by
@@ -232,13 +226,19 @@ class Proxy(_base_proxy.BaseImageProxy):
         return img
 
     def _upload_image(
-        self, name, filename=None, data=None, meta=None,
-        wait=False, timeout=None, validate_checksum=True,
+        self,
+        name,
+        filename=None,
+        data=None,
+        meta=None,
+        wait=False,
+        timeout=None,
+        validate_checksum=True,
         use_import=False,
         stores=None,
         all_stores=None,
         all_stores_must_succeed=None,
-        **kwargs
+        **kwargs,
     ):
         # We can never have nice things. Glance v1 took "is_public" as a
         # boolean. Glance v2 takes "visibility". If the user gives us
@@ -256,28 +256,39 @@ class Proxy(_base_proxy.BaseImageProxy):
             if self._connection.image_api_use_tasks:
                 if use_import:
                     raise exceptions.SDKException(
-                        "The Glance Task API and Import API are"
-                        " mutually exclusive. Either disable"
-                        " image_api_use_tasks in config, or"
-                        " do not request using import")
+                        "The Glance Task API and Import API are mutually "
+                        "exclusive. Either disable image_api_use_tasks in "
+                        "config, or do not request using import"
+                    )
                 return self._upload_image_task(
-                    name, filename, data=data, meta=meta,
-                    wait=wait, timeout=timeout, **kwargs)
+                    name,
+                    filename,
+                    data=data,
+                    meta=meta,
+                    wait=wait,
+                    timeout=timeout,
+                    **kwargs,
+                )
             else:
                 return self._upload_image_put(
-                    name, filename, data=data, meta=meta,
+                    name,
+                    filename,
+                    data=data,
+                    meta=meta,
                     validate_checksum=validate_checksum,
                     use_import=use_import,
                     stores=stores,
                     all_stores=all_stores,
                     all_stores_must_succeed=all_stores_must_succeed,
-                    **kwargs)
+                    **kwargs,
+                )
         except exceptions.SDKException:
             self.log.debug("Image creation failed", exc_info=True)
             raise
         except Exception as e:
             raise exceptions.SDKException(
-                "Image creation failed: {message}".format(message=str(e)))
+                "Image creation failed: {message}".format(message=str(e))
+            )
 
     def _make_v2_image_params(self, meta, properties):
         ret = {}
@@ -295,8 +306,13 @@ class Proxy(_base_proxy.BaseImageProxy):
         return ret
 
     def _upload_image_put(
-        self, name, filename, data, meta,
-        validate_checksum, use_import=False,
+        self,
+        name,
+        filename,
+        data,
+        meta,
+        validate_checksum,
+        use_import=False,
         stores=None,
         all_stores=None,
         all_stores_must_succeed=None,
@@ -323,8 +339,9 @@ class Proxy(_base_proxy.BaseImageProxy):
             use_import = True
         if use_import and not supports_import:
             raise exceptions.SDKException(
-                "Importing image was requested but the cloud does not"
-                " support the image import method.")
+                "Importing image was requested but the cloud does not "
+                "support the image import method."
+            )
 
         try:
             if not use_import:
@@ -343,26 +360,33 @@ class Proxy(_base_proxy.BaseImageProxy):
                 data = image.fetch(self)
                 checksum = data.get('checksum')
                 if checksum:
-                    valid = (checksum == md5 or checksum == sha256)
+                    valid = checksum == md5 or checksum == sha256
                     if not valid:
                         raise Exception('Image checksum verification failed')
         except Exception:
-            self.log.debug(
-                "Deleting failed upload of image %s", name)
+            self.log.debug("Deleting failed upload of image %s", name)
             self.delete_image(image.id)
             raise
 
         return image
 
     def _upload_image_task(
-            self, name, filename, data,
-            wait, timeout, meta, **image_kwargs):
-
+        self,
+        name,
+        filename,
+        data,
+        wait,
+        timeout,
+        meta,
+        **image_kwargs,
+    ):
         if not self._connection.has_service('object-store'):
             raise exceptions.SDKException(
-                "The cloud {cloud} is configured to use tasks for image"
-                " upload, but no object-store service is available."
-                " Aborting.".format(cloud=self._connection.config.name))
+                "The cloud {cloud} is configured to use tasks for image "
+                "upload, but no object-store service is available. "
+                "Aborting.".format(cloud=self._connection.config.name)
+            )
+
         properties = image_kwargs.get('properties', {})
         md5 = properties[self._IMAGE_MD5_KEY]
         sha256 = properties[self._IMAGE_SHA256_KEY]
@@ -372,20 +396,28 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         self._connection.create_container(container)
         self._connection.create_object(
-            container, name, filename,
-            md5=md5, sha256=sha256,
+            container,
+            name,
+            filename,
+            md5=md5,
+            sha256=sha256,
             data=data,
             metadata={self._connection._OBJECT_AUTOCREATE_KEY: 'true'},
-            **{'content-type': 'application/octet-stream',
-               'x-delete-after': str(24 * 60 * 60)})
+            **{
+                'content-type': 'application/octet-stream',
+                'x-delete-after': str(24 * 60 * 60),
+            },
+        )
         # TODO(mordred): Can we do something similar to what nodepool does
         # using glance properties to not delete then upload but instead make a
         # new "good" image and then mark the old one as "bad"
-        task_args = dict(
-            type='import', input=dict(
-                import_from='{container}/{name}'.format(
-                    container=container, name=name),
-                image_properties=dict(name=name)))
+        task_args = {
+            'type': 'import',
+            'input': {
+                'import_from': f'{container}/{name}',
+                'image_properties': {'name': name},
+            },
+        }
 
         glance_task = self.create_task(**task_args)
         self._connection.list_images.invalidate(self)
@@ -394,9 +426,8 @@ class Proxy(_base_proxy.BaseImageProxy):
 
             try:
                 glance_task = self.wait_for_task(
-                    task=glance_task,
-                    status='success',
-                    wait=timeout)
+                    task=glance_task, status='success', wait=timeout
+                )
 
                 image_id = glance_task.result['image_id']
                 image = self.get_image(image_id)
@@ -410,13 +441,18 @@ class Proxy(_base_proxy.BaseImageProxy):
                 image = self.update_image(image, **image_kwargs)
                 self.log.debug(
                     "Image Task %s imported %s in %s",
-                    glance_task.id, image_id, (time.time() - start))
+                    glance_task.id,
+                    image_id,
+                    (time.time() - start),
+                )
             except exceptions.ResourceFailure as e:
                 glance_task = self.get_task(glance_task)
                 raise exceptions.SDKException(
                     "Image creation failed: {message}".format(
-                        message=e.message),
-                    extra_data=glance_task)
+                        message=e.message
+                    ),
+                    extra_data=glance_task,
+                )
             finally:
                 # Clean up after ourselves. The object we created is not
                 # needed after the import is done.
@@ -448,8 +484,9 @@ class Proxy(_base_proxy.BaseImageProxy):
     def _existing_image(self, **kwargs):
         return _image.Image.existing(connection=self._connection, **kwargs)
 
-    def download_image(self, image, stream=False, output=None,
-                       chunk_size=1024):
+    def download_image(
+        self, image, stream=False, output=None, chunk_size=1024
+    ):
         """Download an image
 
         This will download an image to memory when ``stream=False``, or allow
@@ -459,21 +496,17 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :param image: The value can be either the ID of an image or a
             :class:`~openstack.image.v2.image.Image` instance.
-
         :param bool stream: When ``True``, return a :class:`requests.Response`
-            instance allowing you to iterate over the
-            response data stream instead of storing its entire
-            contents in memory. See
-            :meth:`requests.Response.iter_content` for more
-            details. *NOTE*: If you do not consume
-            the entirety of the response you must explicitly
-            call :meth:`requests.Response.close` or otherwise
-            risk inefficiencies with the ``requests``
-            library's handling of connections.
+            instance allowing you to iterate over the response data stream
+            instead of storing its entire contents in memory. See
+            :meth:`requests.Response.iter_content` for more details.
 
+            *NOTE*: If you do not consume the entirety of the response you must
+            explicitly call :meth:`requests.Response.close` or otherwise risk
+            inefficiencies with the ``requests`` library's handling of
+            connections.
 
-            When ``False``, return the entire
-            contents of the response.
+            When ``False``, return the entire contents of the response.
         :param output: Either a file object or a path to store data into.
         :param int chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024
@@ -487,7 +520,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         image = self._get_resource(_image.Image, image)
 
         return image.download(
-            self, stream=stream, output=output, chunk_size=chunk_size)
+            self,
+            stream=stream,
+            output=output,
+            chunk_size=chunk_size,
+        )
 
     def delete_image(self, image, *, store=None, ignore_missing=True):
         """Delete an image
@@ -523,8 +560,11 @@ class Proxy(_base_proxy.BaseImageProxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v2.image.Image` or None
         """
-        return self._find(_image.Image, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _image.Image,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def get_image(self, image):
         """Get a single image
@@ -644,8 +684,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         image_id = resource.Resource._get_id(image)
         member_id = resource.Resource._get_id(member)
-        self._delete(_member.Member, member_id=member_id, image_id=image_id,
-                     ignore_missing=ignore_missing)
+        self._delete(
+            _member.Member,
+            member_id=member_id,
+            image_id=image_id,
+            ignore_missing=ignore_missing,
+        )
 
     def find_member(self, name_or_id, image, ignore_missing=True):
         """Find a single member
@@ -662,8 +706,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         :returns: One :class:`~openstack.image.v2.member.Member` or None
         """
         image_id = resource.Resource._get_id(image)
-        return self._find(_member.Member, name_or_id, image_id=image_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _member.Member,
+            name_or_id,
+            image_id=image_id,
+            ignore_missing=ignore_missing,
+        )
 
     def get_member(self, member, image):
         """Get a single member on an image
@@ -679,8 +727,9 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         member_id = resource.Resource._get_id(member)
         image_id = resource.Resource._get_id(image)
-        return self._get(_member.Member, member_id=member_id,
-                         image_id=image_id)
+        return self._get(
+            _member.Member, member_id=member_id, image_id=image_id
+        )
 
     def members(self, image, **query):
         """Return a generator of members
@@ -713,8 +762,12 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         member_id = resource.Resource._get_id(member)
         image_id = resource.Resource._get_id(image)
-        return self._update(_member.Member, member_id=member_id,
-                            image_id=image_id, **attrs)
+        return self._update(
+            _member.Member,
+            member_id=member_id,
+            image_id=image_id,
+            **attrs,
+        )
 
     # ====== METADEF NAMESPACES ======
     def create_metadef_namespace(self, **attrs):
@@ -814,9 +867,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._list(_metadef_resource_type.MetadefResourceType, **query)
 
     # ====== METADEF RESOURCE TYPES ASSOCIATION======
-    def create_metadef_resource_type_association(self,
-                                                 metadef_namespace,
-                                                 **attrs):
+    def create_metadef_resource_type_association(
+        self,
+        metadef_namespace,
+        **attrs,
+    ):
         """Creates a resource type association between a namespace
             and the resource type specified in the body of the request.
 
@@ -833,12 +888,15 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._create(
             _metadef_resource_type.MetadefResourceTypeAssociation,
             namespace_name=namespace_name,
-            **attrs)
+            **attrs,
+        )
 
-    def delete_metadef_resource_type_association(self,
-                                                 metadef_resource_type,
-                                                 metadef_namespace,
-                                                 ignore_missing=True):
+    def delete_metadef_resource_type_association(
+        self,
+        metadef_resource_type,
+        metadef_namespace,
+        ignore_missing=True,
+    ):
         """Removes a resource type association in a namespace.
 
         :param metadef_resource_type: The value can be either the name of
@@ -879,7 +937,8 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._list(
             _metadef_resource_type.MetadefResourceTypeAssociation,
             namespace_name=namespace_name,
-            **query)
+            **query,
+        )
 
     # ====== SCHEMAS ======
     def get_images_schema(self):
@@ -889,8 +948,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_schema.Schema, requires_id=False,
-                         base_path='/schemas/images')
+        return self._get(
+            _schema.Schema,
+            requires_id=False,
+            base_path='/schemas/images',
+        )
 
     def get_image_schema(self):
         """Get single image schema
@@ -899,8 +961,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_schema.Schema, requires_id=False,
-                         base_path='/schemas/image')
+        return self._get(
+            _schema.Schema,
+            requires_id=False,
+            base_path='/schemas/image',
+        )
 
     def get_members_schema(self):
         """Get image members schema
@@ -909,8 +974,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_schema.Schema, requires_id=False,
-                         base_path='/schemas/members')
+        return self._get(
+            _schema.Schema,
+            requires_id=False,
+            base_path='/schemas/members',
+        )
 
     def get_member_schema(self):
         """Get image member schema
@@ -919,8 +987,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_schema.Schema, requires_id=False,
-                         base_path='/schemas/member')
+        return self._get(
+            _schema.Schema,
+            requires_id=False,
+            base_path='/schemas/member',
+        )
 
     def get_tasks_schema(self):
         """Get image tasks schema
@@ -929,8 +1000,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_schema.Schema, requires_id=False,
-                         base_path='/schemas/tasks')
+        return self._get(
+            _schema.Schema,
+            requires_id=False,
+            base_path='/schemas/tasks',
+        )
 
     def get_task_schema(self):
         """Get image task schema
@@ -939,8 +1013,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_schema.Schema, requires_id=False,
-                         base_path='/schemas/task')
+        return self._get(
+            _schema.Schema,
+            requires_id=False,
+            base_path='/schemas/task',
+        )
 
     def get_metadef_namespace_schema(self):
         """Get metadata definition namespace schema
@@ -949,8 +1026,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/namespace')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/namespace',
+        )
 
     def get_metadef_namespaces_schema(self):
         """Get metadata definition namespaces schema
@@ -959,8 +1039,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/namespaces')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/namespaces',
+        )
 
     def get_metadef_resource_type_schema(self):
         """Get metadata definition resource type association schema
@@ -969,8 +1052,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/resource_type')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/resource_type',
+        )
 
     def get_metadef_resource_types_schema(self):
         """Get metadata definition resource type associations schema
@@ -979,8 +1065,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/resource_types')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/resource_types',
+        )
 
     def get_metadef_object_schema(self):
         """Get metadata definition object schema
@@ -989,8 +1078,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/object')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/object',
+        )
 
     def get_metadef_objects_schema(self):
         """Get metadata definition objects schema
@@ -999,8 +1091,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/objects')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/objects',
+        )
 
     def get_metadef_property_schema(self):
         """Get metadata definition property schema
@@ -1009,8 +1104,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/property')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/property',
+        )
 
     def get_metadef_properties_schema(self):
         """Get metadata definition properties schema
@@ -1019,8 +1117,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/properties')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/properties',
+        )
 
     def get_metadef_tag_schema(self):
         """Get metadata definition tag schema
@@ -1029,8 +1130,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/tag')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/tag',
+        )
 
     def get_metadef_tags_schema(self):
         """Get metadata definition tags schema
@@ -1039,8 +1143,11 @@ class Proxy(_base_proxy.BaseImageProxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
-        return self._get(_metadef_schema.MetadefSchema, requires_id=False,
-                         base_path='/schemas/metadefs/tags')
+        return self._get(
+            _metadef_schema.MetadefSchema,
+            requires_id=False,
+            base_path='/schemas/metadefs/tags',
+        )
 
     # ====== TASKS ======
     def tasks(self, **query):
@@ -1078,8 +1185,14 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         return self._create(_task.Task, **attrs)
 
-    def wait_for_task(self, task, status='success', failures=None,
-                      interval=2, wait=120):
+    def wait_for_task(
+        self,
+        task,
+        status='success',
+        failures=None,
+        interval=2,
+        wait=120,
+    ):
         """Wait for a task to be in a particular status.
 
         :param task: The resource to wait on to reach the specified status.
@@ -1110,18 +1223,20 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         name = "{res}:{id}".format(res=task.__class__.__name__, id=task.id)
         msg = "Timeout waiting for {name} to transition to {status}".format(
-            name=name, status=status)
+            name=name, status=status
+        )
 
         for count in utils.iterate_timeout(
-                timeout=wait,
-                message=msg,
-                wait=interval):
+            timeout=wait, message=msg, wait=interval
+        ):
             task = task.fetch(self)
 
             if not task:
                 raise exceptions.ResourceFailure(
                     "{name} went away while waiting for {status}".format(
-                        name=name, status=status))
+                        name=name, status=status
+                    )
+                )
 
             new_status = task.status
             normalized_status = new_status.lower()
@@ -1129,16 +1244,23 @@ class Proxy(_base_proxy.BaseImageProxy):
                 return task
             elif normalized_status in failures:
                 if task.message == _IMAGE_ERROR_396:
-                    task_args = dict(input=task.input, type=task.type)
+                    task_args = {'input': task.input, 'type': task.type}
                     task = self.create_task(**task_args)
                     self.log.debug('Got error 396. Recreating task %s' % task)
                 else:
                     raise exceptions.ResourceFailure(
                         "{name} transitioned to failure state {status}".format(
-                            name=name, status=new_status))
+                            name=name, status=new_status
+                        )
+                    )
 
-            self.log.debug('Still waiting for resource %s to reach state %s, '
-                           'current state is %s', name, status, new_status)
+            self.log.debug(
+                'Still waiting for resource %s to reach state %s, '
+                'current state is %s',
+                name,
+                status,
+                new_status,
+            )
 
     # ====== STORES ======
     def stores(self, details=False, **query):
