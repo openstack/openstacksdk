@@ -823,7 +823,11 @@ class TestCompute(TestComputeProxy):
             expected_args=[self.proxy])
 
     def test_server_find(self):
-        self.verify_find(self.proxy.find_server, server.Server)
+        self.verify_find(
+            self.proxy.find_server,
+            server.Server,
+            expected_kwargs={'list_base_path': '/servers/detail'},
+        )
 
     def test_server_get(self):
         self.verify_get(self.proxy.get_server, server.Server)

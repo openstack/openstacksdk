@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Make sure find_server returns server details when looking up by name.
