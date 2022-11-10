@@ -55,7 +55,7 @@ class TestServerAction(base.TestCase):
         self.assertEqual('instanceAction', sot.resource_key)
         self.assertEqual('instanceActions', sot.resources_key)
         self.assertEqual(
-            '/servers/{server_id}/os-instance-actions',
+            '/servers/%(server_id)s/os-instance-actions',
             sot.base_path,
         )
         self.assertTrue(sot.allow_fetch)

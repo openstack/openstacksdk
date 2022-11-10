@@ -2174,7 +2174,7 @@ class Proxy(proxy.Proxy):
         return self._get(
             _server_action.ServerAction,
             server_id=server_id,
-            action_id=server_action,
+            request_id=server_action,
             ignore_missing=ignore_missing,
         )
 
