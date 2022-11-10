@@ -42,6 +42,7 @@ VOLUME = {
     "source_volid": None,
     "imageRef": "some_image",
     "metadata": {},
+    "multiattach": False,
     "volume_image_metadata": IMAGE_METADATA,
     "id": FAKE_ID,
     "size": 10,
@@ -101,6 +102,7 @@ class TestVolume(base.TestCase):
         self.assertEqual(VOLUME["snapshot_id"], sot.snapshot_id)
         self.assertEqual(VOLUME["source_volid"], sot.source_volume_id)
         self.assertEqual(VOLUME["metadata"], sot.metadata)
+        self.assertEqual(VOLUME["multiattach"], sot.is_multiattach)
         self.assertEqual(VOLUME["volume_image_metadata"],
                          sot.volume_image_metadata)
         self.assertEqual(VOLUME["size"], sot.size)
