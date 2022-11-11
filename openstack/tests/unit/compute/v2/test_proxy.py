@@ -1457,11 +1457,11 @@ class TestServerAction(TestComputeProxy):
         self._verify(
             'openstack.proxy.Proxy._get',
             self.proxy.get_server_action,
-            method_args=['action_id'],
+            method_args=['request_id'],
             method_kwargs={'server': 'server_id'},
             expected_args=[server_action.ServerAction],
             expected_kwargs={
-                'action_id': 'action_id', 'server_id': 'server_id',
+                'request_id': 'request_id', 'server_id': 'server_id',
             },
         )
 

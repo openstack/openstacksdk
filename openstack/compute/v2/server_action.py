@@ -49,7 +49,7 @@ class ServerActionEvent(resource.Resource):
 class ServerAction(resource.Resource):
     resource_key = 'instanceAction'
     resources_key = 'instanceActions'
-    base_path = '/servers/{server_id}/os-instance-actions'
+    base_path = '/servers/%(server_id)s/os-instance-actions'
 
     # capabilities
     allow_fetch = True
@@ -68,7 +68,7 @@ class ServerAction(resource.Resource):
     # #: The ID of the server that this action relates to.
     # server_id = resource.Body('instance_uuid')
     #: The ID of the request that this action related to.
-    request_id = resource.Body('request_id')
+    request_id = resource.Body('request_id', alternate_id=True)
     #: The ID of the user which initiated the server action.
     user_id = resource.Body('user_id')
     #: The ID of the project that this server belongs to.
