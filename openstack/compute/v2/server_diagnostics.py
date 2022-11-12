@@ -51,4 +51,4 @@ class ServerDiagnostics(resource.Resource):
     #: The list of dictionaries with detailed information about VM NICs.
     nic_details = resource.Body('nic_details')
     #: The ID for the server.
-    server_id = resource.Body('server_id')
+    server_id = resource.URI('server_id')

@@ -596,9 +596,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         exceptions.raise_from_response(response)
 
         try:
-            data = response.json()
-            if 'topology' in data:
-                return data['topology']
+            return response.json()
         except ValueError:
             pass
 

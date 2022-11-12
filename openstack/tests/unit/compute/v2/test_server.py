@@ -1097,9 +1097,7 @@ class TestServer(base.TestCase):
         }
 
         response.status_code = 200
-        response.json.return_value = {
-            'topology': topology
-        }
+        response.json.return_value = topology
 
         self.sess.get.return_value = response
 
