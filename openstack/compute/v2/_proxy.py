@@ -1937,13 +1937,15 @@ class Proxy(proxy.Proxy):
 
     # ========== Migrations ==========
 
-    def migrations(self):
+    def migrations(self, **query):
         """Return a generator of migrations for all servers.
 
+        :param kwargs query: Optional query parameters to be sent to limit
+            the migrations being returned.
         :returns: A generator of Migration objects
         :rtype: :class:`~openstack.compute.v2.migration.Migration`
         """
-        return self._list(_migration.Migration)
+        return self._list(_migration.Migration, **query)
 
     # ========== Server diagnostics ==========
 

@@ -1252,6 +1252,14 @@ class TestCompute(TestComputeProxy):
     def test_migrations(self):
         self.verify_list(self.proxy.migrations, migration.Migration)
 
+    def test_migrations_kwargs(self):
+        self.verify_list(
+            self.proxy.migrations,
+            migration.Migration,
+            method_kwargs={'host': 'h1'},
+            expected_kwargs={'host': 'h1'},
+        )
+
     def test_fetch_security_groups(self):
         self._verify(
             'openstack.compute.v2.server.Server.fetch_security_groups',
