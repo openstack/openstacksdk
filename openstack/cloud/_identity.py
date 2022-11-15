@@ -330,8 +330,11 @@ class IdentityCloudMixin:
     ):
         """Create a user."""
         params = self._get_identity_params(domain_id, default_project)
-        params.update({'name': name, 'password': password, 'email': email,
-                       'enabled': enabled, 'description': description})
+        params.update({'name': name, 'email': email, 'enabled': enabled})
+        if password is not None:
+            params['password'] = password
+        if description is not None:
+            params['description'] = description
 
         user = self.identity.create_user(**params)
 
