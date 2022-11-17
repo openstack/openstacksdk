@@ -62,6 +62,8 @@ class Volume(resource.Resource, metadata.MetadataMixin):
     #: ``True`` if this volume is encrypted, ``False`` if not.
     #: *Type: bool*
     is_encrypted = resource.Body("encrypted", type=format.BoolStr)
+    #: Whether volume will be sharable or not.
+    is_multiattach = resource.Body("multiattach", type=bool)
     #: The volume ID that this volume's name on the back-end is based on.
     migration_id = resource.Body("os-vol-mig-status-attr:name_id")
     #: The status of this volume's migration (None means that a migration
