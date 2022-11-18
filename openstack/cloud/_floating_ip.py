@@ -18,8 +18,8 @@ import ipaddress
 import threading
 import time
 import types  # noqa
+import warnings
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
@@ -32,7 +32,7 @@ _CONFIG_DOC_URL = (
     "user/config/configuration.html")
 
 
-class FloatingIPCloudMixin(_normalize.Normalizer):
+class FloatingIPCloudMixin:
 
     def __init__(self):
         self.private = self.config.config.get('private', False)
@@ -64,20 +64,14 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
     def search_floating_ips(self, id=None, filters=None):
         # `filters` could be a jmespath expression which Neutron server doesn't
         # understand, obviously.
+        warnings.warn(
+            "search_floating_ips is deprecated. "
+            "Use search_resource instead.")
         if self._use_neutron_floating() and isinstance(filters, dict):
-            filter_keys = ['router_id', 'status', 'tenant_id', 'project_id',
-                           'revision_number', 'description',
-                           'floating_network_id', 'fixed_ip_address',
-                           'floating_ip_address', 'port_id', 'sort_dir',
-                           'sort_key', 'tags', 'tags-any', 'not-tags',
-                           'not-tags-any', 'fields']
-            neutron_filters = {k: v for k, v in filters.items()
-                               if k in filter_keys}
-            kwargs = {'filters': neutron_filters}
+            return list(self.network.ips(**filters))
         else:
-            kwargs = {}
-        floating_ips = self.list_floating_ips(**kwargs)
-        return _utils._filter_list(floating_ips, id, filters)
+            floating_ips = self.list_floating_ips()
+            return _utils._filter_list(floating_ips, id, filters)
 
     def _neutron_list_floating_ips(self, filters=None):
         if not filters:
@@ -121,8 +115,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
     def _list_floating_ips(self, filters=None):
         if self._use_neutron_floating():
             try:
-                return self._normalize_floating_ips(
-                    self._neutron_list_floating_ips(filters))
+                return self._neutron_list_floating_ips(filters)
             except exc.OpenStackCloudURINotFound as e:
                 # Nova-network don't support server-side floating ips
                 # filtering, so it's safer to return and empty list than
@@ -223,13 +216,15 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         """ Get a floating ip by ID
 
         :param id: ID of the floating ip.
-        :returns: A floating ip ``munch.Munch``.
+        :returns: A floating ip
+            `:class:`~openstack.network.v2.floating_ip.FloatingIP` or
+            ``munch.Munch``.
         """
         error_message = "Error getting floating ip with ID {id}".format(id=id)
 
         if self._use_neutron_floating():
             fip = self.network.get_ip(id)
-            return self._normalize_floating_ip(fip)
+            return fip
         else:
             data = proxy._json_response(
                 self.compute.get('/os-floating-ips/{id}'.format(id=id)),
@@ -372,9 +367,8 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         """
         if self._use_neutron_floating():
             try:
-                f_ips = self._normalize_floating_ips(
-                    self._neutron_available_floating_ips(
-                        network=network, server=server))
+                f_ips = self._neutron_available_floating_ips(
+                    network=network, server=server)
                 return f_ips[0]
             except exc.OpenStackCloudURINotFound as e:
                 self.log.debug(
@@ -458,8 +452,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
 
     def _submit_create_fip(self, kwargs):
         # Split into a method to aid in test mocking
-        data = self.network.create_ip(**kwargs)
-        return self._normalize_floating_ip(data)
+        return self.network.create_ip(**kwargs)
 
     def _neutron_create_floating_ip(
             self, network_name_or_id=None, server=None,
@@ -651,7 +644,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
         processed = []
         if self._use_neutron_floating():
             for ip in self.list_floating_ips():
-                if not ip['attached']:
+                if not bool(ip.port_id):
                     processed.append(self.delete_floating_ip(
                         floating_ip_id=ip['id'], retry=retry))
         return len(processed) if all(processed) else False
@@ -794,7 +787,7 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
 
     def _neutron_detach_ip_from_server(self, server_id, floating_ip_id):
         f_ip = self.get_floating_ip(id=floating_ip_id)
-        if f_ip is None or not f_ip['attached']:
+        if f_ip is None or not bool(f_ip.port_id):
             return False
         try:
             self.network.update_ip(
@@ -1184,3 +1177,103 @@ class FloatingIPCloudMixin(_normalize.Normalizer):
     def _use_neutron_floating(self):
         return (self.has_service('network')
                 and self._floating_ip_source == 'neutron')
+
+    def _normalize_floating_ips(self, ips):
+        """Normalize the structure of floating IPs
+
+        Unfortunately, not all the Neutron floating_ip attributes are available
+        with Nova and not all Nova floating_ip attributes are available with
+        Neutron.
+        This function extract attributes that are common to Nova and Neutron
+        floating IP resource.
+        If the whole structure is needed inside shade, shade provides private
+        methods that returns "original" objects (e.g.
+        _neutron_allocate_floating_ip)
+
+        :param list ips: A list of Neutron floating IPs.
+
+        :returns:
+            A list of normalized dicts with the following attributes::
+
+                [
+                    {
+                        "id": "this-is-a-floating-ip-id",
+                        "fixed_ip_address": "192.0.2.10",
+                        "floating_ip_address": "198.51.100.10",
+                        "network": "this-is-a-net-or-pool-id",
+                        "attached": True,
+                        "status": "ACTIVE"
+                    }, ...
+                ]
+
+        """
+        return [
+            self._normalize_floating_ip(ip) for ip in ips
+        ]
+
+    def _normalize_floating_ip(self, ip):
+        # Copy incoming floating ip because of shared dicts in unittests
+        # Only import munch when we really need it
+        import munch
+
+        location = self._get_current_location(
+            project_id=ip.get('owner'))
+        # This copy is to keep things from getting epically weird in tests
+        ip = ip.copy()
+
+        ret = munch.Munch(location=location)
+
+        fixed_ip_address = ip.pop('fixed_ip_address', ip.pop('fixed_ip', None))
+        floating_ip_address = ip.pop('floating_ip_address', ip.pop('ip', None))
+        network_id = ip.pop(
+            'floating_network_id', ip.pop('network', ip.pop('pool', None)))
+        project_id = ip.pop('tenant_id', '')
+        project_id = ip.pop('project_id', project_id)
+
+        instance_id = ip.pop('instance_id', None)
+        router_id = ip.pop('router_id', None)
+        id = ip.pop('id')
+        port_id = ip.pop('port_id', None)
+        created_at = ip.pop('created_at', None)
+        updated_at = ip.pop('updated_at', None)
+        # Note - description may not always be on the underlying cloud.
+        # Normalizing it here is easy - what do we do when people want to
+        # set a description?
+        description = ip.pop('description', '')
+        revision_number = ip.pop('revision_number', None)
+
+        if self._use_neutron_floating():
+            attached = bool(port_id)
+            status = ip.pop('status', 'UNKNOWN')
+        else:
+            attached = bool(instance_id)
+            # In neutron's terms, Nova floating IPs are always ACTIVE
+            status = 'ACTIVE'
+
+        ret = munch.Munch(
+            attached=attached,
+            fixed_ip_address=fixed_ip_address,
+            floating_ip_address=floating_ip_address,
+            id=id,
+            location=self._get_current_location(project_id=project_id),
+            network=network_id,
+            port=port_id,
+            router=router_id,
+            status=status,
+            created_at=created_at,
+            updated_at=updated_at,
+            description=description,
+            revision_number=revision_number,
+            properties=ip.copy(),
+        )
+        # Backwards compat
+        if not self.strict_mode:
+            ret['port_id'] = port_id
+            ret['router_id'] = router_id
+            ret['project_id'] = project_id
+            ret['tenant_id'] = project_id
+            ret['floating_network_id'] = network_id
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
+
+        return ret
