@@ -1571,7 +1571,6 @@ class ComputeCloudMixin:
         """
         return self.compute.aggregates(**filters)
 
-    # TODO(stephenfin): This shouldn't return a munch
     def get_aggregate(self, name_or_id, filters=None):
         """Get an aggregate by name or ID.
 
@@ -1590,10 +1589,8 @@ class ComputeCloudMixin:
         :returns: An aggregate dict or None if no matching aggregate is
             found.
         """
-        aggregate = self.compute.find_aggregate(
+        return self.compute.find_aggregate(
             name_or_id, ignore_missing=True)
-        if aggregate:
-            return aggregate._to_munch()
 
     def create_aggregate(self, name, availability_zone=None):
         """Create a new host aggregate.
@@ -1804,11 +1801,10 @@ class ComputeCloudMixin:
         item.pop('x_openstack_request_ids', None)
 
     def _normalize_server(self, server):
-        import munch
-        ret = munch.Munch()
+        ret = utils.Munch()
         # Copy incoming server because of shared dicts in unittests
         # Wrap the copy in munch so that sub-dicts are properly munched
-        server = munch.Munch(server)
+        server = utils.Munch(server)
 
         self._remove_novaclient_artifacts(server)
 
@@ -1824,7 +1820,7 @@ class ComputeCloudMixin:
         # from volume
         image = server.pop('image', None)
         if str(image) != image:
-            image = munch.Munch(id=image['id'])
+            image = utils.Munch(id=image['id'])
 
         ret['image'] = image
         # From original_names from sdk

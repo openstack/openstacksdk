@@ -14,13 +14,13 @@ import copy
 import queue
 from unittest import mock
 
-import munch
 from testscenarios import load_tests_apply_scenarios as load_tests  # noqa
 
 from openstack import exceptions
 from openstack import proxy
 from openstack import resource
 from openstack.tests.unit import base
+from openstack import utils
 
 
 class DeleteableResource(resource.Resource):
@@ -182,7 +182,7 @@ class TestProxyPrivate(base.TestCase):
         res._update = mock.Mock()
         cls._from_munch.return_value = res
 
-        m = munch.Munch(answer=42)
+        m = utils.Munch(answer=42)
         attrs = {"first": "Brian", "last": "Curtin"}
 
         result = self.fake_proxy._get_resource(cls, m, **attrs)

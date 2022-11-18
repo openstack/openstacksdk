@@ -445,7 +445,7 @@ class Proxy(adapter.Adapter, Generic[T]):
             be a subclass of :class:`~openstack.resource.Resource` with a
             ``from_id`` method.
         :param value: The ID of a resource or an object of ``resource_type``
-            class if using an existing instance, or ``munch.Munch``,
+            class if using an existing instance, or ``utils.Munch``,
             or None to create a new instance.
         :param attrs: A dict containing arguments for forming the request
             URL, if needed.

@@ -9,7 +9,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+from collections.abc import Mapping
 import hashlib
 import queue
 import string
@@ -403,3 +403,196 @@ class TinyDAG:
 
     def is_complete(self):
         return len(self._done) == self.size()
+
+
+# Importing Munch is a relatively expensive operation (0.3s) while we do not
+# really even need much of it. Before we can rework all places where we rely on
+# it we can have a reduced version.
+class Munch(dict):
+    """A slightly stripped version of munch.Munch class"""
+    def __init__(self, *args, **kwargs):
+        self.update(*args, **kwargs)
+
+    # only called if k not found in normal places
+    def __getattr__(self, k):
+        """Gets key if it exists, otherwise throws AttributeError.
+        """
+        try:
+            return object.__getattribute__(self, k)
+        except AttributeError:
+            try:
+                return self[k]
+            except KeyError:
+                raise AttributeError(k)
+
+    def __setattr__(self, k, v):
+        """Sets attribute k if it exists, otherwise sets key k. A KeyError
+           raised by set-item (only likely if you subclass Munch) will
+           propagate as an AttributeError instead.
+        """
+        try:
+            # Throws exception if not in prototype chain
+            object.__getattribute__(self, k)
+        except AttributeError:
+            try:
+                self[k] = v
+            except Exception:
+                raise AttributeError(k)
+        else:
+            object.__setattr__(self, k, v)
+
+    def __delattr__(self, k):
+        """Deletes attribute k if it exists, otherwise deletes key k. A KeyError
+           raised by deleting the key--such as when the key is missing--will
+           propagate as an AttributeError instead.
+        """
+        try:
+            # Throws exception if not in prototype chain
+            object.__getattribute__(self, k)
+        except AttributeError:
+            try:
+                del self[k]
+            except KeyError:
+                raise AttributeError(k)
+        else:
+            object.__delattr__(self, k)
+
+    def toDict(self):
+        """Recursively converts a munch back into a dictionary.
+        """
+        return unmunchify(self)
+
+    @property
+    def __dict__(self):
+        return self.toDict()
+
+    def __repr__(self):
+        """Invertible* string-form of a Munch. """
+        return f'{self.__class__.__name__}({dict.__repr__(self)})'
+
+    def __dir__(self):
+        return list(self.keys())
+
+    def __getstate__(self):
+        """Implement a serializable interface used for pickling.
+        See https://docs.python.org/3.6/library/pickle.html.
+        """
+        return {k: v for k, v in self.items()}
+
+    def __setstate__(self, state):
+        """Implement a serializable interface used for pickling.
+        See https://docs.python.org/3.6/library/pickle.html.
+        """
+        self.clear()
+        self.update(state)
+
+    @classmethod
+    def fromDict(cls, d):
+        """Recursively transforms a dictionary into a Munch via copy."""
+        return munchify(d, cls)
+
+    def copy(self):
+        return type(self).fromDict(self)
+
+    def update(self, *args, **kwargs):
+        """
+        Override built-in method to call custom __setitem__ method that may
+        be defined in subclasses.
+        """
+        for k, v in dict(*args, **kwargs).items():
+            self[k] = v
+
+    def get(self, k, d=None):
+        """
+        D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.
+        """
+        if k not in self:
+            return d
+        return self[k]
+
+    def setdefault(self, k, d=None):
+        """
+        D.setdefault(k[,d]) -> D.get(k,d), also set D[k]=d if k not in D
+        """
+        if k not in self:
+            self[k] = d
+        return self[k]
+
+
+def munchify(x, factory=Munch):
+    """Recursively transforms a dictionary into a Munch via copy."""
+    # Munchify x, using `seen` to track object cycles
+    seen = dict()
+
+    def munchify_cycles(obj):
+        try:
+            return seen[id(obj)]
+        except KeyError:
+            pass
+
+        seen[id(obj)] = partial = pre_munchify(obj)
+        return post_munchify(partial, obj)
+
+    def pre_munchify(obj):
+        if isinstance(obj, Mapping):
+            return factory({})
+        elif isinstance(obj, list):
+            return type(obj)()
+        elif isinstance(obj, tuple):
+            type_factory = getattr(obj, "_make", type(obj))
+            return type_factory(munchify_cycles(item) for item in obj)
+        else:
+            return obj
+
+    def post_munchify(partial, obj):
+        if isinstance(obj, Mapping):
+            partial.update((k, munchify_cycles(obj[k])) for k in obj.keys())
+        elif isinstance(obj, list):
+            partial.extend(munchify_cycles(item) for item in obj)
+        elif isinstance(obj, tuple):
+            for (item_partial, item) in zip(partial, obj):
+                post_munchify(item_partial, item)
+
+        return partial
+
+    return munchify_cycles(x)
+
+
+def unmunchify(x):
+    """Recursively converts a Munch into a dictionary."""
+
+    # Munchify x, using `seen` to track object cycles
+    seen = dict()
+
+    def unmunchify_cycles(obj):
+        try:
+            return seen[id(obj)]
+        except KeyError:
+            pass
+
+        seen[id(obj)] = partial = pre_unmunchify(obj)
+        return post_unmunchify(partial, obj)
+
+    def pre_unmunchify(obj):
+        if isinstance(obj, Mapping):
+            return dict()
+        elif isinstance(obj, list):
+            return type(obj)()
+        elif isinstance(obj, tuple):
+            type_factory = getattr(obj, "_make", type(obj))
+            return type_factory(unmunchify_cycles(item) for item in obj)
+        else:
+            return obj
+
+    def post_unmunchify(partial, obj):
+        if isinstance(obj, Mapping):
+            partial.update((k, unmunchify_cycles(obj[k])) for k in obj.keys())
+        elif isinstance(obj, list):
+            partial.extend(unmunchify_cycles(v) for v in obj)
+        elif isinstance(obj, tuple):
+            for (value_partial, value) in zip(partial, obj):
+                post_unmunchify(value_partial, value)
+
+        return partial
+
+    return unmunchify_cycles(x)

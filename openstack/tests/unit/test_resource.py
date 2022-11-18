@@ -15,13 +15,13 @@ import json
 from unittest import mock
 
 from keystoneauth1 import adapter
-import munch
 import requests
 
 from openstack import exceptions
 from openstack import format
 from openstack import resource
 from openstack.tests.unit import base
+from openstack import utils
 
 
 class FakeResponse:
@@ -947,14 +947,14 @@ class TestResource(base.TestCase):
         self.assertEqual('bar', res.foo_alias)
         self.assertTrue('foo' in res.keys())
         self.assertTrue('foo_alias' in res.keys())
-        expected = munch.Munch({
+        expected = utils.Munch({
             'id': None,
             'name': 'test',
             'location': None,
             'foo': 'bar',
             'foo_alias': 'bar'
         })
-        actual = munch.Munch(res)
+        actual = utils.Munch(res)
         self.assertEqual(expected, actual)
         self.assertEqual(expected, res.toDict())
         self.assertEqual(expected, res.to_dict())
@@ -1035,7 +1035,7 @@ class TestResource(base.TestCase):
             attr = resource.Body("body_attr")
 
         value = "value"
-        orig = munch.Munch(body_attr=value)
+        orig = utils.Munch(body_attr=value)
         sot = Test._from_munch(orig, synchronized=False)
 
         self.assertIn("body_attr", sot._body.dirty)
@@ -1046,7 +1046,7 @@ class TestResource(base.TestCase):
             attr = resource.Body("body_attr")
 
         value = "value"
-        orig = munch.Munch(body_attr=value)
+        orig = utils.Munch(body_attr=value)
         sot = Test._from_munch(orig)
 
         self.assertNotIn("body_attr", sot._body.dirty)

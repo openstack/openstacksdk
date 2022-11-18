@@ -21,6 +21,7 @@ from openstack.cloud import exc
 from openstack import exceptions
 from openstack.network.v2._proxy import Proxy
 from openstack import proxy
+from openstack import utils
 
 
 class SecurityGroupCloudMixin:
@@ -40,7 +41,8 @@ class SecurityGroupCloudMixin:
         """List all available security groups.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of security group ``munch.Munch``.
+        :returns: A list of security group
+            ``openstack.network.v2.security_group.SecurityGroup``.
 
         """
         # Security groups not supported
@@ -86,8 +88,9 @@ class SecurityGroupCloudMixin:
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A security group ``munch.Munch`` or None if no matching
-            security group is found.
+        :returns: A security group
+            ``openstack.network.v2.security_group.SecurityGroup``
+            or None if no matching security group is found.
 
         """
         return _utils._get_entity(
@@ -97,7 +100,8 @@ class SecurityGroupCloudMixin:
         """ Get a security group by ID
 
         :param id: ID of the security group.
-        :returns: A security group ``munch.Munch``.
+        :returns: A security group
+            ``openstack.network.v2.security_group.SecurityGroup``.
         """
         if not self._has_secgroups():
             raise exc.OpenStackCloudUnavailableFeature(
@@ -126,7 +130,8 @@ class SecurityGroupCloudMixin:
             on (admin-only).
         :param string stateful: Whether the security group is stateful or not.
 
-        :returns: A ``munch.Munch`` representing the new security group.
+        :returns: A ``openstack.network.v2.security_group.SecurityGroup``
+            representing the new security group.
 
         :raises: OpenStackCloudException on operation error.
         :raises: OpenStackCloudUnavailableFeature if security groups are
@@ -200,7 +205,8 @@ class SecurityGroupCloudMixin:
         :param string name: New name for the security group.
         :param string description: New description for the security group.
 
-        :returns: A ``munch.Munch`` describing the updated security group.
+        :returns: A ``openstack.network.v2.security_group.SecurityGroup``
+            describing the updated security group.
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -288,7 +294,8 @@ class SecurityGroupCloudMixin:
             on (admin-only).
         :param string description:
             Description of the rule, max 255 characters.
-        :returns: A ``munch.Munch`` representing the new security group rule.
+        :returns: A ``openstack.network.v2.security_group.SecurityGroup``
+            representing the new security group rule.
 
         :raises: OpenStackCloudException on operation error.
         """
@@ -439,9 +446,7 @@ class SecurityGroupCloudMixin:
     # secgroups
     def _normalize_secgroup(self, group):
 
-        import munch
-
-        ret = munch.Munch()
+        ret = utils.Munch()
         # Copy incoming group because of shared dicts in unittests
         group = group.copy()
 
@@ -493,9 +498,7 @@ class SecurityGroupCloudMixin:
     # secgroups
     def _normalize_secgroup_rule(self, rule):
 
-        import munch
-
-        ret = munch.Munch()
+        ret = utils.Munch()
         # Copy incoming rule because of shared dicts in unittests
         rule = rule.copy()
 

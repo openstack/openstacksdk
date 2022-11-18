@@ -436,7 +436,8 @@ class BaremetalCloudMixin:
         """List virtual ports attached to the bare metal machine.
 
         :param string name_or_id: A machine name or UUID.
-        :returns: List of ``munch.Munch`` representing the ports.
+        :returns: List of ``openstack.Resource`` objects representing
+            the ports.
         """
         machine = self.get_machine(name_or_id)
         vif_ids = self.baremetal.list_node_vifs(machine)

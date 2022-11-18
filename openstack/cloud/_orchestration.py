@@ -201,7 +201,8 @@ class OrchestrationCloudMixin:
         :param filters: a dict containing additional filters to use. e.g.
                 {'stack_status': 'CREATE_COMPLETE'}
 
-        :returns: a list of ``munch.Munch`` containing the stack description.
+        :returns: a list of ``openstack.orchestration.v1.stack.Stack``
+            containing the stack description.
 
         :raises: ``OpenStackCloudException`` if something goes wrong during the
             OpenStack API call.

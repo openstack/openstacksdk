@@ -20,9 +20,10 @@ import pprint
 import sys
 
 import fixtures
-import munch
 from oslotest import base
 import testtools.content
+
+from openstack import utils
 
 _TRUE_VALUES = ('true', '1', 'yes')
 
@@ -84,9 +85,9 @@ class TestCase(base.BaseTestCase):
 
     def assertEqual(self, first, second, *args, **kwargs):
         '''Munch aware wrapper'''
-        if isinstance(first, munch.Munch):
+        if isinstance(first, utils.Munch):
             first = first.toDict()
-        if isinstance(second, munch.Munch):
+        if isinstance(second, utils.Munch):
             second = second.toDict()
         return super(TestCase, self).assertEqual(
             first, second, *args, **kwargs)

@@ -13,7 +13,6 @@
 # import types so that we can reference ListType in sphinx param declarations.
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
-import types  # noqa
 
 from openstack.cloud import _utils
 from openstack.cloud import exc

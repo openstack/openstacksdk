@@ -108,8 +108,8 @@ class FloatingIPCloudMixin:
             A string containing a jmespath expression for further filtering.
             Example:: "[?last_name==`Smith`] | [?other.gender]==`Female`]"
 
-        :returns: A floating IP ``munch.Munch`` or None if no matching floating
-            IP is found.
+        :returns: A floating IP ``openstack.network.v2.floating_ip.FloatingIP``
+            or None if no matching floating IP is found.
 
         """
         return _utils._get_entity(self, 'floating_ip', id, filters)
@@ -168,7 +168,8 @@ class FloatingIPCloudMixin:
         neutron. `get_external_ipv4_floating_networks` is what you should
         almost certainly be using.
 
-        :returns: A list of floating IP pool ``munch.Munch``.
+        :returns: A list of floating IP pool
+            ``openstack.network.v2.floating_ip.FloatingIP``.
 
         """
         if not self._has_nova_extension('os-floating-ip-pools'):
@@ -185,7 +186,8 @@ class FloatingIPCloudMixin:
         """List all available floating IPs.
 
         :param filters: (optional) dict of filter conditions to push down
-        :returns: A list of floating IP ``munch.Munch``.
+        :returns: A list of floating IP
+            ``openstack.network.v2.floating_ip.FloatingIP``.
 
         """
         # If pushdown filters are specified and we do not have batched caching
@@ -219,8 +221,7 @@ class FloatingIPCloudMixin:
 
         :param id: ID of the floating ip.
         :returns: A floating ip
-            `:class:`~openstack.network.v2.floating_ip.FloatingIP` or
-            ``munch.Munch``.
+            `:class:`~openstack.network.v2.floating_ip.FloatingIP`.
         """
         error_message = "Error getting floating ip with ID {id}".format(id=id)
 
@@ -670,7 +671,7 @@ class FloatingIPCloudMixin:
         :param nat_destination: The fixed network the server's port for the
                                 FIP to attach to will come from.
 
-        :returns: The server ``munch.Munch``
+        :returns: The server ``openstack.compute.v2.server.Server``
 
         :raises: OpenStackCloudException, on operation error.
         """
@@ -842,7 +843,7 @@ class FloatingIPCloudMixin:
         :param nat_destination: (optional) the name of the network of the
                                 port to associate with the floating ip.
 
-        :returns: the updated server ``munch.Munch``
+        :returns: the updated server ``openstack.compute.v2.server.Server``
         """
         if reuse:
             f_ip = self.available_floating_ip(network=network)
@@ -885,7 +886,7 @@ class FloatingIPCloudMixin:
                                           the fixed IP to attach the
                                           floating IP should be on
 
-        :returns: The updated server ``munch.Munch``
+        :returns: The updated server ``openstack.compute.v2.server.Server``
 
         :raises: ``OpenStackCloudException``, on operation error.
         """
@@ -1216,14 +1217,13 @@ class FloatingIPCloudMixin:
     def _normalize_floating_ip(self, ip):
         # Copy incoming floating ip because of shared dicts in unittests
         # Only import munch when we really need it
-        import munch
 
         location = self._get_current_location(
             project_id=ip.get('owner'))
         # This copy is to keep things from getting epically weird in tests
         ip = ip.copy()
 
-        ret = munch.Munch(location=location)
+        ret = utils.Munch(location=location)
 
         fixed_ip_address = ip.pop('fixed_ip_address', ip.pop('fixed_ip', None))
         floating_ip_address = ip.pop('floating_ip_address', ip.pop('ip', None))
@@ -1252,7 +1252,7 @@ class FloatingIPCloudMixin:
             # In neutron's terms, Nova floating IPs are always ACTIVE
             status = 'ACTIVE'
 
-        ret = munch.Munch(
+        ret = utils.Munch(
             attached=attached,
             fixed_ip_address=fixed_ip_address,
             floating_ip_address=floating_ip_address,

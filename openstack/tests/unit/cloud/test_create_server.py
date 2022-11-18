@@ -30,6 +30,11 @@ from openstack.tests.unit import base
 
 
 class TestCreateServer(base.TestCase):
+    def _compare_servers(self, exp, real):
+        self.assertDictEqual(
+            server.Server(**exp).to_dict(computed=False),
+            real.to_dict(computed=False),
+        )
 
     def test_create_server_with_get_exception(self):
         """
@@ -330,7 +335,7 @@ class TestCreateServer(base.TestCase):
                  json={'server': fake_server}),
         ])
         self.assertEqual(
-            self.cloud._normalize_server(fake_create_server)['adminPass'],
+            admin_pass,
             self.cloud.create_server(
                 name='server-name', image=dict(id='image-id'),
                 flavor=dict(id='flavor-id'),
@@ -369,9 +374,9 @@ class TestCreateServer(base.TestCase):
         ])
 
         # The wait returns non-password server
-        mock_wait.return_value = self.cloud._normalize_server(fake_server)
+        mock_wait.return_value = server.Server(**fake_server)
 
-        server = self.cloud.create_server(
+        new_server = self.cloud.create_server(
             name='server-name', image=dict(id='image-id'),
             flavor=dict(id='flavor-id'),
             admin_pass=admin_pass, wait=True)
@@ -381,8 +386,8 @@ class TestCreateServer(base.TestCase):
 
         # Even with the wait, we should still get back a passworded server
         self.assertEqual(
-            server['admin_password'],
-            self.cloud._normalize_server(fake_server_with_pass)['adminPass']
+            new_server['admin_password'],
+            fake_server_with_pass['adminPass']
         )
         self.assert_calls()
 

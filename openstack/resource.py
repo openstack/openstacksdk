@@ -42,7 +42,6 @@ import warnings
 import jsonpatch
 from keystoneauth1 import adapter
 from keystoneauth1 import discover
-import munch
 from requests import structures
 
 from openstack import _log
@@ -999,12 +998,12 @@ class Resource(dict):
 
     @classmethod
     def _from_munch(cls, obj, synchronized=True, connection=None):
-        """Create an instance from a ``munch.Munch`` object.
+        """Create an instance from a ``utils.Munch`` object.
 
         This is intended as a temporary measure to convert between shade-style
         Munch objects and original openstacksdk resources.
 
-        :param obj: a ``munch.Munch`` object to convert from.
+        :param obj: a ``utils.Munch`` object to convert from.
         :param bool synchronized: whether this object already exists on server
             Must be set to ``False`` for newly created objects.
         """
@@ -1023,7 +1022,7 @@ class Resource(dict):
         if isinstance(value, Resource):
             return value.to_dict(_to_munch=to_munch)
         elif isinstance(value, dict) and to_munch:
-            return munch.Munch(value)
+            return utils.Munch(value)
         elif value and isinstance(value, list):
             converted = []
             for raw in value:
@@ -1032,7 +1031,7 @@ class Resource(dict):
                         raw.to_dict(_to_munch=to_munch)
                     )
                 elif isinstance(raw, dict) and to_munch:
-                    converted.append(munch.Munch(raw))
+                    converted.append(utils.Munch(raw))
                 else:
                     converted.append(raw)
             return converted
@@ -1060,14 +1059,14 @@ class Resource(dict):
             hasn't returned.
         :param bool original_names: When True, use attribute names as they
             were received from the server.
-        :param bool _to_munch: For internal use only. Converts to `munch.Munch`
+        :param bool _to_munch: For internal use only. Converts to `utils.Munch`
             instead of dict.
 
         :return: A dictionary of key/value pairs where keys are named
             as they exist as attributes of this class.
         """
         if _to_munch:
-            mapping = munch.Munch()
+            mapping = utils.Munch()
         else:
             mapping = {}
 
@@ -1118,7 +1117,7 @@ class Resource(dict):
 
         return mapping
 
-    # Compatibility with the munch.Munch.toDict method
+    # Compatibility with the utils.Munch.toDict method
     toDict = to_dict
     # Make the munch copy method use to_dict
     copy = to_dict

@@ -22,11 +22,10 @@ Tests Floating IP resource methods for Neutron
 import copy
 import datetime
 
-import munch
-
 from openstack.cloud import exc
 from openstack.tests import fakes
 from openstack.tests.unit import base
+from openstack import utils
 
 
 class TestFloatingIP(base.TestCase):
@@ -570,7 +569,7 @@ class TestFloatingIP(base.TestCase):
                  }]})])
 
         self.cloud.add_ips_to_server(
-            munch.Munch(
+            utils.Munch(
                 id='f80e3ad0-e13e-41d4-8e9c-be79bccdb8f7',
                 addresses={
                     "private": [{

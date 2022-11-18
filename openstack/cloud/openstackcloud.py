@@ -21,7 +21,6 @@ import warnings
 import dogpile.cache
 import keystoneauth1.exceptions
 import keystoneauth1.session
-import munch
 import requests.models
 import requestsexceptions
 
@@ -551,11 +550,11 @@ class _OpenStackCloudMixin:
 
     @property
     def current_project(self):
-        """Return a ``munch.Munch`` describing the current project"""
+        """Return a ``utils.Munch`` describing the current project"""
         return self._get_project_info()
 
     def _get_project_info(self, project_id=None):
-        project_info = munch.Munch(
+        project_info = utils.Munch(
             id=project_id,
             name=None,
             domain_id=None,
@@ -581,11 +580,11 @@ class _OpenStackCloudMixin:
 
     @property
     def current_location(self):
-        """Return a ``munch.Munch`` explaining the current cloud location."""
+        """Return a ``utils.Munch`` explaining the current cloud location."""
         return self._get_current_location()
 
     def _get_current_location(self, project_id=None, zone=None):
-        return munch.Munch(
+        return utils.Munch(
             cloud=self.name,
             # TODO(efried): This is wrong, but it only seems to be used in a
             # repr; can we get rid of it?
@@ -596,11 +595,11 @@ class _OpenStackCloudMixin:
 
     def _get_identity_location(self):
         '''Identity resources do not exist inside of projects.'''
-        return munch.Munch(
+        return utils.Munch(
             cloud=self.name,
             region_name=None,
             zone=None,
-            project=munch.Munch(
+            project=utils.Munch(
                 id=None,
                 name=None,
                 domain_id=None,

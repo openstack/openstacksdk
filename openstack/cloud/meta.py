@@ -15,8 +15,6 @@
 import ipaddress
 import socket
 
-import munch
-
 from openstack import _log
 from openstack.cloud import exc
 from openstack import utils
@@ -551,7 +549,7 @@ def obj_to_munch(obj):
     """
     if obj is None:
         return None
-    elif isinstance(obj, munch.Munch) or hasattr(obj, 'mock_add_spec'):
+    elif isinstance(obj, utils.Munch) or hasattr(obj, 'mock_add_spec'):
         # If we obj_to_munch twice, don't fail, just return the munch
         # Also, don't try to modify Mock objects - that way lies madness
         return obj
@@ -563,14 +561,14 @@ def obj_to_munch(obj):
         # the dict we get, but we also want it to fall through to object
         # attribute processing so that we can also get the request_ids
         # data into our resulting object.
-        instance = munch.Munch(obj)
+        instance = utils.Munch(obj)
     else:
-        instance = munch.Munch()
+        instance = utils.Munch()
 
     for key in dir(obj):
         try:
             value = getattr(obj, key)
-        # some attributes can be defined as a @propierty, so we can't assure
+        # some attributes can be defined as a @property, so we can't assure
         # to have a valid value
         # e.g. id in python-novaclient/tree/novaclient/v2/quotas.py
         except AttributeError:
