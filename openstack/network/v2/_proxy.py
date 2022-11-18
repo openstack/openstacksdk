@@ -71,6 +71,63 @@ from openstack import proxy
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "address_group": _address_group.AddressGroup,
+        "address_scope": _address_scope.AddressScope,
+        "agent": _agent.Agent,
+        "auto_allocated_topology":
+            _auto_allocated_topology.AutoAllocatedTopology,
+        "availability_zone": availability_zone.AvailabilityZone,
+        "extension": extension.Extension,
+        "firewall_group": _firewall_group.FirewallGroup,
+        "firewall_policy": _firewall_policy.FirewallPolicy,
+        "firewall_rule": _firewall_rule.FirewallRule,
+        "flavor": _flavor.Flavor,
+        "floating_ip": _floating_ip.FloatingIP,
+        "health_monitor": _health_monitor.HealthMonitor,
+        "l3_conntrack_helper": _l3_conntrack_helper.ConntrackHelper,
+        "listener": _listener.Listener,
+        "load_balancer": _load_balancer.LoadBalancer,
+        "local_ip": _local_ip.LocalIP,
+        "local_ip_association": _local_ip_association.LocalIPAssociation,
+        "metering_label": _metering_label.MeteringLabel,
+        "metering_label_rule": _metering_label_rule.MeteringLabelRule,
+        "ndp_proxy": _ndp_proxy.NDPProxy,
+        "network": _network.Network,
+        "network_ip_availability":
+            network_ip_availability.NetworkIPAvailability,
+        "network_segment_range": _network_segment_range.NetworkSegmentRange,
+        "pool": _pool.Pool,
+        "pool_member": _pool_member.PoolMember,
+        "port": _port.Port,
+        "port_forwarding": _port_forwarding.PortForwarding,
+        "qos_bandwidth_limit_rule":
+            _qos_bandwidth_limit_rule.QoSBandwidthLimitRule,
+        "qos_dscp_marking_rule": _qos_dscp_marking_rule.QoSDSCPMarkingRule,
+        "qos_minimum_bandwidth_rule":
+            _qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule,
+        "qos_minimum_packet_rate_rule":
+            _qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule,
+        "qos_policy": _qos_policy.QoSPolicy,
+        "qos_rule_type": _qos_rule_type.QoSRuleType,
+        "quota": _quota.Quota,
+        "rbac_policy": _rbac_policy.RBACPolicy,
+        "router": _router.Router,
+        "security_group": _security_group.SecurityGroup,
+        "security_group_rule": _security_group_rule.SecurityGroupRule,
+        "segment": _segment.Segment,
+        "service_profile": _service_profile.ServiceProfile,
+        "service_provider": _service_provider.ServiceProvider,
+        "subnet": _subnet.Subnet,
+        "subnet_pool": _subnet_pool.SubnetPool,
+        "trunk": _trunk.Trunk,
+        "vpn_endpoint_group": _vpn_endpoint_group.VpnEndpointGroup,
+        "vpn_ike_policy": _ike_policy.VpnIkePolicy,
+        "vpn_ipsec_policy": _ipsec_policy.VpnIpsecPolicy,
+        "vpn_ipsec_site_connection":
+            _ipsec_site_connection.VpnIPSecSiteConnection,
+        "vpn_service": _vpn_service.VpnService,
+    }
 
     @proxy._check_resource(strict=False)
     def _update(self, resource_type, value, base_path=None,

@@ -26,6 +26,12 @@ class Proxy(proxy.Proxy):
     Create method for each action of each API.
     """
 
+    _resource_registry = {
+        "host": _host.Host,
+        "notification": _notification.Notification,
+        "segment": _segment.Segment,
+    }
+
     def notifications(self, **query):
         """Return a generator of notifications.
 

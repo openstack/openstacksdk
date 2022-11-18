@@ -18,6 +18,12 @@ from openstack import proxy
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "database": _database.Database,
+        "flavor": _flavor.Flavor,
+        "instance": _instance.Instance,
+        "user": _user.User,
+    }
 
     def create_database(self, instance, **attrs):
         """Create a new database from attributes

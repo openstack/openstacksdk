@@ -43,6 +43,29 @@ from openstack import utils
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "aggregate": _aggregate.Aggregate,
+        "availability_zone": availability_zone.AvailabilityZone,
+        "extension": extension.Extension,
+        "flavor": _flavor.Flavor,
+        "hypervisor": _hypervisor.Hypervisor,
+        "image": _image.Image,
+        "keypair": _keypair.Keypair,
+        "limits": limits.Limits,
+        "migration": _migration.Migration,
+        "quota_set": _quota_set.QuotaSet,
+        "server": _server.Server,
+        "server_action": _server_action.ServerAction,
+        "server_diagnostics": _server_diagnostics.ServerDiagnostics,
+        "server_group": _server_group.ServerGroup,
+        "server_interface": _server_interface.ServerInterface,
+        "server_ip": server_ip.ServerIP,
+        "server_migration": _server_migration.ServerMigration,
+        "server_remote_console": _src.ServerRemoteConsole,
+        "service": _service.Service,
+        "usage": _usage.Usage,
+        "volume_attachment": _volume_attachment.VolumeAttachment
+    }
 
     # ========== Extensions ==========
 

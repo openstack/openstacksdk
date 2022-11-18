@@ -77,6 +77,12 @@ class Proxy(adapter.Adapter):
     ``<service-type>_status_code_retries``.
     """
 
+    _resource_registry = dict()
+    """Registry of the supported resourses.
+
+    Dictionary of resource names (key) types (value).
+    """
+
     def __init__(
         self,
         session,

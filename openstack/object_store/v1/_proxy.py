@@ -36,6 +36,12 @@ SHORT_EXPIRES_ISO8601_FORMAT = '%Y-%m-%d'
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "account": _account.Account,
+        "container": _container.Container,
+        "info": _info.Info,
+        "object": _obj.Object
+    }
 
     skip_discovery = True
 

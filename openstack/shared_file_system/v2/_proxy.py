@@ -28,6 +28,14 @@ from openstack.shared_file_system.v2 import share as _share
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "availability_zone": _availability_zone.AvailabilityZone,
+        "share_snapshot": _share_snapshot.ShareSnapshot,
+        "storage_pool": _storage_pool.StoragePool,
+        "user_message": _user_message.UserMessage,
+        "limit": _limit.Limit,
+        "share": _share.Share,
+    }
 
     def availability_zones(self):
         """Retrieve shared file system availability zones

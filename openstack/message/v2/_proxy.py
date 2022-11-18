@@ -19,6 +19,12 @@ from openstack import resource
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "claim": _claim.Claim,
+        "message": _message.Message,
+        "queue": _queue.Queue,
+        "subscription": _subscription.Subscription,
+    }
 
     def create_queue(self, **attrs):
         """Create a new queue from attributes

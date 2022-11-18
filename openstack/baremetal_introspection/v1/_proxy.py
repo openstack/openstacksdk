@@ -21,6 +21,9 @@ _logger = _log.setup_logging('openstack')
 
 
 class Proxy(proxy.Proxy):
+    _resource_registry = {
+        "introspection": _introspect.Introspection,
+    }
 
     def introspections(self, **query):
         """Retrieve a generator of introspection records.
