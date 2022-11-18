@@ -16,14 +16,13 @@
 # import jsonpatch
 import types  # noqa
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
 from openstack import proxy
 
 
-class SecurityGroupCloudMixin(_normalize.Normalizer):
+class SecurityGroupCloudMixin:
 
     def __init__(self):
         self.secgroup_source = self.config.config['secgroup_source']
@@ -417,3 +416,128 @@ class SecurityGroupCloudMixin(_normalize.Normalizer):
     def _use_neutron_secgroups(self):
         return (self.has_service('network')
                 and self.secgroup_source == 'neutron')
+
+    def _normalize_secgroups(self, groups):
+        """Normalize the structure of security groups
+
+        This makes security group dicts, as returned from nova, look like the
+        security group dicts as returned from neutron. This does not make them
+        look exactly the same, but it's pretty close.
+
+        :param list groups: A list of security group dicts.
+
+        :returns: A list of normalized dicts.
+        """
+        ret = []
+        for group in groups:
+            ret.append(self._normalize_secgroup(group))
+        return ret
+
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # secgroups
+    def _normalize_secgroup(self, group):
+
+        import munch
+
+        ret = munch.Munch()
+        # Copy incoming group because of shared dicts in unittests
+        group = group.copy()
+
+        # Discard noise
+        self._remove_novaclient_artifacts(group)
+
+        rules = self._normalize_secgroup_rules(
+            group.pop('security_group_rules', group.pop('rules', [])))
+        project_id = group.pop('tenant_id', '')
+        project_id = group.pop('project_id', project_id)
+
+        ret['location'] = self._get_current_location(project_id=project_id)
+        ret['id'] = group.pop('id')
+        ret['name'] = group.pop('name')
+        ret['security_group_rules'] = rules
+        ret['description'] = group.pop('description')
+        ret['properties'] = group
+
+        if self._use_neutron_secgroups():
+            ret['stateful'] = group.pop('stateful', True)
+
+        # Backwards compat with Neutron
+        if not self.strict_mode:
+            ret['tenant_id'] = project_id
+            ret['project_id'] = project_id
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
+
+        return ret
+
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # secgroups
+    def _normalize_secgroup_rules(self, rules):
+        """Normalize the structure of nova security group rules
+
+        Note that nova uses -1 for non-specific port values, but neutron
+        represents these with None.
+
+        :param list rules: A list of security group rule dicts.
+
+        :returns: A list of normalized dicts.
+        """
+        ret = []
+        for rule in rules:
+            ret.append(self._normalize_secgroup_rule(rule))
+        return ret
+
+    # TODO(stephenfin): Remove this once we get rid of support for nova
+    # secgroups
+    def _normalize_secgroup_rule(self, rule):
+
+        import munch
+
+        ret = munch.Munch()
+        # Copy incoming rule because of shared dicts in unittests
+        rule = rule.copy()
+
+        ret['id'] = rule.pop('id')
+        ret['direction'] = rule.pop('direction', 'ingress')
+        ret['ethertype'] = rule.pop('ethertype', 'IPv4')
+        port_range_min = rule.get(
+            'port_range_min', rule.pop('from_port', None))
+        if port_range_min == -1:
+            port_range_min = None
+        if port_range_min is not None:
+            port_range_min = int(port_range_min)
+        ret['port_range_min'] = port_range_min
+        port_range_max = rule.pop(
+            'port_range_max', rule.pop('to_port', None))
+        if port_range_max == -1:
+            port_range_max = None
+        if port_range_min is not None:
+            port_range_min = int(port_range_min)
+        ret['port_range_max'] = port_range_max
+        ret['protocol'] = rule.pop('protocol', rule.pop('ip_protocol', None))
+        ret['remote_ip_prefix'] = rule.pop(
+            'remote_ip_prefix', rule.pop('ip_range', {}).get('cidr', None))
+        ret['security_group_id'] = rule.pop(
+            'security_group_id', rule.pop('parent_group_id', None))
+        ret['remote_group_id'] = rule.pop('remote_group_id', None)
+        project_id = rule.pop('tenant_id', '')
+        project_id = rule.pop('project_id', project_id)
+        ret['location'] = self._get_current_location(project_id=project_id)
+        ret['properties'] = rule
+
+        # Backwards compat with Neutron
+        if not self.strict_mode:
+            ret['tenant_id'] = project_id
+            ret['project_id'] = project_id
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
+        return ret
+
+    def _remove_novaclient_artifacts(self, item):
+        # Remove novaclient artifacts
+        item.pop('links', None)
+        item.pop('NAME_ATTR', None)
+        item.pop('HUMAN_ID', None)
+        item.pop('human_id', None)
+        item.pop('request_ids', None)
+        item.pop('x_openstack_request_ids', None)
