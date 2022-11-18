@@ -1977,10 +1977,10 @@ class Proxy(proxy.Proxy):
         :returns: A list of compute ``Usage`` objects.
         """
         if start is not None:
-            query['start'] = start
+            query['start'] = start.isoformat()
 
         if end is not None:
-            query['end'] = end
+            query['end'] = end.isoformat()
 
         return self._list(_usage.Usage, **query)
 
@@ -1998,10 +1998,10 @@ class Proxy(proxy.Proxy):
         project = self._get_resource(_project.Project, project)
 
         if start is not None:
-            query['start'] = start
+            query['start'] = start.isoformat()
 
         if end is not None:
-            query['end'] = end
+            query['end'] = end.isoformat()
 
         res = self._get_resource(_usage.Usage, project.id)
         return res.fetch(self, **query)

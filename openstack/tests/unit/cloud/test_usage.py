@@ -25,6 +25,7 @@ class TestUsage(base.TestCase):
         start = end = datetime.datetime.now()
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public',

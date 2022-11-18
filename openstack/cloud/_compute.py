@@ -14,27 +14,23 @@
 # We can't just use list, because sphinx gets confused by
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import base64
-import datetime
 import functools
 import operator
 import threading
 import time
-import types  # noqa
 
 import iso8601
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack.compute.v2 import quota_set as _qs
 from openstack.compute.v2 import server as _server
 from openstack import exceptions
-from openstack import proxy
 from openstack import utils
 
 
-class ComputeCloudMixin(_normalize.Normalizer):
+class ComputeCloudMixin:
 
     def __init__(self):
         self._servers = None
@@ -1688,7 +1684,6 @@ class ComputeCloudMixin(_normalize.Normalizer):
             name_or_id, ignore_missing=False)
         self.compute.revert_quota_set(proj)
 
-    # TODO(stephenfin): Convert to proxy methods
     def get_compute_usage(self, name_or_id, start=None, end=None):
         """ Get usage for a specific project
 
@@ -1700,9 +1695,8 @@ class ComputeCloudMixin(_normalize.Normalizer):
             Defaults to now
         :raises: OpenStackCloudException if it's not a valid project
 
-        :returns: Munch object with the usage
+        :returns: A :class:`~openstack.compute.v2.usage.Usage` object
         """
-
         def parse_date(date):
             try:
                 return iso8601.parse_date(date)
@@ -1716,43 +1710,17 @@ class ComputeCloudMixin(_normalize.Normalizer):
                     " YYYY-MM-DDTHH:MM:SS".format(
                         date=date))
 
-        def parse_datetime_for_nova(date):
-            # Must strip tzinfo from the date- it breaks Nova. Also,
-            # Nova is expecting this in UTC. If someone passes in an
-            # ISO8601 date string or a datetime with timzeone data attached,
-            # strip the timezone data but apply offset math first so that
-            # the user's well formed perfectly valid date will be used
-            # correctly.
-            offset = date.utcoffset()
-            if offset:
-                date = date - datetime.timedelta(hours=offset)
-            return date.replace(tzinfo=None)
-
-        if not start:
-            start = parse_date('2010-07-06')
-        elif not isinstance(start, datetime.datetime):
+        if isinstance(start, str):
             start = parse_date(start)
-        if not end:
-            end = datetime.datetime.utcnow()
-        elif not isinstance(start, datetime.datetime):
+        if isinstance(end, str):
             end = parse_date(end)
-
-        start = parse_datetime_for_nova(start)
-        end = parse_datetime_for_nova(end)
 
         proj = self.get_project(name_or_id)
         if not proj:
             raise exc.OpenStackCloudException(
                 "project does not exist: {name}".format(name=proj.id))
 
-        data = proxy._json_response(
-            self.compute.get(
-                '/os-simple-tenant-usage/{project}'.format(project=proj.id),
-                params=dict(start=start.isoformat(), end=end.isoformat())),
-            error_message="Unable to get usage for project: {name}".format(
-                name=proj.id))
-        return self._normalize_compute_usage(
-            self._get_and_munchify('tenant_usage', data))
+        return self.compute.get_usage(proj, start, end)
 
     def _encode_server_userdata(self, userdata):
         if hasattr(userdata, 'read'):

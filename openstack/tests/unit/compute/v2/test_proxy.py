@@ -1292,7 +1292,10 @@ class TestCompute(TestComputeProxy):
             self.proxy.usages,
             usage.Usage,
             method_kwargs={'start': start, 'end': end},
-            expected_kwargs={'start': start, 'end': end},
+            expected_kwargs={
+                'start': start.isoformat(),
+                'end': end.isoformat()
+            },
         )
 
     def test_get_usage(self):
@@ -1315,7 +1318,10 @@ class TestCompute(TestComputeProxy):
             method_args=['value'],
             method_kwargs={'start': start, 'end': end},
             expected_args=[self.proxy],
-            expected_kwargs={'start': start, 'end': end},
+            expected_kwargs={
+                'start': start.isoformat(),
+                'end': end.isoformat()
+            },
         )
 
     def test_create_server_remote_console(self):

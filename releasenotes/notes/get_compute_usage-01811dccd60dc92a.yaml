@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    cloud.get_compute_usage method return instance of compute.usage.Usage class
+    instead of munch.
