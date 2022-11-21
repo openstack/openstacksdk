@@ -6,3 +6,4 @@ Workflow Resources
 
    v2/execution
    v2/workflow
+   v2/crontrigger
