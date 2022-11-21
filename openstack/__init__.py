@@ -11,9 +11,49 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import typing
 
-from openstack._log import enable_logging  # noqa
+"""The openstack SDK.
+
+:py:mod:`openstacksdk` is a client library for building applications to work
+with OpenStack clouds. The project aims to provide a consistent and complete
+set of interactions with OpenStack's many services, along with complete
+documentation, examples, and tools.
+
+There are three ways to interact with :py:mod:`openstacksdk`. The *clouds
+layer*, the *proxy layer*, and the *resource layer*. Most users will make use
+of either the *cloud layer* or *proxy layer*.
+
+Listing flavours using the *cloud layer*::
+
+    >>> import openstack
+    >>> conn = openstack.connect(cloud='mordred')
+    >>> for server in conn.list_servers():
+    ...     print(server.to_dict())
+
+Listing servers using the *proxy layer*::
+
+    >>> import openstack
+    >>> conn = openstack.connect(cloud='mordred')
+    >>> for server in conn.compute.servers():
+    ...     print(server.to_dict())
+
+Listing servers using the *resource layer*::
+
+    >>> import openstack
+    >>> import openstack.compute.v2.server
+    >>> conn = openstack.connect(cloud='mordred')
+    >>> for server in openstack.compute.v2.server.Server.list(
+    ...     session=conn.compute,
+    ... ):
+    ...     print(server.to_dict())
+
+For more information, refer to the documentation found in each submodule.
+"""
+
+import argparse
+import typing as ty
+
+from openstack._log import enable_logging
 import openstack.config
 import openstack.connection
 
@@ -24,14 +64,14 @@ __all__ = [
 
 
 def connect(
-        cloud=None,
-        app_name=None,  # type: typing.Optional[str]
-        app_version=None,  # type: typing.Optional[str]
-        options=None,
-        load_yaml_config=True,  # type: bool
-        load_envvars=True,  # type: bool
-        **kwargs):
-    # type: (...) -> openstack.connection.Connection
+    cloud: ty.Optional[str] = None,
+    app_name: ty.Optional[str] = None,
+    app_version: ty.Optional[str] = None,
+    options: ty.Optional[argparse.Namespace] = None,
+    load_yaml_config: bool = True,
+    load_envvars: bool = True,
+    **kwargs,
+) -> openstack.connection.Connection:
     """Create a :class:`~openstack.connection.Connection`
 
     :param string cloud:
@@ -39,7 +79,7 @@ def connect(
         to 'envvars' which will load configuration settings from environment
         variables that start with ``OS_``.
     :param argparse.Namespace options:
-        An argparse Namespace object. allows direct passing in of
+        An argparse Namespace object. Allows direct passing in of
         argparse options to be added to the cloud config.  Values
         of None and '' will be removed.
     :param bool load_yaml_config:
@@ -57,10 +97,14 @@ def connect(
     """
     cloud_region = openstack.config.get_cloud_region(
         cloud=cloud,
-        app_name=app_name, app_version=app_version,
+        app_name=app_name,
+        app_version=app_version,
         load_yaml_config=load_yaml_config,
         load_envvars=load_envvars,
-        options=options, **kwargs)
+        options=options,
+        **kwargs,
+    )
     return openstack.connection.Connection(
         config=cloud_region,
-        vendor_hook=kwargs.get('vendor_hook'))
+        vendor_hook=kwargs.get('vendor_hook'),
+    )
