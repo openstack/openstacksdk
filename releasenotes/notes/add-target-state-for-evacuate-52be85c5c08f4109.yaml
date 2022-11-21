@@ -1,0 +1,3 @@
+---
+features:
+  - Add support of setting target state for evacuate API.
