@@ -485,6 +485,6 @@ class TestCompute(base.BaseFunctionalTest):
         self.add_info_on_exception('usage', usage)
         self.assertIsNotNone(usage)
         self.assertIn('total_hours', usage)
-        self.assertIn('started_at', usage)
-        self.assertEqual(start.isoformat(), usage['started_at'])
+        self.assertIn('start', usage)
+        self.assertEqual(start.isoformat(), usage['start'])
         self.assertIn('location', usage)

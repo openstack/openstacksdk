@@ -274,13 +274,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
 
         self.assertIn(
             fip_user['id'],
-            [fip.id for fip in self.user_cloud.search_floating_ips(
-                filters={"attached": False})]
-        )
-        self.assertNotIn(
-            fip_user['id'],
-            [fip.id for fip in self.user_cloud.search_floating_ips(
-                filters={"attached": True})]
+            [fip.id for fip in self.user_cloud.search_floating_ips()]
         )
 
     def test_get_floating_ip_by_id(self):
