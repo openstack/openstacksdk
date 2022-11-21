@@ -70,6 +70,8 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
     vip_subnet_id = resource.Body('vip_subnet_id')
     # VIP qos policy id
     vip_qos_policy_id = resource.Body('vip_qos_policy_id')
+    #: Additional VIPs
+    additional_vips = resource.Body('additional_vips', type=list)
 
     def delete(self, session, error_message=None):
         request = self._prepare_request()
