@@ -34,6 +34,7 @@ class TestFlavors(base.TestCase):
                      json={
                          'flavor': {
                              "name": "vanilla",
+                             "description": None,
                              "ram": 65536,
                              "vcpus": 24,
                              "swap": 0,

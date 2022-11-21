@@ -1384,6 +1384,7 @@ class ComputeCloudMixin:
         ram,
         vcpus,
         disk,
+        description=None,
         flavorid="auto",
         ephemeral=0,
         swap=0,
@@ -1396,6 +1397,7 @@ class ComputeCloudMixin:
         :param ram: Memory in MB for the flavor
         :param vcpus: Number of VCPUs for the flavor
         :param disk: Size of local disk in GB
+        :param description: Description of the flavor
         :param flavorid: ID for the flavor (optional)
         :param ephemeral: Ephemeral space size in GB
         :param swap: Swap space in MB
@@ -1414,6 +1416,7 @@ class ComputeCloudMixin:
             'rxtx_factor': rxtx_factor,
             'swap': swap,
             'vcpus': vcpus,
+            'description': description,
         }
         if flavorid == 'auto':
             attrs['id'] = None
