@@ -11,11 +11,11 @@
 # under the License.
 
 
-import munch
-
+from openstack.container_infrastructure_management.v1 import cluster
 from openstack.tests.unit import base
 
-coe_cluster_obj = munch.Munch(
+
+coe_cluster_obj = dict(
     status="CREATE_IN_PROGRESS",
     cluster_template_id="0562d357-8641-4759-8fed-8173f02c9633",
     uuid="731387cf-a92b-4c36-981e-3271d63e5597",
@@ -38,130 +38,181 @@ coe_cluster_obj = munch.Munch(
 
 
 class TestCOEClusters(base.TestCase):
+    def _compare_clusters(self, exp, real):
+        self.assertDictEqual(
+            cluster.Cluster(**exp).to_dict(computed=False),
+            real.to_dict(computed=False),
+        )
 
     def get_mock_url(
-            self,
-            service_type='container-infrastructure-management',
-            base_url_append=None, append=None, resource=None):
+        self,
+        service_type="container-infrastructure-management",
+        base_url_append=None,
+        append=None,
+        resource=None,
+    ):
         return super(TestCOEClusters, self).get_mock_url(
-            service_type=service_type, resource=resource,
-            append=append, base_url_append=base_url_append)
+            service_type=service_type,
+            resource=resource,
+            append=append,
+            base_url_append=base_url_append,
+        )
 
     def test_list_coe_clusters(self):
-        self.register_uris([dict(
-            method='GET',
-            uri=self.get_mock_url(resource='clusters'),
-            json=dict(clusters=[coe_cluster_obj.toDict()]))])
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(resource="clusters"),
+                    json=dict(clusters=[coe_cluster_obj]),
+                )
+            ]
+        )
         cluster_list = self.cloud.list_coe_clusters()
-        self.assertEqual(
+        self._compare_clusters(
+            coe_cluster_obj,
             cluster_list[0],
-            self.cloud._normalize_coe_cluster(coe_cluster_obj))
+        )
         self.assert_calls()
 
     def test_create_coe_cluster(self):
-        json_response = dict(uuid=coe_cluster_obj.get('uuid'))
-        kwargs = dict(name=coe_cluster_obj.name,
-                      cluster_template_id=coe_cluster_obj.cluster_template_id,
-                      master_count=coe_cluster_obj.master_count,
-                      node_count=coe_cluster_obj.node_count)
-        self.register_uris([dict(
-            method='POST',
-            uri=self.get_mock_url(resource='clusters'),
-            json=json_response,
-            validate=dict(json=kwargs)),
-        ])
-        expected = self.cloud._normalize_coe_cluster(json_response)
+        json_response = dict(uuid=coe_cluster_obj.get("uuid"))
+        kwargs = dict(
+            name=coe_cluster_obj["name"],
+            cluster_template_id=coe_cluster_obj["cluster_template_id"],
+            master_count=coe_cluster_obj["master_count"],
+            node_count=coe_cluster_obj["node_count"],
+        )
+        self.register_uris(
+            [
+                dict(
+                    method="POST",
+                    uri=self.get_mock_url(resource="clusters"),
+                    json=json_response,
+                    validate=dict(json=kwargs),
+                ),
+            ]
+        )
         response = self.cloud.create_coe_cluster(**kwargs)
-        self.assertEqual(response, expected)
+        expected = kwargs.copy()
+        expected.update(**json_response)
+        self._compare_clusters(expected, response)
         self.assert_calls()
 
     def test_search_coe_cluster_by_name(self):
-        self.register_uris([dict(
-            method='GET',
-            uri=self.get_mock_url(resource='clusters'),
-            json=dict(clusters=[coe_cluster_obj.toDict()]))])
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(resource="clusters"),
+                    json=dict(clusters=[coe_cluster_obj]),
+                )
+            ]
+        )
 
-        coe_clusters = self.cloud.search_coe_clusters(
-            name_or_id='k8s')
+        coe_clusters = self.cloud.search_coe_clusters(name_or_id="k8s")
 
         self.assertEqual(1, len(coe_clusters))
-        self.assertEqual(coe_cluster_obj.uuid, coe_clusters[0]['id'])
+        self.assertEqual(coe_cluster_obj["uuid"], coe_clusters[0]["id"])
         self.assert_calls()
 
     def test_search_coe_cluster_not_found(self):
-        self.register_uris([dict(
-            method='GET',
-            uri=self.get_mock_url(resource='clusters'),
-            json=dict(clusters=[coe_cluster_obj.toDict()]))])
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(resource="clusters"),
+                    json=dict(clusters=[coe_cluster_obj]),
+                )
+            ]
+        )
 
         coe_clusters = self.cloud.search_coe_clusters(
-            name_or_id='non-existent')
+            name_or_id="non-existent"
+        )
 
         self.assertEqual(0, len(coe_clusters))
         self.assert_calls()
 
     def test_get_coe_cluster(self):
-        self.register_uris([dict(
-            method='GET',
-            uri=self.get_mock_url(resource='clusters'),
-            json=dict(clusters=[coe_cluster_obj.toDict()]))])
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(resource="clusters"),
+                    json=dict(clusters=[coe_cluster_obj]),
+                )
+            ]
+        )
 
-        r = self.cloud.get_coe_cluster(coe_cluster_obj.name)
+        r = self.cloud.get_coe_cluster(coe_cluster_obj["name"])
         self.assertIsNotNone(r)
-        self.assertDictEqual(
-            r, self.cloud._normalize_coe_cluster(coe_cluster_obj))
+        self._compare_clusters(
+            coe_cluster_obj,
+            r,
+        )
         self.assert_calls()
 
     def test_get_coe_cluster_not_found(self):
-        self.register_uris([dict(
-            method='GET',
-            uri=self.get_mock_url(resource='clusters'),
-            json=dict(clusters=[]))])
-        r = self.cloud.get_coe_cluster('doesNotExist')
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(resource="clusters"),
+                    json=dict(clusters=[]),
+                )
+            ]
+        )
+        r = self.cloud.get_coe_cluster("doesNotExist")
         self.assertIsNone(r)
         self.assert_calls()
 
     def test_delete_coe_cluster(self):
-        self.register_uris([
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='clusters'),
-                json=dict(clusters=[coe_cluster_obj.toDict()])),
-            dict(
-                method='DELETE',
-                uri=self.get_mock_url(
-                    resource='clusters',
-                    append=[coe_cluster_obj.uuid])),
-        ])
-        self.cloud.delete_coe_cluster(coe_cluster_obj.uuid)
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(resource="clusters"),
+                    json=dict(clusters=[coe_cluster_obj]),
+                ),
+                dict(
+                    method="DELETE",
+                    uri=self.get_mock_url(
+                        resource="clusters", append=[coe_cluster_obj['uuid']]
+                    ),
+                ),
+            ]
+        )
+        self.cloud.delete_coe_cluster(coe_cluster_obj["uuid"])
         self.assert_calls()
 
     def test_update_coe_cluster(self):
-        self.register_uris([
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='clusters'),
-                json=dict(clusters=[coe_cluster_obj.toDict()])),
-            dict(
-                method='PATCH',
-                uri=self.get_mock_url(
-                    resource='clusters',
-                    append=[coe_cluster_obj.uuid]),
-                status_code=200,
-                validate=dict(
-                    json=[{
-                        u'op': u'replace',
-                        u'path': u'/node_count',
-                        u'value': 3
-                    }]
-                )),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='clusters'),
-                # This json value is not meaningful to the test - it just has
-                # to be valid.
-                json=dict(clusters=[coe_cluster_obj.toDict()])),
-        ])
+        self.register_uris(
+            [
+                dict(
+                    method="GET",
+                    uri=self.get_mock_url(resource="clusters"),
+                    json=dict(clusters=[coe_cluster_obj]),
+                ),
+                dict(
+                    method="PATCH",
+                    uri=self.get_mock_url(
+                        resource="clusters", append=[coe_cluster_obj["uuid"]]
+                    ),
+                    status_code=200,
+                    validate=dict(
+                        json=[
+                            {
+                                "op": "replace",
+                                "path": "/node_count",
+                                "value": 3,
+                            }
+                        ]
+                    ),
+                ),
+            ]
+        )
         self.cloud.update_coe_cluster(
-            coe_cluster_obj.uuid, 'replace', node_count=3)
+            coe_cluster_obj["uuid"], node_count=3
+        )
         self.assert_calls()

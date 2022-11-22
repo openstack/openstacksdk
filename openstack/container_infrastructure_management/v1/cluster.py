@@ -28,6 +28,9 @@ class Cluster(resource.Resource):
     allow_list = True
     allow_patch = True
 
+    commit_method = 'PATCH'
+    commit_jsonpatch = True
+
     #: The endpoint URL of COE API exposed to end-users.
     api_address = resource.Body('api_address')
     #: The UUID of the cluster template.
