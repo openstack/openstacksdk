@@ -969,8 +969,7 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.unrescue(self)
 
-    def evacuate_server(self, server, host=None, admin_pass=None, force=None,
-                        target_state=None):
+    def evacuate_server(self, server, host=None, admin_pass=None, force=None):
         """Evacuates a server from a failed host to a new host.
 
         :param server: Either the ID of a server or a
@@ -982,13 +981,11 @@ class Proxy(proxy.Proxy):
         :param force: Force an evacuation by not verifying the provided
             destination host by the scheduler. (New in API version
             2.29).
-        :param target_state: Set target state for the evacuated instance (New
-            in API version 2.94).
         :returns: None
         """
         server = self._get_resource(_server.Server, server)
         server.evacuate(self, host=host, admin_pass=admin_pass,
-                        force=force, target_state=target_state)
+                        force=force)
 
     def start_server(self, server):
         """Starts a stopped server and changes its state to ``ACTIVE``.
