@@ -882,18 +882,16 @@ class TestCompute(TestComputeProxy):
             self.proxy.evacuate_server,
             method_args=["value"],
             expected_args=[self.proxy],
-            expected_kwargs={"host": None, "admin_pass": None, "force": None,
-                             "target_state": None})
+            expected_kwargs={"host": None, "admin_pass": None, "force": None})
 
     def test_server_evacuate_with_options(self):
         self._verify(
             "openstack.compute.v2.server.Server.evacuate",
             self.proxy.evacuate_server,
-            method_args=["value", 'HOST2', 'NEW_PASS', True, 'stopped'],
+            method_args=["value", 'HOST2', 'NEW_PASS', True],
             expected_args=[self.proxy],
             expected_kwargs={
-                "host": "HOST2", "admin_pass": 'NEW_PASS', "force": True,
-                "target_state": 'stopped'})
+                "host": "HOST2", "admin_pass": 'NEW_PASS', "force": True})
 
     def test_server_start(self):
         self._verify(

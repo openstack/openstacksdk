@@ -459,8 +459,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"unrescue": None}
         self._action(session, body)
 
-    def evacuate(self, session, host=None, admin_pass=None, force=None,
-                 target_state=None):
+    def evacuate(self, session, host=None, admin_pass=None, force=None):
         body = {"evacuate": {}}
         if host is not None:
             body["evacuate"]["host"] = host
@@ -468,8 +467,6 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             body["evacuate"]["adminPass"] = admin_pass
         if force is not None:
             body["evacuate"]["force"] = force
-        if target_state is not None:
-            body["evacuate"]["targetState"] = target_state
         self._action(session, body)
 
     def start(self, session):

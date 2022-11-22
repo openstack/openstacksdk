@@ -735,12 +735,12 @@ class TestServer(base.TestCase):
         sot = server.Server(**EXAMPLE)
 
         res = sot.evacuate(self.sess, host='HOST2', admin_pass='NEW_PASS',
-                           force=True, target_state='stopped')
+                           force=True)
 
         self.assertIsNone(res)
         url = 'servers/IDENTIFIER/action'
         body = {"evacuate": {'host': 'HOST2', 'adminPass': 'NEW_PASS',
-                             'force': True, 'targetState': 'stopped'}}
+                             'force': True}}
         headers = {'Accept': ''}
         self.sess.post.assert_called_with(
             url, json=body, headers=headers, microversion=None)
