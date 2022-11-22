@@ -6,6 +6,7 @@ from openstack.baremetal_introspection import baremetal_introspection_service
 from openstack.block_storage import block_storage_service
 from openstack.clustering import clustering_service
 from openstack.compute import compute_service
+from openstack.container_infrastructure_management import container_infrastructure_management_service
 from openstack.database import database_service
 from openstack.dns import dns_service
 from openstack.identity import identity_service
@@ -55,9 +56,9 @@ class ServicesMixin:
 
     application_catalog = service_description.ServiceDescription(service_type='application-catalog')
 
-    container_infrastructure_management = service_description.ServiceDescription(service_type='container-infrastructure-management')
-    container_infrastructure = container_infrastructure_management
+    container_infrastructure_management = container_infrastructure_management_service.ContainerInfrastructureManagementService(service_type='container-infrastructure-management')
     container_infra = container_infrastructure_management
+    container_infrastructure = container_infrastructure_management
 
     search = service_description.ServiceDescription(service_type='search')
 
