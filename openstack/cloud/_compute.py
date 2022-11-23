@@ -889,8 +889,10 @@ class ComputeCloudMixin:
         if networks:
             kwargs['networks'] = networks
         else:
-            # If user has not passed networks - let Nova try the best.
-            kwargs['networks'] = 'auto'
+            # If user has not passed networks - let Nova try the best;
+            # note earlier microversions expect this to be blank.
+            if utils.supports_microversion(self.compute, '2.37'):
+                kwargs['networks'] = 'auto'
 
         if image:
             if isinstance(image, dict):
