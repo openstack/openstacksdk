@@ -145,6 +145,163 @@ environment by running ``openstack.config.loader``. For example:
 
 More information at https://docs.openstack.org/openstacksdk/latest/user/config/configuration.html
 
+Supported services
+------------------
+
+The following services are currently supported. A full list of all available
+OpenStack service can be found in the `Project Navigator`__.
+
+.. __: https://www.openstack.org/software/project-navigator/openstack-components#openstack-services
+
+.. note::
+
+   Support here does not guarantee full-support for all APIs. It simply means
+   some aspect of the project is supported.
+
+.. list-table:: Supported services
+   :widths: 15 25 10 40
+   :header-rows: 1
+
+   * - Service
+     - Description
+     - Cloud Layer
+     - Proxy & Resource Layer
+
+   * - **Compute**
+     -
+     -
+     -
+
+   * - Nova
+     - Compute
+     - ✔
+     - ✔ (``openstack.compute``)
+
+   * - **Hardware Lifecycle**
+     -
+     -
+     -
+
+   * - Ironic
+     - Bare metal provisioning
+     - ✔
+     - ✔ (``openstack.baremetal``, ``openstack.baremetal_introspection``)
+
+   * - Cyborg
+     - Lifecycle management of accelerators
+     - ✔
+     - ✔ (``openstack.accelerator``)
+
+   * - **Storage**
+     -
+     -
+     -
+
+   * - Cinder
+     - Block storage
+     - ✔
+     - ✔ (``openstack.block_storage``)
+
+   * - Swift
+     - Object store
+     - ✔
+     - ✔ (``openstack.object_store``)
+
+   * - Cinder
+     - Shared filesystems
+     - ✔
+     - ✔ (``openstack.share_file_system``)
+
+   * - **Networking**
+     -
+     -
+     -
+
+   * - Neutron
+     - Networking
+     - ✔
+     - ✔ (``openstack.network``)
+
+   * - Octavia
+     - Load balancing
+     - ✔
+     - ✔ (``openstack.load_balancer``)
+
+   * - Designate
+     - DNS
+     - ✔
+     - ✔ (``openstack.dns``)
+
+   * - **Shared services**
+     -
+     -
+     -
+
+   * - Keystone
+     - Identity
+     - ✔
+     - ✔ (``openstack.identity``)
+
+   * - Placement
+     - Placement
+     - ✔
+     - ✔ (``openstack.placement``)
+
+   * - Glance
+     - Image storage
+     - ✔
+     - ✔ (``openstack.image``)
+
+   * - Barbican
+     - Key management
+     - ✔
+     - ✔ (``openstack.key_manager``)
+
+   * - **Workload provisioning**
+     -
+     -
+     -
+
+   * - Magnum
+     - Container orchestration engine provisioning
+     - ✔
+     - ✘
+
+   * - **Orchestration**
+     -
+     -
+     -
+
+   * - Heat
+     - Orchestration
+     - ✔
+     - ✔ (``openstack.orchestration``)
+
+   * - Senlin
+     - Clustering
+     - ✔
+     - ✔ (``openstack.clustering``)
+
+   * - Mistral
+     - Workflow
+     - ✔
+     - ✔ (``openstack.workflow``)
+
+   * - Zaqar
+     - Messaging
+     - ✔
+     - ✔ (``openstack.message``)
+
+   * - **Application lifecycle**
+     -
+     -
+     -
+
+   * - Masakari
+     - Instances high availability service
+     - ✔
+     - ✔ (``openstack.instance_ha``)
+
 Links
 -----
 
