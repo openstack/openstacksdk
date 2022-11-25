@@ -12,6 +12,8 @@
 
 import operator
 import os
+import time
+import uuid
 
 from keystoneauth1 import discover
 
@@ -57,10 +59,11 @@ class BaseFunctionalTest(base.TestCase):
 
         self.config = openstack.config.OpenStackConfig()
         self._set_user_cloud()
-        self._set_operator_cloud()
+        if self._op_name:
+            self._set_operator_cloud()
 
         self.identity_version = \
-            self.operator_cloud.config.get_api_version('identity')
+            self.user_cloud.config.get_api_version('identity')
 
         self.flavor = self._pick_flavor()
         self.image = self._pick_image()
@@ -78,10 +81,11 @@ class BaseFunctionalTest(base.TestCase):
 
         # This cloud is used by the project_cleanup test, so you can't rely on
         # it
-        user_config_alt = self.config.get_one(
-            cloud=self._demo_name_alt, **kwargs)
-        self.user_cloud_alt = connection.Connection(config=user_config_alt)
-        _disable_keep_alive(self.user_cloud_alt)
+        if self._demo_name_alt:
+            user_config_alt = self.config.get_one(
+                cloud=self._demo_name_alt, **kwargs)
+            self.user_cloud_alt = connection.Connection(config=user_config_alt)
+            _disable_keep_alive(self.user_cloud_alt)
 
     def _set_operator_cloud(self, **kwargs):
         operator_config = self.config.get_one(cloud=self._op_name, **kwargs)
@@ -215,6 +219,15 @@ class BaseFunctionalTest(base.TestCase):
                 f'Service {service_type} does not provide microversion '
                 f'{min_microversion}'
             )
+
+    def getUniqueString(self, prefix=None):
+        """Generate unique resource name"""
+        # Globally unique names can only rely on some form of uuid
+        # unix_t is also used to easier determine orphans when running real
+        # functional tests on a real cloud
+        return (prefix if prefix else '') + "{time}-{uuid}".format(
+            time=int(time.time()),
+            uuid=uuid.uuid4().hex)
 
 
 class KeystoneBaseFunctionalTest(BaseFunctionalTest):
