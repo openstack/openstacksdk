@@ -1012,3 +1012,175 @@ class TestCreateServer(base.TestCase):
             wait=False)
 
         self.assert_calls()
+
+    def test_create_server_scheduler_hints(self):
+        """
+        Test that setting scheduler_hints will include them in POST request
+        """
+        scheduler_hints = {
+            'group': self.getUniqueString('group'),
+        }
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
+        fake_server['scheduler_hints'] = scheduler_hints
+
+        self.register_uris([
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks']),
+                 json={'networks': []}),
+            self.get_nova_discovery_mock_dict(),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': fake_server},
+                 validate=dict(
+                     json={
+                         'server': {
+                             u'flavorRef': u'flavor-id',
+                             u'imageRef': u'image-id',
+                             u'max_count': 1,
+                             u'min_count': 1,
+                             u'name': u'server-name',
+                             'networks': 'auto'},
+                         u'OS-SCH-HNT:scheduler_hints': scheduler_hints, })),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': fake_server}),
+        ])
+
+        self.cloud.create_server(
+            name='server-name', image=dict(id='image-id'),
+            flavor=dict(id='flavor-id'),
+            scheduler_hints=scheduler_hints, wait=False)
+
+        self.assert_calls()
+
+    def test_create_server_scheduler_hints_group_merge(self):
+        """
+        Test that setting both scheduler_hints and group results in merged
+        hints in POST request
+        """
+        group_id = uuid.uuid4().hex
+        group_name = self.getUniqueString('server-group')
+        policies = ['affinity']
+        fake_group = fakes.make_fake_server_group(
+            group_id, group_name, policies)
+
+        # The scheduler hints we pass in
+        scheduler_hints = {
+            'different_host': [],
+        }
+
+        # The scheduler hints we expect to be in POST request
+        scheduler_hints_merged = {
+            'different_host': [],
+            'group': group_id,
+        }
+
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
+        fake_server['scheduler_hints'] = scheduler_hints_merged
+
+        self.register_uris([
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-server-groups']),
+                 json={'server_groups': [fake_group]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks']),
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': fake_server},
+                 validate=dict(
+                     json={
+                         'server': {
+                             u'flavorRef': u'flavor-id',
+                             u'imageRef': u'image-id',
+                             u'max_count': 1,
+                             u'min_count': 1,
+                             u'name': u'server-name',
+                             'networks': 'auto'},
+                         u'OS-SCH-HNT:scheduler_hints': scheduler_hints_merged,
+                     })),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': fake_server}),
+        ])
+
+        self.cloud.create_server(
+            name='server-name', image=dict(id='image-id'),
+            flavor=dict(id='flavor-id'),
+            scheduler_hints=dict(scheduler_hints), group=group_name,
+            wait=False)
+
+        self.assert_calls()
+
+    def test_create_server_scheduler_hints_group_override(self):
+        """
+        Test that setting group in both scheduler_hints and group param prefers
+        param
+        """
+        group_id_scheduler_hints = uuid.uuid4().hex
+        group_id_param = uuid.uuid4().hex
+        group_name = self.getUniqueString('server-group')
+        policies = ['affinity']
+        fake_group = fakes.make_fake_server_group(
+            group_id_param, group_name, policies)
+
+        # The scheduler hints we pass in that are expected to be ignored in
+        # POST call
+        scheduler_hints = {
+            'group': group_id_scheduler_hints,
+        }
+
+        # The scheduler hints we expect to be in POST request
+        group_scheduler_hints = {
+            'group': group_id_param,
+        }
+
+        fake_server = fakes.make_fake_server('1234', '', 'BUILD')
+        fake_server['scheduler_hints'] = group_scheduler_hints
+
+        self.register_uris([
+            self.get_nova_discovery_mock_dict(),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['os-server-groups']),
+                 json={'server_groups': [fake_group]}),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'network', 'public', append=['v2.0', 'networks']),
+                 json={'networks': []}),
+            dict(method='POST',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers']),
+                 json={'server': fake_server},
+                 validate=dict(
+                     json={
+                         'server': {
+                             u'flavorRef': u'flavor-id',
+                             u'imageRef': u'image-id',
+                             u'max_count': 1,
+                             u'min_count': 1,
+                             u'name': u'server-name',
+                             'networks': 'auto'},
+                         u'OS-SCH-HNT:scheduler_hints': group_scheduler_hints,
+                     })),
+            dict(method='GET',
+                 uri=self.get_mock_url(
+                     'compute', 'public', append=['servers', '1234']),
+                 json={'server': fake_server}),
+        ])
+
+        self.cloud.create_server(
+            name='server-name', image=dict(id='image-id'),
+            flavor=dict(id='flavor-id'),
+            scheduler_hints=dict(scheduler_hints), group=group_name,
+            wait=False)
+
+        self.assert_calls()

@@ -779,8 +779,6 @@ class ComputeCloudMixin:
             raise TypeError(
                 "create_server() requires either 'image' or 'boot_volume'")
 
-        server_json = {'server': kwargs}
-
         # TODO(mordred) Add support for description starting in 2.19
         security_groups = kwargs.get('security_groups', [])
         if security_groups and not isinstance(kwargs['security_groups'], list):
@@ -803,16 +801,16 @@ class ComputeCloudMixin:
             if value:
                 kwargs[desired] = value
 
-        hints = kwargs.pop('scheduler_hints', {})
         if group:
             group_obj = self.get_server_group(group)
             if not group_obj:
                 raise exc.OpenStackCloudException(
                     "Server Group {group} was requested but was not found"
                     " on the cloud".format(group=group))
-            hints['group'] = group_obj['id']
-        if hints:
-            server_json['os:scheduler_hints'] = hints
+            if 'scheduler_hints' not in kwargs:
+                kwargs['scheduler_hints'] = {}
+            kwargs['scheduler_hints']['group'] = group_obj['id']
+
         kwargs.setdefault('max_count', kwargs.get('max_count', 1))
         kwargs.setdefault('min_count', kwargs.get('min_count', 1))
 
