@@ -99,6 +99,7 @@ class TestPort(base.TestCase):
                               "is_port_security_enabled":
                                   "port_security_enabled",
                               "project_id": "project_id",
+                              "security_group_ids": "security_groups",
                               "limit": "limit",
                               "marker": "marker",
                               "any_tags": "tags-any",
