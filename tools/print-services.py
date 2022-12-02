@@ -103,11 +103,17 @@ def _get_aliases(service_type, aliases=None):
 
 
 def _find_service_description_class(service_type):
-    package_name = 'openstack.{service_type}'.format(
-        service_type=service_type).replace('-', '_')
+    package_name = f'openstack.{service_type}'.replace('-', '_')
     module_name = service_type.replace('-', '_') + '_service'
     class_name = ''.join(
-        [part.capitalize() for part in module_name.split('_')])
+        [part.capitalize() for part in module_name.split('_')]
+    )
+
+    # We have some exceptions :(
+    # This should have been called 'shared-filesystem'
+    if service_type == 'shared-file-system':
+        class_name = 'SharedFilesystemService'
+
     try:
         import_name = '.'.join([package_name, module_name])
         service_description_module = importlib.import_module(import_name)
@@ -116,10 +122,11 @@ def _find_service_description_class(service_type):
         # as an opt-in for people trying to figure out why something
         # didn't work.
         warnings.warn(
-            "Could not import {service_type} service description: {e}".format(
-                service_type=service_type, e=str(e)),
-            ImportWarning)
+            f"Could not import {service_type} service description: {str(e)}",
+            ImportWarning,
+        )
         return service_description.ServiceDescription
+
     # There are no cases in which we should have a module but not the class
     # inside it.
     service_description_class = getattr(service_description_module, class_name)
