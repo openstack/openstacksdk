@@ -144,23 +144,7 @@ class TestFloatingIP(base.TestCase):
                 u'version': 4,
                 u'OS-EXT-IPS-MAC:mac_addr':
                 u'fa:16:3e:ae:7d:42'}]})
-        self.floating_ip = self.cloud._normalize_floating_ips(
-            self.mock_floating_ip_list_rep['floatingips'])[0]
-
-    def test_float_no_status(self):
-        floating_ips = [
-            {
-                'fixed_ip_address': '10.0.0.4',
-                'floating_ip_address': '172.24.4.229',
-                'floating_network_id': 'my-network-id',
-                'id': '2f245a7b-796b-4f26-9cf9-9e82d248fda8',
-                'port_id': None,
-                'router_id': None,
-                'tenant_id': '4969c491a3c74ee4af974e6d800c62df'
-            }
-        ]
-        normalized = self.cloud._normalize_floating_ips(floating_ips)
-        self.assertEqual('UNKNOWN', normalized[0]['status'])
+        self.floating_ip = self.mock_floating_ip_list_rep['floatingips'][0]
 
     def test_list_floating_ips(self):
         self.register_uris([
@@ -195,11 +179,11 @@ class TestFloatingIP(base.TestCase):
                  json=self.mock_floating_ip_list_rep)])
 
         floating_ips = self.cloud.search_floating_ips(
-            filters={'attached': False})
+            filters={'updated_at': 'never'})
 
         self.assertIsInstance(floating_ips, list)
         self.assertAreInstances(floating_ips, dict)
-        self.assertEqual(1, len(floating_ips))
+        self.assertEqual(0, len(floating_ips))
         self.assert_calls()
 
     def test_get_floating_ip(self):

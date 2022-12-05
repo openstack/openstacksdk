@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    No Munch conversion and normalization of the floating ips is happening
+    anymore. For Neutron network a pure FloatingIP object is being returned,
+    for Nova still munch object.
+deprecations:
+  - |
+    search_floating_ips method is deprecated and should not be used anymore. It
+    is going to be dropped approximately after one major cycle.
