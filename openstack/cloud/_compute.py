@@ -30,6 +30,48 @@ from openstack import exceptions
 from openstack import utils
 
 
+_SERVER_FIELDS = (
+    'accessIPv4',
+    'accessIPv6',
+    'addresses',
+    'adminPass',
+    'created',
+    'description',
+    'key_name',
+    'metadata',
+    'networks',
+    'personality',
+    'private_v4',
+    'public_v4',
+    'public_v6',
+    'server_groups',
+    'status',
+    'updated',
+    'user_id',
+    'tags',
+)
+
+
+def _to_bool(value):
+    if isinstance(value, str):
+        if not value:
+            return False
+        prospective = value.lower().capitalize()
+        return prospective == 'True'
+    return bool(value)
+
+
+def _pop_int(resource, key):
+    return int(resource.pop(key, 0) or 0)
+
+
+def _pop_or_get(resource, key, default, strict):
+    if strict:
+        return resource.pop(key, default)
+    else:
+        return resource.get(key, default)
+
+
 class ComputeCloudMixin:
 
     def __init__(self):
@@ -1749,3 +1791,125 @@ class ComputeCloudMixin:
         # TODO(mordred) remove after these make it into what we
         # actually want the API to be.
         return meta.expand_server_vars(self, server)
+
+    def _remove_novaclient_artifacts(self, item):
+        # Remove novaclient artifacts
+        item.pop('links', None)
+        item.pop('NAME_ATTR', None)
+        item.pop('HUMAN_ID', None)
+        item.pop('human_id', None)
+        item.pop('request_ids', None)
+        item.pop('x_openstack_request_ids', None)
+
+    def _normalize_server(self, server):
+        import munch
+        ret = munch.Munch()
+        # Copy incoming server because of shared dicts in unittests
+        # Wrap the copy in munch so that sub-dicts are properly munched
+        server = munch.Munch(server)
+
+        self._remove_novaclient_artifacts(server)
+
+        ret['id'] = server.pop('id')
+        ret['name'] = server.pop('name')
+
+        server['flavor'].pop('links', None)
+        ret['flavor'] = server.pop('flavor')
+        # From original_names from sdk
+        server.pop('flavorRef', None)
+
+        # OpenStack can return image as a string when you've booted
+        # from volume
+        image = server.pop('image', None)
+        if str(image) != image:
+            image = munch.Munch(id=image['id'])
+
+        ret['image'] = image
+        # From original_names from sdk
+        server.pop('imageRef', None)
+        # From original_names from sdk
+        ret['block_device_mapping'] = server.pop('block_device_mapping_v2', {})
+
+        project_id = server.pop('tenant_id', '')
+        project_id = server.pop('project_id', project_id)
+
+        az = _pop_or_get(
+            server, 'OS-EXT-AZ:availability_zone', None, self.strict_mode)
+        # the server resource has this already, but it's missing az info
+        # from the resource.
+        # TODO(mordred) create_server is still normalizing servers that aren't
+        # from the resource layer.
+        ret['location'] = server.pop(
+            'location', self._get_current_location(
+                project_id=project_id, zone=az))
+
+        # Ensure volumes is always in the server dict, even if empty
+        ret['volumes'] = _pop_or_get(
+            server, 'os-extended-volumes:volumes_attached',
+            [], self.strict_mode)
+
+        config_drive = server.pop(
+            'has_config_drive', server.pop('config_drive', False))
+        ret['has_config_drive'] = _to_bool(config_drive)
+
+        host_id = server.pop('hostId', server.pop('host_id', None))
+        ret['host_id'] = host_id
+
+        ret['progress'] = _pop_int(server, 'progress')
+
+        # Leave these in so that the general properties handling works
+        ret['disk_config'] = _pop_or_get(
+            server, 'OS-DCF:diskConfig', None, self.strict_mode)
+        for key in (
+                'OS-EXT-STS:power_state',
+                'OS-EXT-STS:task_state',
+                'OS-EXT-STS:vm_state',
+                'OS-SRV-USG:launched_at',
+                'OS-SRV-USG:terminated_at',
+                'OS-EXT-SRV-ATTR:hypervisor_hostname',
+                'OS-EXT-SRV-ATTR:instance_name',
+                'OS-EXT-SRV-ATTR:user_data',
+                'OS-EXT-SRV-ATTR:host',
+                'OS-EXT-SRV-ATTR:hostname',
+                'OS-EXT-SRV-ATTR:kernel_id',
+                'OS-EXT-SRV-ATTR:launch_index',
+                'OS-EXT-SRV-ATTR:ramdisk_id',
+                'OS-EXT-SRV-ATTR:reservation_id',
+                'OS-EXT-SRV-ATTR:root_device_name',
+                'OS-SCH-HNT:scheduler_hints',
+        ):
+            short_key = key.split(':')[1]
+            ret[short_key] = _pop_or_get(server, key, None, self.strict_mode)
+
+        # Protect against security_groups being None
+        ret['security_groups'] = server.pop('security_groups', None) or []
+
+        # NOTE(mnaser): The Nova API returns the creation date in `created`
+        #               however the Shade contract returns `created_at` for
+        #               all resources.
+        ret['created_at'] = server.get('created')
+
+        for field in _SERVER_FIELDS:
+            ret[field] = server.pop(field, None)
+        if not ret['networks']:
+            ret['networks'] = {}
+
+        ret['interface_ip'] = ''
+
+        ret['properties'] = server.copy()
+
+        # Backwards compat
+        if not self.strict_mode:
+            ret['hostId'] = host_id
+            ret['config_drive'] = config_drive
+            ret['project_id'] = project_id
+            ret['tenant_id'] = project_id
+            # TODO(efried): This is hardcoded to 'compute' because this method
+            # should only ever be used by the compute proxy. (That said, it
+            # doesn't appear to be used at all, so can we get rid of it?)
+            ret['region'] = self.config.get_region_name('compute')
+            ret['cloud'] = self.config.name
+            ret['az'] = az
+            for key, val in ret['properties'].items():
+                ret.setdefault(key, val)
+        return ret
