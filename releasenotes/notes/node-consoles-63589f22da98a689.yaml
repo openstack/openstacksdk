@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Adds ``get_console`` and ``set_console_state`` to
+    ``openstack.baremetal.v1.Node``.
+  - |
+    Adds ``get_node_console``, ``enable_node_console`` and
+    ``disable_node_console`` to the baremetal Proxy.
