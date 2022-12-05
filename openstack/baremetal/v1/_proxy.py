@@ -445,6 +445,21 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_node.Node, node)
         return res.set_secure_boot(self, target)
 
+    def inject_nmi_to_node(self, node):
+        """Inject NMI to node.
+
+        Injects a non-maskable interrupt (NMI) message to the node. This is
+        used when response time is critical, such as during non-recoverable
+        hardware errors. In addition, virsh inject-nmi is useful for triggering
+        a crashdump in Windows guests.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :return: None
+        """
+        res = self._get_resource(_node.Node, node)
+        res.inject_nmi(self)
+
     def wait_for_nodes_provision_state(self, nodes, expected_state,
                                        timeout=None,
                                        abort_on_failed_state=True,

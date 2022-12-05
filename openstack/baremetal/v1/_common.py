@@ -68,6 +68,9 @@ STATE_VERSIONS = {
 VIF_VERSION = '1.28'
 """API version in which the VIF operations were introduced."""
 
+INJECT_NMI_VERSION = '1.29'
+"""API vresion in which support for injecting NMI was introduced."""
+
 CONFIG_DRIVE_REBUILD_VERSION = '1.35'
 """API version in which rebuild accepts a configdrive."""
 
