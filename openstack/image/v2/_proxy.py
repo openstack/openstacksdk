@@ -279,15 +279,11 @@ class Proxy(proxy.Proxy):
             )
         else:
             image_kwargs['name'] = name
-            image = self._create_image(**image_kwargs)
+            image = self._create(_image.Image, **image_kwargs)
 
         self._connection._get_cache(None).invalidate()
 
         return image
-
-    def _create_image(self, **kwargs):
-        """Create image resource from attributes"""
-        return self._create(_image.Image, **kwargs)
 
     def import_image(
         self,
@@ -347,10 +343,12 @@ class Proxy(proxy.Proxy):
         :returns: The raw response from the request.
         """
         image = self._get_resource(_image.Image, image)
+
         if all_stores and (store or stores):
             raise exceptions.InvalidRequest(
                 "all_stores is mutually exclusive with store and stores"
             )
+
         if store is not None:
             if stores:
                 raise exceptions.InvalidRequest(
@@ -416,7 +414,11 @@ class Proxy(proxy.Proxy):
         return image
 
     def upload_image(
-        self, container_format=None, disk_format=None, data=None, **attrs
+        self,
+        container_format=None,
+        disk_format=None,
+        data=None,
+        **attrs,
     ):
         """Create and upload a new image from attributes
 
@@ -707,7 +709,11 @@ class Proxy(proxy.Proxy):
         return _image.Image.existing(connection=self._connection, **kwargs)
 
     def download_image(
-        self, image, stream=False, output=None, chunk_size=1024
+        self,
+        image,
+        stream=False,
+        output=None,
+        chunk_size=1024,
     ):
         """Download an image
 
@@ -846,12 +852,36 @@ class Proxy(proxy.Proxy):
         image = self._get_resource(_image.Image, image)
         image.reactivate(self)
 
-    def _update_image_properties(self, image, meta, properties):
-        if not isinstance(image, _image.Image):
-            # If we come here with a dict (cloud) - convert dict to real object
-            # to properly consume all properties (to calculate the diff).
-            # This currently happens from unittests.
-            image = _image.Image.existing(**image)
+    def update_image_properties(
+        self,
+        image=None,
+        meta=None,
+        **kwargs,
+    ):
+        """Update the properties of an existing image
+
+        :param image: The value can be the ID of a image or a
+            :class:`~openstack.image.v2.image.Image` instance.
+        :param meta: A dict of key/value pairs to use for metadata that
+            bypasses automatic type conversion.
+
+        Additional kwargs will be passed to the image creation as additional
+        metadata for the image and will have all values converted to string
+        except for min_disk, min_ram, size and virtual_size which will be
+        converted to int.
+        """
+        image = self._get_resource(_image.Image, image)
+
+        if not meta:
+            meta = {}
+
+        properties = {}
+        for k, v in iter(kwargs.items()):
+            if v and k in ['ramdisk', 'kernel']:
+                v = self._connection.get_image_id(v)
+                k = '{0}_id'.format(k)
+            properties[k] = v
+
         img_props = image.properties.copy()
 
         for k, v in iter(self._make_v2_image_params(meta, properties).items()):
@@ -863,41 +893,8 @@ class Proxy(proxy.Proxy):
         self.update_image(image, **img_props)
 
         self._connection.list_images.invalidate(self._connection)
+
         return True
-
-    def update_image_properties(
-        self,
-        image=None,
-        meta=None,
-        **kwargs,
-    ):
-        """
-        Update the properties of an existing image.
-
-        :param image: Name or id of an image or an Image object.
-        :param meta: A dict of key/value pairs to use for metadata that
-            bypasses automatic type conversion.
-
-        Additional kwargs will be passed to the image creation as additional
-        metadata for the image and will have all values converted to string
-        except for min_disk, min_ram, size and virtual_size which will be
-        converted to int.
-        """
-
-        if isinstance(image, str):
-            image = self._connection.get_image(image)
-
-        if not meta:
-            meta = {}
-
-        img_props = {}
-        for k, v in iter(kwargs.items()):
-            if v and k in ['ramdisk', 'kernel']:
-                v = self._connection.get_image_id(v)
-                k = '{0}_id'.format(k)
-            img_props[k] = v
-
-        return self._update_image_properties(image, meta, img_props)
 
     def add_tag(self, image, tag):
         """Add a tag to an image
