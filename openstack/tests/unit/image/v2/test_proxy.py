@@ -347,7 +347,7 @@ class TestImage(TestImageProxy):
             exceptions.SDKException,
             self.proxy.stage_image,
             image,
-            "data",
+            data="data",
         )
 
     def test_image_delete(self):
