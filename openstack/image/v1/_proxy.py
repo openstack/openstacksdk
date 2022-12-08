@@ -61,20 +61,17 @@ class Proxy(proxy.Proxy):
         disable_vendor_agent=True,
         allow_duplicates=False,
         meta=None,
-        wait=False,
-        timeout=3600,
         data=None,
         validate_checksum=False,
-        use_import=False,
-        stores=None,
         tags=None,
-        all_stores=None,
-        all_stores_must_succeed=None,
         **kwargs,
     ):
-        """Upload an image.
+        """Create an image and optionally upload data.
 
-        :param str name: Name of the image to create. If it is a pathname
+        Create a new image. If ``filename`` or ``data`` are provided, it will
+        also upload data to this image.
+
+        :param str name: Name of the image to create. If it is a path name
             of an image, the name will be constructed from the extensionless
             basename of the path.
         :param str filename: The path to the file to upload, if needed.
@@ -102,39 +99,10 @@ class Proxy(proxy.Proxy):
             image name. (optional, defaults to False)
         :param meta: A dict of key/value pairs to use for metadata that
             bypasses automatic type conversion.
-        :param bool wait: If true, waits for image to be created. Defaults to
-            true - however, be aware that one of the upload methods is always
-            synchronous.
-        :param timeout: Seconds to wait for image creation. None is forever.
         :param bool validate_checksum: If true and cloud returns checksum,
             compares return value with the one calculated or passed into this
             call. If value does not match - raises exception. Default is
             'false'
-        :param bool use_import: Use the interoperable image import mechanism
-            to import the image. This defaults to false because it is harder on
-            the target cloud so should only be used when needed, such as when
-            the user needs the cloud to transform image format. If the cloud
-            has disabled direct uploads, this will default to true.
-        :param stores:
-            List of stores to be used when enabled_backends is activated
-            in glance. List values can be the id of a store or a
-            :class:`~openstack.image.v2.service_info.Store` instance.
-            Implies ``use_import`` equals ``True``.
-        :param all_stores:
-            Upload to all available stores. Mutually exclusive with
-            ``store`` and ``stores``.
-            Implies ``use_import`` equals ``True``.
-        :param all_stores_must_succeed:
-            When set to True, if an error occurs during the upload in at
-            least one store, the worfklow fails, the data is deleted
-            from stores where copying is done (not staging), and the
-            state of the image is unchanged. When set to False, the
-            workflow will fail (data deleted from stores, …) only if the
-            import fails on all stores specified by the user. In case of
-            a partial success, the locations added to the image will be
-            the stores where the data has been correctly uploaded.
-            Default is True.
-            Implies ``use_import`` equals ``True``.
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image and will have all values converted to string
@@ -147,9 +115,27 @@ class Proxy(proxy.Proxy):
 
         If a value is in meta and kwargs, meta wins.
 
-        :returns: A ``munch.Munch`` of the Image object
+        :returns: The results of image creation
+        :rtype: :class:`~openstack.image.v1.image.Image`
         :raises: SDKException if there are problems uploading
         """
+        # these were previously provided for API (method) compatibility; that
+        # was a bad idea
+        if (
+            'use_import' in kwargs
+            or 'stores' in kwargs
+            or 'all_stores' in kwargs
+            or 'all_stores_must_succeed' in kwargs
+        ):
+            raise exceptions.InvalidRequest(
+                "Glance v1 does not support stores or image import"
+            )
+
+        # silently ignore these; they were never supported and were only given
+        # for API (method) compatibility
+        kwargs.pop('wait')
+        kwargs.pop('timeout')
+
         if container is None:
             container = self._connection._OBJECT_AUTOCREATE_CONTAINER
 
@@ -247,18 +233,11 @@ class Proxy(proxy.Proxy):
                 filename=filename,
                 data=data,
                 meta=meta,
-                wait=wait,
-                timeout=timeout,
                 validate_checksum=validate_checksum,
-                use_import=use_import,
-                stores=stores,
-                all_stores=stores,
-                all_stores_must_succeed=stores,
                 **image_kwargs,
             )
         else:
-            image_kwargs['name'] = name
-            image = self._create(_image.Image, **kwargs)
+            image = self._create(_image.Image, name=name, **kwargs)
 
         self._connection._get_cache(None).invalidate()
 
@@ -288,24 +267,8 @@ class Proxy(proxy.Proxy):
         filename,
         data,
         meta,
-        wait,
-        timeout,
-        use_import=False,
-        stores=None,
-        all_stores=None,
-        all_stores_must_succeed=None,
         **image_kwargs,
     ):
-        if use_import:
-            raise exceptions.InvalidRequest(
-                "Glance v1 does not support image import"
-            )
-        if stores or all_stores or all_stores_must_succeed:
-            raise exceptions.InvalidRequest(
-                "Glance v1 does not support stores"
-            )
-        # NOTE(mordred) wait and timeout parameters are unused, but
-        # are present for ease at calling site.
         if filename and not data:
             image_data = open(filename, 'rb')
         else:
