@@ -45,6 +45,7 @@ class TestRebuildServer(base.TestCase):
         rebuild_server.
         """
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -70,6 +71,7 @@ class TestRebuildServer(base.TestCase):
         raises an exception in rebuild_server.
         """
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -79,7 +81,6 @@ class TestRebuildServer(base.TestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', self.server_id]),
@@ -97,6 +98,7 @@ class TestRebuildServer(base.TestCase):
         exception in rebuild_server.
         """
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -106,7 +108,6 @@ class TestRebuildServer(base.TestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', self.server_id]),
@@ -125,6 +126,7 @@ class TestRebuildServer(base.TestCase):
         rebuild call returns the server instance.
         """
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -154,6 +156,7 @@ class TestRebuildServer(base.TestCase):
         rebuild_server['adminPass'] = password
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -186,6 +189,7 @@ class TestRebuildServer(base.TestCase):
         rebuild_server['adminPass'] = password
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -196,7 +200,6 @@ class TestRebuildServer(base.TestCase):
                          'rebuild': {
                              'imageRef': 'a',
                              'adminPass': password}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', self.server_id]),
@@ -225,6 +228,7 @@ class TestRebuildServer(base.TestCase):
         its status changes to "ACTIVE".
         """
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri=self.get_mock_url(
                      'compute', 'public',
@@ -234,7 +238,6 @@ class TestRebuildServer(base.TestCase):
                      json={
                          'rebuild': {
                              'imageRef': 'a'}})),
-            self.get_nova_discovery_mock_dict(),
             dict(method='GET',
                  uri=self.get_mock_url(
                      'compute', 'public', append=['servers', self.server_id]),

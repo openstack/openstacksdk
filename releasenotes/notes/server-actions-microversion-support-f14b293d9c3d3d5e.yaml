@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Server actions such as reboot and resize will now default to the
+    latest microversion instead of 2.1 as before.

@@ -648,6 +648,7 @@ class TestSecurityGroups(base.TestCase):
                     endpoint=fakes.COMPUTE_ENDPOINT,
                 ),
                 json={'security_groups': [nova_grp_dict]}),
+            self.get_nova_discovery_mock_dict(),
             dict(
                 method='POST',
                 uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
@@ -705,6 +706,7 @@ class TestSecurityGroups(base.TestCase):
                 uri='{endpoint}/os-security-groups'.format(
                     endpoint=fakes.COMPUTE_ENDPOINT),
                 json={'security_groups': [nova_grp_dict]}),
+            self.get_nova_discovery_mock_dict(),
             dict(
                 method='POST',
                 uri='%s/servers/%s/action' % (fakes.COMPUTE_ENDPOINT, '1234'),
