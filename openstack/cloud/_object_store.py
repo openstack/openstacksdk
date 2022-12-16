@@ -22,7 +22,7 @@ import keystoneauth1.exceptions
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
-
+from openstack.object_store.v1._proxy import Proxy
 
 DEFAULT_OBJECT_SEGMENT_SIZE = 1073741824  # 1GB
 # This halves the current default for Swift
@@ -36,6 +36,7 @@ OBJECT_CONTAINER_ACLS = {
 
 
 class ObjectStoreCloudMixin:
+    object_store: Proxy
 
     @property
     def _object_store_client(self):

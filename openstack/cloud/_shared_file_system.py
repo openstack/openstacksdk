@@ -9,9 +9,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from openstack.shared_file_system.v2._proxy import Proxy
 
 
 class SharedFileSystemCloudMixin:
+    share: Proxy
 
     def list_share_availability_zones(self):
         """List all availability zones for the Shared File Systems service.

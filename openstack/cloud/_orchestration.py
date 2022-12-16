@@ -18,6 +18,7 @@ import types  # noqa
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.orchestration.util import event_utils
+from openstack.orchestration.v1._proxy import Proxy
 
 
 def _no_pending_stacks(stacks):
@@ -30,6 +31,7 @@ def _no_pending_stacks(stacks):
 
 
 class OrchestrationCloudMixin:
+    orchestration: Proxy
 
     @property
     def _orchestration_client(self):

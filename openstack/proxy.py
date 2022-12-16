@@ -11,6 +11,11 @@
 # under the License.
 
 import functools
+from typing import Generator
+from typing import Generic
+from typing import Optional
+from typing import Type
+from typing import TypeVar
 import urllib
 from urllib.parse import urlparse
 
@@ -27,6 +32,8 @@ from keystoneauth1 import adapter
 from openstack import _log
 from openstack import exceptions
 from openstack import resource
+
+T = TypeVar('T')
 
 
 # The _check_resource decorator is used on Proxy methods to ensure that
@@ -67,7 +74,7 @@ def normalize_metric_name(name):
     return name
 
 
-class Proxy(adapter.Adapter):
+class Proxy(adapter.Adapter, Generic[T]):
     """Represents a service."""
 
     retriable_status_codes = None
@@ -430,7 +437,8 @@ class Proxy(adapter.Adapter):
             self, '_connection', getattr(self.session, '_sdk_connection', None)
         )
 
-    def _get_resource(self, resource_type, value, **attrs):
+    def _get_resource(self, resource_type: Type[T], value,
+                      **attrs) -> T:
         """Get a resource object to work on
 
         :param resource_type: The type of resource to operate on. This should
@@ -476,7 +484,8 @@ class Proxy(adapter.Adapter):
             value = resource.Resource._get_id(parent)
         return value
 
-    def _find(self, resource_type, name_or_id, ignore_missing=True, **attrs):
+    def _find(self, resource_type: Type[T], name_or_id, ignore_missing=True,
+              **attrs) -> Optional[T]:
         """Find a resource
 
         :param name_or_id: The name or ID of a resource to find.
@@ -496,7 +505,8 @@ class Proxy(adapter.Adapter):
         )
 
     @_check_resource(strict=False)
-    def _delete(self, resource_type, value, ignore_missing=True, **attrs):
+    def _delete(self, resource_type: Type[T], value, ignore_missing=True,
+                **attrs):
         """Delete a resource
 
         :param resource_type: The type of resource to delete. This should
@@ -532,7 +542,8 @@ class Proxy(adapter.Adapter):
         return rv
 
     @_check_resource(strict=False)
-    def _update(self, resource_type, value, base_path=None, **attrs):
+    def _update(self, resource_type: Type[T], value, base_path=None,
+                **attrs) -> T:
         """Update a resource
 
         :param resource_type: The type of resource to update.
@@ -556,7 +567,7 @@ class Proxy(adapter.Adapter):
         res = self._get_resource(resource_type, value, **attrs)
         return res.commit(self, base_path=base_path)
 
-    def _create(self, resource_type, base_path=None, **attrs):
+    def _create(self, resource_type: Type[T], base_path=None, **attrs):
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
@@ -580,7 +591,8 @@ class Proxy(adapter.Adapter):
         res = resource_type.new(connection=conn, **attrs)
         return res.create(self, base_path=base_path)
 
-    def _bulk_create(self, resource_type, data, base_path=None):
+    def _bulk_create(self, resource_type: Type[T], data, base_path=None
+                     ) -> Generator[T, None, None]:
         """Create a resource from attributes
 
         :param resource_type: The type of resource to create.
@@ -602,13 +614,13 @@ class Proxy(adapter.Adapter):
 
     @_check_resource(strict=False)
     def _get(
-        self,
-        resource_type,
-        value=None,
-        requires_id=True,
-        base_path=None,
-        skip_cache=False,
-        **attrs
+            self,
+            resource_type: Type[T],
+            value=None,
+            requires_id=True,
+            base_path=None,
+            skip_cache=False,
+            **attrs
     ):
         """Fetch a resource
 
@@ -645,13 +657,13 @@ class Proxy(adapter.Adapter):
         )
 
     def _list(
-        self,
-        resource_type,
-        paginated=True,
-        base_path=None,
-        jmespath_filters=None,
-        **attrs
-    ):
+            self,
+            resource_type: Type[T],
+            paginated=True,
+            base_path=None,
+            jmespath_filters=None,
+            **attrs
+    ) -> Generator[T, None, None]:
         """List a resource
 
         :param resource_type: The type of resource to list. This should
@@ -688,7 +700,8 @@ class Proxy(adapter.Adapter):
 
         return data
 
-    def _head(self, resource_type, value=None, base_path=None, **attrs):
+    def _head(self, resource_type: Type[T], value=None, base_path=None,
+              **attrs):
         """Retrieve a resource's header
 
         :param resource_type: The type of resource to retrieve.

@@ -9,6 +9,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from typing import Generic
+from typing import Optional
+from typing import Type
+from typing import TypeVar
 
 from openstack import exceptions
 from openstack.network.v2 import address_group as _address_group
@@ -69,8 +73,10 @@ from openstack.network.v2 import vpn_ipsec_site_connection as \
 from openstack.network.v2 import vpn_service as _vpn_service
 from openstack import proxy
 
+T = TypeVar('T')
 
-class Proxy(proxy.Proxy):
+
+class Proxy(proxy.Proxy, Generic[T]):
     _resource_registry = {
         "address_group": _address_group.AddressGroup,
         "address_scope": _address_scope.AddressScope,
@@ -130,14 +136,14 @@ class Proxy(proxy.Proxy):
     }
 
     @proxy._check_resource(strict=False)
-    def _update(self, resource_type, value, base_path=None,
-                if_revision=None, **attrs):
+    def _update(self, resource_type: Type[T], value, base_path=None,
+                if_revision=None, **attrs) -> T:
         res = self._get_resource(resource_type, value, **attrs)
         return res.commit(self, base_path=base_path, if_revision=if_revision)
 
     @proxy._check_resource(strict=False)
-    def _delete(self, resource_type, value, ignore_missing=True,
-                if_revision=None, **attrs):
+    def _delete(self, resource_type: Type[T], value, ignore_missing=True,
+                if_revision=None, **attrs) -> Optional[T]:
         res = self._get_resource(resource_type, value, **attrs)
 
         try:
@@ -152,7 +158,7 @@ class Proxy(proxy.Proxy):
     def create_address_group(self, **attrs):
         """Create a new address group from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.address_group.AddressGroup`,
             comprised of the properties on the AddressGroup class.
 
@@ -223,12 +229,13 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_address_group.AddressGroup, **query)
 
-    def update_address_group(self, address_group, **attrs):
+    def update_address_group(self, address_group,
+                             **attrs) -> _address_group.AddressGroup:
         """Update an address group
 
         :param address_group: Either the ID of an address group or a
             :class:`~openstack.network.v2.address_group.AddressGroup` instance.
-        :param dict attrs: The attributes to update on the address group
+        :param attrs: The attributes to update on the address group
             represented by ``value``.
 
         :returns: The updated address group
@@ -264,7 +271,7 @@ class Proxy(proxy.Proxy):
     def create_address_scope(self, **attrs):
         """Create a new address scope from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.address_scope.AddressScope`,
             comprised of the properties on the AddressScope class.
 
@@ -341,7 +348,7 @@ class Proxy(proxy.Proxy):
 
         :param address_scope: Either the ID of an address scope or a
             :class:`~openstack.network.v2.address_scope.AddressScope` instance.
-        :param dict attrs: The attributes to update on the address scope
+        :param attrs: The attributes to update on the address scope
             represented by ``value``.
 
         :returns: The updated address scope
@@ -404,7 +411,7 @@ class Proxy(proxy.Proxy):
 
         :param agent: The value can be the ID of a agent or a
             :class:`~openstack.network.v2.agent.Agent` instance.
-        :param dict attrs: The attributes to update on the agent represented
+        :param attrs: The attributes to update on the agent represented
             by ``value``.
 
         :returns: One :class:`~openstack.network.v2.agent.Agent`
@@ -564,7 +571,7 @@ class Proxy(proxy.Proxy):
     def create_flavor(self, **attrs):
         """Create a new network service flavor from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.flavor.Flavor`,
             comprised of the properties on the Flavor class.
 
@@ -688,7 +695,7 @@ class Proxy(proxy.Proxy):
     def create_local_ip(self, **attrs):
         """Create a new local ip from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.local_ip.LocalIP`,
             comprised of the properties on the LocalIP class.
 
@@ -773,7 +780,7 @@ class Proxy(proxy.Proxy):
             instance.
         :param int if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
-        :param dict attrs: The attributes to update on the ip represented
+        :param attrs: The attributes to update on the ip represented
             by ``value``.
 
         :returns: The updated ip
@@ -788,7 +795,7 @@ class Proxy(proxy.Proxy):
         :param local_ip: The value can be the ID of a Local IP or a
             :class:`~openstack.network.v2.local_ip.LocalIP`
             instance.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a
             :class:`~openstack.network.v2.local_ip_association.LocalIPAssociation`,
             comprised of the properties on the LocalIP class.
@@ -897,7 +904,7 @@ class Proxy(proxy.Proxy):
     def create_ip(self, **attrs):
         """Create a new floating ip from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.floating_ip.FloatingIP`,
             comprised of the properties on the FloatingIP class.
 
@@ -996,7 +1003,7 @@ class Proxy(proxy.Proxy):
             instance.
         :param int if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
-        :param dict attrs: The attributes to update on the ip represented
+        :param attrs: The attributes to update on the ip represented
             by ``value``.
 
         :returns: The updated ip
@@ -1008,7 +1015,7 @@ class Proxy(proxy.Proxy):
     def create_port_forwarding(self, **attrs):
         """Create a new floating ip port forwarding from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.port_forwarding.PortForwarding`,
             comprised of the properties on the PortForwarding class.
 
@@ -1112,7 +1119,7 @@ class Proxy(proxy.Proxy):
         :param floating_ip: The value can be the ID of a Floating IP or a
             :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
-        :param dict attrs: The attributes to update on the ip represented
+        :param attrs: The attributes to update on the ip represented
             by ``value``.
 
         :returns: The updated port_forwarding
@@ -1125,7 +1132,7 @@ class Proxy(proxy.Proxy):
     def create_health_monitor(self, **attrs):
         """Create a new health monitor from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.health_monitor.HealthMonitor`,
             comprised of the properties on the HealthMonitor class.
 
@@ -1218,7 +1225,7 @@ class Proxy(proxy.Proxy):
         :param health_monitor: Either the id of a health monitor or a
             :class:`~openstack.network.v2.health_monitor.HealthMonitor`
             instance.
-        :param dict attrs: The attributes to update on the health monitor
+        :param attrs: The attributes to update on the health monitor
             represented by ``value``.
 
         :returns: The updated health monitor
@@ -1230,7 +1237,7 @@ class Proxy(proxy.Proxy):
     def create_listener(self, **attrs):
         """Create a new listener from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.listener.Listener`,
             comprised of the properties on the Listener class.
 
@@ -1313,7 +1320,7 @@ class Proxy(proxy.Proxy):
         :param listener: Either the id of a listener or a
             :class:`~openstack.network.v2.listener.Listener`
             instance.
-        :param dict attrs: The attributes to update on the listener
+        :param attrs: The attributes to update on the listener
             represented by ``listener``.
 
         :returns: The updated listener
@@ -1324,7 +1331,7 @@ class Proxy(proxy.Proxy):
     def create_load_balancer(self, **attrs):
         """Create a new load balancer from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.load_balancer.LoadBalancer`,
             comprised of the properties on the LoadBalancer class.
 
@@ -1397,7 +1404,7 @@ class Proxy(proxy.Proxy):
         :param load_balancer: Either the id of a load balancer or a
             :class:`~openstack.network.v2.load_balancer.LoadBalancer`
             instance.
-        :param dict attrs: The attributes to update on the load balancer
+        :param attrs: The attributes to update on the load balancer
             represented by ``load_balancer``.
 
         :returns: The updated load balancer
@@ -1409,7 +1416,7 @@ class Proxy(proxy.Proxy):
     def create_metering_label(self, **attrs):
         """Create a new metering label from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.metering_label.MeteringLabel`,
             comprised of the properties on the MeteringLabel class.
 
@@ -1492,7 +1499,7 @@ class Proxy(proxy.Proxy):
         :param metering_label: Either the id of a metering label or a
             :class:`~openstack.network.v2.metering_label.MeteringLabel`
             instance.
-        :param dict attrs: The attributes to update on the metering label
+        :param attrs: The attributes to update on the metering label
             represented by ``metering_label``.
 
         :returns: The updated metering label
@@ -1504,7 +1511,7 @@ class Proxy(proxy.Proxy):
     def create_metering_label_rule(self, **attrs):
         """Create a new metering label rule from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`,
             comprised of the properties on the MeteringLabelRule class.
 
@@ -1597,7 +1604,7 @@ class Proxy(proxy.Proxy):
             Either the id of a metering label rule or a
             :class:`~openstack.network.v2.metering_label_rule.MeteringLabelRule`
             instance.
-        :param dict attrs: The attributes to update on the metering label rule
+        :param attrs: The attributes to update on the metering label rule
             represented by ``metering_label_rule``.
 
         :returns: The updated metering label rule
@@ -1610,7 +1617,7 @@ class Proxy(proxy.Proxy):
     def create_network(self, **attrs):
         """Create a new network from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.network.Network`,
             comprised of the properties on the Network class.
 
@@ -1702,7 +1709,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.network.Network`.
         :param int if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
-        :param dict attrs: The attributes to update on the network represented
+        :param attrs: The attributes to update on the network represented
             by ``network``.
 
         :returns: The updated network
@@ -1768,7 +1775,7 @@ class Proxy(proxy.Proxy):
     def create_network_segment_range(self, **attrs):
         """Create a new network segment range from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.network_segment_range.NetworkSegmentRange`,
             comprised of the properties on the
             NetworkSegmentRange class.
@@ -1885,7 +1892,7 @@ class Proxy(proxy.Proxy):
     def create_pool(self, **attrs):
         """Create a new pool from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.pool.Pool`,
             comprised of the properties on the Pool class.
 
@@ -1968,7 +1975,7 @@ class Proxy(proxy.Proxy):
 
         :param pool: Either the id of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance.
-        :param dict attrs: The attributes to update on the pool represented
+        :param attrs: The attributes to update on the pool represented
             by ``pool``.
 
         :returns: The updated pool
@@ -1982,7 +1989,7 @@ class Proxy(proxy.Proxy):
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance that
             the member will be created in.
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.pool_member.PoolMember`,
             comprised of the properties on the PoolMember class.
 
@@ -2090,7 +2097,7 @@ class Proxy(proxy.Proxy):
         :param pool: The pool can be either the ID of a pool or a
             :class:`~openstack.network.v2.pool.Pool` instance that
             the member belongs to.
-        :param dict attrs: The attributes to update on the pool member
+        :param attrs: The attributes to update on the pool member
             represented by ``pool_member``.
 
         :returns: The updated pool member
@@ -2103,7 +2110,7 @@ class Proxy(proxy.Proxy):
     def create_port(self, **attrs):
         """Create a new port from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.port.Port`,
             comprised of the properties on the Port class.
 
@@ -2194,14 +2201,14 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_port.Port, **query)
 
-    def update_port(self, port, if_revision=None, **attrs):
+    def update_port(self, port, if_revision=None, **attrs) -> _port.Port:
         """Update a port
 
         :param port: Either the id of a port or a
             :class:`~openstack.network.v2.port.Port` instance.
         :param int if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
-        :param dict attrs: The attributes to update on the port represented
+        :param attrs: The attributes to update on the port represented
             by ``port``.
 
         :returns: The updated port
@@ -2230,7 +2237,7 @@ class Proxy(proxy.Proxy):
     def create_qos_bandwidth_limit_rule(self, qos_policy, **attrs):
         """Create a new bandwidth limit rule
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a
             :class:`~openstack.network.v2.qos_bandwidth_limit_rule.QoSBandwidthLimitRule`,
             comprised of the properties on the
@@ -2355,7 +2362,7 @@ class Proxy(proxy.Proxy):
     def create_qos_dscp_marking_rule(self, qos_policy, **attrs):
         """Create a new QoS DSCP marking rule
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a
             :class:`~openstack.network.v2.qos_dscp_marking_rule.QoSDSCPMarkingRule`,
             comprised of the properties on the
@@ -2478,7 +2485,7 @@ class Proxy(proxy.Proxy):
     def create_qos_minimum_bandwidth_rule(self, qos_policy, **attrs):
         """Create a new minimum bandwidth rule
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a
             :class:`~openstack.network.v2.qos_minimum_bandwidth_rule.QoSMinimumBandwidthRule`,
             comprised of the properties on the
@@ -2607,7 +2614,7 @@ class Proxy(proxy.Proxy):
     def create_qos_minimum_packet_rate_rule(self, qos_policy, **attrs):
         """Create a new minimum packet rate rule
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.qos_minimum_packet_rate_rule.QoSMinimumPacketRateRule`,
             comprised of the properties on the QoSMinimumPacketRateRule class.
         :param qos_policy: The value can be the ID of the QoS policy that the
@@ -2736,7 +2743,7 @@ class Proxy(proxy.Proxy):
     def create_qos_policy(self, **attrs):
         """Create a new QoS policy from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.qos_policy.QoSPolicy`,
             comprised of the properties on the
             QoSPolicy class.
@@ -2938,7 +2945,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.quota.Quota` instance.
             The ID of a quota is the same as the project ID
             for the quota.
-        :param dict attrs: The attributes to update on the quota represented
+        :param attrs: The attributes to update on the quota represented
             by ``quota``.
 
         :returns: The updated quota
@@ -2949,7 +2956,7 @@ class Proxy(proxy.Proxy):
     def create_rbac_policy(self, **attrs):
         """Create a new RBAC policy from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.rbac_policy.RBACPolicy`,
             comprised of the properties on the RBACPolicy class.
 
@@ -3026,7 +3033,7 @@ class Proxy(proxy.Proxy):
 
         :param rbac_policy: Either the id of a RBAC policy or a
             :class:`~openstack.network.v2.rbac_policy.RBACPolicy` instance.
-        :param dict attrs: The attributes to update on the RBAC policy
+        :param attrs: The attributes to update on the RBAC policy
             represented by ``rbac_policy``.
 
         :returns: The updated RBAC policy
@@ -3037,7 +3044,7 @@ class Proxy(proxy.Proxy):
     def create_router(self, **attrs):
         """Create a new router from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.router.Router`,
             comprised of the properties on the Router class.
 
@@ -3120,7 +3127,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.router.Router` instance.
         :param int if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
-        :param dict attrs: The attributes to update on the router represented
+        :param attrs: The attributes to update on the router represented
             by ``router``.
 
         :returns: The updated router
@@ -3272,7 +3279,7 @@ class Proxy(proxy.Proxy):
     def create_ndp_proxy(self, **attrs):
         """Create a new ndp proxy from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.ndp_proxy.NDPProxxy`,
             comprised of the properties on the NDPProxy class.
 
@@ -3351,7 +3358,7 @@ class Proxy(proxy.Proxy):
 
         :param ndp_proxy: The value can be the ID of a ndp proxy or a
             :class:`~openstack.network.v2.ndp_proxy.NDPProxy` instance.
-        :param dict attrs: The attributes to update on the ip represented
+        :param attrs: The attributes to update on the ip represented
             by ``value``.
 
         :returns: The updated ndp_proxy
@@ -3362,7 +3369,7 @@ class Proxy(proxy.Proxy):
     def create_firewall_group(self, **attrs):
         """Create a new firewall group from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.firewall_group.FirewallGroup`,
             comprised of the properties on the FirewallGroup class.
 
@@ -3450,7 +3457,7 @@ class Proxy(proxy.Proxy):
         :param firewall_group: Either the id of a firewall group or a
             :class:`~openstack.network.v2.firewall_group.FirewallGroup`
             instance.
-        :param dict attrs: The attributes to update on the firewall group
+        :param attrs: The attributes to update on the firewall group
             represented by ``firewall_group``.
 
         :returns: The updated firewall group
@@ -3462,7 +3469,7 @@ class Proxy(proxy.Proxy):
     def create_firewall_policy(self, **attrs):
         """Create a new firewall policy from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`,
             comprised of the properties on the FirewallPolicy class.
 
@@ -3546,7 +3553,7 @@ class Proxy(proxy.Proxy):
         :param firewall_policy: Either the id of a firewall policy or a
             :class:`~openstack.network.v2.firewall_policy.FirewallPolicy`
             instance.
-        :param dict attrs: The attributes to update on the firewall policy
+        :param attrs: The attributes to update on the firewall policy
             represented by ``firewall_policy``.
 
         :returns: The updated firewall policy
@@ -3594,7 +3601,7 @@ class Proxy(proxy.Proxy):
     def create_firewall_rule(self, **attrs):
         """Create a new firewall rule from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.firewall_rule.FirewallRule`,
             comprised of the properties on the FirewallRule class.
 
@@ -3689,7 +3696,7 @@ class Proxy(proxy.Proxy):
         :param firewall_rule: Either the id of a firewall rule or a
             :class:`~openstack.network.v2.firewall_rule.FirewallRule`
             instance.
-        :param dict attrs: The attributes to update on the firewall rule
+        :param attrs: The attributes to update on the firewall rule
             represented by ``firewall_rule``.
 
         :returns: The updated firewall rule
@@ -3701,7 +3708,7 @@ class Proxy(proxy.Proxy):
     def create_security_group(self, **attrs):
         """Create a new security group from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.security_group.SecurityGroup`,
             comprised of the properties on the SecurityGroup class.
 
@@ -3788,7 +3795,7 @@ class Proxy(proxy.Proxy):
             instance.
         :param int if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
-        :param dict attrs: The attributes to update on the security group
+        :param attrs: The attributes to update on the security group
             represented by ``security_group``.
 
         :returns: The updated security group
@@ -3800,7 +3807,7 @@ class Proxy(proxy.Proxy):
     def create_security_group_rule(self, **attrs):
         """Create a new security group rule from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.security_group_rule.SecurityGroupRule`,
             comprised of the properties on the
             SecurityGroupRule class.
@@ -3909,7 +3916,7 @@ class Proxy(proxy.Proxy):
     def create_segment(self, **attrs):
         """Create a new segment from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.segment.Segment`,
             comprised of the properties on the Segment class.
 
@@ -4009,7 +4016,7 @@ class Proxy(proxy.Proxy):
     def create_service_profile(self, **attrs):
         """Create a new network service flavor profile from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.service_profile.ServiceProfile`,
             comprised of the properties on the ServiceProfile
             class.
@@ -4103,7 +4110,7 @@ class Proxy(proxy.Proxy):
     def create_subnet(self, **attrs):
         """Create a new subnet from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.subnet.Subnet`,
             comprised of the properties on the Subnet class.
 
@@ -4189,7 +4196,7 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.network.v2.subnet.Subnet` instance.
         :param int if_revision: Revision to put in If-Match header of update
             request to perform compare-and-swap update.
-        :param dict attrs: The attributes to update on the subnet represented
+        :param attrs: The attributes to update on the subnet represented
             by ``subnet``.
 
         :returns: The updated subnet
@@ -4201,7 +4208,7 @@ class Proxy(proxy.Proxy):
     def create_subnet_pool(self, **attrs):
         """Create a new subnet pool from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.subnet_pool.SubnetPool`,
             comprised of the properties on the SubnetPool class.
 
@@ -4279,7 +4286,7 @@ class Proxy(proxy.Proxy):
 
         :param subnet_pool: Either the ID of a subnet pool or a
             :class:`~openstack.network.v2.subnet_pool.SubnetPool` instance.
-        :param dict attrs: The attributes to update on the subnet pool
+        :param attrs: The attributes to update on the subnet pool
             represented by ``subnet_pool``.
 
         :returns: The updated subnet pool
@@ -4314,7 +4321,7 @@ class Proxy(proxy.Proxy):
     def create_trunk(self, **attrs):
         """Create a new trunk from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.trunk.Trunk`,
             comprised of the properties on the Trunk class.
 
@@ -4379,7 +4386,7 @@ class Proxy(proxy.Proxy):
 
         :param trunk: Either the id of a trunk or a
             :class:`~openstack.network.v2.trunk.Trunk` instance.
-        :param dict attrs: The attributes to update on the trunk
+        :param attrs: The attributes to update on the trunk
             represented by ``trunk``.
 
         :returns: The updated trunk
@@ -4433,7 +4440,7 @@ class Proxy(proxy.Proxy):
     def create_vpn_endpoint_group(self, **attrs):
         """Create a new vpn endpoint group from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`,
             comprised of the properties on the VpnEndpointGroup class.
 
@@ -4520,7 +4527,7 @@ class Proxy(proxy.Proxy):
         :param vpn_endpoint_group: Either the id of a vpn service or a
             :class:`~openstack.network.v2.vpn_endpoint_group.VpnEndpointGroup`
             instance.
-        :param dict attrs: The attributes to update on the VPN service
+        :param attrs: The attributes to update on the VPN service
             represented by ``vpn_endpoint_group``.
 
         :returns: The updated vpnservice
@@ -4534,7 +4541,7 @@ class Proxy(proxy.Proxy):
     def create_vpn_ipsec_site_connection(self, **attrs):
         """Create a new IPsec site connection from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`,
             comprised of the properties on the IPSecSiteConnection class.
 
@@ -4604,7 +4611,7 @@ class Proxy(proxy.Proxy):
             a
             :class:`~openstack.network.v2.vpn_ipsec_site_connection.VpnIPSecSiteConnection`
             instance.
-        :param dict attrs: The attributes to update on the IPsec site
+        :param attrs: The attributes to update on the IPsec site
             connection represented by ``ipsec_site_connection``.
 
         :returns: The updated IPsec site connection
@@ -4641,7 +4648,7 @@ class Proxy(proxy.Proxy):
     def create_vpn_ike_policy(self, **attrs):
         """Create a new ike policy from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`,
             comprised of the properties on the VpnIkePolicy class.
 
@@ -4704,7 +4711,7 @@ class Proxy(proxy.Proxy):
         :ike_policy: Either the IK of an IKE policy or a
             :class:`~openstack.network.v2.vpn_ike_policy.VpnIkePolicy`
             instance.
-        :param dict attrs: The attributes to update on the ike policy
+        :param attrs: The attributes to update on the ike policy
             represented by ``ike_policy``.
 
         :returns: The updated ike policy
@@ -4736,7 +4743,7 @@ class Proxy(proxy.Proxy):
     def create_vpn_ipsec_policy(self, **attrs):
         """Create a new IPsec policy from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`,
             comprised of the properties on the VpnIpsecPolicy class.
 
@@ -4801,7 +4808,7 @@ class Proxy(proxy.Proxy):
         :ipsec_policy: Either the id of an IPsec policy or a
             :class:`~openstack.network.v2.vpn_ipsec_policy.VpnIpsecPolicy`
             instance.
-        :param dict attrs: The attributes to update on the IPsec policy
+        :param attrs: The attributes to update on the IPsec policy
             represented by ``ipsec_policy``.
 
         :returns: The updated IPsec policy
@@ -4834,7 +4841,7 @@ class Proxy(proxy.Proxy):
     def create_vpn_service(self, **attrs):
         """Create a new vpn service from attributes
 
-        :param dict attrs: Keyword arguments which will be used to create
+        :param attrs: Keyword arguments which will be used to create
             a :class:`~openstack.network.v2.vpn_service.VpnService`,
             comprised of the properties on the VpnService class.
 
@@ -4907,7 +4914,7 @@ class Proxy(proxy.Proxy):
 
         :param vpn_service: Either the id of a vpn service or a
             :class:`~openstack.network.v2.vpn_service.VpnService` instance.
-        :param dict attrs: The attributes to update on the VPN service
+        :param attrs: The attributes to update on the VPN service
             represented by ``vpn_service``.
 
         :returns: The updated vpnservice
@@ -4921,7 +4928,7 @@ class Proxy(proxy.Proxy):
         :param floating_ip: The value can be either the ID of a floating ip
             or a :class:`~openstack.network.v2.floating_ip.FloatingIP`
             instance.
-        :param dict attrs:Keyword arguments which will be used to create
+        :param attrs:Keyword arguments which will be used to create
             a:class:`~openstack.network.v2.port_forwarding.PortForwarding`,
             comprised of the properties on the PortForwarding class.
 
@@ -5042,7 +5049,7 @@ class Proxy(proxy.Proxy):
 
         :param router: Either the router ID or an instance of
             :class:`~openstack.network.v2.router.Router`
-        :param dict attrs: Keyword arguments which will be used to create a
+        :param attrs: Keyword arguments which will be used to create a
             :class:`~openstack.network.v2.l3_conntrack_helper.ConntrackHelper`,
             comprised of the properties on the ConntrackHelper class.
 

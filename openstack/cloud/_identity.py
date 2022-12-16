@@ -18,9 +18,11 @@ import types  # noqa
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
+from openstack.identity.v3._proxy import Proxy
 
 
 class IdentityCloudMixin:
+    identity: Proxy
 
     @property
     def _identity_client(self):

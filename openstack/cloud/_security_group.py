@@ -19,10 +19,12 @@ import types  # noqa
 from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack import exceptions
+from openstack.network.v2._proxy import Proxy
 from openstack import proxy
 
 
 class SecurityGroupCloudMixin:
+    network: Proxy
 
     def __init__(self):
         self.secgroup_source = self.config.config['secgroup_source']

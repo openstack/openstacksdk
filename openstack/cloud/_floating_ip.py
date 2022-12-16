@@ -24,6 +24,7 @@ from openstack.cloud import _utils
 from openstack.cloud import exc
 from openstack.cloud import meta
 from openstack import exceptions
+from openstack.network.v2._proxy import Proxy
 from openstack import proxy
 from openstack import utils
 
@@ -33,6 +34,7 @@ _CONFIG_DOC_URL = (
 
 
 class FloatingIPCloudMixin:
+    network: Proxy
 
     def __init__(self):
         self.private = self.config.config.get('private', False)

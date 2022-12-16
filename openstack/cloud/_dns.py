@@ -17,11 +17,13 @@ import types  # noqa
 
 from openstack.cloud import _utils
 from openstack.cloud import exc
+from openstack.dns.v2._proxy import Proxy
 from openstack import exceptions
 from openstack import resource
 
 
 class DnsCloudMixin:
+    dns: Proxy
 
     def list_zones(self, filters=None):
         """List all available zones.

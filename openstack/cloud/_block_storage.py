@@ -16,6 +16,7 @@
 import types  # noqa
 import warnings
 
+from openstack.block_storage.v3._proxy import Proxy
 from openstack.block_storage.v3 import quota_set as _qs
 from openstack.cloud import _utils
 from openstack.cloud import exc
@@ -32,6 +33,7 @@ def _no_pending_volumes(volumes):
 
 
 class BlockStorageCloudMixin:
+    block_storage: Proxy
 
     # TODO(stephenfin): Remove 'cache' in a future major version
     @_utils.cache_on_arguments(should_cache_fn=_no_pending_volumes)
