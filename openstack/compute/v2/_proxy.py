@@ -78,11 +78,19 @@ class Proxy(proxy.Proxy):
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
+
         :returns: One :class:`~openstack.compute.v2.extension.Extension` or
             None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(extension.Extension, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            extension.Extension,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def extensions(self):
         """Retrieve a generator of extensions
@@ -94,8 +102,15 @@ class Proxy(proxy.Proxy):
 
     # ========== Flavors ==========
 
-    def find_flavor(self, name_or_id, ignore_missing=True,
-                    get_extra_specs=False, **query):
+    # TODO(stephenfin): Drop 'query' parameter or apply it consistently
+    def find_flavor(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        get_extra_specs=False,
+        **query,
+    ):
         """Find a single flavor
 
         :param name_or_id: The name or ID of a flavor.
@@ -106,14 +121,21 @@ class Proxy(proxy.Proxy):
         :param bool get_extra_specs: When set to ``True`` and extra_specs not
             present in the response will invoke additional API call to fetch
             extra_specs.
-
         :param kwargs query: Optional query parameters to be sent to limit
             the flavors being returned.
 
         :returns: One :class:`~openstack.compute.v2.flavor.Flavor` or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
         flavor = self._find(
-            _flavor.Flavor, name_or_id, ignore_missing=ignore_missing, **query)
+            _flavor.Flavor,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
         if flavor and get_extra_specs and not flavor.extra_specs:
             flavor = flavor.fetch_extra_specs(self)
         return flavor
@@ -325,11 +347,19 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the resource does not exist.  When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
+
         :returns: One :class:`~openstack.compute.v2.aggregate.Aggregate`
             or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_aggregate.Aggregate, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _aggregate.Aggregate,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def create_aggregate(self, **attrs):
         """Create a new host aggregate from attributes
@@ -463,15 +493,23 @@ class Proxy(proxy.Proxy):
             raised when the resource does not exist.
             When set to ``True``, None will be returned when
             attempting to find a nonexistent resource.
+
         :returns: One :class:`~openstack.compute.v2.image.Image` or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
         warnings.warn(
             'This API is a proxy to the image service and has been '
             'deprecated; use the image service proxy API instead',
             DeprecationWarning,
         )
-        return self._find(_image.Image, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _image.Image,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def get_image(self, image):
         """Get a single image
@@ -615,7 +653,7 @@ class Proxy(proxy.Proxy):
         attrs = {'user_id': user_id} if user_id else {}
         return self._get(_keypair.Keypair, keypair, **attrs)
 
-    def find_keypair(self, name_or_id, ignore_missing=True, user_id=None):
+    def find_keypair(self, name_or_id, ignore_missing=True, *, user_id=None):
         """Find a single keypair
 
         :param name_or_id: The name or ID of a keypair.
@@ -626,11 +664,18 @@ class Proxy(proxy.Proxy):
         :param str user_id: Optional user_id owning the keypair
 
         :returns: One :class:`~openstack.compute.v2.keypair.Keypair` or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
         attrs = {'user_id': user_id} if user_id else {}
-        return self._find(_keypair.Keypair, name_or_id,
-                          ignore_missing=ignore_missing,
-                          **attrs)
+        return self._find(
+            _keypair.Keypair,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **attrs,
+        )
 
     def keypairs(self, **query):
         """Return a generator of keypairs
@@ -690,20 +735,40 @@ class Proxy(proxy.Proxy):
         else:
             self._delete(_server.Server, server, ignore_missing=ignore_missing)
 
-    def find_server(self, name_or_id, ignore_missing=True):
+    def find_server(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        all_projects=False,
+    ):
         """Find a single server
 
         :param name_or_id: The name or ID of a server.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
-            raised when the resource does not exist.
-            When set to ``True``, None will be returned when
-            attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist. When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param bool all_projects: When set to ``True``, search for server
+            by name across all projects. Note that this will likely result in a
+            higher chance of duplicates. Admin-only by default.
+
         :returns: One :class:`~openstack.compute.v2.server.Server` or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_server.Server, name_or_id,
-                          ignore_missing=ignore_missing,
-                          list_base_path='/servers/detail')
+        query = {}
+        if all_projects:
+            query['all_projects'] = True
+        return self._find(
+            _server.Server,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path='/servers/detail',
+            **query,
+        )
 
     def get_server(self, server):
         """Get a single server
@@ -723,6 +788,8 @@ class Proxy(proxy.Proxy):
         :param bool details: When set to ``False``
             instances with only basic data will be returned. The default,
             ``True``, will cause instances with full data to be returned.
+        :param bool all_projects: When set to ``True``, lists servers from all
+            projects. Admin-only by default.
         :param kwargs query: Optional query parameters to be sent to limit
             the servers being returned. Available parameters can be seen
             under https://docs.openstack.org/api-ref/compute/#list-servers
@@ -1374,21 +1441,40 @@ class Proxy(proxy.Proxy):
         self._delete(_server_group.ServerGroup, server_group,
                      ignore_missing=ignore_missing)
 
-    def find_server_group(self, name_or_id, ignore_missing=True):
+    def find_server_group(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        all_projects=False,
+    ):
         """Find a single server group
 
         :param name_or_id: The name or ID of a server group.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
-            raised when the resource does not exist.
-            When set to ``True``, None will be returned when
-            attempting to find a nonexistent resource.
-        :returns:
-            One :class:`~openstack.compute.v2.server_group.ServerGroup` object
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist. When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param bool all_projects: When set to ``True``, search for server
+            groups by name across all projects. Note that this will likely
+            result in a higher chance of duplicates. Admin-only by default.
+
+        :returns: One :class:`~openstack.compute.v2.server_group.ServerGroup`
             or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_server_group.ServerGroup, name_or_id,
-                          ignore_missing=ignore_missing)
+        query = {}
+        if all_projects:
+            query['all_projects'] = True
+        return self._find(
+            _server_group.ServerGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_server_group(self, server_group):
         """Get a single server group
@@ -1404,21 +1490,25 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_server_group.ServerGroup, server_group)
 
-    def server_groups(self, **query):
+    def server_groups(self, *, all_projects=False, **query):
         """Return a generator of server groups
 
+        :param bool all_projects: When set to ``True``, lists servers groups
+            from all projects. Admin-only by default.
         :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned.
 
         :returns: A generator of ServerGroup objects
         :rtype: :class:`~openstack.compute.v2.server_group.ServerGroup`
         """
+        if all_projects:
+            query['all_projects'] = True
         return self._list(_server_group.ServerGroup, **query)
 
     # ========== Hypervisors ==========
 
     def hypervisors(self, details=False, **query):
-        """Return a generator of hypervisor
+        """Return a generator of hypervisors
 
         :param bool details: When set to the default, ``False``,
             :class:`~openstack.compute.v2.hypervisor.Hypervisor`
@@ -1438,20 +1528,36 @@ class Proxy(proxy.Proxy):
                 pattern=query.pop('hypervisor_hostname_pattern'))
         return self._list(_hypervisor.Hypervisor, base_path=base_path, **query)
 
-    def find_hypervisor(self, name_or_id, ignore_missing=True, details=True):
-        """Find a hypervisor from name or id to get the corresponding info
+    def find_hypervisor(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        details=True,
+    ):
+        """Find a single hypervisor
 
-        :param name_or_id: The name or id of a hypervisor
+        :param name_or_id: The name or ID of a hypervisor
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist. When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
 
-        :returns:
-            One: class:`~openstack.compute.v2.hypervisor.Hypervisor` object
+        :returns: One: class:`~openstack.compute.v2.hypervisor.Hypervisor`
             or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
 
         list_base_path = '/os-hypervisors/detail' if details else None
-        return self._find(_hypervisor.Hypervisor, name_or_id,
-                          list_base_path=list_base_path,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _hypervisor.Hypervisor,
+            name_or_id,
+            list_base_path=list_base_path,
+            ignore_missing=ignore_missing,
+        )
 
     def get_hypervisor(self, hypervisor):
         """Get a single hypervisor
@@ -1580,9 +1686,11 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :param dict query: Additional attributes like 'host'
 
-        :returns:
-            One: class:`~openstack.compute.v2.hypervisor.Hypervisor` object
-            or None
+        :returns: One: class:`~openstack.compute.v2.service.Service` or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
         return self._find(
             _service.Service,

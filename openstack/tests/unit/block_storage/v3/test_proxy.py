@@ -41,9 +41,15 @@ class TestVolume(TestVolumeProxy):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
     def test_volume_find(self):
-        self.verify_find(self.proxy.find_volume, volume.Volume,
-                         expected_kwargs=dict(
-                             list_base_path='/volumes/detail'))
+        self.verify_find(
+            self.proxy.find_volume,
+            volume.Volume,
+            method_kwargs={'all_projects': True},
+            expected_kwargs={
+                "list_base_path": "/volumes/detail",
+                "all_projects": True,
+            },
+        )
 
     def test_volumes_detailed(self):
         self.verify_list(
@@ -612,7 +618,12 @@ class TestSnapshot(TestVolumeProxy):
         self.verify_get(self.proxy.get_snapshot, snapshot.Snapshot)
 
     def test_snapshot_find(self):
-        self.verify_find(self.proxy.find_snapshot, snapshot.Snapshot)
+        self.verify_find(
+            self.proxy.find_snapshot,
+            snapshot.Snapshot,
+            method_kwargs={'all_projects': True},
+            expected_kwargs={'all_projects': True},
+        )
 
     def test_snapshots_detailed(self):
         self.verify_list(

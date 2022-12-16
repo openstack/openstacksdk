@@ -23,8 +23,9 @@ from openstack.tests.unit import test_proxy_base
 
 
 class TestVolumeProxy(test_proxy_base.TestProxyBase):
+
     def setUp(self):
-        super(TestVolumeProxy, self).setUp()
+        super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 
@@ -34,18 +35,31 @@ class TestVolume(TestVolumeProxy):
         self.verify_get(self.proxy.get_volume, volume.Volume)
 
     def test_volume_find(self):
-        self.verify_find(self.proxy.find_volume, volume.Volume)
+        self.verify_find(
+            self.proxy.find_volume,
+            volume.Volume,
+            method_kwargs={'all_projects': True},
+            expected_kwargs={'all_projects': True},
+        )
 
     def test_volumes_detailed(self):
-        self.verify_list(self.proxy.volumes, volume.Volume,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1,
-                                          "base_path": "/volumes/detail"})
+        self.verify_list(
+            self.proxy.volumes,
+            volume.Volume,
+            method_kwargs={"details": True, "all_projects": True},
+            expected_kwargs={
+                "base_path": "/volumes/detail",
+                "all_projects": True,
+            }
+        )
 
     def test_volumes_not_detailed(self):
-        self.verify_list(self.proxy.volumes, volume.Volume,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.volumes,
+            volume.Volume,
+            method_kwargs={"details": False, "all_projects": True},
+            expected_kwargs={"all_projects": True},
+        )
 
     def test_volume_create_attrs(self):
         self.verify_create(self.proxy.create_volume, volume.Volume)
@@ -197,6 +211,7 @@ class TestVolumeActions(TestVolumeProxy):
 
 
 class TestBackup(TestVolumeProxy):
+
     def test_backups_detailed(self):
         self.verify_list(
             self.proxy.backups,
@@ -257,21 +272,33 @@ class TestBackup(TestVolumeProxy):
 
 
 class TestSnapshot(TestVolumeProxy):
+
     def test_snapshot_get(self):
         self.verify_get(self.proxy.get_snapshot, snapshot.Snapshot)
 
     def test_snapshot_find(self):
-        self.verify_find(self.proxy.find_snapshot, snapshot.Snapshot)
+        self.verify_find(
+            self.proxy.find_snapshot,
+            snapshot.Snapshot,
+            method_kwargs={'all_projects': True},
+            expected_kwargs={'all_projects': True},
+        )
 
     def test_snapshots_detailed(self):
-        self.verify_list(self.proxy.snapshots, snapshot.SnapshotDetail,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.snapshots,
+            snapshot.SnapshotDetail,
+            method_kwargs={"details": True, "all_projects": True},
+            expected_kwargs={"all_projects": True},
+        )
 
     def test_snapshots_not_detailed(self):
-        self.verify_list(self.proxy.snapshots, snapshot.Snapshot,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.snapshots,
+            snapshot.Snapshot,
+            method_kwargs={"details": False, "all_projects": True},
+            expected_kwargs={"all_projects": 1},
+        )
 
     def test_snapshot_create_attrs(self):
         self.verify_create(self.proxy.create_snapshot, snapshot.Snapshot)
@@ -325,6 +352,7 @@ class TestSnapshot(TestVolumeProxy):
 
 
 class TestType(TestVolumeProxy):
+
     def test_type_get(self):
         self.verify_get(self.proxy.get_type, type.Type)
 
@@ -363,6 +391,7 @@ class TestType(TestVolumeProxy):
 
 
 class TestQuota(TestVolumeProxy):
+
     def test_get(self):
         self._verify(
             'openstack.resource.Resource.fetch',

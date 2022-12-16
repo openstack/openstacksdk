@@ -196,9 +196,11 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_cron_trigger.CronTrigger, cron_trigger)
 
-    def cron_triggers(self, **query):
+    def cron_triggers(self, *, all_projects=False, **query):
         """Retrieve a generator of cron triggers
 
+        :param bool all_projects: When set to ``True``, list cron triggers from
+            all projects. Admin-only by default.
         :param kwargs query: Optional query parameters to be sent to
             restrict the cron triggers to be returned. Available parameters
             include:
@@ -212,6 +214,8 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of CronTrigger instances.
         """
+        if all_projects:
+            query['all_projects'] = True
         return self._list(_cron_trigger.CronTrigger, **query)
 
     def delete_cron_trigger(self, value, ignore_missing=True):
@@ -231,17 +235,39 @@ class Proxy(proxy.Proxy):
         return self._delete(_cron_trigger.CronTrigger, value,
                             ignore_missing=ignore_missing)
 
-    def find_cron_trigger(self, name_or_id, ignore_missing=True):
+    # TODO(stephenfin): Drop 'query' parameter or apply it consistently
+    def find_cron_trigger(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        all_projects=False,
+        **query,
+    ):
         """Find a single cron trigger
 
         :param name_or_id: The name or ID of a cron trigger.
         :param bool ignore_missing: When set to ``False``
-            :class:`~openstack.exceptions.ResourceNotFound` will be
-            raised when the resource does not exist.
-            When set to ``True``, None will be returned when
-            attempting to find a nonexistent resource.
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the resource does not exist. When set to ``True``, None will be
+            returned when attempting to find a nonexistent resource.
+        :param bool all_projects: When set to ``True``, search for cron
+            triggers by name across all projects. Note that this will likely
+            result in a higher chance of duplicates.
+        :param kwargs query: Optional query parameters to be sent to limit
+            the cron triggers being returned.
+
         :returns: One :class:`~openstack.compute.v2.cron_trigger.CronTrigger`
             or None
+        :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
+            resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_cron_trigger.CronTrigger, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _cron_trigger.CronTrigger,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            all_projects=all_projects,
+            **query,
+        )

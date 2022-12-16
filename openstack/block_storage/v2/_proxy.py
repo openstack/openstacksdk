@@ -37,7 +37,13 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_snapshot.Snapshot, snapshot)
 
-    def find_snapshot(self, name_or_id, ignore_missing=True):
+    def find_snapshot(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        all_projects=False,
+    ):
         """Find a single snapshot
 
         :param snapshot: The name or ID a snapshot
@@ -45,6 +51,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the snapshot does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
+        :param bool all_projects: When set to ``True``, search for snapshot by
+            name across all projects. Note that this will likely result in
+            a higher chance of duplicates. Admin-only by default.
 
         :returns: One :class:`~openstack.block_storage.v2.snapshot.Snapshot` or
             None.
@@ -53,13 +62,17 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
         """
+        query = {}
+        if all_projects:
+            query['all_projects'] = True
         return self._find(
             _snapshot.Snapshot,
             name_or_id,
             ignore_missing=ignore_missing,
+            **query,
         )
 
-    def snapshots(self, details=True, **query):
+    def snapshots(self, *, details=True, all_projects=False, **query):
         """Retrieve a generator of snapshots
 
         :param bool details: When set to ``False``
@@ -67,17 +80,20 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             objects will be returned. The default, ``True``, will cause
             :class:`~openstack.block_storage.v2.snapshot.SnapshotDetail`
             objects to be returned.
+        :param bool all_projects: When set to ``True``, list snapshots from all
+            projects. Admin-only by default.
         :param kwargs query: Optional query parameters to be sent to limit
             the snapshots being returned.  Available parameters include:
 
             * name: Name of the snapshot as a string.
-            * all_projects: Whether return the snapshots in all projects.
             * volume_id: volume id of a snapshot.
             * status: Value of the status of the snapshot so that you can
               filter on "available" for example.
 
         :returns: A generator of snapshot objects.
         """
+        if all_projects:
+            query['all_projects'] = True
         base_path = '/snapshots/detail' if details else None
         return self._list(_snapshot.Snapshot, base_path=base_path, **query)
 
@@ -221,37 +237,59 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_volume.Volume, volume)
 
-    def find_volume(self, name_or_id, ignore_missing=True):
+    def find_volume(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        all_projects=False,
+    ):
         """Find a single volume
 
-        :param snapshot: The name or ID a volume
+        :param volume: The name or ID a volume
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the volume does not exist.
+        :param bool all_projects: When set to ``True``, search for volume by
+            name across all projects. Note that this will likely result in
+            a higher chance of duplicates. Admin-only by default.
 
-        :returns: One :class:`~openstack.block_storage.v2.volume.Volume`
+        :returns: One :class:`~openstack.block_storage.v2.volume.Volume` or
+            None.
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_volume.Volume, name_or_id,
-                          ignore_missing=ignore_missing)
+        query = {}
+        if all_projects:
+            query['all_projects'] = True
+        return self._find(
+            _volume.Volume,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
-    def volumes(self, details=True, **query):
+    def volumes(self, *, details=True, all_projects=False, **query):
         """Retrieve a generator of volumes
 
         :param bool details: When set to ``False`` no extended attributes
             will be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
+        :param bool all_projects: When set to ``True``, list volumes from all
+            projects. Admin-only by default.
         :param kwargs query: Optional query parameters to be sent to limit
             the volumes being returned.  Available parameters include:
 
             * name: Name of the volume as a string.
-            * all_projects: Whether return the volumes in all projects
             * status: Value of the status of the volume so that you can filter
               on "available" for example.
 
         :returns: A generator of volume objects.
         """
+        if all_projects:
+            query['all_projects'] = True
         base_path = '/volumes/detail' if details else None
         return self._list(_volume.Volume, base_path=base_path, **query)
 

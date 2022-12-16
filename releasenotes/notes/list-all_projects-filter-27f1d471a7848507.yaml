@@ -1,0 +1,33 @@
+---
+features:
+  - |
+    A number of APIs support passing an admin-only ``all_projects`` filter when
+    listing certain resources, allowing you to retrieve resources from all
+    projects rather than just the current projects. This filter is now
+    explicitly supported at the proxy layer for services and resources that
+    support it. These are:
+
+    * Block storage (v2)
+
+      * ``find_snapshot``
+      * ``snapshots``
+      * ``find_volume``
+      * ``volumes``
+
+    * Block storage (v3)
+
+      * ``find_snapshot``
+      * ``snapshots``
+      * ``find_volume``
+      * ``volumes``
+
+    * Compute (v2)
+
+      * ``find_server``
+      * ``find_server_group``
+      * ``server_groups``
+
+    * Workflow (v2)
+
+      * ``find_cron_triggers``
+      * ``cron_triggers``
