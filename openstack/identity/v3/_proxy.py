@@ -348,7 +348,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_group.Group, group, ignore_missing=ignore_missing)
 
-    def find_group(self, name_or_id, ignore_missing=True, **kwargs):
+    def find_group(self, name_or_id, ignore_missing=True, **query):
         """Find a single group
 
         :param name_or_id: The name or ID of a group.
@@ -359,9 +359,12 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.group.Group` or None
         """
-        return self._find(_group.Group, name_or_id,
-                          ignore_missing=ignore_missing,
-                          **kwargs)
+        return self._find(
+            _group.Group,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_group(self, group):
         """Get a single group
@@ -560,7 +563,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_project.Project, project, ignore_missing=ignore_missing)
 
-    def find_project(self, name_or_id, ignore_missing=True, **attrs):
+    def find_project(self, name_or_id, ignore_missing=True, **query):
         """Find a single project
 
         :param name_or_id: The name or ID of a project.
@@ -571,8 +574,12 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.project.Project` or None
         """
-        return self._find(_project.Project, name_or_id,
-                          ignore_missing=ignore_missing, **attrs)
+        return self._find(
+            _project.Project,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_project(self, project):
         """Get a single project
@@ -731,7 +738,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_user.User, user, ignore_missing=ignore_missing)
 
-    def find_user(self, name_or_id, ignore_missing=True, **attrs):
+    def find_user(self, name_or_id, ignore_missing=True, **query):
         """Find a single user
 
         :param name_or_id: The name or ID of a user.
@@ -742,8 +749,12 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.identity.v3.user.User` or None
         """
-        return self._find(_user.User, name_or_id,
-                          ignore_missing=ignore_missing, **attrs)
+        return self._find(
+            _user.User,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_user(self, user):
         """Get a single user
@@ -952,7 +963,7 @@ class Proxy(proxy.Proxy):
         """
         self._delete(_role.Role, role, ignore_missing=ignore_missing)
 
-    def find_role(self, name_or_id, ignore_missing=True, **kwargs):
+    def find_role(self, name_or_id, ignore_missing=True, **query):
         """Find a single role
 
         :param name_or_id: The name or ID of a role.
@@ -963,9 +974,12 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent role.
         :returns: One :class:`~openstack.identity.v3.role.Role` or None
         """
-        return self._find(_role.Role, name_or_id,
-                          ignore_missing=ignore_missing,
-                          **kwargs)
+        return self._find(
+            _role.Role,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def get_role(self, role):
         """Get a single role
@@ -1574,8 +1588,13 @@ class Proxy(proxy.Proxy):
                             name=name,
                             user_id=user.id, **attrs)
 
-    def find_application_credential(self, user, name_or_id,
-                                    ignore_missing=True, **args):
+    def find_application_credential(
+        self,
+        user,
+        name_or_id,
+        ignore_missing=True,
+        **query,
+    ):
         """Find a single application credential
 
         :param user: Either the ID of a user or a
@@ -1592,9 +1611,13 @@ class Proxy(proxy.Proxy):
             or None
         """
         user = self._get_resource(_user.User, user)
-        return self._find(_application_credential.ApplicationCredential,
-                          user_id=user.id, name_or_id=name_or_id,
-                          ignore_missing=ignore_missing, **args)
+        return self._find(
+            _application_credential.ApplicationCredential,
+            user_id=user.id,
+            name_or_id=name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def delete_application_credential(self, user, application_credential,
                                       ignore_missing=True):
@@ -1673,8 +1696,7 @@ class Proxy(proxy.Proxy):
         self._delete(cls, protocol,
                      ignore_missing=ignore_missing, idp_id=idp_id)
 
-    def find_federation_protocol(self, idp_id, protocol,
-                                 ignore_missing=True):
+    def find_federation_protocol(self, idp_id, protocol, ignore_missing=True):
         """Find a single federation protocol
 
         :param idp_id: The ID of the identity provider or a

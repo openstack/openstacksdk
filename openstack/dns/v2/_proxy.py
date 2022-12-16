@@ -97,7 +97,7 @@ class Proxy(proxy.Proxy):
         """
         return self._update(_zone.Zone, zone, **attrs)
 
-    def find_zone(self, name_or_id, ignore_missing=True, **attrs):
+    def find_zone(self, name_or_id, ignore_missing=True):
         """Find a single zone
 
         :param name_or_id: The name or ID of a zone
@@ -225,7 +225,7 @@ class Proxy(proxy.Proxy):
         return self._delete(_rs.Recordset, recordset,
                             ignore_missing=ignore_missing)
 
-    def find_recordset(self, zone, name_or_id, ignore_missing=True, **attrs):
+    def find_recordset(self, zone, name_or_id, ignore_missing=True, **query):
         """Find a single recordset
 
         :param zone: The value can be the ID of a zone
@@ -240,9 +240,13 @@ class Proxy(proxy.Proxy):
         :returns: :class:`~openstack.dns.v2.recordset.Recordset`
         """
         zone = self._get_resource(_zone.Zone, zone)
-        return self._find(_rs.Recordset, name_or_id,
-                          ignore_missing=ignore_missing, zone_id=zone.id,
-                          **attrs)
+        return self._find(
+            _rs.Recordset,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            zone_id=zone.id,
+            **query,
+        )
 
     # ======== Zone Imports ========
     def zone_imports(self, **query):

@@ -62,7 +62,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_snapshot.Snapshot, snapshot)
 
-    def find_snapshot(self, name_or_id, ignore_missing=True, **attrs):
+    def find_snapshot(self, name_or_id, ignore_missing=True):
         """Find a single snapshot
 
         :param snapshot: The name or ID a snapshot
@@ -231,7 +231,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_type.Type, type)
 
-    def find_type(self, name_or_id, ignore_missing=True, **attrs):
+    def find_type(self, name_or_id, ignore_missing=True):
         """Find a single volume type
 
         :param snapshot: The name or ID a volume type
@@ -469,7 +469,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_volume.Volume, volume)
 
-    def find_volume(self, name_or_id, ignore_missing=True, **attrs):
+    def find_volume(self, name_or_id, ignore_missing=True):
         """Find a single volume
 
         :param snapshot: The name or ID a volume
@@ -910,7 +910,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_backup.Backup, backup)
 
-    def find_backup(self, name_or_id, ignore_missing=True, **attrs):
+    def find_backup(self, name_or_id, ignore_missing=True):
         """Find a single backup
 
         :param snapshot: The name or ID a backup
@@ -1021,7 +1021,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_group.Group, group_id, **attrs)
 
-    def find_group(self, name_or_id, ignore_missing=True, **attrs):
+    def find_group(self, name_or_id, ignore_missing=True):
         """Find a single group
 
         :param name_or_id: The name or ID of a group.

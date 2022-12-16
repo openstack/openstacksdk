@@ -1551,18 +1551,27 @@ class Proxy(proxy.Proxy):
         """
         return self._list(_service.Service, **query)
 
-    def find_service(self, name_or_id, ignore_missing=True, **attrs):
+    def find_service(self, name_or_id, ignore_missing=True, **query):
         """Find a service from name or id to get the corresponding info
 
         :param name_or_id: The name or id of a service
-        :param dict attrs: Additional attributes like 'host'
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Additional attributes like 'host'
 
         :returns:
             One: class:`~openstack.compute.v2.hypervisor.Hypervisor` object
             or None
         """
-        return self._find(_service.Service, name_or_id,
-                          ignore_missing=ignore_missing, **attrs)
+        return self._find(
+            _service.Service,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
     def delete_service(self, service, ignore_missing=True):
         """Delete a service
@@ -1572,9 +1581,8 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.compute.v2.service.Service` instance.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
-            the volume attachment does not exist.  When set to ``True``, no
-            exception will be set when attempting to delete a nonexistent
-            volume attachment.
+            the service does not exist.  When set to ``True``, no exception
+            will be set when attempting to delete a nonexistent service.
 
         :returns: ``None``
         """
