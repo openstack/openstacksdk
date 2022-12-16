@@ -220,6 +220,9 @@ class TestBackup(TestVolumeProxy):
         self.proxy._connection.has_service = mock.Mock(return_value=True)
         self.verify_get(self.proxy.get_backup, backup.Backup)
 
+    def test_backup_find(self):
+        self.verify_find(self.proxy.find_backup, backup.Backup)
+
     def test_backup_delete(self):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
@@ -271,6 +274,9 @@ class TestBackup(TestVolumeProxy):
 class TestSnapshot(TestVolumeProxy):
     def test_snapshot_get(self):
         self.verify_get(self.proxy.get_snapshot, snapshot.Snapshot)
+
+    def test_snapshot_find(self):
+        self.verify_find(self.proxy.find_snapshot, snapshot.Snapshot)
 
     def test_snapshots_detailed(self):
         self.verify_list(self.proxy.snapshots, snapshot.SnapshotDetail,

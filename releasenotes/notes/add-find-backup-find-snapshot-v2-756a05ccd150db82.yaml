@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``find_snapshot`` and ``find_backup`` methods have been added to the
+    v2 block storage proxy API. These were previously only available for the v3
+    proxy API.
