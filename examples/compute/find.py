@@ -23,7 +23,7 @@ https://docs.openstack.org/openstacksdk/latest/user/guides/compute.html
 def find_image(conn):
     print("Find Image:")
 
-    image = conn.compute.find_image(examples.connect.IMAGE_NAME)
+    image = conn.image.find_image(examples.connect.IMAGE_NAME)
 
     print(image)
 

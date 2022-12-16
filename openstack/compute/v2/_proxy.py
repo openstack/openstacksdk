@@ -447,6 +447,11 @@ class Proxy(proxy.Proxy):
 
         :returns: ``None``
         """
+        warnings.warn(
+            'This API is a proxy to the image service and has been '
+            'deprecated; use the image service proxy API instead',
+            DeprecationWarning,
+        )
         self._delete(_image.Image, image, ignore_missing=ignore_missing)
 
     def find_image(self, name_or_id, ignore_missing=True):
@@ -460,6 +465,11 @@ class Proxy(proxy.Proxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.compute.v2.image.Image` or None
         """
+        warnings.warn(
+            'This API is a proxy to the image service and has been '
+            'deprecated; use the image service proxy API instead',
+            DeprecationWarning,
+        )
         return self._find(_image.Image, name_or_id,
                           ignore_missing=ignore_missing)
 
@@ -473,6 +483,11 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         """
+        warnings.warn(
+            'This API is a proxy to the image service and has been '
+            'deprecated; use the image service proxy API instead',
+            DeprecationWarning,
+        )
         return self._get(_image.Image, image)
 
     def images(self, details=True, **query):
@@ -487,8 +502,11 @@ class Proxy(proxy.Proxy):
 
         :returns: A generator of image objects
         """
-        warnings.warn('This API is deprecated and may disappear shortly',
-                      DeprecationWarning)
+        warnings.warn(
+            'This API is a proxy to the image service and has been '
+            'deprecated; use the image service proxy API instead',
+            DeprecationWarning,
+        )
         base_path = '/images/detail' if details else None
         return self._list(_image.Image, base_path=base_path, **query)
 
