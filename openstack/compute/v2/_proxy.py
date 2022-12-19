@@ -1099,6 +1099,16 @@ class Proxy(proxy.Proxy):
         server = self._get_resource(_server.Server, server)
         server.stop(self)
 
+    def restore_server(self, server):
+        """Restore a soft-deleted server.
+
+        :param server: Either the ID of a server or a
+            :class:`~openstack.compute.v2.server.Server` instance.
+        :returns: None
+        """
+        server = self._get_resource(_server.Server, server)
+        server.restore(self)
+
     def shelve_server(self, server):
         """Shelves a server.
 
@@ -1115,7 +1125,7 @@ class Proxy(proxy.Proxy):
         server.shelve(self)
 
     def unshelve_server(self, server):
-        """Unselves or restores a shelved server.
+        """Unshelves or restores a shelved server.
 
         Policy defaults enable only users with administrative role or the
         owner of the server to perform this operation. Cloud provides could

@@ -39,9 +39,9 @@ Starting, Stopping, etc.
 .. autoclass:: openstack.compute.v2._proxy.Proxy
   :noindex:
   :members: start_server, stop_server, suspend_server, resume_server,
-            reboot_server, shelve_server, unshelve_server, lock_server,
-            unlock_server, pause_server, unpause_server, rescue_server,
-            unrescue_server, evacuate_server, migrate_server,
+            reboot_server, restore_server, shelve_server, unshelve_server,
+            lock_server, unlock_server, pause_server, unpause_server,
+            rescue_server, unrescue_server, evacuate_server, migrate_server,
             get_server_console_output, live_migrate_server
 
 Modifying a Server

@@ -1096,6 +1096,13 @@ class TestCompute(TestComputeProxy):
             method_args=["value"],
             expected_args=[self.proxy])
 
+    def test_server_restore(self):
+        self._verify(
+            "openstack.compute.v2.server.Server.restore",
+            self.proxy.restore_server,
+            method_args=["value"],
+            expected_args=[self.proxy])
+
     def test_server_shelve(self):
         self._verify(
             "openstack.compute.v2.server.Server.shelve",

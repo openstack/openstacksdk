@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    The ``openstack.compute.v2.server.Server`` object now provides a
+    ``restore`` method to restore it from a soft-deleted state, while the
+    compute proxy method provides an equivalent ``restore_server`` method.

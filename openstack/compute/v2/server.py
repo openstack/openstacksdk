@@ -487,6 +487,10 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         body = {"os-stop": None}
         self._action(session, body)
 
+    def restore(self, session):
+        body = {"restore": None}
+        self._action(session, body)
+
     def shelve(self, session):
         body = {"shelve": None}
         self._action(session, body)

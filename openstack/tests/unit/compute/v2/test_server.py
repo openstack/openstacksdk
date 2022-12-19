@@ -835,6 +835,20 @@ class TestServer(base.TestCase):
             microversion=self.sess.default_microversion,
         )
 
+    def test_restore(self):
+        sot = server.Server(**EXAMPLE)
+
+        res = sot.restore(self.sess)
+
+        self.assertIsNone(res)
+        url = 'servers/IDENTIFIER/action'
+        body = {'restore': None}
+        headers = {'Accept': ''}
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers,
+            microversion=self.sess.default_microversion,
+        )
+
     def test_shelve(self):
         sot = server.Server(**EXAMPLE)
 
