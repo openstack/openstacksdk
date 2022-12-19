@@ -39,7 +39,10 @@ class TestVolume(TestVolumeProxy):
             self.proxy.find_volume,
             volume.Volume,
             method_kwargs={'all_projects': True},
-            expected_kwargs={'all_projects': True},
+            expected_kwargs={
+                'list_base_path': '/volumes/detail',
+                'all_projects': True,
+            },
         )
 
     def test_volumes_detailed(self):
@@ -232,7 +235,11 @@ class TestBackup(TestVolumeProxy):
         self.verify_get(self.proxy.get_backup, backup.Backup)
 
     def test_backup_find(self):
-        self.verify_find(self.proxy.find_backup, backup.Backup)
+        self.verify_find(
+            self.proxy.find_backup,
+            backup.Backup,
+            expected_kwargs={'list_base_path': '/backups/detail'},
+        )
 
     def test_backup_delete(self):
         self.verify_delete(self.proxy.delete_backup, backup.Backup, False)
@@ -281,7 +288,10 @@ class TestSnapshot(TestVolumeProxy):
             self.proxy.find_snapshot,
             snapshot.Snapshot,
             method_kwargs={'all_projects': True},
-            expected_kwargs={'all_projects': True},
+            expected_kwargs={
+                'list_base_path': '/snapshots/detail',
+                'all_projects': True,
+            },
         )
 
     def test_snapshots_detailed(self):

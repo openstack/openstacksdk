@@ -158,7 +158,11 @@ class TestGroup(TestVolumeProxy):
         self.verify_get(self.proxy.get_group, group.Group)
 
     def test_group_find(self):
-        self.verify_find(self.proxy.find_group, group.Group)
+        self.verify_find(
+            self.proxy.find_group,
+            group.Group,
+            expected_kwargs={'list_base_path': '/groups/detail'},
+        )
 
     def test_groups(self):
         self.verify_list(self.proxy.groups, group.Group)
@@ -198,7 +202,11 @@ class TestGroupSnapshot(TestVolumeProxy):
 
     def test_group_snapshot_find(self):
         self.verify_find(
-            self.proxy.find_group_snapshot, group_snapshot.GroupSnapshot
+            self.proxy.find_group_snapshot,
+            group_snapshot.GroupSnapshot,
+            expected_kwargs={
+                'list_base_path': '/group_snapshots/detail',
+            },
         )
 
     def test_group_snapshots(self):
@@ -562,7 +570,11 @@ class TestBackup(TestVolumeProxy):
         # NOTE: mock has_service
         self.proxy._connection = mock.Mock()
         self.proxy._connection.has_service = mock.Mock(return_value=True)
-        self.verify_find(self.proxy.find_backup, backup.Backup)
+        self.verify_find(
+            self.proxy.find_backup,
+            backup.Backup,
+            expected_kwargs={'list_base_path': '/backups/detail'},
+        )
 
     def test_backup_delete(self):
         # NOTE: mock has_service
@@ -622,7 +634,10 @@ class TestSnapshot(TestVolumeProxy):
             self.proxy.find_snapshot,
             snapshot.Snapshot,
             method_kwargs={'all_projects': True},
-            expected_kwargs={'all_projects': True},
+            expected_kwargs={
+                'list_base_path': '/snapshots/detail',
+                'all_projects': True,
+            },
         )
 
     def test_snapshots_detailed(self):

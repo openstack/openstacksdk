@@ -60,7 +60,11 @@ class TestChassis(TestBaremetalProxy):
         self.verify_create(self.proxy.create_chassis, chassis.Chassis)
 
     def test_find_chassis(self):
-        self.verify_find(self.proxy.find_chassis, chassis.Chassis)
+        self.verify_find(
+            self.proxy.find_chassis,
+            chassis.Chassis,
+            expected_kwargs={'list_base_path': '/chassis/detail'},
+        )
 
     def test_get_chassis(self):
         self.verify_get(self.proxy.get_chassis, chassis.Chassis,
@@ -94,7 +98,11 @@ class TestNode(TestBaremetalProxy):
         self.verify_create(self.proxy.create_node, node.Node)
 
     def test_find_node(self):
-        self.verify_find(self.proxy.find_node, node.Node)
+        self.verify_find(
+            self.proxy.find_node,
+            node.Node,
+            expected_kwargs={'list_base_path': '/nodes/detail'},
+        )
 
     def test_get_node(self):
         self.verify_get(self.proxy.get_node, node.Node,
@@ -140,7 +148,11 @@ class TestPort(TestBaremetalProxy):
         self.verify_create(self.proxy.create_port, port.Port)
 
     def test_find_port(self):
-        self.verify_find(self.proxy.find_port, port.Port)
+        self.verify_find(
+            self.proxy.find_port,
+            port.Port,
+            expected_kwargs={'list_base_path': '/ports/detail'},
+        )
 
     def test_get_port(self):
         self.verify_get(self.proxy.get_port, port.Port,

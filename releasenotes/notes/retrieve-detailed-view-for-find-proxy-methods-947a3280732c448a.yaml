@@ -1,0 +1,32 @@
+---
+features:
+  - |
+    The following proxy ``find_*`` operations will now retrieve a detailed
+    resource by default when retrieving by name:
+
+    * Bare metal (v1)
+
+      * ``find_chassis``
+      * ``find_node``
+      * ``find_port``
+      * ``find_port_group``
+
+    * Block storage (v2)
+
+      * ``find_volume``
+      * ``find_snapshot``
+      * ``find_backup``
+
+    * Block storage (v3)
+
+      * ``find_volume``
+      * ``find_snapshot``
+      * ``find_backup``
+      * ``find_group``
+      * ``find_group_snapshot``
+
+    * Compute (v2)
+
+      * ``find_image``
+      * ``find_server``
+      * ``find_hypervisor``

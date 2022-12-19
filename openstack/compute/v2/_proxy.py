@@ -484,6 +484,8 @@ class Proxy(proxy.Proxy):
         )
         self._delete(_image.Image, image, ignore_missing=ignore_missing)
 
+    # NOTE(stephenfin): We haven't added 'details' support here since this
+    # method is deprecated
     def find_image(self, name_or_id, ignore_missing=True):
         """Find a single image
 
@@ -740,6 +742,7 @@ class Proxy(proxy.Proxy):
         name_or_id,
         ignore_missing=True,
         *,
+        details=True,
         all_projects=False,
     ):
         """Find a single server
@@ -749,6 +752,9 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the resource does not exist. When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
+        :param bool details: When set to ``False``
+            instances with only basic data will be returned. The default,
+            ``True``, will cause instances with full data to be returned.
         :param bool all_projects: When set to ``True``, search for server
             by name across all projects. Note that this will likely result in a
             higher chance of duplicates. Admin-only by default.
@@ -762,11 +768,12 @@ class Proxy(proxy.Proxy):
         query = {}
         if all_projects:
             query['all_projects'] = True
+        list_base_path = '/servers/detail' if details else None
         return self._find(
             _server.Server,
             name_or_id,
             ignore_missing=ignore_missing,
-            list_base_path='/servers/detail',
+            list_base_path=list_base_path,
             **query,
         )
 
@@ -1515,6 +1522,7 @@ class Proxy(proxy.Proxy):
             instances will be returned with only basic information populated.
         :param kwargs query: Optional query parameters to be sent to limit
             the resources being returned.
+
         :returns: A generator of hypervisor
         :rtype: class: `~openstack.compute.v2.hypervisor.Hypervisor`
         """
@@ -1542,6 +1550,9 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
             the resource does not exist. When set to ``True``, None will be
             returned when attempting to find a nonexistent resource.
+        :param bool details: When set to ``False``
+            instances with only basic data will be returned. The default,
+            ``True``, will cause instances with full data to be returned.
 
         :returns: One: class:`~openstack.compute.v2.hypervisor.Hypervisor`
             or None
@@ -1550,7 +1561,6 @@ class Proxy(proxy.Proxy):
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
         """
-
         list_base_path = '/os-hypervisors/detail' if details else None
         return self._find(
             _hypervisor.Hypervisor,
