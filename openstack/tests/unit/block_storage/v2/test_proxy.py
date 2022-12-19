@@ -198,41 +198,31 @@ class TestVolumeActions(TestVolumeProxy):
 
 class TestBackup(TestVolumeProxy):
     def test_backups_detailed(self):
-        # NOTE: mock has_service
-        self.proxy._connection = mock.Mock()
-        self.proxy._connection.has_service = mock.Mock(return_value=True)
-        self.verify_list(self.proxy.backups, backup.Backup,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1,
-                                          "base_path": "/backups/detail"})
+        self.verify_list(
+            self.proxy.backups,
+            backup.Backup,
+            method_kwargs={"details": True, "query": 1},
+            expected_kwargs={"query": 1, "base_path": "/backups/detail"},
+        )
 
     def test_backups_not_detailed(self):
-        # NOTE: mock has_service
-        self.proxy._connection = mock.Mock()
-        self.proxy._connection.has_service = mock.Mock(return_value=True)
-        self.verify_list(self.proxy.backups, backup.Backup,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+        self.verify_list(
+            self.proxy.backups,
+            backup.Backup,
+            method_kwargs={"details": False, "query": 1},
+            expected_kwargs={"query": 1},
+        )
 
     def test_backup_get(self):
-        # NOTE: mock has_service
-        self.proxy._connection = mock.Mock()
-        self.proxy._connection.has_service = mock.Mock(return_value=True)
         self.verify_get(self.proxy.get_backup, backup.Backup)
 
     def test_backup_find(self):
         self.verify_find(self.proxy.find_backup, backup.Backup)
 
     def test_backup_delete(self):
-        # NOTE: mock has_service
-        self.proxy._connection = mock.Mock()
-        self.proxy._connection.has_service = mock.Mock(return_value=True)
         self.verify_delete(self.proxy.delete_backup, backup.Backup, False)
 
     def test_backup_delete_ignore(self):
-        # NOTE: mock has_service
-        self.proxy._connection = mock.Mock()
-        self.proxy._connection.has_service = mock.Mock(return_value=True)
         self.verify_delete(self.proxy.delete_backup, backup.Backup, True)
 
     def test_backup_delete_force(self):
@@ -245,15 +235,9 @@ class TestBackup(TestVolumeProxy):
         )
 
     def test_backup_create_attrs(self):
-        # NOTE: mock has_service
-        self.proxy._connection = mock.Mock()
-        self.proxy._connection.has_service = mock.Mock(return_value=True)
         self.verify_create(self.proxy.create_backup, backup.Backup)
 
     def test_backup_restore(self):
-        # NOTE: mock has_service
-        self.proxy._connection = mock.Mock()
-        self.proxy._connection.has_service = mock.Mock(return_value=True)
         self._verify(
             'openstack.block_storage.v2.backup.Backup.restore',
             self.proxy.restore_backup,
@@ -268,7 +252,8 @@ class TestBackup(TestVolumeProxy):
             "openstack.block_storage.v2.backup.Backup.reset",
             self.proxy.reset_backup,
             method_args=["value", "new_status"],
-            expected_args=[self.proxy, "new_status"])
+            expected_args=[self.proxy, "new_status"],
+        )
 
 
 class TestSnapshot(TestVolumeProxy):
