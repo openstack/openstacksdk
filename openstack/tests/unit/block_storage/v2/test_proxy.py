@@ -121,6 +121,7 @@ class TestVolume(TestVolumeProxy):
             self.proxy.wait_for_status,
             method_args=[value],
             expected_args=[self.proxy, value, 'available', ['error'], 2, 120],
+            expected_kwargs={'callback': None},
         )
 
 

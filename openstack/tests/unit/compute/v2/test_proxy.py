@@ -963,6 +963,7 @@ class TestCompute(TestComputeProxy):
             self.proxy.wait_for_server,
             method_args=[value],
             expected_args=[self.proxy, value, 'ACTIVE', ['ERROR'], 2, 120],
+            expected_kwargs={'callback': None},
         )
 
     def test_server_resize(self):

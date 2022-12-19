@@ -12,6 +12,7 @@
 
 import itertools
 import json
+import logging
 from unittest import mock
 
 from keystoneauth1 import adapter
@@ -3421,14 +3422,57 @@ class TestResourceFind(base.TestCase):
             )
 
 
-class TestWaitForStatus(base.TestCase):
+class TestWait(base.TestCase):
+    def setUp(self):
+        super().setUp()
+
+        handler = logging.StreamHandler(self._log_stream)
+        formatter = logging.Formatter('%(asctime)s %(name)-32s %(message)s')
+        handler.setFormatter(formatter)
+
+        logger = logging.getLogger('openstack.iterate_timeout')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
+
+    @staticmethod
+    def _fake_resource(statuses=None, progresses=None, *, attribute='status'):
+        if statuses is None:
+            statuses = ['building', 'building', 'building', 'active']
+
+        def fetch(*args, **kwargs):
+            # when we get to the last status, keep returning that
+            if statuses:
+                setattr(fake_resource, attribute, statuses.pop(0))
+
+            if progresses:
+                fake_resource.progress = progresses.pop(0)
+
+            return fake_resource
+
+        spec = ['id', attribute, 'fetch']
+        if progresses:
+            spec.append('progress')
+
+        fake_resource = mock.Mock(spec=spec)
+        setattr(fake_resource, attribute, statuses.pop(0))
+        fake_resource.fetch.side_effect = fetch
+
+        return fake_resource
+
+
+class TestWaitForStatus(TestWait):
     def test_immediate_status(self):
         status = "loling"
         res = mock.Mock(spec=['id', 'status'])
         res.status = status
 
         result = resource.wait_for_status(
-            self.cloud.compute, res, status, "failures", "interval", "wait"
+            self.cloud.compute,
+            res,
+            status,
+            None,
+            interval=1,
+            wait=1,
         )
 
         self.assertEqual(res, result)
@@ -3439,7 +3483,12 @@ class TestWaitForStatus(base.TestCase):
         res.status = status
 
         result = resource.wait_for_status(
-            self.cloud.compute, res, 'lOling', "failures", "interval", "wait"
+            self.cloud.compute,
+            res,
+            'lOling',
+            None,
+            interval=1,
+            wait=1,
         )
 
         self.assertEqual(res, result)
@@ -3453,127 +3502,131 @@ class TestWaitForStatus(base.TestCase):
             self.cloud.compute,
             res,
             status,
-            "failures",
-            "interval",
-            "wait",
+            None,
+            interval=1,
+            wait=1,
             attribute='mood',
         )
 
         self.assertEqual(res, result)
-
-    def _resources_from_statuses(self, *statuses, **kwargs):
-        attribute = kwargs.pop('attribute', 'status')
-        assert not kwargs, 'Unexpected keyword arguments: %s' % kwargs
-        resources = []
-        for status in statuses:
-            res = mock.Mock(spec=['id', 'fetch', attribute])
-            setattr(res, attribute, status)
-            resources.append(res)
-        for index, res in enumerate(resources[:-1]):
-            res.fetch.return_value = resources[index + 1]
-        return resources
 
     def test_status_match(self):
         status = "loling"
 
         # other gets past the first check, two anothers gets through
         # the sleep loop, and the third matches
-        resources = self._resources_from_statuses(
-            "first", "other", "another", "another", status
-        )
+        statuses = ["first", "other", "another", "another", status]
+        res = self._fake_resource(statuses)
 
         result = resource.wait_for_status(
-            mock.Mock(), resources[0], status, None, 1, 5
+            mock.Mock(),
+            res,
+            status,
+            None,
+            interval=1,
+            wait=5,
         )
 
-        self.assertEqual(result, resources[-1])
+        self.assertEqual(result, res)
 
     def test_status_match_with_none(self):
         status = "loling"
 
         # apparently, None is a correct state in some cases
-        resources = self._resources_from_statuses(
-            None, "other", None, "another", status
-        )
+        statuses = [None, "other", None, "another", status]
+        res = self._fake_resource(statuses)
 
         result = resource.wait_for_status(
-            mock.Mock(), resources[0], status, None, 1, 5
+            mock.Mock(),
+            res,
+            status,
+            None,
+            interval=1,
+            wait=5,
         )
 
-        self.assertEqual(result, resources[-1])
+        self.assertEqual(result, res)
 
     def test_status_match_none(self):
         status = None
 
         # apparently, None can be expected status in some cases
-        resources = self._resources_from_statuses(
-            "first", "other", "another", "another", status
-        )
+        statuses = ["first", "other", "another", "another", status]
+        res = self._fake_resource(statuses)
 
         result = resource.wait_for_status(
-            mock.Mock(), resources[0], status, None, 1, 5
+            mock.Mock(),
+            res,
+            status,
+            None,
+            interval=1,
+            wait=5,
         )
 
-        self.assertEqual(result, resources[-1])
+        self.assertEqual(result, res)
 
     def test_status_match_different_attribute(self):
         status = "loling"
 
-        resources = self._resources_from_statuses(
-            "first", "other", "another", "another", status, attribute='mood'
-        )
+        statuses = ["first", "other", "another", "another", status]
+        res = self._fake_resource(statuses, attribute='mood')
 
         result = resource.wait_for_status(
-            mock.Mock(), resources[0], status, None, 1, 5, attribute='mood'
+            mock.Mock(),
+            res,
+            status,
+            None,
+            interval=1,
+            wait=5,
+            attribute='mood',
         )
 
-        self.assertEqual(result, resources[-1])
+        self.assertEqual(result, res)
 
     def test_status_fails(self):
         failure = "crying"
 
-        resources = self._resources_from_statuses("success", "other", failure)
+        statuses = ["success", "other", failure]
+        res = self._fake_resource(statuses)
 
         self.assertRaises(
             exceptions.ResourceFailure,
             resource.wait_for_status,
             mock.Mock(),
-            resources[0],
+            res,
             "loling",
             [failure],
-            1,
-            5,
+            interval=1,
+            wait=5,
         )
 
     def test_status_fails_different_attribute(self):
         failure = "crying"
 
-        resources = self._resources_from_statuses(
-            "success", "other", failure, attribute='mood'
-        )
+        statuses = ["success", "other", failure]
+        res = self._fake_resource(statuses, attribute='mood')
 
         self.assertRaises(
             exceptions.ResourceFailure,
             resource.wait_for_status,
             mock.Mock(),
-            resources[0],
+            res,
             "loling",
             [failure.upper()],
-            1,
-            5,
+            interval=1,
+            wait=5,
             attribute='mood',
         )
 
     def test_timeout(self):
         status = "loling"
-        res = mock.Mock()
 
         # The first "other" gets past the first check, and then three
         # pairs of "other" statuses run through the sleep counter loop,
         # after which time should be up. This is because we have a
         # one second interval and three second waiting period.
         statuses = ["other"] * 7
-        type(res).status = mock.PropertyMock(side_effect=statuses)
+        res = self._fake_resource(statuses)
 
         self.assertRaises(
             exceptions.ResourceTimeout,
@@ -3587,9 +3640,8 @@ class TestWaitForStatus(base.TestCase):
         )
 
     def test_no_sleep(self):
-        res = mock.Mock()
         statuses = ["other"]
-        type(res).status = mock.PropertyMock(side_effect=statuses)
+        res = self._fake_resource(statuses)
 
         self.assertRaises(
             exceptions.ResourceTimeout,
@@ -3598,26 +3650,122 @@ class TestWaitForStatus(base.TestCase):
             res,
             "status",
             None,
-            0,
-            -1,
+            interval=0,
+            wait=-1,
         )
 
+    def test_callback(self):
+        """Callback is called with 'progress' attribute."""
+        statuses = ['building', 'building', 'building', 'building', 'active']
+        progresses = [0, 25, 50, 100]
+        res = self._fake_resource(statuses=statuses, progresses=progresses)
 
-class TestWaitForDelete(base.TestCase):
-    def test_success(self):
+        callback = mock.Mock()
+
+        result = resource.wait_for_status(
+            mock.Mock(),
+            res,
+            'active',
+            None,
+            interval=0.1,
+            wait=1,
+            callback=callback,
+        )
+
+        self.assertEqual(result, res)
+        callback.assert_has_calls([mock.call(x) for x in progresses])
+
+    def test_callback_without_progress(self):
+        """Callback is called with 0 if 'progress' attribute is missing."""
+        statuses = ['building', 'building', 'building', 'building', 'active']
+        res = self._fake_resource(statuses=statuses)
+
+        callback = mock.Mock()
+
+        result = resource.wait_for_status(
+            mock.Mock(),
+            res,
+            'active',
+            None,
+            interval=0.1,
+            wait=1,
+            callback=callback,
+        )
+
+        self.assertEqual(result, res)
+        # there are 5 statuses but only 3 callback calls since the initial
+        # status and final status don't result in calls
+        callback.assert_has_calls([mock.call(0)] * 3)
+
+
+class TestWaitForDelete(TestWait):
+    def test_success_not_found(self):
         response = mock.Mock()
         response.headers = {}
         response.status_code = 404
         res = mock.Mock()
         res.fetch.side_effect = [
-            None,
-            None,
+            res,
+            res,
             exceptions.ResourceNotFound('Not Found', response),
         ]
 
         result = resource.wait_for_delete(self.cloud.compute, res, 1, 3)
 
         self.assertEqual(result, res)
+
+    def test_status(self):
+        """Successful deletion indicated by status."""
+        statuses = ['active', 'deleting', 'deleting', 'deleting', 'deleted']
+        res = self._fake_resource(statuses=statuses)
+
+        result = resource.wait_for_delete(
+            mock.Mock(),
+            res,
+            interval=0.1,
+            wait=1,
+        )
+
+        self.assertEqual(result, res)
+
+    def test_callback(self):
+        """Callback is called with 'progress' attribute."""
+        statuses = ['active', 'deleting', 'deleting', 'deleting', 'deleted']
+        progresses = [0, 25, 50, 100]
+        res = self._fake_resource(statuses=statuses, progresses=progresses)
+
+        callback = mock.Mock()
+
+        result = resource.wait_for_delete(
+            mock.Mock(),
+            res,
+            interval=1,
+            wait=5,
+            callback=callback,
+        )
+
+        self.assertEqual(result, res)
+        callback.assert_has_calls([mock.call(x) for x in progresses])
+
+    def test_callback_without_progress(self):
+        """Callback is called with 0 if 'progress' attribute is missing."""
+        statuses = ['active', 'deleting', 'deleting', 'deleting', 'deleted']
+        res = self._fake_resource(statuses=statuses)
+
+        callback = mock.Mock()
+
+        result = resource.wait_for_delete(
+            mock.Mock(),
+            res,
+            interval=1,
+            wait=5,
+            callback=callback,
+        )
+
+        self.assertEqual(result, res)
+        # there are 5 statuses but only 3 callback calls since the initial
+        # status and final status don't result in calls
+        callback.assert_has_calls([mock.call(0)] * 3)
 
     def test_timeout(self):
         res = mock.Mock()

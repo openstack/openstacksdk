@@ -2468,6 +2468,7 @@ class Proxy(proxy.Proxy):
         failures=None,
         interval=2,
         wait=120,
+        callback=None,
     ):
         """Wait for a server to be in a particular status.
 
@@ -2484,6 +2485,10 @@ class Proxy(proxy.Proxy):
         :param wait: Maximum number of seconds to wait before the change.
             Default to 120.
         :type wait: int
+        :param callback: A callback function. This will be called with a single
+            value, progress, which is a percentage value from 0-100.
+        :type callback: callable
+
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
             to the desired status failed to occur in specified seconds.
@@ -2500,9 +2505,10 @@ class Proxy(proxy.Proxy):
             failures,
             interval,
             wait,
+            callback=callback,
         )
 
-    def wait_for_delete(self, res, interval=2, wait=120):
+    def wait_for_delete(self, res, interval=2, wait=120, callback=None):
         """Wait for a resource to be deleted.
 
         :param res: The resource to wait on to be deleted.
@@ -2511,11 +2517,14 @@ class Proxy(proxy.Proxy):
             checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
             Default to 120.
+        :param callback: A callback function. This will be called with a single
+            value, progress, which is a percentage value from 0-100.
+
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
             to delete failed to occur in the specified seconds.
         """
-        return resource.wait_for_delete(self, res, interval, wait)
+        return resource.wait_for_delete(self, res, interval, wait, callback)
 
     def _get_cleanup_dependencies(self):
         return {

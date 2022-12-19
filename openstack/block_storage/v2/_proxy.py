@@ -610,7 +610,13 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         backup.reset(self, status)
 
     def wait_for_status(
-        self, res, status='available', failures=None, interval=2, wait=120
+        self,
+        res,
+        status='available',
+        failures=None,
+        interval=2,
+        wait=120,
+        callback=None,
     ):
         """Wait for a resource to be in a particular status.
 
@@ -624,6 +630,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
             Default to 120.
+        :param callback: A callback function. This will be called with a single
+            value, progress.
+
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
             to the desired status failed to occur in specified seconds.
@@ -634,10 +643,16 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         failures = ['error'] if failures is None else failures
         return resource.wait_for_status(
-            self, res, status, failures, interval, wait
+            self,
+            res,
+            status,
+            failures,
+            interval,
+            wait,
+            callback=callback,
         )
 
-    def wait_for_delete(self, res, interval=2, wait=120):
+    def wait_for_delete(self, res, interval=2, wait=120, callback=None):
         """Wait for a resource to be deleted.
 
         :param res: The resource to wait on to be deleted.
@@ -646,11 +661,20 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             checks. Default to 2.
         :param wait: Maximum number of seconds to wait before the change.
             Default to 120.
+        :param callback: A callback function. This will be called with a single
+            value, progress.
+
         :returns: The resource is returned on success.
         :raises: :class:`~openstack.exceptions.ResourceTimeout` if transition
             to delete failed to occur in the specified seconds.
         """
-        return resource.wait_for_delete(self, res, interval, wait)
+        return resource.wait_for_delete(
+            self,
+            res,
+            interval,
+            wait,
+            callback=callback,
+        )
 
     def get_quota_set(self, project, usage=False, **query):
         """Show QuotaSet information for the project

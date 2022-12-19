@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    The ``Resource.wait_for_status``, ``Resource.wait_for_delete``, and related
+    proxy wrappers now accept a ``callback`` argument that can be used to pass
+    a callback function. When provided, the wait function will attempt to
+    retrieve a ``progress`` value from the resource in question and pass it to
+    the callback function each time it iterates.

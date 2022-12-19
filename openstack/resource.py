@@ -2329,6 +2329,7 @@ def wait_for_status(
     interval=None,
     wait=None,
     attribute='status',
+    callback=None,
 ):
     """Wait for the resource to be in a particular status.
 
@@ -2345,6 +2346,9 @@ def wait_for_status(
     :param wait: Maximum number of seconds to wait for transition.
         Set to ``None`` to wait forever.
     :param attribute: Name of the resource attribute that contains the status.
+    :param callback: A callback function. This will be called with a single
+        value, progress. This is API specific but is generally a percentage
+        value from 0-100.
 
     :return: The updated resource.
     :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
@@ -2372,7 +2376,6 @@ def wait_for_status(
         timeout=wait, message=msg, wait=interval
     ):
         resource = resource.fetch(session, skip_cache=True)
-
         if not resource:
             raise exceptions.ResourceFailure(
                 "{name} went away while waiting for {status}".format(
@@ -2399,8 +2402,12 @@ def wait_for_status(
             new_status,
         )
 
+        if callback:
+            progress = getattr(resource, 'progress', None) or 0
+            callback(progress)
 
-def wait_for_delete(session, resource, interval, wait):
+
+def wait_for_delete(session, resource, interval, wait, callback=None):
     """Wait for the resource to be deleted.
 
     :param session: The session to use for making this request.
@@ -2409,6 +2416,9 @@ def wait_for_delete(session, resource, interval, wait):
     :type resource: :class:`~openstack.resource.Resource`
     :param interval: Number of seconds to wait between checks.
     :param wait: Maximum number of seconds to wait for the delete.
+    :param callback: A callback function. This will be called with a single
+        value, progress. This is API specific but is generally a percentage
+        value from 0-100.
 
     :return: Method returns self on success.
     :raises: :class:`~openstack.exceptions.ResourceTimeout` transition
@@ -2430,3 +2440,7 @@ def wait_for_delete(session, resource, interval, wait):
                 return resource
         except exceptions.NotFoundException:
             return orig_resource
+
+        if callback:
+            progress = getattr(resource, 'progress', None) or 0
+            callback(progress)
