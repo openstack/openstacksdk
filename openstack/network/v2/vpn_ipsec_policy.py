@@ -25,6 +25,11 @@ class VpnIpsecPolicy(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'auth_algorithm', 'description', 'encryption_algorithm', 'name', 'pfs',
+        'project_id', 'phase1_negotiation_mode',
+    )
+
     # Properties
     #: The authentication hash algorithm. Valid values are sha1,
     # sha256, sha384, sha512. The default is sha1.
@@ -40,6 +45,8 @@ class VpnIpsecPolicy(resource.Resource):
     # portion of the lifetime. Default unit is seconds and
     # default value is 3600.
     lifetime = resource.Body('lifetime', type=dict)
+    #: Human-readable name of the resource. Default is an empty string.
+    name = resource.Body('name')
     #: Perfect forward secrecy (PFS). A valid value is Group2,
     # Group5, Group14, and so on. Default is Group5.
     pfs = resource.Body('pfs')

@@ -27,6 +27,12 @@ class LoadBalancer(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'description', 'name', 'project_id', 'provider', 'provisioning_status',
+        'tenant_id', 'vip_address', 'vip_subnet_id',
+        is_admin_state_up='admin_state_up'
+    )
+
     # Properties
     #: Description for the load balancer.
     description = resource.Body('description')

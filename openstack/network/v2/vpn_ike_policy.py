@@ -26,6 +26,11 @@ class VpnIkePolicy(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'auth_algorithm', 'description', 'encryption_algorithm', 'ike_version',
+        'name', 'pfs', 'project_id', 'phase1_negotiation_mode',
+    )
+
     # Properties
     #: The authentication hash algorithm. Valid values are sha1,
     # sha256, sha384, sha512. The default is sha1.

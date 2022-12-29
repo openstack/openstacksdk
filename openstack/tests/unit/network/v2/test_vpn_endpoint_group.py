@@ -55,5 +55,10 @@ class TestVpnEndpointGroup(base.TestCase):
             {
                 "limit": "limit",
                 "marker": "marker",
+                'description': 'description',
+                'name': 'name',
+                'project_id': 'project_id',
+                'tenant_id': 'tenant_id',
+                'type': 'endpoint_type',
             },
             sot._query_mapping._mapping)
