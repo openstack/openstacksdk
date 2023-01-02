@@ -199,7 +199,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_volume.Volume, volume)
 
-    def find_volume(self, name_or_id, ignore_missing=True, **attrs):
+    def find_volume(self, name_or_id, ignore_missing=True):
         """Find a single volume
 
         :param snapshot: The name or ID a volume
