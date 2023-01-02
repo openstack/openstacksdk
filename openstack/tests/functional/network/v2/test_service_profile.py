@@ -23,42 +23,71 @@ class TestServiceProfile(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestServiceProfile, self).setUp()
-        service_profiles = self.conn.network.create_service_profile(
-            description=self.SERVICE_PROFILE_DESCRIPTION,
-            metainfo=self.METAINFO,)
-        assert isinstance(service_profiles, _service_profile.ServiceProfile)
-        self.assertEqual(
-            self.SERVICE_PROFILE_DESCRIPTION,
-            service_profiles.description)
-        self.assertEqual(self.METAINFO, service_profiles.meta_info)
+        if not self.user_cloud._has_neutron_extension("flavors"):
+            self.skipTest("Neutron flavor extension is required for this test")
 
-        self.ID = service_profiles.id
+        if self.operator_cloud:
+            service_profiles = (
+                self.operator_cloud.network.create_service_profile(
+                    description=self.SERVICE_PROFILE_DESCRIPTION,
+                    metainfo=self.METAINFO,
+                )
+            )
+            assert isinstance(
+                service_profiles, _service_profile.ServiceProfile
+            )
+            self.assertEqual(
+                self.SERVICE_PROFILE_DESCRIPTION, service_profiles.description
+            )
+            self.assertEqual(self.METAINFO, service_profiles.meta_info)
+
+            self.ID = service_profiles.id
 
     def tearDown(self):
-        service_profiles = self.conn.network.delete_service_profile(
-            self.ID,
-            ignore_missing=True)
-        self.assertIsNone(service_profiles)
+        if self.ID:
+            service_profiles = (
+                self.operator_cloud.network.delete_service_profile(
+                    self.ID, ignore_missing=True
+                )
+            )
+            self.assertIsNone(service_profiles)
         super(TestServiceProfile, self).tearDown()
 
     def test_find(self):
-        service_profiles = self.conn.network.find_service_profile(
-            self.ID)
-        self.assertEqual(self.METAINFO,
-                         service_profiles.meta_info)
+        self.user_cloud.network.find_service_profile(
+            name_or_id="not_existing",
+            ignore_missing=True)
+        if self.operator_cloud and self.ID:
+            service_profiles = self.operator_cloud.network \
+                .find_service_profile(self.ID)
+            self.assertEqual(self.METAINFO, service_profiles.meta_info)
 
     def test_get(self):
-        service_profiles = self.conn.network.get_service_profile(self.ID)
+        if not self.ID:
+            self.skipTest("ServiceProfile was not created")
+        service_profiles = self.operator_cloud.network.get_service_profile(
+            self.ID)
         self.assertEqual(self.METAINFO, service_profiles.meta_info)
-        self.assertEqual(self.SERVICE_PROFILE_DESCRIPTION,
-                         service_profiles.description)
+        self.assertEqual(
+            self.SERVICE_PROFILE_DESCRIPTION, service_profiles.description
+        )
 
     def test_update(self):
-        service_profiles = self.conn.network.update_service_profile(
-            self.ID,
-            description=self.UPDATE_DESCRIPTION)
+        if not self.ID:
+            self.skipTest("ServiceProfile was not created")
+        service_profiles = self.operator_cloud.network.update_service_profile(
+            self.ID, description=self.UPDATE_DESCRIPTION
+        )
         self.assertEqual(self.UPDATE_DESCRIPTION, service_profiles.description)
 
     def test_list(self):
-        metainfos = [f.meta_info for f in self.conn.network.service_profiles()]
-        self.assertIn(self.METAINFO, metainfos)
+        # Test in user scope
+        self.user_cloud.network.service_profiles()
+        # Test as operator
+        if self.operator_cloud:
+            metainfos = [
+                f.meta_info for f in
+                self.operator_cloud.network.service_profiles()
+            ]
+            if self.ID:
+                self.assertIn(self.METAINFO, metainfos)

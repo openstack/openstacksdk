@@ -27,48 +27,52 @@ class TestL3ConntrackHelper(base.BaseFunctionalTest):
     def setUp(self):
         super(TestL3ConntrackHelper, self).setUp()
 
-        if not self.conn.network.find_extension('l3-conntrack-helper'):
-            self.skipTest('L3 conntrack helper extension disabled')
+        if not self.user_cloud.network.find_extension("l3-conntrack-helper"):
+            self.skipTest("L3 conntrack helper extension disabled")
 
         self.ROT_NAME = self.getUniqueString()
         # Create Router
-        sot = self.conn.network.create_router(name=self.ROT_NAME)
+        sot = self.user_cloud.network.create_router(name=self.ROT_NAME)
         self.assertIsInstance(sot, router.Router)
         self.assertEqual(self.ROT_NAME, sot.name)
         self.ROT_ID = sot.id
         self.ROT = sot
 
         # Create conntrack helper
-        ct_helper = self.conn.network.create_conntrack_helper(
+        ct_helper = self.user_cloud.network.create_conntrack_helper(
             router=self.ROT,
             protocol=self.PROTOCOL,
             helper=self.HELPER,
-            port=self.PORT)
+            port=self.PORT,
+        )
         self.assertIsInstance(ct_helper, _l3_conntrack_helper.ConntrackHelper)
         self.CT_HELPER = ct_helper
 
     def tearDown(self):
-        sot = self.conn.network.delete_router(
-            self.ROT_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_router(
+            self.ROT_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestL3ConntrackHelper, self).tearDown()
 
     def test_get(self):
-        sot = self.conn.network.get_conntrack_helper(
-            self.CT_HELPER, self.ROT_ID)
+        sot = self.user_cloud.network.get_conntrack_helper(
+            self.CT_HELPER, self.ROT_ID
+        )
         self.assertEqual(self.PROTOCOL, sot.protocol)
         self.assertEqual(self.HELPER, sot.helper)
         self.assertEqual(self.PORT, sot.port)
 
     def test_list(self):
-        helper_ids = [o.id for o in
-                      self.conn.network.conntrack_helpers(self.ROT_ID)]
+        helper_ids = [
+            o.id
+            for o in self.user_cloud.network.conntrack_helpers(self.ROT_ID)
+        ]
         self.assertIn(self.CT_HELPER.id, helper_ids)
 
     def test_update(self):
         NEW_PORT = 90
-        sot = self.conn.network.update_conntrack_helper(
-            self.CT_HELPER.id,
-            self.ROT_ID,
-            port=NEW_PORT)
+        sot = self.user_cloud.network.update_conntrack_helper(
+            self.CT_HELPER.id, self.ROT_ID, port=NEW_PORT
+        )
         self.assertEqual(NEW_PORT, sot.port)

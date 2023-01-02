@@ -15,46 +15,62 @@ from openstack.tests.functional import base
 
 class TestAutoAllocatedTopology(base.BaseFunctionalTest):
 
-    NETWORK_NAME = 'auto_allocated_network'
+    NETWORK_NAME = "auto_allocated_network"
     NETWORK_ID = None
     PROJECT_ID = None
 
     def setUp(self):
         super(TestAutoAllocatedTopology, self).setUp()
-        projects = [o.project_id for o in self.conn.network.networks()]
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+        if not self.operator_cloud._has_neutron_extension(
+            "auto-allocated-topology"
+        ):
+            self.skipTest(
+                "Neutron auto-allocated-topology extension is "
+                "required for this test"
+            )
+
+        projects = [
+            o.project_id
+            for o in self.operator_cloud.network.networks()]
         self.PROJECT_ID = projects[0]
 
     def tearDown(self):
-        res = self.conn.network.delete_auto_allocated_topology(self.PROJECT_ID)
+        res = self.operator_cloud.network.delete_auto_allocated_topology(
+            self.PROJECT_ID)
         self.assertIsNone(res)
         super(TestAutoAllocatedTopology, self).tearDown()
 
     def test_dry_run_option_pass(self):
         # Dry run will only pass if there is a public network
-        networks = self.conn.network.networks()
+        networks = self.operator_cloud.network.networks()
         self._set_network_external(networks)
 
         # Dry run option will return "dry-run=pass" in the 'id' resource
-        top = self.conn.network.validate_auto_allocated_topology(
-            self.PROJECT_ID)
+        top = self.operator_cloud.network.validate_auto_allocated_topology(
+            self.PROJECT_ID
+        )
         self.assertEqual(self.PROJECT_ID, top.project)
-        self.assertEqual('dry-run=pass', top.id)
+        self.assertEqual("dry-run=pass", top.id)
 
     def test_show_no_project_option(self):
-        top = self.conn.network.get_auto_allocated_topology()
+        top = self.operator_cloud.network.get_auto_allocated_topology()
         project = self.conn.session.get_project_id()
-        network = self.conn.network.get_network(top.id)
+        network = self.operator_cloud.network.get_network(top.id)
         self.assertEqual(top.project_id, project)
         self.assertEqual(top.id, network.id)
 
     def test_show_project_option(self):
-        top = self.conn.network.get_auto_allocated_topology(self.PROJECT_ID)
-        network = self.conn.network.get_network(top.id)
+        top = self.operator_cloud.network.get_auto_allocated_topology(
+            self.PROJECT_ID)
+        network = self.operator_cloud.network.get_network(top.id)
         self.assertEqual(top.project_id, network.project_id)
         self.assertEqual(top.id, network.id)
-        self.assertEqual(network.name, 'auto_allocated_network')
+        self.assertEqual(network.name, "auto_allocated_network")
 
     def _set_network_external(self, networks):
         for network in networks:
-            if network.name == 'public':
-                self.conn.network.update_network(network, is_default=True)
+            if network.name == "public":
+                self.operator_cloud.network.update_network(
+                    network, is_default=True)

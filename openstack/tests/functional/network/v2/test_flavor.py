@@ -25,54 +25,80 @@ class TestFlavor(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestFlavor, self).setUp()
-        self.FLAVOR_NAME = self.getUniqueString('flavor')
-        flavors = self.conn.network.create_flavor(
-            name=self.FLAVOR_NAME,
-            service_type=self.SERVICE_TYPE)
-        assert isinstance(flavors, flavor.Flavor)
-        self.assertEqual(self.FLAVOR_NAME, flavors.name)
-        self.assertEqual(self.SERVICE_TYPE, flavors.service_type)
+        if not self.user_cloud._has_neutron_extension("flavors"):
+            self.skipTest("Neutron flavor extension is required for this test")
 
-        self.ID = flavors.id
+        self.FLAVOR_NAME = self.getUniqueString("flavor")
+        if self.operator_cloud:
+            flavors = self.operator_cloud.network.create_flavor(
+                name=self.FLAVOR_NAME, service_type=self.SERVICE_TYPE
+            )
+            assert isinstance(flavors, flavor.Flavor)
+            self.assertEqual(self.FLAVOR_NAME, flavors.name)
+            self.assertEqual(self.SERVICE_TYPE, flavors.service_type)
 
-        self.service_profiles = self.conn.network.create_service_profile(
-            description=self.SERVICE_PROFILE_DESCRIPTION,
-            metainfo=self.METAINFO,)
+            self.ID = flavors.id
+
+            self.service_profiles = (
+                self.operator_cloud.network.create_service_profile(
+                    description=self.SERVICE_PROFILE_DESCRIPTION,
+                    metainfo=self.METAINFO,
+                )
+            )
 
     def tearDown(self):
-        flavors = self.conn.network.delete_flavor(self.ID, ignore_missing=True)
-        self.assertIsNone(flavors)
+        if self.operator_cloud and self.ID:
+            flavors = self.operator_cloud.network.delete_flavor(
+                self.ID, ignore_missing=True
+            )
+            self.assertIsNone(flavors)
 
-        service_profiles = self.conn.network.delete_service_profile(
-            self.ID, ignore_missing=True)
-        self.assertIsNone(service_profiles)
+            service_profiles = self.user_cloud.network.delete_service_profile(
+                self.ID, ignore_missing=True
+            )
+            self.assertIsNone(service_profiles)
         super(TestFlavor, self).tearDown()
 
     def test_find(self):
-        flavors = self.conn.network.find_flavor(self.FLAVOR_NAME)
-        self.assertEqual(self.ID, flavors.id)
+        if self.ID:
+            flavors = self.user_cloud.network.find_flavor(self.FLAVOR_NAME)
+            self.assertEqual(self.ID, flavors.id)
+        else:
+            self.user_cloud.network.find_flavor("definitely_missing")
 
     def test_get(self):
-        flavors = self.conn.network.get_flavor(self.ID)
+        if not self.ID:
+            self.skipTest("Operator cloud required for this test")
+
+        flavors = self.user_cloud.network.get_flavor(self.ID)
         self.assertEqual(self.FLAVOR_NAME, flavors.name)
         self.assertEqual(self.ID, flavors.id)
 
     def test_list(self):
-        names = [f.name for f in self.conn.network.flavors()]
-        self.assertIn(self.FLAVOR_NAME, names)
+        names = [f.name for f in self.user_cloud.network.flavors()]
+        if self.ID:
+            self.assertIn(self.FLAVOR_NAME, names)
 
     def test_update(self):
-        flavor = self.conn.network.update_flavor(self.ID,
-                                                 name=self.UPDATE_NAME)
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud required for this test")
+        flavor = self.operator_cloud.network.update_flavor(
+            self.ID, name=self.UPDATE_NAME
+        )
         self.assertEqual(self.UPDATE_NAME, flavor.name)
 
     def test_associate_disassociate_flavor_with_service_profile(self):
-        response = \
-            self.conn.network.associate_flavor_with_service_profile(
-                self.ID, self.service_profiles.id)
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud required for this test")
+        response = (
+            self.operator_cloud.network.associate_flavor_with_service_profile(
+                self.ID, self.service_profiles.id
+            )
+        )
         self.assertIsNotNone(response)
 
-        response = \
-            self.conn.network.disassociate_flavor_from_service_profile(
-                self.ID, self.service_profiles.id)
+        response = self.operator_cloud.network \
+            .disassociate_flavor_from_service_profile(
+                self.ID, self.service_profiles.id
+            )
         self.assertIsNone(response)

@@ -37,97 +37,122 @@ class TestPortForwarding(base.BaseFunctionalTest):
     INTERNAL_PORT = 8080
     EXTERNAL_PORT = 80
     PROTOCOL = "tcp"
-    DESCRIPTION = 'description'
+    DESCRIPTION = "description"
 
     def setUp(self):
         super(TestPortForwarding, self).setUp()
 
-        if not self.conn.network.find_extension('floating-ip-port-forwarding'):
-            self.skipTest('Floating IP Port Forwarding extension disabled')
+        if not self.user_cloud._has_neutron_extension("external-net"):
+            self.skipTest(
+                "Neutron external-net extension is required for this test"
+            )
+        if not self.user_cloud.network.find_extension(
+            "floating-ip-port-forwarding"
+        ):
+            self.skipTest("Floating IP Port Forwarding extension disabled")
 
         self.ROT_NAME = self.getUniqueString()
-        self.EXT_NET_NAME = self.getUniqueString()
-        self.EXT_SUB_NAME = self.getUniqueString()
         self.INT_NET_NAME = self.getUniqueString()
         self.INT_SUB_NAME = self.getUniqueString()
-        # Create Exeternal Network
-        args = {'router:external': True}
-        net = self._create_network(self.EXT_NET_NAME, **args)
-        self.EXT_NET_ID = net.id
-        sub = self._create_subnet(
-            self.EXT_SUB_NAME, self.EXT_NET_ID, self.EXT_CIDR)
-        self.EXT_SUB_ID = sub.id
+        self.EXT_NET_ID = None
+        self.EXT_SUB_ID = None
+
+        # Find External Network
+        for net in self.user_cloud.network.networks(is_router_external=True):
+            self.EXT_NET_ID = net.id
+        # Find subnet of the chosen external net
+        for sub in self.user_cloud.network.subnets(network_id=self.EXT_NET_ID):
+            self.EXT_SUB_ID = sub.id
+        if not self.EXT_NET_ID and self.operator_cloud:
+            # There is no existing external net, but operator
+            # credentials available
+            # WARNING: this external net is not dropped
+            # Create External Network
+            args = {"router:external": True}
+            net = self._create_network(self.EXT_NET_NAME, **args)
+            self.EXT_NET_ID = net.id
+            sub = self._create_subnet(
+                self.EXT_SUB_NAME, self.EXT_NET_ID, self.EXT_CIDR
+            )
+            self.EXT_SUB_ID = sub.id
+
         # Create Internal Network
         net = self._create_network(self.INT_NET_NAME)
         self.INT_NET_ID = net.id
         sub = self._create_subnet(
-            self.INT_SUB_NAME, self.INT_NET_ID, self.INT_CIDR)
+            self.INT_SUB_NAME, self.INT_NET_ID, self.INT_CIDR
+        )
         self.INT_SUB_ID = sub.id
         # Create Router
-        args = {'external_gateway_info': {'network_id': self.EXT_NET_ID}}
-        sot = self.conn.network.create_router(name=self.ROT_NAME, **args)
+        args = {"external_gateway_info": {"network_id": self.EXT_NET_ID}}
+        sot = self.user_cloud.network.create_router(name=self.ROT_NAME, **args)
         assert isinstance(sot, router.Router)
         self.assertEqual(self.ROT_NAME, sot.name)
         self.ROT_ID = sot.id
         self.ROT = sot
         # Add Router's Interface to Internal Network
         sot = self.ROT.add_interface(
-            self.conn.network, subnet_id=self.INT_SUB_ID)
-        self.assertEqual(sot['subnet_id'], self.INT_SUB_ID)
+            self.user_cloud.network, subnet_id=self.INT_SUB_ID
+        )
+        self.assertEqual(sot["subnet_id"], self.INT_SUB_ID)
         # Create Port in Internal Network
-        prt = self.conn.network.create_port(network_id=self.INT_NET_ID)
+        prt = self.user_cloud.network.create_port(network_id=self.INT_NET_ID)
         assert isinstance(prt, port.Port)
         self.INTERNAL_PORT_ID = prt.id
-        self.INTERNAL_IP_ADDRESS = prt.fixed_ips[0]['ip_address']
+        self.INTERNAL_IP_ADDRESS = prt.fixed_ips[0]["ip_address"]
         # Create Floating IP.
-        fip = self.conn.network.create_ip(
-            floating_network_id=self.EXT_NET_ID)
+        fip = self.user_cloud.network.create_ip(
+            floating_network_id=self.EXT_NET_ID
+        )
         assert isinstance(fip, floating_ip.FloatingIP)
         self.FIP_ID = fip.id
         # Create Port Forwarding
-        pf = self.conn.network.create_port_forwarding(
+        pf = self.user_cloud.network.create_port_forwarding(
             floatingip_id=self.FIP_ID,
             internal_port_id=self.INTERNAL_PORT_ID,
             internal_ip_address=self.INTERNAL_IP_ADDRESS,
             internal_port=self.INTERNAL_PORT,
             external_port=self.EXTERNAL_PORT,
             protocol=self.PROTOCOL,
-            description=self.DESCRIPTION)
+            description=self.DESCRIPTION,
+        )
         assert isinstance(pf, _port_forwarding.PortForwarding)
         self.PF = pf
 
     def tearDown(self):
-        sot = self.conn.network.delete_port_forwarding(
-            self.PF, self.FIP_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_port_forwarding(
+            self.PF, self.FIP_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_ip(self.FIP_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_ip(
+            self.FIP_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_port(
-            self.INTERNAL_PORT_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_port(
+            self.INTERNAL_PORT_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         sot = self.ROT.remove_interface(
-            self.conn.network, subnet_id=self.INT_SUB_ID)
-        self.assertEqual(sot['subnet_id'], self.INT_SUB_ID)
-        sot = self.conn.network.delete_router(
-            self.ROT_ID, ignore_missing=False)
+            self.user_cloud.network, subnet_id=self.INT_SUB_ID
+        )
+        self.assertEqual(sot["subnet_id"], self.INT_SUB_ID)
+        sot = self.user_cloud.network.delete_router(
+            self.ROT_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_subnet(
-            self.EXT_SUB_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_subnet(
+            self.INT_SUB_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_network(
-            self.EXT_NET_ID, ignore_missing=False)
-        self.assertIsNone(sot)
-        sot = self.conn.network.delete_subnet(
-            self.INT_SUB_ID, ignore_missing=False)
-        self.assertIsNone(sot)
-        sot = self.conn.network.delete_network(
-            self.INT_NET_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_network(
+            self.INT_NET_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestPortForwarding, self).tearDown()
 
     def _create_network(self, name, **args):
         self.name = name
-        net = self.conn.network.create_network(name=name, **args)
+        net = self.user_cloud.network.create_network(name=name, **args)
         assert isinstance(net, network.Network)
         self.assertEqual(self.name, net.name)
         return net
@@ -136,18 +161,20 @@ class TestPortForwarding(base.BaseFunctionalTest):
         self.name = name
         self.net_id = net_id
         self.cidr = cidr
-        sub = self.conn.network.create_subnet(
+        sub = self.user_cloud.network.create_subnet(
             name=self.name,
             ip_version=self.IPV4,
             network_id=self.net_id,
-            cidr=self.cidr)
+            cidr=self.cidr,
+        )
         assert isinstance(sub, subnet.Subnet)
         self.assertEqual(self.name, sub.name)
         return sub
 
     def test_find(self):
-        sot = self.conn.network.find_port_forwarding(
-            self.PF.id, self.FIP_ID)
+        sot = self.user_cloud.network.find_port_forwarding(
+            self.PF.id, self.FIP_ID
+        )
         self.assertEqual(self.INTERNAL_PORT_ID, sot.internal_port_id)
         self.assertEqual(self.INTERNAL_IP_ADDRESS, sot.internal_ip_address)
         self.assertEqual(self.INTERNAL_PORT, sot.internal_port)
@@ -156,8 +183,7 @@ class TestPortForwarding(base.BaseFunctionalTest):
         self.assertEqual(self.DESCRIPTION, sot.description)
 
     def test_get(self):
-        sot = self.conn.network.get_port_forwarding(
-            self.PF, self.FIP_ID)
+        sot = self.user_cloud.network.get_port_forwarding(self.PF, self.FIP_ID)
         self.assertEqual(self.INTERNAL_PORT_ID, sot.internal_port_id)
         self.assertEqual(self.INTERNAL_IP_ADDRESS, sot.internal_ip_address)
         self.assertEqual(self.INTERNAL_PORT, sot.internal_port)
@@ -166,14 +192,14 @@ class TestPortForwarding(base.BaseFunctionalTest):
         self.assertEqual(self.DESCRIPTION, sot.description)
 
     def test_list(self):
-        pf_ids = [o.id for o in
-                  self.conn.network.port_forwardings(self.FIP_ID)]
+        pf_ids = [
+            o.id for o in self.user_cloud.network.port_forwardings(self.FIP_ID)
+        ]
         self.assertIn(self.PF.id, pf_ids)
 
     def test_update(self):
         NEW_EXTERNAL_PORT = 90
-        sot = self.conn.network.update_port_forwarding(
-            self.PF.id,
-            self.FIP_ID,
-            external_port=NEW_EXTERNAL_PORT)
+        sot = self.user_cloud.network.update_port_forwarding(
+            self.PF.id, self.FIP_ID, external_port=NEW_EXTERNAL_PORT
+        )
         self.assertEqual(NEW_EXTERNAL_PORT, sot.external_port)

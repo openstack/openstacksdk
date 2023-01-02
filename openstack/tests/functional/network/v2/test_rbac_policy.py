@@ -18,47 +18,77 @@ from openstack.tests.functional import base
 
 class TestRBACPolicy(base.BaseFunctionalTest):
 
-    ACTION = 'access_as_shared'
-    OBJ_TYPE = 'network'
-    TARGET_TENANT_ID = '*'
+    ACTION = "access_as_shared"
+    OBJ_TYPE = "network"
+    TARGET_TENANT_ID = "*"
     NET_ID = None
     ID = None
 
     def setUp(self):
         super(TestRBACPolicy, self).setUp()
-        self.NET_NAME = self.getUniqueString('net')
+        if not self.user_cloud._has_neutron_extension("rbac-policies"):
+            self.skipTest(
+                "Neutron rbac-policies extension is required for this test"
+            )
+
+        self.NET_NAME = self.getUniqueString("net")
         self.UPDATE_NAME = self.getUniqueString()
-        net = self.conn.network.create_network(name=self.NET_NAME)
+        net = self.user_cloud.network.create_network(name=self.NET_NAME)
         assert isinstance(net, network.Network)
         self.NET_ID = net.id
-
-        sot = self.conn.network.create_rbac_policy(
-            action=self.ACTION,
-            object_type=self.OBJ_TYPE,
-            target_tenant=self.TARGET_TENANT_ID,
-            object_id=self.NET_ID)
-        assert isinstance(sot, rbac_policy.RBACPolicy)
-        self.ID = sot.id
+        if self.operator_cloud:
+            sot = self.operator_cloud.network.create_rbac_policy(
+                action=self.ACTION,
+                object_type=self.OBJ_TYPE,
+                target_tenant=self.TARGET_TENANT_ID,
+                object_id=self.NET_ID,
+            )
+            assert isinstance(sot, rbac_policy.RBACPolicy)
+            self.ID = sot.id
+        else:
+            sot = self.user_cloud.network.create_rbac_policy(
+                action=self.ACTION,
+                object_type=self.OBJ_TYPE,
+                target_tenant=self.user_cloud.current_project_id,
+                object_id=self.NET_ID,
+            )
+            assert isinstance(sot, rbac_policy.RBACPolicy)
+            self.ID = sot.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_rbac_policy(
-            self.ID,
-            ignore_missing=False)
+        if self.operator_cloud:
+            sot = self.operator_cloud.network.delete_rbac_policy(
+                self.ID, ignore_missing=False
+            )
+        else:
+            sot = self.user_cloud.network.delete_rbac_policy(
+                self.ID, ignore_missing=False
+            )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_network(
-            self.NET_ID,
-            ignore_missing=False)
+        sot = self.user_cloud.network.delete_network(
+            self.NET_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestRBACPolicy, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_rbac_policy(self.ID)
+        if self.operator_cloud:
+            sot = self.operator_cloud.network.find_rbac_policy(self.ID)
+        else:
+            sot = self.user_cloud.network.find_rbac_policy(self.ID)
         self.assertEqual(self.ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_rbac_policy(self.ID)
+        if self.operator_cloud:
+            sot = self.operator_cloud.network.get_rbac_policy(self.ID)
+        else:
+            sot = self.user_cloud.network.get_rbac_policy(self.ID)
         self.assertEqual(self.ID, sot.id)
 
     def test_list(self):
-        ids = [o.id for o in self.conn.network.rbac_policies()]
-        self.assertIn(self.ID, ids)
+        if self.operator_cloud:
+            ids = [o.id for o in self.operator_cloud.network.rbac_policies()]
+        else:
+            ids = [o.id for o in self.user_cloud.network.rbac_policies()]
+        if self.ID:
+            self.assertIn(self.ID, ids)

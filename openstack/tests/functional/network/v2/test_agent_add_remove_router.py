@@ -22,24 +22,32 @@ class TestAgentRouters(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestAgentRouters, self).setUp()
+        if not self.user_cloud._has_neutron_extension("agent"):
+            self.skipTest("Neutron agent extension is required for this test")
 
-        self.ROUTER_NAME = 'router-name-' + self.getUniqueString('router-name')
-        self.ROUTER = self.conn.network.create_router(name=self.ROUTER_NAME)
-        self.addCleanup(self.conn.network.delete_router, self.ROUTER)
+        self.ROUTER_NAME = "router-name-" + self.getUniqueString("router-name")
+        self.ROUTER = self.user_cloud.network.create_router(
+            name=self.ROUTER_NAME)
+        self.addCleanup(self.user_cloud.network.delete_router, self.ROUTER)
         assert isinstance(self.ROUTER, router.Router)
-        agent_list = list(self.conn.network.agents())
-        agents = [agent for agent in agent_list
-                  if agent.agent_type == 'L3 agent']
+        agent_list = list(self.user_cloud.network.agents())
+        agents = [
+            agent for agent in agent_list if agent.agent_type == "L3 agent"
+        ]
+        if len(agent_list) == 0:
+            self.skipTest("No agents available")
+
         self.AGENT = agents[0]
 
     def test_add_router_to_agent(self):
-        self.conn.network.add_router_to_agent(self.AGENT, self.ROUTER)
-        rots = self.conn.network.agent_hosted_routers(self.AGENT)
+        self.user_cloud.network.add_router_to_agent(self.AGENT, self.ROUTER)
+        rots = self.user_cloud.network.agent_hosted_routers(self.AGENT)
         routers = [router.id for router in rots]
         self.assertIn(self.ROUTER.id, routers)
 
     def test_remove_router_from_agent(self):
-        self.conn.network.remove_router_from_agent(self.AGENT, self.ROUTER)
-        rots = self.conn.network.agent_hosted_routers(self.AGENT)
+        self.user_cloud.network.remove_router_from_agent(
+            self.AGENT, self.ROUTER)
+        rots = self.user_cloud.network.agent_hosted_routers(self.AGENT)
         routers = [router.id for router in rots]
         self.assertNotIn(self.ROUTER.id, routers)

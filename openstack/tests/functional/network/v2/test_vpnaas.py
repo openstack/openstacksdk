@@ -20,36 +20,43 @@ class TestVpnIkePolicy(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestVpnIkePolicy, self).setUp()
-        if not self.conn._has_neutron_extension('vpnaas_v2'):
-            self.skipTest('vpnaas_v2 service not supported by cloud')
-        self.IKE_POLICY_NAME = self.getUniqueString('ikepolicy')
-        self.UPDATE_NAME = self.getUniqueString('ikepolicy-updated')
-        policy = self.conn.network.create_vpn_ike_policy(
-            name=self.IKE_POLICY_NAME)
+        if not self.user_cloud._has_neutron_extension("vpnaas"):
+            self.skipTest("vpnaas service not supported by cloud")
+        self.IKEPOLICY_NAME = self.getUniqueString("ikepolicy")
+        self.UPDATE_NAME = self.getUniqueString("ikepolicy-updated")
+        policy = self.user_cloud.network.create_vpn_ike_policy(
+            name=self.IKEPOLICY_NAME
+        )
         assert isinstance(policy, vpn_ike_policy.VpnIkePolicy)
-        self.assertEqual(self.IKE_POLICY_NAME, policy.name)
+        self.assertEqual(self.IKEPOLICY_NAME, policy.name)
         self.ID = policy.id
 
     def tearDown(self):
-        ike_policy = self.conn.network.\
-            delete_vpn_ike_policy(self.ID, ignore_missing=True)
-        self.assertIsNone(ike_policy)
+        ikepolicy = self.user_cloud.network.delete_vpn_ike_policy(
+            self.ID, ignore_missing=True
+        )
+        self.assertIsNone(ikepolicy)
         super(TestVpnIkePolicy, self).tearDown()
 
     def test_list(self):
-        policies = [f.name for f in self.conn.network.vpn_ikepolicies()]
-        self.assertIn(self.IKE_POLICY_NAME, policies)
+        policies = [
+            f.name for f in
+            self.user_cloud.network.vpn_ike_policies()]
+        self.assertIn(self.IKEPOLICY_NAME, policies)
 
     def test_find(self):
-        policy = self.conn.network.find_vpn_ike_policy(self.IKE_POLICY_NAME)
+        policy = self.user_cloud.network.find_vpn_ike_policy(
+            self.IKEPOLICY_NAME
+        )
         self.assertEqual(self.ID, policy.id)
 
     def test_get(self):
-        policy = self.conn.network.get_vpn_ike_policy(self.ID)
-        self.assertEqual(self.IKE_POLICY_NAME, policy.name)
+        policy = self.user_cloud.network.get_vpn_ike_policy(self.ID)
+        self.assertEqual(self.IKEPOLICY_NAME, policy.name)
         self.assertEqual(self.ID, policy.id)
 
     def test_update(self):
-        policy = self.conn.network.update_vpn_ike_policy(
-            self.ID, name=self.UPDATE_NAME)
+        policy = self.user_cloud.network.update_vpn_ike_policy(
+            self.ID, name=self.UPDATE_NAME
+        )
         self.assertEqual(self.UPDATE_NAME, policy.name)

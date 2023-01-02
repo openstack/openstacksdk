@@ -18,43 +18,49 @@ from openstack.tests.functional import base
 
 class TestSecurityGroupRule(base.BaseFunctionalTest):
 
-    IPV4 = 'IPv4'
-    PROTO = 'tcp'
+    IPV4 = "IPv4"
+    PROTO = "tcp"
     PORT = 22
-    DIR = 'ingress'
+    DIR = "ingress"
     ID = None
     RULE_ID = None
 
     def setUp(self):
         super(TestSecurityGroupRule, self).setUp()
         self.NAME = self.getUniqueString()
-        sot = self.conn.network.create_security_group(name=self.NAME)
+        sot = self.user_cloud.network.create_security_group(name=self.NAME)
         assert isinstance(sot, security_group.SecurityGroup)
         self.assertEqual(self.NAME, sot.name)
         self.ID = sot.id
-        rul = self.conn.network.create_security_group_rule(
-            direction=self.DIR, ethertype=self.IPV4,
-            port_range_max=self.PORT, port_range_min=self.PORT,
-            protocol=self.PROTO, security_group_id=self.ID)
+        rul = self.user_cloud.network.create_security_group_rule(
+            direction=self.DIR,
+            ethertype=self.IPV4,
+            port_range_max=self.PORT,
+            port_range_min=self.PORT,
+            protocol=self.PROTO,
+            security_group_id=self.ID,
+        )
         assert isinstance(rul, security_group_rule.SecurityGroupRule)
         self.assertEqual(self.ID, rul.security_group_id)
         self.RULE_ID = rul.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_security_group_rule(
-            self.RULE_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_security_group_rule(
+            self.RULE_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_security_group(
-            self.ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_security_group(
+            self.ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestSecurityGroupRule, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_security_group_rule(self.RULE_ID)
+        sot = self.user_cloud.network.find_security_group_rule(self.RULE_ID)
         self.assertEqual(self.RULE_ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_security_group_rule(self.RULE_ID)
+        sot = self.user_cloud.network.get_security_group_rule(self.RULE_ID)
         self.assertEqual(self.RULE_ID, sot.id)
         self.assertEqual(self.DIR, sot.direction)
         self.assertEqual(self.PROTO, sot.protocol)
@@ -63,5 +69,5 @@ class TestSecurityGroupRule(base.BaseFunctionalTest):
         self.assertEqual(self.ID, sot.security_group_id)
 
     def test_list(self):
-        ids = [o.id for o in self.conn.network.security_group_rules()]
+        ids = [o.id for o in self.user_cloud.network.security_group_rules()]
         self.assertIn(self.RULE_ID, ids)

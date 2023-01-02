@@ -31,64 +31,69 @@ class TestPort(base.BaseFunctionalTest):
         self.SUB_NAME = self.getUniqueString()
         self.PORT_NAME = self.getUniqueString()
         self.UPDATE_NAME = self.getUniqueString()
-        net = self.conn.network.create_network(name=self.NET_NAME)
+        net = self.user_cloud.network.create_network(name=self.NET_NAME)
         assert isinstance(net, network.Network)
         self.assertEqual(self.NET_NAME, net.name)
         self.NET_ID = net.id
-        sub = self.conn.network.create_subnet(
+        sub = self.user_cloud.network.create_subnet(
             name=self.SUB_NAME,
             ip_version=self.IPV4,
             network_id=self.NET_ID,
-            cidr=self.CIDR)
+            cidr=self.CIDR,
+        )
         assert isinstance(sub, subnet.Subnet)
         self.assertEqual(self.SUB_NAME, sub.name)
         self.SUB_ID = sub.id
-        prt = self.conn.network.create_port(
-            name=self.PORT_NAME,
-            network_id=self.NET_ID)
+        prt = self.user_cloud.network.create_port(
+            name=self.PORT_NAME, network_id=self.NET_ID
+        )
         assert isinstance(prt, port.Port)
         self.assertEqual(self.PORT_NAME, prt.name)
         self.PORT_ID = prt.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_port(
-            self.PORT_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_port(
+            self.PORT_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_subnet(
-            self.SUB_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_subnet(
+            self.SUB_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
-        sot = self.conn.network.delete_network(
-            self.NET_ID, ignore_missing=False)
+        sot = self.user_cloud.network.delete_network(
+            self.NET_ID, ignore_missing=False
+        )
         self.assertIsNone(sot)
         super(TestPort, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_port(self.PORT_NAME)
+        sot = self.user_cloud.network.find_port(self.PORT_NAME)
         self.assertEqual(self.PORT_ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_port(self.PORT_ID)
+        sot = self.user_cloud.network.get_port(self.PORT_ID)
         self.assertEqual(self.PORT_ID, sot.id)
         self.assertEqual(self.PORT_NAME, sot.name)
         self.assertEqual(self.NET_ID, sot.network_id)
 
     def test_list(self):
-        ids = [o.id for o in self.conn.network.ports()]
+        ids = [o.id for o in self.user_cloud.network.ports()]
         self.assertIn(self.PORT_ID, ids)
 
     def test_update(self):
-        sot = self.conn.network.update_port(self.PORT_ID,
-                                            name=self.UPDATE_NAME)
+        sot = self.user_cloud.network.update_port(
+            self.PORT_ID, name=self.UPDATE_NAME
+        )
         self.assertEqual(self.UPDATE_NAME, sot.name)
 
     def test_set_tags(self):
-        sot = self.conn.network.get_port(self.PORT_ID)
+        sot = self.user_cloud.network.get_port(self.PORT_ID)
         self.assertEqual([], sot.tags)
 
-        self.conn.network.set_tags(sot, ['blue'])
-        sot = self.conn.network.get_port(self.PORT_ID)
-        self.assertEqual(['blue'], sot.tags)
+        self.user_cloud.network.set_tags(sot, ["blue"])
+        sot = self.user_cloud.network.get_port(self.PORT_ID)
+        self.assertEqual(["blue"], sot.tags)
 
-        self.conn.network.set_tags(sot, [])
-        sot = self.conn.network.get_port(self.PORT_ID)
+        self.user_cloud.network.set_tags(sot, [])
+        sot = self.user_cloud.network.get_port(self.PORT_ID)
         self.assertEqual([], sot.tags)

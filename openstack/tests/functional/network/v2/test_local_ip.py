@@ -24,45 +24,46 @@ class TestLocalIP(base.BaseFunctionalTest):
     def setUp(self):
         super(TestLocalIP, self).setUp()
 
-        if not self.conn.network.find_extension('local_ip'):
-            self.skipTest('Local IP extension disabled')
+        if not self.user_cloud.network.find_extension("local_ip"):
+            self.skipTest("Local IP extension disabled")
 
         self.LOCAL_IP_NAME = self.getUniqueString()
         self.LOCAL_IP_DESCRIPTION = self.getUniqueString()
         self.LOCAL_IP_NAME_UPDATED = self.getUniqueString()
         self.LOCAL_IP_DESCRIPTION_UPDATED = self.getUniqueString()
-        local_ip = self.conn.network.create_local_ip(
+        local_ip = self.user_cloud.network.create_local_ip(
             name=self.LOCAL_IP_NAME,
             description=self.LOCAL_IP_DESCRIPTION,
         )
         assert isinstance(local_ip, _local_ip.LocalIP)
         self.assertEqual(self.LOCAL_IP_NAME, local_ip.name)
-        self.assertEqual(self.LOCAL_IP_DESCRIPTION,
-                         local_ip.description)
+        self.assertEqual(self.LOCAL_IP_DESCRIPTION, local_ip.description)
         self.LOCAL_IP_ID = local_ip.id
 
     def tearDown(self):
-        sot = self.conn.network.delete_local_ip(self.LOCAL_IP_ID)
+        sot = self.user_cloud.network.delete_local_ip(self.LOCAL_IP_ID)
         self.assertIsNone(sot)
         super(TestLocalIP, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_local_ip(self.LOCAL_IP_NAME)
+        sot = self.user_cloud.network.find_local_ip(self.LOCAL_IP_NAME)
         self.assertEqual(self.LOCAL_IP_ID, sot.id)
 
     def test_get(self):
-        sot = self.conn.network.get_local_ip(self.LOCAL_IP_ID)
+        sot = self.user_cloud.network.get_local_ip(self.LOCAL_IP_ID)
         self.assertEqual(self.LOCAL_IP_NAME, sot.name)
 
     def test_list(self):
-        names = [local_ip.name for local_ip in self.conn.network.local_ips()]
+        names = [
+            local_ip.name
+            for local_ip in self.user_cloud.network.local_ips()]
         self.assertIn(self.LOCAL_IP_NAME, names)
 
     def test_update(self):
-        sot = self.conn.network.update_local_ip(
+        sot = self.user_cloud.network.update_local_ip(
             self.LOCAL_IP_ID,
             name=self.LOCAL_IP_NAME_UPDATED,
-            description=self.LOCAL_IP_DESCRIPTION_UPDATED)
+            description=self.LOCAL_IP_DESCRIPTION_UPDATED,
+        )
         self.assertEqual(self.LOCAL_IP_NAME_UPDATED, sot.name)
-        self.assertEqual(self.LOCAL_IP_DESCRIPTION_UPDATED,
-                         sot.description)
+        self.assertEqual(self.LOCAL_IP_DESCRIPTION_UPDATED, sot.description)

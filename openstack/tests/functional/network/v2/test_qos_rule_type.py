@@ -20,22 +20,27 @@ class TestQoSRuleType(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestQoSRuleType, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         # Skip the tests if qos-rule-type-details extension is not enabled.
-        if not self.conn.network.find_extension('qos-rule-type-details'):
-            self.skipTest('Network qos-rule-type-details extension disabled')
+        if not self.operator_cloud.network.find_extension(
+                "qos-rule-type-details"):
+            self.skipTest("Network qos-rule-type-details extension disabled")
 
     def test_find(self):
-        sot = self.conn.network.find_qos_rule_type(self.QOS_RULE_TYPE)
+        sot = self.operator_cloud.network.find_qos_rule_type(
+            self.QOS_RULE_TYPE)
         self.assertEqual(self.QOS_RULE_TYPE, sot.type)
         self.assertIsInstance(sot.drivers, list)
 
     def test_get(self):
-        sot = self.conn.network.get_qos_rule_type(self.QOS_RULE_TYPE)
+        sot = self.operator_cloud.network.get_qos_rule_type(self.QOS_RULE_TYPE)
         self.assertEqual(self.QOS_RULE_TYPE, sot.type)
         self.assertIsInstance(sot.drivers, list)
 
     def test_list(self):
-        rule_types = list(self.conn.network.qos_rule_types())
+        rule_types = list(self.operator_cloud.network.qos_rule_types())
         self.assertGreater(len(rule_types), 0)
 
         for rule_type in rule_types:

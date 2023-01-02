@@ -14,23 +14,32 @@ from openstack.tests.functional import base
 
 
 class TestQuota(base.BaseFunctionalTest):
+    def setUp(self):
+        super(TestQuota, self).setUp()
+
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud required for this test")
 
     def test_list(self):
-        for qot in self.conn.network.quotas():
+        for qot in self.operator_cloud.network.quotas():
             self.assertIsNotNone(qot.project_id)
             self.assertIsNotNone(qot.networks)
 
     def test_list_details(self):
-        expected_keys = ['limit', 'used', 'reserved']
-        project_id = self.conn.session.get_project_id()
-        quota_details = self.conn.network.get_quota(project_id, details=True)
+        expected_keys = ["limit", "used", "reserved"]
+        project_id = self.operator_cloud.session.get_project_id()
+        quota_details = self.operator_cloud.network.get_quota(
+            project_id, details=True
+        )
         for details in quota_details._body.attributes.values():
             for expected_key in expected_keys:
                 self.assertTrue(expected_key in details.keys())
 
     def test_set(self):
-        attrs = {'networks': 123456789}
-        for project_quota in self.conn.network.quotas():
-            self.conn.network.update_quota(project_quota, **attrs)
-            new_quota = self.conn.network.get_quota(project_quota.project_id)
+        attrs = {"networks": 123456789}
+        for project_quota in self.operator_cloud.network.quotas():
+            self.operator_cloud.network.update_quota(project_quota, **attrs)
+            new_quota = self.operator_cloud.network.get_quota(
+                project_quota.project_id
+            )
             self.assertEqual(123456789, new_quota.networks)

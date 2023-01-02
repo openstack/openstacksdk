@@ -15,9 +15,8 @@ from openstack.tests.functional import base
 
 
 class TestExtension(base.BaseFunctionalTest):
-
     def test_list(self):
-        extensions = list(self.conn.network.extensions())
+        extensions = list(self.user_cloud.network.extensions())
         self.assertGreater(len(extensions), 0)
 
         for ext in extensions:
@@ -25,5 +24,5 @@ class TestExtension(base.BaseFunctionalTest):
             self.assertIsInstance(ext.alias, str)
 
     def test_find(self):
-        extension = self.conn.network.find_extension('external-net')
-        self.assertEqual('Neutron external network', extension.name)
+        extension = self.user_cloud.network.find_extension("external-net")
+        self.assertEqual("Neutron external network", extension.name)

@@ -11,8 +11,9 @@
 # under the License.
 
 
-from openstack.network.v2 import (qos_dscp_marking_rule as
-                                  _qos_dscp_marking_rule)
+from openstack.network.v2 import (
+    qos_dscp_marking_rule as _qos_dscp_marking_rule
+)
 from openstack.tests.functional import base
 
 
@@ -27,9 +28,12 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
     def setUp(self):
         super(TestQoSDSCPMarkingRule, self).setUp()
 
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         # Skip the tests if qos extension is not enabled.
-        if not self.conn.network.find_extension('qos'):
-            self.skipTest('Network qos extension disabled')
+        if not self.conn.network.find_extension("qos"):
+            self.skipTest("Network qos extension disabled")
 
         self.QOS_POLICY_NAME = self.getUniqueString()
         self.RULE_ID = self.getUniqueString()
@@ -40,7 +44,8 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
         )
         self.QOS_POLICY_ID = qos_policy.id
         qos_rule = self.conn.network.create_qos_dscp_marking_rule(
-            self.QOS_POLICY_ID, dscp_mark=self.RULE_DSCP_MARK,
+            self.QOS_POLICY_ID,
+            dscp_mark=self.RULE_DSCP_MARK,
         )
         assert isinstance(qos_rule, _qos_dscp_marking_rule.QoSDSCPMarkingRule)
         self.assertEqual(self.RULE_DSCP_MARK, qos_rule.dscp_mark)
@@ -48,8 +53,8 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
 
     def tearDown(self):
         rule = self.conn.network.delete_qos_minimum_bandwidth_rule(
-            self.RULE_ID,
-            self.QOS_POLICY_ID)
+            self.RULE_ID, self.QOS_POLICY_ID
+        )
         qos_policy = self.conn.network.delete_qos_policy(self.QOS_POLICY_ID)
         self.assertIsNone(rule)
         self.assertIsNone(qos_policy)
@@ -57,28 +62,30 @@ class TestQoSDSCPMarkingRule(base.BaseFunctionalTest):
 
     def test_find(self):
         sot = self.conn.network.find_qos_dscp_marking_rule(
-            self.RULE_ID,
-            self.QOS_POLICY_ID)
+            self.RULE_ID, self.QOS_POLICY_ID
+        )
         self.assertEqual(self.RULE_ID, sot.id)
         self.assertEqual(self.RULE_DSCP_MARK, sot.dscp_mark)
 
     def test_get(self):
         sot = self.conn.network.get_qos_dscp_marking_rule(
-            self.RULE_ID,
-            self.QOS_POLICY_ID)
+            self.RULE_ID, self.QOS_POLICY_ID
+        )
         self.assertEqual(self.RULE_ID, sot.id)
         self.assertEqual(self.QOS_POLICY_ID, sot.qos_policy_id)
         self.assertEqual(self.RULE_DSCP_MARK, sot.dscp_mark)
 
     def test_list(self):
-        rule_ids = [o.id for o in
-                    self.conn.network.qos_dscp_marking_rules(
-                        self.QOS_POLICY_ID)]
+        rule_ids = [
+            o.id
+            for o in self.conn.network.qos_dscp_marking_rules(
+                self.QOS_POLICY_ID
+            )
+        ]
         self.assertIn(self.RULE_ID, rule_ids)
 
     def test_update(self):
         sot = self.conn.network.update_qos_dscp_marking_rule(
-            self.RULE_ID,
-            self.QOS_POLICY_ID,
-            dscp_mark=self.RULE_DSCP_MARK_NEW)
+            self.RULE_ID, self.QOS_POLICY_ID, dscp_mark=self.RULE_DSCP_MARK_NEW
+        )
         self.assertEqual(self.RULE_DSCP_MARK_NEW, sot.dscp_mark)

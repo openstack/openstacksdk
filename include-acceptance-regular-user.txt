@@ -1,6 +1,7 @@
 # This file contains list of tests that can work with regular user privileges
 # Until all tests are modified to properly identify whether they are able to
 # run or must skip the ones that are known to work are listed here.
+openstack.tests.functional.network
 openstack.tests.functional.block_storage.v3.test_volume
 # Do not enable test_backup for now, since it is not capable to determine
 # backup capabilities of the cloud

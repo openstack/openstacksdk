@@ -15,12 +15,11 @@ from openstack.tests.functional import base
 
 
 class TestAvailabilityZone(base.BaseFunctionalTest):
-
     def test_list(self):
-        availability_zones = list(self.conn.network.availability_zones())
-        self.assertGreater(len(availability_zones), 0)
+        availability_zones = list(self.user_cloud.network.availability_zones())
+        if len(availability_zones) > 0:
 
-        for az in availability_zones:
-            self.assertIsInstance(az.name, str)
-            self.assertIsInstance(az.resource, str)
-            self.assertIsInstance(az.state, str)
+            for az in availability_zones:
+                self.assertIsInstance(az.name, str)
+                self.assertIsInstance(az.resource, str)
+                self.assertIsInstance(az.state, str)

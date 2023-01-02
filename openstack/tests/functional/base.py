@@ -61,6 +61,8 @@ class BaseFunctionalTest(base.TestCase):
         self._set_user_cloud()
         if self._op_name:
             self._set_operator_cloud()
+        else:
+            self.operator_cloud = None
 
         self.identity_version = \
             self.user_cloud.config.get_api_version('identity')

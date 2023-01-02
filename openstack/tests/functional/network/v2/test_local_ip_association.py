@@ -25,44 +25,51 @@ class TestLocalIPAssociation(base.BaseFunctionalTest):
     def setUp(self):
         super(TestLocalIPAssociation, self).setUp()
 
-        if not self.conn.network.find_extension('local_ip'):
-            self.skipTest('Local IP extension disabled')
+        if not self.user_cloud.network.find_extension("local_ip"):
+            self.skipTest("Local IP extension disabled")
 
         self.LOCAL_IP_ID = self.getUniqueString()
         self.FIXED_PORT_ID = self.getUniqueString()
         self.FIXED_IP = self.getUniqueString()
-        local_ip_association = self.conn.network.create_local_ip_association(
-            local_ip=self.LOCAL_IP_ID,
-            fixed_port_id=self.FIXED_PORT_ID,
-            fixed_ip=self.FIXED_IP
+        local_ip_association = self.user_cloud.network \
+            .create_local_ip_association(
+                local_ip=self.LOCAL_IP_ID,
+                fixed_port_id=self.FIXED_PORT_ID,
+                fixed_ip=self.FIXED_IP,
+            )
+        assert isinstance(
+            local_ip_association, _local_ip_association.LocalIPAssociation
         )
-        assert isinstance(local_ip_association,
-                          _local_ip_association.LocalIPAssociation)
         self.assertEqual(self.LOCAL_IP_ID, local_ip_association.local_ip_id)
-        self.assertEqual(self.FIXED_PORT_ID,
-                         local_ip_association.fixed_port_id)
-        self.assertEqual(self.FIXED_IP,
-                         local_ip_association.fixed_ip)
+        self.assertEqual(
+            self.FIXED_PORT_ID, local_ip_association.fixed_port_id
+        )
+        self.assertEqual(self.FIXED_IP, local_ip_association.fixed_ip)
 
     def tearDown(self):
-        sot = self.conn.network.delete_local_ip_association(
-            self.LOCAL_IP_ID,
-            self.FIXED_PORT_ID)
+        sot = self.user_cloud.network.delete_local_ip_association(
+            self.LOCAL_IP_ID, self.FIXED_PORT_ID
+        )
         self.assertIsNone(sot)
         super(TestLocalIPAssociation, self).tearDown()
 
     def test_find(self):
-        sot = self.conn.network.find_local_ip_association(self.FIXED_PORT_ID,
-                                                          self.LOCAL_IP_ID)
+        sot = self.user_cloud.network.find_local_ip_association(
+            self.FIXED_PORT_ID, self.LOCAL_IP_ID
+        )
         self.assertEqual(self.FIXED_PORT_ID, sot.fixed_port_id)
 
     def test_get(self):
-        sot = self.conn.network.get_local_ip_association(self.FIXED_PORT_ID,
-                                                         self.LOCAL_IP_ID)
+        sot = self.user_cloud.network.get_local_ip_association(
+            self.FIXED_PORT_ID, self.LOCAL_IP_ID
+        )
         self.assertEqual(self.FIXED_PORT_ID, sot.fixed_port_id)
 
     def test_list(self):
-        fixed_port_id = [obj.fixed_port_id for obj in
-                         self.conn.network.local_ip_associations(
-                             self.LOCAL_IP_ID)]
+        fixed_port_id = [
+            obj.fixed_port_id
+            for obj in self.user_cloud.network.local_ip_associations(
+                self.LOCAL_IP_ID
+            )
+        ]
         self.assertIn(self.FIXED_PORT_ID, fixed_port_id)
