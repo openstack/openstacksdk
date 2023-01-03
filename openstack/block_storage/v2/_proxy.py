@@ -37,6 +37,28 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_snapshot.Snapshot, snapshot)
 
+    def find_snapshot(self, name_or_id, ignore_missing=True):
+        """Find a single snapshot
+
+        :param snapshot: The name or ID a snapshot
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the snapshot does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
+
+        :returns: One :class:`~openstack.block_storage.v2.snapshot.Snapshot` or
+            None.
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        return self._find(
+            _snapshot.Snapshot,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
+
     def snapshots(self, details=True, **query):
         """Retrieve a generator of snapshots
 
@@ -456,6 +478,26 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :rtype: :class:`~openstack.block_storage.v2.backup.Backup`
         """
         return self._get(_backup.Backup, backup)
+
+    def find_backup(self, name_or_id, ignore_missing=True):
+        """Find a single backup
+
+        :param snapshot: The name or ID a backup
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the backup does not exist.
+
+        :returns: One :class:`~openstack.block_storage.v2.backup.Backup`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
+        """
+        return self._find(
+            _backup.Backup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def create_backup(self, **attrs):
         """Create a new Backup from attributes with native API
