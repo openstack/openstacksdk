@@ -26,6 +26,9 @@ from openstack.tests.functional import base
 class TestInventory(base.BaseFunctionalTest):
     def setUp(self):
         super().setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         # This needs to use an admin account, otherwise a public IP
         # is not allocated from devstack.
         self.inventory = inventory.OpenStackInventory(cloud='devstack-admin')

@@ -35,13 +35,15 @@ class TestFlavor(base.BaseFunctionalTest):
 
     def _cleanup_flavors(self):
         exception_list = list()
-        for f in self.operator_cloud.list_flavors(get_extra=False):
-            if f['name'].startswith(self.new_item_name):
-                try:
-                    self.operator_cloud.delete_flavor(f['id'])
-                except Exception as e:
-                    # We were unable to delete a flavor, let's try with next
-                    exception_list.append(str(e))
+        if self.operator_cloud:
+            for f in self.operator_cloud.list_flavors(get_extra=False):
+                if f['name'].startswith(self.new_item_name):
+                    try:
+                        self.operator_cloud.delete_flavor(f['id'])
+                    except Exception as e:
+                        # We were unable to delete a flavor, let's try with
+                        # next
+                        exception_list.append(str(e))
                     continue
         if exception_list:
             # Raise an error: we must make users aware that something went
@@ -49,6 +51,9 @@ class TestFlavor(base.BaseFunctionalTest):
             raise OpenStackCloudException('\n'.join(exception_list))
 
     def test_create_flavor(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         flavor_name = self.new_item_name + '_create'
         flavor_kwargs = dict(
             name=flavor_name, ram=1024, vcpus=2, disk=10, ephemeral=5,
@@ -85,24 +90,31 @@ class TestFlavor(base.BaseFunctionalTest):
             name=priv_flavor_name, ram=1024, vcpus=2, disk=10, is_public=False
         )
 
-        # Create a public and private flavor. We expect both to be listed
-        # for an operator.
-        self.operator_cloud.create_flavor(**public_kwargs)
-        self.operator_cloud.create_flavor(**private_kwargs)
+        if self.operator_cloud:
+            # Create a public and private flavor. We expect both to be listed
+            # for an operator.
+            self.operator_cloud.create_flavor(**public_kwargs)
+            self.operator_cloud.create_flavor(**private_kwargs)
 
-        flavors = self.operator_cloud.list_flavors(get_extra=False)
+            flavors = self.operator_cloud.list_flavors(get_extra=False)
 
-        # Flavor list will include the standard devstack flavors. We just want
-        # to make sure both of the flavors we just created are present.
-        found = []
-        for f in flavors:
-            # extra_specs should be added within list_flavors()
-            self.assertIn('extra_specs', f)
-            if f['name'] in (pub_flavor_name, priv_flavor_name):
-                found.append(f)
-        self.assertEqual(2, len(found))
+            # Flavor list will include the standard devstack flavors. We just
+            # want to make sure both of the flavors we just created are
+            # present.
+            found = []
+            for f in flavors:
+                # extra_specs should be added within list_flavors()
+                self.assertIn('extra_specs', f)
+                if f['name'] in (pub_flavor_name, priv_flavor_name):
+                    found.append(f)
+            self.assertEqual(2, len(found))
+        else:
+            self.user_cloud.list_flavors()
 
     def test_flavor_access(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         priv_flavor_name = self.new_item_name + '_private'
         private_kwargs = dict(
             name=priv_flavor_name, ram=1024, vcpus=2, disk=10, is_public=False
@@ -141,6 +153,9 @@ class TestFlavor(base.BaseFunctionalTest):
         """
         Test setting and unsetting flavor extra specs
         """
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         flavor_name = self.new_item_name + '_spec_test'
         kwargs = dict(
             name=flavor_name, ram=1024, vcpus=2, disk=10

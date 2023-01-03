@@ -33,6 +33,9 @@ class TestUsage(base.BaseFunctionalTest):
 
     def test_get_other_compute_limits(self):
         '''Test quotas functionality'''
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         limits = self.operator_cloud.get_compute_limits('demo')
         self.assertIsNotNone(limits)
         self.assertTrue(hasattr(limits, 'server_meta'))
@@ -48,5 +51,8 @@ class TestUsage(base.BaseFunctionalTest):
 
     def test_get_other_volume_limits(self):
         '''Test quotas functionality'''
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         limits = self.operator_cloud.get_volume_limits('demo')
         self.assertFalse(hasattr(limits, 'maxTotalVolumes'))

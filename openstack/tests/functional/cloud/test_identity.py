@@ -27,6 +27,8 @@ from openstack.tests.functional import base
 class TestIdentity(base.KeystoneBaseFunctionalTest):
     def setUp(self):
         super(TestIdentity, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
         self.role_prefix = 'test_role' + ''.join(
             random.choice(string.ascii_lowercase) for _ in range(5))
         self.user_prefix = self.getUniqueString('user')

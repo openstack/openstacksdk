@@ -40,10 +40,12 @@ class TestObject(base.BaseFunctionalTest):
         self.addDetail('container', content.text_content(container_name))
         self.addCleanup(self.user_cloud.delete_container, container_name)
         self.user_cloud.create_container(container_name)
-        self.assertEqual(container_name,
-                         self.user_cloud.list_containers()[0]['name'])
-        self.assertEqual([],
-                         self.user_cloud.list_containers(prefix='somethin'))
+        container = self.user_cloud.get_container(container_name)
+        self.assertEqual(
+            container_name, container.name)
+        self.assertEqual(
+            [],
+            self.user_cloud.list_containers(prefix='somethin'))
         sizes = (
             (64 * 1024, 1),  # 64K, one segment
             (64 * 1024, 5)   # 64MB, 5 segments
@@ -99,8 +101,9 @@ class TestObject(base.BaseFunctionalTest):
             self.assertTrue(
                 self.user_cloud.delete_object(container_name, name))
         self.assertEqual([], self.user_cloud.list_objects(container_name))
-        self.assertEqual(container_name,
-                         self.user_cloud.list_containers()[0]['name'])
+        self.assertEqual(
+            container_name,
+            self.user_cloud.get_container(container_name).name)
         self.user_cloud.delete_container(container_name)
 
     def test_download_object_to_file(self):

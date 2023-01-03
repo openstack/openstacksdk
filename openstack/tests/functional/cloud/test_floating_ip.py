@@ -62,7 +62,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
                                         r, subnet_id=s['id'])
                                 except Exception:
                                     pass
-                        self.user_cloud.delete_router(r)
+                        self.user_cloud.delete_router(r.id)
                 except Exception as e:
                     exception_list.append(e)
                     tb_list.append(sys.exc_info()[2])
@@ -71,7 +71,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
             for s in self.user_cloud.list_subnets():
                 if s['name'].startswith(self.new_item_name):
                     try:
-                        self.user_cloud.delete_subnet(s)
+                        self.user_cloud.delete_subnet(s.id)
                     except Exception as e:
                         exception_list.append(e)
                         tb_list.append(sys.exc_info()[2])
@@ -80,7 +80,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
             for n in self.user_cloud.list_networks():
                 if n['name'].startswith(self.new_item_name):
                     try:
-                        self.user_cloud.delete_network(n)
+                        self.user_cloud.delete_network(n.id)
                     except Exception as e:
                         exception_list.append(e)
                         tb_list.append(sys.exc_info()[2])
@@ -104,7 +104,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
         for i in self.user_cloud.list_servers(bare=True):
             if i.name.startswith(self.new_item_name):
                 try:
-                    self.user_cloud.delete_server(i, wait=True)
+                    self.user_cloud.delete_server(i.id, wait=True)
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
@@ -124,7 +124,7 @@ class TestFloatingIP(base.BaseFunctionalTest):
             if (ip.get('fixed_ip', None) == fixed_ip
                     or ip.get('fixed_ip_address', None) == fixed_ip):
                 try:
-                    self.user_cloud.delete_floating_ip(ip)
+                    self.user_cloud.delete_floating_ip(ip.id)
                 except Exception as e:
                     exception_list.append(str(e))
                     continue
@@ -235,38 +235,50 @@ class TestFloatingIP(base.BaseFunctionalTest):
             server_id=new_server.id, floating_ip_id=f_ip['id'])
 
     def test_list_floating_ips(self):
-        fip_admin = self.operator_cloud.create_floating_ip()
-        self.addCleanup(self.operator_cloud.delete_floating_ip, fip_admin.id)
+        if self.operator_cloud:
+            fip_admin = self.operator_cloud.create_floating_ip()
+            self.addCleanup(
+                self.operator_cloud.delete_floating_ip, fip_admin.id)
         fip_user = self.user_cloud.create_floating_ip()
         self.addCleanup(self.user_cloud.delete_floating_ip, fip_user.id)
 
         # Get all the floating ips.
-        fip_id_list = [
-            fip.id for fip in self.operator_cloud.list_floating_ips()
+        if self.operator_cloud:
+            fip_op_id_list = [
+                fip.id for fip in self.operator_cloud.list_floating_ips()
+            ]
+        fip_user_id_list = [
+            fip.id for fip in self.user_cloud.list_floating_ips()
         ]
+
         if self.user_cloud.has_service('network'):
+            self.assertIn(fip_user.id, fip_user_id_list)
             # Neutron returns all FIP for all projects by default
-            self.assertIn(fip_admin.id, fip_id_list)
-            self.assertIn(fip_user.id, fip_id_list)
+            if self.operator_cloud and fip_admin:
+                self.assertIn(fip_user.id, fip_op_id_list)
 
             # Ask Neutron for only a subset of all the FIPs.
-            filtered_fip_id_list = [
-                fip.id for fip in self.operator_cloud.list_floating_ips(
-                    {'tenant_id': self.user_cloud.current_project_id}
-                )
-            ]
-            self.assertNotIn(fip_admin.id, filtered_fip_id_list)
-            self.assertIn(fip_user.id, filtered_fip_id_list)
+            if self.operator_cloud:
+                filtered_fip_id_list = [
+                    fip.id for fip in self.operator_cloud.list_floating_ips(
+                        {'tenant_id': self.user_cloud.current_project_id}
+                    )
+                ]
+                self.assertNotIn(fip_admin.id, filtered_fip_id_list)
+                self.assertIn(fip_user.id, filtered_fip_id_list)
 
         else:
-            self.assertIn(fip_admin.id, fip_id_list)
+            if fip_admin:
+                self.assertIn(fip_admin.id, fip_op_id_list)
             # By default, Nova returns only the FIPs that belong to the
             # project which made the listing request.
-            self.assertNotIn(fip_user.id, fip_id_list)
-            self.assertRaisesRegex(
-                ValueError, "Nova-network don't support server-side.*",
-                self.operator_cloud.list_floating_ips, filters={'foo': 'bar'}
-            )
+            if self.operator_cloud:
+                self.assertNotIn(fip_user.id, fip_op_id_list)
+                self.assertRaisesRegex(
+                    ValueError, "Nova-network don't support server-side.*",
+                    self.operator_cloud.list_floating_ips,
+                    filters={'foo': 'bar'}
+                )
 
     def test_search_floating_ips(self):
         fip_user = self.user_cloud.create_floating_ip()

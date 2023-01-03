@@ -88,6 +88,8 @@ class BaseFunctionalTest(base.TestCase):
                 cloud=self._demo_name_alt, **kwargs)
             self.user_cloud_alt = connection.Connection(config=user_config_alt)
             _disable_keep_alive(self.user_cloud_alt)
+        else:
+            self.user_cloud_alt = None
 
     def _set_operator_cloud(self, **kwargs):
         operator_config = self.config.get_one(cloud=self._op_name, **kwargs)

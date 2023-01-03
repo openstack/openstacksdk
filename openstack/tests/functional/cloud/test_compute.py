@@ -150,6 +150,8 @@ class TestCompute(base.BaseFunctionalTest):
         self.assertTrue(srv is None or srv.status.lower() == 'deleted')
 
     def test_list_all_servers(self):
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
         server = self.user_cloud.create_server(
             name=self.server_name,
@@ -474,6 +476,9 @@ class TestCompute(base.BaseFunctionalTest):
     def test_get_compute_usage(self):
         '''Test usage functionality'''
         # Add a server so that we can know we have usage
+        if not self.operator_cloud:
+            # TODO(gtema) rework method not to require getting project
+            self.skipTest("Operator cloud is required for this test")
         self.addCleanup(self._cleanup_servers_and_volumes, self.server_name)
         self.user_cloud.create_server(
             name=self.server_name,

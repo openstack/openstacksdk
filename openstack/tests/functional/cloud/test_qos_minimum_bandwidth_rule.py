@@ -25,6 +25,8 @@ from openstack.tests.functional import base
 class TestQosMinimumBandwidthRule(base.BaseFunctionalTest):
     def setUp(self):
         super(TestQosMinimumBandwidthRule, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
         if not self.operator_cloud.has_service('network'):
             self.skipTest('Network service not supported by cloud')
         if not self.operator_cloud._has_neutron_extension('qos'):

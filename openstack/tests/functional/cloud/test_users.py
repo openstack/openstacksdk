@@ -24,6 +24,9 @@ from openstack.tests.functional import base
 class TestUsers(base.KeystoneBaseFunctionalTest):
     def setUp(self):
         super(TestUsers, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
+
         self.user_prefix = self.getUniqueString('user')
         self.addCleanup(self._cleanup_users)
 

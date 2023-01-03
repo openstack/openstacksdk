@@ -33,6 +33,8 @@ class TestVolumeType(base.BaseFunctionalTest):
 
     def setUp(self):
         super(TestVolumeType, self).setUp()
+        if not self.operator_cloud:
+            self.skipTest("Operator cloud is required for this test")
         if not self.user_cloud.has_service('volume'):
             self.skipTest('volume service not supported by cloud')
         volume_type = {

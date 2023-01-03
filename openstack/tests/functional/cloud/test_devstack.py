@@ -43,13 +43,3 @@ class TestDevstack(base.BaseFunctionalTest):
         if os.environ.get(
                 'OPENSTACKSDK_HAS_{env}'.format(env=self.env), '0') == '1':
             self.assertTrue(self.user_cloud.has_service(self.service))
-
-
-class TestKeystoneVersion(base.BaseFunctionalTest):
-
-    def test_keystone_version(self):
-        use_keystone_v2 = os.environ.get('OPENSTACKSDK_USE_KEYSTONE_V2', False)
-        if use_keystone_v2 and use_keystone_v2 != '0':
-            self.assertEqual('2.0', self.identity_version)
-        else:
-            self.assertEqual('3', self.identity_version)
