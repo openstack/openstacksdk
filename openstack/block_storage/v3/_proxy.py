@@ -62,33 +62,53 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_snapshot.Snapshot, snapshot)
 
-    def find_snapshot(self, name_or_id, ignore_missing=True):
+    def find_snapshot(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        all_projects=False,
+    ):
         """Find a single snapshot
 
         :param snapshot: The name or ID a snapshot
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
-            when the snapshot does not exist.
+            when the snapshot does not exist. When set to ``True``, None will
+            be returned when attempting to find a nonexistent resource.
+        :param bool all_projects: When set to ``True``, search for snapshot by
+            name across all projects. Note that this will likely result in
+            a higher chance of duplicates. Admin-only by default.
 
         :returns: One :class:`~openstack.block_storage.v3.snapshot.Snapshot`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_snapshot.Snapshot, name_or_id,
-                          ignore_missing=ignore_missing)
+        query = {}
+        if all_projects:
+            query['all_projects'] = True
+        return self._find(
+            _snapshot.Snapshot,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            **query,
+        )
 
-    def snapshots(self, details=True, **query):
+    def snapshots(self, *, details=True, all_projects=False, **query):
         """Retrieve a generator of snapshots
 
         :param bool details: When set to ``False`` :class:
             `~openstack.block_storage.v3.snapshot.Snapshot`
             objects will be returned. The default, ``True``, will cause
             more attributes to be returned.
+        :param bool all_projects: When set to ``True``, list snapshots from all
+            projects. Admin-only by default.
         :param kwargs query: Optional query parameters to be sent to limit
             the snapshots being returned.  Available parameters include:
 
             * name: Name of the snapshot as a string.
-            * all_projects: Whether return the snapshots in all projects.
             * project_id: Filter the snapshots by project.
             * volume_id: volume id of a snapshot.
             * status: Value of the status of the snapshot so that you can
@@ -96,6 +116,8 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
 
         :returns: A generator of snapshot objects.
         """
+        if all_projects:
+            query['all_projects'] = True
         base_path = '/snapshots/detail' if details else None
         return self._list(_snapshot.Snapshot, base_path=base_path, **query)
 
@@ -237,14 +259,19 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param snapshot: The name or ID a volume type
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
-            when the type does not exist.
+            when the volume type does not exist.
 
         :returns: One :class:`~openstack.block_storage.v3.type.Type`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_type.Type, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _type.Type,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def types(self, **query):
         """Retrieve a generator of volume types
@@ -469,38 +496,59 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_volume.Volume, volume)
 
-    def find_volume(self, name_or_id, ignore_missing=True):
+    def find_volume(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        all_projects=False,
+    ):
         """Find a single volume
 
         :param snapshot: The name or ID a volume
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the volume does not exist.
+        :param bool all_projects: When set to ``True``, search for volume by
+            name across all projects. Note that this will likely result in
+            a higher chance of duplicates. Admin-only by default.
 
         :returns: One :class:`~openstack.block_storage.v3.volume.Volume`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_volume.Volume, name_or_id,
-                          ignore_missing=ignore_missing,
-                          list_base_path='/volumes/detail')
+        query = {}
+        if all_projects:
+            query['all_projects'] = True
+        return self._find(
+            _volume.Volume,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path='/volumes/detail',
+            **query,
+        )
 
-    def volumes(self, details=True, **query):
+    def volumes(self, *, details=True, all_projects=False, **query):
         """Retrieve a generator of volumes
 
         :param bool details: When set to ``False`` no extended attributes
             will be returned. The default, ``True``, will cause objects with
             additional attributes to be returned.
+        :param bool all_projects: When set to ``True``, list volumes from all
+            projects. Admin-only by default.
         :param kwargs query: Optional query parameters to be sent to limit
             the volumes being returned.  Available parameters include:
 
             * name: Name of the volume as a string.
-            * all_projects: Whether return the volumes in all projects
             * status: Value of the status of the volume so that you can filter
               on "available" for example.
 
         :returns: A generator of volume objects.
         """
+        if all_projects:
+            query['all_projects'] = True
         base_path = '/volumes/detail' if details else None
         return self._list(_volume.Volume, base_path=base_path, **query)
 
@@ -872,7 +920,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         return self._list(_stats.Pools, **query)
 
     # ====== BACKUPS ======
-    def backups(self, details=True, **query):
+    def backups(self, *, details=True, **query):
         """Retrieve a generator of backups
 
         :param bool details: When set to ``False``
@@ -921,9 +969,14 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: One :class:`~openstack.block_storage.v3.backup.Backup`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
-        return self._find(_backup.Backup, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _backup.Backup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def create_backup(self, **attrs):
         """Create a new Backup from attributes with native API
@@ -1032,11 +1085,16 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: One :class:`~openstack.block_storage.v3.group.Group`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
         return self._find(
-            _group.Group, name_or_id, ignore_missing=ignore_missing)
+            _group.Group,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
-    def groups(self, details=True, **query):
+    def groups(self, *, details=True, **query):
         """Retrieve a generator of groups
 
         :param bool details: When set to ``False``, no additional details will
@@ -1155,12 +1213,16 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :returns: One :class:`~openstack.block_storage.v3.group_snapshot`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
         return self._find(
-            _group_snapshot.GroupSnapshot, name_or_id,
-            ignore_missing=ignore_missing)
+            _group_snapshot.GroupSnapshot,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
-    def group_snapshots(self, details=True, **query):
+    def group_snapshots(self, *, details=True, **query):
         """Retrieve a generator of group snapshots
 
         :param bool details: When ``True``, returns
@@ -1245,9 +1307,14 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.block_storage.v3.group_type.GroupType`
         :raises: :class:`~openstack.exceptions.ResourceNotFound` when no
             resource can be found.
+        :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
+            resources are found.
         """
         return self._find(
-            _group_type.GroupType, name_or_id, ignore_missing=ignore_missing)
+            _group_type.GroupType,
+            name_or_id,
+            ignore_missing=ignore_missing,
+        )
 
     def group_types(self, **query):
         """Retrive a generator of group types

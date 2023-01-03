@@ -2192,6 +2192,7 @@ class Resource(dict):
         list_base_path=None,
         *,
         microversion=None,
+        all_projects=None,
         **params,
     ):
         """Find a resource by its name or id.
@@ -2220,10 +2221,13 @@ class Resource(dict):
             is found and ignore_missing is ``False``.
         """
         session = cls._get_session(session)
+
         # Try to short-circuit by looking directly for a matching ID.
         try:
             match = cls.existing(
-                id=name_or_id, connection=session._get_connection(), **params
+                id=name_or_id,
+                connection=session._get_connection(),
+                **params,
             )
             return match.fetch(session, microversion=microversion, **params)
         except (exceptions.NotFoundException, exceptions.BadRequestException):
@@ -2233,6 +2237,12 @@ class Resource(dict):
 
         if list_base_path:
             params['base_path'] = list_base_path
+
+        # all_projects is a special case that is used by multiple services. We
+        # handle it here since it doesn't make sense to pass it to the .fetch
+        # call above
+        if all_projects is not None:
+            params['all_projects'] = all_projects
 
         if (
             'name' in cls._query_mapping._mapping.keys()
@@ -2248,6 +2258,7 @@ class Resource(dict):
 
         if ignore_missing:
             return None
+
         raise exceptions.ResourceNotFound(
             "No %s found for %s" % (cls.__name__, name_or_id)
         )

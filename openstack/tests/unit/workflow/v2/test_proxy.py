@@ -85,5 +85,8 @@ class TestCronTriggerProxy(test_proxy_base.TestProxyBase):
                            cron_trigger.CronTrigger, True)
 
     def test_cron_trigger_find(self):
-        self.verify_find(self.proxy.find_cron_trigger,
-                         cron_trigger.CronTrigger)
+        self.verify_find(
+            self.proxy.find_cron_trigger,
+            cron_trigger.CronTrigger,
+            expected_kwargs={'all_projects': False},
+        )

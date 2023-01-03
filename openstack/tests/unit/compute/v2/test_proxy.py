@@ -80,7 +80,8 @@ class TestFlavor(TestComputeProxy):
             self._verify(
                 'openstack.proxy.Proxy._find',
                 self.proxy.find_flavor,
-                method_args=['res', True, True],
+                method_args=['res', True],
+                method_kwargs={'get_extra_specs': True},
                 expected_result=res,
                 expected_args=[flavor.Flavor, 'res'],
                 expected_kwargs={'ignore_missing': True}
@@ -851,7 +852,11 @@ class TestCompute(TestComputeProxy):
         self.verify_find(
             self.proxy.find_server,
             server.Server,
-            expected_kwargs={'list_base_path': '/servers/detail'},
+            method_kwargs={'all_projects': True},
+            expected_kwargs={
+                'list_base_path': '/servers/detail',
+                'all_projects': True,
+            },
         )
 
     def test_server_get(self):
@@ -1209,8 +1214,12 @@ class TestCompute(TestComputeProxy):
                            server_group.ServerGroup, True)
 
     def test_server_group_find(self):
-        self.verify_find(self.proxy.find_server_group,
-                         server_group.ServerGroup)
+        self.verify_find(
+            self.proxy.find_server_group,
+            server_group.ServerGroup,
+            method_kwargs={'all_projects': True},
+            expected_kwargs={'all_projects': True},
+        )
 
     def test_server_group_get(self):
         self.verify_get(self.proxy.get_server_group,
