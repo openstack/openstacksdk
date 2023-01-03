@@ -112,7 +112,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_chassis.Chassis, **attrs)
 
-    def find_chassis(self, name_or_id, ignore_missing=True):
+    def find_chassis(self, name_or_id, ignore_missing=True, *, details=True):
         """Find a single chassis.
 
         :param str name_or_id: The ID of a chassis.
@@ -120,11 +120,19 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the chassis does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent chassis.
+        :param details: A boolean indicating whether the detailed information
+            for the chassis should be returned.
+
         :returns: One :class:`~openstack.baremetal.v1.chassis.Chassis` object
             or None.
         """
-        return self._find(_chassis.Chassis, name_or_id,
-                          ignore_missing=ignore_missing)
+        list_base_path = '/chassis/detail' if details else None
+        return self._find(
+            _chassis.Chassis,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
+        )
 
     def get_chassis(self, chassis, fields=None):
         """Get a specific chassis.
@@ -300,7 +308,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_node.Node, **attrs)
 
-    def find_node(self, name_or_id, ignore_missing=True):
+    def find_node(self, name_or_id, ignore_missing=True, *, details=True):
         """Find a single node.
 
         :param str name_or_id: The name or ID of a node.
@@ -308,11 +316,18 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the node does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent node.
+        :param details: A boolean indicating whether the detailed information
+            for the node should be returned.
         :returns: One :class:`~openstack.baremetal.v1.node.Node` object
             or None.
         """
-        return self._find(_node.Node, name_or_id,
-                          ignore_missing=ignore_missing)
+        list_base_path = '/nodes/detail' if details else None
+        return self._find(
+            _node.Node,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
+        )
 
     def get_node(self, node, fields=None):
         """Get a specific node.
@@ -685,7 +700,7 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_port.Port, **attrs)
 
-    def find_port(self, name_or_id, ignore_missing=True):
+    def find_port(self, name_or_id, ignore_missing=True, *, details=True):
         """Find a single port.
 
         :param str name_or_id: The ID of a port.
@@ -693,11 +708,18 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the port does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent port.
+        :param details: A boolean indicating whether the detailed information
+            for every port should be returned.
         :returns: One :class:`~openstack.baremetal.v1.port.Port` object
             or None.
         """
-        return self._find(_port.Port, name_or_id,
-                          ignore_missing=ignore_missing)
+        list_base_path = '/ports/detail' if details else None
+        return self._find(
+            _port.Port,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
+        )
 
     def get_port(self, port, fields=None):
         """Get a specific port.
@@ -803,7 +825,13 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_portgroup.PortGroup, **attrs)
 
-    def find_port_group(self, name_or_id, ignore_missing=True):
+    def find_port_group(
+        self,
+        name_or_id,
+        ignore_missing=True,
+        *,
+        details=True,
+    ):
         """Find a single port group.
 
         :param str name_or_id: The name or ID of a portgroup.
@@ -811,11 +839,18 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the port group does not exist.  When set to `True``, None will
             be returned when attempting to find a nonexistent port group.
+        :param details: A boolean indicating whether the detailed information
+            for the port group should be returned.
         :returns: One :class:`~openstack.baremetal.v1.port_group.PortGroup`
             object or None.
         """
-        return self._find(_portgroup.PortGroup, name_or_id,
-                          ignore_missing=ignore_missing)
+        list_base_path = '/portgroups/detail' if details else None
+        return self._find(
+            _portgroup.PortGroup,
+            name_or_id,
+            ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
+        )
 
     def get_port_group(self, port_group, fields=None):
         """Get a specific port group.
@@ -1169,6 +1204,8 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_volumeconnector.VolumeConnector, **attrs)
 
+    # TODO(stephenfin): Delete this. You can't lookup a volume connector by
+    # name so this is identical to get_volume_connector
     def find_volume_connector(self, vc_id, ignore_missing=True):
         """Find a single volume connector.
 
@@ -1183,8 +1220,11 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.volumeconnector.VolumeConnector`
             object or None.
         """
-        return self._find(_volumeconnector.VolumeConnector, vc_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _volumeconnector.VolumeConnector,
+            vc_id,
+            ignore_missing=ignore_missing,
+        )
 
     def get_volume_connector(self, volume_connector, fields=None):
         """Get a specific volume_connector.
@@ -1309,6 +1349,8 @@ class Proxy(proxy.Proxy):
         """
         return self._create(_volumetarget.VolumeTarget, **attrs)
 
+    # TODO(stephenfin): Delete this. You can't lookup a volume target by
+    # name so this is identical to get_volume_connector
     def find_volume_target(self, vt_id, ignore_missing=True):
         """Find a single volume target.
 
@@ -1323,8 +1365,11 @@ class Proxy(proxy.Proxy):
             :class:`~openstack.baremetal.v1.volumetarget.VolumeTarget`
             object or None.
         """
-        return self._find(_volumetarget.VolumeTarget, vt_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _volumetarget.VolumeTarget,
+            vt_id,
+            ignore_missing=ignore_missing,
+        )
 
     def get_volume_target(self, volume_target, fields=None):
         """Get a specific volume_target.

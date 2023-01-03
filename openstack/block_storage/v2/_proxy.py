@@ -42,6 +42,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         name_or_id,
         ignore_missing=True,
         *,
+        details=True,
         all_projects=False,
     ):
         """Find a single snapshot
@@ -51,12 +52,18 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the snapshot does not exist. When set to ``True``, None will
             be returned when attempting to find a nonexistent resource.
+        :param bool details: When set to ``False``, an
+            :class:`~openstack.block_storage.v2.snapshot.Snapshot` object will
+            be returned. The default, ``True``, will cause an
+            :class:`~openstack.block_storage.v2.snapshot.SnapshotDetail` object
+            to be returned.
         :param bool all_projects: When set to ``True``, search for snapshot by
             name across all projects. Note that this will likely result in
             a higher chance of duplicates. Admin-only by default.
 
-        :returns: One :class:`~openstack.block_storage.v2.snapshot.Snapshot` or
-            None.
+        :returns: One :class:`~openstack.block_storage.v2.snapshot.Snapshot`,
+            one :class:`~openstack.block_storage.v2.snapshot.SnapshotDetail`
+            object, or None.
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
             when no resource can be found.
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
@@ -65,10 +72,12 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         query = {}
         if all_projects:
             query['all_projects'] = True
+        list_base_path = '/snapshots/detail' if details else None
         return self._find(
             _snapshot.Snapshot,
             name_or_id,
             ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
             **query,
         )
 
@@ -242,6 +251,7 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         name_or_id,
         ignore_missing=True,
         *,
+        details=True,
         all_projects=False,
     ):
         """Find a single volume
@@ -250,6 +260,9 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the volume does not exist.
+        :param bool details: When set to ``False`` no extended attributes
+            will be returned. The default, ``True``, will cause an object with
+            additional attributes to be returned.
         :param bool all_projects: When set to ``True``, search for volume by
             name across all projects. Note that this will likely result in
             a higher chance of duplicates. Admin-only by default.
@@ -264,10 +277,12 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         query = {}
         if all_projects:
             query['all_projects'] = True
+        list_base_path = '/volumes/detail' if details else None
         return self._find(
             _volume.Volume,
             name_or_id,
             ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
             **query,
         )
 
@@ -517,13 +532,16 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         """
         return self._get(_backup.Backup, backup)
 
-    def find_backup(self, name_or_id, ignore_missing=True):
+    def find_backup(self, name_or_id, ignore_missing=True, *, details=True):
         """Find a single backup
 
         :param snapshot: The name or ID a backup
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised
             when the backup does not exist.
+        :param bool details: When set to ``False`` no additional details will
+            be returned. The default, ``True``, will cause objects with
+            additional attributes to be returned.
 
         :returns: One :class:`~openstack.block_storage.v2.backup.Backup`
         :raises: :class:`~openstack.exceptions.ResourceNotFound`
@@ -531,10 +549,12 @@ class Proxy(_base_proxy.BaseBlockStorageProxy):
         :raises: :class:`~openstack.exceptions.DuplicateResource` when multiple
             resources are found.
         """
+        list_base_path = '/backups/detail' if details else None
         return self._find(
             _backup.Backup,
             name_or_id,
             ignore_missing=ignore_missing,
+            list_base_path=list_base_path,
         )
 
     def create_backup(self, **attrs):
