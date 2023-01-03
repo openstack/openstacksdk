@@ -1,0 +1,12 @@
+---
+deprecations:
+  - |
+    The following Compute service proxy methods are now deprecated:
+
+    * ``find_image``
+    * ``get_image``
+    * ``delete_image``
+    * ``images``
+
+    These are proxy APIs for the Image service. You should use the Image
+    service instead via the Image service proxy methods.

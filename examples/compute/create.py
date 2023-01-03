@@ -56,7 +56,7 @@ def create_keypair(conn):
 def create_server(conn):
     print("Create Server:")
 
-    image = conn.compute.find_image(IMAGE_NAME)
+    image = conn.image.find_image(IMAGE_NAME)
     flavor = conn.compute.find_flavor(FLAVOR_NAME)
     network = conn.network.find_network(NETWORK_NAME)
     keypair = create_keypair(conn)

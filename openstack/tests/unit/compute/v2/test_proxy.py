@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import contextlib
 import datetime
 from unittest import mock
 import uuid
@@ -687,27 +688,51 @@ class TestCompute(TestComputeProxy):
     def test_extensions(self):
         self.verify_list(self.proxy.extensions, extension.Extension)
 
+    @contextlib.contextmanager
+    def _check_image_proxy_deprecation_warning(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            yield
+            self.assertEqual(1, len(w))
+            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+            self.assertIn(
+                "This API is a proxy to the image service ",
+                str(w[-1].message),
+            )
+
     def test_image_delete(self):
-        self.verify_delete(self.proxy.delete_image, image.Image, False)
+        with self._check_image_proxy_deprecation_warning():
+            self.verify_delete(self.proxy.delete_image, image.Image, False)
 
     def test_image_delete_ignore(self):
-        self.verify_delete(self.proxy.delete_image, image.Image, True)
+        with self._check_image_proxy_deprecation_warning():
+            self.verify_delete(self.proxy.delete_image, image.Image, True)
 
     def test_image_find(self):
-        self.verify_find(self.proxy.find_image, image.Image)
+        with self._check_image_proxy_deprecation_warning():
+            self.verify_find(self.proxy.find_image, image.Image)
 
     def test_image_get(self):
-        self.verify_get(self.proxy.get_image, image.Image)
+        with self._check_image_proxy_deprecation_warning():
+            self.verify_get(self.proxy.get_image, image.Image)
 
     def test_images_detailed(self):
-        self.verify_list(self.proxy.images, image.ImageDetail,
-                         method_kwargs={"details": True, "query": 1},
-                         expected_kwargs={"query": 1})
+        with self._check_image_proxy_deprecation_warning():
+            self.verify_list(
+                self.proxy.images,
+                image.ImageDetail,
+                method_kwargs={"details": True, "query": 1},
+                expected_kwargs={"query": 1},
+            )
 
     def test_images_not_detailed(self):
-        self.verify_list(self.proxy.images, image.Image,
-                         method_kwargs={"details": False, "query": 1},
-                         expected_kwargs={"query": 1})
+        with self._check_image_proxy_deprecation_warning():
+            self.verify_list(
+                self.proxy.images,
+                image.Image,
+                method_kwargs={"details": False, "query": 1},
+                expected_kwargs={"query": 1},
+            )
 
     def test_limits_get(self):
         self._verify(
