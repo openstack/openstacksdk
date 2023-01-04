@@ -266,8 +266,18 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
         # the URL used is sans any additional /detail/ part.
         url = utils.urljoin(Server.base_path, self.id, 'action')
         headers = {'Accept': ''}
+
+        # these aren't all necessary "commit" actions (i.e. updates) but it's
+        # good enough...
+        if microversion is None:
+            microversion = self._get_microversion(session, action='commit')
+
         response = session.post(
-            url, json=body, headers=headers, microversion=microversion)
+            url,
+            json=body,
+            headers=headers,
+            microversion=microversion,
+        )
         exceptions.raise_from_response(response)
         return response
 

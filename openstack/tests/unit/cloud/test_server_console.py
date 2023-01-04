@@ -29,6 +29,7 @@ class TestServerConsole(base.TestCase):
 
     def test_get_server_console_dict(self):
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri='{endpoint}/servers/{id}/action'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT,
@@ -67,6 +68,7 @@ class TestServerConsole(base.TestCase):
     def test_get_server_console_no_console(self):
 
         self.register_uris([
+            self.get_nova_discovery_mock_dict(),
             dict(method='POST',
                  uri='{endpoint}/servers/{id}/action'.format(
                      endpoint=fakes.COMPUTE_ENDPOINT,
