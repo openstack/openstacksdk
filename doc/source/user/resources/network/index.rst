@@ -9,6 +9,8 @@ Network Resources
    v2/agent
    v2/auto_allocated_topology
    v2/availability_zone
+   v2/bgp_peer
+   v2/bgp_speaker
    v2/extension
    v2/flavor
    v2/floating_ip

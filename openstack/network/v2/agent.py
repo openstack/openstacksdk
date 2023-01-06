@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -98,6 +99,18 @@ class Agent(resource.Resource):
         body = {'router_id': router}
         url = utils.urljoin(self.base_path, self.id, 'l3-routers', router)
         session.delete(url, json=body)
+
+    def get_bgp_speakers_hosted_by_dragent(self, session):
+        """List BGP speakers hosted by a Dynamic Routing Agent
+
+        :param session: The session to communicate through.
+        :type session: :class:`~keystoneauth1.adapter.Adapter`
+        """
+        url = utils.urljoin(self.base_path, self.id, 'bgp-drinstances')
+        resp = session.get(url)
+        exceptions.raise_from_response(resp)
+        self._body.attributes.update(resp.json())
+        return resp.json()
 
 
 class NetworkHostingDHCPAgent(Agent):

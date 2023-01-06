@@ -20,6 +20,8 @@ from openstack.network.v2 import address_scope
 from openstack.network.v2 import agent
 from openstack.network.v2 import auto_allocated_topology
 from openstack.network.v2 import availability_zone
+from openstack.network.v2 import bgp_peer
+from openstack.network.v2 import bgp_speaker
 from openstack.network.v2 import extension
 from openstack.network.v2 import firewall_group
 from openstack.network.v2 import firewall_policy
@@ -1945,3 +1947,53 @@ class TestNetworkNDPProxy(TestNetworkProxy):
 
     def test_ndp_proxy_update(self):
         self.verify_update(self.proxy.update_ndp_proxy, ndp_proxy.NDPProxy)
+
+
+class TestNetworkBGP(TestNetworkProxy):
+
+    def test_bgp_speaker_create(self):
+        self.verify_create(self.proxy.create_bgp_speaker,
+                           bgp_speaker.BgpSpeaker)
+
+    def test_bgp_speaker_delete(self):
+        self.verify_delete(self.proxy.delete_bgp_speaker,
+                           bgp_speaker.BgpSpeaker, False)
+
+    def test_bgp_speaker_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_bgp_speaker,
+                           bgp_speaker.BgpSpeaker, True)
+
+    def test_bgp_speaker_find(self):
+        self.verify_find(self.proxy.find_bgp_speaker, bgp_speaker.BgpSpeaker)
+
+    def test_bgp_speaker_get(self):
+        self.verify_get(self.proxy.get_bgp_speaker, bgp_speaker.BgpSpeaker)
+
+    def test_bgp_speakers(self):
+        self.verify_list(self.proxy.bgp_speakers, bgp_speaker.BgpSpeaker)
+
+    def test_bgp_speaker_update(self):
+        self.verify_update(self.proxy.update_bgp_speaker,
+                           bgp_speaker.BgpSpeaker)
+
+    def test_bgp_peer_create(self):
+        self.verify_create(self.proxy.create_bgp_peer, bgp_peer.BgpPeer)
+
+    def test_bgp_peer_delete(self):
+        self.verify_delete(self.proxy.delete_bgp_peer,
+                           bgp_peer.BgpPeer, False)
+
+    def test_bgp_peer_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_bgp_peer, bgp_peer.BgpPeer, True)
+
+    def test_bgp_peer_find(self):
+        self.verify_find(self.proxy.find_bgp_peer, bgp_peer.BgpPeer)
+
+    def test_bgp_peer_get(self):
+        self.verify_get(self.proxy.get_bgp_peer, bgp_peer.BgpPeer)
+
+    def test_bgp_peers(self):
+        self.verify_list(self.proxy.bgp_peers, bgp_peer.BgpPeer)
+
+    def test_bgp_peer_update(self):
+        self.verify_update(self.proxy.update_bgp_peer, bgp_peer.BgpPeer)
