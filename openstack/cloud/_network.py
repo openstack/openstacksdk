@@ -2349,7 +2349,10 @@ class NetworkCloudMixin:
                          'allowed_address_pairs', 'extra_dhcp_opts',
                          'device_owner', 'device_id', 'binding:vnic_type',
                          'binding:profile', 'port_security_enabled',
-                         'qos_policy_id', 'binding:host_id')
+                         'qos_policy_id', 'binding:host_id', 'project_id',
+                         'description', 'dns_domain', 'dns_name',
+                         'numa_affinity_policy', 'propagate_uplink_status',
+                         'mac_learning_enabled')
     def create_port(self, network_id, **kwargs):
         """Create a port
 
@@ -2403,7 +2406,18 @@ class NetworkCloudMixin:
         :param binding vnic_type: The type of the created port. (Optional)
         :param port_security_enabled: The security port state created on
             the network. (Optional)
-        :param qos_policy_id: The ID of the QoS policy to apply for port.
+        :param qos_policy_id: The ID of the QoS policy to apply for
+            port. (Optional)
+        :param project_id: The project in which to create the port. (Optional)
+        :param description: Description of the port. (Optional)
+        :param dns_domain: DNS domain relevant for the port. (Optional)
+        :param dns_name: DNS name of the port. (Optional)
+        :param numa_affinity_policy: the numa affinitiy policy. May be
+            "None", "required", "preferred" or "legacy". (Optional)
+        :param propagate_uplink_status: If the uplink status of the port should
+            be propagated. (Optional)
+        :param mac_learning_enabled: If mac learning should be enabled on the
+            port. (Optional)
         :returns: The created network ``Port`` object.
         :raises: ``OpenStackCloudException`` on operation error.
         """
