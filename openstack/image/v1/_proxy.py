@@ -97,7 +97,7 @@ class Proxy(_base_proxy.BaseImageProxy):
                     "Failed deleting image after we failed uploading it.",
                     exc_info=True)
             raise
-        return self._connection._normalize_image(image)
+        return image
 
     def _update_image_properties(self, image, meta, properties):
         properties.update(meta)

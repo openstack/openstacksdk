@@ -971,7 +971,7 @@ class TestImage(BaseTestImage):
         ret['status'] = 'success'
 
         self.cloud.update_image_properties(
-            image=self._image_dict(ret),
+            image=image.Image.existing(**ret),
             **{'owner_specified.openstack.object': 'images/{name}'.format(
                 name=self.image_name)})
 

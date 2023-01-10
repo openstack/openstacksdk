@@ -15,12 +15,11 @@
 # openstack.resource.Resource.list and openstack.resource2.Resource.list
 import types  # noqa
 
-from openstack.cloud import _normalize
 from openstack.cloud import _utils
 from openstack.cloud import exc
 
 
-class CoeCloudMixin(_normalize.Normalizer):
+class CoeCloudMixin:
 
     @property
     def _container_infra_client(self):
@@ -418,3 +417,149 @@ class CoeCloudMixin(_normalize.Normalizer):
             data = self._container_infra_client.get('/mservices')
             return self._normalize_magnum_services(
                 self._get_and_munchify('mservices', data))
+
+    def _normalize_coe_clusters(self, coe_clusters):
+        ret = []
+        for coe_cluster in coe_clusters:
+            ret.append(self._normalize_coe_cluster(coe_cluster))
+        return ret
+
+    def _normalize_coe_cluster(self, coe_cluster):
+        """Normalize Magnum COE cluster."""
+
+        # Only import munch when really necessary
+        import munch
+
+        coe_cluster = coe_cluster.copy()
+
+        # Discard noise
+        coe_cluster.pop('links', None)
+
+        c_id = coe_cluster.pop('uuid')
+
+        ret = munch.Munch(
+            id=c_id,
+            location=self._get_current_location(),
+        )
+
+        if not self.strict_mode:
+            ret['uuid'] = c_id
+
+        for key in (
+                'status',
+                'cluster_template_id',
+                'stack_id',
+                'keypair',
+                'master_count',
+                'create_timeout',
+                'node_count',
+                'name'):
+            if key in coe_cluster:
+                ret[key] = coe_cluster.pop(key)
+
+        ret['properties'] = coe_cluster
+        return ret
+
+    def _normalize_cluster_templates(self, cluster_templates):
+        ret = []
+        for cluster_template in cluster_templates:
+            ret.append(self._normalize_cluster_template(cluster_template))
+        return ret
+
+    def _normalize_cluster_template(self, cluster_template):
+        """Normalize Magnum cluster_templates."""
+
+        import munch
+
+        cluster_template = cluster_template.copy()
+
+        # Discard noise
+        cluster_template.pop('links', None)
+        cluster_template.pop('human_id', None)
+        # model_name is a magnumclient-ism
+        cluster_template.pop('model_name', None)
+
+        ct_id = cluster_template.pop('uuid')
+
+        ret = munch.Munch(
+            id=ct_id,
+            location=self._get_current_location(),
+        )
+        ret['is_public'] = cluster_template.pop('public')
+        ret['is_registry_enabled'] = cluster_template.pop('registry_enabled')
+        ret['is_tls_disabled'] = cluster_template.pop('tls_disabled')
+        # pop floating_ip_enabled since we want to hide it in a future patch
+        fip_enabled = cluster_template.pop('floating_ip_enabled', None)
+        if not self.strict_mode:
+            ret['uuid'] = ct_id
+            if fip_enabled is not None:
+                ret['floating_ip_enabled'] = fip_enabled
+            ret['public'] = ret['is_public']
+            ret['registry_enabled'] = ret['is_registry_enabled']
+            ret['tls_disabled'] = ret['is_tls_disabled']
+
+        # Optional keys
+        for (key, default) in (
+                ('fixed_network', None),
+                ('fixed_subnet', None),
+                ('http_proxy', None),
+                ('https_proxy', None),
+                ('labels', {}),
+                ('master_flavor_id', None),
+                ('no_proxy', None)):
+            if key in cluster_template:
+                ret[key] = cluster_template.pop(key, default)
+
+        for key in (
+                'apiserver_port',
+                'cluster_distro',
+                'coe',
+                'created_at',
+                'dns_nameserver',
+                'docker_volume_size',
+                'external_network_id',
+                'flavor_id',
+                'image_id',
+                'insecure_registry',
+                'keypair_id',
+                'name',
+                'network_driver',
+                'server_type',
+                'updated_at',
+                'volume_driver'):
+            ret[key] = cluster_template.pop(key)
+
+        ret['properties'] = cluster_template
+        return ret
+
+    def _normalize_magnum_services(self, magnum_services):
+        ret = []
+        for magnum_service in magnum_services:
+            ret.append(self._normalize_magnum_service(magnum_service))
+        return ret
+
+    def _normalize_magnum_service(self, magnum_service):
+        """Normalize Magnum magnum_services."""
+        import munch
+        magnum_service = magnum_service.copy()
+
+        # Discard noise
+        magnum_service.pop('links', None)
+        magnum_service.pop('human_id', None)
+        # model_name is a magnumclient-ism
+        magnum_service.pop('model_name', None)
+
+        ret = munch.Munch(location=self._get_current_location())
+
+        for key in (
+                'binary',
+                'created_at',
+                'disabled_reason',
+                'host',
+                'id',
+                'report_count',
+                'state',
+                'updated_at'):
+            ret[key] = magnum_service.pop(key)
+        ret['properties'] = magnum_service
+        return ret
