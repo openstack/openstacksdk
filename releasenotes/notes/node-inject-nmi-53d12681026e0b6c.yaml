@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds ``inject_nmi`` ``openstack.baremetal.v1.Node``.
+  - |
+    Adds ``inject_nmi_to_node`` to the baremetal Proxy.

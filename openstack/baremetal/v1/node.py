@@ -602,6 +602,34 @@ class Node(_common.ListMixin, resource.Resource):
                 "the last error is %(error)s" %
                 {'node': self.id, 'error': self.last_error})
 
+    def inject_nmi(self, session):
+        """Inject NMI.
+
+        :param session: The session to use for making this request.
+        :return: None
+        """
+        session = self._get_session(session)
+        version = self._assert_microversion_for(
+            session,
+            'commit',
+            _common.INJECT_NMI_VERSION,
+        )
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'management', 'inject_nmi')
+
+        body = {}
+
+        response = session.put(
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+        msg = ("Failed to inject NMI to node {node}".format(node=self.id))
+        exceptions.raise_from_response(response, error_message=msg)
+
     def set_power_state(self, session, target, wait=False, timeout=None):
         """Run an action modifying this node's power state.
 

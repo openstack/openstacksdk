@@ -16,10 +16,18 @@ Node Operations
 ^^^^^^^^^^^^^^^
 .. autoclass:: openstack.baremetal.v1._proxy.Proxy
   :noindex:
-  :members: nodes, find_node, get_node, create_node, update_node, patch_node, delete_node,
-            validate_node, set_node_power_state, set_node_provision_state,
-            wait_for_nodes_provision_state, wait_for_node_power_state,
-            wait_for_node_reservation, set_node_maintenance, unset_node_maintenance
+  :members: nodes, create_node, find_node, get_node, update_node, patch_node, delete_node,
+            set_node_provision_state, set_node_boot_device, set_node_boot_mode,
+            set_node_secure_boot, inject_nmi_to_node, wait_for_nodes_provision_state,
+            set_node_power_state, wait_for_node_power_state,
+            wait_for_node_reservation, validate_node, set_node_maintenance,
+            unset_node_maintenance, delete_node, list_node_vendor_passthru
+
+Node Trait Operations
+^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: openstack.baremetal.v1._proxy.Proxy
+  :noindex:
+  :members: add_node_trait, remove_node_trait, set_node_traits
 
 Port Operations
 ^^^^^^^^^^^^^^^
