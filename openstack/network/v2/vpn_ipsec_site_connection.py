@@ -25,6 +25,14 @@ class VpnIPSecSiteConnection(resource.Resource):
     allow_delete = True
     allow_list = True
 
+    _query_mapping = resource.QueryParameters(
+        'auth_mode', 'description', 'ikepolicy_id', 'ipsecpolicy_id',
+        'initiator', 'local_ep_group_id', 'peer_address', 'local_id',
+        'mtu', 'name', 'peer_id', 'project_id', 'psk', 'peer_ep_group_id',
+        'route_mode', 'vpnservice_id', 'status',
+        is_admin_state_up='admin_state_up'
+    )
+
     # Properties
     #: The dead peer detection (DPD) action.
     # A valid value is clear, hold, restart,
@@ -96,6 +104,8 @@ class VpnIPSecSiteConnection(resource.Resource):
     peer_ep_group_id = resource.Body('peer_ep_group_id')
     #: The route mode. A valid value is static, which is the default.
     route_mode = resource.Body('route_mode')
+    #: The site connection status
+    status = resource.Body('status')
     #: The dead peer detection (DPD) timeout
     # in seconds. A valid value is a
     # positive integer that is greater

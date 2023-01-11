@@ -59,5 +59,14 @@ class TestVpnService(base.TestCase):
             {
                 "limit": "limit",
                 "marker": "marker",
+                'description': 'description',
+                'external_v4_ip': 'external_v4_ip',
+                'external_v6_ip': 'external_v6_ip',
+                'name': 'name',
+                'router_id': 'router_id',
+                'project_id': 'project_id',
+                'tenant_id': 'tenant_id',
+                'subnet_id': 'subnet_id',
+                'is_admin_state_up': 'admin_state_up',
             },
             sot._query_mapping._mapping)

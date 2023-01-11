@@ -57,5 +57,12 @@ class TestVpnIpsecPolicy(base.TestCase):
             {
                 "limit": "limit",
                 "marker": "marker",
+                'auth_algorithm': 'auth_algorithm',
+                'description': 'description',
+                'encryption_algorithm': 'encryption_algorithm',
+                'name': 'name',
+                'pfs': 'pfs',
+                'project_id': 'project_id',
+                'phase1_negotiation_mode': 'phase1_negotiation_mode',
             },
             sot._query_mapping._mapping)
