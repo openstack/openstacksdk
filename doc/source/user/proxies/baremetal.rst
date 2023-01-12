@@ -21,7 +21,8 @@ Node Operations
             set_node_secure_boot, inject_nmi_to_node, wait_for_nodes_provision_state,
             set_node_power_state, wait_for_node_power_state,
             wait_for_node_reservation, validate_node, set_node_maintenance,
-            unset_node_maintenance, delete_node, list_node_vendor_passthru
+            unset_node_maintenance, delete_node, list_node_vendor_passthru,
+            get_node_console, enable_node_console, disable_node_console
 
 Node Trait Operations
 ^^^^^^^^^^^^^^^^^^^^^

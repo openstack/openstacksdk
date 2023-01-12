@@ -1080,6 +1080,52 @@ class Node(_common.ListMixin, resource.Resource):
 
         return response.json()
 
+    def get_console(self, session):
+        session = self._get_session(session)
+        version = self._get_microversion(session, action='fetch')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'states', 'console')
+
+        response = session.get(
+            request.url,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+        msg = "Failed to get console for node {node}".format(
+            node=self.id,
+        )
+        exceptions.raise_from_response(response, error_message=msg)
+
+        return response.json()
+
+    def set_console_mode(self, session, enabled):
+        session = self._get_session(session)
+        version = self._get_microversion(session, action='commit')
+        request = self._prepare_request(requires_id=True)
+        request.url = utils.urljoin(request.url, 'states', 'console')
+        if not isinstance(enabled, bool):
+            raise ValueError(
+                "Invalid enabled %s. It should be True or False "
+                "corresponding to console enabled or disabled"
+                % enabled
+            )
+        body = {'enabled': enabled}
+
+        response = session.put(
+            request.url,
+            json=body,
+            headers=request.headers,
+            microversion=version,
+            retriable_status_codes=_common.RETRIABLE_STATUS_CODES,
+        )
+
+        msg = "Failed to change console mode for {node}".format(
+            node=self.id,
+        )
+        exceptions.raise_from_response(response, error_message=msg)
+
     def patch(self, session, patch=None, prepend_key=True, has_body=True,
               retry_on_conflict=None, base_path=None, reset_interfaces=None):
 

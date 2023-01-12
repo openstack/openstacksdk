@@ -1138,10 +1138,12 @@ class Proxy(proxy.Proxy):
     def call_node_vendor_passthru(self, node, verb, method, body=None):
         """Calls vendor_passthru for a node.
 
-        :param session: The session to use for making this request.
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
         :param verb: The HTTP verb, one of GET, SET, POST, DELETE.
         :param method: The method to call using vendor_passthru.
         :param body: The JSON body in the HTTP call.
+        :returns: The raw response from the method.
         """
         res = self._get_resource(_node.Node, node)
         return res.call_vendor_passthru(self, verb, method, body)
@@ -1149,10 +1151,42 @@ class Proxy(proxy.Proxy):
     def list_node_vendor_passthru(self, node):
         """Lists vendor_passthru for a node.
 
-        :param session: The session to use for making this request.
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: A list of vendor_passthru methods for the node.
         """
         res = self._get_resource(_node.Node, node)
         return res.list_vendor_passthru(self)
+
+    def get_node_console(self, node):
+        """Get the console for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: Connection information for the console.
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.get_node_console(self)
+
+    def enable_node_console(self, node):
+        """Enable the console for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: None
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_console_mode(self, True)
+
+    def disable_node_console(self, node):
+        """Disable the console for a node.
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :returns: None
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.set_console_mode(self, False)
 
     def set_node_traits(self, node, traits):
         """Set traits for a node.
