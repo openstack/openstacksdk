@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Adds ``get_boot_device`` and ``get_supported_boot_devices`` to
+    ``openstack.baremetal.v1.Node``.
+  - |
+    Adds ``get_node_boot_device`` and ``get_node_supported_boot_devices``
+    to the baremetal Proxy.

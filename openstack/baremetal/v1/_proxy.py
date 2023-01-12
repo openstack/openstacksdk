@@ -426,6 +426,16 @@ class Proxy(proxy.Proxy):
                                        wait=wait, timeout=timeout,
                                        deploy_steps=deploy_steps)
 
+    def get_node_boot_device(self, node):
+        """Get node boot device
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :return: The node boot device
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.get_boot_device()
+
     def set_node_boot_device(self, node, boot_device, persistent=False):
         """Set node boot device
 
@@ -438,6 +448,16 @@ class Proxy(proxy.Proxy):
         """
         res = self._get_resource(_node.Node, node)
         return res.set_boot_device(self, boot_device, persistent=persistent)
+
+    def get_node_supported_boot_devices(self, node):
+        """Get supported boot devices for node
+
+        :param node: The value can be the name or ID of a node or a
+            :class:`~openstack.baremetal.v1.node.Node` instance.
+        :return: The node boot device
+        """
+        res = self._get_resource(_node.Node, node)
+        return res.get_supported_boot_devices()
 
     def set_node_boot_mode(self, node, target):
         """Make a request to change node's boot mode
