@@ -17,6 +17,7 @@ import types  # noqa
 
 from openstack.cloud import _utils
 from openstack.cloud import exc
+from openstack.image.v2._proxy import Proxy
 from openstack import utils
 
 
@@ -29,6 +30,7 @@ def _no_pending_images(images):
 
 
 class ImageCloudMixin:
+    image: Proxy
 
     def __init__(self):
         self.image_api_use_tasks = self.config.config['image_api_use_tasks']
