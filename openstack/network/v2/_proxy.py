@@ -66,6 +66,8 @@ from openstack.network.v2 import service_profile as _service_profile
 from openstack.network.v2 import service_provider as _service_provider
 from openstack.network.v2 import subnet as _subnet
 from openstack.network.v2 import subnet_pool as _subnet_pool
+from openstack.network.v2 import tap_flow as _tap_flow
+from openstack.network.v2 import tap_service as _tap_service
 from openstack.network.v2 import trunk as _trunk
 from openstack.network.v2 import vpn_endpoint_group as _vpn_endpoint_group
 from openstack.network.v2 import vpn_ike_policy as _ike_policy
@@ -130,6 +132,8 @@ class Proxy(proxy.Proxy, Generic[T]):
         "service_provider": _service_provider.ServiceProvider,
         "subnet": _subnet.Subnet,
         "subnet_pool": _subnet_pool.SubnetPool,
+        "tap_flow": _tap_flow.TapFlow,
+        "tap_service": _tap_service.TapService,
         "trunk": _trunk.Trunk,
         "vpn_endpoint_group": _vpn_endpoint_group.VpnEndpointGroup,
         "vpn_ike_policy": _ike_policy.VpnIkePolicy,
@@ -5241,6 +5245,58 @@ class Proxy(proxy.Proxy, Generic[T]):
         self._delete(_l3_conntrack_helper.ConntrackHelper,
                      conntrack_helper, router_id=router.id,
                      ignore_missing=ignore_missing)
+
+    def create_tap_flow(self, **attrs):
+        """Create a new Tap Flow from attributes"""
+        return self._create(_tap_flow.TapFlow, **attrs)
+
+    def delete_tap_flow(self, tap_flow, ignore_missing=True):
+        """Delete a Tap Flow"""
+        self._delete(_tap_flow.TapFlow, tap_flow,
+                     ignore_missing=ignore_missing)
+
+    def find_tap_flow(self, name_or_id, ignore_missing=True, **query):
+        """"Find a single Tap Service"""
+        return self._find(_tap_flow.TapFlow, name_or_id,
+                          ignore_missing=ignore_missing, **query)
+
+    def get_tap_flow(self, tap_flow):
+        """Get a signle Tap Flow"""
+        return self._get(_tap_flow.TapFlow, tap_flow)
+
+    def update_tap_flow(self, tap_flow, **attrs):
+        """Update a Tap Flow"""
+        return self._update(_tap_flow.TapFlow, tap_flow, **attrs)
+
+    def tap_flows(self, **query):
+        """Return a generator of Tap Flows"""
+        return self._list(_tap_flow.TapFlow, **query)
+
+    def create_tap_service(self, **attrs):
+        """Create a new Tap Service from attributes"""
+        return self._create(_tap_service.TapService, **attrs)
+
+    def delete_tap_service(self, tap_service, ignore_missing=True):
+        """Delete a Tap Service"""
+        self._delete(_tap_service.TapService, tap_service,
+                     ignore_missing=ignore_missing)
+
+    def find_tap_service(self, name_or_id, ignore_missing=True, **query):
+        """"Find a single Tap Service"""
+        return self._find(_tap_service.TapService, name_or_id,
+                          ignore_missing=ignore_missing, **query)
+
+    def get_tap_service(self, tap_service):
+        """Get a signle Tap Service"""
+        return self._get(_tap_service.TapService, tap_service)
+
+    def update_tap_service(self, tap_service, **attrs):
+        """Update a Tap Service"""
+        return self._update(_tap_service.TapService, tap_service, **attrs)
+
+    def tap_services(self, **query):
+        """Return a generator of Tap Services"""
+        return self._list(_tap_service.TapService, **query)
 
     def _get_cleanup_dependencies(self):
         return {
