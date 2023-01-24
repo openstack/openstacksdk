@@ -19,7 +19,7 @@ EXAMPLE = {
     "discovery_url": None,
     "flavor_id": None,
     "keypair": "my_keypair",
-    "labels": [],
+    "labels": {},
     "master_count": 2,
     "master_flavor_id": None,
     "name": "k8s",

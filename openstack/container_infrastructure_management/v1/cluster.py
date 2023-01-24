@@ -88,11 +88,10 @@ class Cluster(resource.Resource):
     #: the bay/cluster. The login name is specific to the bay/cluster driver.
     #: For example, with fedora-atomic image the default login name is fedora.
     keypair = resource.Body('keypair')
-    #: Arbitrary labels in the form of key=value pairs. The accepted keys and
-    #: valid values are defined in the bay/cluster drivers. They are used as a
-    #: way to pass additional parameters that are specific to a bay/cluster
-    #: driver.
-    labels = resource.Body('labels', type=list)
+    #: Arbitrary labels. The accepted keys and valid values are defined in the
+    #: bay/cluster drivers. They are used as a way to pass additional
+    #: parameters that are specific to a bay/cluster driver.
+    labels = resource.Body('labels', type=dict)
     #: A list of floating IPs of all master nodes.
     master_addresses = resource.Body('master_addresses', type=list)
     #: The number of servers that will serve as master for the bay/cluster. Set
