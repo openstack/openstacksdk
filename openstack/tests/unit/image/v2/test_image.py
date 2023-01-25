@@ -265,7 +265,7 @@ class TestImage(base.TestCase):
     def test_import_image(self):
         sot = image.Image(**EXAMPLE)
         json = {"method": {"name": "web-download", "uri": "such-a-good-uri"}}
-        sot.import_image(self.sess, "web-download", "such-a-good-uri")
+        sot.import_image(self.sess, "web-download", uri="such-a-good-uri")
         self.sess.post.assert_called_with(
             'images/IDENTIFIER/import',
             headers={},
@@ -293,7 +293,12 @@ class TestImage(base.TestCase):
         }
         store = mock.MagicMock()
         store.id = "ceph_1"
-        sot.import_image(self.sess, "web-download", "such-a-good-uri", store)
+        sot.import_image(
+            self.sess,
+            "web-download",
+            uri="such-a-good-uri",
+            store=store,
+        )
         self.sess.post.assert_called_with(
             'images/IDENTIFIER/import',
             headers={'X-Image-Meta-Store': 'ceph_1'},
@@ -314,7 +319,7 @@ class TestImage(base.TestCase):
         sot.import_image(
             self.sess,
             "web-download",
-            "such-a-good-uri",
+            uri="such-a-good-uri",
             stores=[store],
         )
         self.sess.post.assert_called_with(
@@ -335,7 +340,7 @@ class TestImage(base.TestCase):
         sot.import_image(
             self.sess,
             "web-download",
-            "such-a-good-uri",
+            uri="such-a-good-uri",
             all_stores=True,
         )
         self.sess.post.assert_called_with(

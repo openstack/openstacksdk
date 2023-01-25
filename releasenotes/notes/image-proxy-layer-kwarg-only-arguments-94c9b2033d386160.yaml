@@ -1,0 +1,5 @@
+---
+upgrade:
+  - |
+    The signatures of the ``openstack.image.v2.import_image`` has changed. All
+    arguments except ``image`` and ``method`` are now kwarg-only.
