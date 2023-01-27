@@ -14,7 +14,13 @@ from openstack.container_infrastructure_management.v1 import (
     cluster as _cluster
 )
 from openstack.container_infrastructure_management.v1 import (
+    cluster_certificate as _cluster_cert
+)
+from openstack.container_infrastructure_management.v1 import (
     cluster_template as _cluster_template
+)
+from openstack.container_infrastructure_management.v1 import (
+    service as _service
 )
 from openstack import proxy
 
@@ -24,6 +30,7 @@ class Proxy(proxy.Proxy):
     _resource_registry = {
         "cluster": _cluster.Cluster,
         "cluster_template": _cluster_template.ClusterTemplate,
+        "service": _service.Service
     }
 
     def create_cluster(self, **attrs):
@@ -207,3 +214,41 @@ class Proxy(proxy.Proxy):
         return self._update(
             _cluster_template.ClusterTemplate, cluster_template, **attrs
         )
+
+    # ============== Cluster Certificates ==============
+    def create_cluster_certificate(self, **attrs):
+        """Create a new cluster_certificate from CSR
+
+        :param dict attrs: Keyword arguments which will be used to create a
+            :class:`~openstack.container_infrastructure_management.v1.cluster_certificate.ClusterCertificate`,
+            comprised of the properties on the ClusterCertificate class.
+        :returns: The results of cluster_certificate creation
+        :rtype:
+            :class:`~openstack.container_infrastructure_management.v1.cluster_certificate.ClusterCertificate`
+        """
+        return self._create(_cluster_cert.ClusterCertificate, **attrs)
+
+    def get_cluster_certificate(self, cluster_certificate):
+        """Get a single cluster_certificate
+
+        :param cluster_certificate: The value can be the ID of a
+            cluster_certificate or a
+            :class:`~openstack.container_infrastructure_management.v1.cluster_certificate.ClusterCertificate`
+            instance.
+
+        :returns: One
+            :class:`~openstack.container_infrastructure_management.v1.cluster_certificate.ClusterCertificate`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_cluster_cert.ClusterCertificate, cluster_certificate)
+
+    # ============== Services ==============
+    def services(self):
+        """Return a generator of services
+
+        :returns: A generator of service objects
+        :rtype:
+            :class:`~openstack.container_infrastructure_management.v1.service.Service`
+        """
+        return self._list(_service.Service)

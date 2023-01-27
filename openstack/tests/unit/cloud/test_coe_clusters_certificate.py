@@ -11,18 +11,19 @@
 # under the License.
 
 
-import munch
-
+from openstack.container_infrastructure_management.v1 import (
+    cluster_certificate
+)
 from openstack.tests.unit import base
 
-coe_cluster_ca_obj = munch.Munch(
+coe_cluster_ca_obj = dict(
     cluster_uuid="43e305ce-3a5f-412a-8a14-087834c34c8c",
     pem="-----BEGIN CERTIFICATE-----\nMIIDAO\n-----END CERTIFICATE-----\n",
     bay_uuid="43e305ce-3a5f-412a-8a14-087834c34c8c",
     links=[]
 )
 
-coe_cluster_signed_cert_obj = munch.Munch(
+coe_cluster_signed_cert_obj = dict(
     cluster_uuid='43e305ce-3a5f-412a-8a14-087834c34c8c',
     pem='-----BEGIN CERTIFICATE-----\nMIIDAO\n-----END CERTIFICATE-----',
     bay_uuid='43e305ce-3a5f-412a-8a14-087834c34c8c',
@@ -33,6 +34,12 @@ coe_cluster_signed_cert_obj = munch.Munch(
 
 
 class TestCOEClusters(base.TestCase):
+    def _compare_cluster_certs(self, exp, real):
+        self.assertDictEqual(
+            cluster_certificate.ClusterCertificate(
+                **exp).to_dict(computed=False),
+            real.to_dict(computed=False),
+        )
 
     def get_mock_url(
             self,
@@ -47,12 +54,12 @@ class TestCOEClusters(base.TestCase):
             method='GET',
             uri=self.get_mock_url(
                 resource='certificates',
-                append=[coe_cluster_ca_obj.cluster_uuid]),
+                append=[coe_cluster_ca_obj['cluster_uuid']]),
             json=coe_cluster_ca_obj)
         ])
         ca_cert = self.cloud.get_coe_cluster_certificate(
-            coe_cluster_ca_obj.cluster_uuid)
-        self.assertEqual(
+            coe_cluster_ca_obj['cluster_uuid'])
+        self._compare_cluster_certs(
             coe_cluster_ca_obj,
             ca_cert)
         self.assert_calls()
@@ -61,10 +68,10 @@ class TestCOEClusters(base.TestCase):
         self.register_uris([dict(
             method='POST',
             uri=self.get_mock_url(resource='certificates'),
-            json={"cluster_uuid": coe_cluster_signed_cert_obj.cluster_uuid,
-                  "csr": coe_cluster_signed_cert_obj.csr}
+            json={"cluster_uuid": coe_cluster_signed_cert_obj['cluster_uuid'],
+                  "csr": coe_cluster_signed_cert_obj['csr']}
         )])
         self.cloud.sign_coe_cluster_certificate(
-            coe_cluster_signed_cert_obj.cluster_uuid,
-            coe_cluster_signed_cert_obj.csr)
+            coe_cluster_signed_cert_obj['cluster_uuid'],
+            coe_cluster_signed_cert_obj['csr'])
         self.assert_calls()
