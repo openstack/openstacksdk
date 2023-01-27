@@ -1,0 +1,40 @@
+---
+prelude: >
+    This is a final R1.0 release of the OpenStackSDK. A few technical issues
+    caused us not to reach this milestone cleanly, therefore we decided to one
+    more time explicitly log everything what should be considered as R1.0. For
+    detailed list of changes please see individual release notes from 0.99.0 to
+    0.103.0. Most important changes are explicitly repeated here.  There were
+    issues with maintainability of multiple available access interfaces, which
+    forced us to consider what we are able to maintain in the long run and what
+    we can not. That means that certain things were dropped, which is why we
+    are releasing this as a major release.  R1.0 is considered as a first major
+    release with corresponding promise regarding backwards-compatibility.
+features:
+  - |
+    Cloud layer is now consistently returning ``Resource`` class objects.
+    Previously this was not always the case.
+  - |
+    API response caching is implemented deep inside the code which will
+    minimize roundtrips for repeated requests.
+  - |
+    The majority of services were verified and adapted to the latest state of
+    the API.
+  - |
+    Certain code reorganization to further help in code reduction has been made
+    (metadata, tag and quota support moved to standalone common classes).
+upgrade:
+  - |
+    Cloud layer methods are returning ``Resource`` class objects instead of
+    ``Munch`` objects.  In some cases this cause renaming of the attributes.
+    ``Resource`` class is ``Munch`` compatible and allows both dictionary and
+    attribute base access.
+  - |
+    Some historical methods, which were never properly tested were dropped.
+deprecations:
+  - |
+    ``Munch`` is dropped as a dependency. The project has no releases since
+    multiple years and was causing huge performance impact already during
+    import. This has directly no negative imapct to SDK users (it now starts
+    faster), but in the code we copied used ``Munch`` pieces. They are going to
+    be consistently eliminated in next releases.
