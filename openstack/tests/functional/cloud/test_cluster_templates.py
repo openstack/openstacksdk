@@ -90,7 +90,7 @@ class TestClusterTemplate(base.BaseFunctionalTest):
         # Test we can update a field on the cluster_template and only that
         # field is updated
         cluster_template_update = self.user_cloud.update_cluster_template(
-            self.ct['uuid'], 'replace', tls_disabled=True)
+            self.ct, tls_disabled=True)
         self.assertEqual(
             cluster_template_update['uuid'], self.ct['uuid'])
         self.assertTrue(cluster_template_update['tls_disabled'])

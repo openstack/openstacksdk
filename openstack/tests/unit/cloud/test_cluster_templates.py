@@ -10,14 +10,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import munch
 import testtools
 
+from openstack.container_infrastructure_management.v1 import cluster_template
 from openstack import exceptions
 from openstack.tests.unit import base
 
 
-cluster_template_obj = munch.Munch(
+cluster_template_obj = dict(
     apiserver_port=12345,
     cluster_distro='fake-distro',
     coe='fake-coe',
@@ -50,6 +50,12 @@ cluster_template_obj = munch.Munch(
 
 class TestClusterTemplates(base.TestCase):
 
+    def _compare_clustertemplates(self, exp, real):
+        self.assertDictEqual(
+            cluster_template.ClusterTemplate(**exp).to_dict(computed=False),
+            real.to_dict(computed=False),
+        )
+
     def get_mock_url(
             self,
             service_type='container-infrastructure-management',
@@ -64,15 +70,12 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='baymodels/detail'),
-                json=dict(baymodels=[cluster_template_obj.toDict()]))])
+                json=dict(clustertemplates=[cluster_template_obj]))])
         cluster_templates_list = self.cloud.list_cluster_templates()
-        self.assertEqual(
+        self._compare_clustertemplates(
+            cluster_template_obj,
             cluster_templates_list[0],
-            self.cloud._normalize_cluster_template(cluster_template_obj))
+        )
         self.assert_calls()
 
     def test_list_cluster_templates_with_detail(self):
@@ -80,15 +83,12 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='baymodels/detail'),
-                json=dict(baymodels=[cluster_template_obj.toDict()]))])
+                json=dict(clustertemplates=[cluster_template_obj]))])
         cluster_templates_list = self.cloud.list_cluster_templates(detail=True)
-        self.assertEqual(
+        self._compare_clustertemplates(
+            cluster_template_obj,
             cluster_templates_list[0],
-            self.cloud._normalize_cluster_template(cluster_template_obj))
+        )
         self.assert_calls()
 
     def test_search_cluster_templates_by_name(self):
@@ -96,11 +96,7 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='baymodels/detail'),
-                json=dict(baymodels=[cluster_template_obj.toDict()]))])
+                json=dict(clustertemplates=[cluster_template_obj]))])
 
         cluster_templates = self.cloud.search_cluster_templates(
             name_or_id='fake-cluster-template')
@@ -115,11 +111,7 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='baymodels/detail'),
-                json=dict(baymodels=[cluster_template_obj.toDict()]))])
+                json=dict(clustertemplates=[cluster_template_obj]))])
 
         cluster_templates = self.cloud.search_cluster_templates(
             name_or_id='non-existent')
@@ -132,16 +124,14 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='baymodels/detail'),
-                json=dict(baymodels=[cluster_template_obj.toDict()]))])
+                json=dict(clustertemplates=[cluster_template_obj]))])
 
         r = self.cloud.get_cluster_template('fake-cluster-template')
         self.assertIsNotNone(r)
-        self.assertDictEqual(
-            r, self.cloud._normalize_cluster_template(cluster_template_obj))
+        self._compare_clustertemplates(
+            cluster_template_obj,
+            r,
+        )
         self.assert_calls()
 
     def test_get_cluster_template_not_found(self):
@@ -149,35 +139,29 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='baymodels/detail'),
-                json=dict(baymodels=[]))])
+                json=dict(clustertemplates=[]))])
         r = self.cloud.get_cluster_template('doesNotExist')
         self.assertIsNone(r)
         self.assert_calls()
 
     def test_create_cluster_template(self):
-        json_response = cluster_template_obj.toDict()
-        kwargs = dict(name=cluster_template_obj.name,
-                      image_id=cluster_template_obj.image_id,
-                      keypair_id=cluster_template_obj.keypair_id,
-                      coe=cluster_template_obj.coe)
+        json_response = cluster_template_obj.copy()
+        kwargs = dict(name=cluster_template_obj['name'],
+                      image_id=cluster_template_obj['image_id'],
+                      keypair_id=cluster_template_obj['keypair_id'],
+                      coe=cluster_template_obj['coe'])
         self.register_uris([
             dict(
                 method='POST',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='POST',
-                uri=self.get_mock_url(resource='baymodels'),
                 json=json_response,
-                validate=dict(json=kwargs)),
-        ])
-        expected = self.cloud._normalize_cluster_template(json_response)
+                validate=dict(json=kwargs))])
         response = self.cloud.create_cluster_template(**kwargs)
-        self.assertEqual(response, expected)
+        self._compare_clustertemplates(
+            json_response,
+            response
+        )
+
         self.assert_calls()
 
     def test_create_cluster_template_exception(self):
@@ -185,10 +169,6 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='POST',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='POST',
-                uri=self.get_mock_url(resource='baymodels'),
                 status_code=403)])
         # TODO(mordred) requests here doens't give us a great story
         # for matching the old error message text. Investigate plumbing
@@ -207,14 +187,10 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='baymodels/detail'),
-                json=dict(baymodels=[cluster_template_obj.toDict()])),
+                json=dict(clustertemplates=[cluster_template_obj])),
             dict(
                 method='DELETE',
-                uri=self.get_mock_url(resource='baymodels/fake-uuid')),
+                uri=self.get_mock_url(resource='clustertemplates/fake-uuid')),
         ])
         self.cloud.delete_cluster_template('fake-uuid')
         self.assert_calls()
@@ -224,43 +200,36 @@ class TestClusterTemplates(base.TestCase):
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                status_code=404),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='baymodels/detail'),
-                json=dict(baymodels=[cluster_template_obj.toDict()])),
+                json=dict(clustertemplates=[cluster_template_obj])),
             dict(
                 method='PATCH',
-                uri=self.get_mock_url(resource='baymodels/fake-uuid'),
+                uri=self.get_mock_url(resource='clustertemplates/fake-uuid'),
                 status_code=200,
                 validate=dict(
                     json=[{
-                        u'op': u'replace',
-                        u'path': u'/name',
-                        u'value': u'new-cluster-template'
+                        'op': 'replace',
+                        'path': '/name',
+                        'value': 'new-cluster-template'
                     }]
                 )),
-            dict(
-                method='GET',
-                uri=self.get_mock_url(resource='clustertemplates'),
-                # This json value is not meaningful to the test - it just has
-                # to be valid.
-                json=dict(baymodels=[cluster_template_obj.toDict()])),
         ])
         new_name = 'new-cluster-template'
-        self.cloud.update_cluster_template(
-            'fake-uuid', 'replace', name=new_name)
+        updated = self.cloud.update_cluster_template(
+            'fake-uuid', name=new_name)
+        self.assertEqual(new_name, updated.name)
         self.assert_calls()
 
-    def test_get_coe_cluster_template(self):
+    def test_coe_get_cluster_template(self):
         self.register_uris([
             dict(
                 method='GET',
                 uri=self.get_mock_url(resource='clustertemplates'),
-                json=dict(clustertemplates=[cluster_template_obj.toDict()]))])
+                json=dict(clustertemplates=[cluster_template_obj]))])
 
-        r = self.cloud.get_coe_cluster_template('fake-cluster-template')
+        r = self.cloud.get_cluster_template('fake-cluster-template')
         self.assertIsNotNone(r)
-        self.assertDictEqual(
-            r, self.cloud._normalize_cluster_template(cluster_template_obj))
+        self._compare_clustertemplates(
+            cluster_template_obj,
+            r,
+        )
         self.assert_calls()

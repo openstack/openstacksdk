@@ -12,16 +12,17 @@
 
 from openstack.container_infrastructure_management.v1 import _proxy
 from openstack.container_infrastructure_management.v1 import cluster
+from openstack.container_infrastructure_management.v1 import cluster_template
 from openstack.tests.unit import test_proxy_base
 
 
-class TestClusterProxy(test_proxy_base.TestProxyBase):
+class TestMagnumProxy(test_proxy_base.TestProxyBase):
     def setUp(self):
         super().setUp()
         self.proxy = _proxy.Proxy(self.session)
 
 
-class TestCluster(TestClusterProxy):
+class TestCluster(TestMagnumProxy):
     def test_cluster_get(self):
         self.verify_get(self.proxy.get_cluster, cluster.Cluster)
 
@@ -49,3 +50,46 @@ class TestCluster(TestClusterProxy):
 
     def test_cluster_delete_ignore(self):
         self.verify_delete(self.proxy.delete_cluster, cluster.Cluster, True)
+
+
+class TestClusterTemplate(TestMagnumProxy):
+    def test_cluster_template_get(self):
+        self.verify_get(
+            self.proxy.get_cluster_template, cluster_template.ClusterTemplate
+        )
+
+    def test_cluster_template_find(self):
+        self.verify_find(
+            self.proxy.find_cluster_template,
+            cluster_template.ClusterTemplate,
+            method_kwargs={},
+            expected_kwargs={},
+        )
+
+    def test_cluster_templates(self):
+        self.verify_list(
+            self.proxy.cluster_templates,
+            cluster_template.ClusterTemplate,
+            method_kwargs={"query": 1},
+            expected_kwargs={"query": 1},
+        )
+
+    def test_cluster_template_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_cluster_template,
+            cluster_template.ClusterTemplate,
+        )
+
+    def test_cluster_template_delete(self):
+        self.verify_delete(
+            self.proxy.delete_cluster_template,
+            cluster_template.ClusterTemplate,
+            False,
+        )
+
+    def test_cluster_template_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_cluster_template,
+            cluster_template.ClusterTemplate,
+            True,
+        )
