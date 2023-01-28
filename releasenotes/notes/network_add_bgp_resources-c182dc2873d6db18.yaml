@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Add BGP Speaker and BGP Peer resources, and introduce support for CRUD
+    operations for these. Additional REST operations introduced for speakers: 
+    add_bgp_peer, remove_bgp_peer, add_gateway_network, remove_gateway_network,
+    get_advertised_routes, get_bgp_dragents, add_bgp_speaker_to_draget,
+    remove_bgp_speaker_from_dragent.
+    One new REST method is added to agents to cover the features
+    of Dynamic Routing Agents schedulers: get_bgp_speakers_hosted_by_dragent

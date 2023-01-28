@@ -289,3 +289,19 @@ Ndp Proxy Operations
   :noindex:
   :members: create_ndp_proxy, get_ndp_proxy, find_ndp_proxy, delete_ndp_proxy,
             ndp_proxies, update_ndp_proxy
+
+BGP Operations
+^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_bgp_peer, delete_bgp_peer, find_bgp_peer, get_bgp_peer,
+            update_bgp_peer, bgp_peers, create_bgp_speaker,
+            delete_bgp_speaker, find_bgp_speaker, get_bgp_speaker,
+            update_bgp_speaker, bgp_speakers, add_bgp_peer_to_speaker,
+            remove_bgp_peer_from_speaker, add_gateway_network_to_speaker,
+            remove_gateway_network_from_speaker,
+            get_advertised_routes_of_speaker,
+            get_bgp_dragents_hosting_speaker, add_bgp_speaker_to_dragent,
+            get_bgp_speakers_hosted_by_dragent,
+            remove_bgp_speaker_from_dragent

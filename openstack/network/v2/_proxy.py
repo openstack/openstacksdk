@@ -21,6 +21,8 @@ from openstack.network.v2 import agent as _agent
 from openstack.network.v2 import auto_allocated_topology as \
     _auto_allocated_topology
 from openstack.network.v2 import availability_zone
+from openstack.network.v2 import bgp_peer as _bgp_peer
+from openstack.network.v2 import bgp_speaker as _bgp_speaker
 from openstack.network.v2 import extension
 from openstack.network.v2 import firewall_group as _firewall_group
 from openstack.network.v2 import firewall_policy as _firewall_policy
@@ -84,6 +86,8 @@ class Proxy(proxy.Proxy, Generic[T]):
         "auto_allocated_topology":
             _auto_allocated_topology.AutoAllocatedTopology,
         "availability_zone": availability_zone.AvailabilityZone,
+        "bgp_peer": _bgp_peer.BgpPeer,
+        "bgp_speaker": _bgp_speaker.BgpSpeaker,
         "extension": extension.Extension,
         "firewall_group": _firewall_group.FirewallGroup,
         "firewall_policy": _firewall_policy.FirewallPolicy,
@@ -538,6 +542,105 @@ class Proxy(proxy.Proxy, Generic[T]):
             :class:`~openstack.network.v2.availability_zone.AvailabilityZone`
         """
         return self._list(availability_zone.AvailabilityZone)
+
+    def create_bgp_peer(self, **attrs):
+        """Create a new BGP Peer from attributes"""
+        return self._create(_bgp_peer.BgpPeer, **attrs)
+
+    def delete_bgp_peer(self, peer, ignore_missing=True):
+        """Delete a BGP Peer"""
+        self._delete(_bgp_peer.BgpPeer, peer, ignore_missing=ignore_missing)
+
+    def find_bgp_peer(self, name_or_id, ignore_missing=True, **query):
+        """"Find a single BGP Peer"""
+        return self._find(_bgp_peer.BgpPeer, name_or_id,
+                          ignore_missing=ignore_missing, **query)
+
+    def get_bgp_peer(self, peer):
+        """Get a signle BGP Peer"""
+        return self._get(_bgp_peer.BgpPeer, peer)
+
+    def update_bgp_peer(self, peer, **attrs):
+        """Update a BGP Peer"""
+        return self._update(_bgp_peer.BgpPeer, peer, **attrs)
+
+    def bgp_peers(self, **query):
+        """Return a generator of BGP Peers"""
+        return self._list(_bgp_peer.BgpPeer, **query)
+
+    def create_bgp_speaker(self, **attrs):
+        """Create a new BGP Speaker"""
+        return self._create(_bgp_speaker.BgpSpeaker, **attrs)
+
+    def delete_bgp_speaker(self, speaker, ignore_missing=True):
+        """Delete a BGP Speaker"""
+        self._delete(_bgp_speaker.BgpSpeaker, speaker,
+                     ignore_missing=ignore_missing)
+
+    def find_bgp_speaker(self, name_or_id, ignore_missing=True, **query):
+        """"Find a single BGP Peer"""
+        return self._find(_bgp_speaker.BgpSpeaker, name_or_id,
+                          ignore_missing=ignore_missing, **query)
+
+    def get_bgp_speaker(self, speaker):
+        """Get a signle BGP Speaker"""
+        return self._get(_bgp_speaker.BgpSpeaker, speaker)
+
+    def update_bgp_speaker(self, speaker, **attrs):
+        """Update a BGP Speaker"""
+        return self._update(_bgp_speaker.BgpSpeaker, speaker, **attrs)
+
+    def bgp_speakers(self, **query):
+        """Return a generator of BGP Peers"""
+        return self._list(_bgp_speaker.BgpSpeaker, **query)
+
+    def add_bgp_peer_to_speaker(self, speaker, peer_id):
+        """Bind the BGP peer to the specified BGP Speaker."""
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        return speaker.add_bgp_peer(self, peer_id)
+
+    def remove_bgp_peer_from_speaker(self, speaker, peer_id):
+        """Unbind the BGP peer from a BGP Speaker."""
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        return speaker.remove_bgp_peer(self, peer_id)
+
+    def add_gateway_network_to_speaker(self, speaker, network_id):
+        """Add a network to the specified BGP speaker."""
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        return speaker.add_gateway_network(self, network_id)
+
+    def remove_gateway_network_from_speaker(self, speaker, network_id):
+        """Remove a network from the specified BGP speaker."""
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        return speaker.remove_gateway_network(self, network_id)
+
+    def get_advertised_routes_of_speaker(self, speaker):
+        """List all routes advertised by the specified BGP Speaker."""
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        return speaker.get_advertised_routes(self)
+
+    def get_bgp_dragents_hosting_speaker(self, speaker):
+        """List all BGP dynamic agents which are hosting the
+        specified BGP Speaker."""
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, speaker)
+        return speaker.get_bgp_dragents(self)
+
+    def add_bgp_speaker_to_dragent(self, bgp_agent, bgp_speaker_id):
+        """Add a BGP Speaker to the specified dynamic routing agent."""
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker_id)
+        speaker.add_bgp_speaker_to_dragent(self, bgp_agent)
+
+    def get_bgp_speakers_hosted_by_dragent(self, bgp_agent):
+        """List all BGP Seakers hosted on the specified dynamic routing
+        agent."""
+        agent = self._get_resource(_agent.Agent, bgp_agent)
+        return agent.get_bgp_speakers_hosted_by_dragent(self)
+
+    def remove_bgp_speaker_from_dragent(self, bgp_agent, bgp_speaker_id):
+        """Delete the BGP Speaker hosted by the specified dynamic
+        routing agent."""
+        speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker_id)
+        speaker.remove_bgp_speaker_from_dragent(self, bgp_agent)
 
     def find_extension(self, name_or_id, ignore_missing=True, **query):
         """Find a single extension
