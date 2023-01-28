@@ -44,4 +44,6 @@ Network Resources
    v2/service_provider
    v2/subnet
    v2/subnet_pool
+   v2/tap_flow
+   v2/tap_service
    v2/vpn/index

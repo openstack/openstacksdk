@@ -305,3 +305,12 @@ BGP Operations
             get_bgp_dragents_hosting_speaker, add_bgp_speaker_to_dragent,
             get_bgp_speakers_hosted_by_dragent,
             remove_bgp_speaker_from_dragent
+
+Tap As A Service Operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_tap_flow, delete_tap_flow, find_tap_flow, get_tap_flow,
+            update_tap_flow, tap_flows, create_tap_service, delete_tap_service,
+            find_tap_service, update_tap_service, tap_services

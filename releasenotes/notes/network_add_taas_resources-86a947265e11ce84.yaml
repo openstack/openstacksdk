@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``Tap Service`` and ``Tap Flow`` resources, and introduce support for
+    CRUD operations for these.
