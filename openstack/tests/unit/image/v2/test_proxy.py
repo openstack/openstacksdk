@@ -92,7 +92,7 @@ class TestImage(TestImageProxy):
             container='bare',
             disk_format='raw',
         )
-        self.assertIn('Passing filename and data simultaneously', str(exc))
+        self.assertIn('filename and data are mutually exclusive', str(exc))
 
     def test_image_create_minimal(self):
         self.verify_create(
@@ -323,7 +323,7 @@ class TestImage(TestImageProxy):
         image = _image.Image(id="id", status="queued")
         image.stage = mock.Mock()
 
-        self.proxy.stage_image(image=image)
+        self.proxy.stage_image(image)
         mock_fetch.assert_called()
         image.stage.assert_called_with(self.proxy)
 
@@ -333,22 +333,44 @@ class TestImage(TestImageProxy):
         image.stage = mock.Mock()
         mock_fetch.return_value = image
 
-        rv = self.proxy.stage_image(image=image, data="data")
+        rv = self.proxy.stage_image(image, data="data")
 
         image.stage.assert_called_with(self.proxy)
         mock_fetch.assert_called()
         self.assertEqual(rv.data, "data")
 
+    def test_image_stage_conflicting_options(self):
+        image = _image.Image(id="id", status="queued")
+        image.stage = mock.Mock()
+
+        exc = self.assertRaises(
+            exceptions.SDKException,
+            self.proxy.stage_image,
+            image,
+            filename='foo',
+            data='data',
+        )
+        self.assertIn(
+            'filename and data are mutually exclusive',
+            str(exc),
+        )
+        image.stage.assert_not_called()
+
     def test_image_stage_wrong_status(self):
         image = _image.Image(id="id", status="active")
         image.stage = mock.Mock()
 
-        self.assertRaises(
+        exc = self.assertRaises(
             exceptions.SDKException,
             self.proxy.stage_image,
             image,
             data="data",
         )
+        self.assertIn(
+            'Image stage is only possible for images in the queued state.',
+            str(exc),
+        )
+        image.stage.assert_not_called()
 
     def test_image_delete(self):
         self.verify_delete(self.proxy.delete_image, _image.Image, False)

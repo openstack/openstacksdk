@@ -192,6 +192,11 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.image.v2.image.Image`
         :raises: SDKException if there are problems uploading
         """
+        if filename and data:
+            raise exceptions.SDKException(
+                'filename and data are mutually exclusive'
+            )
+
         if container is None:
             container = self._connection._OBJECT_AUTOCREATE_CONTAINER
 
@@ -204,11 +209,6 @@ class Proxy(proxy.Proxy):
         if not container_format:
             # https://docs.openstack.org/image-guide/image-formats.html
             container_format = 'bare'
-
-        if data and filename:
-            raise exceptions.SDKException(
-                'Passing filename and data simultaneously is not supported'
-            )
 
         # If there is no filename, see if name is actually the filename
         if not filename and not data:
@@ -415,6 +415,11 @@ class Proxy(proxy.Proxy):
         :returns: The results of image creation
         :rtype: :class:`~openstack.image.v2.image.Image`
         """
+        if filename and data:
+            raise exceptions.SDKException(
+                'filename and data are mutually exclusive'
+            )
+
         image = self._get_resource(_image.Image, image)
 
         if 'queued' != image.status:
@@ -583,6 +588,10 @@ class Proxy(proxy.Proxy):
         all_stores_must_succeed=None,
         **image_kwargs,
     ):
+        # use of any of these imply use_import=True
+        if stores or all_stores or all_stores_must_succeed:
+            use_import = True
+
         if filename and not data:
             image_data = open(filename, 'rb')
         else:
@@ -594,14 +603,12 @@ class Proxy(proxy.Proxy):
         image_kwargs['name'] = name
 
         image = self._create(_image.Image, **image_kwargs)
-
         image.data = image_data
+
         supports_import = (
             image.image_import_methods
             and 'glance-direct' in image.image_import_methods
         )
-        if stores or all_stores or all_stores_must_succeed:
-            use_import = True
         if use_import and not supports_import:
             raise exceptions.SDKException(
                 "Importing image was requested but the cloud does not "
