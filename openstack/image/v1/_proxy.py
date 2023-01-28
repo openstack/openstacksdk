@@ -258,15 +258,11 @@ class Proxy(proxy.Proxy):
             )
         else:
             image_kwargs['name'] = name
-            image = self._create_image(**image_kwargs)
+            image = self._create(_image.Image, **kwargs)
 
         self._connection._get_cache(None).invalidate()
 
         return image
-
-    def _create_image(self, **kwargs):
-        """Create image resource from attributes"""
-        return self._create(_image.Image, **kwargs)
 
     def upload_image(self, **attrs):
         """Upload a new image from attributes

@@ -82,8 +82,8 @@ class TestImage(TestImageProxy):
             },
         )
 
-    def test_image_create_conflict(self):
-        self.assertRaises(
+    def test_image_create_conflicting_options(self):
+        exc = self.assertRaises(
             exceptions.SDKException,
             self.proxy.create_image,
             name='fake',
@@ -91,6 +91,25 @@ class TestImage(TestImageProxy):
             data='fake',
             container='bare',
             disk_format='raw',
+        )
+        self.assertIn('Passing filename and data simultaneously', str(exc))
+
+    def test_image_create_minimal(self):
+        self.verify_create(
+            self.proxy.create_image,
+            _image.Image,
+            method_kwargs={
+                'name': 'fake',
+                'disk_format': 'fake_dformat',
+                'container_format': 'fake_cformat',
+                'allow_duplicates': True,
+            },
+            expected_kwargs={
+                'name': 'fake',
+                'disk_format': 'fake_dformat',
+                'container_format': 'fake_cformat',
+                'properties': mock.ANY,
+            },
         )
 
     def test_image_create_checksum_match(self):
@@ -226,22 +245,6 @@ class TestImage(TestImageProxy):
             all_stores=None,
             all_stores_must_succeed=None,
             wait=False,
-        )
-
-    def test_image_create_without_filename(self):
-        self.proxy._create_image = mock.Mock()
-
-        self.proxy.create_image(
-            allow_duplicates=True,
-            name='fake',
-            disk_format="fake_dformat",
-            container_format="fake_cformat",
-        )
-        self.proxy._create_image.assert_called_with(
-            container_format='fake_cformat',
-            disk_format='fake_dformat',
-            name='fake',
-            properties=mock.ANY,
         )
 
     def test_image_create_protected(self):
