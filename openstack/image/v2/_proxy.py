@@ -76,27 +76,45 @@ class Proxy(proxy.Proxy):
     def create_image(
         self,
         name,
+        *,
         filename=None,
+        data=None,
         container=None,
         md5=None,
         sha256=None,
         disk_format=None,
         container_format=None,
+        tags=None,
         disable_vendor_agent=True,
         allow_duplicates=False,
         meta=None,
         wait=False,
         timeout=3600,
-        data=None,
         validate_checksum=False,
         use_import=False,
         stores=None,
-        tags=None,
         all_stores=None,
         all_stores_must_succeed=None,
         **kwargs,
     ):
-        """Upload an image.
+        """Create an image and optionally upload data
+
+        Create a new image. If ``filename`` or ``data`` are provided, it will
+        also upload data to this image.
+
+        Note that uploading image data is actually quite a complicated
+        procedure. There are three ways to upload an image:
+
+        * Image upload
+        * Image import
+        * Image tasks
+
+        If the image tasks API is enabled, this must be used. However, this API
+        is deprecated since the Image service's Mitaka (12.0.0) release and is
+        now admin-only. Assuming this API is not enabled, you may choose
+        between image upload or image import. Image import is more powerful and
+        allows you to upload data from multiple sources including other glance
+        instances. It should be preferred on all services that support it.
 
         :param str name: Name of the image to create. If it is a pathname
             of an image, the name will be constructed from the extensionless
@@ -134,11 +152,13 @@ class Proxy(proxy.Proxy):
             compares return value with the one calculated or passed into this
             call. If value does not match - raises exception. Default is
             'false'
-        :param bool use_import: Use the interoperable image import mechanism
-            to import the image. This defaults to false because it is harder on
-            the target cloud so should only be used when needed, such as when
-            the user needs the cloud to transform image format. If the cloud
-            has disabled direct uploads, this will default to true.
+        :param bool use_import: Use the 'glance-direct' method of the
+            interoperable image import mechanism to import the image. This
+            defaults to false because it is harder on the target cloud so
+            should only be used when needed, such as when the user needs the
+            cloud to transform image format. If the cloud has disabled direct
+            uploads, this will default to true. If you wish to use other import
+            methods, use the ``import_image`` method instead.
         :param stores: List of stores to be used when enabled_backends is
             activated in glance. List values can be the id of a store or a
             :class:`~openstack.image.v2.service_info.Store` instance.
@@ -168,7 +188,8 @@ class Proxy(proxy.Proxy):
 
         If a value is in meta and kwargs, meta wins.
 
-        :returns: A ``munch.Munch`` of the Image object
+        :returns: The results of image creation
+        :rtype: :class:`~openstack.image.v2.image.Image`
         :raises: SDKException if there are problems uploading
         """
         if container is None:
@@ -383,7 +404,7 @@ class Proxy(proxy.Proxy):
             all_stores_must_succeed=all_stores_must_succeed,
         )
 
-    def stage_image(self, image, filename=None, data=None):
+    def stage_image(self, image, *, filename=None, data=None):
         """Stage binary image data
 
         :param image: The value can be the ID of a image or a
@@ -471,6 +492,7 @@ class Proxy(proxy.Proxy):
     def _upload_image(
         self,
         name,
+        *,
         filename=None,
         data=None,
         meta=None,
@@ -711,6 +733,7 @@ class Proxy(proxy.Proxy):
     def download_image(
         self,
         image,
+        *,
         stream=False,
         output=None,
         chunk_size=1024,
