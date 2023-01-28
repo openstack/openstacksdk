@@ -9,13 +9,27 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import abc
 import os
-
 
 from openstack import exceptions
 from openstack import proxy
 from openstack import utils
+
+
+def _get_name_and_filename(name, image_format):
+    # See if name points to an existing file
+    if os.path.exists(name):
+        # Neat. Easy enough
+        return os.path.splitext(os.path.basename(name))[0], name
+
+    # Try appending the disk format
+    name_with_ext = '.'.join((name, image_format))
+    if os.path.exists(name_with_ext):
+        return os.path.basename(name), name_with_ext
+
+    return name, None
 
 
 class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
@@ -35,14 +49,21 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
 
     # ====== IMAGES ======
     def create_image(
-        self, name, filename=None,
+        self,
+        name,
+        filename=None,
         container=None,
-        md5=None, sha256=None,
-        disk_format=None, container_format=None,
+        md5=None,
+        sha256=None,
+        disk_format=None,
+        container_format=None,
         disable_vendor_agent=True,
-        allow_duplicates=False, meta=None,
-        wait=False, timeout=3600,
-        data=None, validate_checksum=False,
+        allow_duplicates=False,
+        meta=None,
+        wait=False,
+        timeout=3600,
+        data=None,
+        validate_checksum=False,
         use_import=False,
         stores=None,
         tags=None,
@@ -72,7 +93,7 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
             (optional, defaults to the os-client-config config value for this
             cloud)
         :param list tags: List of tags for this image. Each tag is a string
-                          of at most 255 chars.
+            of at most 255 chars.
         :param bool disable_vendor_agent: Whether or not to append metadata
             flags to the image to inform the cloud in question to not expect a
             vendor agent to be runing. (optional, defaults to True)
@@ -93,24 +114,21 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
             the target cloud so should only be used when needed, such as when
             the user needs the cloud to transform image format. If the cloud
             has disabled direct uploads, this will default to true.
-        :param stores:
-            List of stores to be used when enabled_backends is activated
-            in glance. List values can be the id of a store or a
+        :param stores: List of stores to be used when enabled_backends is
+            activated in glance. List values can be the id of a store or a
             :class:`~openstack.image.v2.service_info.Store` instance.
             Implies ``use_import`` equals ``True``.
-        :param all_stores:
-            Upload to all available stores. Mutually exclusive with
-            ``store`` and ``stores``.
+        :param all_stores: Upload to all available stores. Mutually exclusive
+            with ``store`` and ``stores``.
             Implies ``use_import`` equals ``True``.
-        :param all_stores_must_succeed:
-            When set to True, if an error occurs during the upload in at
-            least one store, the worfklow fails, the data is deleted
-            from stores where copying is done (not staging), and the
-            state of the image is unchanged. When set to False, the
-            workflow will fail (data deleted from stores, …) only if the
-            import fails on all stores specified by the user. In case of
-            a partial success, the locations added to the image will be
-            the stores where the data has been correctly uploaded.
+        :param all_stores_must_succeed: When set to True, if an error occurs
+            during the upload in at least one store, the worfklow fails, the
+            data is deleted from stores where copying is done (not staging),
+            and the state of the image is unchanged. When set to False, the
+            workflow will fail (data deleted from stores, …) only if the import
+            fails on all stores specified by the user. In case of a partial
+            success, the locations added to the image will be the stores where
+            the data has been correctly uploaded.
             Default is True.
             Implies ``use_import`` equals ``True``.
 
@@ -126,36 +144,45 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
         If a value is in meta and kwargs, meta wins.
 
         :returns: A ``munch.Munch`` of the Image object
-
         :raises: SDKException if there are problems uploading
         """
         if container is None:
             container = self._connection._OBJECT_AUTOCREATE_CONTAINER
+
         if not meta:
             meta = {}
 
         if not disk_format:
             disk_format = self._connection.config.config['image_format']
+
         if not container_format:
             # https://docs.openstack.org/image-guide/image-formats.html
             container_format = 'bare'
 
         if data and filename:
             raise exceptions.SDKException(
-                'Passing filename and data simultaneously is not supported')
+                'Passing filename and data simultaneously is not supported'
+            )
+
         # If there is no filename, see if name is actually the filename
         if not filename and not data:
-            name, filename = self._get_name_and_filename(
-                name, self._connection.config.config['image_format'])
+            name, filename = _get_name_and_filename(
+                name,
+                self._connection.config.config['image_format'],
+            )
+
         if validate_checksum and data and not isinstance(data, bytes):
             raise exceptions.SDKException(
                 'Validating checksum is not possible when data is not a '
-                'direct binary object')
+                'direct binary object'
+            )
+
         if not (md5 or sha256) and validate_checksum:
             if filename:
-                (md5, sha256) = utils._get_file_hashes(filename)
+                md5, sha256 = utils._get_file_hashes(filename)
             elif data and isinstance(data, bytes):
-                (md5, sha256) = utils._calculate_data_hashes(data)
+                md5, sha256 = utils._calculate_data_hashes(data)
+
         if allow_duplicates:
             current_image = None
         else:
@@ -165,37 +192,44 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
                 props = current_image.get('properties') or {}
                 md5_key = props.get(
                     self._IMAGE_MD5_KEY,
-                    props.get(self._SHADE_IMAGE_MD5_KEY, ''))
+                    props.get(self._SHADE_IMAGE_MD5_KEY, ''),
+                )
                 sha256_key = props.get(
                     self._IMAGE_SHA256_KEY,
-                    props.get(self._SHADE_IMAGE_SHA256_KEY, ''))
+                    props.get(self._SHADE_IMAGE_SHA256_KEY, ''),
+                )
                 up_to_date = utils._hashes_up_to_date(
-                    md5=md5, sha256=sha256,
-                    md5_key=md5_key, sha256_key=sha256_key)
+                    md5=md5,
+                    sha256=sha256,
+                    md5_key=md5_key,
+                    sha256_key=sha256_key,
+                )
                 if up_to_date:
                     self.log.debug(
                         "image %(name)s exists and is up to date",
-                        {'name': name})
+                        {'name': name},
+                    )
                     return current_image
                 else:
                     self.log.debug(
                         "image %(name)s exists, but contains different "
                         "checksums. Updating.",
-                        {'name': name})
+                        {'name': name},
+                    )
 
         if disable_vendor_agent:
             kwargs.update(
-                self._connection.config.config['disable_vendor_agent'])
+                self._connection.config.config['disable_vendor_agent']
+            )
 
         # If a user used the v1 calling format, they will have
         # passed a dict called properties along
         properties = kwargs.pop('properties', {})
         properties[self._IMAGE_MD5_KEY] = md5 or ''
         properties[self._IMAGE_SHA256_KEY] = sha256 or ''
-        properties[self._IMAGE_OBJECT_KEY] = '/'.join(
-            [container, name])
+        properties[self._IMAGE_OBJECT_KEY] = '/'.join([container, name])
         kwargs.update(properties)
-        image_kwargs = dict(properties=kwargs)
+        image_kwargs = {'properties': kwargs}
         if disk_format:
             image_kwargs['disk_format'] = disk_format
         if container_format:
@@ -205,18 +239,25 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
 
         if filename or data:
             image = self._upload_image(
-                name, filename=filename, data=data, meta=meta,
-                wait=wait, timeout=timeout,
+                name,
+                filename=filename,
+                data=data,
+                meta=meta,
+                wait=wait,
+                timeout=timeout,
                 validate_checksum=validate_checksum,
                 use_import=use_import,
                 stores=stores,
                 all_stores=stores,
                 all_stores_must_succeed=stores,
-                **image_kwargs)
+                **image_kwargs,
+            )
         else:
             image_kwargs['name'] = name
             image = self._create_image(**image_kwargs)
+
         self._connection._get_cache(None).invalidate()
+
         return image
 
     @abc.abstractmethod
@@ -225,12 +266,19 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _upload_image(
-        self, name, filename, data, meta, wait, timeout,
-        validate_checksum=True, use_import=False,
+        self,
+        name,
+        filename,
+        data,
+        meta,
+        wait,
+        timeout,
+        validate_checksum=True,
+        use_import=False,
         stores=None,
         all_stores=None,
         all_stores_must_succeed=None,
-        **image_kwargs
+        **image_kwargs,
     ):
         pass
 
@@ -239,13 +287,17 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
         pass
 
     def update_image_properties(
-            self, image=None, meta=None, **kwargs):
+        self,
+        image=None,
+        meta=None,
+        **kwargs,
+    ):
         """
         Update the properties of an existing image.
 
         :param image: Name or id of an image or an Image object.
         :param meta: A dict of key/value pairs to use for metadata that
-                     bypasses automatic type conversion.
+            bypasses automatic type conversion.
 
         Additional kwargs will be passed to the image creation as additional
         metadata for the image and will have all values converted to string
@@ -267,16 +319,3 @@ class BaseImageProxy(proxy.Proxy, metaclass=abc.ABCMeta):
             img_props[k] = v
 
         return self._update_image_properties(image, meta, img_props)
-
-    def _get_name_and_filename(self, name, image_format):
-        # See if name points to an existing file
-        if os.path.exists(name):
-            # Neat. Easy enough
-            return (os.path.splitext(os.path.basename(name))[0], name)
-
-        # Try appending the disk format
-        name_with_ext = '.'.join((name, image_format))
-        if os.path.exists(name_with_ext):
-            return (os.path.basename(name), name_with_ext)
-
-        return (name, None)

@@ -18,10 +18,8 @@ from openstack.image.v1 import image as _image
 
 
 class Proxy(_base_proxy.BaseImageProxy):
-
     def _create_image(self, **kwargs):
-        """Create image resource from attributes
-        """
+        """Create image resource from attributes"""
         return self._create(_image.Image, **kwargs)
 
     def upload_image(self, **attrs):
@@ -43,7 +41,13 @@ class Proxy(_base_proxy.BaseImageProxy):
         return self._create(_image.Image, **attrs)
 
     def _upload_image(
-        self, name, filename, data, meta, wait, timeout,
+        self,
+        name,
+        filename,
+        data,
+        meta,
+        wait,
+        timeout,
         use_import=False,
         stores=None,
         all_stores=None,
@@ -52,10 +56,12 @@ class Proxy(_base_proxy.BaseImageProxy):
     ):
         if use_import:
             raise exceptions.InvalidRequest(
-                "Glance v1 does not support image import")
+                "Glance v1 does not support image import"
+            )
         if stores or all_stores or all_stores_must_succeed:
             raise exceptions.InvalidRequest(
-                "Glance v1 does not support stores")
+                "Glance v1 does not support stores"
+            )
         # NOTE(mordred) wait and timeout parameters are unused, but
         # are present for ease at calling site.
         if filename and not data:
@@ -67,8 +73,8 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         # TODO(mordred) Convert this to use image Resource
         image = self._connection._get_and_munchify(
-            'image',
-            self.post('/images', json=image_kwargs))
+            'image', self.post('/images', json=image_kwargs)
+        )
         checksum = image_kwargs['properties'].get(self._IMAGE_MD5_KEY, '')
 
         try:
@@ -84,18 +90,20 @@ class Proxy(_base_proxy.BaseImageProxy):
                 'image',
                 self.put(
                     '/images/{id}'.format(id=image.id),
-                    headers=headers, data=image_data))
-
+                    headers=headers,
+                    data=image_data,
+                ),
+            )
         except exc.OpenStackCloudHTTPError:
-            self.log.debug(
-                "Deleting failed upload of image %s", name)
+            self.log.debug("Deleting failed upload of image %s", name)
             try:
                 self.delete('/images/{id}'.format(id=image.id))
             except exc.OpenStackCloudHTTPError:
                 # We're just trying to clean up - if it doesn't work - shrug
                 self.log.warning(
                     "Failed deleting image after we failed uploading it.",
-                    exc_info=True)
+                    exc_info=True,
+                )
             raise
         return image
 
@@ -107,8 +115,7 @@ class Proxy(_base_proxy.BaseImageProxy):
                 img_props['x-image-meta-{key}'.format(key=k)] = v
         if not img_props:
             return False
-        self.put(
-            '/images/{id}'.format(id=image.id), headers=img_props)
+        self.put('/images/{id}'.format(id=image.id), headers=img_props)
         self._connection.list_images.invalidate(self._connection)
         return True
 
@@ -141,8 +148,9 @@ class Proxy(_base_proxy.BaseImageProxy):
             attempting to find a nonexistent resource.
         :returns: One :class:`~openstack.image.v1.image.Image` or None
         """
-        return self._find(_image.Image, name_or_id,
-                          ignore_missing=ignore_missing)
+        return self._find(
+            _image.Image, name_or_id, ignore_missing=ignore_missing
+        )
 
     def get_image(self, image):
         """Get a single image
@@ -180,8 +188,13 @@ class Proxy(_base_proxy.BaseImageProxy):
         """
         return self._update(_image.Image, image, **attrs)
 
-    def download_image(self, image, stream=False, output=None,
-                       chunk_size=1024):
+    def download_image(
+        self,
+        image,
+        stream=False,
+        output=None,
+        chunk_size=1024,
+    ):
         """Download an image
 
         This will download an image to memory when ``stream=False``, or allow
@@ -191,7 +204,6 @@ class Proxy(_base_proxy.BaseImageProxy):
 
         :param image: The value can be either the ID of an image or a
             :class:`~openstack.image.v2.image.Image` instance.
-
         :param bool stream: When ``True``, return a :class:`requests.Response`
             instance allowing you to iterate over the
             response data stream instead of storing its entire
@@ -203,9 +215,7 @@ class Proxy(_base_proxy.BaseImageProxy):
             risk inefficiencies with the ``requests``
             library's handling of connections.
 
-
-            When ``False``, return the entire
-            contents of the response.
+            When ``False``, return the entire contents of the response.
         :param output: Either a file object or a path to store data into.
         :param int chunk_size: size in bytes to read from the wire and buffer
             at one time. Defaults to 1024
@@ -219,4 +229,8 @@ class Proxy(_base_proxy.BaseImageProxy):
         image = self._get_resource(_image.Image, image)
 
         return image.download(
-            self, stream=stream, output=output, chunk_size=chunk_size)
+            self,
+            stream=stream,
+            output=output,
+            chunk_size=chunk_size,
+        )
