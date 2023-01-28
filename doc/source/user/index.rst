@@ -96,6 +96,7 @@ control which services can be used.
    Block Storage v3 <proxies/block_storage_v3>
    Clustering <proxies/clustering>
    Compute <proxies/compute>
+   Container Infrastructure Management <proxies/container_infrastructure_management>
    Database <proxies/database>
    DNS <proxies/dns>
    Identity v2 <proxies/identity_v2>
@@ -133,6 +134,7 @@ The following services have exposed *Resource* classes.
    Block Storage <resources/block_storage/index>
    Clustering <resources/clustering/index>
    Compute <resources/compute/index>
+   Container Infrastructure Management <resources/container_infrastructure_management/index>
    Database <resources/database/index>
    DNS <resources/dns/index>
    Identity <resources/identity/index>

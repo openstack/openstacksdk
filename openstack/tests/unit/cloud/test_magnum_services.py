@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.container_infrastructure_management.v1 import service
 from openstack.tests.unit import base
 
 
@@ -18,7 +19,6 @@ magnum_service_obj = dict(
     created_at='2015-08-27T09:49:58-05:00',
     disabled_reason=None,
     host='fake-host',
-    human_id=None,
     id=1,
     report_count=1,
     state='up',
@@ -37,6 +37,7 @@ class TestMagnumServices(base.TestCase):
             json=dict(mservices=[magnum_service_obj]))])
         mservices_list = self.cloud.list_magnum_services()
         self.assertEqual(
-            mservices_list[0],
-            self.cloud._normalize_magnum_service(magnum_service_obj))
+            mservices_list[0].to_dict(computed=False),
+            service.Service(**magnum_service_obj).to_dict(computed=False),
+        )
         self.assert_calls()

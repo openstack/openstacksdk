@@ -10,9 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack.container_infrastructure_management.v1 import (
+    cluster_certificate
+)
 from openstack.container_infrastructure_management.v1 import _proxy
 from openstack.container_infrastructure_management.v1 import cluster
 from openstack.container_infrastructure_management.v1 import cluster_template
+from openstack.container_infrastructure_management.v1 import service
 from openstack.tests.unit import test_proxy_base
 
 
@@ -50,6 +54,20 @@ class TestCluster(TestMagnumProxy):
 
     def test_cluster_delete_ignore(self):
         self.verify_delete(self.proxy.delete_cluster, cluster.Cluster, True)
+
+
+class TestClusterCertificate(TestMagnumProxy):
+    def test_cluster_certificate_get(self):
+        self.verify_get(
+            self.proxy.get_cluster_certificate,
+            cluster_certificate.ClusterCertificate
+        )
+
+    def test_cluster_certificate_create_attrs(self):
+        self.verify_create(
+            self.proxy.create_cluster_certificate,
+            cluster_certificate.ClusterCertificate,
+        )
 
 
 class TestClusterTemplate(TestMagnumProxy):
@@ -92,4 +110,15 @@ class TestClusterTemplate(TestMagnumProxy):
             self.proxy.delete_cluster_template,
             cluster_template.ClusterTemplate,
             True,
+        )
+
+
+class TestService(TestMagnumProxy):
+
+    def test_services(self):
+        self.verify_list(
+            self.proxy.services,
+            service.Service,
+            method_kwargs={},
+            expected_kwargs={},
         )

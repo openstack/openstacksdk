@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Convert container_infrastructure_management cloud operations to rely fully
+    on service proxy with all resource classes created.
