@@ -210,7 +210,7 @@ OpenStack service can be found in the `Project Navigator`__.
    * - Cinder
      - Shared filesystems
      - ✔
-     - ✔ (``openstack.share_file_system``)
+     - ✔ (``openstack.shared_file_system``)
 
    * - **Networking**
      -
@@ -265,7 +265,7 @@ OpenStack service can be found in the `Project Navigator`__.
    * - Magnum
      - Container orchestration engine provisioning
      - ✔
-     - ✘
+     - ✔ (``openstack.container_infrastructure_management``)
 
    * - **Orchestration**
      -
