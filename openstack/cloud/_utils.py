@@ -23,7 +23,6 @@ import uuid
 from decorator import decorator
 import jmespath
 import netifaces
-import sre_constants
 
 from openstack import _log
 from openstack.cloud import exc
@@ -93,7 +92,7 @@ def _filter_list(data, name_or_id, filters):
         bad_pattern = False
         try:
             fn_reg = re.compile(fnmatch.translate(name_or_id))
-        except sre_constants.error:
+        except re.error:
             # If the fnmatch re doesn't compile, then we don't care,
             # but log it in case the user DID pass a pattern but did
             # it poorly and wants to know what went wrong with their
