@@ -17,6 +17,7 @@ import requests
 
 from openstack import exceptions
 from openstack.image.v2 import _proxy
+from openstack.image.v2 import cache as _cache
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import metadef_namespace as _metadef_namespace
@@ -880,5 +881,17 @@ class TestMetadefSchema(TestImageProxy):
             expected_kwargs={
                 'base_path': '/schemas/metadefs/tags',
                 'requires_id': False,
+            },
+        )
+
+
+class TestCache(TestImageProxy):
+    def test_image_cache_get(self):
+        self._verify(
+            "openstack.proxy.Proxy._get",
+            self.proxy.get_image_cache,
+            expected_args=[_cache.Cache],
+            expected_kwargs={
+                'requires_id': False
             },
         )

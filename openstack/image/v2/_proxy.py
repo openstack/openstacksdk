@@ -15,6 +15,7 @@ import time
 import warnings
 
 from openstack import exceptions
+from openstack.image.v2 import cache as _cache
 from openstack.image.v2 import image as _image
 from openstack.image.v2 import member as _member
 from openstack.image.v2 import metadef_namespace as _metadef_namespace
@@ -50,6 +51,7 @@ def _get_name_and_filename(name, image_format):
 class Proxy(proxy.Proxy):
 
     _resource_registry = {
+        "cache": _cache.Cache,
         "image": _image.Image,
         "image_member": _member.Member,
         "metadef_namespace": _metadef_namespace.MetadefNamespace,
@@ -71,6 +73,10 @@ class Proxy(proxy.Proxy):
     _SHADE_IMAGE_MD5_KEY = 'owner_specified.shade.md5'
     _SHADE_IMAGE_SHA256_KEY = 'owner_specified.shade.sha256'
     _SHADE_IMAGE_OBJECT_KEY = 'owner_specified.shade.object'
+
+    # ====== CACHE MANAGEMENT======
+    def get_image_cache(self):
+        return self._get(_cache.Cache, requires_id=False)
 
     # ====== IMAGES ======
     def create_image(
