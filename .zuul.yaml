@@ -355,8 +355,7 @@
       Run openstacksdk functional tests against a master devstack with manila
     required-projects:
       - openstack/manila
-      - name: openstack/openstacksdk
-        override-branch: feature/r1
+      - openstack/openstacksdk
     vars:
       devstack_localrc:
         # Set up manila with a fake driver - makes things super fast and should
