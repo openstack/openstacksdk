@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from openstack import exceptions
 from openstack.image.v2 import cache
 from openstack.tests.unit import base
 
@@ -44,3 +47,15 @@ class TestCache(base.TestCase):
             sot.cached_images,
         )
         self.assertEqual(EXAMPLE['queued_images'], sot.queued_images)
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_queue(self):
+        sot = cache.Cache()
+        sess = mock.Mock()
+        sess.put = mock.Mock()
+        sess.default_microversion = '2.14'
+
+        sot.queue(sess, image='image_id')
+
+        sess.put.assert_called_with('cache/image_id',
+                                    microversion=sess.default_microversion)
