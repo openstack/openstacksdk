@@ -895,3 +895,9 @@ class TestCache(TestImageProxy):
                 'requires_id': False
             },
         )
+
+    def test_cache_image_delete(self):
+        self.verify_delete(
+            self.proxy.cache_delete_image,
+            _cache.Cache,
+        )

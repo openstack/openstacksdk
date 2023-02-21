@@ -82,3 +82,11 @@ Helpers
 .. autoclass:: openstack.image.v2._proxy.Proxy
    :noindex:
    :members: wait_for_delete
+
+
+Cache Operations
+^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.image.v2._proxy.Proxy
+   :noindex:
+   :members: cache_delete_image
