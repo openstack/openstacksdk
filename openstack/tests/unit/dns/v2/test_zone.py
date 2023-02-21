@@ -28,7 +28,8 @@ EXAMPLE = {
     'type': 'PRIMARY',
     'ttl': 7200,
     'description': 'This is an example zone.',
-    'status': 'ACTIVE'
+    'status': 'ACTIVE',
+    'shared': False
 }
 
 
@@ -76,6 +77,7 @@ class TestZone(base.TestCase):
         self.assertEqual(EXAMPLE['type'], sot.type)
         self.assertEqual(EXAMPLE['name'], sot.name)
         self.assertEqual(EXAMPLE['status'], sot.status)
+        self.assertEqual(EXAMPLE['shared'], sot.is_shared)
 
     def test_abandon(self):
         sot = zone.Zone(**EXAMPLE)
