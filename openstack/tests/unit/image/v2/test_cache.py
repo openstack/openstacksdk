@@ -59,3 +59,12 @@ class TestCache(base.TestCase):
 
         sess.put.assert_called_with('cache/image_id',
                                     microversion=sess.default_microversion)
+
+    @mock.patch.object(exceptions, 'raise_from_response', mock.Mock())
+    def test_clear(self):
+        sot = cache.Cache(**EXAMPLE)
+        session = mock.Mock()
+        session.delete = mock.Mock()
+
+        sot.clear(session, 'both')
+        session.delete.assert_called_with('/cache', headers={})

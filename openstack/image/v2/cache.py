@@ -50,3 +50,17 @@ class Cache(resource.Resource):
         response = session.put(url, microversion=microversion)
         exceptions.raise_from_response(response)
         return response
+
+    def clear(self, session, target='both'):
+        """Clears the cache.
+        :param session: The session to use for making this request
+        :param target: Specify which target you want to clear
+            One of: ``both``(default), ``cache``, ``queue``.
+        :returns: The server response
+        """
+        headers = {}
+        if target != "both":
+            headers = {'x-image-cache-clear-target': target}
+        response = session.delete(self.base_path, headers=headers)
+        exceptions.raise_from_response(response)
+        return response
