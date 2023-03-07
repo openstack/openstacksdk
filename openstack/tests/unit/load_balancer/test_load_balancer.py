@@ -141,10 +141,8 @@ class TestLoadBalancer(base.TestCase):
         url = 'lbaas/loadbalancers/%(lb)s' % {
             'lb': EXAMPLE['id']
         }
-        headers = {'Accept': ''}
         params = {}
         sess.delete.assert_called_with(url,
-                                       headers=headers,
                                        params=params)
         sot._translate_response.assert_called_once_with(
             resp,
@@ -165,10 +163,8 @@ class TestLoadBalancer(base.TestCase):
         url = 'lbaas/loadbalancers/%(lb)s' % {
             'lb': EXAMPLE['id']
         }
-        headers = {'Accept': ''}
         params = {'cascade': True}
         sess.delete.assert_called_with(url,
-                                       headers=headers,
                                        params=params)
         sot._translate_response.assert_called_once_with(
             resp,

@@ -75,17 +75,11 @@ class LoadBalancer(resource.Resource, tag.TagMixin):
 
     def delete(self, session, error_message=None):
         request = self._prepare_request()
-        headers = {
-            "Accept": ""
-        }
-
-        request.headers.update(headers)
         params = {}
         if (hasattr(self, 'cascade') and isinstance(self.cascade, bool)
                 and self.cascade):
             params['cascade'] = True
         response = session.delete(request.url,
-                                  headers=headers,
                                   params=params)
 
         self._translate_response(response, has_body=False,
