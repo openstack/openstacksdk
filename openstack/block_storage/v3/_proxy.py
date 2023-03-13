@@ -876,6 +876,19 @@ class Proxy(proxy.Proxy):
         volume = self._get_resource(_volume.Volume, volume)
         volume.extend(self, size)
 
+    def complete_volume_extend(self, volume, error=False):
+        """Complete a volume extend operation.
+
+        :param volume: The value can be either the ID of a volume or a
+            :class:`~openstack.block_storage.v3.volume.Volume` instance.
+        :param bool error: Used to indicate if an error has occured that
+            requires Cinder to roll back the extend operation.
+
+        :returns: None
+        """
+        volume = self._get_resource(_volume.Volume, volume)
+        volume.complete_extend(self, error)
+
     def set_volume_readonly(self, volume, readonly=True):
         """Set a volume's read-only flag.
 

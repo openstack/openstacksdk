@@ -454,6 +454,22 @@ class TestVolumeActions(TestVolumeProxy):
             expected_args=[self.proxy, "new-size"],
         )
 
+    def test_complete_extend(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.complete_extend",
+            self.proxy.complete_volume_extend,
+            method_args=["value"],
+            expected_args=[self.proxy, False],
+        )
+
+    def test_complete_extend_error(self):
+        self._verify(
+            "openstack.block_storage.v3.volume.Volume.complete_extend",
+            self.proxy.complete_volume_extend,
+            method_args=["value", True],
+            expected_args=[self.proxy, True],
+        )
+
     def test_volume_set_readonly_no_argument(self):
         self._verify(
             "openstack.block_storage.v3.volume.Volume.set_readonly",
