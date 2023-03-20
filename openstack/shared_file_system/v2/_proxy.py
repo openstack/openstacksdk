@@ -15,6 +15,9 @@ from openstack import resource
 from openstack.shared_file_system.v2 import (
     availability_zone as _availability_zone)
 from openstack.shared_file_system.v2 import (
+    share_network as _share_network
+)
+from openstack.shared_file_system.v2 import (
     share_snapshot as _share_snapshot
 )
 from openstack.shared_file_system.v2 import (
@@ -35,6 +38,7 @@ class Proxy(proxy.Proxy):
         "user_message": _user_message.UserMessage,
         "limit": _limit.Limit,
         "share": _share.Share,
+        "share_network": _share_network.ShareNetwork
     }
 
     def availability_zones(self):
@@ -326,3 +330,70 @@ class Proxy(proxy.Proxy):
                  to delete failed to occur in the specified seconds.
         """
         return resource.wait_for_delete(self, res, interval, wait)
+
+    def share_networks(self, details=True, **query):
+        """Lists all share networks with details.
+
+        :param dict query: Optional query parameters to be sent to limit the
+            resources being returned. Available parameters include:
+
+            * name~: The user defined name of the resource to filter resources
+              by.
+            * project_id: The ID of the user or service making the request.
+            * description~: The description pattern that can be used to filter
+              shares, share snapshots, share networks or share groups.
+            * all_projects: (Admin only). Defines whether to list the requested
+              resources for all projects.
+
+        :returns: Details of shares networks
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_network.ShareNetwork`
+        """
+        base_path = '/share-networks/detail' if details else None
+        return self._list(
+            _share_network.ShareNetwork, base_path=base_path, **query)
+
+    def get_share_network(self, share_network_id):
+        """Lists details of a single share network
+
+        :param share_network: The ID of the share network to get
+        :returns: Details of the identified share network
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_network.ShareNetwork`
+        """
+        return self._get(_share_network.ShareNetwork, share_network_id)
+
+    def delete_share_network(self, share_network_id, ignore_missing=True):
+        """Deletes a single share network
+
+        :param share_network_id: The ID of the share network to delete
+        :rtype: ``None``
+        """
+        self._delete(
+            _share_network.ShareNetwork, share_network_id,
+            ignore_missing=ignore_missing)
+
+    def update_share_network(self, share_network_id, **attrs):
+        """Updates details of a single share network.
+
+        :param share_network_id: The ID of the share network to update
+        :pram dict attrs: The attributes to update on the share network
+        :returns: the updated share network
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_network.ShareNetwork`
+        """
+        return self._update(
+            _share_network.ShareNetwork, share_network_id, **attrs)
+
+    def create_share_network(self, **attrs):
+        """Creates a share network from attributes
+
+        :returns: Details of the new share network
+        :param dict attrs: Attributes which will be used to create
+            a :class:`~openstack.shared_file_system.v2.
+            share_network.ShareNetwork`,comprised of the properties
+            on the ShareNetwork class.
+        :rtype: :class:`~openstack.shared_file_system.v2.
+            share_network.ShareNetwork`
+        """
+        return self._create(_share_network.ShareNetwork, **attrs)

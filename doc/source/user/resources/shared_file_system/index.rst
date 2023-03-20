@@ -10,3 +10,4 @@ Shared File System service resources
    v2/share
    v2/user_message
    v2/share_snapshot
+   v2/share_network

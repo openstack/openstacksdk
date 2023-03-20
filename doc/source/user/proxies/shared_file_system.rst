@@ -79,3 +79,14 @@ service.
   :noindex:
   :members: share_snapshots, get_share_snapshot, delete_share_snapshot,
             update_share_snapshot, create_share_snapshot
+
+
+Shared File System Share Networks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create and manipulate Share Networks with the Shared File Systems service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: share_networks, get_share_network, delete_share_network,
+            update_share_network, create_share_network
