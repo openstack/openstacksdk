@@ -93,6 +93,7 @@ class TestPort(base.TestCase):
                               "mac_address": "mac_address",
                               "name": "name",
                               "network_id": "network_id",
+                              "security_groups": "security_groups",
                               "status": "status",
                               "subnet_id": "subnet_id",
                               "is_admin_state_up": "admin_state_up",

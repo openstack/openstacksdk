@@ -34,7 +34,7 @@ class Port(_base.NetworkResource, tag.TagMixin):
         'binding:vif_type', 'binding:vnic_type',
         'description', 'device_id', 'device_owner', 'fields', 'fixed_ips',
         'id', 'ip_address', 'mac_address', 'name', 'network_id', 'status',
-        'subnet_id', 'project_id',
+        'subnet_id', 'project_id', 'security_groups',
         is_admin_state_up='admin_state_up',
         is_port_security_enabled='port_security_enabled',
         security_group_ids='security_groups',
