@@ -1,0 +1,15 @@
+{
+  "name": "otc-swiss",
+  "profile": {
+    "auth": {
+      "auth_url": "iam-pub.eu-ch2.sc.otc.t-systems.com/v3"
+    },
+    "regions": [
+      "eu-ch2"
+    ],
+    "identity_api_version": "3",
+    "interface": "public",
+    "image_format": "qcow2",
+    "vendor_hook": "otcextensions.sdk:load"
+  }
+}
