@@ -23,6 +23,13 @@ from openstack.network.v2 import auto_allocated_topology as \
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import bgp_peer as _bgp_peer
 from openstack.network.v2 import bgp_speaker as _bgp_speaker
+from openstack.network.v2 import bgpvpn as _bgpvpn
+from openstack.network.v2 import bgpvpn_network_association as \
+    _bgpvpn_network_association
+from openstack.network.v2 import bgpvpn_port_association as \
+    _bgpvpn_port_association
+from openstack.network.v2 import bgpvpn_router_association as \
+    _bgpvpn_router_association
 from openstack.network.v2 import extension
 from openstack.network.v2 import firewall_group as _firewall_group
 from openstack.network.v2 import firewall_policy as _firewall_policy
@@ -90,6 +97,13 @@ class Proxy(proxy.Proxy, Generic[T]):
         "availability_zone": availability_zone.AvailabilityZone,
         "bgp_peer": _bgp_peer.BgpPeer,
         "bgp_speaker": _bgp_speaker.BgpSpeaker,
+        "bgpvpn": _bgpvpn.BgpVpn,
+        "bgpvpn_network_association":
+            _bgpvpn_network_association.BgpVpnNetworkAssociation,
+        "bgpvpn_port_association":
+            _bgpvpn_port_association.BgpVpnPortAssociation,
+        "bgpvpn_router_association":
+            _bgpvpn_router_association.BgpVpnRouterAssociation,
         "extension": extension.Extension,
         "firewall_group": _firewall_group.FirewallGroup,
         "firewall_policy": _firewall_policy.FirewallPolicy,
@@ -645,6 +659,385 @@ class Proxy(proxy.Proxy, Generic[T]):
         routing agent."""
         speaker = self._get_resource(_bgp_speaker.BgpSpeaker, bgp_speaker_id)
         speaker.remove_bgp_speaker_from_dragent(self, bgp_agent)
+
+    def create_bgpvpn(self, **attrs):
+        """Create a new BGPVPN
+
+        :param attrs: Keyword arguments which will be used to create a
+             :class:`~openstack.network.v2.bgpvpn.BgpVpn`, comprised of the
+             properties on the BGPVPN class, for details see the Neutron
+             api-ref.
+
+        :returns: The result of BGPVPN creation
+        :rtype: :class:`~openstack.network.v2.bgpvpn.BgpVpn`
+        """
+        return self._create(_bgpvpn.BgpVpn, **attrs)
+
+    def delete_bgpvpn(self, bgpvpn, ignore_missing=True):
+        """Delete a BGPVPN
+
+        :param bgpvpn: The value can be either the ID of a bgpvpn or
+            a :class:`~openstack.network.v2.bgpvpn.BgpVpn`  instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the BGPVPN does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent BGPVPN.
+
+        :returns: ``None``
+        """
+        self._delete(_bgpvpn.BgpVpn, bgpvpn, ignore_missing=ignore_missing)
+
+    def find_bgpvpn(self, name_or_id, ignore_missing=True, **query):
+        """"Find a single BGPVPN
+
+        :param name_or_id: The name or ID of a BGPVPN.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.bgpvpn.BGPVPN`
+            or None
+        """
+        return self._find(_bgpvpn.BgpVpn, name_or_id,
+                          ignore_missing=ignore_missing, **query)
+
+    def get_bgpvpn(self, bgpvpn):
+        """Get a signle BGPVPN
+
+        :param bgpvpn: The value can be the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+
+        :returns: One :class:`~openstack.network.v2.bgpvpn.BgpVpn`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        return self._get(_bgpvpn.BgpVpn, bgpvpn)
+
+    def update_bgpvpn(self, bgppvpn, **attrs):
+        """Update a BGPVPN
+
+        :param bgpvpn: Either the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param attrs: The attributes to update on the BGPVPN represented
+            by ``value``.
+
+        :returns: The updated BGPVPN
+        :rtype: :class:`~openstack.network.v2.bgpvpn.BgpVpn`
+        """
+        return self._update(_bgpvpn.BgpVpn, bgppvpn, **attrs)
+
+    def bgpvpns(self, **query):
+        """Return a generator of BGP VPNs
+
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of BgpVPN objects
+        :rtype: :class:`~openstack.network.v2.bgpvpn.BgpVpn`
+        """
+        return self._list(_bgpvpn.BgpVpn, **query)
+
+    def create_bgpvpn_network_association(self, bgpvpn, **attrs):
+        """Create a new BGPVPN Network Association
+
+        :param bgpvpn: The value can be either the ID of a bgpvpn or
+            a :class:`~openstack.network.v2.bgpvpn.BgpVpn`  instance.
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.bgpvpn_network_association.
+            BgpVpnNetworkAssociation`,
+            comprised of the properties on the BgpVpnNetworkAssociation class.
+
+        :returns: The results of BgpVpnNetworkAssociation creation
+        :rtype: :class:`~openstack.network.v2.bgpvpn_network_association.
+            BgpVpnNetworkAssociation`
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._create(
+            _bgpvpn_network_association.BgpVpnNetworkAssociation,
+            bgpvpn_id=bgpvpn_res.id, **attrs)
+
+    def delete_bgpvpn_network_association(self, bgpvpn, net_association,
+                                          ignore_missing=True):
+        """Delete a BGPVPN Network Association
+
+        :param bgpvpn: The value can be either the ID of a bgpvpn or
+            a :class:`~openstack.network.v2.bgpvpn.BgpVpn`  instance.
+        :param net_association: The value can be either the ID of a
+            bgpvpn_network_association or
+            a :class:`~openstack.network.v2.bgpvpn_network_association.
+            BgpVpnNetworkAssociation` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the BgpVpnNetworkAssociation does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent BgpVpnNetworkAssociation.
+
+        :returns: ``None``
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        self._delete(
+            _bgpvpn_network_association.BgpVpnNetworkAssociation,
+            net_association, ignore_missing=ignore_missing,
+            bgpvpn_id=bgpvpn_res.id)
+
+    def get_bgpvpn_network_association(self, bgpvpn, net_association):
+        """Get a signle BGPVPN Network Association
+
+        :param bgpvpn: The value can be the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param net_association: The value can be the ID of a
+            BgpVpnNetworkAssociation or a
+            :class:`~openstack.network.v2.bgpvpn_network_association.
+            BgpVpnNetworkAssociation` instance.
+
+        :returns: One :class:`~openstack.network.v2.
+           bgpvpn_network_associaition.BgpVpnNetworkAssociation`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._get(
+            _bgpvpn_network_association.BgpVpnNetworkAssociation,
+            net_association, bgpvpn_id=bgpvpn_res.id)
+
+    def bgpvpn_network_associations(self, bgpvpn, **query):
+        """Return a generator of BGP VPN Network Associations
+
+        :param: bgpvpn: The value can be the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of BgpVpnNetworkAssociation objects
+        :rtype: :class:`~openstack.network.v2.bgpvpn_network_association.
+            BgpVpnNetworkAssociation`
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._list(
+            _bgpvpn_network_association.BgpVpnNetworkAssociation,
+            bgpvpn_id=bgpvpn_res.id, **query)
+
+    def create_bgpvpn_port_association(self, bgpvpn, **attrs):
+        """Create a new BGPVPN Port Association
+
+        :param bgpvpn: The value can be either the ID of a bgpvpn or
+            a :class:`~openstack.network.v2.bgpvpn.BgpVpn`  instance.
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.bgpvpn_port_association.
+            BgpVpnPortAssociation`,
+            comprised of the properties on the BgpVpnPortAssociation class.
+
+        :returns: The results of BgpVpnPortAssociation creation
+        :rtype: :class:`~openstack.network.v2.bgpvpn_port_association.
+            BgpVpnPortAssociation`
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._create(
+            _bgpvpn_port_association.BgpVpnPortAssociation,
+            bgpvpn_id=bgpvpn_res.id, **attrs)
+
+    def delete_bgpvpn_port_association(self, bgpvpn, port_association,
+                                       ignore_missing=True):
+        """Delete a BGPVPN Port Association
+
+        :param bgpvpn: The value can be either the ID of a bgpvpn or
+            a :class:`~openstack.network.v2.bgpvpn.BgpVpn`  instance.
+        :param port_association: The value can be either the ID of a
+            bgpvpn_port_association or
+            a :class:`~openstack.network.v2.bgpvpn_port_association.
+            BgpVpnPortAssociation` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the BgpVpnPortAssociation does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent BgpVpnPortAssociation.
+
+        :returns: ``None``
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        self._delete(
+            _bgpvpn_port_association.BgpVpnPortAssociation,
+            port_association, ignore_missing=ignore_missing,
+            bgpvpn_id=bgpvpn_res.id)
+
+    def find_bgpvpn_port_association(self, name_or_id, bgpvpn_id,
+                                     ignore_missing=True, **query):
+        """"Find a single BGPVPN Port Association
+
+        :param name_or_id: The name or ID of a BgpVpnNetworkAssociation.
+        :param bgpvpn_id: The value can be the ID of a BGPVPN.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the resource does not exist.
+            When set to ``True``, None will be returned when
+            attempting to find a nonexistent resource.
+        :param dict query: Any additional parameters to be passed into
+            underlying methods. such as query filters.
+        :returns: One :class:`~openstack.network.v2.bgpvpn.BGPVPN`
+            or None
+        """
+        return self._find(
+            _bgpvpn_port_association.BgpVpnPortAssociation,
+            name_or_id,
+            ignore_missing=ignore_missing, bgpvpn_id=bgpvpn_id, **query)
+
+    def get_bgpvpn_port_association(self, bgpvpn, port_association):
+        """Get a signle BGPVPN Port Association
+
+        :param bgpvpn: The value can be the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param port_association: The value can be the ID of a
+            BgpVpnPortAssociation or a
+            :class:`~openstack.network.v2.bgpvpn_port_association.
+            BgpVpnPortAssociation` instance.
+
+        :returns: One :class:`~openstack.network.v2.
+           bgpvpn_port_associaition.BgpVpnPortAssociation`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._get(
+            _bgpvpn_port_association.BgpVpnPortAssociation,
+            port_association, bgpvpn_id=bgpvpn_res.id)
+
+    def update_bgpvpn_port_association(self, bgpvpn, port_association,
+                                       **attrs):
+        """Update a BPGPN Port Association
+
+        :param bgpvpn: Either the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param port_association:  The value can be the ID of a
+            BgpVpnPortAssociation or a
+            :class:`~openstack.network.v2.bgpvpn_port_association.
+            BgpVpnPortAssociation` instance.
+        :param attrs: The attributes to update on the BGPVPN represented
+            by ``value``.
+
+        :returns: The updated BgpVpnPortAssociation.
+        :rtype: :class:`~openstack.network.v2.bgpvpn.BgpVpn`
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._update(
+            _bgpvpn_port_association.BgpVpnPortAssociation,
+            port_association, bgpvpn_id=bgpvpn_res.id, **attrs)
+
+    def bgpvpn_port_associations(self, bgpvpn, **query):
+        """Return a generator of BGP VPN Port Associations
+
+        :param: bgpvpn: The value can be the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of BgpVpnNetworkAssociation objects
+        :rtype: :class:`~openstack.network.v2.bgpvpn_network_association.
+            BgpVpnNetworkAssociation`
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._list(
+            _bgpvpn_port_association.BgpVpnPortAssociation,
+            bgpvpn_id=bgpvpn_res.id, **query)
+
+    def create_bgpvpn_router_association(self, bgpvpn, **attrs):
+        """Create a new BGPVPN Router Association
+
+        :param bgpvpn: The value can be either the ID of a bgpvpn or
+            a :class:`~openstack.network.v2.bgpvpn.BgpVpn`  instance.
+        :param attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.network.v2.bgpvpn_router_association.
+            BgpVpnRouterAssociation`,
+            comprised of the properties on the BgpVpnRouterAssociation class.
+
+        :returns: The results of BgpVpnRouterAssociation creation
+        :rtype: :class:`~openstack.network.v2.bgpvpn_router_association.
+            BgpVpnRouterAssociation`
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._create(
+            _bgpvpn_router_association.BgpVpnRouterAssociation,
+            bgpvpn_id=bgpvpn_res.id, **attrs)
+
+    def delete_bgpvpn_router_association(self, bgpvpn, router_association,
+                                         ignore_missing=True):
+        """Delete a BGPVPN Router Association
+
+        :param bgpvpn: The value can be either the ID of a bgpvpn or
+            a :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param port_association: The value can be either the ID of a
+            bgpvpn_router_association or
+            a :class:`~openstack.network.v2.bgpvpn_router_association.
+            BgpVpnRouterAssociation` instance.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be
+            raised when the BgpVpnRouterAssociation does not exist.
+            When set to ``True``, no exception will be set when
+            attempting to delete a nonexistent BgpVpnRouterAsociation.
+
+        :returns: ``None``
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        self._delete(
+            _bgpvpn_router_association.BgpVpnRouterAssociation,
+            router_association, ignore_missing=ignore_missing,
+            bgpvpn_id=bgpvpn_res.id)
+
+    def get_bgpvpn_router_association(self, bgpvpn, router_association):
+        """Get a signle BGPVPN Router Association
+
+        :param bgpvpn: The value can be the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param router_association: The value can be the ID of a
+            BgpVpnRouterAssociation or a
+            :class:`~openstack.network.v2.bgpvpn_router_association.
+            BgpVpnRouterAssociation` instance.
+
+        :returns: One :class:`~openstack.network.v2.
+           bgpvpn_router_associaition.BgpVpnRouterAssociation`
+        :raises: :class:`~openstack.exceptions.ResourceNotFound`
+            when no resource can be found.
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._get(
+            _bgpvpn_router_association.BgpVpnRouterAssociation,
+            router_association, bgpvpn_id=bgpvpn_res.id)
+
+    def update_bgpvpn_router_association(self, bgpvpn,
+                                         router_association, **attrs):
+        """Update a BPGPN Router Association
+
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of BgpVpnNetworkAssociation objects
+        :rtype: :class:`~openstack.network.v2.bgpvpn_network_association.
+            BgpVpnNetworkAssociation`
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._update(
+            _bgpvpn_router_association.BgpVpnRouterAssociation,
+            router_association, bgpvpn_id=bgpvpn_res.id, **attrs)
+
+    def bgpvpn_router_associations(self, bgpvpn, **query):
+        """Return a generator of BGP VPN router Associations
+
+        :param: bgpvpn: The value can be the ID of a BGPVPN or a
+            :class:`~openstack.network.v2.bgpvpn.BgpVpn` instance.
+        :param dict query: Optional query parameters to be sent to limit
+            the resources being returned.
+
+        :returns: A generator of BgpVpnRouterAssociation objects
+        :rtype: :class:`~openstack.network.v2.bgpvpn_router_association.
+            BgpVpnRouterAssociation`
+        """
+        bgpvpn_res = self._get_resource(_bgpvpn.BgpVpn, bgpvpn)
+        return self._list(
+            _bgpvpn_router_association.BgpVpnRouterAssociation,
+            bgpvpn_id=bgpvpn_res.id, **query)
 
     def find_extension(self, name_or_id, ignore_missing=True, **query):
         """Find a single extension

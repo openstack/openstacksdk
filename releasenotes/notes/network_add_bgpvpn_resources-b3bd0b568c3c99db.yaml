@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add BGPVPN, BGPVPN Network Association, BGPVPN Port Association,
+    and BGPVPN Router Association resources and introduce support
+    for CRUD operations for these.
+

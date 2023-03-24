@@ -314,3 +314,18 @@ Tap As A Service Operations
   :members: create_tap_flow, delete_tap_flow, find_tap_flow, get_tap_flow,
             update_tap_flow, tap_flows, create_tap_service, delete_tap_service,
             find_tap_service, update_tap_service, tap_services
+
+BGPVPN operations
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.network.v2._proxy.Proxy
+  :noindex:
+  :members: create_bgpvpn, delete_bgpvpn, find_bgpvpn, get_bgpvpn,
+            update_bgpvpn, bgpvpns, create_bgpvpn_network_association,
+            delete_bgpvpn_network_association, get_bgpvpn_network_association,
+            bgpvpn_network_associations, create_bgpvpn_port_association,
+            delete_bgpvpn_port_association, find_bgpvpn_port_association,
+            get_bgpvpn_port_association, update_bgpvpn_port_association,
+            bgpvpn_port_associations, create_bgpvpn_router_association,
+            delete_bgpvpn_router_association, get_bgpvpn_router_association,
+            update_bgpvpn_router_association, bgpvpn_router_associations

@@ -22,6 +22,10 @@ from openstack.network.v2 import auto_allocated_topology
 from openstack.network.v2 import availability_zone
 from openstack.network.v2 import bgp_peer
 from openstack.network.v2 import bgp_speaker
+from openstack.network.v2 import bgpvpn
+from openstack.network.v2 import bgpvpn_network_association
+from openstack.network.v2 import bgpvpn_port_association
+from openstack.network.v2 import bgpvpn_router_association
 from openstack.network.v2 import extension
 from openstack.network.v2 import firewall_group
 from openstack.network.v2 import firewall_policy
@@ -77,6 +81,7 @@ ROUTER_ID = 'router-id-' + uuid.uuid4().hex
 FIP_ID = 'fip-id-' + uuid.uuid4().hex
 CT_HELPER_ID = 'ct-helper-id-' + uuid.uuid4().hex
 LOCAL_IP_ID = 'lip-id-' + uuid.uuid4().hex
+BGPVPN_ID = 'bgpvpn-id-' + uuid.uuid4().hex
 
 
 class TestNetworkProxy(test_proxy_base.TestProxyBase):
@@ -1997,3 +2002,207 @@ class TestNetworkBGP(TestNetworkProxy):
 
     def test_bgp_peer_update(self):
         self.verify_update(self.proxy.update_bgp_peer, bgp_peer.BgpPeer)
+
+
+class TestNetworkBGPVPN(TestNetworkProxy):
+    NETWORK_ASSOCIATION = 'net-assoc-id' + uuid.uuid4().hex
+    PORT_ASSOCIATION = 'port-assoc-id' + uuid.uuid4().hex
+    ROUTER_ASSOCIATION = 'router-assoc-id' + uuid.uuid4().hex
+
+    def test_bgpvpn_create(self):
+        self.verify_create(self.proxy.create_bgpvpn, bgpvpn.BgpVpn)
+
+    def test_bgpvpn_delete(self):
+        self.verify_delete(self.proxy.delete_bgpvpn,
+                           bgpvpn.BgpVpn, False)
+
+    def test_bgpvpn_delete_ignore(self):
+        self.verify_delete(self.proxy.delete_bgpvpn,
+                           bgpvpn.BgpVpn, True)
+
+    def test_bgpvpn_find(self):
+        self.verify_find(self.proxy.find_bgpvpn, bgpvpn.BgpVpn)
+
+    def test_bgpvpn_get(self):
+        self.verify_get(self.proxy.get_bgpvpn, bgpvpn.BgpVpn)
+
+    def test_bgpvpns(self):
+        self.verify_list(self.proxy.bgpvpns, bgpvpn.BgpVpn)
+
+    def test_bgpvpn_update(self):
+        self.verify_update(self.proxy.update_bgpvpn, bgpvpn.BgpVpn)
+
+    def test_bgpvpn_network_association_create(self):
+        self.verify_create(
+            self.proxy.create_bgpvpn_network_association,
+            bgpvpn_network_association.BgpVpnNetworkAssociation,
+            method_kwargs={'bgpvpn': BGPVPN_ID},
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_network_association_delete(self):
+        self.verify_delete(
+            self.proxy.delete_bgpvpn_network_association,
+            bgpvpn_network_association.BgpVpnNetworkAssociation,
+            False,
+            method_args=[BGPVPN_ID, self.NETWORK_ASSOCIATION],
+            expected_args=[self.NETWORK_ASSOCIATION],
+            expected_kwargs={'ignore_missing': False,
+                             'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_network_association_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_bgpvpn_network_association,
+            bgpvpn_network_association.BgpVpnNetworkAssociation,
+            True,
+            method_args=[BGPVPN_ID, self.NETWORK_ASSOCIATION],
+            expected_args=[self.NETWORK_ASSOCIATION],
+            expected_kwargs={'ignore_missing': True,
+                             'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_network_association_get(self):
+        self.verify_get(
+            self.proxy.get_bgpvpn_network_association,
+            bgpvpn_network_association.BgpVpnNetworkAssociation,
+            method_args=[BGPVPN_ID, self.NETWORK_ASSOCIATION],
+            expected_args=[self.NETWORK_ASSOCIATION],
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_network_associations(self):
+        self.verify_list(
+            self.proxy.bgpvpn_network_associations,
+            bgpvpn_network_association.BgpVpnNetworkAssociation,
+            method_args=[BGPVPN_ID, ],
+            expected_args=[],
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_port_association_create(self):
+        self.verify_create(
+            self.proxy.create_bgpvpn_port_association,
+            bgpvpn_port_association.BgpVpnPortAssociation,
+            method_kwargs={'bgpvpn': BGPVPN_ID},
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_port_association_delete(self):
+        self.verify_delete(
+            self.proxy.delete_bgpvpn_port_association,
+            bgpvpn_port_association.BgpVpnPortAssociation,
+            False,
+            method_args=[BGPVPN_ID, self.PORT_ASSOCIATION],
+            expected_args=[self.PORT_ASSOCIATION],
+            expected_kwargs={'ignore_missing': False,
+                             'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_port_association_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_bgpvpn_port_association,
+            bgpvpn_port_association.BgpVpnPortAssociation,
+            True,
+            method_args=[BGPVPN_ID, self.PORT_ASSOCIATION],
+            expected_args=[self.PORT_ASSOCIATION],
+            expected_kwargs={'ignore_missing': True,
+                             'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_port_association_find(self):
+        self.verify_find(
+            self.proxy.find_bgpvpn_port_association,
+            bgpvpn_port_association.BgpVpnPortAssociation,
+            method_args=[BGPVPN_ID],
+            expected_args=['resource_name'],
+            method_kwargs={'ignore_missing': True},
+            expected_kwargs={'ignore_missing': True,
+                             'bgpvpn_id': BGPVPN_ID},
+        )
+
+    def test_bgpvpn_port_association_get(self):
+        self.verify_get(
+            self.proxy.get_bgpvpn_port_association,
+            bgpvpn_port_association.BgpVpnPortAssociation,
+            method_args=[BGPVPN_ID, self.PORT_ASSOCIATION],
+            expected_args=[self.PORT_ASSOCIATION],
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_port_associations(self):
+        self.verify_list(
+            self.proxy.bgpvpn_port_associations,
+            bgpvpn_port_association.BgpVpnPortAssociation,
+            method_args=[BGPVPN_ID, ],
+            expected_args=[],
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_port_association_update(self):
+        self.verify_update(
+            self.proxy.update_bgpvpn_port_association,
+            bgpvpn_port_association.BgpVpnPortAssociation,
+            method_args=[BGPVPN_ID, self.PORT_ASSOCIATION],
+            method_kwargs={},
+            expected_args=[self.PORT_ASSOCIATION],
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_router_association_create(self):
+        self.verify_create(
+            self.proxy.create_bgpvpn_router_association,
+            bgpvpn_router_association.BgpVpnRouterAssociation,
+            method_kwargs={'bgpvpn': BGPVPN_ID},
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_router_association_delete(self):
+        self.verify_delete(
+            self.proxy.delete_bgpvpn_router_association,
+            bgpvpn_router_association.BgpVpnRouterAssociation,
+            False,
+            method_args=[BGPVPN_ID, self.ROUTER_ASSOCIATION],
+            expected_args=[self.ROUTER_ASSOCIATION],
+            expected_kwargs={'ignore_missing': False,
+                             'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_router_association_delete_ignore(self):
+        self.verify_delete(
+            self.proxy.delete_bgpvpn_router_association,
+            bgpvpn_router_association.BgpVpnRouterAssociation,
+            True,
+            method_args=[BGPVPN_ID, self.ROUTER_ASSOCIATION],
+            expected_args=[self.ROUTER_ASSOCIATION],
+            expected_kwargs={'ignore_missing': True,
+                             'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_router_association_get(self):
+        self.verify_get(
+            self.proxy.get_bgpvpn_router_association,
+            bgpvpn_router_association.BgpVpnRouterAssociation,
+            method_args=[BGPVPN_ID, self.ROUTER_ASSOCIATION],
+            expected_args=[self.ROUTER_ASSOCIATION],
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_router_associations(self):
+        self.verify_list(
+            self.proxy.bgpvpn_router_associations,
+            bgpvpn_router_association.BgpVpnRouterAssociation,
+            method_args=[BGPVPN_ID, ],
+            expected_args=[],
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )
+
+    def test_bgpvpn_router_association_update(self):
+        self.verify_update(
+            self.proxy.update_bgpvpn_router_association,
+            bgpvpn_router_association.BgpVpnRouterAssociation,
+            method_args=[BGPVPN_ID, self.ROUTER_ASSOCIATION],
+            method_kwargs={},
+            expected_args=[self.ROUTER_ASSOCIATION],
+            expected_kwargs={'bgpvpn_id': BGPVPN_ID}
+        )

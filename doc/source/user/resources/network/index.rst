@@ -11,6 +11,10 @@ Network Resources
    v2/availability_zone
    v2/bgp_peer
    v2/bgp_speaker
+   v2/bgpvpn
+   v2/bgpvpn_network_association
+   v2/bgpvpn_port_association
+   v2/bgpvpn_router_association
    v2/extension
    v2/flavor
    v2/floating_ip
