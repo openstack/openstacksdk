@@ -25,6 +25,7 @@ class Cache(resource.Resource):
     base_path = '/cache'
 
     allow_fetch = True
+    allow_delete = True
 
     _max_microversion = '2.14'
 

@@ -35,6 +35,7 @@ class TestCache(base.TestCase):
         self.assertIsNone(sot.resource_key)
         self.assertEqual('/cache', sot.base_path)
         self.assertTrue(sot.allow_fetch)
+        self.assertTrue(sot.allow_delete)
 
     def test_make_it(self):
         sot = cache.Cache(**EXAMPLE)

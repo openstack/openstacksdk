@@ -78,6 +78,19 @@ class Proxy(proxy.Proxy):
     def get_image_cache(self):
         return self._get(_cache.Cache, requires_id=False)
 
+    def cache_delete_image(self, image, ignore_missing=True):
+        """Delete an image from cache.
+
+        :param image: The value can be either the name of an image or a
+            :class:`~openstack.image.v2.image.Image`
+            instance.
+        :param bool ignore_missing: When set to ``False``,
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the metadef namespace does not exist.
+        :returns: ``None``
+        """
+        self._delete(_cache.Cache, image, ignore_missing=ignore_missing)
+
     # ====== IMAGES ======
     def create_image(
         self,
