@@ -2005,9 +2005,9 @@ class Proxy(proxy.Proxy):
             that the migration belongs to.
         :param bool ignore_missing: When set to ``False``
             :class:`~openstack.exceptions.ResourceNotFound` will be raised when
-            the volume attachment does not exist. When set to ``True``, no
+            the server migration does not exist. When set to ``True``, no
             exception will be set when attempting to delete a nonexistent
-            volume attachment.
+            server migration.
 
         :returns: ``None``
         """
@@ -2053,7 +2053,7 @@ class Proxy(proxy.Proxy):
         server,
         ignore_missing=True,
     ):
-        """Get a single volume attachment
+        """Get a single server migration
 
         :param server_migration: The value can be the ID of a server migration
             or a
