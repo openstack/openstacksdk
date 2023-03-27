@@ -5,20 +5,18 @@ Required Tools
 --------------
 
 Python
-******
+~~~~~~
 
 As the OpenStack SDK is developed in Python, you will need at least one
-version of Python installed. It is strongly preferred that you have at least
-one of version 2 and one of version 3 so that your tests are run against both.
-Our continuous integration system runs against several versions, so ultimately
-we will have the proper test coverage, but having multiple versions locally
-results in less time spent in code review when changes unexpectedly break
-other versions.
+version of Python installed. Our continuous integration system runs against
+several versions, so ultimately we will have the proper test coverage, but
+having multiple versions locally results in less time spent in code review when
+changes unexpectedly break other versions.
 
 Python can be downloaded from https://www.python.org/downloads.
 
 virtualenv
-**********
+~~~~~~~~~~
 
 In order to isolate our development environment from the system-based Python
 installation, we use `virtualenv <https://virtualenv.pypa.io/en/latest/>`_.
@@ -28,9 +26,9 @@ Virtualenv must be installed on your system in order to use it, and it can be
 had from PyPI, via pip, as follows. Note that you may need to run this
 as an administrator in some situations.::
 
-   $ apt-get install python-virtualenv  # Debian based platforms
-   $ yum install python-virtualenv      # Red Hat based platforms
-   $ pip install virtualenv             # Mac OS X and other platforms
+   $ apt-get install python3-virtualenv  # Debian based platforms
+   $ dnf install python3-virtualenv      # Red Hat based platforms
+   $ pip install virtualenv              # Mac OS X and other platforms
 
 You can create a virtualenv in any location. A common usage is to store all
 of your virtualenvs in the same place, such as under your home directory.
@@ -40,7 +38,7 @@ To create a virtualenv for the default Python, run the following::
 
 To create an environment for a different version, run the following::
 
-   $ virtualenv -p python3.8 $HOME/envs/sdk3
+   $ virtualenv -p python3 $HOME/envs/sdk3
 
 When you want to enable your environment so that you can develop inside of it,
 you *activate* it. To activate an environment, run the /bin/activate
@@ -54,7 +52,7 @@ command prompt. In order to exit that environment, run the ``deactivate``
 command.
 
 tox
-***
+~~~
 
 We use `tox <https://tox.readthedocs.org/en/latest/>`_ as our test runner,
 which allows us to run the same test commands against multiple versions
@@ -64,7 +62,7 @@ run the following to install ``tox`` into it.::
    (sdk3)$ pip install tox
 
 Git
-***
+~~~
 
 The source of the OpenStack SDK is stored in Git. In order to work with our
 source repository, you must have Git installed on your system. If your

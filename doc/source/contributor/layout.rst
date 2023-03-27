@@ -80,9 +80,12 @@ method. For the time being, it simply passes on the ``Adapter`` maintained
 by the ``Proxy``, and returns what the underlying ``Resource.list`` method
 does.
 
-The implementations and method signatures of ``Proxy`` methods are currently
-under construction, as we figure out the best way to implement them in a
-way which will apply nicely across all of the services.
+Cloud
+-----
+
+.. todo
+
+TODO.
 
 Connection
 ----------
@@ -93,7 +96,7 @@ higher level interface constructed of ``Proxy`` objects from each of the
 services.
 
 The ``Connection`` class' primary purpose is to act as a high-level interface
-to this SDK, managing the lower level connecton bits and exposing the
+to this SDK, managing the lower level connection bits and exposing the
 ``Resource`` objects through their corresponding `Proxy`_ object.
 
 If you've built proper ``Resource`` objects and implemented methods on the
