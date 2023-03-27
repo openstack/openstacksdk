@@ -79,6 +79,7 @@ VENDOR_FILES = [
 ]
 
 BOOL_KEYS = ('insecure', 'cache')
+CSV_KEYS = ('auth_methods',)
 
 FORMAT_EXCLUSIONS = frozenset(['password'])
 
@@ -1064,6 +1065,11 @@ class OpenStackConfig:
             if key in config:
                 if type(config[key]) is not bool:
                     config[key] = get_boolean(config[key])
+
+        for key in CSV_KEYS:
+            if key in config:
+                if isinstance(config[key], str):
+                    config[key] = config[key].split(',')
 
         # TODO(mordred): Special casing auth_url here. We should
         #                come back to this betterer later so that it's
