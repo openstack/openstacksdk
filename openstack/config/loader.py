@@ -933,7 +933,25 @@ class OpenStackConfig:
             # That it does not exist in keystoneauth is irrelvant- it not
             # doing what they want causes them sorrow.
             config['auth_type'] = 'admin_token'
-        return loading.get_plugin_loader(config['auth_type'])
+
+        loader = loading.get_plugin_loader(config['auth_type'])
+
+        # As the name would suggest, v3multifactor uses multiple factors for
+        # authentication. As a result, we need to register the configuration
+        # options for each required auth method. Normally, this is handled by
+        # the 'MultiFactor.load_from_options' method but there doesn't appear
+        # to be a way to "register" the auth methods without actually loading
+        # the plugin. As a result, if we encounter this auth type then we need
+        # to do this registration of extra options manually.
+        # FIXME(stephenfin): We need to provide a mechanism to extend the
+        # options in keystoneauth1.loading._plugins.identity.v3.MultiAuth
+        # without calling 'load_from_options'.
+        if config['auth_type'] == 'v3multifactor':
+            # We use '.get' since we can't be sure this key is set yet -
+            # validation happens later, in _validate_auth
+            loader._methods = config.get('auth_methods')
+
+        return loader
 
     def _validate_auth(self, config, loader):
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin

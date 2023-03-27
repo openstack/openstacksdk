@@ -1,0 +1,12 @@
+---
+fixes:
+  - |
+    It is now possible to configure ``v3multifactor`` auth type using
+    environment variables. For example:
+
+        export OS_AUTH_TYPE=v3multifactor
+        export OS_AUTH_METHODS=v3password,v3totp
+        export OS_USERNAME=admin
+        export OS_PASSWORD=password
+        export OS_PASSCODE=12345
+        openstack server list
