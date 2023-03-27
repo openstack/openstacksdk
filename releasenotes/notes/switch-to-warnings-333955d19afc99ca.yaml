@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    Warnings about deprecated behavior or deprecated/modified APIs are now
+    raised using the ``warnings`` module, rather than the ``logging`` module.
+    This allows users to filter these warnings or silence them entirely if
+    necessary.
