@@ -2548,7 +2548,11 @@ class Proxy(proxy.Proxy):
         identified_resources=None,
         filters=None,
         resource_evaluation_fn=None,
+        skip_resources=None,
     ):
+        if self.should_skip_resource_cleanup("server", skip_resources):
+            return
+
         servers = []
         for obj in self.servers():
             need_delete = self._service_cleanup_del_res(

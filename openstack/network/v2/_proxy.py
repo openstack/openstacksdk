@@ -6212,106 +6212,137 @@ class Proxy(proxy.Proxy, Generic[T]):
         identified_resources=None,
         filters=None,
         resource_evaluation_fn=None,
+        skip_resources=None,
     ):
         project_id = self.get_project_id()
-        # Delete floating_ips in the project if no filters defined OR all
-        # filters are matching and port_id is empty
-        for obj in self.ips(project_id=project_id):
-            self._service_cleanup_del_res(
-                self.delete_ip,
-                obj,
-                dry_run=dry_run,
-                client_status_queue=client_status_queue,
-                identified_resources=identified_resources,
-                filters=filters,
-                resource_evaluation_fn=fip_cleanup_evaluation,
-            )
 
-        # Delete (try to delete) all security groups in the project
-        # Let's hope we can't drop SG in use
-        for obj in self.security_groups(project_id=project_id):
-            if obj.name != 'default':
+        if not self.should_skip_resource_cleanup(
+            "floating_ip", skip_resources
+        ):
+            # Delete floating_ips in the project if no filters defined OR all
+            # filters are matching and port_id is empty
+            for obj in self.ips(project_id=project_id):
                 self._service_cleanup_del_res(
-                    self.delete_security_group,
+                    self.delete_ip,
                     obj,
                     dry_run=dry_run,
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
                     filters=filters,
-                    resource_evaluation_fn=resource_evaluation_fn,
+                    resource_evaluation_fn=fip_cleanup_evaluation,
                 )
 
-        # Networks are crazy, try to delete router+net+subnet
-        # if there are no "other" ports allocated on the net
-        for net in self.networks(project_id=project_id):
-            network_has_ports_allocated = False
-            router_if = list()
-            for port in self.ports(project_id=project_id, network_id=net.id):
-                self.log.debug('Looking at port %s' % port)
-                if port.device_owner in [
-                    'network:router_interface',
-                    'network:router_interface_distributed',
-                    'network:ha_router_replicated_interface',
-                ]:
-                    router_if.append(port)
-                elif port.device_owner == 'network:dhcp':
-                    # we don't treat DHCP as a real port
-                    continue
-                elif port.device_owner is None or port.device_owner == '':
-                    # Nobody owns the port - go with it
-                    continue
-                elif (
-                    identified_resources
-                    and port.device_id not in identified_resources
-                ):
-                    # It seems some no other service identified this resource
-                    # to be deleted. We can assume it doesn't count
-                    network_has_ports_allocated = True
-            if network_has_ports_allocated:
-                # If some ports are on net - we cannot delete it
-                continue
-            self.log.debug('Network %s should be deleted' % net)
-            # __Check__ if we need to drop network according to filters
-            network_must_be_deleted = self._service_cleanup_del_res(
-                self.delete_network,
-                net,
-                dry_run=True,
-                client_status_queue=None,
-                identified_resources=None,
-                filters=filters,
-                resource_evaluation_fn=resource_evaluation_fn,
-            )
-            if not network_must_be_deleted:
-                # If not - check another net
-                continue
-            # otherwise disconnect router, drop net, subnet, router
-            # Disconnect
-            for port in router_if:
-                if client_status_queue:
-                    client_status_queue.put(port)
-                if not dry_run:
-                    try:
-                        self.remove_interface_from_router(
-                            router=port.device_id, port_id=port.id
-                        )
-                    except exceptions.SDKException:
-                        self.log.error('Cannot delete object %s' % obj)
-                # router disconnected, drop it
-                self._service_cleanup_del_res(
-                    self.delete_router,
-                    self.get_router(port.device_id),
-                    dry_run=dry_run,
-                    client_status_queue=client_status_queue,
-                    identified_resources=identified_resources,
-                    filters=None,
-                    resource_evaluation_fn=None,
-                )
-            # Drop ports not belonging to anybody
-            for port in self.ports(project_id=project_id, network_id=net.id):
-                if port.device_owner is None or port.device_owner == '':
+        if not self.should_skip_resource_cleanup(
+            "security_group", skip_resources
+        ):
+            # Delete (try to delete) all security groups in the project
+            # Let's hope we can't drop SG in use
+            for obj in self.security_groups(project_id=project_id):
+                if obj.name != 'default':
                     self._service_cleanup_del_res(
-                        self.delete_port,
-                        port,
+                        self.delete_security_group,
+                        obj,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=filters,
+                        resource_evaluation_fn=resource_evaluation_fn,
+                    )
+
+        if (
+            not self.should_skip_resource_cleanup("network", skip_resources)
+            and not self.should_skip_resource_cleanup("port", skip_resources)
+            and not self.should_skip_resource_cleanup("subnet", skip_resources)
+        ):
+            # Networks are crazy, try to delete router+net+subnet
+            # if there are no "other" ports allocated on the net
+            for net in self.networks(project_id=project_id):
+                network_has_ports_allocated = False
+                router_if = list()
+                for port in self.ports(
+                    project_id=project_id, network_id=net.id
+                ):
+                    self.log.debug('Looking at port %s' % port)
+                    if port.device_owner in [
+                        'network:router_interface',
+                        'network:router_interface_distributed',
+                        'network:ha_router_replicated_interface',
+                    ]:
+                        router_if.append(port)
+                    elif port.device_owner == 'network:dhcp':
+                        # we don't treat DHCP as a real port
+                        continue
+                    elif port.device_owner is None or port.device_owner == '':
+                        # Nobody owns the port - go with it
+                        continue
+                    elif (
+                        identified_resources
+                        and port.device_id not in identified_resources
+                    ):
+                        # It seems some no other service identified this resource
+                        # to be deleted. We can assume it doesn't count
+                        network_has_ports_allocated = True
+                if network_has_ports_allocated:
+                    # If some ports are on net - we cannot delete it
+                    continue
+                self.log.debug('Network %s should be deleted' % net)
+                # __Check__ if we need to drop network according to filters
+                network_must_be_deleted = self._service_cleanup_del_res(
+                    self.delete_network,
+                    net,
+                    dry_run=True,
+                    client_status_queue=None,
+                    identified_resources=None,
+                    filters=filters,
+                    resource_evaluation_fn=resource_evaluation_fn,
+                )
+                if not network_must_be_deleted:
+                    # If not - check another net
+                    continue
+                # otherwise disconnect router, drop net, subnet, router
+                # Disconnect
+                for port in router_if:
+                    if client_status_queue:
+                        client_status_queue.put(port)
+                    if not dry_run:
+                        try:
+                            self.remove_interface_from_router(
+                                router=port.device_id, port_id=port.id
+                            )
+                        except exceptions.SDKException:
+                            self.log.error('Cannot delete object %s' % obj)
+                    # router disconnected, drop it
+                    self._service_cleanup_del_res(
+                        self.delete_router,
+                        self.get_router(port.device_id),
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=None,
+                        resource_evaluation_fn=None,
+                    )
+                # Drop ports not belonging to anybody
+                for port in self.ports(
+                    project_id=project_id, network_id=net.id
+                ):
+                    if port.device_owner is None or port.device_owner == '':
+                        self._service_cleanup_del_res(
+                            self.delete_port,
+                            port,
+                            dry_run=dry_run,
+                            client_status_queue=client_status_queue,
+                            identified_resources=identified_resources,
+                            filters=None,
+                            resource_evaluation_fn=None,
+                        )
+
+                # Drop all subnets in the net (no further conditions)
+                for obj in self.subnets(
+                    project_id=project_id, network_id=net.id
+                ):
+                    self._service_cleanup_del_res(
+                        self.delete_subnet,
+                        obj,
                         dry_run=dry_run,
                         client_status_queue=client_status_queue,
                         identified_resources=identified_resources,
@@ -6319,43 +6350,38 @@ class Proxy(proxy.Proxy, Generic[T]):
                         resource_evaluation_fn=None,
                     )
 
-            # Drop all subnets in the net (no further conditions)
-            for obj in self.subnets(project_id=project_id, network_id=net.id):
+                # And now the network itself (we are here definitely only if we
+                # need that)
                 self._service_cleanup_del_res(
-                    self.delete_subnet,
-                    obj,
+                    self.delete_network,
+                    net,
                     dry_run=dry_run,
                     client_status_queue=client_status_queue,
                     identified_resources=identified_resources,
                     filters=None,
                     resource_evaluation_fn=None,
                 )
-
-            # And now the network itself (we are here definitely only if we
-            # need that)
-            self._service_cleanup_del_res(
-                self.delete_network,
-                net,
-                dry_run=dry_run,
-                client_status_queue=client_status_queue,
-                identified_resources=identified_resources,
-                filters=None,
-                resource_evaluation_fn=None,
+        else:
+            self.log.debug(
+                "Skipping cleanup of networks, ports and subnets "
+                "as those resources require none of them to be "
+                "excluded, but at least one should be kept"
             )
 
-        # It might happen, that we have routers not attached to anything
-        for obj in self.routers():
-            ports = list(self.ports(device_id=obj.id))
-            if len(ports) == 0:
-                self._service_cleanup_del_res(
-                    self.delete_router,
-                    obj,
-                    dry_run=dry_run,
-                    client_status_queue=client_status_queue,
-                    identified_resources=identified_resources,
-                    filters=None,
-                    resource_evaluation_fn=None,
-                )
+        if not self.should_skip_resource_cleanup("router", skip_resources):
+            # It might happen, that we have routers not attached to anything
+            for obj in self.routers():
+                ports = list(self.ports(device_id=obj.id))
+                if len(ports) == 0:
+                    self._service_cleanup_del_res(
+                        self.delete_router,
+                        obj,
+                        dry_run=dry_run,
+                        client_status_queue=client_status_queue,
+                        identified_resources=identified_resources,
+                        filters=None,
+                        resource_evaluation_fn=None,
+                    )
 
 
 def fip_cleanup_evaluation(obj, identified_resources=None, filters=None):
