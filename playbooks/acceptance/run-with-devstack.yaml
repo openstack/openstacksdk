@@ -1,75 +1,11 @@
+---
 # Need to actually start devstack first
 - hosts: all
   roles:
     - run-devstack
 
-# Prepare local clouds.yaml
-# We can't rely on pre.yaml, since it is specifically delegates to
-# localhost, while on devstack it will not work unless APIs are available
-# over the net.
-- hosts: all
-  tasks:
-    - name: Get temporary token for the cloud
-      # nolog is important to keep job-output.json clean
-      no_log: true
-      os_auth:
-        cloud:
-          profile: "{{ openstack_credentials.profile | default(omit) }}"
-          auth:
-            auth_url: "{{ openstack_credentials.auth.auth_url }}"
-            username: "{{ openstack_credentials.auth.username }}"
-            password: "{{ openstack_credentials.auth.password }}"
-            user_domain_name: "{{ openstack_credentials.auth.user_domain_name | default(omit) }}"
-            user_domain_id: "{{ openstack_credentials.auth.user_domain_id | default(omit) }}"
-            domain_name: "{{ openstack_credentials.auth.domain_name | default(omit) }}"
-            domain_id: "{{ openstack_credentials.auth.domain_id | default(omit) }}"
-            project_name: "{{ openstack_credentials.auth.project_name | default(omit) }}"
-            project_id: "{{ openstack_credentials.auth.project_id | default(omit) }}"
-            project_domain_name: "{{ openstack_credentials.auth.project_domain_name | default(omit) }}"
-            project_domain_id: "{{ openstack_credentials.auth.project_domain_id | default(omit) }}"
-      register: os_auth
-
-    - name: Verify token
-      # nolog is important to keep job-output.json clean
-      no_log: true
-      os_auth:
-        cloud:
-          profile: "{{ openstack_credentials.profile | default(omit) }}"
-          auth_type: token
-          auth:
-            auth_url: "{{ openstack_credentials.auth.auth_url }}"
-            token: "{{ os_auth.auth_token }}"
-            project_name: "{{ openstack_credentials.auth.project_name | default(omit) }}"
-            project_id: "{{ openstack_credentials.auth.project_id | default(omit) }}"
-            project_domain_name: "{{ openstack_credentials.auth.project_domain_name | default(omit) }}"
-            project_domain_id: "{{ openstack_credentials.auth.project_domain_id | default(omit) }}"
-
-    - name: Include deploy-clouds-config role
-      include_role:
-        name: deploy-clouds-config
-      vars:
-        cloud_config:
-          clouds:
-            acceptance:
-              profile: "{{ openstack_credentials.profile | default(omit) }}"
-              auth_type: "token"
-              auth:
-
-                auth_url: "{{ openstack_credentials.auth.auth_url }}"
-                project_name: "{{ openstack_credentials.auth.project_name | default(omit) }}"
-                project_domain_id: "{{ openstack_credentials.auth.project_domain_id | default(omit) }}"
-                token: "{{ os_auth.auth_token }}"
-              verify: false
-
-    # Intruders might want to corrupt clouds.yaml to avoid revoking token in
-    # the post phase. To prevent this we save token on the executor for later
-    # use.
-    - name: Save token
-      delegate_to: localhost
-      copy:
-        dest: "{{ zuul.executor.work_root }}/.{{ zuul.build }}"
-        content: "{{ os_auth.auth_token }}"
-        mode: "0640"
+- name: Get the token
+  ansible.builtin.import_playbook: pre.yaml
 
 # Run the rest
 - hosts: all

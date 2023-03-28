@@ -439,16 +439,43 @@
 - job:
     name: openstacksdk-acceptance-base
     parent: openstack-tox
-    description: Acceptance test of the OpenStackSDK on real clouds
+    description: |
+      Acceptance test of the OpenStackSDK on real clouds.
+
+      .. zuul:jobsvar::openstack_credentials
+        :type: dict
+
+        This is expected to be a Zuul Secret with these keys:
+
+        .. zuul:jobvar: auth
+          :type: dict
+
+           Dictionary with authentication information with mandatory auth_url
+           and others. The structure mimics `clouds.yaml` structure.
+
+      By default all jobs that inherit from here are non voting.
+
+    attempts: 1
+    voting: false
     pre-run:
       - playbooks/acceptance/pre.yaml
     post-run:
       - playbooks/acceptance/post.yaml
+    vars:
+      tox_envlist: acceptance-regular-user
+      tox_environment:
+        OPENSTACKSDK_DEMO_CLOUD: acceptance
+        OS_CLOUD: acceptance
+        OS_TEST_CLOUD: acceptance
 
+# Acceptance tests for devstack are different from running for real cloud since
+# we need to actually deploy devstack first and API is available only on the
+# devstack host.
 - job:
     name: openstacksdk-acceptance-devstack
     parent: openstacksdk-functional-devstack
-    description: Acceptance test of the OpenStackSDK on real clouds
+    description: Acceptance test of the OpenStackSDK on real clouds.
+    attempts: 1
     run:
       - playbooks/acceptance/run-with-devstack.yaml
     post-run:
@@ -459,17 +486,25 @@
         OPENSTACKSDK_DEMO_CLOUD: acceptance
         OS_CLOUD: acceptance
         OS_TEST_CLOUD: acceptance
-      openstack_credentials:
-        auth:
-          auth_url: "https://{{ hostvars['controller']['nodepool']['private_ipv4'] }}/identity"
-          username: demo
-          password: secretadmin
-          project_domain_id: default
-          project_name: demo
-          user_domain_id: default
-        identity_api_version: '3'
-        region_name: RegionOne
-        volume_api_version: '3'
+      auth_url: "https://{{ hostvars['controller']['nodepool']['private_ipv4'] }}/identity"
+    secrets:
+      - secret: credentials-devstack
+        name: openstack_credentials
+
+# Devstack secret is not specifying auth_url because of how Zuul treats secrets.
+# Auth_url comes extra in the job vars and is being used if no auth_url in the
+# secret is present.
+- secret:
+    name: credentials-devstack
+    data:
+      auth:
+        username: demo
+        password: secretadmin
+        project_domain_id: default
+        project_name: demo
+        user_domain_id: default
+      region_name: RegionOne
+      verify: false
 
 - project-template:
     name: openstacksdk-functional-tips

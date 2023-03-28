@@ -1,18 +1,42 @@
-- hosts: localhost
+---
+# This could be running on localhost only, but then the devstack job would need
+# to perform API call on the worker node. To keep the code a bit less crazy
+# rather address all hosts and perform certain steps on the localhost (zuul
+# executor).
+- hosts: all
   tasks:
     # TODO:
     # - clean the resources, which might have been created
-    # - revoke the temp token explicitly
-    - name: read token
-      command: "cat {{ zuul.executor.work_root }}/.{{ zuul.build }}"
-      register: token_data
+
+    # Token is saved on the zuul executor node
+    - name: Check token file
+      delegate_to: localhost
+      ansible.builtin.stat:
+        path: "{{ zuul.executor.work_root }}/.{{ zuul.build }}"
+      register: token_file
+
+    # no_log is important since content WILL in logs
+    - name: Read the token from file
+      delegate_to: localhost
       no_log: true
+      ansible.builtin.slurp:
+        src: "{{ token_file.stat.path }}"
+      register: token_data
+      when: "token_file.stat.exists"
 
-    - name: delete data file
-      command: "shred {{ zuul.executor.work_root }}/.{{ zuul.build }}"
+    - name: Delete data file
+      delegate_to: localhost
+      command: "shred {{ token_file.stat.path }}"
+      when: "token_file.stat.exists"
 
-    - include_role:
-        name: revoke_token
-      vars:
-        cloud: "{{ openstack_credentials }}"
-        token: "{{ token_data.stdout }}"
+    # no_log is important since content WILL appear in logs
+    - name: Revoke token
+      no_log: true
+      ansible.builtin.uri:
+        url: "{{ openstack_credentials.auth.auth_url | default(auth_url) }}/v3/auth/tokens"
+        method: "DELETE"
+        headers:
+          X-Auth-Token: "{{ token_data['content'] | b64decode }}"
+          X-Subject-Token: "{{ token_data['content'] | b64decode }}"
+        status_code: 204
+      when: "token_file.stat.exists and 'content' in token_data"

@@ -106,7 +106,7 @@ class BaseFunctionalTest(base.TestCase):
             return None
 
         flavors = self.user_cloud.list_flavors(get_extra=False)
-        self.add_info_on_exception('flavors', flavors)
+        # self.add_info_on_exception('flavors', flavors)
 
         flavor_name = os.environ.get('OPENSTACKSDK_FLAVOR')
 
@@ -146,7 +146,7 @@ class BaseFunctionalTest(base.TestCase):
             return None
 
         images = self.user_cloud.list_images()
-        self.add_info_on_exception('images', images)
+        # self.add_info_on_exception('images', images)
 
         image_name = os.environ.get('OPENSTACKSDK_IMAGE')
 

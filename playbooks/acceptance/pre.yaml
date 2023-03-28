@@ -1,40 +1,45 @@
+---
 - hosts: all
   tasks:
     - name: Get temporary token for the cloud
-      # nolog is important to keep job-output.json clean
+      # nolog is important since content WILL appear in logs
       no_log: true
-      os_auth:
-        cloud:
-          profile: "{{ openstack_credentials.profile | default(omit) }}"
+      ansible.builtin.uri:
+        url: "{{ openstack_credentials.auth.auth_url | default(auth_url) }}/v3/auth/tokens"
+        method: "POST"
+        body_format: "json"
+        body:
           auth:
-            auth_url: "{{ openstack_credentials.auth.auth_url }}"
-            username: "{{ openstack_credentials.auth.username }}"
-            password: "{{ openstack_credentials.auth.password }}"
-            user_domain_name: "{{ openstack_credentials.auth.user_domain_name | default(omit) }}"
-            user_domain_id: "{{ openstack_credentials.auth.user_domain_id | default(omit) }}"
-            domain_name: "{{ openstack_credentials.auth.domain_name | default(omit) }}"
-            domain_id: "{{ openstack_credentials.auth.domain_id | default(omit) }}"
-            project_name: "{{ openstack_credentials.auth.project_name | default(omit) }}"
-            project_id: "{{ openstack_credentials.auth.project_id | default(omit) }}"
-            project_domain_name: "{{ openstack_credentials.auth.project_domain_name | default(omit) }}"
-            project_domain_id: "{{ openstack_credentials.auth.project_domain_id | default(omit) }}"
+            identity:
+              methods: ["password"]
+              password:
+                user:
+                  name: "{{ openstack_credentials.auth.username | default(omit) }}"
+                  id: "{{ openstack_credentials.auth.user_id | default(omit) }}"
+                  password: "{{ openstack_credentials.auth.password }}"
+                  domain:
+                    name: "{{ openstack_credentials.auth.user_domain_name | default(omit) }}"
+                    id: "{{ openstack_credentials.auth.user_domain_id | default(omit) }}"
+            scope:
+              project:
+                name: "{{ openstack_credentials.auth.project_name | default(omit) }}"
+                id: "{{ openstack_credentials.auth.project_id | default(omit) }}"
+                domain:
+                  name: "{{ openstack_credentials.auth.project_domain_name | default(omit) }}"
+                  id: "{{ openstack_credentials.auth.project_domain_id | default(omit) }}"
+        return_content: true
+        status_code: 201
       register: os_auth
-      delegate_to: localhost
 
     - name: Verify token
+      # nolog is important since content WILL appear in logs
       no_log: true
-      os_auth:
-        cloud:
-          profile: "{{ openstack_credentials.profile | default(omit) }}"
-          auth_type: token
-          auth:
-            auth_url: "{{ openstack_credentials.auth.auth_url }}"
-            token: "{{ os_auth.auth_token }}"
-            project_name: "{{ openstack_credentials.auth.project_name | default(omit) }}"
-            project_id: "{{ openstack_credentials.auth.project_id | default(omit) }}"
-            project_domain_id: "{{ openstack_credentials.auth.project_domain_id | default(omit) }}"
-            project_domain_name: "{{ openstack_credentials.auth.project_domain_name | default(omit) }}"
-      delegate_to: localhost
+      ansible.builtin.uri:
+        url: "{{ openstack_credentials.auth.auth_url | default(auth_url) }}/v3/auth/tokens"
+        method: "GET"
+        headers:
+          X-Auth-Token: "{{ os_auth.x_subject_token }}"
+          X-Subject-Token: "{{ os_auth.x_subject_token }}"
 
     - name: Include deploy-clouds-config role
       include_role:
@@ -43,18 +48,22 @@
         cloud_config:
           clouds:
             acceptance:
-              profile: "{{ openstack_credentials.profile | default(omit) }}"
+              profile: "{{ openstack_credentials.profile | default('') }}"
               auth_type: "token"
               auth:
-                auth_url: "{{ openstack_credentials.auth.auth_url | default(omit) }}"
-                project_name: "{{ openstack_credentials.auth.project_name | default(omit) }}"
-                token: "{{ os_auth.auth_token }}"
+                auth_url: "{{ openstack_credentials.auth.auth_url | default(auth_url) }}"
+                project_name: "{{ openstack_credentials.auth.project_name | default('') }}"
+                project_domain_id: "{{ openstack_credentials.auth.project_domain_id | default('') }}"
+                project_domain_name: "{{ openstack_credentials.auth.project_domain_name | default('') }}"
+                token: "{{ os_auth.x_subject_token }}"
+              region_name: "{{ openstack_credentials.region_name | default('') }}"
+              verify: "{{ openstack_credentials.verify | default(true) }}"
 
     # Intruders might want to corrupt clouds.yaml to avoid revoking token in the post phase
     # To prevent this we save token on the executor for later use.
-    - name: Save token
+    - name: Save the token
       delegate_to: localhost
       copy:
         dest: "{{ zuul.executor.work_root }}/.{{ zuul.build }}"
-        content: "{{ os_auth.auth_token }}"
-        mode: "0440"
+        content: "{{ os_auth.x_subject_token }}"
+        mode: "0640"
