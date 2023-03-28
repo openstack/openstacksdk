@@ -1,0 +1,18 @@
+- hosts: localhost
+  tasks:
+    # TODO:
+    # - clean the resources, which might have been created
+    # - revoke the temp token explicitly
+    - name: read token
+      command: "cat {{ zuul.executor.work_root }}/.{{ zuul.build }}"
+      register: token_data
+      no_log: true
+
+    - name: delete data file
+      command: "shred {{ zuul.executor.work_root }}/.{{ zuul.build }}"
+
+    - include_role:
+        name: revoke_token
+      vars:
+        cloud: "{{ openstack_credentials }}"
+        token: "{{ token_data.stdout }}"
