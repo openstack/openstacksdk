@@ -10,13 +10,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
+
+from keystoneauth1 import adapter
+
 from openstack.shared_file_system.v2 import share
 from openstack.tests.unit import base
+
 
 IDENTIFIER = '08a87d37-5ca2-4308-86c5-cba06d8d796c'
 EXAMPLE = {
     "id": IDENTIFIER,
-    "size": 1,
+    "size": 2,
     "availability_zone": "manila-zone-1",
     "created_at": "2021-02-11T17:38:00.000000",
     "status": "available",
@@ -109,3 +114,58 @@ class TestShares(base.TestCase):
         self.assertEqual(EXAMPLE['share_server_id'],
                          shares_resource.share_server_id)
         self.assertEqual(EXAMPLE['host'], shares_resource.host)
+
+
+class TestShareActions(TestShares):
+    def setUp(self):
+        super().setUp()
+        self.resp = mock.Mock()
+        self.resp.body = None
+        self.resp.status_code = 202
+        self.resp.json = mock.Mock(return_value=self.resp.body)
+        self.sess = mock.Mock(spec=adapter.Adapter)
+        self.sess.default_microversion = '3.0'
+        self.sess.post = mock.Mock(return_value=self.resp)
+        self.sess._get_connection = mock.Mock(return_value=self.cloud)
+
+    def test_shrink_share(self):
+        sot = share.Share(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess, action='patch')
+
+        self.assertIsNone(sot.shrink_share(self.sess, new_size=1))
+
+        url = f'shares/{IDENTIFIER}/action'
+        body = {"shrink": {"new_size": 1}}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers,
+            microversion=microversion)
+
+    def test_extend_share(self):
+        sot = share.Share(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess, action='patch')
+
+        self.assertIsNone(sot.extend_share(self.sess, new_size=3))
+
+        url = f'shares/{IDENTIFIER}/action'
+        body = {"extend": {"new_size": 3}}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers,
+            microversion=microversion)
+
+    def test_revert_to_snapshot(self):
+        sot = share.Share(**EXAMPLE)
+        microversion = sot._get_microversion(self.sess, action='patch')
+
+        self.assertIsNone(sot.revert_to_snapshot(self.sess, "fake_id"))
+
+        url = f'shares/{IDENTIFIER}/action'
+        body = {"revert": {"snapshot_id": "fake_id"}}
+        headers = {'Accept': ''}
+
+        self.sess.post.assert_called_with(
+            url, json=body, headers=headers,
+            microversion=microversion)

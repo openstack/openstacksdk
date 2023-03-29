@@ -62,6 +62,30 @@ class TestSharedFileSystemShare(TestSharedFileSystemProxy):
     def test_share_update(self):
         self.verify_update(self.proxy.update_share, share.Share)
 
+    def test_share_resize_extend(self):
+        mock_share = share.Share(size=10, id='fakeId')
+        self.proxy._get = mock.Mock(return_value=mock_share)
+
+        self._verify(
+            "openstack.shared_file_system.v2.share."
+            + "Share.extend_share",
+            self.proxy.resize_share,
+            method_args=['fakeId', 20],
+            expected_args=[self.proxy, 20, False],
+        )
+
+    def test_share_resize_shrink(self):
+        mock_share = share.Share(size=30, id='fakeId')
+        self.proxy._get = mock.Mock(return_value=mock_share)
+
+        self._verify(
+            "openstack.shared_file_system.v2.share."
+            + "Share.shrink_share",
+            self.proxy.resize_share,
+            method_args=['fakeId', 20],
+            expected_args=[self.proxy, 20],
+        )
+
     def test_share_instances(self):
         self.verify_list(self.proxy.share_instances,
                          share_instance.ShareInstance)
