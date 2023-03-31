@@ -5,7 +5,7 @@
 - project:
     templates:
       - check-requirements
-      - openstack-python3-antelope-jobs
+      - openstack-python3-jobs
       - openstacksdk-functional-tips
       - openstacksdk-tox-tips
       - os-client-config-tox-tips
