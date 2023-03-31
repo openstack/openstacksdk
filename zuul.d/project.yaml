@@ -1,0 +1,48 @@
+---
+# Central project entity. It pulls general templates and basic jobs.
+# functional-jobs, metal-jobs and acceptance-jobs are being
+# merged with this entity into singe one.
+- project:
+    templates:
+      - check-requirements
+      - openstack-python3-antelope-jobs
+      - openstacksdk-functional-tips
+      - openstacksdk-tox-tips
+      - os-client-config-tox-tips
+      - osc-tox-unit-tips
+      - publish-openstack-docs-pti
+      - release-notes-jobs-python3
+    check:
+      jobs:
+        - opendev-buildset-registry
+        - nodepool-build-image-siblings:
+            voting: false
+        - dib-nodepool-functional-openstack-centos-8-stream-src:
+            voting: false
+        - openstacksdk-functional-devstack
+        - openstacksdk-functional-devstack-networking
+        - openstacksdk-functional-devstack-senlin
+        - openstacksdk-functional-devstack-magnum:
+            voting: false
+        - openstacksdk-functional-devstack-manila:
+            voting: false
+        - openstacksdk-functional-devstack-masakari:
+            voting: false
+        - openstacksdk-functional-devstack-ironic:
+            voting: false
+        - openstacksdk-functional-devstack-legacy:
+            voting: false
+        - osc-functional-devstack-tips:
+            voting: false
+        - ansible-collections-openstack-functional-devstack:
+            voting: false
+    gate:
+      jobs:
+        - opendev-buildset-registry
+        - nodepool-build-image-siblings:
+            voting: false
+        - dib-nodepool-functional-openstack-centos-8-stream-src:
+            voting: false
+        - openstacksdk-functional-devstack
+        - openstacksdk-functional-devstack-networking
+        - openstacksdk-functional-devstack-senlin

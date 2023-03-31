@@ -1,0 +1,32 @@
+---
+# Definitions of Ironic based jobs with a dedicated project entry to keep them
+# out of general entry.
+- job:
+    name: metalsmith-integration-openstacksdk-src
+    parent: metalsmith-integration-glance-netboot-cirros-direct
+    required-projects:
+      - openstack/openstacksdk
+
+- job:
+    name: bifrost-integration-openstacksdk-src
+    parent: bifrost-integration-tinyipa-ubuntu-focal
+    required-projects:
+      - openstack/ansible-collections-openstack
+      - openstack/openstacksdk
+
+- job:
+    name: ironic-inspector-tempest-openstacksdk-src
+    parent: ironic-inspector-tempest
+    required-projects:
+      - openstack/openstacksdk
+
+- project:
+    check:
+      jobs:
+        # Ironic jobs, non-voting to avoid tight coupling
+        - ironic-inspector-tempest-openstacksdk-src:
+            voting: false
+        - bifrost-integration-openstacksdk-src:
+            voting: false
+        - metalsmith-integration-openstacksdk-src:
+            voting: false
