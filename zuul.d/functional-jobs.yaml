@@ -75,15 +75,6 @@
               osapi_max_limit: 6
 
 - job:
-    name: openstacksdk-functional-devstack-legacy
-    parent: openstacksdk-functional-devstack-base
-    description: |
-      Run openstacksdk functional tests against a legacy devstack
-    nodeset: openstack-single-node-bionic
-    voting: false
-    override-branch: stable/ussuri
-
-- job:
     name: openstacksdk-functional-devstack
     parent: openstacksdk-functional-devstack-base
     description: |
