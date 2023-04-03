@@ -100,3 +100,16 @@ Create and manipulate Share Networks with the Shared File Systems service.
   :noindex:
   :members: share_networks, get_share_network, delete_share_network,
             update_share_network, create_share_network
+
+Shared File System Share Instances
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Administrators can list, show information for, explicitly set the
+state of, and force-delete share instances within the Shared File
+Systems Service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: share_instances, get_share_instance,
+            reset_share_instance_status,
+            delete_share_instance

@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added support to list, get, reset status of,
+    and force delete share instances
+    (from shared file system service).
