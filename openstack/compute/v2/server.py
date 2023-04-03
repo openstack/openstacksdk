@@ -309,7 +309,7 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
     def rebuild(self, session, image, name=None, admin_password=None,
                 preserve_ephemeral=None,
                 access_ipv4=None, access_ipv6=None,
-                metadata=None, user_data=None):
+                metadata=None, user_data=None, key_name=None):
         """Rebuild the server with the given arguments."""
         action = {
             'imageRef': resource.Resource._get_id(image)
@@ -328,6 +328,8 @@ class Server(resource.Resource, metadata.MetadataMixin, tag.TagMixin):
             action['metadata'] = metadata
         if user_data is not None:
             action['user_data'] = user_data
+        if key_name is not None:
+            action['key_name'] = key_name
 
         body = {'rebuild': action}
         response = self._action(session, body)
