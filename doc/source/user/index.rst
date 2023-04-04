@@ -162,6 +162,7 @@ can be customized.
    resource
    service_description
    utils
+   warnings
 
 Presentations
 -------------

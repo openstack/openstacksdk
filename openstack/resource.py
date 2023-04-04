@@ -48,6 +48,7 @@ from openstack import _log
 from openstack import exceptions
 from openstack import format
 from openstack import utils
+from openstack import warnings as os_warnings
 
 _SEEN_FORMAT = '{name}_seen'
 
@@ -196,29 +197,27 @@ class _BaseComponent:
             return None
 
         # This warning are pretty intruisive. Every time attribute is accessed
-        # a warning is being thrown. In Neutron clients we have way too many
-        # places that still refer to tenant_id even they may also properly
-        # support project_id. For now we can silence tenant_id warnings and do
-        # this here rather then addining support for something similar to
-        # "suppress_deprecation_warning".
+        # a warning is being thrown. In neutron clients we have way too many
+        # places that still refer to tenant_id even though they may also
+        # properly support project_id. For now we silence tenant_id warnings.
         if self.name != "tenant_id":
             self.warn_if_deprecated_property(value)
         return _convert_type(value, self.type, self.list_type)
 
     def warn_if_deprecated_property(self, value):
         deprecated = object.__getattribute__(self, 'deprecated')
-        deprecate_reason = object.__getattribute__(self, 'deprecation_reason')
+        deprecation_reason = object.__getattribute__(
+            self, 'deprecation_reason',
+        )
 
-        if value and deprecated and not self.already_warned_deprecation:
-            self.already_warned_deprecation = True
-            if not deprecate_reason:
-                LOG.warning(
-                    "The option [%s] has been deprecated. "
-                    "Please avoid using it.",
+        if value and deprecated:
+            warnings.warn(
+                "The field %r has been deprecated. %s" % (
                     self.name,
-                )
-            else:
-                LOG.warning(deprecate_reason)
+                    deprecation_reason or "Avoid usage."
+                ),
+                os_warnings.RemovedFieldWarning,
+            )
         return value
 
     def __set__(self, instance, value):
@@ -676,10 +675,10 @@ class Resource(dict):
             for attr, component in self._attributes_iterator(tuple([Body])):
                 if component.name == name:
                     warnings.warn(
-                        'Access to "%s[%s]" is deprecated. '
-                        'Please access using "%s.%s" attribute.'
+                        "Access to '%s[%s]' is deprecated. "
+                        "Use '%s.%s' attribute instead"
                         % (self.__class__, name, self.__class__, attr),
-                        DeprecationWarning,
+                        os_warnings.LegacyAPIWarning,
                     )
                     return getattr(self, attr)
             if self._allow_unknown_attrs_in_body:
