@@ -1,4 +1,8 @@
 ---
+- semaphore:
+    name: acceptance-cleura
+    max: 1
+
 - job:
     name: openstacksdk-acceptance-base
     parent: openstack-tox
@@ -20,6 +24,7 @@
 
     attempts: 1
     voting: false
+    timeout: 3600
     pre-run:
       - playbooks/acceptance/pre.yaml
     post-run:
@@ -54,6 +59,17 @@
       - secret: credentials-devstack
         name: openstack_credentials
 
+- job:
+    name: openstacksdk-acceptance-cleura
+    parent: openstacksdk-acceptance-base
+    description: Acceptance tests of the OpenStackSDK on Cleura
+    semaphores:
+      - name: acceptance-cleura
+    secrets:
+      - secret: credentials-cleura
+        name: openstack_credentials
+        pass-to-parent: true
+
 # Devstack secret is not specifying auth_url because of how Zuul treats secrets.
 # Auth_url comes extra in the job vars and is being used if no auth_url in the
 # secret is present.
@@ -69,9 +85,72 @@
       region_name: RegionOne
       verify: false
 
+# Contact: tobias [xdot] rydberg [mat] citynetwork [xdot] eu
+- secret:
+    name: credentials-cleura
+    data:
+      auth:
+        auth_url: https://fra1.citycloud.com:5000
+        user_domain_name: !encrypted/pkcs1-oaep
+          - B2+GBOl0HqQJ0umGR/8y6Y1SS+O6h7OK6rTa54797UavexKVxx2RZ144wPmW+IogX2QU2
+            tWtGBveQnZTpI19nxlnLmQQA+YSz8RIzJoFuStBmiITyCHQnvRJPc7kObjnZJLuoVwCT2
+            Rl3u1iGzJb/ZZvVDjvYH2ZW7a6aH+Ct7HfB+CGhvhETeoMAFDgb29QJ5U/T3OkVdTMwCY
+            XDtdwg2JvoErd2gnNCqYDcIiOMO6lXKcc+35VQtGMGfoaUvu+iMlEi9pJqbdVd7qz5lgY
+            AWBPG1mYt1mOaP8RRvzywhyRPnnnFgfUe2rf2ZozEUa7j4ObwXt7D8oRYXm+USEpk+YfD
+            9V3CvGvAgmPuuidGWwnZdPcNX/w/VW5p9oWRgJFYChb5+XCu7y0tFJX/usduZEY9/MvJs
+            Iv0+OFf1TXc29qFqwGYVSyfimBroGFdYXmHSwK7wHJ1GUsdSRhQz4eYIdk+6c4LNx9JgO
+            5Z+3Q29tlh9WwuuQKE/JlKJ/1I9LC0RmyJyxSaiTLDiL+7J2O/hULmyZimbXVcYuXqDdo
+            KAdPryYhmWWyBFkZfUa88GxwVf+WDLQqXhv+CDGRusbW2opVvv6p7NUwLh9PPOGnRLsS2
+            y1fZDVtz60ZMp8MQPACYjlzvc2lF5Z1Cvskr3O9KbT27V7AyLXmU+tbMrDLpC0=
+        project_domain_name: !encrypted/pkcs1-oaep
+          - B2+GBOl0HqQJ0umGR/8y6Y1SS+O6h7OK6rTa54797UavexKVxx2RZ144wPmW+IogX2QU2
+            tWtGBveQnZTpI19nxlnLmQQA+YSz8RIzJoFuStBmiITyCHQnvRJPc7kObjnZJLuoVwCT2
+            Rl3u1iGzJb/ZZvVDjvYH2ZW7a6aH+Ct7HfB+CGhvhETeoMAFDgb29QJ5U/T3OkVdTMwCY
+            XDtdwg2JvoErd2gnNCqYDcIiOMO6lXKcc+35VQtGMGfoaUvu+iMlEi9pJqbdVd7qz5lgY
+            AWBPG1mYt1mOaP8RRvzywhyRPnnnFgfUe2rf2ZozEUa7j4ObwXt7D8oRYXm+USEpk+YfD
+            9V3CvGvAgmPuuidGWwnZdPcNX/w/VW5p9oWRgJFYChb5+XCu7y0tFJX/usduZEY9/MvJs
+            Iv0+OFf1TXc29qFqwGYVSyfimBroGFdYXmHSwK7wHJ1GUsdSRhQz4eYIdk+6c4LNx9JgO
+            5Z+3Q29tlh9WwuuQKE/JlKJ/1I9LC0RmyJyxSaiTLDiL+7J2O/hULmyZimbXVcYuXqDdo
+            KAdPryYhmWWyBFkZfUa88GxwVf+WDLQqXhv+CDGRusbW2opVvv6p7NUwLh9PPOGnRLsS2
+            y1fZDVtz60ZMp8MQPACYjlzvc2lF5Z1Cvskr3O9KbT27V7AyLXmU+tbMrDLpC0=
+        project_name: !encrypted/pkcs1-oaep
+          - IRSHyf964g3q7vHY08reyx69cGDLG/+kkEnZ4fs4qiwBw1RL1wKW3r3Omi1PLXDHHCHfC
+            jlRrwvZh80CzG3nqt94WSiASjn4XvZtCV0++UZxCkdEs/2SXN1YYpBGLqotM91NhQHCpo
+            Xu6KD7U8ckZgjAQFzV/rF7pnFSvzb14PQqBiQ4Ei7nFyrg6sW20ratjC+pBboUORPvPjG
+            wuY/lt8kRXYnPlI/oeFngXMl/WD7z5k0kLwUcg/z9x3uF6b6xozR8Vzjal13RR7FU5Tu7
+            T5Qr8uREPHlK8aU90XnNrlJqIAfIFuAlmZCeckIMlVqGjGBekI2W/zPXhL/SjR2SNeTIl
+            SwKfInnT0SfGqKTAjgPJAocZSNppt4ql1EsS3Rdp8SQ0EGW7pXs73svexNRhh4k1m7gM1
+            54OoyS2wtMaTR3Q3L92ZuT2DdxmPbvXThbRO5P2g0yDpp/HuWkQyHq9b1tZD+p7akU7p+
+            g8fIQFKFueFP0T6XszQSPySjjaTZOWd0CQC2oTlivcf7oZ4etp22Zh7IDCXWLX39C2LkF
+            XLBaEa9LRxn1UwJ2bz2nUPjqDsOz2nRskC9Yz0XOOEKMokJ4POj+uac1iRfAf+hAGd9uE
+            7rNIp/7oV5ABOimJ5bgCI1SWAsz2F1lRq+bulzbONLmWfPik52bo/elXTxRais=
+        username: !encrypted/pkcs1-oaep
+          - bTHRzdAYEKXeFhrU3sBRN19ygO2t2zzXdeuB4DQq7Q+7VW7Apo8Vo1eaqpqjUnpI2jPG+
+            DJSg0ZG3tUsnRwwKo3N8RzwFNWj5wcUEtHjmFgMmLBvlv9Jv6OeN7R7AH7b21agTMTvwz
+            X7hGWbYSEgDLn80uNTwcm4GVA0mycXDtIvZ4lPiCGkUJYav9++YbGYzDyiy2pBgVU0r5G
+            7GTO+cHQWUw+LL/scBijL4khLIxiHNgUNNfgAYOI/JQ720DxXSDF30SN8fRy0H0jl54Gr
+            w0exl9QPBjI+o+qvFKq2Bni8dTp96MaC8pDxP/1/R8mEMYD2Ei3Ame1dfeUz7OgrQfpQv
+            xlDSE/sM2/g0PG3YlpG+aCllZ1el2qM/B+pyq5JXf26swp1RdjehvUSIi3gQaqkC3qpRt
+            2FgZDKdHW6PYRmRlCphS5WK1otdCQEvyJ+s4QB4PooMcD4rqAf5hURGd5zr/aajqmEgXX
+            eJKeLQrQD+4yJWeopcq7a66R3LeL07Dko2LWWlL6adGeQ5yd3eIZK7zwObTVE64DSbXDs
+            3UI8U6Qa3EMlrfEk8TXcK1QW2EM1JFiPBSm9e8zojTtg/caAyROXgn1T9qv0FKMcJZrOo
+            Qt+n7vv1wkCSUoUEQFIadcMUn5EoXeTcRbjAOsRFN/OOh6+4jyNTh17cOC5dkc=
+        password: !encrypted/pkcs1-oaep
+          - FbeRKkCs2YlDYm944EUuUbY2mVcTwSgE00gMZokmXR2WjKqRsuLFpkOe9opndwqV1tUyj
+            mxAGizoGlzI+Lg8VnS47zShM+UqgaNzC148iY+WBuLXAEoxS3c9Gxz03Gm/Q2Tu6MJoCG
+            OY8JvQkq+pjwkV61sIawTfQRTZkwjFO8F/viSOuF75PDZthY5SuMN5MEJ8B8Ska0WNbjw
+            Edo623gZnyZsPvZwnqnP+yK0HW0smohKkvjHPZ5SGFiQ0G3eTSHaL5wrYWbkcZ5Gb4UgX
+            x1edebv0ata0fZ8nhIwTrDIVe9icuijuV1ZkvHMGPvB50fkup4/QyObx6QUhL6D0mXaK5
+            fIq+dgrzkvcoODrwpXvBVxjNYnM+DBeMbN0V8d4vDvsRPsWCxIenETse1gD0PJyXx29br
+            /Vild1xO1JnxoU469fl/gzdntyoV/QaLDteLKMFJISAFuVrcCEUz63s37iKAy6LnCtv/J
+            PjciFvc2OR0cGUC/an3xtmqi18GWcWdinaBA0+OEnArdOdSc79MTZnMifICAeCQ3yiEnA
+            001hbBrRYTHgitpo4gYJOFMVufhcfvq6yB9wi3MqvpKP8wGH2SyNz7y5Gy9zbUgQFsRP7
+            2h3LRDRCVGYBVgBLD5mcIMn93HddOko8Q8RO8qVZM13R39dgGAi0KMEhF3bpjA=
+
 # We define additional project entity not to handle acceptance jobs in
 # already complex enough general project entity.
 - project:
     post-review:
       jobs:
         - openstacksdk-acceptance-devstack
+        - openstacksdk-acceptance-cleura
