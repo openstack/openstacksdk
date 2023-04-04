@@ -7,14 +7,14 @@
     "regions": [
       "Buf1",
       "Fra1",
-      "Lon1",
       "Sto2",
       "Kna1",
       "dx1",
       "tky1"
     ],
     "requires_floating_ip": true,
-    "block_storage_api_version": "1",
-    "identity_api_version": "3"
+    "block_storage_api_version": "3",
+    "identity_api_version": "3",
+    "image_format": "raw"  
   }
 }
