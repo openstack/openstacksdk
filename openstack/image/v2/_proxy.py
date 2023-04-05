@@ -89,7 +89,12 @@ class Proxy(proxy.Proxy):
             the metadef namespace does not exist.
         :returns: ``None``
         """
-        self._delete(_cache.Cache, image, ignore_missing=ignore_missing)
+        return self._delete(_cache.Cache, image, ignore_missing=ignore_missing)
+
+    def queue_image(self, image_id):
+        """Queue image(s) for caching."""
+        cache = self._get_resource(_cache.Cache, None)
+        return cache.queue(self, image_id)
 
     # ====== IMAGES ======
     def create_image(

@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add support for glance Cache API.

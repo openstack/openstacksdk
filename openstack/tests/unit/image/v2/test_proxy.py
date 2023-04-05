@@ -26,6 +26,7 @@ from openstack.image.v2 import metadef_schema as _metadef_schema
 from openstack.image.v2 import schema as _schema
 from openstack.image.v2 import service_info as _service_info
 from openstack.image.v2 import task as _task
+from openstack import proxy as proxy_base
 from openstack.tests.unit.image.v2 import test_image as fake_image
 from openstack.tests.unit import test_proxy_base
 
@@ -901,3 +902,14 @@ class TestCache(TestImageProxy):
             self.proxy.cache_delete_image,
             _cache.Cache,
         )
+
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    def test_image_queue(self, mock_get_resource):
+        fake_cache = _cache.Cache()
+        mock_get_resource.return_value = fake_cache
+        self._verify(
+            "openstack.image.v2.cache.Cache.queue",
+            self.proxy.queue_image,
+            method_args=['image-id'],
+            expected_args=[self.proxy, 'image-id'])
+        mock_get_resource.assert_called_once_with(_cache.Cache, None)

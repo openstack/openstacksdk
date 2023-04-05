@@ -10,7 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
+from openstack import utils
 
 
 class CachedImage(resource.Resource):
@@ -26,9 +28,25 @@ class Cache(resource.Resource):
 
     allow_fetch = True
     allow_delete = True
+    allow_create = True
 
     _max_microversion = '2.14'
 
     cached_images = resource.Body('cached_images', type=list,
                                   list_type=CachedImage)
     queued_images = resource.Body('queued_images', type=list)
+
+    def queue(self, session, image, *, microversion=None):
+        """Queue an image into cache.
+        :param session: The session to use for making this request
+        :param image: The image to be queued into cache.
+        :returns: The server response
+        """
+        if microversion is None:
+            microversion = self._get_microversion(session, action='commit')
+        image_id = resource.Resource._get_id(image)
+        url = utils.urljoin(self.base_path, image_id)
+
+        response = session.put(url, microversion=microversion)
+        exceptions.raise_from_response(response)
+        return response
