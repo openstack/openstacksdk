@@ -81,6 +81,14 @@ Service Operations
   :members: services, enable_service, disable_service, update_service_forced_down,
             delete_service, update_service, find_service
 
+Server Share Operations
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.compute.v2._proxy.Proxy
+  :noindex:
+  :members: create_share_attachment, delete_share_attachment, get_share_attachment,
+            share_attachments
+
 Volume Attachment Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

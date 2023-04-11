@@ -37,11 +37,13 @@ from openstack.compute.v2 import server_interface
 from openstack.compute.v2 import server_ip
 from openstack.compute.v2 import server_migration
 from openstack.compute.v2 import server_remote_console
+from openstack.compute.v2 import server_share
 from openstack.compute.v2 import service
 from openstack.compute.v2 import usage
 from openstack.compute.v2 import volume_attachment
 from openstack.identity.v3 import project
 from openstack import proxy as proxy_base
+from openstack.shared_file_system.v2 import share
 from openstack.tests.unit import base
 from openstack.tests.unit import test_proxy_base
 from openstack import types
@@ -1893,4 +1895,86 @@ class TestValidateConsoleAuthToken(TestComputeProxy):
         self.verify_get(
             self.proxy.validate_console_auth_token,
             console_auth_token.ConsoleAuthToken,
+        )
+
+
+class TestServerShare(TestComputeProxy):
+    def test_create_share_attachment(self):
+        self.verify_create(
+            self.proxy.create_share_attachment,
+            server_share.ShareMapping,
+            method_kwargs={'server': 'server_id', 'share': 'share_id'},
+            expected_kwargs={
+                'server_id': 'server_id',
+                'share_id': 'share_id',
+            },
+        )
+
+    def test_create_share_attachment_with_tag(self):
+        self.verify_create(
+            self.proxy.create_share_attachment,
+            server_share.ShareMapping,
+            method_kwargs={
+                'server': 'server_id',
+                'share': 'share_id',
+                'tag': 'mytag',
+            },
+            expected_kwargs={
+                'server_id': 'server_id',
+                'share_id': 'share_id',
+                'tag': 'mytag',
+            },
+        )
+
+    def test_delete_share_attachment(self):
+        fake_server = server.Server(id=str(uuid.uuid4()))
+        fake_share = share.Share(id=str(uuid.uuid4()))
+
+        self.verify_delete(
+            self.proxy.delete_share_attachment,
+            server_share.ShareMapping,
+            method_args=[fake_server, fake_share],
+            method_kwargs={'ignore_missing': False},
+            expected_args=[None],
+            expected_kwargs={
+                'server_id': fake_server.id,
+                'id': fake_share.id,
+            },
+        )
+
+    def test_delete_share_attachment__ignore(self):
+        fake_server = server.Server(id=str(uuid.uuid4()))
+        fake_share = share.Share(id=str(uuid.uuid4()))
+
+        self.verify_delete(
+            self.proxy.delete_share_attachment,
+            server_share.ShareMapping,
+            ignore_missing=True,
+            method_args=[fake_server, fake_share],
+            method_kwargs={},
+            expected_args=[None],
+            expected_kwargs={
+                'server_id': fake_server.id,
+                'id': fake_share.id,
+            },
+        )
+
+    def test_get_share_attachment(self):
+        self.verify_get(
+            self.proxy.get_share_attachment,
+            server_share.ShareMapping,
+            method_args=[],
+            method_kwargs={'server': 'server_id', 'share': 'share_id'},
+            expected_kwargs={
+                'server_id': 'server_id',
+                'id': 'share_id',
+            },
+        )
+
+    def test_share_attachments(self):
+        self.verify_list(
+            self.proxy.share_attachments,
+            server_share.ShareMapping,
+            method_kwargs={'server': 'server_id'},
+            expected_kwargs={'server_id': 'server_id'},
         )
