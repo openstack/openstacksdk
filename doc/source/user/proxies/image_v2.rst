@@ -89,5 +89,4 @@ Cache Operations
 
 .. autoclass:: openstack.image.v2._proxy.Proxy
    :noindex:
-   :members: cache_delete_image, queue_image, get_image_cache
-
+   :members: cache_delete_image, queue_image, get_image_cache, clear_cache

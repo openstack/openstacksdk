@@ -913,3 +913,14 @@ class TestCache(TestImageProxy):
             method_args=['image-id'],
             expected_args=[self.proxy, 'image-id'])
         mock_get_resource.assert_called_once_with(_cache.Cache, None)
+
+    @mock.patch.object(proxy_base.Proxy, '_get_resource')
+    def test_image_clear_cache(self, mock_get_resource):
+        fake_cache = _cache.Cache()
+        mock_get_resource.return_value = fake_cache
+        self._verify(
+            "openstack.image.v2.cache.Cache.clear",
+            self.proxy.clear_cache,
+            method_args=['both'],
+            expected_args=[self.proxy, 'both'])
+        mock_get_resource.assert_called_once_with(_cache.Cache, None)

@@ -96,7 +96,17 @@ class Proxy(proxy.Proxy):
         cache = self._get_resource(_cache.Cache, None)
         return cache.queue(self, image_id)
 
+    def clear_cache(self, target):
+        """ Clear all images from cache, queue or both
+
+        :param target: Specify which target you want to clear
+            One of: ``both``(default), ``cache``, ``queue``.
+        """
+        cache = self._get_resource(_cache.Cache, None)
+        return cache.clear(self, target)
+
     # ====== IMAGES ======
+
     def create_image(
         self,
         name,
