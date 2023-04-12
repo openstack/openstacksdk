@@ -15,6 +15,9 @@ from openstack import resource
 from openstack.shared_file_system.v2 import (
     availability_zone as _availability_zone)
 from openstack.shared_file_system.v2 import (
+    share_export_locations as _share_export_locations
+)
+from openstack.shared_file_system.v2 import (
     share_network as _share_network
 )
 from openstack.shared_file_system.v2 import (
@@ -46,6 +49,8 @@ class Proxy(proxy.Proxy):
         "share_snapshot_instance":
             _share_snapshot_instance.ShareSnapshotInstance,
         "share_instance": _share_instance.ShareInstance,
+        "share_export_locations":
+            _share_export_locations.ShareExportLocation,
     }
 
     def availability_zones(self):
@@ -489,3 +494,29 @@ class Proxy(proxy.Proxy):
         res = self._get_resource(_share_instance.ShareInstance,
                                  share_instance_id)
         res.force_delete(self)
+
+    def export_locations(self, share_id):
+        """List all export locations with details
+
+        :param share_id: The ID of the share to list export locations from
+        :returns: List of export locations
+        :rtype: List of :class:`~openstack.shared_filesystem_storage.v2.
+            share_export_locations.ShareExportLocations`
+        """
+        return self._list(_share_export_locations.ShareExportLocation,
+                          share_id=share_id)
+
+    def get_export_location(self, export_location, share_id):
+        """List details of export location
+
+        :param export_location: The export location resource to get
+        :param share_id: The ID of the share to get export locations from
+        :returns: Details of identified export location
+        :rtype: :class:`~openstack.shared_filesystem_storage.v2.
+            share_export_locations.ShareExportLocations`
+        """
+
+        export_location_id = resource.Resource._get_id(export_location)
+        return self._get(
+            _share_export_locations.ShareExportLocation,
+            export_location_id, share_id=share_id)
