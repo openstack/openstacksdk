@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from openstack import exceptions
 from openstack import resource
 from openstack import utils
 
@@ -102,12 +103,59 @@ class Share(resource.Resource):
     #: Display description for updating description
     display_description = resource.Body("display_description", type=str)
 
-    def _action(self, session, body):
+    def _action(self, session, body, action='patch', microversion=None):
+        """Perform share instance actions given the message body"""
         url = utils.urljoin(self.base_path, self.id, 'action')
         headers = {'Accept': ''}
-        session.post(
-            url, json=body, headers=headers)
+
+        if microversion is None:
+            microversion = \
+                self._get_microversion(session, action=action)
+
+        response = session.post(
+            url,
+            json=body,
+            headers=headers,
+            microversion=microversion)
+
+        exceptions.raise_from_response(response)
+        return response
+
+    def extend_share(self, session, new_size, force=False):
+        """Extend the share size.
+
+        :param float new_size: The new size of the share
+            in GiB.
+        :param bool force: Whether or not to use force, bypassing
+            the scheduler. Requires admin privileges. Defaults to False.
+        :returns: The result of the action.
+        :rtype: ``None``
+        """
+
+        extend_body = {"new_size": new_size}
+
+        if force is True:
+            extend_body['force'] = True
+
+        body = {"extend": extend_body}
+        self._action(session, body)
+
+    def shrink_share(self, session, new_size):
+        """Shrink the share size.
+
+        :param float new_size: The new size of the share
+            in GiB.
+        :returns: ``None``
+        """
+
+        body = {"shrink": {'new_size': new_size}}
+        self._action(session, body)
 
     def revert_to_snapshot(self, session, snapshot_id):
+        """Revert the share to the given snapshot.
+
+        :param str snapshot_id: The id of the snapshot to revert to.
+        :returns: ``None``
+        """
         body = {"revert": {"snapshot_id": snapshot_id}}
         self._action(session, body)

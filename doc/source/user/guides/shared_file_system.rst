@@ -57,3 +57,16 @@ Force-deletes a share instance.
 
 .. literalinclude:: ../examples/shared_file_system/share_instances.py
    :pyobject: delete_share_instance
+
+
+Resize Share
+------------
+
+Shared File System shares can be resized (extended or shrunk) to a given
+size. For details on resizing shares, refer to the
+`Manila docs <https://docs.openstack.org/manila/latest/user/create-and-manage-shares.html#extend-share>`_.
+
+.. literalinclude:: ../examples/shared_file_system/shares.py
+   :pyobject: resize_share
+.. literalinclude:: ../examples/shared_file_system/shares.py
+   :pyobject: resize_shares_without_shrink
