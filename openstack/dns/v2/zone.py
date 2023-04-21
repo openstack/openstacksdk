@@ -79,6 +79,13 @@ class Zone(_base.Resource):
     type = resource.Body('type')
     #: Timestamp when the zone was last updated
     updated_at = resource.Body('updated_at')
+    #: Whether the zone is shared with other projects
+    #: *Type: bool*
+    is_shared = resource.Body('shared')
+
+    # Headers for DELETE requests
+    #: If true, delete any existing zone shares along with the zone
+    delete_shares = resource.Header('x-designate-delete-shares', type=bool)
 
     def _action(self, session, action, body):
         """Preform actions given the message body.

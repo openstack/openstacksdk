@@ -15,6 +15,7 @@ from openstack.dns.v2 import recordset as _rs
 from openstack.dns.v2 import zone as _zone
 from openstack.dns.v2 import zone_export as _zone_export
 from openstack.dns.v2 import zone_import as _zone_import
+from openstack.dns.v2 import zone_share as _zone_share
 from openstack.dns.v2 import zone_transfer as _zone_transfer
 from openstack import proxy
 
@@ -26,6 +27,7 @@ class Proxy(proxy.Proxy):
         "zone": _zone.Zone,
         "zone_export": _zone_export.ZoneExport,
         "zone_import": _zone_import.ZoneImport,
+        "zone_share": _zone_share.ZoneShare,
         "zone_transfer_request": _zone_transfer.ZoneTransferRequest,
     }
 
@@ -69,7 +71,7 @@ class Proxy(proxy.Proxy):
         """
         return self._get(_zone.Zone, zone)
 
-    def delete_zone(self, zone, ignore_missing=True):
+    def delete_zone(self, zone, ignore_missing=True, delete_shares=False):
         """Delete a zone
 
         :param zone: The value can be the ID of a zone
@@ -79,11 +81,14 @@ class Proxy(proxy.Proxy):
             the zone does not exist.
             When set to ``True``, no exception will be set when attempting to
             delete a nonexistent zone.
+        :param bool delete_shares: When True, delete the zone shares along with
+                                   the zone.
 
         :returns: Zone been deleted
         :rtype: :class:`~openstack.dns.v2.zone.Zone`
         """
-        return self._delete(_zone.Zone, zone, ignore_missing=ignore_missing)
+        return self._delete(_zone.Zone, zone, ignore_missing=ignore_missing,
+                            delete_shares=delete_shares)
 
     def update_zone(self, zone, **attrs):
         """Update zone attributes
@@ -535,6 +540,93 @@ class Proxy(proxy.Proxy):
         :rtype: :class:`~openstack.dns.v2.zone_transfer.ZoneTransferAccept`
         """
         return self._create(_zone_transfer.ZoneTransferAccept, **attrs)
+
+    # ======== Zone Shares ========
+    def zone_shares(self, zone, **query):
+        """Retrieve a generator of zone sharess
+
+        :param zone: The zone ID or a
+            :class:`~openstack.dns.v2.zone.Zone` instance
+        :param dict query: Optional query parameters to be sent to limit the
+                           resources being returned.
+
+                           * `target_project_id`: The target project ID field.
+
+        :returns: A generator of zone shares
+            :class:`~openstack.dns.v2.zone_share.ZoneShare` instances.
+        """
+        zone_obj = self._get_resource(_zone.Zone, zone)
+        return self._list(_zone_share.ZoneShare, zone_id=zone_obj.id, **query)
+
+    def get_zone_share(self, zone, zone_share):
+        """Get a zone share
+
+        :param zone: The value can be the ID of a zone
+            or a :class:`~openstack.dns.v2.zone.Zone` instance.
+        :param zone_share: The zone_share can be either the ID of the zone
+            share or a :class:`~openstack.dns.v2.zone_share.ZoneShare` instance
+            that the zone share belongs to.
+
+        :returns: ZoneShare instance.
+        :rtype: :class:`~openstack.dns.v2.zone_share.ZoneShare`
+        """
+        zone_obj = self._get_resource(_zone.Zone, zone)
+        return self._get(_zone_share.ZoneShare, zone_share,
+                         zone_id=zone_obj.id)
+
+    def find_zone_share(self, zone, zone_share_id, ignore_missing=True):
+        """Find a single zone share
+
+        :param zone: The value can be the ID of a zone
+            or a :class:`~openstack.dns.v2.zone.Zone` instance.
+        :param zone_share_id: The zone share ID
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised
+            when the zone share does not exist.
+            When set to ``True``,  None will be returned when attempting to
+            find a nonexistent zone share.
+
+        :returns: :class:`~openstack.dns.v2.zone_share.ZoneShare`
+        """
+        zone_obj = self._get_resource(_zone.Zone, zone)
+        return self._find(_zone_share.ZoneShare, zone_share_id,
+                          ignore_missing=ignore_missing, zone_id=zone_obj.id)
+
+    def create_zone_share(self, zone, **attrs):
+        """Create a new zone share from attributes
+
+        :param zone: The zone ID or a
+            :class:`~openstack.dns.v2.zone.Zone` instance
+        :param dict attrs: Keyword arguments which will be used to create
+            a :class:`~openstack.dns.v2.zone_share.ZoneShare`,
+            comprised of the properties on the ZoneShare class.
+
+        :returns: The results of zone share creation
+        :rtype: :class:`~openstack.dns.v2.zone_share.ZoneShare`
+        """
+        zone_obj = self._get_resource(_zone.Zone, zone)
+        return self._create(_zone_share.ZoneShare, zone_id=zone_obj.id,
+                            **attrs)
+
+    def delete_zone_share(self, zone, zone_share, ignore_missing=True):
+        """Delete a zone share
+
+        :param zone: The zone ID or a
+            :class:`~openstack.dns.v2.zone.Zone` instance
+        :param zone_share: The zone_share can be either the ID of the zone
+            share or a :class:`~openstack.dns.v2.zone_share.ZoneShare` instance
+            that the zone share belongs to.
+        :param bool ignore_missing: When set to ``False``
+            :class:`~openstack.exceptions.ResourceNotFound` will be raised when
+            the zone share does not exist.
+            When set to ``True``, no exception will be set when attempting to
+            delete a nonexistent zone share.
+
+        :returns: ``None``
+        """
+        zone_obj = self._get_resource(_zone.Zone, zone)
+        self._delete(_zone_share.ZoneShare, zone_share,
+                     ignore_missing=ignore_missing, zone_id=zone_obj.id)
 
     def _get_cleanup_dependencies(self):
         # DNS may depend on floating ip

@@ -60,3 +60,11 @@ Zone Transfer Operations
             create_zone_transfer_request, update_zone_transfer_request,
             delete_zone_transfer_request, zone_transfer_accepts,
             get_zone_transfer_accept, create_zone_transfer_accept
+
+Zone Share Operations
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: openstack.dns.v2._proxy.Proxy
+  :noindex:
+  :members: create_zone_share, delete_zone_share, get_zone_share,
+            find_zone_share, zone_shares
