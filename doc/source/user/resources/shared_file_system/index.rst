@@ -9,6 +9,7 @@ Shared File System service resources
    v2/limit
    v2/share
    v2/share_instance
+   v2/share_network_subnet
    v2/share_snapshot
    v2/share_snapshot_instance
    v2/share_network

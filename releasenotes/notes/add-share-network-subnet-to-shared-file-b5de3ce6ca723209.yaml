@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added support to create, list, get, and delete share network
+    subnets on the shared file system service.

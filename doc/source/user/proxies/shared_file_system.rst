@@ -101,6 +101,7 @@ Create and manipulate Share Networks with the Shared File Systems service.
   :members: share_networks, get_share_network, delete_share_network,
             update_share_network, create_share_network
 
+
 Shared File System Share Instances
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -113,3 +114,15 @@ Systems Service.
   :members: share_instances, get_share_instance,
             reset_share_instance_status,
             delete_share_instance
+
+
+Shared File System Share Network Subnets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create and manipulate Share Network Subnets with the Shared File Systems
+service.
+
+.. autoclass:: openstack.shared_file_system.v2._proxy.Proxy
+  :noindex:
+  :members: share_network_subnets, get_share_network_subnet,
+            create_share_network_subnet, delete_share_network_subnet
