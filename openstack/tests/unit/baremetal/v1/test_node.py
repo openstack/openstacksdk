@@ -83,6 +83,7 @@ FAKE = {
     "reservation": None,
     "resource_class": None,
     "secure_boot": True,
+    "shard": "TestShard",
     "states": [
         {
             "href": "http://127.0.0.1:6385/v1/nodes/<NODE_ID>/states",

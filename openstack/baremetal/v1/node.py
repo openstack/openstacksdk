@@ -190,6 +190,9 @@ class Node(_common.ListMixin, resource.Resource):
     #: A string to be used by external schedulers to identify this node as a
     #: unit of a specific type of resource. Added in API microversion 1.21.
     resource_class = resource.Body("resource_class")
+    #: A string indicating the shard this node belongs to. Added in API
+    #: microversion 1,82.
+    shard = resource.Body("shard")
     #: Links to the collection of states.
     states = resource.Body("states", type=list)
     #: The requested state if a provisioning action has been requested. For
